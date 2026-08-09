@@ -10,6 +10,8 @@ export type CourseColor = 'blue' | 'green' | 'amber' | 'violet' | 'red'
 export interface Course {
   code: string
   title: string
+  /** Compact title for calendar cards where space is limited. */
+  shortTitle: string
   color: CourseColor
 }
 
@@ -26,12 +28,12 @@ export interface Session {
 //  Courses
 // ------------------------------------------------------------
 export const COURSES: Course[] = [
-  { code: 'IT 301', title: 'Web Systems and Technologies', color: 'blue' },
-  { code: 'IT 302', title: 'Database', color: 'amber' },
-  { code: 'IT 303', title: 'Object-Oriented Programming', color: 'green' },
-  { code: 'IT 304', title: 'Network Fundamentals', color: 'violet' },
-  { code: 'IT 305', title: 'SA&D', color: 'blue' },
-  { code: 'PE 3', title: 'PE', color: 'red' },
+  { code: 'IT 301', title: 'Web Systems and Technologies', shortTitle: 'Web Systems', color: 'blue' },
+  { code: 'IT 302', title: 'Database Management Systems', shortTitle: 'Database', color: 'amber' },
+  { code: 'IT 303', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'green' },
+  { code: 'IT 304', title: 'Network Fundamentals', shortTitle: 'Networks', color: 'violet' },
+  { code: 'IT 305', title: 'System Analysis and Design', shortTitle: 'SA&D', color: 'blue' },
+  { code: 'PE 3', title: 'Physical Fitness and Rhythmic Activities', shortTitle: 'PE', color: 'red' },
 ]
 
 const COURSE_MAP: Record<string, Course> = Object.fromEntries(
@@ -39,7 +41,7 @@ const COURSE_MAP: Record<string, Course> = Object.fromEntries(
 )
 
 export function getCourse(code: string): Course {
-  return COURSE_MAP[code] ?? { code, title: code, color: 'blue' }
+  return COURSE_MAP[code] ?? { code, title: code, shortTitle: code, color: 'blue' }
 }
 
 // ------------------------------------------------------------
@@ -87,7 +89,7 @@ export const COLOR_STYLES: Record<
 // ------------------------------------------------------------
 export const START_HOUR = 8 // first row = 8:00 AM
 export const HOURS = 8 // rows: 8 AM, 9 AM, 10 AM, 11 AM, 12 PM, 1 PM, 2 PM, 3 PM
-export const HOUR_HEIGHT = 56 // px per hour row
+export const HOUR_HEIGHT = 64 // px per hour row — tall enough for readable event cards
 
 export const DAY_SHORT = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
 export const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const
@@ -176,3 +178,21 @@ export function dateToDayIndex(date: Date): number {
   const dow = date.getDay() // 0=Sun … 6=Sat
   return dow === 0 ? -1 : dow - 1
 }
+
+// ============================================================
+//  MOCK "TODAY" for the Today's Classes sidebar
+// ============================================================
+//  This portal is a front-end demo — there is no real backend yet.
+//  The "Today's Classes" sidebar should always show meaningful
+//  content during demos, regardless of the real system weekday
+//  (which might be Sunday or a holiday with no classes).
+//
+//  MOCK_TODAY_INDEX pins the sidebar to Monday (index 0) so the
+//  panel always displays IT 301, IT 303, and IT 304.
+//
+//  TODO: When a real backend / authentication layer is wired up,
+//  replace MOCK_TODAY_INDEX with the authenticated student's
+//  actual current day (dateToDayIndex(new Date())) and remove
+//  this constant.
+// ============================================================
+export const MOCK_TODAY_INDEX = 0 // 0 = Monday

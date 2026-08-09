@@ -1,56 +1,47 @@
 'use client'
 
-import { useSyncExternalStore } from 'react'
 import { Clock, MapPin, CalendarDays } from 'lucide-react'
 import {
   getSessionsForDay,
   getCourse,
   COLOR_STYLES,
   formatRangeTime,
-  formatSidebarDate,
-  dateToDayIndex,
+  DAY_FULL,
+  MOCK_TODAY_INDEX,
 } from '@/lib/schedule'
 
 interface TodaysClassesProps {
   onViewFull?: () => void
 }
 
-// Read `new Date()` client-side only via useSyncExternalStore so the
-// server renders a stable placeholder (null) and the client hydrates
-// to the real date — no hydration mismatch, no setState-in-effect.
-// The snapshot is cached so React doesn't loop.
-const emptySubscribe = () => () => {}
-let cachedClientToday: Date | null = null
-let cachedClientTodayTime = 0
-function getClientToday() {
-  const now = Date.now()
-  if (!cachedClientToday || now - cachedClientTodayTime > 60000) {
-    cachedClientToday = new Date()
-    cachedClientTodayTime = now
-  }
-  return cachedClientToday
-}
-function getServerToday() {
-  return null
-}
+// ============================================================
+//  MOCK "TODAY" — demo mode
+// ============================================================
+//  This portal is a front-end demo with no real backend yet.
+//  Instead of using `new Date()` (which might land on a Sunday
+//  or holiday with zero classes), we pin "today" to Monday so
+//  the sidebar always shows meaningful demo content.
+//
+//  TODO: When a real backend / auth layer is wired up, replace
+//  MOCK_TODAY_INDEX with the authenticated student's actual
+//  current day: `dateToDayIndex(new Date())`.
+// ============================================================
+const TODAY_INDEX = MOCK_TODAY_INDEX
+const TODAY_LABEL = DAY_FULL[TODAY_INDEX]
 
 /**
  * "Today's Classes" sidebar. Reads from the SAME `getSessionsForDay`
  * as the weekly calendar — there is no separate hard-coded list.
  */
 export function TodaysClasses({ onViewFull }: TodaysClassesProps) {
-  const today = useSyncExternalStore(emptySubscribe, getClientToday, getServerToday)
-  const dayIndex = today ? dateToDayIndex(today) : -1
-  const sessions = dayIndex >= 0 ? getSessionsForDay(dayIndex) : []
+  const sessions = getSessionsForDay(TODAY_INDEX)
 
   return (
     <section className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col">
       {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100">
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">Today&apos;s Classes</h2>
-        <p className="text-xs text-slate-500 mt-0.5">
-          {today ? formatSidebarDate(today) : '—'}
-        </p>
+        <p className="text-xs text-slate-500 mt-0.5">{TODAY_LABEL}</p>
       </div>
 
       {/* List */}
