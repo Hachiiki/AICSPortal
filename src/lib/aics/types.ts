@@ -1,6 +1,17 @@
 // TypeScript types shared across the AICS portal.
 
-export type View = 'login' | 'dashboard' | 'profile'
+export type View =
+  | 'login'
+  | 'dashboard'
+  | 'profile'
+  | 'subjects'
+  | 'schedule'
+  | 'grades'
+  | 'professors'
+  | 'enrollment'
+  | 'documents'
+  | 'settings'
+  | 'help'
 
 export type AuthMode = 'credentials' | 'face'
 
