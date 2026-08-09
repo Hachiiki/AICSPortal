@@ -218,9 +218,11 @@ export function LoginView({ onLogin }: LoginViewProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <p className="text-base sm:text-lg font-normal text-white/65">Welcome to your</p>
+            <p className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight text-white">
+              Welcome to your
+            </p>
             <h1
-              className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-1"
+              className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight"
               style={{
                 backgroundImage: PORTAL_TEXT_GRADIENT,
                 WebkitBackgroundClip: 'text',
@@ -231,7 +233,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
             >
               AICS Portal.
             </h1>
-            <p className="mt-4 text-sm sm:text-[15px] text-white/70 max-w-md leading-relaxed">
+            <p className="mt-4 text-sm sm:text-[15px] text-white max-w-md leading-relaxed">
               Access your academic resources, schedules, grades, and enrollment information in one
               place.
             </p>
