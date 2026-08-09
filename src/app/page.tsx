@@ -211,20 +211,13 @@ export default function AICSLoginPage() {
         className="relative lg:w-[40%] w-full flex-1 lg:h-screen flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0"
         style={{ background: PALETTE.white }}
       >
-        {/* Curve on the LEFT side only — sits on top-left corner of the white panel */}
+        {/* Curve on the LEFT side only — white panel with a curved left edge */}
         <svg
           aria-hidden="true"
           className="absolute top-0 left-0 h-full w-[140px] pointer-events-none hidden lg:block"
           viewBox="0 0 140 800"
           preserveAspectRatio="none"
         >
-          <defs>
-            <linearGradient id="curveStroke" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={PALETTE.sky} stopOpacity="0.55" />
-              <stop offset="50%" stopColor={PALETTE.azure} stopOpacity="0.85" />
-              <stop offset="100%" stopColor={PALETTE.ocean} stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
           {/* Filled white shape with curved LEFT edge — the white panel itself */}
           <path
             d={`M 0 0
@@ -234,14 +227,6 @@ export default function AICSLoginPage() {
                 Q 60 400 0 0
                 Z`}
             fill={PALETTE.white}
-          />
-          {/* Decorative outline on the curve */}
-          <path
-            d={`M 0 0 Q 60 400 0 800`}
-            fill="none"
-            stroke="url(#curveStroke)"
-            strokeWidth="3"
-            strokeLinecap="round"
           />
         </svg>
 
