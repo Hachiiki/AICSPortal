@@ -44,6 +44,9 @@ const T = {
 // Whether to expose the demo / test-login shortcut (dev only).
 const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
 
+// Gradient for the "AICS Portal." accent text — top (#4EA4D7) to bottom (#64BFE9)
+const PORTAL_TEXT_GRADIENT = 'linear-gradient(to bottom, #4EA4D7 0%, #64BFE9 100%)'
+
 /**
  * The AICS login page — a 60/40 split layout with the school image on
  * the left and a white login panel (with rounded left corners) on the
@@ -195,30 +198,37 @@ export function LoginView({ onLogin }: LoginViewProps) {
           }}
         />
 
-        {/* Top brand row — logo + institution name */}
-        <div className="absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 flex items-center gap-3 text-white">
+        {/* Top brand row — logo (2x) + institution name on two lines */}
+        <div className="absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 flex items-center gap-4 text-white">
           <img
             src="/aics-logo.svg"
             alt="AICS logo"
-            className="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 object-contain"
+            className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 object-contain"
           />
           <div className="leading-tight">
-            <p className="text-[10px] tracking-[0.26em] uppercase text-white/55">Portal</p>
-            <p className="text-[15px] sm:text-base font-semibold">
-              Asian Institute of Computer Studies
-            </p>
+            <p className="text-base sm:text-lg font-semibold">Asian Institute</p>
+            <p className="text-base sm:text-lg font-semibold">of Computer Studies</p>
           </div>
         </div>
 
-        {/* Welcome section — strong, restrained typography hierarchy */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 text-white">
+        {/* Welcome section — vertically centered in the left panel */}
+        <div className="absolute inset-0 flex flex-col items-start justify-center px-6 sm:px-10 lg:px-14 text-white">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             <p className="text-base sm:text-lg font-normal text-white/65">Welcome to your</p>
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-1">
+            <h1
+              className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-1"
+              style={{
+                backgroundImage: PORTAL_TEXT_GRADIENT,
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+              }}
+            >
               AICS Portal.
             </h1>
             <p className="mt-4 text-sm sm:text-[15px] text-white/70 max-w-md leading-relaxed">
@@ -226,10 +236,12 @@ export function LoginView({ onLogin }: LoginViewProps) {
               place.
             </p>
           </motion.div>
-          <div className="mt-6 flex items-center gap-2 text-[11px] text-white/45">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Protected by AICS Information Technology Services</span>
-          </div>
+        </div>
+
+        {/* Footer notice — kept anchored at the bottom */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 flex items-center gap-2 text-[11px] text-white/45">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Protected by AICS Information Technology Services</span>
         </div>
       </section>
 
