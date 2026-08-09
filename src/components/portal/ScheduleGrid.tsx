@@ -96,12 +96,7 @@ function EventCard({ session, overlapIndex, overlapTotal }: EventCardProps) {
   )
 }
 
-interface ScheduleGridProps {
-  /** Called when the user picks a day column (0 = Mon … 5 = Sat). */
-  onDaySelect?: (dayIndex: number) => void
-}
-
-export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
+export function ScheduleGrid() {
   // Resolve `today` client-side only to avoid SSR hydration mismatch.
   const today = useSyncExternalStore(emptySubscribe, getClientToday, getServerToday)
   // Lazy-init anchor to current week's Monday on the client; null on server.
@@ -206,16 +201,14 @@ export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
               Time
             </div>
             {DAY_SHORT.map((day, i) => (
-              <button
+              <div
                 key={day}
-                type="button"
-                onClick={() => onDaySelect?.(i)}
-                className="text-[11px] font-medium uppercase tracking-wider text-center py-2.5 border-b border-l border-slate-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:bg-slate-50"
+                className="text-[11px] font-medium uppercase tracking-wider text-center py-2.5 border-b border-l border-slate-200"
               >
                 <span className={i === todayIndex ? 'text-blue-600' : 'text-slate-500'}>
                   {day} {anchor ? days[i].getDate() : ''}
                 </span>
-              </button>
+              </div>
             ))}
           </div>
 
@@ -242,7 +235,6 @@ export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
               <div
                 key={dayIdx}
                 className="relative border-l border-b border-slate-100"
-                onClick={() => onDaySelect?.(dayIdx)}
               >
                 {/* Hour row lines */}
                 {Array.from({ length: HOURS }).map((_, i) => (

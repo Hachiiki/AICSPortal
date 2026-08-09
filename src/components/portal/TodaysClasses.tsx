@@ -1,6 +1,6 @@
 'use client'
 
-import { Clock, MapPin, CalendarDays } from 'lucide-react'
+import { Clock, MapPin } from 'lucide-react'
 import {
   getSessionsForDay,
   getCourse,
@@ -9,10 +9,6 @@ import {
   DAY_FULL,
   MOCK_TODAY_INDEX,
 } from '@/lib/schedule'
-
-interface TodaysClassesProps {
-  onViewFull?: () => void
-}
 
 // ============================================================
 //  MOCK "TODAY" — demo mode
@@ -32,8 +28,11 @@ const TODAY_LABEL = DAY_FULL[TODAY_INDEX]
 /**
  * "Today's Classes" sidebar. Reads from the SAME `getSessionsForDay`
  * as the weekly calendar — there is no separate hard-coded list.
+ *
+ * The "View Full Schedule" button was removed because the Schedule
+ * page is not yet implemented (coming soon).
  */
-export function TodaysClasses({ onViewFull }: TodaysClassesProps) {
+export function TodaysClasses() {
   const sessions = getSessionsForDay(TODAY_INDEX)
 
   return (
@@ -76,18 +75,6 @@ export function TodaysClasses({ onViewFull }: TodaysClassesProps) {
             )
           })
         )}
-      </div>
-
-      {/* Footer */}
-      <div className="px-5 py-3 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={onViewFull}
-          className="w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-        >
-          <CalendarDays className="w-4 h-4" />
-          View Full Schedule
-        </button>
       </div>
     </section>
   )
