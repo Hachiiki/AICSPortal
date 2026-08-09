@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   keywords: ["AICS", "Asian Institute of Computer Studies", "portal", "login", "student portal"],
   authors: [{ name: "AICS IT Office" }],
   icons: {
-    icon: "/aics/logo.svg",
+    icon: "/aics-logo.svg",
   },
 };
 
