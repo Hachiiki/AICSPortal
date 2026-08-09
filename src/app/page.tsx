@@ -144,9 +144,9 @@ export default function AICSLoginPage() {
         className="relative lg:w-[60%] w-full h-[40vh] lg:h-screen overflow-hidden flex-shrink-0"
         style={{ background: PALETTE.navy }}
       >
-        {/* School image (try original imgur URL first; fall back to local cached campus image) */}
+        {/* School campus image */}
         <img
-          src="/aics/campus.jpg"
+          src="/aics-campus.jpg"
           alt="Asian Institute of Computer Studies campus"
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {
@@ -171,18 +171,13 @@ export default function AICSLoginPage() {
           }}
         />
 
-        {/* Top brand row */}
+        {/* Top brand row — logo has no background, sits directly on the image */}
         <div className="absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 flex items-center gap-3 text-white">
-          <div
-            className="rounded-xl p-1.5 bg-white/95 shadow-lg flex items-center justify-center"
-            style={{ width: 54, height: 54 }}
-          >
-            <img
-              src="/aics/logo.svg"
-              alt="AICS logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <img
+            src="/aics-logo.svg"
+            alt="AICS logo"
+            className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 object-contain"
+          />
           <div className="leading-tight">
             <p className="text-[11px] tracking-[0.28em] uppercase text-white/70">Portal</p>
             <p className="text-base sm:text-lg font-semibold">Asian Institute of Computer Studies</p>
@@ -196,12 +191,6 @@ export default function AICSLoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <p
-              className="inline-block text-[11px] tracking-[0.3em] uppercase mb-4 px-3 py-1 rounded-full"
-              style={{ background: 'rgba(255,255,255,0.14)', color: PALETTE.sky }}
-            >
-              Student · Faculty · Staff
-            </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight max-w-xl">
               Welcome to your <span style={{ color: PALETTE.sky }}>AICS Portal</span>.
             </h1>
@@ -272,16 +261,6 @@ export default function AICSLoginPage() {
         <div className="relative w-full max-w-sm lg:ml-16">
           {/* Heading */}
           <div className="mb-7">
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium mb-4"
-              style={{ background: `${PALETTE.sky}26`, color: PALETTE.ocean }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: PALETTE.ocean }}
-              />
-              Sign in to continue
-            </div>
             <h2 className="text-2xl font-bold tracking-tight" style={{ color: PALETTE.navy }}>
               {authMode === 'credentials' ? 'Account Login' : 'Face Recognition'}
             </h2>

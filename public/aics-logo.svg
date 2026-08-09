@@ -4,10 +4,6 @@
       <stop offset="0%" stop-color="#287CBB"/>
       <stop offset="100%" stop-color="#153357"/>
     </linearGradient>
-    <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#64BFE9"/>
-      <stop offset="100%" stop-color="#4EA4D7"/>
-    </linearGradient>
   </defs>
   <!-- Shield outline -->
   <path d="M100 14 L178 42 L178 110 Q178 158 100 186 Q22 158 22 110 L22 42 Z"
@@ -40,6 +36,4 @@
   <text x="100" y="68" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="800"
         fill="#FFFFFF" letter-spacing="2">AICS</text>
-  <!-- Underline -->
-  <line x1="60" y1="78" x2="140" y2="78" stroke="#64BFE9" stroke-width="2.5" stroke-linecap="round"/>
 </svg>
