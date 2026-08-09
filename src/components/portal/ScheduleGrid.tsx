@@ -182,7 +182,7 @@ export function ScheduleGrid({ selectedDay, onDayChange, weekStart, onWeekChange
                     className="relative px-2 text-right"
                     style={{ height: `${HOUR_HEIGHT}px`, borderTop: idx === 0 ? 'none' : '1px solid #f1f5f9' }}
                   >
-                    <span className="absolute top-[-7px] right-2 text-[10px] font-medium text-slate-400 bg-white px-1">
+                    <span className="absolute top-[-7px] right-2 text-[10px] font-medium font-mono text-slate-400 bg-white px-1">
                       {formatTime(hour)}
                     </span>
                   </div>
