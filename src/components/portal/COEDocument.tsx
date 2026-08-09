@@ -22,7 +22,7 @@ export function COEDocument({ student }: COEDocumentProps) {
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
 
   return (
-    <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: PALETTE.navy }}>
+    <div className="font-sans" style={{ color: PALETTE.navy }}>
       {/* Letterhead */}
       <div
         className="flex items-center gap-4 pb-4"
