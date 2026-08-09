@@ -29,21 +29,26 @@ interface NavItem {
   view: View
   label: string
   icon: LucideIcon
+  /** When false, the item is grayed out, shows a "Soon" badge, and cannot be clicked. */
+  enabled: boolean
 }
 
+// Only Dashboard and Profile are functional in this demo.
+// All other nav items are "coming soon" — rendered grayed out with a
+// "Soon" badge and made non-interactive.
 const PRIMARY_NAV: NavItem[] = [
-  { view: 'dashboard', label: 'Dashboard', icon: Home },
-  { view: 'subjects', label: 'My Subjects', icon: Layers },
-  { view: 'schedule', label: 'Schedule', icon: CalendarDays },
-  { view: 'grades', label: 'Grades', icon: FileText },
-  { view: 'professors', label: 'Professors', icon: Users },
-  { view: 'enrollment', label: 'Enrollment', icon: Stamp },
-  { view: 'documents', label: 'Documents', icon: Files },
+  { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
+  { view: 'subjects', label: 'My Subjects', icon: Layers, enabled: false },
+  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
+  { view: 'grades', label: 'Grades', icon: FileText, enabled: false },
+  { view: 'professors', label: 'Professors', icon: Users, enabled: false },
+  { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: false },
+  { view: 'documents', label: 'Documents', icon: Files, enabled: false },
 ]
 
 const SECONDARY_NAV: NavItem[] = [
-  { view: 'settings', label: 'Settings', icon: Settings },
-  { view: 'help', label: 'Help & Support', icon: CircleHelp },
+  { view: 'settings', label: 'Settings', icon: Settings, enabled: false },
+  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
 ]
 
 function NavButton({
@@ -56,6 +61,29 @@ function NavButton({
   onClick: () => void
 }) {
   const Icon = item.icon
+
+  // --- Disabled / "coming soon" state ---
+  if (!item.enabled) {
+    return (
+      <div
+        aria-disabled="true"
+        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none"
+        style={{ color: '#cbd5e1' }}
+        title="Coming soon"
+      >
+        <Icon className="w-4 h-4 flex-shrink-0 opacity-50" />
+        <span className="truncate flex-1">{item.label}</span>
+        <span
+          className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+          style={{ background: '#f1f5f9', color: '#94a3b8' }}
+        >
+          Soon
+        </span>
+      </div>
+    )
+  }
+
+  // --- Enabled / clickable state ---
   return (
     <button
       type="button"

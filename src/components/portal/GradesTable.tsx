@@ -1,12 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronRight, CheckCircle2 } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import type { Student } from '@/lib/aics/types'
 
 interface GradesTableProps {
   student: Student
-  onViewAll?: () => void
 }
 
 /**
@@ -15,8 +14,11 @@ interface GradesTableProps {
  * - professor emails in every row (removed)
  * - solid blue final-grade badges (now plain mono text)
  * - blue remarks badges (now subtle green indicator)
+ *
+ * The "View All Grades" link was removed because the Grades page is
+ * not yet implemented (coming soon).
  */
-export function GradesTable({ student, onViewAll }: GradesTableProps) {
+export function GradesTable({ student }: GradesTableProps) {
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
 
   return (
@@ -27,21 +29,11 @@ export function GradesTable({ student, onViewAll }: GradesTableProps) {
       className="bg-white rounded-xl border border-slate-200 shadow-sm"
     >
       {/* Section header */}
-      <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-100">
-        <div>
-          <h2 className="text-base font-semibold text-slate-900">Grades &amp; Subjects</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Your enrolled subjects, units, professors, and current grades
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onViewAll}
-          className="hidden sm:inline-flex items-center gap-1 text-xs font-medium text-blue-700 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
-        >
-          View All Grades
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+      <div className="px-6 py-4 border-b border-slate-100">
+        <h2 className="text-base font-semibold text-slate-900">Grades &amp; Subjects</h2>
+        <p className="text-xs text-slate-500 mt-0.5">
+          Your enrolled subjects, units, professors, and current grades
+        </p>
       </div>
 
       {/* Table */}
@@ -105,18 +97,6 @@ export function GradesTable({ student, onViewAll }: GradesTableProps) {
             </tr>
           </tfoot>
         </table>
-      </div>
-
-      {/* Mobile "View All" */}
-      <div className="sm:hidden px-6 py-3 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={onViewAll}
-          className="inline-flex items-center gap-1 text-xs font-medium text-blue-700"
-        >
-          View All Grades
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
       </div>
     </motion.section>
   )
