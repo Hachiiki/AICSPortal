@@ -43,7 +43,7 @@ interface EventCardProps {
   session: Session
   /** Index of this session within overlapping sessions at the same time slot (0-based). */
   overlapIndex: number
-  /** Total number of sessions overlapping at the same time slot. */
+  /** Total number of sessions overlapping at the same time slot (1 = no overlap). */
   overlapTotal: number
 }
 
@@ -51,28 +51,38 @@ function EventCard({ session, overlapIndex, overlapTotal }: EventCardProps) {
   const course = getCourse(session.code)
   const styles = COLOR_STYLES[course.color]
 
+  // Position is computed entirely from the schedule math — NOT from content.
   const top = (session.start - START_HOUR) * HOUR_HEIGHT + 2
   const height = (session.end - session.start) * HOUR_HEIGHT - 4
 
-  // Side-by-side layout when two sessions overlap the same day/time slot.
-  const widthPct = 100 / overlapTotal
-  const leftPct = overlapIndex * widthPct
+  // When sessions overlap the same time slot, split the column width
+  // side-by-side. Otherwise the card stretches the full column width
+  // via left-0.5 right-0.5 (2px insets).
+  const cardStyle: React.CSSProperties =
+    overlapTotal > 1
+      ? {
+          top: `${top}px`,
+          height: `${height}px`,
+          left: `calc(${(overlapIndex * 100) / overlapTotal}% + 2px)`,
+          width: `calc(${100 / overlapTotal}% - 4px)`,
+        }
+      : {
+          top: `${top}px`,
+          height: `${height}px`,
+        }
 
   return (
     <div
-      className={`absolute rounded-md border-l-[3px] px-2 py-1.5 overflow-hidden ${styles.bg} ${styles.border}`}
-      style={{
-        top: `${top}px`,
-        height: `${height}px`,
-        left: overlapTotal > 1 ? `calc(${leftPct}% + 4px)` : '4px',
-        right: overlapTotal > 1 ? `calc(${100 - leftPct - widthPct}% + 4px)` : '4px',
-      }}
+      className={`absolute inset-x-0.5 rounded-md border-l-[3px] px-2 py-1.5 overflow-hidden ${styles.bg} ${styles.border}`}
+      style={cardStyle}
     >
       <p className={`font-mono text-[11px] font-semibold leading-tight ${styles.code}`}>
         {session.code}
       </p>
       {height >= 36 && (
-        <p className="text-[11px] text-slate-700 truncate leading-tight mt-0.5">{course.title}</p>
+        <p className="text-[11px] text-slate-700 leading-tight mt-0.5 line-clamp-2">
+          {course.shortTitle}
+        </p>
       )}
       {height >= 56 && (
         <>
@@ -120,15 +130,19 @@ export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
   const goToday = () => setAnchor(getMonday(new Date()))
 
   // Pre-compute sessions + overlap groups per day.
+  // Overlap detection: two sessions overlap when their time ranges intersect.
+  // A session does NOT overlap with itself — the count starts at 1 (itself)
+  // and only increases when ANOTHER session shares the same time slot.
   const dayData = useMemo(() => {
     return DAY_SHORT.map((_, dayIdx) => {
       const sessions = getSessionsForDay(dayIdx)
-      // Detect overlaps: group sessions that overlap in time.
       const overlapInfo = sessions.map((s, i) => {
-        let total = 1
+        let total = 1 // count itself
         let index = 0
         for (let j = 0; j < sessions.length; j++) {
+          if (j === i) continue // skip self — prevents false overlap
           const other = sessions[j]
+          // Time ranges overlap when s.start < other.end AND other.start < s.end
           if (s.start < other.end && other.start < s.end) {
             if (j < i) index++
             total++
@@ -223,7 +237,7 @@ export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
               ))}
             </div>
 
-            {/* Day columns */}
+            {/* Day columns — each is a relative container for absolutely positioned event cards */}
             {DAY_SHORT.map((_, dayIdx) => (
               <div
                 key={dayIdx}
@@ -238,7 +252,7 @@ export function ScheduleGrid({ onDaySelect }: ScheduleGridProps) {
                     style={{ height: `${HOUR_HEIGHT}px` }}
                   />
                 ))}
-                {/* Events for this day */}
+                {/* Events for this day — absolutely positioned, sized by schedule math */}
                 {dayData[dayIdx].map((info, i) => (
                   <EventCard
                     key={`${info.session.code}-${info.session.day}-${i}`}
