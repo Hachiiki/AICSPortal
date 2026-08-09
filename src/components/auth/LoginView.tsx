@@ -172,12 +172,19 @@ export function LoginView({ onLogin }: LoginViewProps) {
 
   return (
     <main
-      className="min-h-screen w-full flex flex-col lg:flex-row font-sans"
+      className="w-full min-h-dvh flex flex-col lg:flex-row font-sans"
       style={{ background: T.white, color: T.text }}
     >
       {/* ===================== LEFT 60% ===================== */}
+      {/*
+        Left panel: uses min-height (not fixed height) on large screens so it
+        can grow taller than the viewport when the browser is zoomed and the
+        right panel needs more room (flex stretches both columns to the same
+        height). On mobile it has a fixed hero height (42vh).
+        overflow-hidden only clips the decorative background image / overlay.
+      */}
       <section
-        className="relative lg:w-[60%] w-full h-[42vh] lg:h-screen overflow-hidden flex-shrink-0"
+        className="relative lg:w-[60%] w-full h-[42vh] lg:h-auto lg:min-h-dvh overflow-hidden flex-shrink-0"
         style={{ background: T.text }}
       >
         {/* Campus photograph */}
@@ -248,11 +255,20 @@ export function LoginView({ onLogin }: LoginViewProps) {
       </section>
 
       {/* ===================== RIGHT 40% — Login panel ===================== */}
+      {/*
+        Right panel: uses min-height (100dvh) instead of fixed height (100vh)
+        so the panel can grow taller than the viewport when the browser is
+        zoomed and the form needs more room. items-center centers the form
+        vertically when there's space; when the form is taller than the
+        viewport, the section grows and the page scrolls naturally instead
+        of clipping. Vertical padding is always on (py-12) so content has
+        breathing room from the top/bottom edges even when scrolling.
+      */}
       <section
-        className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 lg:h-screen flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0 lg:-ml-12 rounded-l-[40px]"
+        className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-center justify-center px-6 sm:px-10 py-12 lg:min-h-dvh lg:-ml-12 rounded-l-[40px]"
         style={{ background: T.white }}
       >
-        <div className="relative w-full max-w-sm">
+        <div className="relative w-full max-w-sm py-4">
           {/* Heading */}
           <div className="mb-8">
             <h2 className="text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
