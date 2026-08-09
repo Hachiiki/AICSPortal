@@ -15,21 +15,42 @@ import {
   Lock,
   CircleAlert,
   UserRound,
+  Check,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AuthMode, FaceState } from '@/lib/aics/types'
-import { PALETTE } from '@/lib/aics/palette'
 import { TEST_CREDENTIALS } from '@/lib/aics/mock-data'
 
 interface LoginViewProps {
   onLogin: () => void
 }
 
+// ---------------------------------------------------------------------------
+//  Login-scoped institutional design tokens.
+//  Scoped to this view so the dashboard / profile keep their existing palette.
+//  Reference direction: real university IT portal — restrained, mature, clean.
+// ---------------------------------------------------------------------------
+const T = {
+  white: '#FFFFFF',
+  bg: '#F7F9FB', // page / help-box background
+  border: '#D9E0E6',
+  text: '#17324D', // primary text / headings
+  muted: '#6B7785', // secondary text / icons
+  primary: '#1769AA', // primary action blue
+  primaryDark: '#124D7A', // hover / pressed
+  accent: '#2F9ED8', // small accents, focus ring, scan line
+} as const
+
+// Whether to expose the demo / test-login shortcut (dev only).
+const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
+
 /**
  * The AICS login page — a 60/40 split layout with the school image on
  * the left and a white login panel (with rounded left corners) on the
  * right. Supports two auth modes: Credentials (username/password) and
- * Face ID (webcam-based). Includes a "Test Student Login" shortcut.
+ * Face ID (webcam-based).
+ *
+ * Visual direction: institutional / professional university IT portal.
  */
 export function LoginView({ onLogin }: LoginViewProps) {
   const [authMode, setAuthMode] = useState<AuthMode>('credentials')
@@ -149,13 +170,14 @@ export function LoginView({ onLogin }: LoginViewProps) {
   return (
     <main
       className="min-h-screen w-full flex flex-col lg:flex-row font-sans"
-      style={{ background: PALETTE.white, color: PALETTE.navy }}
+      style={{ background: T.white, color: T.text }}
     >
-      {/* ============ LEFT 60% ============ */}
+      {/* ===================== LEFT 60% ===================== */}
       <section
-        className="relative lg:w-[60%] w-full h-[40vh] lg:h-screen overflow-hidden flex-shrink-0"
-        style={{ background: PALETTE.navy }}
+        className="relative lg:w-[60%] w-full h-[42vh] lg:h-screen overflow-hidden flex-shrink-0"
+        style={{ background: T.text }}
       >
+        {/* Campus photograph */}
         <img
           src="/aics-campus.jpg"
           alt="Asian Institute of Computer Studies campus"
@@ -164,80 +186,73 @@ export function LoginView({ onLogin }: LoginViewProps) {
             ;(e.currentTarget as HTMLImageElement).style.display = 'none'
           }}
         />
+        {/* Restrained dark navy overlay — ensures text readability without saturation */}
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(135deg, ${PALETTE.navy}E6 0%, ${PALETTE.ocean}B3 45%, ${PALETTE.azure}66 100%)`,
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.07] mix-blend-overlay"
-          style={{
-            backgroundImage:
-              'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            background:
+              'linear-gradient(160deg, rgba(23,50,77,0.78) 0%, rgba(18,77,122,0.92) 100%)',
           }}
         />
 
-        {/* Top brand row */}
+        {/* Top brand row — logo + institution name */}
         <div className="absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 flex items-center gap-3 text-white">
           <img
             src="/aics-logo.svg"
             alt="AICS logo"
-            className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 object-contain"
+            className="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 object-contain"
           />
           <div className="leading-tight">
-            <p className="text-[11px] tracking-[0.28em] uppercase text-white/70">Portal</p>
-            <p className="text-base sm:text-lg font-semibold">
+            <p className="text-[10px] tracking-[0.26em] uppercase text-white/55">Portal</p>
+            <p className="text-[15px] sm:text-base font-semibold">
               Asian Institute of Computer Studies
             </p>
           </div>
         </div>
 
-        {/* Hero text bottom */}
+        {/* Welcome section — strong, restrained typography hierarchy */}
         <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 text-white">
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight max-w-xl">
-              Welcome to your <span style={{ color: PALETTE.sky }}>AICS Portal</span>.
+            <p className="text-base sm:text-lg font-normal text-white/65">Welcome to your</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-1">
+              AICS Portal.
             </h1>
-            <p className="mt-4 text-sm sm:text-base text-white/80 max-w-md leading-relaxed">
-              Secure access to your enrollment records, class schedules, grades, and academic
-              resources — all in one place.
+            <p className="mt-4 text-sm sm:text-[15px] text-white/70 max-w-md leading-relaxed">
+              Access your academic resources, schedules, grades, and enrollment information in one
+              place.
             </p>
           </motion.div>
-          <div className="mt-6 flex items-center gap-2 text-[11px] text-white/55">
+          <div className="mt-6 flex items-center gap-2 text-[11px] text-white/45">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Protected by AICS Information Technology Services</span>
           </div>
         </div>
       </section>
 
-      {/* ============ RIGHT 40% ============ */}
+      {/* ===================== RIGHT 40% — Login panel ===================== */}
       <section
         className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 lg:h-screen flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0 lg:-ml-12 rounded-l-[40px]"
-        style={{ background: PALETTE.white }}
+        style={{ background: T.white }}
       >
         <div className="relative w-full max-w-sm">
           {/* Heading */}
-          <div className="mb-7">
-            <h2 className="text-2xl font-bold tracking-tight" style={{ color: PALETTE.navy }}>
-              {authMode === 'credentials' ? 'Account Login' : 'Face Recognition'}
+          <div className="mb-8">
+            <h2 className="text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
+              Sign in to AICS Portal
             </h2>
-            <p className="text-sm mt-1.5" style={{ color: '#6b7280' }}>
-              {authMode === 'credentials'
-                ? 'Enter your AICS credentials below to access your portal.'
-                : 'Position your face within the frame for biometric verification.'}
+            <p className="text-sm mt-2" style={{ color: T.muted }}>
+              Use your AICS credentials to access your student or staff portal.
             </p>
           </div>
 
-          {/* Mode toggle */}
+          {/* Auth method switcher (Credentials / Face ID) */}
           <div
-            className="grid grid-cols-2 gap-1 p-1 rounded-xl mb-6"
-            style={{ background: PALETTE.mist + '55' }}
+            className="grid grid-cols-2 gap-1 p-1 rounded-[10px] mb-6"
+            style={{ background: T.bg, border: `1px solid ${T.border}` }}
           >
             <button
               type="button"
@@ -245,30 +260,26 @@ export function LoginView({ onLogin }: LoginViewProps) {
                 setAuthMode('credentials')
                 if (faceState !== 'idle') cancelFaceScan()
               }}
-              className="text-xs font-semibold py-2.5 rounded-lg transition-all"
+              className="rounded-[8px] py-2 text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5"
               style={
                 authMode === 'credentials'
-                  ? { background: PALETTE.white, color: PALETTE.navy, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                  : { color: PALETTE.ocean }
+                  ? { background: T.white, color: T.primary, boxShadow: '0 1px 2px rgba(23,50,77,0.08)' }
+                  : { color: T.muted }
               }
             >
-              <span className="inline-flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" /> Credentials
-              </span>
+              <Lock className="w-3.5 h-3.5" /> Credentials
             </button>
             <button
               type="button"
               onClick={() => setAuthMode('face')}
-              className="text-xs font-semibold py-2.5 rounded-lg transition-all"
+              className="rounded-[8px] py-2 text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5"
               style={
                 authMode === 'face'
-                  ? { background: PALETTE.white, color: PALETTE.navy, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                  : { color: PALETTE.ocean }
+                  ? { background: T.white, color: T.primary, boxShadow: '0 1px 2px rgba(23,50,77,0.08)' }
+                  : { color: T.muted }
               }
             >
-              <span className="inline-flex items-center gap-1.5">
-                <ScanFace className="w-3.5 h-3.5" /> Face ID
-              </span>
+              <ScanFace className="w-3.5 h-3.5" /> Face ID
             </button>
           </div>
 
@@ -276,26 +287,22 @@ export function LoginView({ onLogin }: LoginViewProps) {
             {authMode === 'credentials' ? (
               <motion.form
                 key="cred"
-                initial={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.2 }}
                 onSubmit={handleCredentialSubmit}
                 className="space-y-4"
               >
                 {/* Username */}
                 <div className="space-y-1.5">
-                  <label
-                    htmlFor="username"
-                    className="text-xs font-medium"
-                    style={{ color: PALETTE.navy }}
-                  >
+                  <label htmlFor="username" className="block text-xs font-medium" style={{ color: T.text }}>
                     Username
                   </label>
                   <div className="relative">
                     <User
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-                      style={{ color: PALETTE.azure }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                      style={{ color: T.muted }}
                     />
                     <input
                       id="username"
@@ -304,14 +311,14 @@ export function LoginView({ onLogin }: LoginViewProps) {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="e.g. juan.delacruz"
-                      className="w-full pl-10 pr-3 py-2.5 rounded-lg text-sm bg-white border outline-none transition-all"
-                      style={{ borderColor: PALETTE.mist, color: PALETTE.navy }}
+                      className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border outline-none transition-colors"
+                      style={{ borderColor: T.border, color: T.text }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = PALETTE.azure
-                        e.currentTarget.style.boxShadow = `0 0 0 3px ${PALETTE.sky}33`
+                        e.currentTarget.style.borderColor = T.primary
+                        e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = PALETTE.mist
+                        e.currentTarget.style.borderColor = T.border
                         e.currentTarget.style.boxShadow = 'none'
                       }}
                     />
@@ -320,17 +327,13 @@ export function LoginView({ onLogin }: LoginViewProps) {
 
                 {/* Password */}
                 <div className="space-y-1.5">
-                  <label
-                    htmlFor="password"
-                    className="text-xs font-medium"
-                    style={{ color: PALETTE.navy }}
-                  >
+                  <label htmlFor="password" className="block text-xs font-medium" style={{ color: T.text }}>
                     Password
                   </label>
                   <div className="relative">
                     <Lock
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-                      style={{ color: PALETTE.azure }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                      style={{ color: T.muted }}
                     />
                     <input
                       id="password"
@@ -338,23 +341,23 @@ export function LoginView({ onLogin }: LoginViewProps) {
                       autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm bg-white border outline-none transition-all"
-                      style={{ borderColor: PALETTE.mist, color: PALETTE.navy }}
+                      placeholder="Enter your password"
+                      className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border outline-none transition-colors"
+                      style={{ borderColor: T.border, color: T.text }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = PALETTE.azure
-                        e.currentTarget.style.boxShadow = `0 0 0 3px ${PALETTE.sky}33`
+                        e.currentTarget.style.borderColor = T.primary
+                        e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = PALETTE.mist
+                        e.currentTarget.style.borderColor = T.border
                         e.currentTarget.style.boxShadow = 'none'
                       }}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 transition-colors"
-                      style={{ color: PALETTE.ocean }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors hover:bg-gray-50"
+                      style={{ color: T.muted }}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -362,42 +365,48 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   </div>
                 </div>
 
-                {/* Remember + forgot */}
-                <div className="flex items-center justify-between text-xs pt-1">
+                {/* Remember me + Forgot password */}
+                <div className="flex items-center justify-between pt-1">
                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                     <button
                       type="button"
-                      role="switch"
+                      role="checkbox"
                       aria-checked={remember}
                       onClick={() => setRemember((r) => !r)}
-                      className="relative w-9 h-5 rounded-full transition-colors"
-                      style={{ background: remember ? PALETTE.azure : PALETTE.mist }}
+                      className="w-4 h-4 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors"
+                      style={
+                        remember
+                          ? { background: T.primary, border: `1.5px solid ${T.primary}` }
+                          : { background: T.white, border: `1.5px solid ${T.border}` }
+                      }
                     >
-                      <span
-                        className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform shadow-sm"
-                        style={{ transform: remember ? 'translateX(16px)' : 'translateX(0)' }}
-                      />
+                      {remember && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                     </button>
-                    <span style={{ color: PALETTE.navy }}>Remember me</span>
+                    <span className="text-xs" style={{ color: T.muted }}>
+                      Remember me
+                    </span>
                   </label>
                   <button
                     type="button"
                     onClick={() => toast.info('Contact the AICS IT Office to reset your password.')}
-                    className="font-medium hover:underline"
-                    style={{ color: PALETTE.ocean }}
+                    className="text-xs font-medium transition-colors hover:underline"
+                    style={{ color: T.primary }}
                   >
                     Forgot password?
                   </button>
                 </div>
 
-                {/* Submit */}
+                {/* Sign In — primary action */}
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full mt-2 py-3 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.99]"
-                  style={{
-                    background: `linear-gradient(135deg, ${PALETTE.ocean} 0%, ${PALETTE.azure} 100%)`,
-                    boxShadow: `0 6px 16px -6px ${PALETTE.ocean}88`,
+                  className="w-full h-11 rounded-[8px] font-semibold text-sm text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+                  style={{ background: T.primary }}
+                  onMouseEnter={(e) => {
+                    if (!submitting) e.currentTarget.style.background = T.primaryDark
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = T.primary
                   }}
                 >
                   {submitting ? (
@@ -409,57 +418,46 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   )}
                 </button>
 
-                {/* Test login divider */}
-                <div className="flex items-center gap-3 pt-2">
-                  <div className="flex-1 h-px" style={{ background: PALETTE.mist }} />
-                  <span
-                    className="text-[10px] uppercase tracking-wider"
-                    style={{ color: '#9ca3af' }}
-                  >
-                    or
-                  </span>
-                  <div className="flex-1 h-px" style={{ background: PALETTE.mist }} />
-                </div>
-
-                {/* Test Student Login */}
-                <button
-                  type="button"
-                  onClick={handleTestLogin}
-                  disabled={submitting}
-                  className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all hover:shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
-                  style={{
-                    background: PALETTE.white,
-                    border: `1.5px dashed ${PALETTE.azure}`,
-                    color: PALETTE.ocean,
-                  }}
-                >
-                  <UserRound className="w-4 h-4" />
-                  Test Student Login
-                </button>
-                <p className="text-center text-[10px]" style={{ color: '#9ca3af' }}>
-                  Demo account:{' '}
-                  <span className="font-mono font-semibold" style={{ color: PALETTE.ocean }}>
-                    {TEST_CREDENTIALS.username}
-                  </span>{' '}
-                  /{' '}
-                  <span className="font-mono font-semibold" style={{ color: PALETTE.ocean }}>
-                    {TEST_CREDENTIALS.password}
-                  </span>
-                </p>
+                {/* Demo / test login — development only, visually unobtrusive */}
+                {SHOW_DEMO_LOGIN && (
+                  <>
+                    <div className="flex items-center gap-3 pt-3">
+                      <div className="flex-1 h-px" style={{ background: T.border }} />
+                      <span className="text-[10px] uppercase tracking-wider" style={{ color: T.muted }}>
+                        Demo
+                      </span>
+                      <div className="flex-1 h-px" style={{ background: T.border }} />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleTestLogin}
+                      disabled={submitting}
+                      className="w-full h-10 rounded-[8px] text-xs font-medium flex items-center justify-center gap-2 transition-colors hover:bg-gray-50"
+                      style={{ background: T.white, border: `1px dashed ${T.border}`, color: T.muted }}
+                    >
+                      <UserRound className="w-3.5 h-3.5" /> Test Student Login
+                    </button>
+                    <p className="text-center text-[10px]" style={{ color: T.muted }}>
+                      <span className="font-mono">{TEST_CREDENTIALS.username}</span>
+                      {' / '}
+                      <span className="font-mono">{TEST_CREDENTIALS.password}</span>
+                    </p>
+                  </>
+                )}
               </motion.form>
             ) : (
               <motion.div
                 key="face"
-                initial={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
                 {/* Face video area */}
                 <div
-                  className="relative aspect-square w-full rounded-2xl overflow-hidden flex items-center justify-center"
-                  style={{ background: PALETTE.navy, boxShadow: `inset 0 0 0 1px ${PALETTE.mist}` }}
+                  className="relative aspect-square w-full rounded-[12px] overflow-hidden flex items-center justify-center"
+                  style={{ background: T.text, border: `1px solid ${T.border}` }}
                 >
                   {(faceState === 'starting' ||
                     faceState === 'scanning' ||
@@ -478,13 +476,13 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   {faceState === 'idle' && (
                     <div className="text-center px-6">
                       <div
-                        className="mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-3"
+                        className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-3"
                         style={{ background: 'rgba(255,255,255,0.08)' }}
                       >
-                        <ScanFace className="w-10 h-10" style={{ color: PALETTE.sky }} />
+                        <ScanFace className="w-8 h-8" style={{ color: T.accent }} />
                       </div>
                       <p className="text-white text-sm font-medium">Face Recognition</p>
-                      <p className="text-white/55 text-xs mt-1 max-w-[220px] mx-auto">
+                      <p className="text-white/50 text-xs mt-1 max-w-[220px] mx-auto leading-relaxed">
                         Click start and look directly at the camera. Your face is your password.
                       </p>
                     </div>
@@ -494,10 +492,10 @@ export function LoginView({ onLogin }: LoginViewProps) {
                     <>
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div
-                          className="relative w-[58%] aspect-[3/4] rounded-[42%]"
+                          className="relative w-[56%] aspect-[3/4] rounded-[40%]"
                           style={{
-                            border: `2px solid ${PALETTE.sky}`,
-                            boxShadow: `0 0 0 4px ${PALETTE.sky}22, inset 0 0 30px ${PALETTE.sky}33`,
+                            border: `2px solid ${T.accent}`,
+                            boxShadow: `0 0 0 3px ${T.accent}22`,
                           }}
                         >
                           {[
@@ -508,8 +506,8 @@ export function LoginView({ onLogin }: LoginViewProps) {
                           ].map((pos) => (
                             <span
                               key={pos}
-                              className={`absolute ${pos} w-4 h-4 rounded-sm`}
-                              style={{ borderColor: PALETTE.sky }}
+                              className={`absolute ${pos} w-3.5 h-3.5 rounded-sm`}
+                              style={{ borderColor: T.accent }}
                             />
                           ))}
                         </div>
@@ -517,15 +515,14 @@ export function LoginView({ onLogin }: LoginViewProps) {
                       <motion.div
                         className="absolute left-0 right-0 h-[2px]"
                         style={{
-                          background: `linear-gradient(90deg, transparent, ${PALETTE.sky}, transparent)`,
-                          boxShadow: `0 0 12px ${PALETTE.sky}`,
+                          background: `linear-gradient(90deg, transparent, ${T.accent}, transparent)`,
                         }}
-                        initial={{ top: '10%' }}
-                        animate={{ top: ['10%', '88%', '10%'] }}
+                        initial={{ top: '12%' }}
+                        animate={{ top: ['12%', '86%', '12%'] }}
                         transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                       />
                       <div className="absolute bottom-3 left-3 right-3">
-                        <div className="flex items-center justify-between text-[10px] text-white/80 mb-1.5">
+                        <div className="flex items-center justify-between text-[10px] text-white/75 mb-1.5">
                           <span className="inline-flex items-center gap-1">
                             <Camera className="w-3 h-3" />
                             {faceState === 'verifying' ? 'Verifying identity...' : 'Scanning face...'}
@@ -540,7 +537,7 @@ export function LoginView({ onLogin }: LoginViewProps) {
                             className="h-full rounded-full transition-all"
                             style={{
                               width: `${faceProgress}%`,
-                              background: `linear-gradient(90deg, ${PALETTE.sky}, ${PALETTE.azure})`,
+                              background: T.primary,
                             }}
                           />
                         </div>
@@ -553,35 +550,35 @@ export function LoginView({ onLogin }: LoginViewProps) {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-                      style={{ background: `${PALETTE.navy}E6` }}
+                      style={{ background: `${T.text}E6` }}
                     >
                       <motion.div
-                        initial={{ scale: 0.4 }}
+                        initial={{ scale: 0.5 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-                        className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-                        style={{ background: PALETTE.sky }}
+                        transition={{ type: 'spring', stiffness: 220, damping: 16 }}
+                        className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
+                        style={{ background: T.primary }}
                       >
-                        <ShieldCheck className="w-10 h-10 text-white" />
+                        <ShieldCheck className="w-8 h-8 text-white" />
                       </motion.div>
-                      <p className="text-white font-semibold text-base">Identity Verified</p>
-                      <p className="text-white/60 text-xs mt-1">Redirecting to portal...</p>
+                      <p className="text-white font-semibold text-sm">Identity Verified</p>
+                      <p className="text-white/55 text-xs mt-1">Redirecting to portal...</p>
                     </motion.div>
                   )}
 
                   {faceState === 'error' && (
                     <div
                       className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-                      style={{ background: PALETTE.navy }}
+                      style={{ background: T.text }}
                     >
                       <div
-                        className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
-                        style={{ background: 'rgba(220,38,38,0.18)' }}
+                        className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
+                        style={{ background: 'rgba(220,38,38,0.16)' }}
                       >
-                        <AlertTriangle className="w-8 h-8 text-red-400" />
+                        <AlertTriangle className="w-7 h-7 text-red-400" />
                       </div>
                       <p className="text-white text-sm font-medium">Camera Unavailable</p>
-                      <p className="text-white/55 text-xs mt-1 max-w-[220px]">
+                      <p className="text-white/50 text-xs mt-1 max-w-[220px] leading-relaxed">
                         {streamError || 'Please check your camera and try again.'}
                       </p>
                     </div>
@@ -592,11 +589,10 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   <button
                     type="button"
                     onClick={startFaceScan}
-                    className="w-full py-3 rounded-lg font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-[0.99]"
-                    style={{
-                      background: `linear-gradient(135deg, ${PALETTE.ocean} 0%, ${PALETTE.azure} 100%)`,
-                      boxShadow: `0 6px 16px -6px ${PALETTE.ocean}88`,
-                    }}
+                    className="w-full h-11 rounded-[8px] font-semibold text-sm text-white transition-colors"
+                    style={{ background: T.primary }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = T.primaryDark)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = T.primary)}
                   >
                     <span className="inline-flex items-center gap-2">
                       <Camera className="w-4 h-4" /> Start Face Recognition
@@ -608,12 +604,8 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   <button
                     type="button"
                     onClick={cancelFaceScan}
-                    className="w-full py-3 rounded-lg font-semibold text-sm transition-all hover:bg-gray-50 active:scale-[0.99]"
-                    style={{
-                      background: PALETTE.white,
-                      border: `1px solid ${PALETTE.mist}`,
-                      color: PALETTE.navy,
-                    }}
+                    className="w-full h-11 rounded-[8px] font-medium text-sm transition-colors hover:bg-gray-50"
+                    style={{ background: T.white, border: `1px solid ${T.border}`, color: T.text }}
                   >
                     Cancel
                   </button>
@@ -623,10 +615,10 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   <button
                     type="button"
                     onClick={retryFaceScan}
-                    className="w-full py-3 rounded-lg font-semibold text-sm text-white transition-all hover:shadow-lg active:scale-[0.99]"
-                    style={{
-                      background: `linear-gradient(135deg, ${PALETTE.ocean} 0%, ${PALETTE.azure} 100%)`,
-                    }}
+                    className="w-full h-11 rounded-[8px] font-semibold text-sm text-white transition-colors"
+                    style={{ background: T.primary }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = T.primaryDark)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = T.primary)}
                   >
                     <span className="inline-flex items-center gap-2">
                       <RefreshCw className="w-4 h-4" /> Try Again
@@ -638,12 +630,8 @@ export function LoginView({ onLogin }: LoginViewProps) {
                   <button
                     type="button"
                     onClick={cancelFaceScan}
-                    className="w-full py-3 rounded-lg font-semibold text-sm transition-all hover:bg-gray-50"
-                    style={{
-                      background: PALETTE.white,
-                      border: `1px solid ${PALETTE.mist}`,
-                      color: PALETTE.navy,
-                    }}
+                    className="w-full h-11 rounded-[8px] font-medium text-sm transition-colors hover:bg-gray-50"
+                    style={{ background: T.white, border: `1px solid ${T.border}`, color: T.text }}
                   >
                     Reset
                   </button>
@@ -652,36 +640,38 @@ export function LoginView({ onLogin }: LoginViewProps) {
             )}
           </AnimatePresence>
 
-          {/* IT support note */}
+          {/* IT support notice */}
           <div
-            className="mt-6 flex items-start gap-2.5 p-3.5 rounded-xl text-xs leading-relaxed"
-            style={{
-              background: `${PALETTE.sky}1A`,
-              border: `1px solid ${PALETTE.sky}55`,
-              color: PALETTE.navy,
-            }}
+            className="mt-6 rounded-[10px] p-4"
+            style={{ background: T.bg, border: `1px solid ${T.border}` }}
           >
-            <CircleAlert
-              className="w-4 h-4 flex-shrink-0 mt-0.5"
-              style={{ color: PALETTE.ocean }}
-            />
-            <p>
-              <span className="font-semibold">Having trouble signing in?</span> Please contact the
-              AICS IT Office at{' '}
-              <a
-                href="mailto:it-support@aics.edu.ph"
-                className="font-medium underline decoration-dotted"
-                style={{ color: PALETTE.ocean }}
-              >
-                it-support@aics.edu.ph
-              </a>{' '}
-              or call <span className="font-medium">(02) 8XXX-XXXX</span> for assistance.
-            </p>
+            <div className="flex items-start gap-3">
+              <CircleAlert
+                className="w-4 h-4 flex-shrink-0 mt-0.5"
+                style={{ color: T.muted }}
+              />
+              <div className="text-xs leading-relaxed">
+                <p className="font-semibold" style={{ color: T.text }}>
+                  Need help signing in?
+                </p>
+                <p className="mt-0.5" style={{ color: T.muted }}>
+                  Contact AICS IT Support at{' '}
+                  <a
+                    href="mailto:it-support@aics.edu.ph"
+                    className="font-medium transition-colors hover:underline"
+                    style={{ color: T.primary }}
+                  >
+                    it-support@aics.edu.ph
+                  </a>{' '}
+                  or call <span className="font-medium" style={{ color: T.text }}>(02) 8XXX-XXXX</span>.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <p className="mt-6 text-center text-[11px]" style={{ color: '#9ca3af' }}>
-            &copy; {new Date().getFullYear()} Asian Institute of Computer Studies. All rights
-            reserved.
+          {/* Footer */}
+          <p className="mt-6 text-center text-[11px]" style={{ color: '#9aa5b1' }}>
+            &copy; {new Date().getFullYear()} Asian Institute of Computer Studies. All rights reserved.
           </p>
         </div>
       </section>
