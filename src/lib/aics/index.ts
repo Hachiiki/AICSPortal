@@ -13,3 +13,11 @@ export type {
 } from './types'
 export { getInitials, formatTime, timeToMinutes } from './format'
 export { TEST_CREDENTIALS, TEST_STUDENT, DAYS, DAY_LABELS } from './mock-data'
+export {
+  CLASS_SESSIONS,
+  SUBJECT_COLORS,
+  WEEKDAYS,
+  WEEKDAY_LABELS,
+  CALENDAR_HOURS,
+} from './schedule-data'
+export type { Weekday, SubjectColorKey, SubjectColorTokens, ClassSession } from './schedule-data'
