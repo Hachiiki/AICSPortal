@@ -206,44 +206,18 @@ export default function AICSLoginPage() {
         </div>
       </section>
 
-      {/* ============ RIGHT 40% — Login form (white, curved LEFT edge) ============ */}
+      {/* ============ RIGHT 40% — Login form (white, rounded LEFT corners only) ============ */}
+      {/* White panel overlaps the blue image by 3rem (lg:-ml-12) so the rounded
+          left corners sit on top of the blue. Width is calc(40% + 3rem) so the
+          panel's right edge still reaches the viewport's right edge.
+          Only border-top-left-radius and border-bottom-left-radius are applied
+          (rounded-l-[40px]); the right side stays square.
+          The blue image section is untouched and remains fully rectangular. */}
       <section
-        className="relative lg:w-[40%] w-full flex-1 lg:h-screen flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0"
+        className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 lg:h-screen flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0 lg:-ml-12 rounded-l-[40px]"
         style={{ background: PALETTE.white }}
       >
-        {/* Curve on the LEFT side only — white panel with a curved left edge */}
-        <svg
-          aria-hidden="true"
-          className="absolute top-0 left-0 h-full w-[140px] pointer-events-none hidden lg:block"
-          viewBox="0 0 140 800"
-          preserveAspectRatio="none"
-        >
-          {/* Filled white shape with curved LEFT edge — the white panel itself */}
-          <path
-            d={`M 0 0
-                L 140 0
-                L 140 800
-                L 0 800
-                Q 60 400 0 0
-                Z`}
-            fill={PALETTE.white}
-          />
-        </svg>
-
-        {/* Mobile curve (top only) */}
-        <svg
-          aria-hidden="true"
-          className="absolute top-0 left-0 w-full h-[60px] pointer-events-none lg:hidden"
-          viewBox="0 0 800 60"
-          preserveAspectRatio="none"
-        >
-          <path
-            d={`M 0 0 L 800 0 L 800 60 Q 400 0 0 60 Z`}
-            fill={PALETTE.white}
-          />
-        </svg>
-
-        <div className="relative w-full max-w-sm lg:ml-16">
+        <div className="relative w-full max-w-sm">
           {/* Heading */}
           <div className="mb-7">
             <h2 className="text-2xl font-bold tracking-tight" style={{ color: PALETTE.navy }}>
