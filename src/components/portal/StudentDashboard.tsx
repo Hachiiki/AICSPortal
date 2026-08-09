@@ -10,7 +10,6 @@ import { AcademicHeader } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
 import { TodaysClasses } from './TodaysClasses'
-import { WEEKDAYS, type Weekday } from '@/lib/aics/schedule-data'
 
 interface StudentDashboardProps {
   student: Student
@@ -18,36 +17,15 @@ interface StudentDashboardProps {
   onLogout: () => void
 }
 
-/** Returns the Monday of the week containing `date`. */
-function getMondayOfWeek(date: Date): Date {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  d.setDate(d.getDate() + diff)
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-
 /**
  * Main student dashboard. Uses a sidebar + topbar shell, a light
  * academic header, a semantic grades table, a time-grid weekly
  * schedule, and a Today's Classes panel — all driven by the same
- * centralized schedule data.
+ * centralized schedule data in `src/lib/schedule.ts`.
  */
 export function StudentDashboard({ student, onProfile, onLogout }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [selectedDay, setSelectedDay] = useState<Weekday>(() => {
-    // Default to the real weekday if Mon–Sat, else Monday
-    const today = new Date().getDay()
-    const map: Record<number, Weekday> = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat' }
-    return map[today] ?? 'Mon'
-  })
-  const [weekStart, setWeekStart] = useState<Date>(() => getMondayOfWeek(new Date()))
-
-  // Compute the actual calendar date for the selected day in the selected week
-  const selectedDayDate = new Date(weekStart)
-  selectedDayDate.setDate(weekStart.getDate() + WEEKDAYS.indexOf(selectedDay))
 
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
 
@@ -60,8 +38,6 @@ export function StudentDashboard({ student, onProfile, onLogout }: StudentDashbo
       setView('dashboard')
       return
     }
-    // Other nav items are not full pages yet — surface a toast so the
-    // navigation feels alive without breaking the existing flow.
     setView(v)
     const labels: Record<View, string> = {
       login: '',
@@ -103,18 +79,9 @@ export function StudentDashboard({ student, onProfile, onLogout }: StudentDashbo
 
               <GradesTable student={student} onViewAll={() => handleNavigate('grades')} />
 
-              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6">
-                <ScheduleGrid
-                  selectedDay={selectedDay}
-                  onDayChange={setSelectedDay}
-                  weekStart={weekStart}
-                  onWeekChange={setWeekStart}
-                />
-                <TodaysClasses
-                  selectedDay={selectedDay}
-                  date={selectedDayDate}
-                  onViewFull={() => handleNavigate('schedule')}
-                />
+              <div className="flex flex-col lg:flex-row gap-4">
+                <ScheduleGrid onDaySelect={() => handleNavigate('schedule')} />
+                <TodaysClasses onViewFull={() => handleNavigate('schedule')} />
               </div>
             </>
           ) : (
