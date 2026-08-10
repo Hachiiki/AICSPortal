@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { toast } from 'sonner'
-import type { View } from '@/lib/aics/types'
 import { TEST_STUDENT } from '@/lib/aics/mock-data'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { LoginView } from '@/components/auth/LoginView'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
@@ -11,43 +11,42 @@ import { StudentProfile } from '@/components/portal/StudentProfile'
 /**
  * AICS Portal — root page.
  *
- * Acts as a thin view router between the three top-level screens:
- *   - login     → LoginView (credentials / face ID)
- *   - dashboard → StudentDashboard (grades, subjects, weekly schedule)
- *   - profile   → StudentProfile (personal info, digital ID, COE)
+ * Uses the History API (via `usePortalRoute`) to sync the browser URL
+ * with the current screen:
+ *   /portal/login                       → LoginView
+ *   /portal/student/:username           → StudentDashboard
+ *   /portal/student/:username/profile   → StudentProfile
  *
  * All real UI lives in dedicated component files under
  *   src/components/auth/    and    src/components/portal/
- * Shared types, palette, helpers, and mock data live in
- *   src/lib/aics/
  */
 export default function AICSLoginPage() {
-  const [view, setView] = useState<View>('login')
+  const { route, navigate } = usePortalRoute()
 
   const handleLogin = useCallback(() => {
-    setView('dashboard')
-  }, [])
+    navigate({ view: 'dashboard', username: TEST_STUDENT.username })
+  }, [navigate])
 
   const handleLogout = useCallback(() => {
-    setView('login')
+    navigate({ view: 'login' })
     toast.info('You have been signed out.')
-  }, [])
+  }, [navigate])
 
-  if (view === 'dashboard') {
+  if (route.view === 'dashboard') {
     return (
       <StudentDashboard
         student={TEST_STUDENT}
-        onProfile={() => setView('profile')}
+        onProfile={() => navigate({ view: 'profile', username: route.username })}
         onLogout={handleLogout}
       />
     )
   }
 
-  if (view === 'profile') {
+  if (route.view === 'profile') {
     return (
       <StudentProfile
         student={TEST_STUDENT}
-        onBack={() => setView('dashboard')}
+        onBack={() => navigate({ view: 'dashboard', username: route.username })}
         onLogout={handleLogout}
       />
     )

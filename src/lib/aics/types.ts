@@ -49,6 +49,7 @@ export interface StudentDocument {
 }
 
 export interface Student {
+  username: string
   fullName: string
   firstName: string
   lastName: string
