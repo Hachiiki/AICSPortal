@@ -40,7 +40,8 @@ interface StudentProfileProps {
   onLogout: () => void
 }
 
-// Stagger config for section entrance animation
+// Stagger config for section entrance animation.
+// Ends at opacity: 1 so no text remains ghosted after the animation.
 const sectionVariants = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 },
@@ -108,40 +109,52 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
               <button
                 onClick={onBack}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 rounded"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </button>
-              <h1 className="text-2xl font-bold tracking-tight text-ink mt-3">My Profile</h1>
-              <p className="text-sm text-muted mt-1">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-3">My Profile</h1>
+              <p className="text-sm text-slate-500 mt-1">
                 Manage your student information, identification, and documents.
               </p>
             </motion.div>
 
             {/* ===================== PROFILE HERO CARD ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
-              <div className="bg-white rounded-2xl border border-line shadow-sm p-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                 {/* Top row: avatar + name + chips */}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="size-16 rounded-full bg-gradient-to-br from-brand-800 to-brand-600 text-white text-xl font-bold flex items-center justify-center flex-shrink-0">
-                      {getInitials(student.fullName)}
-                    </div>
+                    {student.photoUrl ? (
+                      <img
+                        src={student.photoUrl}
+                        alt={student.fullName}
+                        className="size-16 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="size-16 rounded-full bg-gradient-to-br from-blue-800 to-blue-600 text-white text-xl font-bold grid place-items-center flex-shrink-0">
+                        {getInitials(student.fullName)}
+                      </div>
+                    )}
                     <div className="min-w-0">
-                      <h2 className="text-xl font-bold text-ink break-words">{student.fullName}</h2>
-                      <p className="text-sm text-muted font-mono mt-0.5">{student.studentNumber}</p>
-                      <p className="text-sm text-muted mt-0.5">{student.program}</p>
-                      <p className="text-sm text-muted mt-0.5">
+                      <h2 className="text-xl font-bold text-slate-900 break-words">
+                        {student.fullName}
+                      </h2>
+                      <p className="text-sm text-slate-500 font-mono mt-0.5">
+                        {student.studentNumber}
+                      </p>
+                      <p className="text-sm text-slate-500 mt-0.5">{student.program}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">
                         {student.yearLevel} &bull; {student.section}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-success-bg text-success-text border border-success-border">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                       <ShieldCheck className="w-3.5 h-3.5" /> Enrolled
                     </span>
                     {student.deanLister && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-brand-50 border border-brand-200 text-brand-700">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
                         <Star className="w-3.5 h-3.5" /> Dean&rsquo;s Lister
                       </span>
                     )}
@@ -149,10 +162,10 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                 </div>
 
                 {/* Divider */}
-                <div className="my-6 border-t border-line" />
+                <div className="my-6 border-t border-slate-200" />
 
                 {/* Stats row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-line">
+                <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-slate-200">
                   <StatCell label="GPA" value={student.gpa} />
                   <StatCell label="Units Enrolled" value={String(totalUnits)} />
                   <StatCell label="Subjects" value={String(student.subjects.length)} />
@@ -171,11 +184,11 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
               className="grid lg:grid-cols-3 gap-6"
             >
               {/* Personal Information (2 cols) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-line shadow-sm min-w-0">
+              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0">
                 <div className="p-6 pb-4">
-                  <h3 className="text-lg font-semibold text-ink">Personal Information</h3>
+                  <h3 className="text-lg font-semibold text-slate-900">Personal Information</h3>
                 </div>
-                <div className="border-t border-line" />
+                <div className="border-t border-slate-200" />
 
                 <div className="p-6 space-y-6">
                   {/* Academic Information */}
@@ -198,7 +211,7 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                   </SubSection>
 
                   {/* Contact Information */}
-                  <div className="border-t border-line pt-6">
+                  <div className="border-t border-slate-200 pt-6">
                     <SubSection icon={Phone} title="Contact Information">
                       <Field label="Email" value={student.email} />
                       <Field label="Contact Number" value={student.phone} />
@@ -209,7 +222,7 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                   </div>
 
                   {/* Emergency Contact */}
-                  <div className="border-t border-line pt-6">
+                  <div className="border-t border-slate-200 pt-6">
                     <SubSection icon={Users} title="Emergency Contact">
                       <Field label="Name" value={student.emergencyContactName} />
                       <Field label="Contact Number" value={student.emergencyContactNumber} />
@@ -219,14 +232,14 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
               </div>
 
               {/* Digital ID (1 col) */}
-              <div className="bg-white rounded-2xl border border-line shadow-sm">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
                 <div className="p-6 pb-4">
-                  <h3 className="text-lg font-semibold text-ink">Digital ID</h3>
-                  <p className="text-xs text-muted mt-0.5">
+                  <h3 className="text-lg font-semibold text-slate-900">Digital ID</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Your official student identification
                   </p>
                 </div>
-                <div className="border-t border-line" />
+                <div className="border-t border-slate-200" />
                 <div className="p-6 space-y-4">
                   <DigitalIDCardMini student={student} />
                   <Button
@@ -247,11 +260,11 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
               className="grid lg:grid-cols-3 gap-6"
             >
               {/* Submitted Documents (2 cols) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-line shadow-sm min-w-0">
+              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0">
                 <div className="p-6 pb-4 flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h3 className="text-lg font-semibold text-ink">Submitted Documents</h3>
-                    <p className="text-xs text-muted mt-0.5">
+                    <h3 className="text-lg font-semibold text-slate-900">Submitted Documents</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
                       {submittedDocs} of {student.documents.length} documents submitted
                     </p>
                   </div>
@@ -261,11 +274,11 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                     className="rounded-lg flex-shrink-0"
                     onClick={handleViewAllDocuments}
                   >
-                    <FileText className="w-4 h-4 mr-1.5" /> View All
+                    <FileText className="w-4 h-4 mr-1.5" /> View All Documents
                   </Button>
                 </div>
-                <div className="border-t border-line" />
-                <ul className="divide-y divide-line">
+                <div className="border-t border-slate-200" />
+                <ul className="divide-y divide-slate-200">
                   {student.documents.map((doc, i) => (
                     <DocumentRow
                       key={i}
@@ -279,18 +292,18 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
               </div>
 
               {/* Certificate of Enrollment (1 col) */}
-              <div className="bg-white rounded-2xl border border-line shadow-sm">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
                 <div className="p-6 pb-4">
-                  <h3 className="text-lg font-semibold text-ink">Certificate of Enrollment</h3>
-                  <p className="text-xs text-muted mt-0.5">
+                  <h3 className="text-lg font-semibold text-slate-900">Certificate of Enrollment</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Preview, print, or download your COE for this semester.
                   </p>
                 </div>
-                <div className="border-t border-line" />
+                <div className="border-t border-slate-200" />
                 <div className="p-6 space-y-3">
-                  {/* Illustration */}
+                  {/* Illustration: size-24 rounded-full bg-blue-100 with white document+ribbon SVG */}
                   <div className="flex justify-center py-2">
-                    <div className="size-24 rounded-full bg-brand-100 flex items-center justify-center">
+                    <div className="size-24 rounded-full bg-blue-100 grid place-items-center">
                       <svg
                         className="w-12 h-12 text-white"
                         viewBox="0 0 24 24"
@@ -299,17 +312,20 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                         strokeWidth="1.5"
                         aria-hidden="true"
                       >
+                        {/* Document */}
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                         <path d="M14 2v6h6" />
                         <path d="M9 13h6" />
                         <path d="M9 17h6" />
+                        {/* Ribbon */}
                         <path d="M3 12a9 9 0 0 0 9 9" />
                       </svg>
                     </div>
                   </div>
 
+                  {/* PRIMARY button: Preview Certificate */}
                   <Button
-                    className="w-full rounded-lg bg-brand-700 hover:bg-brand-800 text-white"
+                    className="w-full rounded-lg bg-blue-700 hover:bg-blue-800 text-white"
                     onClick={() => setShowCOE(true)}
                   >
                     <Eye className="w-4 h-4 mr-2" /> Preview Certificate
@@ -340,8 +356,8 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
 
             {/* ===================== BOTTOM BANNER ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
-              <div className="rounded-xl bg-brand-50 border border-brand-100 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="size-9 rounded-full bg-white border border-brand-200 text-brand-600 flex items-center justify-center flex-shrink-0">
+              <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="size-9 rounded-full bg-white border border-blue-200 text-blue-600 flex items-center justify-center flex-shrink-0">
                   <Info className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
@@ -391,8 +407,8 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
 function StatCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center py-3 px-2">
-      <p className="text-[11px] uppercase tracking-wider text-muted font-medium">{label}</p>
-      <p className="text-lg font-bold text-brand-600 mt-1">{value}</p>
+      <p className="text-[11px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
+      <p className="text-lg font-bold text-blue-700 mt-1">{value}</p>
     </div>
   )
 }
@@ -409,10 +425,10 @@ function SubSection({
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <div className="size-9 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+        <div className="size-9 rounded-lg bg-blue-50 text-blue-600 grid place-items-center flex-shrink-0">
           <Icon className="w-4 h-4" />
         </div>
-        <h4 className="text-sm font-semibold text-brand-600">{title}</h4>
+        <h4 className="text-sm font-semibold text-blue-600">{title}</h4>
       </div>
       <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">{children}</div>
     </div>
@@ -422,8 +438,8 @@ function SubSection({
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-muted">{label}</p>
-      <p className="text-sm font-semibold text-ink mt-0.5 break-words">{value}</p>
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-sm font-semibold text-slate-900 mt-0.5 break-words">{value}</p>
     </div>
   )
 }
@@ -443,31 +459,25 @@ function DocumentRow({
     <li className="px-6 py-4 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {submitted ? (
-          <CircleCheck className="w-5 h-5 text-success-icon flex-shrink-0" />
+          <CircleCheck className="w-5 h-5 text-green-600 flex-shrink-0" />
         ) : (
-          <CircleAlert className="w-5 h-5 text-danger-text flex-shrink-0" />
+          <CircleAlert className="w-5 h-5 text-red-600 flex-shrink-0" />
         )}
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink truncate">{name}</p>
-          <p
-            className={`text-xs mt-0.5 ${
-              submitted ? 'text-muted' : 'text-danger-text'
-            }`}
-          >
-            {submitted
-              ? `Submitted on ${dateSubmitted}`
-              : 'Required for enrollment'}
+          <p className="text-sm font-semibold text-slate-900 truncate">{name}</p>
+          <p className={`text-xs mt-0.5 ${submitted ? 'text-slate-500' : 'text-red-600'}`}>
+            {submitted ? `Submitted on ${dateSubmitted}` : 'Required for enrollment'}
           </p>
         </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         {submitted ? (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-success-bg text-success-text border border-success-border">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
             Submitted
           </span>
         ) : (
           <>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-danger-bg text-danger-text border border-danger-border">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
               Pending
             </span>
             <Button
@@ -476,7 +486,7 @@ function DocumentRow({
               className="rounded-lg"
               onClick={onSubmit}
             >
-              Submit
+              Submit Document
             </Button>
           </>
         )}
@@ -544,12 +554,12 @@ function DigitalIDCardMini({ student }: { student: Student }) {
         </div>
       </div>
 
-      {/* Barcode */}
+      {/* Barcode — lighter, thinner bars, opacity-80 */}
       <div
-        className="h-8 w-full rounded"
+        className="h-8 w-full rounded opacity-80"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(90deg, #ffffff 0px, #ffffff 2px, transparent 2px, transparent 4px, #ffffff 4px, #ffffff 5px, transparent 5px, transparent 8px, #ffffff 8px, #ffffff 10px, transparent 10px, transparent 12px)',
+            'repeating-linear-gradient(90deg, #fff 0 2px, transparent 2px 5px)',
         }}
         aria-hidden="true"
       />

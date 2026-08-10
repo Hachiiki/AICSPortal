@@ -54,6 +54,8 @@ export interface Student {
   firstName: string
   lastName: string
   middleName: string
+  /** Optional profile photo URL. If absent, initials avatar is rendered. */
+  photoUrl?: string
   studentNumber: string
   program: string
   programShort: string
