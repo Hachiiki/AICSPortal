@@ -17,6 +17,7 @@ export const TEST_CREDENTIALS = {
  * Juan Dela Cruz Santos — BSIT 3rd Year, AICS Quezon City.
  */
 export const TEST_STUDENT: Student = {
+  username: 'juan.santos',
   fullName: 'Juan Dela Cruz Santos',
   firstName: 'Juan',
   lastName: 'Santos',

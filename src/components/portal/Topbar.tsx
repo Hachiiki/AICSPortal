@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, Bell, ChevronDown } from 'lucide-react'
+import { Menu, Bell, ChevronDown, LogOut } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
@@ -9,9 +9,10 @@ interface TopbarProps {
   student: Student
   onOpenMobileNav: () => void
   onProfile: () => void
+  onLogout: () => void
 }
 
-export function Topbar({ student, onOpenMobileNav, onProfile }: TopbarProps) {
+export function Topbar({ student, onOpenMobileNav, onProfile, onLogout }: TopbarProps) {
   const handleNotifications = () => {
     toast.info('No new notifications.')
   }
@@ -31,7 +32,7 @@ export function Topbar({ student, onOpenMobileNav, onProfile }: TopbarProps) {
           </button>
         </div>
 
-        {/* Right — notifications + profile */}
+        {/* Right — notifications + profile + logout */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -61,6 +62,16 @@ export function Topbar({ student, onOpenMobileNav, onProfile }: TopbarProps) {
               <p className="text-[11px] text-slate-500 font-mono">{student.studentNumber}</p>
             </div>
             <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            onClick={onLogout}
+            aria-label="Sign out"
+            title="Sign out"
+            className="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </div>
