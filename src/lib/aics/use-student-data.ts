@@ -97,13 +97,15 @@ export function useAuth() {
   // SSR-safe read of localStorage
   const storedUsername = useSyncExternalStore(emptySubscribe, getClientUsername, getServerUsername)
   // Lazy-init from localStorage on the client; null on the server.
-  // This avoids setState-in-effect while still being hydration-safe.
   const [username, setUsername] = useState<string | null>(() =>
     typeof window !== 'undefined' ? localStorage.getItem('aics_username') : null
   )
-  const loading = false // resolved synchronously via lazy init
+  const [branch, setBranch] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('aics_branch') : null
+  )
+  const loading = false
 
-  const login = useCallback(async (user: string, pass: string): Promise<{ ok: boolean; error?: string }> => {
+  const login = useCallback(async (user: string, pass: string): Promise<{ ok: boolean; error?: string; branch?: string; username?: string }> => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -115,8 +117,10 @@ export function useAuth() {
         return { ok: false, error: data.error }
       }
       localStorage.setItem('aics_username', data.username)
+      localStorage.setItem('aics_branch', data.branch)
       setUsername(data.username)
-      return { ok: true }
+      setBranch(data.branch)
+      return { ok: true, branch: data.branch, username: data.username }
     } catch {
       return { ok: false, error: 'Network error. Please try again.' }
     }
@@ -124,8 +128,10 @@ export function useAuth() {
 
   const logout = useCallback(() => {
     localStorage.removeItem('aics_username')
+    localStorage.removeItem('aics_branch')
     setUsername(null)
+    setBranch(null)
   }, [])
 
-  return { username, loading, login, logout }
+  return { username, branch, loading, login, logout }
 }

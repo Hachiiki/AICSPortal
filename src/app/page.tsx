@@ -2,30 +2,33 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { AnimatePresence } from 'framer-motion'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
-import type { Student } from '@/lib/aics/types'
 import { LoginView } from '@/components/auth/LoginView'
+import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
-import type { Course, Session } from '@/lib/schedule'
 
 /**
  * AICS Portal — root page.
  *
- * Uses the History API (via `usePortalRoute`) to sync the browser URL
- * with the current screen, and MongoDB (via `useAuth` + `useStudentData`)
- * for authentication and data:
- *   /portal/login                       → LoginView
- *   /portal/student/:username           → StudentDashboard
- *   /portal/student/:username/profile   → StudentProfile
+ * URL structure:
+ *   /portal/login                              → LoginView
+ *   /portal/{branch}/student/{username}        → StudentDashboard
+ *   /portal/{branch}/student/{username}/profile → StudentProfile
+ *
+ * After a successful login, a BranchRedirect animation plays that
+ * detects the student's branch and shows "Redirecting to your
+ * branch: {branch}" before navigating to the dashboard.
  */
 export default function AICSLoginPage() {
   const { route, navigate } = usePortalRoute()
-  const { username, loading: authLoading, login, logout } = useAuth()
+  const { username, branch, loading: authLoading, login, logout } = useAuth()
+  const [redirecting, setRedirecting] = useState(false)
+  const [redirectBranch, setRedirectBranch] = useState<string>('')
 
-  // If the auth state resolves and there's no logged-in user, make sure
-  // we're on the login route.
+  // If auth resolves and there's no logged-in user, go to login.
   useEffect(() => {
     if (!authLoading && !username && route.view !== 'login') {
       navigate({ view: 'login' })
@@ -35,13 +38,22 @@ export default function AICSLoginPage() {
   const handleLogin = useCallback(
     async (user: string, pass: string): Promise<{ ok: boolean; error?: string }> => {
       const result = await login(user, pass)
-      if (result.ok) {
-        navigate({ view: 'dashboard', username: user })
+      if (result.ok && result.branch) {
+        // Show the branch redirect animation
+        setRedirectBranch(result.branch)
+        setRedirecting(true)
       }
       return result
     },
-    [login, navigate]
+    [login]
   )
+
+  const handleRedirectComplete = useCallback(() => {
+    setRedirecting(false)
+    if (redirectBranch && username) {
+      navigate({ view: 'dashboard', branch: redirectBranch, username })
+    }
+  }, [redirectBranch, username, navigate])
 
   const handleLogout = useCallback(() => {
     logout()
@@ -49,15 +61,24 @@ export default function AICSLoginPage() {
     toast.info('You have been signed out.')
   }, [logout, navigate])
 
-  // Show nothing while checking auth state to avoid flash
   if (authLoading) return null
+
+  // Show the branch redirect animation overlay
+  if (redirecting) {
+    return (
+      <BranchRedirect
+        branch={redirectBranch}
+        onComplete={handleRedirectComplete}
+      />
+    )
+  }
 
   // Login screen
   if (!username || route.view === 'login') {
     return <LoginView onLogin={handleLogin} />
   }
 
-  // Fetch student data from MongoDB
+  // Fetch student data from MongoDB and render the right view
   return (
     <StudentDataWrapper
       username={username}
@@ -79,7 +100,7 @@ function StudentDataWrapper({
   onLogout,
 }: {
   username: string
-  route: { view: 'dashboard' | 'profile'; username: string }
+  route: { view: 'dashboard' | 'profile'; branch: string; username: string }
   navigate: (r: any) => void
   onLogout: () => void
 }) {
@@ -115,7 +136,7 @@ function StudentDataWrapper({
     return (
       <StudentProfile
         student={student}
-        onBack={() => navigate({ view: 'dashboard', username: route.username })}
+        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
         onLogout={onLogout}
       />
     )
@@ -124,7 +145,7 @@ function StudentDataWrapper({
   return (
     <StudentDashboard
       student={student}
-      onProfile={() => navigate({ view: 'profile', username: route.username })}
+      onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
       onLogout={onLogout}
     />
   )
