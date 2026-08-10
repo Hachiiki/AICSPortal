@@ -22,7 +22,7 @@ import type { AuthMode, FaceState } from '@/lib/aics/types'
 import { TEST_CREDENTIALS } from '@/lib/aics/mock-data'
 
 interface LoginViewProps {
-  onLogin: () => void
+  onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
 }
 
 // ---------------------------------------------------------------------------
@@ -112,7 +112,10 @@ export function LoginView({ onLogin }: LoginViewProps) {
           setTimeout(() => {
             setFaceState('success')
             toast.success('Face verified. Welcome back to AICS Portal.')
-            setTimeout(() => onLogin(), 1200)
+            // Face ID is a mock — log in with the test student credentials
+            setTimeout(() => {
+              onLogin(TEST_CREDENTIALS.username, TEST_CREDENTIALS.password)
+            }, 1200)
           }, 1100)
         } else {
           setFaceProgress(p)
@@ -143,31 +146,45 @@ export function LoginView({ onLogin }: LoginViewProps) {
   }, [cancelFaceScan, startFaceScan])
 
   const handleCredentialSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault()
       if (!username.trim() || !password.trim()) {
         toast.error('Please enter both your username and password.')
         return
       }
       setSubmitting(true)
-      setTimeout(() => {
-        setSubmitting(false)
+      try {
+        const result = await onLogin(username.trim(), password)
+        if (!result.ok) {
+          setSubmitting(false)
+          toast.error(result.error || 'Invalid username or password.')
+          return
+        }
         toast.success('Signed in. Redirecting to your AICS dashboard...')
-        onLogin()
-      }, 1200)
+      } catch {
+        setSubmitting(false)
+        toast.error('Network error. Please try again.')
+      }
     },
     [username, password, onLogin]
   )
 
-  const handleTestLogin = useCallback(() => {
+  const handleTestLogin = useCallback(async () => {
     setUsername(TEST_CREDENTIALS.username)
     setPassword(TEST_CREDENTIALS.password)
     setSubmitting(true)
-    setTimeout(() => {
-      setSubmitting(false)
+    try {
+      const result = await onLogin(TEST_CREDENTIALS.username, TEST_CREDENTIALS.password)
+      if (!result.ok) {
+        setSubmitting(false)
+        toast.error(result.error || 'Test login failed.')
+        return
+      }
       toast.success('Test login successful. Welcome, Juan!')
-      onLogin()
-    }, 800)
+    } catch {
+      setSubmitting(false)
+      toast.error('Network error. Please try again.')
+    }
   }, [onLogin])
 
   return (
