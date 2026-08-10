@@ -8,7 +8,7 @@ import type { Student } from './types'
  * Used by the "Test Student Login" button on the login page.
  */
 export const TEST_CREDENTIALS = {
-  username: 'student',
+  username: 'juan.santos',
   password: 'student123',
 } as const
 
