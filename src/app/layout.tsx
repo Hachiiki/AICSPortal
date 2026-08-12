@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Roboto_Condensed, Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -11,6 +11,20 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Roboto Condensed (700) for ID card display text (names, numbers, headings)
+const robotoCondensed = Roboto_Condensed({
+  variable: "--font-id-display",
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
+// Roboto (400, 500) for ID card body text (address)
+const roboto = Roboto({
+  variable: "--font-id-body",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -32,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white text-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} ${robotoCondensed.variable} ${roboto.variable} font-sans antialiased bg-white text-slate-900`}
         suppressHydrationWarning
       >
         {children}

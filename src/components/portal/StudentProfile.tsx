@@ -33,6 +33,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { COEModal } from './COEModal'
 import { DigitalIDCardLarge } from './DigitalIDCardLarge'
+import { StudentIdCard } from './StudentIdCard'
 
 interface StudentProfileProps {
   student: Student
@@ -241,7 +242,7 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
                 </div>
                 <div className="border-t border-slate-200" />
                 <div className="p-6 space-y-4">
-                  <DigitalIDCardMini student={student} />
+                  <StudentIdCard student={student} />
                   <Button
                     variant="outline"
                     className="w-full rounded-lg"
@@ -492,80 +493,5 @@ function DocumentRow({
         )}
       </div>
     </li>
-  )
-}
-
-// ============================================================
-//  Compact Digital ID Card (for the profile sidebar)
-// ============================================================
-
-function DigitalIDCardMini({ student }: { student: Student }) {
-  return (
-    <div className="rounded-2xl p-5 text-white shadow-md bg-gradient-to-br from-[#1E3A8A] via-[#1D4ED8] to-[#3B82F6]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <img src="/aics-logo.svg" alt="AICS" className="w-7 h-7" />
-          <p className="text-[10px] uppercase tracking-wider text-white/80 font-semibold leading-tight">
-            Asian Institute of<br />Computer Studies
-          </p>
-        </div>
-        <span className="bg-sky-300 text-blue-900 text-[10px] font-bold rounded-full px-2 py-0.5 uppercase tracking-wider">
-          Student ID
-        </span>
-      </div>
-
-      {/* Body */}
-      <div className="flex gap-3 mb-4">
-        <div className="size-14 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-lg font-bold flex-shrink-0">
-          {getInitials(student.fullName)}
-        </div>
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div>
-            <p className="text-[8px] uppercase tracking-wider text-white/60">Name</p>
-            <p className="text-sm font-bold text-white break-words leading-tight">
-              {student.fullName}
-            </p>
-          </div>
-          <div>
-            <p className="text-[8px] uppercase tracking-wider text-white/60">Student No.</p>
-            <p className="text-[11px] font-mono font-semibold text-white">
-              {student.studentNumber}
-            </p>
-          </div>
-          <div>
-            <p className="text-[8px] uppercase tracking-wider text-white/60">Program</p>
-            <p className="text-[10px] font-semibold text-white">
-              {student.programShort} &ndash; {student.yearLevel}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between mb-3 text-[9px]">
-        <div>
-          <p className="uppercase tracking-wider text-white/60">Branch</p>
-          <p className="font-semibold text-white">{student.branch}</p>
-        </div>
-        <div className="text-right">
-          <p className="uppercase tracking-wider text-white/60">Valid</p>
-          <p className="font-semibold text-white">AY {student.academicYear}</p>
-        </div>
-      </div>
-
-      {/* Barcode — lighter, thinner bars, opacity-80 */}
-      <div
-        className="h-8 w-full rounded opacity-80"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(90deg, #fff 0 2px, transparent 2px 5px)',
-        }}
-        aria-hidden="true"
-      />
-      <p className="text-[9px] text-white/70 mt-1 text-center font-mono">
-        {student.studentNumber}
-      </p>
-    </div>
   )
 }

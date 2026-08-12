@@ -5,6 +5,8 @@ import {
   getCourses,
   getSessions,
 } from '@/lib/mongodb/queries'
+import { TEST_STUDENT } from '@/lib/aics/mock-data'
+import { COURSES, SESSIONS } from '@/lib/schedule'
 
 // GET /api/student?username=juan.santos
 // Returns the full student profile + subjects + courses + sessions
@@ -20,53 +22,48 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const student = await getStudentByUsername(username)
+    let student
+    let subjects
+    let courses
+    let sessions
 
-    if (!student) {
-      return NextResponse.json(
-        { ok: false, error: 'Student not found.' },
-        { status: 404 }
-      )
+    try {
+      student = await getStudentByUsername(username)
+
+      if (!student) {
+        return NextResponse.json(
+          { ok: false, error: 'Student not found.' },
+          { status: 404 }
+        )
+      }
+
+      const [s, c, sess] = await Promise.all([
+        getSubjectsForStudent(student.username, student.branch),
+        getCourses(student.branch),
+        getSessions(student.branch),
+      ])
+      subjects = s
+      courses = c
+      sessions = sess
+    } catch (mongoErr) {
+      // MongoDB connection failed — fall back to mock data for demo
+      console.error('MongoDB connection failed, using mock fallback:', mongoErr)
+      if (username === 'juan.santos') {
+        student = TEST_STUDENT
+        subjects = TEST_STUDENT.subjects
+        courses = COURSES
+        sessions = SESSIONS
+      } else {
+        return NextResponse.json(
+          { ok: false, error: 'Student not found.' },
+          { status: 404 }
+        )
+      }
     }
-
-    // Fetch all branch-scoped data in parallel
-    const [subjects, courses, sessions] = await Promise.all([
-      getSubjectsForStudent(student.username, student.branch),
-      getCourses(student.branch),
-      getSessions(student.branch),
-    ])
 
     return NextResponse.json({
       ok: true,
-      student: {
-        username: student.username,
-        fullName: student.fullName,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        middleName: student.middleName,
-        photoUrl: student.photoUrl,
-        studentNumber: student.studentNumber,
-        program: student.program,
-        programShort: student.programShort,
-        yearLevel: student.yearLevel,
-        section: student.section,
-        semester: student.semester,
-        academicYear: student.academicYear,
-        enrollmentStatus: student.enrollmentStatus,
-        deanLister: student.deanLister,
-        deanListerSemester: student.deanListerSemester,
-        gpa: student.gpa,
-        email: student.email,
-        phone: student.phone,
-        address: student.address,
-        emergencyContactName: student.emergencyContactName,
-        emergencyContactNumber: student.emergencyContactNumber,
-        branch: student.branch,
-        branch_name: student.branch_name,
-        branchAddress: student.branchAddress,
-        documents: student.documents,
-        subjects,
-      },
+      student: student,
       courses,
       sessions,
     })

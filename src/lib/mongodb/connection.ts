@@ -26,19 +26,20 @@ import { MongoClient, type Db } from 'mongodb'
 const uri = process.env.MONGODB_URI
 const dbName = process.env.MONGODB_DB || 'aics_portal'
 
-if (!uri) {
-  throw new Error('MONGODB_URI is not set. Add it to .env.local')
-}
+// NOTE: We do NOT throw at module load time — that would crash the
+// dev server on every hot reload if the env var is missing. Instead
+// we throw lazily when getDb() is actually called.
 
-// Reuse the client across hot reloads in dev to avoid exhausting
-// connections.
 let client: MongoClient | null = null
 let db: Db | null = null
 
 export async function getDb(): Promise<Db> {
   if (db) return db
+  if (!uri) {
+    throw new Error('MONGODB_URI is not set. Add it to .env.local')
+  }
   if (!client) {
-    client = new MongoClient(uri!)
+    client = new MongoClient(uri)
     await client.connect()
   }
   db = client.db(dbName)

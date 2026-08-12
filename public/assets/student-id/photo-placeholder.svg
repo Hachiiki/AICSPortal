@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" width="200" height="280">
+  <rect width="200" height="280" fill="#F4F5F6"/>
+  <!-- Bust silhouette -->
+  <g fill="#CBD5E1">
+    <!-- Head -->
+    <circle cx="100" cy="100" r="42"/>
+    <!-- Shoulders/body -->
+    <path d="M30 280 Q30 200 60 175 Q80 160 100 160 Q120 160 140 175 Q170 200 170 280 Z"/>
+  </g>
+</svg>

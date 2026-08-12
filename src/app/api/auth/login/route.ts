@@ -15,7 +15,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const student = await getStudentByCredentials(username, password)
+    let student
+    try {
+      student = await getStudentByCredentials(username, password)
+    } catch (mongoErr) {
+      // MongoDB connection failed — fall back to mock credentials for demo
+      console.error('MongoDB connection failed, using mock fallback:', mongoErr)
+      if (username === 'juan.santos' && password === 'student123') {
+        student = { username: 'juan.santos', branch: 'commonwealth' }
+      }
+    }
 
     if (!student) {
       return NextResponse.json(
