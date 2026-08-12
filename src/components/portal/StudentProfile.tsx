@@ -390,7 +390,7 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
 
       {/* Digital ID Dialog */}
       <Dialog open={showIDDialog} onOpenChange={setShowIDDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Digital ID</DialogTitle>
           </DialogHeader>

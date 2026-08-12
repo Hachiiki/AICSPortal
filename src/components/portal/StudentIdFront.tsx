@@ -150,22 +150,19 @@ function OverlayBox({
   label: string
   children: React.ReactNode
 }) {
-  const justifyContent = box.align === 'center' ? 'center' : 'flex-start'
-  const alignItems = box.vCenter ? 'center' : 'flex-start'
+  const justifyContent = box.vCenter ? 'center' : 'flex-start'
+  const alignItems = box.align === 'center' ? 'center' : 'flex-start'
 
   return (
     <div
-      className="absolute pointer-events-none"
+      className="absolute pointer-events-none overflow-hidden flex flex-col"
       style={{
         left: `${box.x}%`,
         top: `${box.y}%`,
         width: `${box.w}%`,
         height: `${box.h}%`,
-        display: 'flex',
-        flexDirection: 'column',
         justifyContent,
         alignItems,
-        overflow: 'hidden',
       }}
     >
       {calibrate && (
@@ -182,13 +179,13 @@ function OverlayBox({
         </div>
       )}
       <div
-        className="w-full"
+        className="w-full overflow-hidden"
         style={{
           textAlign: box.align === 'center' ? 'center' : 'left',
           color: box.color || undefined,
-          overflow: 'hidden',
           display: box.multiline ? 'block' : 'flex',
           whiteSpace: box.nowrap ? 'nowrap' : 'normal',
+          lineHeight: box.multiline ? '1.3' : '1.1',
         }}
       >
         {children}

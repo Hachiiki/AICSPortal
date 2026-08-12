@@ -91,8 +91,8 @@ export const FIELD_BOXES: Record<string, FieldBox> = {
   },
   // Address — white footer area
   address: {
-    x: 8, y: 93.5, w: 84, h: 5.8,
-    align: 'center', font: 'body', sizeCqw: 3.3, minCqw: 2.6,
+    x: 8, y: 93.4, w: 84, h: 6.2,
+    align: 'center', font: 'body', sizeCqw: 3.2, minCqw: 2.6,
     color: ID_COLORS.ink, lines: 3, multiline: true, vCenter: true,
   },
 }
