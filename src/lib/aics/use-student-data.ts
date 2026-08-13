@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
+// useRef removed — not needed after hydration fix
 import type { Student } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
 
@@ -74,38 +75,63 @@ export function useStudentData(username: string | null) {
 
 // ============================================================
 //  useAuth — manages the logged-in username + branch in
-//  localStorage and provides login/logout functions that
-//  call the API. The session persists across browser
-//  refreshes because localStorage is synchronous on the
-//  client.
+//  localStorage. Uses useSyncExternalStore so the first client
+//  render matches the server (both null), then React updates
+//  to the real value after hydration. This prevents hydration
+//  mismatches that would break the page.
 // ============================================================
 
-export function useAuth() {
-  // Lazy-init from localStorage on the client; null on the server.
-  // This avoids hydration mismatch (server renders null, client
-  // hydrates with the real value from localStorage).
-  const [username, setUsername] = useState<string | null>(() =>
-    typeof window !== 'undefined' ? localStorage.getItem('aics_username') : null
-  )
-  const [branch, setBranch] = useState<string | null>(() =>
-    typeof window !== 'undefined' ? localStorage.getItem('aics_branch') : null
-  )
-  // loading is false because the lazy init resolves synchronously
-  const loading = false
+// --- useSyncExternalStore for localStorage ---
 
-  // Sync across tabs/windows
-  useEffect(() => {
-    const handler = (e: StorageEvent) => {
-      if (e.key === 'aics_username') {
-        setUsername(e.newValue)
-      }
-      if (e.key === 'aics_branch') {
-        setBranch(e.newValue)
-      }
-    }
-    window.addEventListener('storage', handler)
-    return () => window.removeEventListener('storage', handler)
-  }, [])
+// A custom event dispatched whenever login/logout writes to localStorage
+const AUTH_EVENT = 'aics-auth-change'
+
+function dispatchAuthChange() {
+  window.dispatchEvent(new Event(AUTH_EVENT))
+}
+
+function authSubscribe(callback: () => void): () => void {
+  window.addEventListener(AUTH_EVENT, callback)
+  window.addEventListener('storage', callback)
+  return () => {
+    window.removeEventListener(AUTH_EVENT, callback)
+    window.removeEventListener('storage', callback)
+  }
+}
+
+// Client snapshot: reads from localStorage
+function getClientUsername(): string | null {
+  return localStorage.getItem('aics_username')
+}
+function getClientBranch(): string | null {
+  return localStorage.getItem('aics_branch')
+}
+
+// Server snapshot: always null (no localStorage on server)
+function getServerValue(): string | null {
+  return null
+}
+
+export function useAuth() {
+  // useSyncExternalStore ensures:
+  // 1. Server render: username = null, branch = null (getServerValue)
+  // 2. Client first render (hydration): username = null, branch = null (getServerValue)
+  //    → matches server, no hydration mismatch
+  // 3. After hydration: React re-renders with getClientUsername/getClientBranch
+  //    → reads real values from localStorage
+  const username = useSyncExternalStore(authSubscribe, getClientUsername, getServerValue)
+  const branch = useSyncExternalStore(authSubscribe, getClientBranch, getServerValue)
+
+  // loading is true on the server and first client render (hydration),
+  // then becomes false after mount. This prevents hydration mismatch
+  // because both server and client first render see loading=true → null.
+  // After mount, the effect updates loading to false, which triggers
+  // a re-render with the real auth state from useSyncExternalStore.
+  const loading = useSyncExternalStore(
+    () => () => {},
+    () => false, // client: not loading (localStorage is available)
+    () => true   // server: loading (no localStorage)
+  )
 
   const login = useCallback(
     async (
@@ -124,8 +150,7 @@ export function useAuth() {
         }
         localStorage.setItem('aics_username', data.username)
         localStorage.setItem('aics_branch', data.branch)
-        setUsername(data.username)
-        setBranch(data.branch)
+        dispatchAuthChange()
         return { ok: true, branch: data.branch, username: data.username }
       } catch {
         return { ok: false, error: 'Network error. Please try again.' }
@@ -137,8 +162,7 @@ export function useAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem('aics_username')
     localStorage.removeItem('aics_branch')
-    setUsername(null)
-    setBranch(null)
+    dispatchAuthChange()
   }, [])
 
   return { username, branch, loading, login, logout }
