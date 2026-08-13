@@ -20,23 +20,21 @@ export type PortalRoute =
   | { view: 'login' }
   | { view: 'dashboard'; branch: string; username: string }
   | { view: 'profile'; branch: string; username: string }
+  | { view: 'academics'; branch: string; username: string }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
-  // Normalize: remove leading/trailing slashes, split into segments.
   const parts = path.replace(/^\/+|\/+$/g, '').split('/')
-  // Expected shapes:
-  //   portal / login
-  //   portal / {branch} / student / :username
-  //   portal / {branch} / student / :username / profile
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
-  // parts[1] = branch, parts[2] = 'student', parts[3] = username
   if (parts[2] === 'student' && parts[3]) {
     const branch = decodeURIComponent(parts[1])
     const username = decodeURIComponent(parts[3])
     if (parts[4] === 'profile') {
       return { view: 'profile', branch, username }
+    }
+    if (parts[4] === 'academics') {
+      return { view: 'academics', branch, username }
     }
     return { view: 'dashboard', branch, username }
   }
@@ -52,6 +50,8 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}`
     case 'profile':
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/profile`
+    case 'academics':
+      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/academics`
   }
 }
 

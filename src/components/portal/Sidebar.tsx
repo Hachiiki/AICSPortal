@@ -4,9 +4,8 @@ import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home,
-  Layers,
+  GraduationCap,
   CalendarDays,
-  FileText,
   Users,
   Stamp,
   Files,
@@ -38,9 +37,8 @@ interface NavItem {
 // "Soon" badge and made non-interactive.
 const PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
-  { view: 'subjects', label: 'My Subjects', icon: Layers, enabled: false },
+  { view: 'academics', label: 'Academics', icon: GraduationCap, enabled: true },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
-  { view: 'grades', label: 'Grades', icon: FileText, enabled: false },
   { view: 'professors', label: 'Professors', icon: Users, enabled: false },
   { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: false },
   { view: 'documents', label: 'Documents', icon: Files, enabled: false },
