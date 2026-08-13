@@ -23,6 +23,7 @@ import type { Student, Subject } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { TasksSkeleton } from './Skeleton'
+import { RemarksBadge } from './RemarksBadge'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
 
@@ -315,15 +316,7 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
                             <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.finals}</td>
                             <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span></td>
                             <td className="px-4 py-3 text-center">
-                              {s.status === 'in-progress' ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">
-                                  <Clock className="w-3 h-3" /> {s.remarks}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
-                                  <CheckCircle2 className="w-3 h-3" /> {s.remarks}
-                                </span>
-                              )}
+                              <RemarksBadge remarks={s.remarks} />
                             </td>
                           </tr>
                         ))}
@@ -398,15 +391,7 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
                           <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.finals}</td>
                           <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span></td>
                           <td className="px-4 py-3 text-center">
-                            {s.status === 'in-progress' ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">
-                                <Clock className="w-3 h-3" /> {s.remarks}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
-                                <CheckCircle2 className="w-3 h-3" /> {s.remarks}
-                              </span>
-                            )}
+                            <RemarksBadge remarks={s.remarks} />
                           </td>
                         </tr>
                       ))}

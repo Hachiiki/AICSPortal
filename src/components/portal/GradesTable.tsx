@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { CheckCircle2 } from 'lucide-react'
 import type { Student } from '@/lib/aics/types'
+import { RemarksBadge } from './RemarksBadge'
 
 interface GradesTableProps {
   student: Student
@@ -77,10 +77,7 @@ export function GradesTable({ student }: GradesTableProps) {
                   <span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
-                    <CheckCircle2 className="w-3 h-3" />
-                    {s.remarks}
-                  </span>
+                  <RemarksBadge remarks={s.remarks} />
                 </td>
               </tr>
             ))}
