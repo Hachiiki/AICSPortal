@@ -86,11 +86,17 @@ function subscribe(callback: () => void): () => void {
 
 /**
  * Hook that syncs the browser URL with the current portal screen.
+ *
+ * On mount, if the URL is `/` (root), it redirects to `/portal/login`
+ * (the page.tsx auth guard will then redirect to the dashboard if the
+ * user is already authenticated).
  */
 export function usePortalRoute() {
   const path = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   // If the app loaded at bare `/`, replace the URL with `/portal/login`.
+  // The auth guard in page.tsx will redirect to the dashboard if the
+  // user is already logged in.
   useEffect(() => {
     if (window.location.pathname === '/') {
       window.history.replaceState({ view: 'login' }, '', '/portal/login')

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { AnimatePresence } from 'framer-motion'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
@@ -11,16 +10,19 @@ import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 
 /**
- * AICS Portal — root page.
+ * AICS Portal — root page (also rendered by the catch-all route
+ * at src/app/portal/[...slug]/page.tsx).
  *
  * URL structure:
- *   /portal/login                              → LoginView
- *   /portal/{branch}/student/{username}        → StudentDashboard
- *   /portal/{branch}/student/{username}/profile → StudentProfile
+ *   /portal/login                                    → LoginView
+ *   /portal/{branch}/student/{username}              → StudentDashboard
+ *   /portal/{branch}/student/{username}/profile      → StudentProfile
  *
- * After a successful login, a BranchRedirect animation plays that
- * detects the student's branch and shows "Redirecting to your
- * branch: {branch}" before navigating to the dashboard.
+ * Auth rules:
+ *   - Unauthenticated + protected route → redirect to /portal/login
+ *   - Authenticated + /portal/login → redirect to dashboard
+ *   - Root / → redirect to /portal/login (or dashboard if authed)
+ *   - Session persists in localStorage across refreshes
  */
 export default function AICSLoginPage() {
   const { route, navigate } = usePortalRoute()
@@ -28,18 +30,30 @@ export default function AICSLoginPage() {
   const [redirecting, setRedirecting] = useState(false)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
 
-  // If auth resolves and there's no logged-in user, go to login.
+  // --- Route guards ---
   useEffect(() => {
-    if (!authLoading && !username && route.view !== 'login') {
+    if (authLoading) return
+
+    const isLoginRoute = route.view === 'login'
+    const isProtectedRoute = !isLoginRoute
+
+    // Unauthenticated user trying to access a protected route → login
+    if (!username && isProtectedRoute) {
       navigate({ view: 'login' })
+      return
     }
-  }, [authLoading, username, route.view, navigate])
+
+    // Authenticated user on the login page → redirect to dashboard
+    if (username && branch && isLoginRoute) {
+      navigate({ view: 'dashboard', branch, username })
+      return
+    }
+  }, [authLoading, username, branch, route.view, navigate])
 
   const handleLogin = useCallback(
     async (user: string, pass: string): Promise<{ ok: boolean; error?: string }> => {
       const result = await login(user, pass)
       if (result.ok && result.branch) {
-        // Show the branch redirect animation
         setRedirectBranch(result.branch)
         setRedirecting(true)
       }
@@ -61,24 +75,26 @@ export default function AICSLoginPage() {
     toast.info('You have been signed out.')
   }, [logout, navigate])
 
+  // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
 
   // Show the branch redirect animation overlay
   if (redirecting) {
-    return (
-      <BranchRedirect
-        branch={redirectBranch}
-        onComplete={handleRedirectComplete}
-      />
-    )
+    return <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
   }
 
-  // Login screen
-  if (!username || route.view === 'login') {
+  // Not authenticated → show login (regardless of URL)
+  if (!username) {
     return <LoginView onLogin={handleLogin} />
   }
 
-  // Fetch student data from MongoDB and render the right view
+  // Authenticated but on login route → the useEffect guard will redirect.
+  // Show nothing in the meantime to avoid flashing the login form.
+  if (route.view === 'login') {
+    return null
+  }
+
+  // Authenticated + protected route → render the right view
   return (
     <StudentDataWrapper
       username={username}
