@@ -15,6 +15,7 @@ import { Topbar } from './Topbar'
 interface AcademicsPageProps {
   student: Student
   onBack: () => void
+  onProfile: () => void
   onLogout: () => void
 }
 
@@ -159,7 +160,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onBack, onLogout }: AcademicsPageProps) {
+export function AcademicsPage({ student, onBack, onProfile, onLogout }: AcademicsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects'>('grades')
 
@@ -184,7 +185,7 @@ export function AcademicsPage({ student, onBack, onLogout }: AcademicsPageProps)
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => {}}
+          onProfile={onProfile}
           onLogout={onLogout}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">

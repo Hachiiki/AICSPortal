@@ -178,6 +178,7 @@ function StudentDataWrapper({
       <AcademicsPage
         student={student}
         onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
+        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
         onLogout={onLogout}
       />
     )
