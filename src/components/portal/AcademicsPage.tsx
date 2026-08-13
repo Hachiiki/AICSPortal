@@ -1,22 +1,27 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Download,
   CheckCircle2,
   Clock,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   X,
   AlertTriangle,
   ClipboardList,
+  Calendar,
+  MoreHorizontal,
+  CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, Subject } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import type { Task, TaskType, TaskStatus } from '@/lib/aics/tasks'
-import { computeStatus, TYPE_COLORS, STATUS_COLORS } from '@/lib/aics/tasks'
+import { computeStatus, TYPE_COLORS, STATUS_COLORS, STATUS_LABELS, STATUS_ICON_COLORS } from '@/lib/aics/tasks'
 
 interface AcademicsPageProps {
   student: Student
@@ -420,7 +425,7 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
 }
 
 // ============================================================
-//  Tasks Tab — current-term task tracker with submit flow
+//  Tasks Tab — redesigned with overview, needs attention, accordions
 // ============================================================
 
 function TasksTab({ student }: { student: Student }) {
@@ -432,8 +437,10 @@ function TasksTab({ student }: { student: Student }) {
   const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
   const [submitTask, setSubmitTask] = useState<Task | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set())
+  const [detailTask, setDetailTask] = useState<Task | null>(null)
+  const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  // Fetch tasks from API
   useEffect(() => {
     let cancelled = false
     async function fetchTasks() {
@@ -441,39 +448,33 @@ function TasksTab({ student }: { student: Student }) {
         const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
         const data = await res.json()
         if (cancelled) return
-        if (data.ok) {
-          setTasks(data.tasks)
-        } else {
-          setError(data.error || 'Failed to load tasks')
-        }
-      } catch {
-        if (!cancelled) setError('Network error')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+        if (data.ok) setTasks(data.tasks)
+        else setError(data.error || 'Failed to load tasks')
+      } catch { if (!cancelled) setError('Network error') }
+      finally { if (!cancelled) setLoading(false) }
     }
     fetchTasks()
     return () => { cancelled = true }
   }, [student.username])
 
-  // Current-term subjects for the dropdown
-  const currentSubjects = useMemo(() => {
-    return student.subjects.filter(
-      (s) => s.academicYear === student.academicYear && s.semester === student.semester
-    )
-  }, [student.subjects, student.academicYear, student.semester])
+  const currentSubjects = useMemo(() =>
+    student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),
+  [student.subjects, student.academicYear, student.semester])
 
-  // Summary chips (computed from all tasks)
+  // Compute summary with 4-status model
   const summary = useMemo(() => {
-    let graded = 0, pending = 0, missing = 0
+    let graded = 0, pending = 0, missing = 0, needs = 0
     for (const t of tasks) {
       const { status } = computeStatus(t)
       if (status === 'GRADED') graded++
+      else if (status === 'PENDING') pending++
       else if (status === 'MISSING') missing++
-      else pending++
+      else needs++
     }
-    return { total: tasks.length, graded, pending, missing }
+    return { total: tasks.length, graded, pending, missing, needs }
   }, [tasks])
+
+  const pct = summary.total > 0 ? Math.round((summary.graded / summary.total) * 100) : 0
 
   // Filtered tasks
   const filteredTasks = useMemo(() => {
@@ -488,17 +489,27 @@ function TasksTab({ student }: { student: Student }) {
     })
   }, [tasks, subjectFilter, typeFilter, statusFilter])
 
-  // Group by subject
+  // Needs attention list (all non-graded, ordered MISSING → PENDING → NEEDS_ATTENTION, by dueDate asc)
+  const needsAttentionTasks = useMemo(() => {
+    const order: Record<TaskStatus, number> = { MISSING: 0, PENDING: 1, NEEDS_ATTENTION: 2, GRADED: 3 }
+    return tasks
+      .filter((t) => computeStatus(t).status !== 'GRADED')
+      .sort((a, b) => {
+        const sa = computeStatus(a).status
+        const sb = computeStatus(b).status
+        if (order[sa] !== order[sb]) return order[sa] - order[sb]
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+      })
+  }, [tasks])
+
+  // Group filtered tasks by subject
   const groupedBySubject = useMemo(() => {
     const map = new Map<string, Task[]>()
     for (const t of filteredTasks) {
       if (!map.has(t.subjectCode)) map.set(t.subjectCode, [])
       map.get(t.subjectCode)!.push(t)
     }
-    // Sort tasks within each subject by dueDate ascending
-    for (const [, list] of map) {
-      list.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-    }
+    for (const [, list] of map) list.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
     return Array.from(map.entries())
   }, [filteredTasks])
 
@@ -507,181 +518,270 @@ function TasksTab({ student }: { student: Student }) {
     if (!submitTask) return
     setSubmitting(true)
     try {
-      const res = await fetch(
-        `/api/tasks/${submitTask._id}/submit?username=${encodeURIComponent(student.username)}`,
-        { method: 'PATCH' }
-      )
+      const res = await fetch(`/api/tasks/${submitTask._id}/submit?username=${encodeURIComponent(student.username)}`, { method: 'PATCH' })
       const data = await res.json()
       if (data.ok) {
-        // Update local state
-        setTasks((prev) =>
-          prev.map((t) =>
-            t._id === submitTask._id
-              ? { ...t, submitted: true, submittedAt: new Date().toISOString() }
-              : t
-          )
-        )
+        setTasks((prev) => prev.map((t) => t._id === submitTask._id ? { ...t, submitted: true, submittedAt: new Date().toISOString() } : t))
         toast.success('Submitted. Awaiting grade.')
         setSubmitTask(null)
-      } else {
-        toast.error(data.error || 'Failed to submit task.')
-      }
-    } catch {
-      toast.error('Network error. Please try again.')
-    } finally {
-      setSubmitting(false)
-    }
+      } else { toast.error(data.error || 'Failed to submit task.') }
+    } catch { toast.error('Network error. Please try again.') }
+    finally { setSubmitting(false) }
   }, [submitTask, student.username])
 
-  if (loading) {
-    return <div className="text-slate-500 text-sm">Loading tasks…</div>
-  }
+  // Toggle course expansion
+  const toggleCourse = useCallback((code: string) => {
+    setExpandedCourses((prev) => {
+      const next = new Set(prev)
+      if (next.has(code)) next.delete(code)
+      else next.add(code)
+      return next
+    })
+  }, [])
 
-  if (error) {
-    return <div className="text-red-600 text-sm">{error}</div>
-  }
+  const expandAll = useCallback(() => setExpandedCourses(new Set(currentSubjects.map((s) => s.code))), [currentSubjects])
+  const collapseAll = useCallback(() => setExpandedCourses(new Set()), [])
+
+  // Row click from Needs Attention → expand + scroll to course
+  const handleAttentionRowClick = useCallback((task: Task) => {
+    setExpandedCourses((prev) => new Set(prev).add(task.subjectCode))
+    setTimeout(() => {
+      const el = courseRefs.current[task.subjectCode]
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+  }, [])
+
+  if (loading) return <div className="text-slate-500 text-sm">Loading tasks…</div>
+  if (error) return <div className="text-red-600 text-sm">{error}</div>
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      {/* Header */}
+      {/* Heading */}
       <div>
         <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Current term activities, quizzes, tests and projects
-        </p>
+        <p className="text-xs text-slate-500 mt-0.5">Current term activities, quizzes, tests and projects</p>
       </div>
 
-      {/* Summary chips */}
-      <div className="flex flex-wrap gap-3">
-        <SummaryChip label="TOTAL" value={summary.total} color="text-slate-900" />
-        <SummaryChip label="GRADED" value={summary.graded} color="text-green-700" />
-        <SummaryChip label="PENDING" value={summary.pending} color="text-amber-700" />
-        <SummaryChip label="MISSING" value={summary.missing} color="text-red-700" />
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        {/* Subject dropdown */}
-        <select
-          value={subjectFilter}
-          onChange={(e) => setSubjectFilter(e.target.value)}
-          className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 bg-white"
-        >
-          <option value="all">All Subjects</option>
-          {currentSubjects.map((s) => (
-            <option key={s.code} value={s.code}>{s.code} - {s.title}</option>
-          ))}
-        </select>
-        {/* Type chips */}
-        <div className="flex gap-1">
-          {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTypeFilter(t)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {t === 'all' ? 'All' : t}
-            </button>
-          ))}
+      {/* TASK OVERVIEW CARD */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
         </div>
-        {/* Status chips */}
-        <div className="flex gap-1">
-          {(['all', 'MISSING', 'PENDING', 'GRADED'] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatusFilter(s)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {s === 'all' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
-            </button>
-          ))}
+        <div className="px-6 py-5">
+          <div className="grid grid-cols-5 divide-x divide-slate-100">
+            <OverviewStat label="Total" value={summary.total} color="text-blue-700" />
+            <OverviewStat label="Graded" value={summary.graded} color="text-green-700" />
+            <OverviewStat label="Pending" value={summary.pending} color="text-amber-700" />
+            <OverviewStat label="Needs attention" value={summary.needs} color="text-blue-700" />
+            <OverviewStat label="Missing" value={summary.missing} color="text-red-700" />
+          </div>
+          <div className="mt-4">
+            <p className="text-xs text-slate-500 mb-1.5">
+              {summary.graded} of {summary.total} tasks graded &bull; {pct}% completed
+            </p>
+            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Empty state */}
+      {/* FILTER CARD */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-4">
+        <div className="flex flex-wrap gap-6 items-center">
+          {/* Subject */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Subject</label>
+            <select
+              value={subjectFilter}
+              onChange={(e) => setSubjectFilter(e.target.value)}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 bg-white"
+            >
+              <option value="all">All Subjects</option>
+              {currentSubjects.map((s) => (<option key={s.code} value={s.code}>{s.code}</option>))}
+            </select>
+          </div>
+          <div className="w-px h-10 bg-slate-100" />
+          {/* Type */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Type</label>
+            <div className="flex gap-1">
+              {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
+                <button key={t} type="button" onClick={() => setTypeFilter(t)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
+                  {t === 'all' ? 'All' : t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="w-px h-10 bg-slate-100" />
+          {/* Status */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Status</label>
+            <div className="flex gap-1">
+              {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
+                <button key={s} type="button" onClick={() => setStatusFilter(s)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
+                  {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* NEEDS ATTENTION CARD */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h3 className="text-base font-semibold text-slate-900">Needs Attention</h3>
+          <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
+        </div>
+        {needsAttentionTasks.length === 0 ? (
+          <div className="py-12 text-center">
+            <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
+            <p className="text-sm font-medium text-green-600">All caught up.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {needsAttentionTasks.map((task) => {
+              const { status, sub } = computeStatus(task)
+              const subject = currentSubjects.find((s) => s.code === task.subjectCode)
+              return (
+                <div key={task._id}
+                  onClick={() => handleAttentionRowClick(task)}
+                  className="px-6 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+                  {/* Circular status icon */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[status]}`}>
+                    {status === 'MISSING' && <AlertTriangle className="w-4 h-4" />}
+                    {status === 'PENDING' && <Clock className="w-4 h-4" />}
+                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">{task.subjectCode} &bull; {subject?.title || ''}</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{task.title}</p>
+                  </div>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${STATUS_COLORS[status]}`}>
+                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
+                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
+                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                    {sub}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* COURSES SECTION */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold text-slate-900">Courses</h3>
+        <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
+          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+          {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
+          {expandedCourses.size === currentSubjects.length ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      {/* COURSE ACCORDION CARDS */}
       {filteredTasks.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
           <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-sm text-slate-500">No tasks for this term.</p>
         </div>
       ) : (
-        /* Task cards grouped by subject */
-        <div className="space-y-6">
+        <div className="space-y-4">
           {groupedBySubject.map(([subjectCode, subjectTasks]) => {
             const subject = currentSubjects.find((s) => s.code === subjectCode)
+            const isExpanded = expandedCourses.has(subjectCode)
+            const hasMissing = subjectTasks.some((t) => computeStatus(t).status === 'MISSING')
             return (
-              <div key={subjectCode} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                {/* Subject header */}
-                <div className="px-6 py-4 border-b border-slate-100">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    <span className="font-mono text-xs font-bold text-blue-700 mr-2">{subjectCode}</span>
-                    {subject?.title || subjectCode}
-                  </h3>
-                  {subject && (
-                    <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>
-                  )}
+              <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
+                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                {/* Accordion header */}
+                <div onClick={() => toggleCourse(subjectCode)}
+                  className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-blue-700">{subjectCode}</span>
+                      <h3 className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</h3>
+                    </div>
+                    {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{subjectTasks.length} tasks</span>
+                    {hasMissing && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                        <AlertTriangle className="w-3 h-3" /> Needs attention
+                      </span>
+                    )}
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </div>
                 </div>
-                {/* Task rows */}
-                <div className="divide-y divide-slate-100">
-                  {subjectTasks.map((task) => {
-                    const { status, sub } = computeStatus(task)
-                    const dueDate = new Date(task.dueDate)
-                    const isMissing = status === 'MISSING'
-                    const showSubmit = !task.submitted && task.score === null
-                    return (
-                      <div key={task._id} className="px-6 py-4 flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 min-w-0 flex-1">
-                          {/* Type badge */}
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${TYPE_COLORS[task.type]}`}>
-                            {task.type}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-slate-900">{task.title}</p>
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-slate-500">
-                                Due: {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              </span>
-                              {task.score !== null && (
-                                <span className="text-xs font-mono font-bold text-slate-700">
-                                  Score: {task.score} / {task.maxScore}
-                                </span>
-                              )}
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${STATUS_COLORS[status]}`}>
-                                {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
-                                {status === 'PENDING' && <Clock className="w-3 h-3" />}
-                                {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
-                                {sub}
-                              </span>
-                            </div>
-                            {task.feedback && (
-                              <p className="text-xs text-slate-400 mt-1 italic">"{task.feedback}"</p>
-                            )}
-                          </div>
-                        </div>
-                        {/* Submit button */}
-                        {showSubmit && (
-                          <button
-                            type="button"
-                            onClick={() => setSubmitTask(task)}
-                            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium flex-shrink-0 ${
-                              isMissing
-                                ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
-                                : 'bg-blue-700 text-white hover:bg-blue-800'
-                            }`}
-                          >
-                            {isMissing ? 'Submit (Late)' : 'Submit'}
-                          </button>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+                {/* Expanded table */}
+                {isExpanded && (
+                  <div className="border-t border-slate-100 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Type</th>
+                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
+                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
+                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
+                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {subjectTasks.map((task) => {
+                          const { status, sub } = computeStatus(task)
+                          const dueDate = new Date(task.dueDate)
+                          const isMissing = status === 'MISSING'
+                          const showSubmit = !task.submitted && task.score === null
+                          return (
+                            <tr key={task._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                              <td className="px-4 py-3">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${TYPE_COLORS[task.type]}`}>{task.type}</span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <p className="text-sm font-medium text-slate-900">{task.title}</p>
+                                {task.feedback && <p className="text-xs text-slate-400 mt-0.5 italic">"{task.feedback}"</p>}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-slate-500">
+                                {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex flex-col gap-0.5">
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${STATUS_COLORS[status]}`}>
+                                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
+                                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
+                                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                                    {sub}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400">{STATUS_LABELS[status]}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                {showSubmit ? (
+                                  <button type="button" onClick={() => setSubmitTask(task)}
+                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isMissing ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                    {isMissing ? 'Submit (Late)' : 'Submit'}
+                                  </button>
+                                ) : (
+                                  <button type="button" onClick={() => setDetailTask(task)}
+                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )
           })}
@@ -691,107 +791,108 @@ function TasksTab({ student }: { student: Student }) {
       {/* Submit warning modal */}
       <AnimatePresence>
         {submitTask && (
-          <SubmitWarningModal
-            task={submitTask}
-            onCancel={() => setSubmitTask(null)}
-            onConfirm={handleConfirmSubmit}
-            submitting={submitting}
-          />
+          <SubmitWarningModal task={submitTask} onCancel={() => setSubmitTask(null)} onConfirm={handleConfirmSubmit} submitting={submitting} />
+        )}
+      </AnimatePresence>
+
+      {/* Task details modal */}
+      <AnimatePresence>
+        {detailTask && (
+          <TaskDetailsModal task={detailTask} subjectName={currentSubjects.find((s) => s.code === detailTask.subjectCode)?.title || ''} onClose={() => setDetailTask(null)} />
         )}
       </AnimatePresence>
     </motion.div>
   )
 }
 
-function SummaryChip({ label, value, color }: { label: string; value: number; color: string }) {
+function OverviewStat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="bg-white rounded-lg border border-slate-200 px-4 py-2.5">
-      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
-      <p className={`text-lg font-bold ${color}`}>{value}</p>
+    <div className="text-center px-2">
+      <p className="text-2xl font-bold {color}" style={{ color: color.replace('text-', '').includes('green') ? '#15803D' : color.includes('amber') ? '#B45309' : color.includes('red') ? '#DC2626' : '#2563EB' }}>{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mt-0.5">{label}</p>
     </div>
   )
 }
 
-function SubmitWarningModal({
-  task,
-  onCancel,
-  onConfirm,
-  submitting,
-}: {
-  task: Task
-  onCancel: () => void
-  onConfirm: () => void
-  submitting: boolean
-}) {
-  // Close on Escape
+function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: Task; onCancel: () => void; onConfirm: () => void; submitting: boolean }) {
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onCancel])
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50"
-      onClick={onCancel}
-    >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onCancel}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-500" />
             <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
           </div>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <button type="button" onClick={onCancel} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
         </div>
-        {/* Body */}
         <div className="px-6 py-5">
           <p className="text-sm text-slate-600 leading-relaxed">
-            You should have already passed the ACTUAL paper for this activity to your
-            adviser/professor BEFORE submitting here. Submitting in the portal without passing
-            the physical paper will result in a penalty the next day.
+            You should have already passed the ACTUAL paper for this activity to your adviser/professor BEFORE submitting here. Submitting in the portal without passing the physical paper will result in a penalty the next day.
           </p>
-          <p className="text-xs text-slate-400 mt-3">
-            Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})
-          </p>
+          <p className="text-xs text-slate-400 mt-3">Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})</p>
         </div>
-        {/* Buttons */}
         <div className="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={submitting}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60"
-          >
+          <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="button" onClick={onConfirm} disabled={submitting} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60">
             {submitting ? 'Submitting…' : 'I passed the paper — Submit'}
           </button>
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectName: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const { status, sub } = computeStatus(task)
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+          <h3 className="font-bold text-sm text-slate-900">Task Details</h3>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="px-6 py-5 space-y-3">
+          <DetailRow label="Title" value={task.title} />
+          <DetailRow label="Type" value={task.type} />
+          <DetailRow label="Subject" value={`${task.subjectCode} — ${subjectName}`} />
+          <DetailRow label="Due Date" value={new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
+          {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
+          <DetailRow label="Status" value={STATUS_LABELS[status]} />
+          {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}
+          {task.feedback && <DetailRow label="Feedback" value={task.feedback} />}
+          {task.description && <DetailRow label="Description" value={task.description} />}
+        </div>
+        <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Close</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">{label}</p>
+      <p className="text-sm font-medium text-slate-700 mt-0.5 break-words">{value}</p>
+    </div>
   )
 }
 
