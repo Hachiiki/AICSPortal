@@ -79,20 +79,20 @@ export const FIELD_BOXES: Record<string, FieldBox> = {
   },
   // Course/Program — right of photo, below student number
   course: {
-    x: 48.5, y: 69, w: 47.5, h: 15.5,
-    align: 'left', font: 'display', sizeCqw: 4.6, minCqw: 3.2,
+    x: 48.7, y: 70.5, w: 47.3, h: 9.0,
+    align: 'left', font: 'display', sizeCqw: 4.8, minCqw: 3.2,
     color: ID_COLORS.white, lines: 3, multiline: true, uppercase: true, vCenter: true,
   },
   // Branch — on the bottom navy bar
   branch: {
-    x: 5, y: 87.5, w: 90, h: 5.5,
+    x: 5, y: 87.5, w: 90, h: 4.9,
     align: 'center', font: 'display', sizeCqw: 4.6, minCqw: 3.4,
     color: ID_COLORS.yellow, lines: 1, nowrap: true, uppercase: true, vCenter: true,
   },
   // Address — white footer area
   address: {
-    x: 8, y: 93.4, w: 84, h: 6.2,
-    align: 'center', font: 'body', sizeCqw: 3.2, minCqw: 2.6,
+    x: 8, y: 93.2, w: 84, h: 6.4,
+    align: 'center', font: 'body', sizeCqw: 3.2, minCqw: 2.4,
     color: ID_COLORS.ink, lines: 3, multiline: true, vCenter: true,
   },
 }

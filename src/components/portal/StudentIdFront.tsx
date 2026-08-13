@@ -99,7 +99,7 @@ export function StudentIdFront({ student }: StudentIdFrontProps) {
         <FitText
           maxCqw={FIELD_BOXES.course.sizeCqw}
           minCqw={FIELD_BOXES.course.minCqw}
-          className={`${ID_FONTS.display} uppercase`}
+          className={`${ID_FONTS.display} uppercase leading-[1.2] text-left`}
           multiline
         >
           {idCourse}
@@ -111,7 +111,7 @@ export function StudentIdFront({ student }: StudentIdFrontProps) {
         <FitText
           maxCqw={FIELD_BOXES.branch.sizeCqw}
           minCqw={FIELD_BOXES.branch.minCqw}
-          className={`${ID_FONTS.display} uppercase whitespace-nowrap`}
+          className={`${ID_FONTS.display} uppercase whitespace-nowrap text-center`}
         >
           {idBranch}
         </FitText>
@@ -122,7 +122,7 @@ export function StudentIdFront({ student }: StudentIdFrontProps) {
         <FitText
           maxCqw={FIELD_BOXES.address.sizeCqw}
           minCqw={FIELD_BOXES.address.minCqw}
-          className={`${ID_FONTS.body} text-center`}
+          className={`${ID_FONTS.body} text-center leading-[1.25]`}
           multiline
         >
           {idAddress}
@@ -183,9 +183,9 @@ function OverlayBox({
         style={{
           textAlign: box.align === 'center' ? 'center' : 'left',
           color: box.color || undefined,
-          display: box.multiline ? 'block' : 'flex',
+          display: 'block',
           whiteSpace: box.nowrap ? 'nowrap' : 'normal',
-          lineHeight: box.multiline ? '1.3' : '1.1',
+          lineHeight: box.multiline ? (box.align === 'center' ? '1.25' : '1.2') : '1.1',
         }}
       >
         {children}
