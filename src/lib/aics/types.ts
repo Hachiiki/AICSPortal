@@ -4,6 +4,7 @@ export type View =
   | 'login'
   | 'dashboard'
   | 'profile'
+  | 'academics'
   | 'subjects'
   | 'schedule'
   | 'grades'
@@ -29,6 +30,11 @@ export interface Subject {
   finals: string
   finalGrade: string
   remarks: string
+  // Term fields (added for academics module — backward compatible)
+  academicYear?: string
+  semester?: string
+  yearLevel?: string
+  status?: string // "completed" | "in-progress"
 }
 
 export interface ScheduleEntry {

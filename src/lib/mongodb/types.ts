@@ -77,4 +77,9 @@ export interface MongoSubject {
   finals: string
   finalGrade: string
   remarks: string
+  // Term fields (added for academics module — backward compatible)
+  academicYear?: string // e.g. "2025-2026"
+  semester?: string // e.g. "1st Sem"
+  yearLevel?: string // e.g. "1st Year"
+  status?: string // "completed" | "in-progress"
 }

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -12,33 +13,52 @@ import { TodaysClasses } from './TodaysClasses'
 interface StudentDashboardProps {
   student: Student
   onProfile: () => void
+  onAcademics: () => void
   onLogout: () => void
 }
 
 /**
- * Main student dashboard. Uses a sidebar + topbar shell, a light
- * academic header, a semantic grades table, a time-grid weekly
- * schedule, and a Today's Classes panel — all driven by the same
- * centralized schedule data in `src/lib/schedule.ts`.
- *
- * Only Dashboard and Profile are functional. All other sidebar nav
- * items are rendered as grayed-out "coming soon" and are non-clickable.
+ * Main student dashboard. Shows the current term's grades and schedule.
+ * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, onProfile, onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ student, onProfile, onAcademics, onLogout }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
-  const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
+  // Filter to current-term subjects + compute derived values
+  const { currentTermSubjects, totalUnits, cumulativeGPA } = useMemo(() => {
+    const current = student.subjects.filter((s) => {
+      return s.academicYear === student.academicYear && s.semester === student.semester
+    })
+    const units = current.reduce((sum, s) => sum + s.units, 0)
+    const completed = student.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0)
+    let tu = 0
+    let ws = 0
+    for (const s of completed) {
+      const grade = parseFloat(s.finalGrade)
+      if (!isNaN(grade)) {
+        tu += s.units
+        ws += grade * s.units
+      }
+    }
+    const gpa = tu > 0 ? (ws / tu).toFixed(2) : student.gpa
+    return { currentTermSubjects: current, totalUnits: units, cumulativeGPA: gpa }
+  }, [student])
 
-  // Only 'dashboard' and 'profile' are reachable — the sidebar renders
-  // all other nav items as disabled "coming soon".
   const handleNavigate = (v: View) => {
     if (v === 'profile') {
       onProfile()
       return
     }
+    if (v === 'academics') {
+      onAcademics()
+      return
+    }
     setView('dashboard')
   }
+
+  // Create a student object with only current-term subjects for the dashboard
+  const dashboardStudent = { ...student, subjects: currentTermSubjects, gpa: cumulativeGPA }
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
@@ -49,7 +69,6 @@ export function StudentDashboard({ student, onProfile, onLogout }: StudentDashbo
         onMobileClose={() => setMobileNavOpen(false)}
       />
 
-      {/* Main column — offset by sidebar width on desktop */}
       <div className="lg:pl-60">
         <Topbar
           student={student}
@@ -59,9 +78,19 @@ export function StudentDashboard({ student, onProfile, onLogout }: StudentDashbo
         />
 
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
-          <AcademicHeader student={student} totalUnits={totalUnits} />
+          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} />
 
-          <GradesTable student={student} />
+          <GradesTable student={dashboardStudent} />
+
+          {/* Link to full academic record */}
+          <div className="flex justify-end">
+            <button
+              onClick={onAcademics}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              View full academic record <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
 
           <div className="flex flex-col lg:flex-row gap-4">
             <ScheduleGrid />

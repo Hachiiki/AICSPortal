@@ -17,17 +17,23 @@ if (!uri) {
 }
 
 const BRANCH = 'commonwealth' as const
-
-// The only branch available for now
 const BRANCH_NAME = 'AICS Commonwealth'
 const BRANCH_ADDRESS = 'AICS Bldg., Commonwealth Ave., Cor., Holy Spirit Drive Brgy. Don Antonio, Quezon City'
 
-// Available courses at the Commonwealth branch
-const AVAILABLE_PROGRAMS = [
-  'Bachelor of Science in Computer Science',
-  'Bachelor of Science in Computer Engineering',
-  'Bachelor of Science in Entrepreneur',
-]
+// GPA computation: unit-weighted average of finalGrade (2 decimals)
+function computeGPA(subjects: { units: number; finalGrade: string }[]): string {
+  let totalUnits = 0
+  let weightedSum = 0
+  for (const s of subjects) {
+    const grade = parseFloat(s.finalGrade)
+    if (!isNaN(grade)) {
+      totalUnits += s.units
+      weightedSum += grade * s.units
+    }
+  }
+  if (totalUnits === 0) return '-'
+  return (weightedSum / totalUnits).toFixed(2)
+}
 
 async function seed() {
   const client = new MongoClient(uri)
@@ -36,11 +42,9 @@ async function seed() {
 
   console.log(`Connected to MongoDB: ${dbName}`)
   console.log(`Seeding branch: ${BRANCH}`)
-  console.log(`Branch address: ${BRANCH_ADDRESS}`)
-  console.log(`Available programs: ${AVAILABLE_PROGRAMS.join(', ')}`)
 
   // ----------------------------------------------------------
-  //  1. Courses (subject catalog for the branch)
+  //  1. Courses
   // ----------------------------------------------------------
   const courses = [
     { branch: BRANCH, code: 'CS 101', title: 'Introduction to Computing', shortTitle: 'Intro Computing', color: 'blue' as const },
@@ -49,7 +53,14 @@ async function seed() {
     { branch: BRANCH, code: 'CS 202', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'violet' as const },
     { branch: BRANCH, code: 'CS 203', title: 'Database Systems', shortTitle: 'Database', color: 'blue' as const },
     { branch: BRANCH, code: 'CS 204', title: 'Web Development', shortTitle: 'Web Dev', color: 'green' as const },
+    { branch: BRANCH, code: 'CS 205', title: 'Discrete Structures', shortTitle: 'Discrete', color: 'amber' as const },
+    { branch: BRANCH, code: 'CS 206', title: 'Information Management', shortTitle: 'Info Mgmt', color: 'violet' as const },
+    { branch: BRANCH, code: 'CS 207', title: 'Platform Technologies', shortTitle: 'Platform Tech', color: 'blue' as const },
+    { branch: BRANCH, code: 'CS 208', title: 'Systems Administration', shortTitle: 'SysAdmin', color: 'green' as const },
+    { branch: BRANCH, code: 'CS 209', title: 'Human-Computer Interaction', shortTitle: 'HCI', color: 'amber' as const },
+    { branch: BRANCH, code: 'CS 210', title: 'Application Development', shortTitle: 'App Dev', color: 'violet' as const },
     { branch: BRANCH, code: 'PE 1', title: 'Physical Fitness', shortTitle: 'PE', color: 'red' as const },
+    { branch: BRANCH, code: 'PE 2', title: 'Team Sports', shortTitle: 'PE', color: 'red' as const },
   ]
 
   await db.collection('courses').deleteMany({ branch: BRANCH })
@@ -57,26 +68,20 @@ async function seed() {
   console.log(`  ✓ Inserted ${courses.length} courses`)
 
   // ----------------------------------------------------------
-  //  2. Sessions (weekly schedule)
+  //  2. Sessions (weekly schedule — current term only)
   // ----------------------------------------------------------
   const sessions = [
-    // Monday (0)
-    { branch: BRANCH, code: 'CS 101', day: 0, start: 8, end: 9.5, room: 'Room 101' },
-    { branch: BRANCH, code: 'CS 201', day: 0, start: 10, end: 11.5, room: 'Lab 201' },
-    { branch: BRANCH, code: 'CS 203', day: 0, start: 13, end: 14.5, room: 'Lab 202' },
-    // Tuesday (1)
-    { branch: BRANCH, code: 'CS 102', day: 1, start: 10, end: 11.5, room: 'Room 105' },
-    { branch: BRANCH, code: 'CS 203', day: 1, start: 13, end: 14.5, room: 'Lab 202' },
-    // Wednesday (2)
-    { branch: BRANCH, code: 'CS 101', day: 2, start: 8, end: 9.5, room: 'Room 101' },
-    { branch: BRANCH, code: 'CS 201', day: 2, start: 10, end: 11.5, room: 'Lab 201' },
-    // Thursday (3)
-    { branch: BRANCH, code: 'CS 102', day: 3, start: 10, end: 11.5, room: 'Room 105' },
-    { branch: BRANCH, code: 'CS 204', day: 3, start: 13, end: 14.5, room: 'Lab 203' },
-    // Friday (4)
-    { branch: BRANCH, code: 'CS 202', day: 4, start: 8, end: 9.5, room: 'Room 203' },
-    // Saturday (5)
-    { branch: BRANCH, code: 'PE 1', day: 5, start: 8, end: 10, room: 'Gym' },
+    { branch: BRANCH, code: 'CS 205', day: 0, start: 8, end: 9.5, room: 'Room 101' },
+    { branch: BRANCH, code: 'CS 207', day: 0, start: 10, end: 11.5, room: 'Lab 201' },
+    { branch: BRANCH, code: 'CS 209', day: 0, start: 13, end: 14.5, room: 'Lab 202' },
+    { branch: BRANCH, code: 'CS 206', day: 1, start: 10, end: 11.5, room: 'Room 105' },
+    { branch: BRANCH, code: 'CS 209', day: 1, start: 13, end: 14.5, room: 'Lab 202' },
+    { branch: BRANCH, code: 'CS 205', day: 2, start: 8, end: 9.5, room: 'Room 101' },
+    { branch: BRANCH, code: 'CS 207', day: 2, start: 10, end: 11.5, room: 'Lab 201' },
+    { branch: BRANCH, code: 'CS 206', day: 3, start: 10, end: 11.5, room: 'Room 105' },
+    { branch: BRANCH, code: 'CS 210', day: 3, start: 13, end: 14.5, room: 'Lab 203' },
+    { branch: BRANCH, code: 'CS 208', day: 4, start: 8, end: 9.5, room: 'Room 203' },
+    { branch: BRANCH, code: 'PE 2', day: 5, start: 8, end: 10, room: 'Gym' },
   ]
 
   await db.collection('sessions').deleteMany({ branch: BRANCH })
@@ -84,24 +89,44 @@ async function seed() {
   console.log(`  ✓ Inserted ${sessions.length} class sessions`)
 
   // ----------------------------------------------------------
-  //  3. Subjects (enrollments for the test student)
+  //  3. Subjects (enrollments — TWO terms for Juan)
   // ----------------------------------------------------------
-  const subjects = [
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 101', title: 'Introduction to Computing', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '1.25', finals: '1.25', finalGrade: '1.25', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 102', title: 'Computer Programming I', units: 3, professor: 'Engr. Carlos Santos', professorEmail: 'c.santos@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', midterm: '1.50', finals: '1.50', finalGrade: '1.50', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 201', title: 'Data Structures and Algorithms', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', midterm: '1.00', finals: '1.25', finalGrade: '1.00', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 202', title: 'Object-Oriented Programming', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '1.75', finals: '1.50', finalGrade: '1.50', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 203', title: 'Database Systems', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '1.25', finals: '1.50', finalGrade: '1.25', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 204', title: 'Web Development', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 1', title: 'Physical Fitness', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed' },
+
+  // TERM 1: 1st Year / 1st Sem / AY 2025-2026 (completed)
+  const term1Subjects = [
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 101', title: 'Introduction to Computing', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '1.25', finals: '1.25', finalGrade: '1.25', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 102', title: 'Computer Programming I', units: 3, professor: 'Engr. Carlos Santos', professorEmail: 'c.santos@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', midterm: '1.50', finals: '1.50', finalGrade: '1.50', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 201', title: 'Data Structures and Algorithms', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', midterm: '1.00', finals: '1.25', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 202', title: 'Object-Oriented Programming', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '1.75', finals: '1.50', finalGrade: '1.50', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 203', title: 'Database Systems', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '1.25', finals: '1.50', finalGrade: '1.25', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 204', title: 'Web Development', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 1', title: 'Physical Fitness', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
   ]
 
+  // TERM 2: 2nd Year / 1st Sem / AY 2026-2027 (in-progress)
+  const term2Subjects = [
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 206', title: 'Information Management', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 207', title: 'Platform Technologies', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Carlos Santos', professorEmail: 'c.santos@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Prof. Denise Ong', professorEmail: 'd.ong@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 210', title: 'Application Development', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 2', title: 'Team Sports', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+  ]
+
+  const allSubjects = [...term1Subjects, ...term2Subjects]
+
   await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
-  await db.collection('subjects').insertMany(subjects)
-  console.log(`  ✓ Inserted ${subjects.length} subjects for juan.santos`)
+  await db.collection('subjects').insertMany(allSubjects)
+  console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms)`)
+
+  // Compute GPA for completed term
+  const term1GPA = computeGPA(term1Subjects)
+  const isDeansLister = parseFloat(term1GPA) <= 1.50
+  console.log(`  ✓ Term 1 GPA: ${term1GPA}, Dean's Lister: ${isDeansLister}`)
 
   // ----------------------------------------------------------
-  //  4. Student — 6-digit student number, Commonwealth branch
+  //  4. Student — 2nd Year, AY 2026-2027
   // ----------------------------------------------------------
   const student = {
     branch: BRANCH,
@@ -111,17 +136,17 @@ async function seed() {
     firstName: 'Juan',
     lastName: 'Santos',
     middleName: 'Dela Cruz',
-    studentNumber: '251438', // 6-digit student number
+    studentNumber: '251438',
     program: 'Bachelor of Science in Computer Science',
     programShort: 'BSCS',
-    yearLevel: '3rd Year',
-    section: 'CS-3A',
-    semester: '1st Semester',
-    academicYear: '2025-2026',
+    yearLevel: '2nd Year',
+    section: 'CS-2A',
+    semester: '1st Sem',
+    academicYear: '2026-2027',
     enrollmentStatus: 'Enrolled',
-    deanLister: true,
-    deanListerSemester: '1st Semester, AY 2025-2026',
-    gpa: '1.37',
+    deanLister: isDeansLister,
+    deanListerSemester: '1st Sem, AY 2025-2026',
+    gpa: term1GPA,
     email: 'juan.santos@aics.edu.ph',
     phone: '+63 917 123 4567',
     address: '123 Mabini Street, Brgy. Masambong, Quezon City, Metro Manila 1115',
@@ -141,13 +166,10 @@ async function seed() {
 
   await db.collection('students').deleteMany({ branch: BRANCH, username: 'juan.santos' })
   await db.collection('students').insertOne(student)
-  console.log(`  ✓ Inserted student: juan.santos (branch: ${BRANCH})`)
-  console.log(`    Student number: ${student.studentNumber}`)
-  console.log(`    Program: ${student.program}`)
-  console.log(`    Branch address: ${student.branchAddress}`)
+  console.log(`  ✓ Inserted student: juan.santos (2nd Year, CS-2A, AY 2026-2027)`)
 
   // ----------------------------------------------------------
-  //  5. Create indexes for fast lookups
+  //  5. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
@@ -156,11 +178,12 @@ async function seed() {
   console.log(`  ✓ Created indexes`)
 
   console.log('\n✅ Seed complete!')
-  console.log(`   Database: ${dbName}`)
-  console.log(`   Branch:   ${BRANCH} (${BRANCH_NAME})`)
-  console.log(`   Address:  ${BRANCH_ADDRESS}`)
-  console.log(`   Test login:  username="juan.santos" / password="student123"`)
-  console.log(`   Student #:   251438`)
+  console.log(`   Student: juan.santos / student123`)
+  console.log(`   Student #: 251438`)
+  console.log(`   Year: 2nd Year, Section: CS-2A`)
+  console.log(`   Current AY: 2026-2027 (in-progress)`)
+  console.log(`   Completed AY: 2025-2026 (GPA: ${term1GPA})`)
+  console.log(`   Dean's Lister: ${isDeansLister}`)
 
   await client.close()
 }

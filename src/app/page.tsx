@@ -8,6 +8,7 @@ import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
+import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { MobileWarning } from '@/components/MobileWarning'
 
 /**
@@ -130,7 +131,7 @@ function StudentDataWrapper({
   onLogout,
 }: {
   username: string
-  route: { view: 'dashboard' | 'profile'; branch: string; username: string }
+  route: { view: 'dashboard' | 'profile' | 'academics'; branch: string; username: string }
   navigate: (r: any) => void
   onLogout: () => void
 }) {
@@ -172,10 +173,21 @@ function StudentDataWrapper({
     )
   }
 
+  if (route.view === 'academics') {
+    return (
+      <AcademicsPage
+        student={student}
+        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
+        onLogout={onLogout}
+      />
+    )
+  }
+
   return (
     <StudentDashboard
       student={student}
       onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
+      onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
       onLogout={onLogout}
     />
   )

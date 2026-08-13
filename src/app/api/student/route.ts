@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         emergencyContactNumber: mongoStudent.emergencyContactNumber,
         branch: mongoStudent.branch, branchAddress: mongoStudent.branchAddress,
         documents: mongoStudent.documents,
-        subjects: s.map((x) => ({ code: x.code, title: x.title, units: x.units, professor: x.professor, professorEmail: x.professorEmail, schedule: x.schedule, room: x.room, midterm: x.midterm, finals: x.finals, finalGrade: x.finalGrade, remarks: x.remarks })),
+        subjects: s.map((x) => ({ code: x.code, title: x.title, units: x.units, professor: x.professor, professorEmail: x.professorEmail, schedule: x.schedule, room: x.room, midterm: x.midterm, finals: x.finals, finalGrade: x.finalGrade, remarks: x.remarks, academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status })),
         schedule: [],
       }
       courses = c
