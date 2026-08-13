@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
       score: t.score,
       maxScore: t.maxScore,
       feedback: t.feedback,
+      submissionsClosed: t.submissionsClosed === true,
     }))
 
     return NextResponse.json({ ok: true, tasks: clientTasks })

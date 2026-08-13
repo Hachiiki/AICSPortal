@@ -13,15 +13,16 @@ import {
   AlertTriangle,
   ClipboardList,
   Calendar,
-  MoreHorizontal,
+  Info,
+  Lock,
   CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, Subject } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
-import type { Task, TaskType, TaskStatus } from '@/lib/aics/tasks'
-import { computeStatus, TYPE_COLORS, STATUS_COLORS, STATUS_LABELS, STATUS_ICON_COLORS } from '@/lib/aics/tasks'
+import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
+import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
 
 interface AcademicsPageProps {
   student: Student
@@ -489,15 +490,27 @@ function TasksTab({ student }: { student: Student }) {
     })
   }, [tasks, subjectFilter, typeFilter, statusFilter])
 
-  // Needs attention list (all non-graded, ordered MISSING → PENDING → NEEDS_ATTENTION, by dueDate asc)
+  // Needs attention list — UNSENT tasks only (MISSING_CLOSED,
+  // MISSING_OPEN, NEEDS_ATTENTION). PENDING rows are excluded.
+  // Order: MISSING rows first (dueDate asc), then NEEDS_ATTENTION
+  // (dueDate asc).
   const needsAttentionTasks = useMemo(() => {
-    const order: Record<TaskStatus, number> = { MISSING: 0, PENDING: 1, NEEDS_ATTENTION: 2, GRADED: 3 }
+    const order: Record<TaskVariant, number> = {
+      MISSING_CLOSED: 0,
+      MISSING_OPEN: 0,
+      NEEDS_ATTENTION: 1,
+      GRADED: 3,
+      PENDING: 3,
+    }
     return tasks
-      .filter((t) => computeStatus(t).status !== 'GRADED')
+      .filter((t) => {
+        const { variant } = computeStatus(t)
+        return variant === 'MISSING_CLOSED' || variant === 'MISSING_OPEN' || variant === 'NEEDS_ATTENTION'
+      })
       .sort((a, b) => {
-        const sa = computeStatus(a).status
-        const sb = computeStatus(b).status
-        if (order[sa] !== order[sb]) return order[sa] - order[sb]
+        const va = computeStatus(a).variant
+        const vb = computeStatus(b).variant
+        if (order[va] !== order[vb]) return order[va] - order[vb]
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
       })
   }, [tasks])
@@ -577,7 +590,7 @@ function TasksTab({ student }: { student: Student }) {
           </div>
           <div className="mt-4">
             <p className="text-xs text-slate-500 mb-1.5">
-              {summary.graded} of {summary.total} tasks graded &bull; {pct}% completed
+              {summary.graded} of {summary.total} {summary.total === 1 ? 'task' : 'tasks'} graded &bull; {pct}% completed
             </p>
             <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
               <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} />
@@ -644,27 +657,28 @@ function TasksTab({ student }: { student: Student }) {
         ) : (
           <div className="divide-y divide-slate-100">
             {needsAttentionTasks.map((task) => {
-              const { status, sub } = computeStatus(task)
+              const { variant, sub, status } = computeStatus(task)
               const subject = currentSubjects.find((s) => s.code === task.subjectCode)
               return (
                 <div key={task._id}
                   onClick={() => handleAttentionRowClick(task)}
                   className="px-6 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
                   {/* Circular status icon */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[status]}`}>
-                    {status === 'MISSING' && <AlertTriangle className="w-4 h-4" />}
-                    {status === 'PENDING' && <Clock className="w-4 h-4" />}
-                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`}>
+                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
+                    {variant === 'MISSING_CLOSED' && <Lock className="w-4 h-4" />}
+                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-slate-500">{task.subjectCode} &bull; {subject?.title || ''}</p>
                     <p className="text-sm font-medium text-slate-900 truncate">{task.title}</p>
                   </div>
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${STATUS_COLORS[status]}`}>
-                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
-                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
-                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
-                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${VARIANT_COLORS[variant]}`}>
+                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                    {variant === 'PENDING' && <Clock className="w-3 h-3" />}
+                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
+                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
+                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
                     {sub}
                   </span>
                 </div>
@@ -695,7 +709,11 @@ function TasksTab({ student }: { student: Student }) {
           {groupedBySubject.map(([subjectCode, subjectTasks]) => {
             const subject = currentSubjects.find((s) => s.code === subjectCode)
             const isExpanded = expandedCourses.has(subjectCode)
-            const hasMissing = subjectTasks.some((t) => computeStatus(t).status === 'MISSING')
+            const hasMissing = subjectTasks.some((t) => {
+              const { variant } = computeStatus(t)
+              return variant === 'MISSING_OPEN' || variant === 'MISSING_CLOSED'
+            })
+            const taskCountLabel = subjectTasks.length === 1 ? '1 task' : `${subjectTasks.length} tasks`
             return (
               <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
                 className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -710,7 +728,7 @@ function TasksTab({ student }: { student: Student }) {
                     {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{subjectTasks.length} tasks</span>
+                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{taskCountLabel}</span>
                     {hasMissing && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                         <AlertTriangle className="w-3 h-3" /> Needs attention
@@ -729,15 +747,17 @@ function TasksTab({ student }: { student: Student }) {
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
-                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                          <th className="px-4 py-2.5 pr-6 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right w-28">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {subjectTasks.map((task) => {
-                          const { status, sub } = computeStatus(task)
+                          const { variant, sub, status } = computeStatus(task)
                           const dueDate = new Date(task.dueDate)
-                          const isMissing = status === 'MISSING'
-                          const showSubmit = !task.submitted && task.score === null
+                          const showSubmit = canSubmit(task)
+                          const showDetails = canViewDetails(task)
+                          const isClosed = variant === 'MISSING_CLOSED'
+                          const isOverdue = variant === 'MISSING_OPEN'
                           return (
                             <tr key={task._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                               <td className="px-4 py-3">
@@ -745,35 +765,39 @@ function TasksTab({ student }: { student: Student }) {
                               </td>
                               <td className="px-4 py-3">
                                 <p className="text-sm font-medium text-slate-900">{task.title}</p>
-                                {task.feedback && <p className="text-xs text-slate-400 mt-0.5 italic">"{task.feedback}"</p>}
+                                {task.feedback && <p className="text-xs text-slate-400 mt-0.5 italic">&ldquo;{task.feedback}&rdquo;</p>}
                               </td>
                               <td className="px-4 py-3 text-xs text-slate-500">
                                 {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               </td>
                               <td className="px-4 py-3">
                                 <div className="flex flex-col gap-0.5">
-                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${STATUS_COLORS[status]}`}>
-                                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
-                                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
-                                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
-                                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
+                                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                                    {variant === 'PENDING' && <Clock className="w-3 h-3" />}
+                                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
+                                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
+                                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
                                     {sub}
                                   </span>
                                   <span className="text-[10px] text-slate-400">{STATUS_LABELS[status]}</span>
                                 </div>
                               </td>
-                              <td className="px-4 py-3 text-right">
+                              <td className="px-4 py-3 pr-6 text-right w-28">
                                 {showSubmit ? (
                                   <button type="button" onClick={() => setSubmitTask(task)}
-                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isMissing ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
-                                    {isMissing ? 'Submit (Late)' : 'Submit'}
+                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                    {isOverdue ? 'Submit (Late)' : 'Submit'}
                                   </button>
-                                ) : (
+                                ) : isClosed ? (
+                                  <span className="text-xs font-medium text-slate-400">Closed</span>
+                                ) : showDetails ? (
                                   <button type="button" onClick={() => setDetailTask(task)}
-                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600">
-                                    <MoreHorizontal className="w-4 h-4" />
+                                    aria-label="View details"
+                                    className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                                    <Info className="w-4 h-4" />
                                   </button>
-                                )}
+                                ) : null}
                               </td>
                             </tr>
                           )

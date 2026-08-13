@@ -1,0 +1,906 @@
+     1→'use client'
+     2→
+     3→import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+     4→import { motion, AnimatePresence } from 'framer-motion'
+     5→import {
+     6→  Download,
+     7→  CheckCircle2,
+     8→  Clock,
+     9→  ChevronRight,
+    10→  ChevronDown,
+    11→  ChevronUp,
+    12→  X,
+    13→  AlertTriangle,
+    14→  ClipboardList,
+    15→  Calendar,
+    16→  MoreHorizontal,
+    17→  CheckCircle,
+    18→} from 'lucide-react'
+    19→import { toast } from 'sonner'
+    20→import type { Student, Subject } from '@/lib/aics/types'
+    21→import { Sidebar } from './Sidebar'
+    22→import { Topbar } from './Topbar'
+    23→import type { Task, TaskType, TaskStatus } from '@/lib/aics/tasks'
+    24→import { computeStatus, TYPE_COLORS, STATUS_COLORS, STATUS_LABELS, STATUS_ICON_COLORS } from '@/lib/aics/tasks'
+    25→
+    26→interface AcademicsPageProps {
+    27→  student: Student
+    28→  onBack: () => void
+    29→  onProfile: () => void
+    30→  onLogout: () => void
+    31→}
+    32→
+    33→// GPA computation: unit-weighted average of finalGrade
+    34→function computeGPA(subjects: Subject[]): string {
+    35→  let totalUnits = 0
+    36→  let weightedSum = 0
+    37→  for (const s of subjects) {
+    38→    const grade = parseFloat(s.finalGrade)
+    39→    if (!isNaN(grade)) {
+    40→      totalUnits += s.units
+    41→      weightedSum += grade * s.units
+    42→    }
+    43→  }
+    44→  if (totalUnits === 0) return '-'
+    45→  return (weightedSum / totalUnits).toFixed(2)
+    46→}
+    47→
+    48→// Group subjects by term (yearLevel + academicYear + semester)
+    49→interface TermGroup {
+    50→  key: string
+    51→  yearLevel: string
+    52→  academicYear: string
+    53→  semester: string
+    54→  status: string
+    55→  subjects: Subject[]
+    56→  gpa: string
+    57→  totalUnits: number
+    58→}
+    59→
+    60→function groupByTerm(subjects: Subject[]): TermGroup[] {
+    61→  const map = new Map<string, TermGroup>()
+    62→  for (const s of subjects) {
+    63→    const yl = s.yearLevel || 'Unknown'
+    64→    const ay = s.academicYear || 'Unknown'
+    65→    const sem = s.semester || 'Unknown'
+    66→    const key = `${yl}|${ay}|${sem}`
+    67→    if (!map.has(key)) {
+    68→      map.set(key, {
+    69→        key, yearLevel: yl, academicYear: ay, semester: sem,
+    70→        status: s.status || 'completed', subjects: [], gpa: '-', totalUnits: 0,
+    71→      })
+    72→    }
+    73→    map.get(key)!.subjects.push(s)
+    74→  }
+    75→  const groups = Array.from(map.values())
+    76→  // Sort by academicYear then semester
+    77→  groups.sort((a, b) => {
+    78→    if (a.academicYear !== b.academicYear) return a.academicYear.localeCompare(b.academicYear)
+    79→    return a.semester.localeCompare(b.semester)
+    80→  })
+    81→  // Compute GPA and units per term
+    82→  for (const g of groups) {
+    83→    const completed = g.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0)
+    84→    g.gpa = completed.length > 0 ? computeGPA(completed) : '-'
+    85→    g.totalUnits = g.subjects.reduce((sum, s) => sum + s.units, 0)
+    86→  }
+    87→  return groups
+    88→}
+    89→
+    90→// PDF export helpers
+    91→function exportYearPDF(student: Student, term: TermGroup) {
+    92→  const lastName = student.lastName.replace(/\s+/g, '')
+    93→  const firstName = student.firstName.replace(/\s+/g, '')
+    94→  const filename = `${lastName}${firstName}_Grades_AY${term.academicYear}.pdf`
+    95→
+    96→  // Dynamically import jspdf + autotable to avoid SSR issues
+    97→  Promise.all([import('jspdf'), import('jspdf-autotable')]).then(([{ jsPDF }, mod]: any) => {
+    98→    mod.applyPlugin(jsPDF)
+    99→    const doc = new jsPDF()
+   100→    // Header
+   101→    doc.setFontSize(14)
+   102→    doc.setFont('helvetica', 'bold')
+   103→    doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
+   104→    doc.setFontSize(10)
+   105→    doc.setFont('helvetica', 'normal')
+   106→    doc.text('Student Portal - Grade Report', 105, 27, { align: 'center' })
+   107→    // Student info
+   108→    doc.setFontSize(10)
+   109→    doc.text(`Name: ${student.fullName}`, 14, 40)
+   110→    doc.text(`ID: ${student.studentNumber}`, 14, 46)
+   111→    doc.text(`Program: ${student.program}`, 14, 52)
+   112→    doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
+   113→    // Title
+   114→    doc.setFontSize(12)
+   115→    doc.setFont('helvetica', 'bold')
+   116→    doc.text(`Grade Report - ${term.yearLevel} | AY ${term.academicYear}`, 14, 68)
+   117→    // Table
+   118→    const head = [['Code', 'Subject', 'Units', 'Professor', 'Midterm', 'Finals', 'Final Grade', 'Remarks']]
+   119→    const body = term.subjects.map((s) => [s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks])
+   120→    body.push(['', 'Total Units Enrolled', String(term.totalUnits), '', '', '', '', ''])
+   121→    doc.autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 8 } })
+   122→    // Footer
+   123→    const finalY = (doc as any).lastAutoTable.finalY || 74
+   124→    doc.setFontSize(10)
+   125→    doc.setFont('helvetica', 'bold')
+   126→    doc.text(`Year GPA: ${term.gpa}    Total Units: ${term.totalUnits}`, 14, finalY + 10)
+   127→    doc.setFont('helvetica', 'normal')
+   128→    doc.setFontSize(8)
+   129→    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
+   130→    doc.save(filename)
+   131→  })
+   132→}
+   133→
+   134→function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulativeGPA: string) {
+   135→  const lastName = student.lastName.replace(/\s+/g, '')
+   136→  const firstName = student.firstName.replace(/\s+/g, '')
+   137→  const filename = `${lastName}${firstName}_AllSubjects.pdf`
+   138→
+   139→  Promise.all([import('jspdf'), import('jspdf-autotable')]).then(([{ jsPDF }, mod]: any) => {
+   140→    mod.applyPlugin(jsPDF)
+   141→    const doc = new jsPDF()
+   142→    doc.setFontSize(14)
+   143→    doc.setFont('helvetica', 'bold')
+   144→    doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
+   145→    doc.setFontSize(10)
+   146→    doc.setFont('helvetica', 'normal')
+   147→    doc.text('Student Portal - Complete Subject Record', 105, 27, { align: 'center' })
+   148→    doc.setFontSize(10)
+   149→    doc.text(`Name: ${student.fullName}`, 14, 40)
+   150→    doc.text(`ID: ${student.studentNumber}`, 14, 46)
+   151→    doc.text(`Program: ${student.program}`, 14, 52)
+   152→    doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
+   153→    doc.setFontSize(12)
+   154→    doc.setFont('helvetica', 'bold')
+   155→    doc.text('Complete Subject Record', 14, 68)
+   156→    const head = [['Term', 'Code', 'Subject', 'Units', 'Professor', 'Mid', 'Fin', 'FG', 'Remarks']]
+   157→    const body = allSubjects.map((s) => [
+   158→      `${s.yearLevel} | AY ${s.academicYear}`, s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks,
+   159→    ])
+   160→    const totalUnits = allSubjects.reduce((sum, s) => sum + s.units, 0)
+   161→    body.push(['', '', 'TOTAL', String(totalUnits), '', '', '', '', ''])
+   162→    doc.autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 7 } })
+   163→    const finalY = (doc as any).lastAutoTable.finalY || 74
+   164→    doc.setFontSize(10)
+   165→    doc.setFont('helvetica', 'bold')
+   166→    doc.text(`Cumulative GPA: ${cumulativeGPA}    Total Subjects: ${allSubjects.length}    Total Units: ${totalUnits}`, 14, finalY + 10)
+   167→    doc.setFont('helvetica', 'normal')
+   168→    doc.setFontSize(8)
+   169→    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
+   170→    doc.save(filename)
+   171→  })
+   172→}
+   173→
+   174→export function AcademicsPage({ student, onBack, onProfile, onLogout }: AcademicsPageProps) {
+   175→  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+   176→  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
+   177→
+   178→  const terms = useMemo(() => groupByTerm(student.subjects), [student.subjects])
+   179→  const completedSubjects = useMemo(() => student.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0), [student.subjects])
+   180→  const cumulativeGPA = useMemo(() => computeGPA(completedSubjects), [completedSubjects])
+   181→  const totalUnits = useMemo(() => student.subjects.reduce((sum, s) => sum + s.units, 0), [student.subjects])
+   182→
+   183→  const handleNavigate = (v: any) => {
+   184→    if (v === 'dashboard') onBack()
+   185→  }
+   186→
+   187→  return (
+   188→    <div className="min-h-dvh bg-slate-50 font-sans">
+   189→      <Sidebar
+   190→        active="academics"
+   191→        onNavigate={handleNavigate}
+   192→        mobileOpen={mobileNavOpen}
+   193→        onMobileClose={() => setMobileNavOpen(false)}
+   194→      />
+   195→      <div className="lg:pl-60">
+   196→        <Topbar
+   197→          student={student}
+   198→          onOpenMobileNav={() => setMobileNavOpen(true)}
+   199→          onProfile={onProfile}
+   200→          onLogout={onLogout}
+   201→        />
+   202→        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+   203→          {/* Page header */}
+   204→          <div>
+   205→            <button
+   206→              onClick={onBack}
+   207→              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
+   208→            >
+   209→              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+   210→            </button>
+   211→            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Academics</h1>
+   212→            <p className="text-sm text-slate-500 mt-1">
+   213→              {student.fullName} &bull; {student.studentNumber} &bull; {student.program}
+   214→            </p>
+   215→          </div>
+   216→
+   217→          {/* Mini-tab switcher */}
+   218→          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100">
+   219→            <button
+   220→              type="button"
+   221→              onClick={() => setActiveTab('grades')}
+   222→              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+   223→                activeTab === 'grades' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+   224→              }`}
+   225→            >
+   226→              Grades
+   227→            </button>
+   228→            <button
+   229→              type="button"
+   230→              onClick={() => setActiveTab('subjects')}
+   231→              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+   232→                activeTab === 'subjects' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+   233→              }`}
+   234→            >
+   235→              Subjects
+   236→            </button>
+   237→            <button
+   238→              type="button"
+   239→              onClick={() => setActiveTab('tasks')}
+   240→              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+   241→                activeTab === 'tasks' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+   242→              }`}
+   243→            >
+   244→              Tasks
+   245→            </button>
+   246→          </div>
+   247→
+   248→          {/* GRADES TAB */}
+   249→          {activeTab === 'grades' && (
+   250→            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+   251→              {terms.map((term) => (
+   252→                <div key={term.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+   253→                  {/* Card header */}
+   254→                  <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
+   255→                    <div className="min-w-0">
+   256→                      <h2 className="text-base font-semibold text-slate-900">
+   257→                        {term.yearLevel} &bull; AY {term.academicYear} &bull; {term.semester}
+   258→                      </h2>
+   259→                      <div className="flex items-center gap-2 mt-1.5">
+   260→                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${
+   261→                          term.status === 'completed'
+   262→                            ? 'bg-green-50 text-green-700 border border-green-200'
+   263→                            : 'bg-blue-50 text-blue-700 border border-blue-200'
+   264→                        }`}>
+   265→                          {term.status === 'completed' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+   266→                          {term.status === 'completed' ? 'Completed' : 'In Progress'}
+   267→                        </span>
+   268→                      </div>
+   269→                    </div>
+   270→                    <button
+   271→                      type="button"
+   272→                      onClick={() => exportYearPDF(student, term)}
+   273→                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 flex-shrink-0"
+   274→                    >
+   275→                      <Download className="w-3.5 h-3.5" /> Export PDF
+   276→                    </button>
+   277→                  </div>
+   278→
+   279→                  {/* Stat chips */}
+   280→                  <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
+   281→                    <div>
+   282→                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">GPA</p>
+   283→                      <p className="text-base font-bold text-blue-700">{term.gpa}</p>
+   284→                    </div>
+   285→                    <div>
+   286→                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Units</p>
+   287→                      <p className="text-base font-bold text-slate-900">{term.totalUnits}</p>
+   288→                    </div>
+   289→                    <div>
+   290→                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Subjects</p>
+   291→                      <p className="text-base font-bold text-slate-900">{term.subjects.length}</p>
+   292→                    </div>
+   293→                  </div>
+   294→
+   295→                  {/* Grades table */}
+   296→                  <div className="overflow-x-auto">
+   297→                    <table className="w-full text-sm">
+   298→                      <thead>
+   299→                        <tr className="bg-slate-50 border-b border-slate-100">
+   300→                          <Th>Code</Th><Th>Subject</Th><Th center>Units</Th><Th>Professor</Th>
+   301→                          <Th center>Midterm</Th><Th center>Finals</Th><Th center>Final Grade</Th><Th center>Remarks</Th>
+   302→                        </tr>
+   303→                      </thead>
+   304→                      <tbody>
+   305→                        {term.subjects.map((s) => (
+   306→                          <tr key={s.code + term.key} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+   307→                            <td className="px-4 py-3"><span className="font-mono text-xs font-bold text-blue-700">{s.code}</span></td>
+   308→                            <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.title}</span></td>
+   309→                            <td className="px-4 py-3 text-center text-sm text-slate-700">{s.units}</td>
+   310→                            <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.professor}</span></td>
+   311→                            <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.midterm}</td>
+   312→                            <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.finals}</td>
+   313→                            <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span></td>
+   314→                            <td className="px-4 py-3 text-center">
+   315→                              {s.status === 'in-progress' ? (
+   316→                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">
+   317→                                  <Clock className="w-3 h-3" /> {s.remarks}
+   318→                                </span>
+   319→                              ) : (
+   320→                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
+   321→                                  <CheckCircle2 className="w-3 h-3" /> {s.remarks}
+   322→                                </span>
+   323→                              )}
+   324→                            </td>
+   325→                          </tr>
+   326→                        ))}
+   327→                      </tbody>
+   328→                      <tfoot>
+   329→                        <tr className="bg-slate-50 border-t border-slate-100">
+   330→                          <td className="px-4 py-3 text-sm font-semibold text-slate-900" colSpan={2}>Total Units Enrolled</td>
+   331→                          <td className="px-4 py-3 text-center text-sm font-bold text-slate-900">{term.totalUnits}</td>
+   332→                          <td colSpan={5}></td>
+   333→                        </tr>
+   334→                      </tfoot>
+   335→                    </table>
+   336→                  </div>
+   337→                </div>
+   338→              ))}
+   339→            </motion.div>
+   340→          )}
+   341→
+   342→          {/* SUBJECTS TAB */}
+   343→          {activeTab === 'subjects' && (
+   344→            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+   345→              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+   346→                {/* Header */}
+   347→                <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
+   348→                  <div className="min-w-0">
+   349→                    <h2 className="text-base font-semibold text-slate-900">All Subjects</h2>
+   350→                    <p className="text-xs text-slate-500 mt-0.5">Complete enrollment history</p>
+   351→                  </div>
+   352→                  <button
+   353→                    type="button"
+   354→                    onClick={() => exportAllSubjectsPDF(student, student.subjects, cumulativeGPA)}
+   355→                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 flex-shrink-0"
+   356→                  >
+   357→                    <Download className="w-3.5 h-3.5" /> Export PDF
+   358→                  </button>
+   359→                </div>
+   360→
+   361→                {/* Summary chips */}
+   362→                <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
+   363→                  <div>
+   364→                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Total Units</p>
+   365→                    <p className="text-base font-bold text-slate-900">{totalUnits}</p>
+   366→                  </div>
+   367→                  <div>
+   368→                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Total Subjects</p>
+   369→                    <p className="text-base font-bold text-slate-900">{student.subjects.length}</p>
+   370→                  </div>
+   371→                  <div>
+   372→                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Cumulative GPA</p>
+   373→                    <p className="text-base font-bold text-blue-700">{cumulativeGPA}</p>
+   374→                  </div>
+   375→                </div>
+   376→
+   377→                {/* Table */}
+   378→                <div className="overflow-x-auto">
+   379→                  <table className="w-full text-sm">
+   380→                    <thead>
+   381→                      <tr className="bg-slate-50 border-b border-slate-100">
+   382→                        <Th>Term</Th><Th>Code</Th><Th>Subject</Th><Th center>Units</Th><Th>Professor</Th>
+   383→                        <Th center>Mid</Th><Th center>Fin</Th><Th center>FG</Th><Th center>Remarks</Th>
+   384→                      </tr>
+   385→                    </thead>
+   386→                    <tbody>
+   387→                      {student.subjects.map((s, i) => (
+   388→                        <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+   389→                          <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-slate-500">{s.yearLevel} &bull; AY {s.academicYear}</span></td>
+   390→                          <td className="px-4 py-3"><span className="font-mono text-xs font-bold text-blue-700">{s.code}</span></td>
+   391→                          <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.title}</span></td>
+   392→                          <td className="px-4 py-3 text-center text-sm text-slate-700">{s.units}</td>
+   393→                          <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.professor}</span></td>
+   394→                          <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.midterm}</td>
+   395→                          <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.finals}</td>
+   396→                          <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span></td>
+   397→                          <td className="px-4 py-3 text-center">
+   398→                            {s.status === 'in-progress' ? (
+   399→                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">
+   400→                                <Clock className="w-3 h-3" /> {s.remarks}
+   401→                              </span>
+   402→                            ) : (
+   403→                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-xs font-medium">
+   404→                                <CheckCircle2 className="w-3 h-3" /> {s.remarks}
+   405→                              </span>
+   406→                            )}
+   407→                          </td>
+   408→                        </tr>
+   409→                      ))}
+   410→                    </tbody>
+   411→                  </table>
+   412→                </div>
+   413→              </div>
+   414→            </motion.div>
+   415→          )}
+   416→
+   417→          {/* TASKS TAB */}
+   418→          {activeTab === 'tasks' && (
+   419→            <TasksTab student={student} />
+   420→          )}
+   421→        </main>
+   422→      </div>
+   423→    </div>
+   424→  )
+   425→}
+   426→
+   427→// ============================================================
+   428→//  Tasks Tab — redesigned with overview, needs attention, accordions
+   429→// ============================================================
+   430→
+   431→function TasksTab({ student }: { student: Student }) {
+   432→  const [tasks, setTasks] = useState<Task[]>([])
+   433→  const [loading, setLoading] = useState(true)
+   434→  const [error, setError] = useState<string | null>(null)
+   435→  const [subjectFilter, setSubjectFilter] = useState('all')
+   436→  const [typeFilter, setTypeFilter] = useState<'all' | TaskType>('all')
+   437→  const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
+   438→  const [submitTask, setSubmitTask] = useState<Task | null>(null)
+   439→  const [submitting, setSubmitting] = useState(false)
+   440→  const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set())
+   441→  const [detailTask, setDetailTask] = useState<Task | null>(null)
+   442→  const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
+   443→
+   444→  useEffect(() => {
+   445→    let cancelled = false
+   446→    async function fetchTasks() {
+   447→      try {
+   448→        const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
+   449→        const data = await res.json()
+   450→        if (cancelled) return
+   451→        if (data.ok) setTasks(data.tasks)
+   452→        else setError(data.error || 'Failed to load tasks')
+   453→      } catch { if (!cancelled) setError('Network error') }
+   454→      finally { if (!cancelled) setLoading(false) }
+   455→    }
+   456→    fetchTasks()
+   457→    return () => { cancelled = true }
+   458→  }, [student.username])
+   459→
+   460→  const currentSubjects = useMemo(() =>
+   461→    student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),
+   462→  [student.subjects, student.academicYear, student.semester])
+   463→
+   464→  // Compute summary with 4-status model
+   465→  const summary = useMemo(() => {
+   466→    let graded = 0, pending = 0, missing = 0, needs = 0
+   467→    for (const t of tasks) {
+   468→      const { status } = computeStatus(t)
+   469→      if (status === 'GRADED') graded++
+   470→      else if (status === 'PENDING') pending++
+   471→      else if (status === 'MISSING') missing++
+   472→      else needs++
+   473→    }
+   474→    return { total: tasks.length, graded, pending, missing, needs }
+   475→  }, [tasks])
+   476→
+   477→  const pct = summary.total > 0 ? Math.round((summary.graded / summary.total) * 100) : 0
+   478→
+   479→  // Filtered tasks
+   480→  const filteredTasks = useMemo(() => {
+   481→    return tasks.filter((t) => {
+   482→      if (subjectFilter !== 'all' && t.subjectCode !== subjectFilter) return false
+   483→      if (typeFilter !== 'all' && t.type !== typeFilter) return false
+   484→      if (statusFilter !== 'all') {
+   485→        const { status } = computeStatus(t)
+   486→        if (status !== statusFilter) return false
+   487→      }
+   488→      return true
+   489→    })
+   490→  }, [tasks, subjectFilter, typeFilter, statusFilter])
+   491→
+   492→  // Needs attention list (all non-graded, ordered MISSING → PENDING → NEEDS_ATTENTION, by dueDate asc)
+   493→  const needsAttentionTasks = useMemo(() => {
+   494→    const order: Record<TaskStatus, number> = { MISSING: 0, PENDING: 1, NEEDS_ATTENTION: 2, GRADED: 3 }
+   495→    return tasks
+   496→      .filter((t) => computeStatus(t).status !== 'GRADED')
+   497→      .sort((a, b) => {
+   498→        const sa = computeStatus(a).status
+   499→        const sb = computeStatus(b).status
+   500→        if (order[sa] !== order[sb]) return order[sa] - order[sb]
+   501→        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+   502→      })
+   503→  }, [tasks])
+   504→
+   505→  // Group filtered tasks by subject
+   506→  const groupedBySubject = useMemo(() => {
+   507→    const map = new Map<string, Task[]>()
+   508→    for (const t of filteredTasks) {
+   509→      if (!map.has(t.subjectCode)) map.set(t.subjectCode, [])
+   510→      map.get(t.subjectCode)!.push(t)
+   511→    }
+   512→    for (const [, list] of map) list.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+   513→    return Array.from(map.entries())
+   514→  }, [filteredTasks])
+   515→
+   516→  // Submit handler
+   517→  const handleConfirmSubmit = useCallback(async () => {
+   518→    if (!submitTask) return
+   519→    setSubmitting(true)
+   520→    try {
+   521→      const res = await fetch(`/api/tasks/${submitTask._id}/submit?username=${encodeURIComponent(student.username)}`, { method: 'PATCH' })
+   522→      const data = await res.json()
+   523→      if (data.ok) {
+   524→        setTasks((prev) => prev.map((t) => t._id === submitTask._id ? { ...t, submitted: true, submittedAt: new Date().toISOString() } : t))
+   525→        toast.success('Submitted. Awaiting grade.')
+   526→        setSubmitTask(null)
+   527→      } else { toast.error(data.error || 'Failed to submit task.') }
+   528→    } catch { toast.error('Network error. Please try again.') }
+   529→    finally { setSubmitting(false) }
+   530→  }, [submitTask, student.username])
+   531→
+   532→  // Toggle course expansion
+   533→  const toggleCourse = useCallback((code: string) => {
+   534→    setExpandedCourses((prev) => {
+   535→      const next = new Set(prev)
+   536→      if (next.has(code)) next.delete(code)
+   537→      else next.add(code)
+   538→      return next
+   539→    })
+   540→  }, [])
+   541→
+   542→  const expandAll = useCallback(() => setExpandedCourses(new Set(currentSubjects.map((s) => s.code))), [currentSubjects])
+   543→  const collapseAll = useCallback(() => setExpandedCourses(new Set()), [])
+   544→
+   545→  // Row click from Needs Attention → expand + scroll to course
+   546→  const handleAttentionRowClick = useCallback((task: Task) => {
+   547→    setExpandedCourses((prev) => new Set(prev).add(task.subjectCode))
+   548→    setTimeout(() => {
+   549→      const el = courseRefs.current[task.subjectCode]
+   550→      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+   551→    }, 100)
+   552→  }, [])
+   553→
+   554→  if (loading) return <div className="text-slate-500 text-sm">Loading tasks…</div>
+   555→  if (error) return <div className="text-red-600 text-sm">{error}</div>
+   556→
+   557→  return (
+   558→    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+   559→      {/* Heading */}
+   560→      <div>
+   561→        <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
+   562→        <p className="text-xs text-slate-500 mt-0.5">Current term activities, quizzes, tests and projects</p>
+   563→      </div>
+   564→
+   565→      {/* TASK OVERVIEW CARD */}
+   566→      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+   567→        <div className="px-6 py-4 border-b border-slate-100">
+   568→          <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
+   569→        </div>
+   570→        <div className="px-6 py-5">
+   571→          <div className="grid grid-cols-5 divide-x divide-slate-100">
+   572→            <OverviewStat label="Total" value={summary.total} color="text-blue-700" />
+   573→            <OverviewStat label="Graded" value={summary.graded} color="text-green-700" />
+   574→            <OverviewStat label="Pending" value={summary.pending} color="text-amber-700" />
+   575→            <OverviewStat label="Needs attention" value={summary.needs} color="text-blue-700" />
+   576→            <OverviewStat label="Missing" value={summary.missing} color="text-red-700" />
+   577→          </div>
+   578→          <div className="mt-4">
+   579→            <p className="text-xs text-slate-500 mb-1.5">
+   580→              {summary.graded} of {summary.total} tasks graded &bull; {pct}% completed
+   581→            </p>
+   582→            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+   583→              <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} />
+   584→            </div>
+   585→          </div>
+   586→        </div>
+   587→      </div>
+   588→
+   589→      {/* FILTER CARD */}
+   590→      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-4">
+   591→        <div className="flex flex-wrap gap-6 items-center">
+   592→          {/* Subject */}
+   593→          <div className="flex flex-col gap-1">
+   594→            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Subject</label>
+   595→            <select
+   596→              value={subjectFilter}
+   597→              onChange={(e) => setSubjectFilter(e.target.value)}
+   598→              className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 bg-white"
+   599→            >
+   600→              <option value="all">All Subjects</option>
+   601→              {currentSubjects.map((s) => (<option key={s.code} value={s.code}>{s.code}</option>))}
+   602→            </select>
+   603→          </div>
+   604→          <div className="w-px h-10 bg-slate-100" />
+   605→          {/* Type */}
+   606→          <div className="flex flex-col gap-1">
+   607→            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Type</label>
+   608→            <div className="flex gap-1">
+   609→              {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
+   610→                <button key={t} type="button" onClick={() => setTypeFilter(t)}
+   611→                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
+   612→                  {t === 'all' ? 'All' : t}
+   613→                </button>
+   614→              ))}
+   615→            </div>
+   616→          </div>
+   617→          <div className="w-px h-10 bg-slate-100" />
+   618→          {/* Status */}
+   619→          <div className="flex flex-col gap-1">
+   620→            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Status</label>
+   621→            <div className="flex gap-1">
+   622→              {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
+   623→                <button key={s} type="button" onClick={() => setStatusFilter(s)}
+   624→                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
+   625→                  {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
+   626→                </button>
+   627→              ))}
+   628→            </div>
+   629→          </div>
+   630→        </div>
+   631→      </div>
+   632→
+   633→      {/* NEEDS ATTENTION CARD */}
+   634→      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+   635→        <div className="px-6 py-4 border-b border-slate-100">
+   636→          <h3 className="text-base font-semibold text-slate-900">Needs Attention</h3>
+   637→          <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
+   638→        </div>
+   639→        {needsAttentionTasks.length === 0 ? (
+   640→          <div className="py-12 text-center">
+   641→            <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
+   642→            <p className="text-sm font-medium text-green-600">All caught up.</p>
+   643→          </div>
+   644→        ) : (
+   645→          <div className="divide-y divide-slate-100">
+   646→            {needsAttentionTasks.map((task) => {
+   647→              const { status, sub } = computeStatus(task)
+   648→              const subject = currentSubjects.find((s) => s.code === task.subjectCode)
+   649→              return (
+   650→                <div key={task._id}
+   651→                  onClick={() => handleAttentionRowClick(task)}
+   652→                  className="px-6 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+   653→                  {/* Circular status icon */}
+   654→                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[status]}`}>
+   655→                    {status === 'MISSING' && <AlertTriangle className="w-4 h-4" />}
+   656→                    {status === 'PENDING' && <Clock className="w-4 h-4" />}
+   657→                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
+   658→                  </div>
+   659→                  <div className="min-w-0 flex-1">
+   660→                    <p className="text-xs text-slate-500">{task.subjectCode} &bull; {subject?.title || ''}</p>
+   661→                    <p className="text-sm font-medium text-slate-900 truncate">{task.title}</p>
+   662→                  </div>
+   663→                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${STATUS_COLORS[status]}`}>
+   664→                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+   665→                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
+   666→                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
+   667→                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+   668→                    {sub}
+   669→                  </span>
+   670→                </div>
+   671→              )
+   672→            })}
+   673→          </div>
+   674→        )}
+   675→      </div>
+   676→
+   677→      {/* COURSES SECTION */}
+   678→      <div className="flex items-center justify-between">
+   679→        <h3 className="text-base font-semibold text-slate-900">Courses</h3>
+   680→        <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
+   681→          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+   682→          {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
+   683→          {expandedCourses.size === currentSubjects.length ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+   684→        </button>
+   685→      </div>
+   686→
+   687→      {/* COURSE ACCORDION CARDS */}
+   688→      {filteredTasks.length === 0 ? (
+   689→        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
+   690→          <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+   691→          <p className="text-sm text-slate-500">No tasks for this term.</p>
+   692→        </div>
+   693→      ) : (
+   694→        <div className="space-y-4">
+   695→          {groupedBySubject.map(([subjectCode, subjectTasks]) => {
+   696→            const subject = currentSubjects.find((s) => s.code === subjectCode)
+   697→            const isExpanded = expandedCourses.has(subjectCode)
+   698→            const hasMissing = subjectTasks.some((t) => computeStatus(t).status === 'MISSING')
+   699→            return (
+   700→              <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
+   701→                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+   702→                {/* Accordion header */}
+   703→                <div onClick={() => toggleCourse(subjectCode)}
+   704→                  className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+   705→                  <div className="min-w-0">
+   706→                    <div className="flex items-center gap-2">
+   707→                      <span className="font-mono text-xs font-bold text-blue-700">{subjectCode}</span>
+   708→                      <h3 className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</h3>
+   709→                    </div>
+   710→                    {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
+   711→                  </div>
+   712→                  <div className="flex items-center gap-2 flex-shrink-0">
+   713→                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{subjectTasks.length} tasks</span>
+   714→                    {hasMissing && (
+   715→                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+   716→                        <AlertTriangle className="w-3 h-3" /> Needs attention
+   717→                      </span>
+   718→                    )}
+   719→                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+   720→                  </div>
+   721→                </div>
+   722→                {/* Expanded table */}
+   723→                {isExpanded && (
+   724→                  <div className="border-t border-slate-100 overflow-x-auto">
+   725→                    <table className="w-full text-sm">
+   726→                      <thead>
+   727→                        <tr className="bg-slate-50 border-b border-slate-100">
+   728→                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Type</th>
+   729→                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
+   730→                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
+   731→                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
+   732→                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+   733→                        </tr>
+   734→                      </thead>
+   735→                      <tbody>
+   736→                        {subjectTasks.map((task) => {
+   737→                          const { status, sub } = computeStatus(task)
+   738→                          const dueDate = new Date(task.dueDate)
+   739→                          const isMissing = status === 'MISSING'
+   740→                          const showSubmit = !task.submitted && task.score === null
+   741→                          return (
+   742→                            <tr key={task._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+   743→                              <td className="px-4 py-3">
+   744→                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${TYPE_COLORS[task.type]}`}>{task.type}</span>
+   745→                              </td>
+   746→                              <td className="px-4 py-3">
+   747→                                <p className="text-sm font-medium text-slate-900">{task.title}</p>
+   748→                                {task.feedback && <p className="text-xs text-slate-400 mt-0.5 italic">"{task.feedback}"</p>}
+   749→                              </td>
+   750→                              <td className="px-4 py-3 text-xs text-slate-500">
+   751→                                {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+   752→                              </td>
+   753→                              <td className="px-4 py-3">
+   754→                                <div className="flex flex-col gap-0.5">
+   755→                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${STATUS_COLORS[status]}`}>
+   756→                                    {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+   757→                                    {status === 'PENDING' && <Clock className="w-3 h-3" />}
+   758→                                    {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
+   759→                                    {status === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+   760→                                    {sub}
+   761→                                  </span>
+   762→                                  <span className="text-[10px] text-slate-400">{STATUS_LABELS[status]}</span>
+   763→                                </div>
+   764→                              </td>
+   765→                              <td className="px-4 py-3 text-right">
+   766→                                {showSubmit ? (
+   767→                                  <button type="button" onClick={() => setSubmitTask(task)}
+   768→                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isMissing ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+   769→                                    {isMissing ? 'Submit (Late)' : 'Submit'}
+   770→                                  </button>
+   771→                                ) : (
+   772→                                  <button type="button" onClick={() => setDetailTask(task)}
+   773→                                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+   774→                                    <MoreHorizontal className="w-4 h-4" />
+   775→                                  </button>
+   776→                                )}
+   777→                              </td>
+   778→                            </tr>
+   779→                          )
+   780→                        })}
+   781→                      </tbody>
+   782→                    </table>
+   783→                  </div>
+   784→                )}
+   785→              </div>
+   786→            )
+   787→          })}
+   788→        </div>
+   789→      )}
+   790→
+   791→      {/* Submit warning modal */}
+   792→      <AnimatePresence>
+   793→        {submitTask && (
+   794→          <SubmitWarningModal task={submitTask} onCancel={() => setSubmitTask(null)} onConfirm={handleConfirmSubmit} submitting={submitting} />
+   795→        )}
+   796→      </AnimatePresence>
+   797→
+   798→      {/* Task details modal */}
+   799→      <AnimatePresence>
+   800→        {detailTask && (
+   801→          <TaskDetailsModal task={detailTask} subjectName={currentSubjects.find((s) => s.code === detailTask.subjectCode)?.title || ''} onClose={() => setDetailTask(null)} />
+   802→        )}
+   803→      </AnimatePresence>
+   804→    </motion.div>
+   805→  )
+   806→}
+   807→
+   808→function OverviewStat({ label, value, color }: { label: string; value: number; color: string }) {
+   809→  return (
+   810→    <div className="text-center px-2">
+   811→      <p className="text-2xl font-bold {color}" style={{ color: color.replace('text-', '').includes('green') ? '#15803D' : color.includes('amber') ? '#B45309' : color.includes('red') ? '#DC2626' : '#2563EB' }}>{value}</p>
+   812→      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mt-0.5">{label}</p>
+   813→    </div>
+   814→  )
+   815→}
+   816→
+   817→function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: Task; onCancel: () => void; onConfirm: () => void; submitting: boolean }) {
+   818→  useEffect(() => {
+   819→    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+   820→    document.addEventListener('keydown', handler)
+   821→    return () => document.removeEventListener('keydown', handler)
+   822→  }, [onCancel])
+   823→
+   824→  return (
+   825→    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+   826→      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onCancel}>
+   827→      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+   828→        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+   829→        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+   830→          <div className="flex items-center gap-2">
+   831→            <AlertTriangle className="w-5 h-5 text-amber-500" />
+   832→            <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
+   833→          </div>
+   834→          <button type="button" onClick={onCancel} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+   835→        </div>
+   836→        <div className="px-6 py-5">
+   837→          <p className="text-sm text-slate-600 leading-relaxed">
+   838→            You should have already passed the ACTUAL paper for this activity to your adviser/professor BEFORE submitting here. Submitting in the portal without passing the physical paper will result in a penalty the next day.
+   839→          </p>
+   840→          <p className="text-xs text-slate-400 mt-3">Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})</p>
+   841→        </div>
+   842→        <div className="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end">
+   843→          <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Cancel</button>
+   844→          <button type="button" onClick={onConfirm} disabled={submitting} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60">
+   845→            {submitting ? 'Submitting…' : 'I passed the paper — Submit'}
+   846→          </button>
+   847→        </div>
+   848→      </motion.div>
+   849→    </motion.div>
+   850→  )
+   851→}
+   852→
+   853→function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectName: string; onClose: () => void }) {
+   854→  useEffect(() => {
+   855→    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+   856→    document.addEventListener('keydown', handler)
+   857→    return () => document.removeEventListener('keydown', handler)
+   858→  }, [onClose])
+   859→
+   860→  const { status, sub } = computeStatus(task)
+   861→
+   862→  return (
+   863→    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+   864→      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
+   865→      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+   866→        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+   867→        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+   868→          <h3 className="font-bold text-sm text-slate-900">Task Details</h3>
+   869→          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+   870→        </div>
+   871→        <div className="px-6 py-5 space-y-3">
+   872→          <DetailRow label="Title" value={task.title} />
+   873→          <DetailRow label="Type" value={task.type} />
+   874→          <DetailRow label="Subject" value={`${task.subjectCode} — ${subjectName}`} />
+   875→          <DetailRow label="Due Date" value={new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
+   876→          {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
+   877→          <DetailRow label="Status" value={STATUS_LABELS[status]} />
+   878→          {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}
+   879→          {task.feedback && <DetailRow label="Feedback" value={task.feedback} />}
+   880→          {task.description && <DetailRow label="Description" value={task.description} />}
+   881→        </div>
+   882→        <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
+   883→          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Close</button>
+   884→        </div>
+   885→      </motion.div>
+   886→    </motion.div>
+   887→  )
+   888→}
+   889→
+   890→function DetailRow({ label, value }: { label: string; value: string }) {
+   891→  return (
+   892→    <div>
+   893→      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">{label}</p>
+   894→      <p className="text-sm font-medium text-slate-700 mt-0.5 break-words">{value}</p>
+   895→    </div>
+   896→  )
+   897→}
+   898→
+   899→function Th({ children, center }: { children: React.ReactNode; center?: boolean }) {
+   900→  return (
+   901→    <th className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${center ? 'text-center' : 'text-left'}`}>
+   902→      {children}
+   903→    </th>
+   904→  )
+   905→}
+   906→

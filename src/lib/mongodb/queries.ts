@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import { getCollection } from './connection'
 import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, Branch } from './types'
 
@@ -57,14 +58,40 @@ export async function getTasksForStudentCurrentTerm(
   }).toArray()
 }
 
+// TEACHER CONTROL: Teachers can close submissions per task
+// (task.submissionsClosed = true). Once closed, students
+// can no longer submit; unsubmitted work displays as
+// "Missing". "Overdue" only applies while submissions are
+// still open past the due date.
+//
+// This query-level guard rejects any submit attempt for a
+// task whose submissionsClosed flag is true (or missing with
+// an already-submitted record). The route handler also
+// returns 403 in this case — defense in depth.
 export async function submitTask(
   taskId: string,
   studentUsername: string
-): Promise<boolean> {
+): Promise<{ ok: boolean; reason?: 'closed' | 'not_found' }> {
   const col = await getCollection<MongoTask>('tasks')
+  let idFilter: any
+  try {
+    idFilter = new ObjectId(taskId)
+  } catch {
+    return { ok: false, reason: 'not_found' }
+  }
+  // Atomic guard: only update if NOT closed and NOT already submitted.
   const result = await col.updateOne(
-    { _id: taskId as any, studentUsername },
+    {
+      _id: idFilter,
+      studentUsername,
+      submitted: false,
+      submissionsClosed: { $ne: true },
+    },
     { $set: { submitted: true, submittedAt: new Date() } }
   )
-  return result.modifiedCount > 0
+  if (result.modifiedCount > 0) return { ok: true }
+  // Distinguish "closed" from "not found" so the route can return 403 vs 404.
+  const task = await col.findOne({ _id: idFilter, studentUsername })
+  if (!task) return { ok: false, reason: 'not_found' }
+  return { ok: false, reason: 'closed' }
 }

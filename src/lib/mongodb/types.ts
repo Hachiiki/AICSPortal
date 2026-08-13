@@ -106,4 +106,8 @@ export interface MongoTask {
   score: number | null
   maxScore: number | null
   feedback: string | null
+  // TEACHER CONTROL: when true, students can no longer submit.
+  // Unsubmitted work displays as "Missing" with a muted "Closed"
+  // action instead of a submit button.
+  submissionsClosed?: boolean
 }
