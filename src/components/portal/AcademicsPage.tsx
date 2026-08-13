@@ -1,16 +1,22 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Download,
   CheckCircle2,
   Clock,
   ChevronRight,
+  X,
+  AlertTriangle,
+  ClipboardList,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Student, Subject } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import type { Task, TaskType, TaskStatus } from '@/lib/aics/tasks'
+import { computeStatus, TYPE_COLORS, STATUS_COLORS } from '@/lib/aics/tasks'
 
 interface AcademicsPageProps {
   student: Student
@@ -162,7 +168,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 
 export function AcademicsPage({ student, onBack, onProfile, onLogout }: AcademicsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'grades' | 'subjects'>('grades')
+  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
   const terms = useMemo(() => groupByTerm(student.subjects), [student.subjects])
   const completedSubjects = useMemo(() => student.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0), [student.subjects])
@@ -222,6 +228,15 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
               }`}
             >
               Subjects
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('tasks')}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'tasks' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Tasks
             </button>
           </div>
 
@@ -393,9 +408,390 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
               </div>
             </motion.div>
           )}
+
+          {/* TASKS TAB */}
+          {activeTab === 'tasks' && (
+            <TasksTab student={student} />
+          )}
         </main>
       </div>
     </div>
+  )
+}
+
+// ============================================================
+//  Tasks Tab — current-term task tracker with submit flow
+// ============================================================
+
+function TasksTab({ student }: { student: Student }) {
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [subjectFilter, setSubjectFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState<'all' | TaskType>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
+  const [submitTask, setSubmitTask] = useState<Task | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  // Fetch tasks from API
+  useEffect(() => {
+    let cancelled = false
+    async function fetchTasks() {
+      try {
+        const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
+        const data = await res.json()
+        if (cancelled) return
+        if (data.ok) {
+          setTasks(data.tasks)
+        } else {
+          setError(data.error || 'Failed to load tasks')
+        }
+      } catch {
+        if (!cancelled) setError('Network error')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchTasks()
+    return () => { cancelled = true }
+  }, [student.username])
+
+  // Current-term subjects for the dropdown
+  const currentSubjects = useMemo(() => {
+    return student.subjects.filter(
+      (s) => s.academicYear === student.academicYear && s.semester === student.semester
+    )
+  }, [student.subjects, student.academicYear, student.semester])
+
+  // Summary chips (computed from all tasks)
+  const summary = useMemo(() => {
+    let graded = 0, pending = 0, missing = 0
+    for (const t of tasks) {
+      const { status } = computeStatus(t)
+      if (status === 'GRADED') graded++
+      else if (status === 'MISSING') missing++
+      else pending++
+    }
+    return { total: tasks.length, graded, pending, missing }
+  }, [tasks])
+
+  // Filtered tasks
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((t) => {
+      if (subjectFilter !== 'all' && t.subjectCode !== subjectFilter) return false
+      if (typeFilter !== 'all' && t.type !== typeFilter) return false
+      if (statusFilter !== 'all') {
+        const { status } = computeStatus(t)
+        if (status !== statusFilter) return false
+      }
+      return true
+    })
+  }, [tasks, subjectFilter, typeFilter, statusFilter])
+
+  // Group by subject
+  const groupedBySubject = useMemo(() => {
+    const map = new Map<string, Task[]>()
+    for (const t of filteredTasks) {
+      if (!map.has(t.subjectCode)) map.set(t.subjectCode, [])
+      map.get(t.subjectCode)!.push(t)
+    }
+    // Sort tasks within each subject by dueDate ascending
+    for (const [, list] of map) {
+      list.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+    }
+    return Array.from(map.entries())
+  }, [filteredTasks])
+
+  // Submit handler
+  const handleConfirmSubmit = useCallback(async () => {
+    if (!submitTask) return
+    setSubmitting(true)
+    try {
+      const res = await fetch(
+        `/api/tasks/${submitTask._id}/submit?username=${encodeURIComponent(student.username)}`,
+        { method: 'PATCH' }
+      )
+      const data = await res.json()
+      if (data.ok) {
+        // Update local state
+        setTasks((prev) =>
+          prev.map((t) =>
+            t._id === submitTask._id
+              ? { ...t, submitted: true, submittedAt: new Date().toISOString() }
+              : t
+          )
+        )
+        toast.success('Submitted. Awaiting grade.')
+        setSubmitTask(null)
+      } else {
+        toast.error(data.error || 'Failed to submit task.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }, [submitTask, student.username])
+
+  if (loading) {
+    return <div className="text-slate-500 text-sm">Loading tasks…</div>
+  }
+
+  if (error) {
+    return <div className="text-red-600 text-sm">{error}</div>
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
+        <p className="text-xs text-slate-500 mt-0.5">
+          Current term activities, quizzes, tests and projects
+        </p>
+      </div>
+
+      {/* Summary chips */}
+      <div className="flex flex-wrap gap-3">
+        <SummaryChip label="TOTAL" value={summary.total} color="text-slate-900" />
+        <SummaryChip label="GRADED" value={summary.graded} color="text-green-700" />
+        <SummaryChip label="PENDING" value={summary.pending} color="text-amber-700" />
+        <SummaryChip label="MISSING" value={summary.missing} color="text-red-700" />
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 items-center">
+        {/* Subject dropdown */}
+        <select
+          value={subjectFilter}
+          onChange={(e) => setSubjectFilter(e.target.value)}
+          className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 bg-white"
+        >
+          <option value="all">All Subjects</option>
+          {currentSubjects.map((s) => (
+            <option key={s.code} value={s.code}>{s.code} - {s.title}</option>
+          ))}
+        </select>
+        {/* Type chips */}
+        <div className="flex gap-1">
+          {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTypeFilter(t)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {t === 'all' ? 'All' : t}
+            </button>
+          ))}
+        </div>
+        {/* Status chips */}
+        <div className="flex gap-1">
+          {(['all', 'MISSING', 'PENDING', 'GRADED'] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              {s === 'all' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Empty state */}
+      {filteredTasks.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
+          <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+          <p className="text-sm text-slate-500">No tasks for this term.</p>
+        </div>
+      ) : (
+        /* Task cards grouped by subject */
+        <div className="space-y-6">
+          {groupedBySubject.map(([subjectCode, subjectTasks]) => {
+            const subject = currentSubjects.find((s) => s.code === subjectCode)
+            return (
+              <div key={subjectCode} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                {/* Subject header */}
+                <div className="px-6 py-4 border-b border-slate-100">
+                  <h3 className="text-base font-semibold text-slate-900">
+                    <span className="font-mono text-xs font-bold text-blue-700 mr-2">{subjectCode}</span>
+                    {subject?.title || subjectCode}
+                  </h3>
+                  {subject && (
+                    <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>
+                  )}
+                </div>
+                {/* Task rows */}
+                <div className="divide-y divide-slate-100">
+                  {subjectTasks.map((task) => {
+                    const { status, sub } = computeStatus(task)
+                    const dueDate = new Date(task.dueDate)
+                    const isMissing = status === 'MISSING'
+                    const showSubmit = !task.submitted && task.score === null
+                    return (
+                      <div key={task._id} className="px-6 py-4 flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          {/* Type badge */}
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${TYPE_COLORS[task.type]}`}>
+                            {task.type}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-slate-900">{task.title}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-slate-500">
+                                Due: {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </span>
+                              {task.score !== null && (
+                                <span className="text-xs font-mono font-bold text-slate-700">
+                                  Score: {task.score} / {task.maxScore}
+                                </span>
+                              )}
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${STATUS_COLORS[status]}`}>
+                                {status === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                                {status === 'PENDING' && <Clock className="w-3 h-3" />}
+                                {status === 'MISSING' && <AlertTriangle className="w-3 h-3" />}
+                                {sub}
+                              </span>
+                            </div>
+                            {task.feedback && (
+                              <p className="text-xs text-slate-400 mt-1 italic">"{task.feedback}"</p>
+                            )}
+                          </div>
+                        </div>
+                        {/* Submit button */}
+                        {showSubmit && (
+                          <button
+                            type="button"
+                            onClick={() => setSubmitTask(task)}
+                            className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium flex-shrink-0 ${
+                              isMissing
+                                ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                                : 'bg-blue-700 text-white hover:bg-blue-800'
+                            }`}
+                          >
+                            {isMissing ? 'Submit (Late)' : 'Submit'}
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Submit warning modal */}
+      <AnimatePresence>
+        {submitTask && (
+          <SubmitWarningModal
+            task={submitTask}
+            onCancel={() => setSubmitTask(null)}
+            onConfirm={handleConfirmSubmit}
+            submitting={submitting}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+function SummaryChip({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 px-4 py-2.5">
+      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
+      <p className={`text-lg font-bold ${color}`}>{value}</p>
+    </div>
+  )
+}
+
+function SubmitWarningModal({
+  task,
+  onCancel,
+  onConfirm,
+  submitting,
+}: {
+  task: Task
+  onCancel: () => void
+  onConfirm: () => void
+  submitting: boolean
+}) {
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onCancel])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50"
+      onClick={onCancel}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        {/* Body */}
+        <div className="px-6 py-5">
+          <p className="text-sm text-slate-600 leading-relaxed">
+            You should have already passed the ACTUAL paper for this activity to your
+            adviser/professor BEFORE submitting here. Submitting in the portal without passing
+            the physical paper will result in a penalty the next day.
+          </p>
+          <p className="text-xs text-slate-400 mt-3">
+            Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})
+          </p>
+        </div>
+        {/* Buttons */}
+        <div className="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={submitting}
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60"
+          >
+            {submitting ? 'Submitting…' : 'I passed the paper — Submit'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

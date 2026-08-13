@@ -169,7 +169,40 @@ async function seed() {
   console.log(`  ✓ Inserted student: juan.santos (2nd Year, CS-2A, AY 2026-2027)`)
 
   // ----------------------------------------------------------
-  //  5. Indexes
+  //  5. Tasks (current term + previous term for visibility test)
+  // ----------------------------------------------------------
+  const now = new Date()
+  const daysFromNow = (n: number) => new Date(now.getTime() + n * 24 * 60 * 60 * 1000)
+
+  const currentTerm = { academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year' }
+  const prevTerm = { academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year' }
+
+  const tasks = [
+    // CURRENT TERM (AY 2026-2027) — 11 tasks
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'Problem Set 1: Logic & Proofs', type: 'Activity', description: null, dueDate: daysFromNow(-6), postedDate: daysFromNow(-20), submitted: true, submittedAt: daysFromNow(-7), score: 9, maxScore: 10, feedback: 'Good work on indirect proofs.' },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'Quiz 1: Set Theory', type: 'Quiz', description: null, dueDate: daysFromNow(-2), postedDate: daysFromNow(-10), submitted: true, submittedAt: daysFromNow(-3), score: null, maxScore: 10, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'MP 1: Proof Checker', type: 'Project', description: 'Build a simple proof verification tool', dueDate: daysFromNow(5), postedDate: daysFromNow(-5), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 206', term: currentTerm, title: 'Activity 1: ERD Modeling', type: 'Activity', description: null, dueDate: daysFromNow(-3), postedDate: daysFromNow(-15), submitted: false, submittedAt: null, score: null, maxScore: 10, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 206', term: currentTerm, title: 'Quiz 1: Key Concepts', type: 'Quiz', description: null, dueDate: daysFromNow(-8), postedDate: daysFromNow(-18), submitted: true, submittedAt: daysFromNow(-9), score: 8, maxScore: 10, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 207', term: currentTerm, title: 'Lab Exercise 1: Audit Tools', type: 'Activity', description: null, dueDate: daysFromNow(-5), postedDate: daysFromNow(-12), submitted: true, submittedAt: daysFromNow(-6), score: 10, maxScore: 10, feedback: 'Perfect submission.' },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 207', term: currentTerm, title: 'Project 1: Site Audit', type: 'Project', description: 'Conduct a full security audit of a sample site', dueDate: daysFromNow(7), postedDate: daysFromNow(-3), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 208', term: currentTerm, title: 'Activity 1: Users & Permissions', type: 'Activity', description: null, dueDate: daysFromNow(-1), postedDate: daysFromNow(-10), submitted: false, submittedAt: null, score: null, maxScore: 10, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 209', term: currentTerm, title: 'Quiz 1: Heuristics', type: 'Quiz', description: null, dueDate: daysFromNow(-2), postedDate: daysFromNow(-8), submitted: true, submittedAt: daysFromNow(-3), score: null, maxScore: 10, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 210', term: currentTerm, title: 'Project 1: Requirements Spec', type: 'Project', description: 'Write a full SRS document', dueDate: daysFromNow(3), postedDate: daysFromNow(-2), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'PE 2', term: currentTerm, title: 'Fitness Assessment', type: 'Test', description: null, dueDate: daysFromNow(-4), postedDate: daysFromNow(-14), submitted: true, submittedAt: daysFromNow(-5), score: 20, maxScore: 20, feedback: 'Excellent fitness level.' },
+    // PREVIOUS TERM (AY 2025-2026) — MUST NOT render for student
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 101', term: prevTerm, title: 'Final Project', type: 'Project', description: null, dueDate: daysFromNow(-200), postedDate: daysFromNow(-220), submitted: true, submittedAt: daysFromNow(-201), score: 95, maxScore: 100, feedback: null },
+    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 102', term: prevTerm, title: 'Quiz 3: Loops', type: 'Quiz', description: null, dueDate: daysFromNow(-210), postedDate: daysFromNow(-225), submitted: true, submittedAt: daysFromNow(-211), score: 7, maxScore: 10, feedback: null },
+  ]
+
+  await db.collection('tasks').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+  await db.collection('tasks').insertMany(tasks)
+  console.log(`  ✓ Inserted ${tasks.length} tasks (${tasks.length - 2} current term, 2 previous term)`)
+
+  await db.collection('tasks').createIndex({ branch: 1, studentUsername: 1, 'term.academicYear': 1, 'term.semester': 1 })
+
+  // ----------------------------------------------------------
+  //  6. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
@@ -184,6 +217,7 @@ async function seed() {
   console.log(`   Current AY: 2026-2027 (in-progress)`)
   console.log(`   Completed AY: 2025-2026 (GPA: ${term1GPA})`)
   console.log(`   Dean's Lister: ${isDeansLister}`)
+  console.log(`   Tasks: 11 current term + 2 previous term (hidden from student)`)
 
   await client.close()
 }

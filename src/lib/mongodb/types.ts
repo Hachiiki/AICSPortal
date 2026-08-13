@@ -83,3 +83,27 @@ export interface MongoSubject {
   yearLevel?: string // e.g. "1st Year"
   status?: string // "completed" | "in-progress"
 }
+
+export type TaskType = 'Activity' | 'Quiz' | 'Test' | 'Project'
+
+export interface MongoTask {
+  _id?: string
+  branch: Branch
+  studentUsername: string
+  subjectCode: string
+  term: {
+    academicYear: string
+    semester: string
+    yearLevel: string
+  }
+  title: string
+  type: TaskType
+  description?: string
+  dueDate: Date
+  postedDate: Date
+  submitted: boolean
+  submittedAt: Date | null
+  score: number | null
+  maxScore: number | null
+  feedback: string | null
+}
