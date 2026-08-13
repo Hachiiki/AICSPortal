@@ -73,58 +73,66 @@ export function useStudentData(username: string | null) {
 }
 
 // ============================================================
-//  useAuth — manages the logged-in username in localStorage
-//  and provides login/logout functions that call the API.
+//  useAuth — manages the logged-in username + branch in
+//  localStorage and provides login/logout functions that
+//  call the API. The session persists across browser
+//  refreshes because localStorage is synchronous on the
+//  client.
 // ============================================================
 
-// useSyncExternalStore for reading localStorage without hydration mismatch
-const emptySubscribe = () => () => {}
-let cachedStorageUsername: string | null = null
-let cachedStorageKey = ''
-function getClientUsername(): string | null {
-  const val = typeof window !== 'undefined' ? localStorage.getItem('aics_username') : null
-  if (val !== cachedStorageKey) {
-    cachedStorageUsername = val
-    cachedStorageKey = val
-  }
-  return cachedStorageUsername
-}
-function getServerUsername(): string | null {
-  return null
-}
-
 export function useAuth() {
-  // SSR-safe read of localStorage
-  const storedUsername = useSyncExternalStore(emptySubscribe, getClientUsername, getServerUsername)
   // Lazy-init from localStorage on the client; null on the server.
+  // This avoids hydration mismatch (server renders null, client
+  // hydrates with the real value from localStorage).
   const [username, setUsername] = useState<string | null>(() =>
     typeof window !== 'undefined' ? localStorage.getItem('aics_username') : null
   )
   const [branch, setBranch] = useState<string | null>(() =>
     typeof window !== 'undefined' ? localStorage.getItem('aics_branch') : null
   )
+  // loading is false because the lazy init resolves synchronously
   const loading = false
 
-  const login = useCallback(async (user: string, pass: string): Promise<{ ok: boolean; error?: string; branch?: string; username?: string }> => {
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user, password: pass }),
-      })
-      const data = await res.json()
-      if (!data.ok) {
-        return { ok: false, error: data.error }
+  // Sync across tabs/windows
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'aics_username') {
+        setUsername(e.newValue)
       }
-      localStorage.setItem('aics_username', data.username)
-      localStorage.setItem('aics_branch', data.branch)
-      setUsername(data.username)
-      setBranch(data.branch)
-      return { ok: true, branch: data.branch, username: data.username }
-    } catch {
-      return { ok: false, error: 'Network error. Please try again.' }
+      if (e.key === 'aics_branch') {
+        setBranch(e.newValue)
+      }
     }
+    window.addEventListener('storage', handler)
+    return () => window.removeEventListener('storage', handler)
   }, [])
+
+  const login = useCallback(
+    async (
+      user: string,
+      pass: string
+    ): Promise<{ ok: boolean; error?: string; branch?: string; username?: string }> => {
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass }),
+        })
+        const data = await res.json()
+        if (!data.ok) {
+          return { ok: false, error: data.error }
+        }
+        localStorage.setItem('aics_username', data.username)
+        localStorage.setItem('aics_branch', data.branch)
+        setUsername(data.username)
+        setBranch(data.branch)
+        return { ok: true, branch: data.branch, username: data.username }
+      } catch {
+        return { ok: false, error: 'Network error. Please try again.' }
+      }
+    },
+    []
+  )
 
   const logout = useCallback(() => {
     localStorage.removeItem('aics_username')
