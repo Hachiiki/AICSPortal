@@ -81,42 +81,41 @@ function exportYearPDF(student: Student, term: TermGroup) {
   const firstName = student.firstName.replace(/\s+/g, '')
   const filename = `${lastName}${firstName}_Grades_AY${term.academicYear}.pdf`
 
-  // Dynamically import jspdf to avoid SSR issues
-  import('jspdf').then(({ jsPDF }) => {
-    import('jspdf-autotable').then(() => {
-      const doc = new jsPDF()
-      // Header
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Student Portal - Grade Report', 105, 27, { align: 'center' })
-      // Student info
-      doc.setFontSize(10)
-      doc.text(`Name: ${student.fullName}`, 14, 40)
-      doc.text(`ID: ${student.studentNumber}`, 14, 46)
-      doc.text(`Program: ${student.program}`, 14, 52)
-      doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
-      // Title
-      doc.setFontSize(12)
-      doc.setFont('helvetica', 'bold')
-      doc.text(`Grade Report - ${term.yearLevel} | AY ${term.academicYear}`, 14, 68)
-      // Table
-      const head = [['Code', 'Subject', 'Units', 'Professor', 'Midterm', 'Finals', 'Final Grade', 'Remarks']]
-      const body = term.subjects.map((s) => [s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks])
-      body.push(['', 'Total Units Enrolled', String(term.totalUnits), '', '', '', '', ''])
-      ;(doc as any).autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 8 } })
-      // Footer
-      const finalY = (doc as any).lastAutoTable.finalY || 74
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'bold')
-      doc.text(`Year GPA: ${term.gpa}    Total Units: ${term.totalUnits}`, 14, finalY + 10)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8)
-      doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
-      doc.save(filename)
-    })
+  // Dynamically import jspdf + autotable to avoid SSR issues
+  Promise.all([import('jspdf'), import('jspdf-autotable')]).then(([{ jsPDF }, mod]: any) => {
+    mod.applyPlugin(jsPDF)
+    const doc = new jsPDF()
+    // Header
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Student Portal - Grade Report', 105, 27, { align: 'center' })
+    // Student info
+    doc.setFontSize(10)
+    doc.text(`Name: ${student.fullName}`, 14, 40)
+    doc.text(`ID: ${student.studentNumber}`, 14, 46)
+    doc.text(`Program: ${student.program}`, 14, 52)
+    doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
+    // Title
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Grade Report - ${term.yearLevel} | AY ${term.academicYear}`, 14, 68)
+    // Table
+    const head = [['Code', 'Subject', 'Units', 'Professor', 'Midterm', 'Finals', 'Final Grade', 'Remarks']]
+    const body = term.subjects.map((s) => [s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks])
+    body.push(['', 'Total Units Enrolled', String(term.totalUnits), '', '', '', '', ''])
+    doc.autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 8 } })
+    // Footer
+    const finalY = (doc as any).lastAutoTable.finalY || 74
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Year GPA: ${term.gpa}    Total Units: ${term.totalUnits}`, 14, finalY + 10)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
+    doc.save(filename)
   })
 }
 
@@ -125,39 +124,38 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   const firstName = student.firstName.replace(/\s+/g, '')
   const filename = `${lastName}${firstName}_AllSubjects.pdf`
 
-  import('jspdf').then(({ jsPDF }) => {
-    import('jspdf-autotable').then(() => {
-      const doc = new jsPDF()
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'normal')
-      doc.text('Student Portal - Complete Subject Record', 105, 27, { align: 'center' })
-      doc.setFontSize(10)
-      doc.text(`Name: ${student.fullName}`, 14, 40)
-      doc.text(`ID: ${student.studentNumber}`, 14, 46)
-      doc.text(`Program: ${student.program}`, 14, 52)
-      doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
-      doc.setFontSize(12)
-      doc.setFont('helvetica', 'bold')
-      doc.text('Complete Subject Record', 14, 68)
-      const head = [['Term', 'Code', 'Subject', 'Units', 'Professor', 'Mid', 'Fin', 'FG', 'Remarks']]
-      const body = allSubjects.map((s) => [
-        `${s.yearLevel} | AY ${s.academicYear}`, s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks,
-      ])
-      const totalUnits = allSubjects.reduce((sum, s) => sum + s.units, 0)
-      body.push(['', '', 'TOTAL', String(totalUnits), '', '', '', '', ''])
-      ;(doc as any).autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 7 } })
-      const finalY = (doc as any).lastAutoTable.finalY || 74
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'bold')
-      doc.text(`Cumulative GPA: ${cumulativeGPA}    Total Subjects: ${allSubjects.length}    Total Units: ${totalUnits}`, 14, finalY + 10)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8)
-      doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
-      doc.save(filename)
-    })
+  Promise.all([import('jspdf'), import('jspdf-autotable')]).then(([{ jsPDF }, mod]: any) => {
+    mod.applyPlugin(jsPDF)
+    const doc = new jsPDF()
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('ASIAN INSTITUTE OF COMPUTER STUDIES', 105, 20, { align: 'center' })
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Student Portal - Complete Subject Record', 105, 27, { align: 'center' })
+    doc.setFontSize(10)
+    doc.text(`Name: ${student.fullName}`, 14, 40)
+    doc.text(`ID: ${student.studentNumber}`, 14, 46)
+    doc.text(`Program: ${student.program}`, 14, 52)
+    doc.text(`Year/Section: ${student.yearLevel}, ${student.section}`, 14, 58)
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Complete Subject Record', 14, 68)
+    const head = [['Term', 'Code', 'Subject', 'Units', 'Professor', 'Mid', 'Fin', 'FG', 'Remarks']]
+    const body = allSubjects.map((s) => [
+      `${s.yearLevel} | AY ${s.academicYear}`, s.code, s.title, String(s.units), s.professor, s.midterm, s.finals, s.finalGrade, s.remarks,
+    ])
+    const totalUnits = allSubjects.reduce((sum, s) => sum + s.units, 0)
+    body.push(['', '', 'TOTAL', String(totalUnits), '', '', '', '', ''])
+    doc.autoTable({ head, body, startY: 74, theme: 'grid', styles: { fontSize: 7 } })
+    const finalY = (doc as any).lastAutoTable.finalY || 74
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Cumulative GPA: ${cumulativeGPA}    Total Subjects: ${allSubjects.length}    Total Units: ${totalUnits}`, 14, finalY + 10)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, finalY + 16)
+    doc.save(filename)
   })
 }
 
