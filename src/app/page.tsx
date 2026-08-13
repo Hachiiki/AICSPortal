@@ -8,6 +8,7 @@ import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
+import { MobileWarning } from '@/components/MobileWarning'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -80,28 +81,41 @@ export default function AICSLoginPage() {
 
   // Show the branch redirect animation overlay
   if (redirecting) {
-    return <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
+    return (
+      <>
+        <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
+        <MobileWarning />
+      </>
+    )
   }
 
   // Not authenticated → show login (regardless of URL)
   if (!username) {
-    return <LoginView onLogin={handleLogin} />
+    return (
+      <>
+        <LoginView onLogin={handleLogin} />
+        <MobileWarning />
+      </>
+    )
   }
 
   // Authenticated but on login route → the useEffect guard will redirect.
   // Show nothing in the meantime to avoid flashing the login form.
   if (route.view === 'login') {
-    return null
+    return <MobileWarning />
   }
 
   // Authenticated + protected route → render the right view
   return (
-    <StudentDataWrapper
-      username={username}
-      route={route}
-      navigate={navigate}
-      onLogout={handleLogout}
-    />
+    <>
+      <StudentDataWrapper
+        username={username}
+        route={route}
+        navigate={navigate}
+        onLogout={handleLogout}
+      />
+      <MobileWarning />
+    </>
   )
 }
 
