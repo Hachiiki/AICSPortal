@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
+import type { Course, Session } from '@/lib/schedule'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { AcademicHeader } from './AcademicHeader'
@@ -12,6 +13,8 @@ import { TodaysClasses } from './TodaysClasses'
 
 interface StudentDashboardProps {
   student: Student
+  courses: Course[]
+  sessions: Session[]
   onProfile: () => void
   onAcademics: () => void
   onLogout: () => void
@@ -21,7 +24,7 @@ interface StudentDashboardProps {
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, onProfile, onAcademics, onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onProfile, onAcademics, onLogout }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -93,8 +96,8 @@ export function StudentDashboard({ student, onProfile, onAcademics, onLogout }: 
           </div>
 
           <div className="flex flex-col lg:flex-row gap-4">
-            <ScheduleGrid />
-            <TodaysClasses />
+            <ScheduleGrid courses={courses} sessions={sessions} />
+            <TodaysClasses courses={courses} sessions={sessions} />
           </div>
         </main>
       </div>

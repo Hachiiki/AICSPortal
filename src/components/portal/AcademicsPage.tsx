@@ -22,6 +22,7 @@ import { toast } from 'sonner'
 import type { Student, Subject } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { TasksSkeleton } from './Skeleton'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
 
@@ -586,7 +587,7 @@ function TasksTab({ student }: { student: Student }) {
     }, 100)
   }, [])
 
-  if (loading) return <div className="text-slate-500 text-sm">Loading tasks…</div>
+  if (loading) return <TasksSkeleton />
   if (error) return <div className="text-red-600 text-sm">{error}</div>
 
   return (

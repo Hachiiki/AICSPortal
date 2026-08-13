@@ -7,21 +7,15 @@ export async function POST(request: NextRequest) {
     if (!username || !password) {
       return NextResponse.json({ ok: false, error: 'Username and password are required.' }, { status: 400 })
     }
-    let student
-    try {
-      student = await getStudentByCredentials(username, password)
-    } catch (mongoErr) {
-      console.error('MongoDB failed, mock fallback:', mongoErr)
-      if (username === 'juan.santos' && password === 'student123') {
-        student = { username: 'juan.santos', branch: 'commonwealth' }
-      }
-    }
+    const student = await getStudentByCredentials(username, password)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Invalid username or password.' }, { status: 401 })
     }
     return NextResponse.json({ ok: true, username: student.username, branch: student.branch })
   } catch (err) {
     console.error('Login error:', err)
-    return NextResponse.json({ ok: false, error: 'An error occurred during login.' }, { status: 500 })
+    // Don't leak internal errors to the client. If MongoDB is down, the
+    // student sees a generic auth-failure message rather than a 500 stack.
+    return NextResponse.json({ ok: false, error: 'Unable to reach the authentication service. Please try again.' }, { status: 503 })
   }
 }
