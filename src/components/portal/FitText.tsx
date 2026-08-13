@@ -9,7 +9,7 @@ interface FitTextProps {
   minCqw: number
   className?: string
   children: React.ReactNode
-  /** When true, checks scrollHeight instead of scrollWidth */
+  /** When true, checks scrollHeight against the parent container's height */
   multiline?: boolean
 }
 
@@ -17,7 +17,7 @@ interface FitTextProps {
  * Auto-shrinking text component. Renders a <span> whose font-size
  * starts at maxCqw and decrements by 0.2cqw until the text fits
  * within its container (single-line: scrollWidth ≤ clientWidth;
- * multiline: scrollHeight ≤ clientHeight).
+ * multiline: scrollHeight ≤ parent's clientHeight).
  *
  * Uses useLayoutEffect + ResizeObserver to re-check on container
  * resize. SSR renders at maxCqw (no hydration mismatch).
@@ -33,9 +33,13 @@ export function FitText({ maxCqw, minCqw, className, children, multiline }: FitT
     const fit = () => {
       let s = maxCqw
       el.style.fontSize = `${s}cqw`
+      // For multiline, compare the span's scrollHeight against the
+      // parent container's clientHeight (the overlay box with fixed % height).
+      // For single-line, compare scrollWidth against clientWidth.
+      const container = multiline ? el.parentElement : el
       while (s > minCqw) {
         const fits = multiline
-          ? el.scrollHeight <= el.clientHeight + 1
+          ? el.scrollHeight <= container.clientHeight + 1
           : el.scrollWidth <= el.clientWidth + 1
         if (fits) break
         s -= 0.2
@@ -47,10 +51,10 @@ export function FitText({ maxCqw, minCqw, className, children, multiline }: FitT
     fit()
 
     // Re-check on container resize
-    const container = el.closest('[style*="aspect-ratio"]') ?? el.parentElement
-    if (container) {
+    const cardContainer = el.closest('[style*="aspect-ratio"]') ?? el.parentElement
+    if (cardContainer) {
       const ro = new ResizeObserver(fit)
-      ro.observe(container)
+      ro.observe(cardContainer)
       return () => ro.disconnect()
     }
   }, [maxCqw, minCqw, multiline, children])
@@ -59,7 +63,7 @@ export function FitText({ maxCqw, minCqw, className, children, multiline }: FitT
     <span
       ref={spanRef}
       className={className}
-      style={{ fontSize: `${size}cqw` }}
+      style={{ fontSize: `${size}cqw`, display: 'block' }}
     >
       {children}
     </span>
