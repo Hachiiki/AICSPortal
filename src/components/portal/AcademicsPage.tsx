@@ -15,6 +15,7 @@ import {
   Calendar,
   Info,
   Lock,
+  Check,
   CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -440,7 +441,9 @@ function TasksTab({ student }: { student: Student }) {
   const [submitting, setSubmitting] = useState(false)
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set())
   const [detailTask, setDetailTask] = useState<Task | null>(null)
+  const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -457,6 +460,25 @@ function TasksTab({ student }: { student: Student }) {
     fetchTasks()
     return () => { cancelled = true }
   }, [student.username])
+
+  // Close subject dropdown on outside click or Esc
+  useEffect(() => {
+    if (!subjectDropdownOpen) return
+    const onPointerDown = (e: MouseEvent) => {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(e.target as Node)) {
+        setSubjectDropdownOpen(false)
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSubjectDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [subjectDropdownOpen])
 
   const currentSubjects = useMemo(() =>
     student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),
@@ -602,17 +624,59 @@ function TasksTab({ student }: { student: Student }) {
       {/* FILTER CARD */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-4">
         <div className="flex flex-wrap gap-6 items-center">
-          {/* Subject */}
-          <div className="flex flex-col gap-1">
+          {/* Subject (custom dropdown) */}
+          <div className="flex flex-col gap-1" ref={subjectDropdownRef}>
             <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Subject</label>
-            <select
-              value={subjectFilter}
-              onChange={(e) => setSubjectFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 bg-white"
-            >
-              <option value="all">All Subjects</option>
-              {currentSubjects.map((s) => (<option key={s.code} value={s.code}>{s.code}</option>))}
-            </select>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setSubjectDropdownOpen((v) => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={subjectDropdownOpen}
+                className="min-w-56 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-left text-slate-700 flex items-center justify-between gap-2 hover:border-slate-300 transition-colors"
+              >
+                <span className="truncate">
+                  {subjectFilter === 'all'
+                    ? 'All Subjects'
+                    : (() => {
+                        const s = currentSubjects.find((x) => x.code === subjectFilter)
+                        return s ? `${s.code} * ${s.title}` : 'All Subjects'
+                      })()}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200 ${subjectDropdownOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+              {subjectDropdownOpen && (
+                <div
+                  role="listbox"
+                  className="absolute mt-2 w-full min-w-56 rounded-lg border border-slate-200 bg-white shadow-lg z-20 max-h-64 overflow-auto"
+                >
+                  <button
+                    type="button"
+                    onClick={() => { setSubjectFilter('all'); setSubjectDropdownOpen(false) }}
+                    className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between gap-2 hover:bg-slate-50 ${subjectFilter === 'all' ? 'text-blue-700 font-medium' : 'text-slate-700'}`}
+                  >
+                    <span>All Subjects</span>
+                    {subjectFilter === 'all' && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                  </button>
+                  {currentSubjects.map((s) => {
+                    const selected = subjectFilter === s.code
+                    return (
+                      <button
+                        key={s.code}
+                        type="button"
+                        onClick={() => { setSubjectFilter(s.code); setSubjectDropdownOpen(false) }}
+                        className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between gap-2 hover:bg-slate-50 ${selected ? 'text-blue-700 font-medium' : 'text-slate-700'}`}
+                      >
+                        <span className="truncate">{s.code} * {s.title}</span>
+                        {selected && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
           <div className="w-px h-10 bg-slate-100" />
           {/* Type */}
@@ -657,7 +721,7 @@ function TasksTab({ student }: { student: Student }) {
         ) : (
           <div className="divide-y divide-slate-100">
             {needsAttentionTasks.map((task) => {
-              const { variant, sub, status } = computeStatus(task)
+              const { variant, sub } = computeStatus(task)
               const subject = currentSubjects.find((s) => s.code === task.subjectCode)
               return (
                 <div key={task._id}
@@ -747,12 +811,12 @@ function TasksTab({ student }: { student: Student }) {
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
-                          <th className="px-4 py-2.5 pr-6 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right w-28">Action</th>
+                          <th className="px-4 py-2.5 pr-6 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-32">Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {subjectTasks.map((task) => {
-                          const { variant, sub, status } = computeStatus(task)
+                          const { variant, sub } = computeStatus(task)
                           const dueDate = new Date(task.dueDate)
                           const showSubmit = canSubmit(task)
                           const showDetails = canViewDetails(task)
@@ -765,39 +829,37 @@ function TasksTab({ student }: { student: Student }) {
                               </td>
                               <td className="px-4 py-3">
                                 <p className="text-sm font-medium text-slate-900">{task.title}</p>
-                                {task.feedback && <p className="text-xs text-slate-400 mt-0.5 italic">&ldquo;{task.feedback}&rdquo;</p>}
                               </td>
                               <td className="px-4 py-3 text-xs text-slate-500">
                                 {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               </td>
                               <td className="px-4 py-3">
-                                <div className="flex flex-col gap-0.5">
-                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
-                                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
-                                    {variant === 'PENDING' && <Clock className="w-3 h-3" />}
-                                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
-                                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
-                                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
-                                    {sub}
-                                  </span>
-                                  <span className="text-[10px] text-slate-400">{STATUS_LABELS[status]}</span>
-                                </div>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
+                                  {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                                  {variant === 'PENDING' && <Clock className="w-3 h-3" />}
+                                  {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
+                                  {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
+                                  {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                                  {sub}
+                                </span>
                               </td>
-                              <td className="px-4 py-3 pr-6 text-right w-28">
-                                {showSubmit ? (
-                                  <button type="button" onClick={() => setSubmitTask(task)}
-                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
-                                    {isOverdue ? 'Submit (Late)' : 'Submit'}
-                                  </button>
-                                ) : isClosed ? (
-                                  <span className="text-xs font-medium text-slate-400">Closed</span>
-                                ) : showDetails ? (
-                                  <button type="button" onClick={() => setDetailTask(task)}
-                                    aria-label="View details"
-                                    className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
-                                    <Info className="w-4 h-4" />
-                                  </button>
-                                ) : null}
+                              <td className="px-4 py-3 pr-6 w-32">
+                                <div className="flex justify-center">
+                                  {showSubmit ? (
+                                    <button type="button" onClick={() => setSubmitTask(task)}
+                                      className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                      {isOverdue ? 'Submit (Late)' : 'Submit'}
+                                    </button>
+                                  ) : isClosed ? (
+                                    <span className="text-xs font-medium text-slate-400">Closed</span>
+                                  ) : showDetails ? (
+                                    <button type="button" onClick={() => setDetailTask(task)}
+                                      aria-label="View details"
+                                      className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                                      <Info className="w-4 h-4" />
+                                    </button>
+                                  ) : null}
+                                </div>
                               </td>
                             </tr>
                           )
@@ -900,7 +962,6 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
           {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
           <DetailRow label="Status" value={STATUS_LABELS[status]} />
           {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}
-          {task.feedback && <DetailRow label="Feedback" value={task.feedback} />}
           {task.description && <DetailRow label="Description" value={task.description} />}
         </div>
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end">

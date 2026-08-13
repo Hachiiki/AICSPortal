@@ -53,3 +53,40 @@ Stage Summary:
 - Pre-existing bug fix (bonus): submit endpoint now correctly converts string taskId to ObjectId (previously always returned 404).
 - Warning modal text left untouched per spec.
 - Grades and Subjects tabs not touched per spec.
+
+---
+Task ID: tasks-tab-polish
+Agent: main (claude)
+Task: PHASES 1-3 of the "TASKS TABLE POLISH" spec — remove feedback quote + grey status label, center ACTION column, replace native subject select with custom dropdown. PHASE 4 keep unchanged. PHASE 5 verify.
+
+Work Log:
+- Re-read current `src/components/portal/AcademicsPage.tsx` (specifically filter card, needs attention card, course accordion table body, and TaskDetailsModal).
+- **PHASE 1.1 (Remove feedback quote)**: Removed the `<p>...italic "feedback"</p>` line from the Task cell in the course table body. Removed the `<DetailRow label="Feedback" ... />` line from `TaskDetailsModal`. The `feedback` field stays in the Task schema and seed data (teacher portal future use).
+- **PHASE 1.2 (Remove grey status label)**: Replaced the `<div className="flex flex-col gap-0.5">` wrapper (pill + label) with just the pill `<span>`. The small grey `STATUS_LABELS[status]` text below the pill is gone from every row.
+- **PHASE 2 (Center ACTION column)**:
+  - Header: changed `text-right w-28` → `text-center w-32` (still has `pr-6` for right breathing room).
+  - Body cell: changed `text-right w-28` → `w-32 pr-6` and wrapped all content (Submit button, "Closed" text, info icon button) in `<div className="flex justify-center">`. All three action variants now share one centered vertical axis under the header.
+- **PHASE 3 (Custom subject dropdown)**:
+  - Added `Check` to lucide-react imports.
+  - Added `subjectDropdownOpen` state and `subjectDropdownRef` ref to `TasksTab`.
+  - Added a `useEffect` that listens for `mousedown` (outside click) and `keydown` (Escape) to close the dropdown — only attached when dropdown is open.
+  - Replaced the native `<select>` with a custom trigger button (`min-w-56`, `rounded-lg`, `border`, `bg-white`, `px-4 py-2.5`, `text-sm`, `text-left`, flexbox with value + chevron). The chevron rotates 180deg when open (transition-transform duration-200).
+  - Trigger label: "All Subjects" or `"<code> * <title>"` for the selected subject.
+  - Menu: `absolute mt-2 w-full min-w-56 rounded-lg border bg-white shadow-lg z-20 max-h-64 overflow-auto`. Items: "All Subjects" first, then each current-term subject as `"<code> * <title>"`. Selected item: blue text + `Check` icon on the right. Items use `hover:bg-slate-50`.
+  - Selecting an item applies the filter, closes the dropdown, and updates the trigger label.
+  - Type and Status chip groups left unchanged per spec.
+- Cleaned up unused `status` destructures in the Needs Attention and table body `.map()` callbacks (no longer needed after removing the label).
+- **PHASE 5 verification**:
+  - `npx eslint src/components/portal/AcademicsPage.tsx` → clean, zero errors.
+  - `npx tsc --noEmit` on AcademicsPage.tsx → clean, zero errors.
+  - Smoke test: dev server starts, `/portal/commonwealth/student/juan.santos/academics` returns HTTP 200, page compiles in 4.5s with no errors.
+  - Tasks API still returns 11 tasks.
+  - Verified no `task.feedback` rendering remains in student UI (only schema field remains).
+  - Verified no `italic` class remains in the file.
+  - Verified `STATUS_LABELS[status]` is used exactly once — inside `TaskDetailsModal` (Status row), which is correct per spec.
+
+Stage Summary:
+- 1 file changed: `src/components/portal/AcademicsPage.tsx`.
+- All three polish phases implemented in one file.
+- No new UI libraries, no new files, no schema/seed/endpoint changes (PHASE 4 preserved).
+- Build passes, lint clean, typecheck clean, runtime smoke test HTTP 200.
