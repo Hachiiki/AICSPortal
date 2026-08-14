@@ -16,6 +16,7 @@ import {
   formatRangeTime,
   formatHourLabel,
   type Session,
+  type Course,
 } from '@/lib/schedule'
 
 // Read `new Date()` client-side only via useSyncExternalStore to avoid
@@ -41,14 +42,15 @@ const GRID_TEMPLATE = 'grid grid-cols-[72px_repeat(6,minmax(0,1fr))]'
 
 interface EventCardProps {
   session: Session
+  courses: Course[]
   /** Index of this session within overlapping sessions at the same time slot (0-based). */
   overlapIndex: number
   /** Total number of sessions overlapping at the same time slot (1 = no overlap). */
   overlapTotal: number
 }
 
-function EventCard({ session, overlapIndex, overlapTotal }: EventCardProps) {
-  const course = getCourse(session.code)
+function EventCard({ session, courses, overlapIndex, overlapTotal }: EventCardProps) {
+  const course = getCourse(session.code, courses)
   const styles = COLOR_STYLES[course.color]
 
   // Position is computed entirely from the schedule math — NOT from content.
@@ -96,7 +98,12 @@ function EventCard({ session, overlapIndex, overlapTotal }: EventCardProps) {
   )
 }
 
-export function ScheduleGrid() {
+interface ScheduleGridProps {
+  courses: Course[]
+  sessions: Session[]
+}
+
+export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
   // Resolve `today` client-side only to avoid SSR hydration mismatch.
   const today = useSyncExternalStore(emptySubscribe, getClientToday, getServerToday)
   // Lazy-init anchor to current week's Monday on the client; null on server.
@@ -130,13 +137,13 @@ export function ScheduleGrid() {
   // and only increases when ANOTHER session shares the same time slot.
   const dayData = useMemo(() => {
     return DAY_SHORT.map((_, dayIdx) => {
-      const sessions = getSessionsForDay(dayIdx)
-      const overlapInfo = sessions.map((s, i) => {
+      const daySessions = getSessionsForDay(dayIdx, sessions)
+      const overlapInfo = daySessions.map((s, i) => {
         let total = 1 // count itself
         let index = 0
-        for (let j = 0; j < sessions.length; j++) {
+        for (let j = 0; j < daySessions.length; j++) {
           if (j === i) continue // skip self — prevents false overlap
-          const other = sessions[j]
+          const other = daySessions[j]
           // Time ranges overlap when s.start < other.end AND other.start < s.end
           if (s.start < other.end && other.start < s.end) {
             if (j < i) index++
@@ -147,7 +154,7 @@ export function ScheduleGrid() {
       })
       return overlapInfo
     })
-  }, [])
+  }, [sessions])
 
   return (
     <section className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -249,6 +256,7 @@ export function ScheduleGrid() {
                   <EventCard
                     key={`${info.session.code}-${info.session.day}-${i}`}
                     session={info.session}
+                    courses={courses}
                     overlapIndex={info.overlapIndex}
                     overlapTotal={info.overlapTotal}
                   />

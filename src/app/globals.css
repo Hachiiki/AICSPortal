@@ -166,3 +166,30 @@
     display: none !important;
   }
 }
+
+/* ----------------------------------------------------------------
+   Skeleton loading shimmer
+   Used by <Skeleton> primitives in src/components/portal/Skeleton.tsx.
+   A slow gradient sweep gives a "content is loading" feel without
+   the harsh on/off flashing of plain animate-pulse.
+----------------------------------------------------------------- */
+@keyframes aics-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.aics-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(226 232 240) 0%,   /* slate-200 */
+    rgb(241 245 249) 50%,  /* slate-100 */
+    rgb(226 232 240) 100%  /* slate-200 */
+  );
+  background-size: 200% 100%;
+  animation: aics-shimmer 1.6s ease-in-out infinite;
+  border-radius: 0.5rem;
+}

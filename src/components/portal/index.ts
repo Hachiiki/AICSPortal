@@ -1,7 +1,4 @@
 // Barrel export for portal components.
-export { PortalNavbar } from './PortalNavbar'
-export { WeeklyScheduleGrid } from './WeeklyScheduleGrid'
-export { InfoRow } from './InfoRow'
 export { COEDocument } from './COEDocument'
 export { COEModal } from './COEModal'
 export { StudentDashboard } from './StudentDashboard'

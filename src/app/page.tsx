@@ -9,6 +9,7 @@ import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
+import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 
 /**
@@ -135,14 +136,10 @@ function StudentDataWrapper({
   navigate: (r: any) => void
   onLogout: () => void
 }) {
-  const { student, loading, error } = useStudentData(username)
+  const { student, courses, sessions, loading, error } = useStudentData(username)
 
   if (loading) {
-    return (
-      <div className="min-h-dvh bg-slate-50 grid place-items-center">
-        <div className="text-slate-500 text-sm">Loading your portal…</div>
-      </div>
-    )
+    return <PortalSkeleton view={route.view} />
   }
 
   if (error || !student) {
@@ -178,6 +175,7 @@ function StudentDataWrapper({
       <AcademicsPage
         student={student}
         onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
+        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
         onLogout={onLogout}
       />
     )
@@ -186,9 +184,24 @@ function StudentDataWrapper({
   return (
     <StudentDashboard
       student={student}
+      courses={courses}
+      sessions={sessions}
       onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
       onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
       onLogout={onLogout}
     />
   )
+}
+
+// ============================================================
+//  PortalSkeleton — picks the right skeleton layout for the
+//  view being loaded. Each skeleton mirrors the real page's
+//  shell (sidebar + topbar + main content blocks) so the
+//  transition from skeleton → real content is jitter-free.
+// ============================================================
+
+function PortalSkeleton({ view }: { view: 'dashboard' | 'profile' | 'academics' }) {
+  if (view === 'academics') return <AcademicsSkeleton />
+  if (view === 'profile') return <ProfileSkeleton />
+  return <DashboardSkeleton />
 }

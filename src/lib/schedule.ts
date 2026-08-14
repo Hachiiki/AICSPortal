@@ -1,8 +1,12 @@
 // ============================================================
-//  Schedule — single source of truth for the weekly calendar
-//  and the "Today's Classes" sidebar.
-//  Both components import from this module; there is no other
-//  hard-coded schedule data anywhere in the app.
+//  Schedule — types, color tokens, grid constants, and helpers
+//  for the weekly calendar and the "Today's Classes" sidebar.
+//
+//  All schedule DATA now comes from MongoDB (courses + sessions
+//  collections, fetched via /api/student). This module only
+//  provides: types, color styles, grid geometry, and pure
+//  date/time formatting helpers. There are NO hardcoded course
+//  or session arrays here anymore.
 // ============================================================
 
 export type CourseColor = 'blue' | 'green' | 'amber' | 'violet' | 'red'
@@ -23,50 +27,6 @@ export interface Session {
   end: number
   room: string
 }
-
-// ------------------------------------------------------------
-//  Courses
-// ------------------------------------------------------------
-export const COURSES: Course[] = [
-  { code: 'IT 301', title: 'Web Systems and Technologies', shortTitle: 'Web Systems', color: 'blue' },
-  { code: 'IT 302', title: 'Database Management Systems', shortTitle: 'Database', color: 'amber' },
-  { code: 'IT 303', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'green' },
-  { code: 'IT 304', title: 'Network Fundamentals', shortTitle: 'Networks', color: 'violet' },
-  { code: 'IT 305', title: 'System Analysis and Design', shortTitle: 'SA&D', color: 'blue' },
-  { code: 'PE 3', title: 'Physical Fitness and Rhythmic Activities', shortTitle: 'PE', color: 'red' },
-]
-
-const COURSE_MAP: Record<string, Course> = Object.fromEntries(
-  COURSES.map((c) => [c.code, c])
-)
-
-export function getCourse(code: string): Course {
-  return COURSE_MAP[code] ?? { code, title: code, shortTitle: code, color: 'blue' }
-}
-
-// ------------------------------------------------------------
-//  Weekly sessions  (day 0 = Monday … 5 = Saturday)
-//  Times are decimal hours: 8 = 8:00 AM, 9.5 = 9:30 AM, 13.5 = 1:30 PM
-// ------------------------------------------------------------
-export const SESSIONS: Session[] = [
-  // Monday
-  { code: 'IT 301', day: 0, start: 8, end: 9.5, room: 'Lab 201' },
-  { code: 'IT 303', day: 0, start: 10, end: 11.5, room: 'Lab 202' },
-  { code: 'IT 304', day: 0, start: 13, end: 14.5, room: 'Net Lab 1' },
-  // Tuesday
-  { code: 'IT 302', day: 1, start: 10, end: 11.5, room: 'Room 105' },
-  { code: 'IT 304', day: 1, start: 13, end: 14.5, room: 'Net Lab 1' },
-  // Wednesday
-  { code: 'IT 301', day: 2, start: 8, end: 9.5, room: 'Lab 201' },
-  { code: 'IT 303', day: 2, start: 10, end: 11.5, room: 'Lab 202' },
-  // Thursday
-  { code: 'IT 302', day: 3, start: 10, end: 11.5, room: 'Room 105' },
-  { code: 'IT 304', day: 3, start: 13, end: 14.5, room: 'Net Lab 1' },
-  // Friday
-  { code: 'IT 305', day: 4, start: 8, end: 9.5, room: 'Room 203' },
-  // Saturday
-  { code: 'PE 3', day: 5, start: 8, end: 10, room: 'Gym' },
-]
 
 // ------------------------------------------------------------
 //  Color styles — FULL literal Tailwind class strings so the
@@ -95,7 +55,23 @@ export const DAY_SHORT = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
 export const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const
 
 // ------------------------------------------------------------
-//  Helpers
+//  Data lookup helpers — now accept the data as parameters
+//  (no module-level constants). Both return empty / fallback
+//  values when the data hasn't loaded yet.
+// ------------------------------------------------------------
+
+/** Look up a course by code from a provided courses array. */
+export function getCourse(code: string, courses: Course[]): Course {
+  return courses.find((c) => c.code === code) ?? { code, title: code, shortTitle: code, color: 'blue' }
+}
+
+/** Sessions for a given day index (0 = Mon), sorted by start time. */
+export function getSessionsForDay(day: number, sessions: Session[]): Session[] {
+  return sessions.filter((s) => s.day === day).sort((a, b) => a.start - b.start)
+}
+
+// ------------------------------------------------------------
+//  Date / time helpers (pure functions, no data dependencies)
 // ------------------------------------------------------------
 
 /** Returns the Monday of the week containing `date` (local time). */
@@ -117,11 +93,6 @@ export function getWeekDays(anchor: Date): Date[] {
     days.push(d)
   }
   return days
-}
-
-/** Sessions for a given day index (0 = Mon), sorted by start time. */
-export function getSessionsForDay(day: number): Session[] {
-  return SESSIONS.filter((s) => s.day === day).sort((a, b) => a.start - b.start)
 }
 
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -178,21 +149,3 @@ export function dateToDayIndex(date: Date): number {
   const dow = date.getDay() // 0=Sun … 6=Sat
   return dow === 0 ? -1 : dow - 1
 }
-
-// ============================================================
-//  MOCK "TODAY" for the Today's Classes sidebar
-// ============================================================
-//  This portal is a front-end demo — there is no real backend yet.
-//  The "Today's Classes" sidebar should always show meaningful
-//  content during demos, regardless of the real system weekday
-//  (which might be Sunday or a holiday with no classes).
-//
-//  MOCK_TODAY_INDEX pins the sidebar to Monday (index 0) so the
-//  panel always displays IT 301, IT 303, and IT 304.
-//
-//  TODO: When a real backend / authentication layer is wired up,
-//  replace MOCK_TODAY_INDEX with the authenticated student's
-//  actual current day (dateToDayIndex(new Date())) and remove
-//  this constant.
-// ============================================================
-export const MOCK_TODAY_INDEX = 0 // 0 = Monday

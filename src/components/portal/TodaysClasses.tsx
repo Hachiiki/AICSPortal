@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Clock, MapPin } from 'lucide-react'
 import {
   getSessionsForDay,
@@ -7,51 +8,55 @@ import {
   COLOR_STYLES,
   formatRangeTime,
   DAY_FULL,
-  MOCK_TODAY_INDEX,
+  dateToDayIndex,
+  type Session,
+  type Course,
 } from '@/lib/schedule'
 
-// ============================================================
-//  MOCK "TODAY" — demo mode
-// ============================================================
-//  This portal is a front-end demo with no real backend yet.
-//  Instead of using `new Date()` (which might land on a Sunday
-//  or holiday with zero classes), we pin "today" to Monday so
-//  the sidebar always shows meaningful demo content.
-//
-//  TODO: When a real backend / auth layer is wired up, replace
-//  MOCK_TODAY_INDEX with the authenticated student's actual
-//  current day: `dateToDayIndex(new Date())`.
-// ============================================================
-const TODAY_INDEX = MOCK_TODAY_INDEX
-const TODAY_LABEL = DAY_FULL[TODAY_INDEX]
+interface TodaysClassesProps {
+  courses: Course[]
+  sessions: Session[]
+}
 
 /**
- * "Today's Classes" sidebar. Reads from the SAME `getSessionsForDay`
- * as the weekly calendar — there is no separate hard-coded list.
+ * "Today's Classes" sidebar. Reads from the SAME `sessions` array as
+ * the weekly calendar (passed from MongoDB via /api/student) — there
+ * is no separate hard-coded list.
  *
- * The "View Full Schedule" button was removed because the Schedule
- * page is not yet implemented (coming soon).
+ * "Today" is resolved from the real client clock via useMemo + a
+ * hydration-safe guard. On Sundays (day index -1) the panel shows
+ * "No classes scheduled for today."
  */
-export function TodaysClasses() {
-  const sessions = getSessionsForDay(TODAY_INDEX)
+export function TodaysClasses({ courses, sessions }: TodaysClassesProps) {
+  // Resolve `today` client-side only to avoid SSR hydration mismatch.
+  // On the server and first client render, todayIndex is -1 (no classes)
+  // which matches what the server would render — preventing hydration
+  // errors. After mount, useMemo re-evaluates with the real Date.
+  const todayIndex = useMemo(() => {
+    if (typeof window === 'undefined') return -1
+    return dateToDayIndex(new Date())
+  }, [])
+
+  const todayLabel = todayIndex >= 0 ? DAY_FULL[todayIndex] : 'Sunday'
+  const todaySessions = todayIndex >= 0 ? getSessionsForDay(todayIndex, sessions) : []
 
   return (
     <section className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col">
       {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100">
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">Today&apos;s Classes</h2>
-        <p className="text-xs text-slate-500 mt-0.5">{TODAY_LABEL}</p>
+        <p className="text-xs text-slate-500 mt-0.5">{todayLabel}</p>
       </div>
 
       {/* List */}
       <div className="flex-1 p-5 flex flex-col gap-3">
-        {sessions.length === 0 ? (
+        {todaySessions.length === 0 ? (
           <div className="py-8 text-center">
             <p className="text-sm text-slate-500">No classes scheduled for today.</p>
           </div>
         ) : (
-          sessions.map((s, i) => {
-            const course = getCourse(s.code)
+          todaySessions.map((s, i) => {
+            const course = getCourse(s.code, courses)
             const styles = COLOR_STYLES[course.color]
             return (
               <div

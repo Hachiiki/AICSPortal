@@ -19,7 +19,6 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AuthMode, FaceState } from '@/lib/aics/types'
-import { TEST_CREDENTIALS } from '@/lib/aics/mock-data'
 
 interface LoginViewProps {
   onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
@@ -43,6 +42,12 @@ const T = {
 
 // Whether to expose the demo / test-login shortcut (dev only).
 const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
+
+// Dev-only demo credentials. These match the student record seeded in
+// MongoDB (scripts/seed-mongodb.ts) and exist ONLY so developers can
+// log in with one click during local development. They are NOT mock
+// data — the auth still hits the real MongoDB via /api/auth/login.
+const DEV_CREDENTIALS = { username: 'juan.santos', password: 'student123' } as const
 
 // Gradient for the "AICS Portal." accent text — top (#4EA4D7) to bottom (#64BFE9)
 const PORTAL_TEXT_GRADIENT = 'linear-gradient(to bottom, #4EA4D7 0%, #64BFE9 100%)'
@@ -112,9 +117,9 @@ export function LoginView({ onLogin }: LoginViewProps) {
           setTimeout(() => {
             setFaceState('success')
             toast.success('Face verified. Welcome back to AICS Portal.')
-            // Face ID is a mock — log in with the test student credentials
+            // Face ID is a mock — log in with the dev demo credentials
             setTimeout(() => {
-              onLogin(TEST_CREDENTIALS.username, TEST_CREDENTIALS.password)
+              onLogin(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
             }, 1200)
           }, 1100)
         } else {
@@ -170,11 +175,11 @@ export function LoginView({ onLogin }: LoginViewProps) {
   )
 
   const handleTestLogin = useCallback(async () => {
-    setUsername(TEST_CREDENTIALS.username)
-    setPassword(TEST_CREDENTIALS.password)
+    setUsername(DEV_CREDENTIALS.username)
+    setPassword(DEV_CREDENTIALS.password)
     setSubmitting(true)
     try {
-      const result = await onLogin(TEST_CREDENTIALS.username, TEST_CREDENTIALS.password)
+      const result = await onLogin(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
       if (!result.ok) {
         setSubmitting(false)
         toast.error(result.error || 'Test login failed.')
@@ -485,9 +490,9 @@ export function LoginView({ onLogin }: LoginViewProps) {
                       <UserRound className="w-3.5 h-3.5" /> Test Student Login
                     </button>
                     <p className="text-center text-[10px]" style={{ color: T.muted }}>
-                      <span className="font-mono">{TEST_CREDENTIALS.username}</span>
+                      <span className="font-mono">{DEV_CREDENTIALS.username}</span>
                       {' / '}
-                      <span className="font-mono">{TEST_CREDENTIALS.password}</span>
+                      <span className="font-mono">{DEV_CREDENTIALS.password}</span>
                     </p>
                   </>
                 )}
