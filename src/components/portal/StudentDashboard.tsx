@@ -17,6 +17,7 @@ interface StudentDashboardProps {
   sessions: Session[]
   onProfile: () => void
   onAcademics: () => void
+  onEvents: () => void
   onLogout: () => void
 }
 
@@ -24,7 +25,7 @@ interface StudentDashboardProps {
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onProfile, onAcademics, onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onProfile, onAcademics, onEvents, onLogout }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -55,6 +56,10 @@ export function StudentDashboard({ student, courses, sessions, onProfile, onAcad
     }
     if (v === 'academics') {
       onAcademics()
+      return
+    }
+    if (v === 'events') {
+      onEvents()
       return
     }
     setView('dashboard')

@@ -5,6 +5,7 @@ export type View =
   | 'dashboard'
   | 'profile'
   | 'academics'
+  | 'events'
   | 'subjects'
   | 'schedule'
   | 'grades'

@@ -111,3 +111,19 @@ export interface MongoTask {
   // action instead of a submit button.
   submissionsClosed?: boolean
 }
+
+// ADMIN CONTROL: Events are created/edited/deleted by
+// Admin only. Students have read-only access to this
+// calendar. The admin UI for managing events will be
+// wired when the admin portal exists.
+export type EventCategory = 'academic' | 'deadline' | 'campus' | 'holiday'
+
+export interface MongoEvent {
+  _id?: string
+  branch: Branch
+  title: string
+  description?: string
+  date: Date // start date (inclusive)
+  endDate?: Date | null // end date for multi-day events (inclusive); null = single-day
+  category: EventCategory
+}

@@ -9,7 +9,8 @@ import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
-import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton } from '@/components/portal/Skeleton'
+import { EventsPage } from '@/components/portal/EventsPage'
+import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 
 /**
@@ -132,7 +133,7 @@ function StudentDataWrapper({
   onLogout,
 }: {
   username: string
-  route: { view: 'dashboard' | 'profile' | 'academics'; branch: string; username: string }
+  route: { view: 'dashboard' | 'profile' | 'academics' | 'events'; branch: string; username: string }
   navigate: (r: any) => void
   onLogout: () => void
 }) {
@@ -181,6 +182,17 @@ function StudentDataWrapper({
     )
   }
 
+  if (route.view === 'events') {
+    return (
+      <EventsPage
+        student={student}
+        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
+        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
+        onLogout={onLogout}
+      />
+    )
+  }
+
   return (
     <StudentDashboard
       student={student}
@@ -188,6 +200,7 @@ function StudentDataWrapper({
       sessions={sessions}
       onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
       onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
+      onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
       onLogout={onLogout}
     />
   )
@@ -200,8 +213,9 @@ function StudentDataWrapper({
 //  transition from skeleton → real content is jitter-free.
 // ============================================================
 
-function PortalSkeleton({ view }: { view: 'dashboard' | 'profile' | 'academics' }) {
+function PortalSkeleton({ view }: { view: 'dashboard' | 'profile' | 'academics' | 'events' }) {
   if (view === 'academics') return <AcademicsSkeleton />
   if (view === 'profile') return <ProfileSkeleton />
+  if (view === 'events') return <EventsSkeleton />
   return <DashboardSkeleton />
 }

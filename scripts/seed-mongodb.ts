@@ -2,11 +2,19 @@
 //  Seed script — pushes all data into MongoDB
 //  under the "commonwealth" branch.
 //
-//  Run with:
-//    MONGODB_URI=... MONGODB_DB=aics_portal node --experimental-strip-types scripts/seed-mongodb.ts
+//  Reads MONGODB_URI and MONGODB_DB from .env.local
+//  automatically (via the dotenv package). You can also
+//  override them inline if needed:
+//
+//    node --experimental-strip-types scripts/seed-mongodb.ts
+//    MONGODB_URI=... node --experimental-strip-types scripts/seed-mongodb.ts
 // ============================================================
 
 import { MongoClient } from 'mongodb'
+import { config } from 'dotenv'
+
+// Load .env.local into process.env (silent if file is missing)
+config({ path: '.env.local' })
 
 const uri = process.env.MONGODB_URI!
 const dbName = process.env.MONGODB_DB || 'aics_portal'
@@ -204,7 +212,49 @@ async function seed() {
   await db.collection('tasks').createIndex({ branch: 1, studentUsername: 1, 'term.academicYear': 1, 'term.semester': 1 })
 
   // ----------------------------------------------------------
-  //  6. Indexes
+  //  6. Events (school-wide calendar — admin-managed)
+  //
+  //  ADMIN CONTROL: Events are created/edited/deleted by
+  //  Admin only. Students have read-only access to this
+  //  calendar. The admin UI for managing events will be
+  //  wired when the admin portal exists.
+  //
+  //  Dates are now-relative so the CURRENT month always
+  //  has 4-6 events for demo purposes.
+  // ----------------------------------------------------------
+
+  // Helper: pick a date in the current month at a given day offset
+  // from "today". Negative = earlier this month, positive = later.
+  const dayOfThisMonth = (offset: number) => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() + offset)
+    return d
+  }
+
+  const events = [
+    // Current month — mix of categories
+    { branch: BRANCH, title: 'Flag Ceremony', description: 'Monthly flag ceremony at the main quadrangle. All students required to attend.', date: dayOfThisMonth(-12), endDate: null, category: 'campus' as const },
+    { branch: BRANCH, title: 'Midterm Examination Week', description: 'Midterm exams for all year levels. Check your subject schedules for exact dates.', date: dayOfThisMonth(-8), endDate: dayOfThisMonth(-4), category: 'academic' as const },
+    { branch: BRANCH, title: 'Tuition Installment Deadline', description: 'Second installment of tuition fees due at the Accounting Office.', date: dayOfThisMonth(-2), endDate: null, category: 'deadline' as const },
+    { branch: BRANCH, title: 'Foundation Day — No Classes', description: 'AICS Foundation Day celebration. All classes suspended.', date: dayOfThisMonth(2), endDate: null, category: 'holiday' as const },
+    { branch: BRANCH, title: 'Campus Clean-up Drive', description: 'Community service event. Bring your own cleaning materials.', date: dayOfThisMonth(5), endDate: null, category: 'campus' as const },
+    { branch: BRANCH, title: 'Research Summit 2026', description: 'Annual research presentation by graduating students. Venue: Auditorium.', date: dayOfThisMonth(8), endDate: dayOfThisMonth(9), category: 'academic' as const },
+    // Later this month / next month
+    { branch: BRANCH, title: 'Career Fair', description: 'IT and CS companies on campus for recruitment. Bring printed resumes.', date: dayOfThisMonth(14), endDate: null, category: 'campus' as const },
+    { branch: BRANCH, title: 'Intramurals Opening', description: 'Opening ceremony and parade of teams. Color coding per year level.', date: dayOfThisMonth(18), endDate: dayOfThisMonth(20), category: 'campus' as const },
+    { branch: BRANCH, title: 'Final Examination Week', description: 'Final exams for the 1st Semester. Check room assignments.', date: dayOfThisMonth(25), endDate: dayOfThisMonth(28), category: 'academic' as const },
+    { branch: BRANCH, title: 'Enrollment Opens — 2nd Sem', description: 'Online enrollment for the 2nd Semester opens at the student portal.', date: dayOfThisMonth(35), endDate: null, category: 'deadline' as const },
+  ]
+
+  await db.collection('events').deleteMany({ branch: BRANCH })
+  await db.collection('events').insertMany(events)
+  console.log(`  ✓ Inserted ${events.length} events`)
+
+  await db.collection('events').createIndex({ branch: 1, date: 1 })
+
+  // ----------------------------------------------------------
+  //  7. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
@@ -220,6 +270,7 @@ async function seed() {
   console.log(`   Completed AY: 2025-2026 (GPA: ${term1GPA})`)
   console.log(`   Dean's Lister: ${isDeansLister}`)
   console.log(`   Tasks: 11 current term + 2 previous term (hidden from student)`)
+  console.log(`   Events: ${events.length} school-wide calendar events`)
 
   await client.close()
 }

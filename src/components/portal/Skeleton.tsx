@@ -381,3 +381,123 @@ export function TasksSkeleton() {
     </div>
   )
 }
+
+// ------------------------------------------------------------
+//  Events skeleton — shown while /api/events + /api/tasks
+//  are loading. Mirrors the EventsPage shell: sidebar + topbar
+//  + calendar card + upcoming rail.
+// ------------------------------------------------------------
+
+export function EventsSkeleton() {
+  return (
+    <div className="min-h-dvh bg-slate-50 font-sans">
+      {/* Sidebar (frozen) */}
+      <div className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 p-4">
+        <div className="flex items-center gap-2 mb-8 px-2">
+          <SkeletonBlock className="w-9 h-9 rounded-lg" />
+          <div className="flex-1 space-y-1.5">
+            <SkeletonBlock className="h-3 w-20" />
+            <SkeletonBlock className="h-2.5 w-16" />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SkeletonBlock key={i} className="h-9 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+
+      <div className="lg:pl-60">
+        {/* Topbar */}
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+          <SkeletonBlock className="h-6 w-48" />
+          <div className="flex items-center gap-3">
+            <SkeletonBlock className="w-9 h-9 rounded-full" />
+            <SkeletonBlock className="h-8 w-32 rounded-lg" />
+          </div>
+        </div>
+
+        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+          {/* Back link + title */}
+          <div className="space-y-2">
+            <SkeletonBlock className="h-4 w-40" />
+            <SkeletonBlock className="h-7 w-28" />
+            <SkeletonBlock className="h-3 w-56" />
+          </div>
+
+          {/* 2-column grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Calendar column */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Toggle row */}
+              <div className="flex items-center justify-between">
+                <div className="flex gap-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonBlock key={i} className="h-7 w-20 rounded-md" />
+                  ))}
+                </div>
+                <SkeletonBlock className="h-6 w-11 rounded-full" />
+              </div>
+
+              {/* Calendar card */}
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                  <SkeletonBlock className="h-5 w-36" />
+                  <div className="flex gap-2">
+                    <SkeletonBlock className="h-8 w-8 rounded-lg" />
+                    <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                    <SkeletonBlock className="h-8 w-8 rounded-lg" />
+                  </div>
+                </div>
+                {/* Weekday row */}
+                <div className="grid grid-cols-7 border-b border-slate-100">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <div key={i} className="py-2.5 text-center">
+                      <SkeletonBlock className="h-3 w-8 mx-auto" />
+                    </div>
+                  ))}
+                </div>
+                {/* Day grid */}
+                <div className="grid grid-cols-7">
+                  {Array.from({ length: 35 }).map((_, i) => (
+                    <div key={i} className="min-h-[88px] sm:min-h-[96px] p-1.5 border-b border-r border-slate-100">
+                      <SkeletonBlock className="h-4 w-4" />
+                      <div className="mt-2 flex gap-1">
+                        {i % 3 === 0 && <SkeletonBlock className="w-1.5 h-1.5 rounded-full" />}
+                        {i % 4 === 0 && <SkeletonBlock className="w-1.5 h-1.5 rounded-full" />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right rail */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 space-y-2">
+                  <SkeletonBlock className="h-5 w-32" />
+                  <SkeletonBlock className="h-3 w-36" />
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="px-5 py-3 flex items-center gap-3">
+                      <div className="w-12 space-y-1">
+                        <SkeletonBlock className="h-2.5 w-8 mx-auto" />
+                        <SkeletonBlock className="h-5 w-6 mx-auto" />
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        <SkeletonBlock className="h-3.5 w-32" />
+                        <SkeletonBlock className="h-4 w-16 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
