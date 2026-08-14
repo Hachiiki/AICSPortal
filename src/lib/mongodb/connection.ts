@@ -1,4 +1,4 @@
-import { MongoClient, type Db } from 'mongodb'
+import { MongoClient } from 'mongodb'
 
 // ============================================================
 //  MongoDB connection layer
@@ -31,22 +31,17 @@ const dbName = process.env.MONGODB_DB || 'aics_portal'
 // we throw lazily when getDb() is actually called.
 
 let client: MongoClient | null = null
-let db: Db | null = null
 
-export async function getDb(): Promise<Db> {
-  if (db) return db
-  if (!uri) {
-    throw new Error('MONGODB_URI is not set. Add it to .env.local')
-  }
+export async function getCollection<T = any>(name: string) {
   if (!client) {
+    if (!uri) {
+      throw new Error('MONGODB_URI is not set. Add it to .env.local')
+    }
     client = new MongoClient(uri)
     await client.connect()
   }
-  db = client.db(dbName)
-  return db
-}
-
-export async function getCollection<T = any>(name: string) {
-  const database = await getDb()
-  return database.collection<T>(name)
+  // Our schema interfaces (MongoStudent, MongoTask, etc.) don't extend
+  // mongodb's Document type, so we cast the collection to any and let
+  // the caller's <T> generic drive the return type.
+  return client.db(dbName).collection(name) as any
 }

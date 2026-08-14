@@ -15,8 +15,8 @@ export const CALIBRATE = false
 /** Border radius class for the card wrapper */
 export const CARD_RADIUS = 'rounded-lg'
 
-/** Colors used by overlay text */
-export const ID_COLORS = {
+/** Colors used by overlay text (internal — referenced by FIELD_BOXES below) */
+const ID_COLORS = {
   yellow: '#FFD400',
   ink: '#1F2937',
   white: '#FFFFFF',

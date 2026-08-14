@@ -16,7 +16,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 //  screen is branch-aware.
 // ============================================================
 
-export type PortalRoute =
+type PortalRoute =
   | { view: 'login' }
   | { view: 'dashboard'; branch: string; username: string }
   | { view: 'profile'; branch: string; username: string }

@@ -135,15 +135,6 @@ export function formatHourLabel(hour: number): string {
   return hourTo12(hour)
 }
 
-/** "May 12, Monday" — uses full day name including Sunday. */
-export function formatSidebarDate(date: Date): string {
-  const month = MONTH_ABBR[date.getMonth()]
-  const day = date.getDate()
-  const dow = date.getDay() // 0=Sun … 6=Sat
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  return `${month} ${day}, ${dayNames[dow]}`
-}
-
 /** Day-of-week index for a real Date: 0 = Mon … 5 = Sat, -1 = Sunday (no classes). */
 export function dateToDayIndex(date: Date): number {
   const dow = date.getDay() // 0=Sun … 6=Sat

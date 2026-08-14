@@ -89,16 +89,6 @@ export const VARIANT_COLORS: Record<TaskVariant, string> = {
   NEEDS_ATTENTION: 'bg-blue-50 text-blue-700 border-blue-200',
 }
 
-// Backward-compat: legacy STATUS_COLORS map (still used by callers that
-// index by `status`). MISSING maps to the OPEN variant color by default
-// since that was the historical behavior.
-export const STATUS_COLORS: Record<TaskStatus, string> = {
-  GRADED: 'bg-green-50 text-green-700 border-green-200',
-  PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
-  MISSING: 'bg-red-50 text-red-700 border-red-200',
-  NEEDS_ATTENTION: 'bg-blue-50 text-blue-700 border-blue-200',
-}
-
 // Status display labels
 export const STATUS_LABELS: Record<TaskStatus, string> = {
   GRADED: 'Graded',

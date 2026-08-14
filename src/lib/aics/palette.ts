@@ -8,5 +8,3 @@ export const PALETTE = {
   ocean: '#287CBB',
   navy: '#153357',
 } as const
-
-export type PaletteColor = keyof typeof PALETTE
