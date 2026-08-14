@@ -31,7 +31,17 @@ interface AcademicsPageProps {
   student: Student
   onBack: () => void
   onProfile: () => void
+  onEvents: () => void
   onLogout: () => void
+  // Tasks data is lifted to the parent (StudentDataWrapper) so it
+  // persists across route switches. Previously AcademicsPage fetched
+  // tasks itself, which worked for tab switches within Academics but
+  // still re-fetched when navigating away and back. Now the parent
+  // fetches once and passes the data down.
+  tasks: Task[]
+  tasksLoading: boolean
+  tasksError: string | null
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
 // GPA computation: unit-weighted average of finalGrade
@@ -175,36 +185,12 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onBack, onProfile, onLogout }: AcademicsPageProps) {
+export function AcademicsPage({ student, onBack, onProfile, onEvents, onLogout, tasks, tasksLoading, tasksError, setTasks }: AcademicsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
-  // Tasks state lives HERE (not inside TasksTab) so the data persists
-  // across tab switches. Previously TasksTab fetched its own data on
-  // mount, which meant every tab switch unmounted + remounted the
-  // component and re-fetched — causing the skeleton to flash every
-  // time. By hoisting the fetch to the parent, the API is called once
-  // when AcademicsPage mounts, and switching to the Tasks tab shows
-  // the already-loaded data instantly (no skeleton, no re-fetch).
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [tasksLoading, setTasksLoading] = useState(true)
-  const [tasksError, setTasksError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchTasks() {
-      try {
-        const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
-        const data = await res.json()
-        if (cancelled) return
-        if (data.ok) setTasks(data.tasks)
-        else setTasksError(data.error || 'Failed to load tasks')
-      } catch { if (!cancelled) setTasksError('Network error') }
-      finally { if (!cancelled) setTasksLoading(false) }
-    }
-    fetchTasks()
-    return () => { cancelled = true }
-  }, [student.username])
+  // Tasks state is now lifted to the parent (StudentDataWrapper) so
+  // it persists across route switches. See the props comment above.
 
   const terms = useMemo(() => groupByTerm(student.subjects), [student.subjects])
   const completedSubjects = useMemo(() => student.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0), [student.subjects])
@@ -213,6 +199,8 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
 
   const handleNavigate = (v: any) => {
     if (v === 'dashboard') onBack()
+    else if (v === 'events') onEvents()
+    else if (v === 'profile') onProfile()
   }
 
   return (

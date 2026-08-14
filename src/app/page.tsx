@@ -12,6 +12,8 @@ import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
+import type { Task } from '@/lib/aics/tasks'
+import type { PortalEvent } from '@/lib/aics/events'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -139,6 +141,57 @@ function StudentDataWrapper({
 }) {
   const { student, courses, sessions, loading, error } = useStudentData(username)
 
+  // ----------------------------------------------------------
+  //  Tasks + Events data — lifted here so it persists across
+  //  ALL route switches (Dashboard ↔ Academics ↔ Events).
+  //  Previously:
+  //    - AcademicsPage fetched tasks itself (re-fetched on every
+  //      Academics route mount).
+  //    - EventsPage fetched events+tasks itself (re-fetched on
+  //      every Events route mount, causing the skeleton to flash
+  //      every time you visited Events).
+  //  Now both are fetched ONCE when the wrapper mounts (in
+  //  parallel with student data) and passed down as props.
+  //  Switching routes shows already-loaded data instantly.
+  // ----------------------------------------------------------
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [tasksLoading, setTasksLoading] = useState(true)
+  const [tasksError, setTasksError] = useState<string | null>(null)
+
+  const [events, setEvents] = useState<PortalEvent[]>([])
+  const [eventsLoading, setEventsLoading] = useState(true)
+  const [eventsError, setEventsError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function fetchTasksAndEvents() {
+      try {
+        const [tkRes, evRes] = await Promise.all([
+          fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
+          fetch(`/api/events?username=${encodeURIComponent(username)}`),
+        ])
+        const [tkData, evData] = await Promise.all([tkRes.json(), evRes.json()])
+        if (cancelled) return
+        if (tkData.ok) setTasks(tkData.tasks)
+        else setTasksError(tkData.error || 'Failed to load tasks')
+        if (evData.ok) setEvents(evData.events)
+        else setEventsError(evData.error || 'Failed to load events')
+      } catch {
+        if (!cancelled) {
+          setTasksError('Network error')
+          setEventsError('Network error')
+        }
+      } finally {
+        if (!cancelled) {
+          setTasksLoading(false)
+          setEventsLoading(false)
+        }
+      }
+    }
+    fetchTasksAndEvents()
+    return () => { cancelled = true }
+  }, [username])
+
   if (loading) {
     return <PortalSkeleton view={route.view} />
   }
@@ -177,7 +230,12 @@ function StudentDataWrapper({
         student={student}
         onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
         onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
+        onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
         onLogout={onLogout}
+        tasks={tasks}
+        tasksLoading={tasksLoading}
+        tasksError={tasksError}
+        setTasks={setTasks}
       />
     )
   }
@@ -188,7 +246,12 @@ function StudentDataWrapper({
         student={student}
         onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
         onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
+        onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
         onLogout={onLogout}
+        events={events}
+        eventsLoading={eventsLoading}
+        eventsError={eventsError}
+        tasks={tasks}
       />
     )
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react'
 import type { Student } from '@/lib/aics/types'
@@ -21,7 +21,15 @@ interface EventsPageProps {
   student: Student
   onBack: () => void
   onProfile: () => void
+  onAcademics: () => void
   onLogout: () => void
+  // Events + tasks data is lifted to the parent (StudentDataWrapper)
+  // so it persists across route switches. This page no longer fetches
+  // its own data — it receives events and tasks as props.
+  events: PortalEvent[]
+  eventsLoading: boolean
+  eventsError: string | null
+  tasks: Task[]
 }
 
 // ============================================================
@@ -78,12 +86,8 @@ function formatFullDate(d: Date): string {
 //  Main page
 // ============================================================
 
-export function EventsPage({ student, onBack, onProfile, onLogout }: EventsPageProps) {
+export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, events, eventsLoading, eventsError, tasks }: EventsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [events, setEvents] = useState<PortalEvent[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   // Calendar view state
   const [viewMonth, setViewMonth] = useState<Date>(() => {
@@ -102,35 +106,10 @@ export function EventsPage({ student, onBack, onProfile, onLogout }: EventsPageP
     new Set(['academic', 'deadline', 'campus', 'holiday'])
   )
 
-  // ----------------------------------------------------------
-  //  Fetch events + tasks once on mount
-  // ----------------------------------------------------------
-  useEffect(() => {
-    let cancelled = false
-    async function fetchAll() {
-      try {
-        const [evRes, tkRes] = await Promise.all([
-          fetch(`/api/events?username=${encodeURIComponent(student.username)}`),
-          fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`),
-        ])
-        const [evData, tkData] = await Promise.all([evRes.json(), tkRes.json()])
-        if (cancelled) return
-        if (evData.ok) setEvents(evData.events)
-        else setError(evData.error || 'Failed to load events')
-        if (tkData.ok) setTasks(tkData.tasks)
-        // Tasks failure is non-fatal — the overlay just shows nothing.
-      } catch {
-        if (!cancelled) setError('Network error')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-    fetchAll()
-    return () => { cancelled = true }
-  }, [student.username])
-
   const handleNavigate = (v: any) => {
     if (v === 'dashboard') onBack()
+    else if (v === 'academics') onAcademics()
+    else if (v === 'profile') onProfile()
   }
 
   // ----------------------------------------------------------
@@ -256,8 +235,8 @@ export function EventsPage({ student, onBack, onProfile, onLogout }: EventsPageP
   // ----------------------------------------------------------
   //  Render
   // ----------------------------------------------------------
-  if (loading) return <EventsSkeleton />
-  if (error) return <div className="text-red-600 text-sm">{error}</div>
+  if (eventsLoading) return <EventsSkeleton />
+  if (eventsError) return <div className="text-red-600 text-sm">{eventsError}</div>
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
