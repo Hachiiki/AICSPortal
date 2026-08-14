@@ -179,6 +179,33 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
+  // Tasks state lives HERE (not inside TasksTab) so the data persists
+  // across tab switches. Previously TasksTab fetched its own data on
+  // mount, which meant every tab switch unmounted + remounted the
+  // component and re-fetched — causing the skeleton to flash every
+  // time. By hoisting the fetch to the parent, the API is called once
+  // when AcademicsPage mounts, and switching to the Tasks tab shows
+  // the already-loaded data instantly (no skeleton, no re-fetch).
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [tasksLoading, setTasksLoading] = useState(true)
+  const [tasksError, setTasksError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function fetchTasks() {
+      try {
+        const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
+        const data = await res.json()
+        if (cancelled) return
+        if (data.ok) setTasks(data.tasks)
+        else setTasksError(data.error || 'Failed to load tasks')
+      } catch { if (!cancelled) setTasksError('Network error') }
+      finally { if (!cancelled) setTasksLoading(false) }
+    }
+    fetchTasks()
+    return () => { cancelled = true }
+  }, [student.username])
+
   const terms = useMemo(() => groupByTerm(student.subjects), [student.subjects])
   const completedSubjects = useMemo(() => student.subjects.filter((s) => s.status !== 'in-progress' && parseFloat(s.finalGrade) > 0), [student.subjects])
   const cumulativeGPA = useMemo(() => computeGPA(completedSubjects), [completedSubjects])
@@ -404,7 +431,13 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
 
           {/* TASKS TAB */}
           {activeTab === 'tasks' && (
-            <TasksTab student={student} />
+            <TasksTab
+              student={student}
+              tasks={tasks}
+              loading={tasksLoading}
+              error={tasksError}
+              setTasks={setTasks}
+            />
           )}
         </main>
       </div>
@@ -416,10 +449,15 @@ export function AcademicsPage({ student, onBack, onProfile, onLogout }: Academic
 //  Tasks Tab — redesigned with overview, needs attention, accordions
 // ============================================================
 
-function TasksTab({ student }: { student: Student }) {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface TasksTabProps {
+  student: Student
+  tasks: Task[]
+  loading: boolean
+  error: string | null
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+}
+
+function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabProps) {
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState<'all' | TaskType>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
@@ -430,22 +468,6 @@ function TasksTab({ student }: { student: Student }) {
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchTasks() {
-      try {
-        const res = await fetch(`/api/tasks?username=${encodeURIComponent(student.username)}`)
-        const data = await res.json()
-        if (cancelled) return
-        if (data.ok) setTasks(data.tasks)
-        else setError(data.error || 'Failed to load tasks')
-      } catch { if (!cancelled) setError('Network error') }
-      finally { if (!cancelled) setLoading(false) }
-    }
-    fetchTasks()
-    return () => { cancelled = true }
-  }, [student.username])
 
   // Close subject dropdown on outside click or Esc
   useEffect(() => {
@@ -548,7 +570,7 @@ function TasksTab({ student }: { student: Student }) {
       } else { toast.error(data.error || 'Failed to submit task.') }
     } catch { toast.error('Network error. Please try again.') }
     finally { setSubmitting(false) }
-  }, [submitTask, student.username])
+  }, [submitTask, student.username, setTasks])
 
   // Toggle course expansion
   const toggleCourse = useCallback((code: string) => {
