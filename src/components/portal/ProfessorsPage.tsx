@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Mail, Clock, MapPin, ChevronRight, Users, BookOpen } from 'lucide-react'
-import type { Student, Subject } from '@/lib/aics/types'
+import type { Student, Subject, View } from '@/lib/aics/types'
 import type { Professor } from '@/lib/aics/professors'
 import { getInitials } from '@/lib/aics/format'
 import { Sidebar } from './Sidebar'
@@ -22,10 +22,7 @@ import { Topbar } from './Topbar'
 interface ProfessorsPageProps {
   student: Student
   professors: Professor[]
-  onBack: () => void
-  onProfile: () => void
-  onAcademics: () => void
-  onEvents: () => void
+  onNavigate: (view: View) => void
   onLogout: () => void
 }
 
@@ -35,14 +32,12 @@ interface ProfessorWithSubjects {
   subjects: Subject[]
 }
 
-export function ProfessorsPage({ student, professors, onBack, onProfile, onAcademics, onEvents, onLogout }: ProfessorsPageProps) {
+export function ProfessorsPage({ student, professors, onNavigate, onLogout }: ProfessorsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
-  const handleNavigate = (v: any) => {
-    if (v === 'dashboard') onBack()
-    else if (v === 'academics') onAcademics()
-    else if (v === 'events') onEvents()
-    else if (v === 'profile') onProfile()
+  // Sidebar navigation — just delegate to onNavigate.
+  const handleNavigate = (v: View) => {
+    onNavigate(v)
   }
 
   // Current-term subjects
@@ -105,14 +100,14 @@ export function ProfessorsPage({ student, professors, onBack, onProfile, onAcade
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={onProfile}
+          onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
             <button
-              onClick={onBack}
+              onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard

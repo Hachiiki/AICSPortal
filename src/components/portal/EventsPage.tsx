@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { ChevronRight } from 'lucide-react'
-import type { Student } from '@/lib/aics/types'
+import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import { Sidebar } from './Sidebar'
@@ -19,9 +19,7 @@ import {
 
 interface EventsPageProps {
   student: Student
-  onBack: () => void
-  onProfile: () => void
-  onAcademics: () => void
+  onNavigate: (view: View) => void
   onLogout: () => void
   // Events + tasks data is lifted to the parent (StudentDataWrapper)
   // so it persists across route switches. This page no longer fetches
@@ -31,8 +29,7 @@ interface EventsPageProps {
   eventsError: string | null
   tasks: Task[]
   // UI preferences (toggle + category filter) are also lifted to the
-  // parent so they survive route switches. Without this, navigating
-  // away from Events and back would reset the toggle to its default.
+  // parent so they survive route switches.
   showTasks: boolean
   setShowTasks: React.Dispatch<React.SetStateAction<boolean>>
   enabledCats: Set<EventCategory>
@@ -45,7 +42,7 @@ interface EventsPageProps {
 //  LegendChips) are in EventsPageParts.tsx.
 // ============================================================
 
-export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats }: EventsPageProps) {
+export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats }: EventsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   // Calendar view state
@@ -56,12 +53,11 @@ export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, 
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
 
   // showTasks + enabledCats are now lifted to the parent (StudentDataWrapper)
-  // so they persist across route switches. See the props comment above.
+  // so they persist across route switches.
 
-  const handleNavigate = (v: any) => {
-    if (v === 'dashboard') onBack()
-    else if (v === 'academics') onAcademics()
-    else if (v === 'profile') onProfile()
+  // Sidebar navigation — just delegate to onNavigate.
+  const handleNavigate = (v: View) => {
+    onNavigate(v)
   }
 
   // ----------------------------------------------------------
@@ -179,14 +175,14 @@ export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, 
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={onProfile}
+          onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
             <button
-              onClick={onBack}
+              onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
