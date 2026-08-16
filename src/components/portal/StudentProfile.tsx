@@ -38,6 +38,9 @@ import { StudentIdCard } from './StudentIdCard'
 interface StudentProfileProps {
   student: Student
   onBack: () => void
+  onProfile: () => void
+  onAcademics: () => void
+  onEvents: () => void
   onLogout: () => void
 }
 
@@ -54,7 +57,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onBack, onLogout }: StudentProfileProps) {
+export function StudentProfile({ student, onBack, onProfile, onAcademics, onEvents, onLogout }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -64,6 +67,9 @@ export function StudentProfile({ student, onBack, onLogout }: StudentProfileProp
 
   const handleNavigate = (v: View) => {
     if (v === 'dashboard') onBack()
+    else if (v === 'academics') onAcademics()
+    else if (v === 'events') onEvents()
+    else if (v === 'profile') onProfile()
   }
 
   const handleProfile = () => {

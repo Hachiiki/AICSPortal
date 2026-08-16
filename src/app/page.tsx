@@ -13,7 +13,7 @@ import { EventsPage } from '@/components/portal/EventsPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 import type { Task } from '@/lib/aics/tasks'
-import type { PortalEvent } from '@/lib/aics/events'
+import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -162,6 +162,14 @@ function StudentDataWrapper({
   const [eventsLoading, setEventsLoading] = useState(true)
   const [eventsError, setEventsError] = useState<string | null>(null)
 
+  // Events page UI preferences — lifted here so they persist across
+  // route switches. Without this, navigating away from Events and
+  // back would reset the task-due toggle and category filters.
+  const [showTasks, setShowTasks] = useState(true)
+  const [enabledCats, setEnabledCats] = useState<Set<EventCategory>>(
+    new Set(['academic', 'deadline', 'campus', 'holiday'])
+  )
+
   useEffect(() => {
     let cancelled = false
     async function fetchTasksAndEvents() {
@@ -219,6 +227,9 @@ function StudentDataWrapper({
       <StudentProfile
         student={student}
         onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
+        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
+        onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
+        onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
         onLogout={onLogout}
       />
     )
@@ -252,6 +263,10 @@ function StudentDataWrapper({
         eventsLoading={eventsLoading}
         eventsError={eventsError}
         tasks={tasks}
+        showTasks={showTasks}
+        setShowTasks={setShowTasks}
+        enabledCats={enabledCats}
+        setEnabledCats={setEnabledCats}
       />
     )
   }

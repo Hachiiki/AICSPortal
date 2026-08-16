@@ -30,6 +30,13 @@ interface EventsPageProps {
   eventsLoading: boolean
   eventsError: string | null
   tasks: Task[]
+  // UI preferences (toggle + category filter) are also lifted to the
+  // parent so they survive route switches. Without this, navigating
+  // away from Events and back would reset the toggle to its default.
+  showTasks: boolean
+  setShowTasks: React.Dispatch<React.SetStateAction<boolean>>
+  enabledCats: Set<EventCategory>
+  setEnabledCats: React.Dispatch<React.SetStateAction<Set<EventCategory>>>
 }
 
 // ============================================================
@@ -38,7 +45,7 @@ interface EventsPageProps {
 //  LegendChips) are in EventsPageParts.tsx.
 // ============================================================
 
-export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, events, eventsLoading, eventsError, tasks }: EventsPageProps) {
+export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats }: EventsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   // Calendar view state
@@ -48,13 +55,8 @@ export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, 
   })
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
 
-  // Toggle: show task due dates as amber dots (default ON)
-  const [showTasks, setShowTasks] = useState(true)
-
-  // Category filter — toggled by clicking legend chips
-  const [enabledCats, setEnabledCats] = useState<Set<EventCategory>>(
-    new Set(['academic', 'deadline', 'campus', 'holiday'])
-  )
+  // showTasks + enabledCats are now lifted to the parent (StudentDataWrapper)
+  // so they persist across route switches. See the props comment above.
 
   const handleNavigate = (v: any) => {
     if (v === 'dashboard') onBack()
@@ -160,7 +162,7 @@ export function EventsPage({ student, onBack, onProfile, onAcademics, onLogout, 
       else next.add(cat)
       return next
     })
-  }, [])
+  }, [setEnabledCats])
 
   if (eventsLoading) return <EventsSkeleton />
   if (eventsError) return <div className="text-red-600 text-sm">{eventsError}</div>
