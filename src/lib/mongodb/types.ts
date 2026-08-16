@@ -127,3 +127,21 @@ export interface MongoEvent {
   endDate?: Date | null // end date for multi-day events (inclusive); null = single-day
   category: EventCategory
 }
+
+// ADMIN CONTROL: Professor directory details (office
+// hours, room, contact) are maintained by Admin. Students
+// have read-only access.
+//
+// The professor is identified by name (matching the
+// `professor` field on MongoSubject). The `email` field
+// matches `professorEmail` on MongoSubject. Office hours
+// and room are directory-only fields not stored on the
+// subject enrollment.
+export interface MongoProfessor {
+  _id?: string
+  branch: Branch
+  name: string // must match subject.professor
+  email: string // must match subject.professorEmail
+  officeHours: string // e.g. "Mon & Wed • 1:00-3:00 PM"
+  room: string // e.g. "Faculty Office / Room 204"
+}

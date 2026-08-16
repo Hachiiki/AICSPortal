@@ -254,7 +254,34 @@ async function seed() {
   await db.collection('events').createIndex({ branch: 1, date: 1 })
 
   // ----------------------------------------------------------
-  //  7. Indexes
+  //  7. Professors (directory — admin-managed)
+  //
+  //  ADMIN CONTROL: Professor directory details (office
+  //  hours, room, contact) are maintained by Admin. Students
+  //  have read-only access.
+  //
+  //  The `name` and `email` fields must match the professor
+  //  and professorEmail fields on the subjects collection.
+  // ----------------------------------------------------------
+  const professors = [
+    { branch: BRANCH, name: 'Engr. Maria Cristina Reyes', email: 'm.reyes@aics.edu.ph', officeHours: 'Mon & Wed • 1:00-3:00 PM', room: 'Faculty Office / Room 204' },
+    { branch: BRANCH, name: 'Engr. Carlos Santos', email: 'c.santos@aics.edu.ph', officeHours: 'Tue & Thu • 9:00-11:00 AM', room: 'Faculty Office / Room 208' },
+    { branch: BRANCH, name: 'Prof. Anna Lim', email: 'a.lim@aics.edu.ph', officeHours: 'Mon & Wed • 3:00-5:00 PM', room: 'Faculty Office / Room 210' },
+    { branch: BRANCH, name: 'Engr. Roberto Cruz', email: 'r.cruz@aics.edu.ph', officeHours: 'Fri • 10:00 AM-12:00 PM', room: 'Faculty Office / Room 212' },
+    { branch: BRANCH, name: 'Prof. Patricia Villanueva', email: 'p.villanueva@aics.edu.ph', officeHours: 'Tue & Thu • 1:00-3:00 PM', room: 'Faculty Office / Room 214' },
+    { branch: BRANCH, name: 'Engr. James Villanueva', email: 'j.villanueva@aics.edu.ph', officeHours: 'Mon & Wed • 9:00-11:00 AM', room: 'Faculty Office / Room 216' },
+    { branch: BRANCH, name: 'Prof. Denise Ong', email: 'd.ong@aics.edu.ph', officeHours: 'Wed & Fri • 2:00-4:00 PM', room: 'Faculty Office / Room 218' },
+    { branch: BRANCH, name: 'Coach Felix Guerrero', email: 'f.guerrero@aics.edu.ph', officeHours: 'Sat • 10:00 AM-12:00 PM', room: 'Gymnasium Office' },
+  ]
+
+  await db.collection('professors').deleteMany({ branch: BRANCH })
+  await db.collection('professors').insertMany(professors)
+  console.log(`  ✓ Inserted ${professors.length} professors`)
+
+  await db.collection('professors').createIndex({ branch: 1, name: 1 }, { unique: true })
+
+  // ----------------------------------------------------------
+  //  8. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
@@ -270,7 +297,8 @@ async function seed() {
   console.log(`   Completed AY: 2025-2026 (GPA: ${term1GPA})`)
   console.log(`   Dean's Lister: ${isDeansLister}`)
   console.log(`   Tasks: 11 current term + 2 previous term (hidden from student)`)
-  console.log(`   Events: ${events.length} school-wide calendar events`)
+  console.log(`   Events: 10 school-wide calendar events`)
+  console.log(`   Professors: ${professors.length} directory entries`)
 
   await client.close()
 }
