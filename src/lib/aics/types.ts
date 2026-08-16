@@ -5,6 +5,7 @@ export type View =
   | 'dashboard'
   | 'profile'
   | 'academics'
+  | 'events'
   | 'subjects'
   | 'schedule'
   | 'grades'
@@ -84,6 +85,3 @@ export interface Student {
   schedule: ScheduleEntry[]
   documents: StudentDocument[]
 }
-
-// Convenience type for icon components (lucide-react compatible)
-export type IconType = React.ComponentType<{ className?: string; style?: React.CSSProperties }>

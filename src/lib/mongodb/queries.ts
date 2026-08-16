@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { getCollection } from './connection'
-import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, Branch } from './types'
+import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, Branch } from './types'
 
 // ============================================================
 //  Data access layer — all queries are scoped by branch
@@ -94,4 +94,17 @@ export async function submitTask(
   const task = await col.findOne({ _id: idFilter, studentUsername })
   if (!task) return { ok: false, reason: 'not_found' }
   return { ok: false, reason: 'closed' }
+}
+
+// ADMIN CONTROL: Events are created/edited/deleted by
+// Admin only. Students have read-only access to this
+// calendar. The admin UI for managing events will be
+// wired when the admin portal exists.
+//
+// This query returns ALL events for the branch (no
+// student-scoping needed since events are school-wide,
+// not per-student). The client filters by visible range.
+export async function getEvents(branch: Branch): Promise<MongoEvent[]> {
+  const col = await getCollection<MongoEvent>('events')
+  return col.find({ branch }).sort({ date: 1 }).toArray()
 }
