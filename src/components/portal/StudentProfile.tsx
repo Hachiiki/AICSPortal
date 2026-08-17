@@ -37,10 +37,7 @@ import { StudentIdCard } from './StudentIdCard'
 
 interface StudentProfileProps {
   student: Student
-  onBack: () => void
-  onProfile: () => void
-  onAcademics: () => void
-  onEvents: () => void
+  onNavigate: (view: View) => void
   onLogout: () => void
 }
 
@@ -57,7 +54,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onBack, onProfile, onAcademics, onEvents, onLogout }: StudentProfileProps) {
+export function StudentProfile({ student, onNavigate, onLogout }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -65,15 +62,10 @@ export function StudentProfile({ student, onBack, onProfile, onAcademics, onEven
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
   const submittedDocs = student.documents.filter((d) => d.submitted).length
 
+  // Sidebar navigation — just delegate to onNavigate. The parent
+  // handles all routing. No per-view branching needed here.
   const handleNavigate = (v: View) => {
-    if (v === 'dashboard') onBack()
-    else if (v === 'academics') onAcademics()
-    else if (v === 'events') onEvents()
-    else if (v === 'profile') onProfile()
-  }
-
-  const handleProfile = () => {
-    // Already on profile — no-op
+    onNavigate(v)
   }
 
   const handleEditProfile = () => {
@@ -101,7 +93,7 @@ export function StudentProfile({ student, onBack, onProfile, onAcademics, onEven
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={handleProfile}
+          onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
         />
 
@@ -115,7 +107,7 @@ export function StudentProfile({ student, onBack, onProfile, onAcademics, onEven
             {/* ===================== PAGE HEADER ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
               <button
-                onClick={onBack}
+                onClick={() => onNavigate('dashboard')}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard

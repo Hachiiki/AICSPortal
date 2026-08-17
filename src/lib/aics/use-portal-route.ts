@@ -16,12 +16,13 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 //  screen is branch-aware.
 // ============================================================
 
-type PortalRoute =
+export type PortalRoute =
   | { view: 'login' }
   | { view: 'dashboard'; branch: string; username: string }
   | { view: 'profile'; branch: string; username: string }
   | { view: 'academics'; branch: string; username: string }
   | { view: 'events'; branch: string; username: string }
+  | { view: 'professors'; branch: string; username: string }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
@@ -39,6 +40,9 @@ function parsePath(path: string): PortalRoute {
     }
     if (parts[4] === 'events') {
       return { view: 'events', branch, username }
+    }
+    if (parts[4] === 'professors') {
+      return { view: 'professors', branch, username }
     }
     return { view: 'dashboard', branch, username }
   }
@@ -58,6 +62,8 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/academics`
     case 'events':
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/events`
+    case 'professors':
+      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/professors`
   }
 }
 

@@ -8,7 +8,7 @@ import {
   Clock,
   ChevronRight,
 } from 'lucide-react'
-import type { Student, Subject } from '@/lib/aics/types'
+import type { Student, Subject, View } from '@/lib/aics/types'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { RemarksBadge } from './RemarksBadge'
@@ -18,15 +18,10 @@ import type { Task } from '@/lib/aics/tasks'
 
 interface AcademicsPageProps {
   student: Student
-  onBack: () => void
-  onProfile: () => void
-  onEvents: () => void
+  onNavigate: (view: View) => void
   onLogout: () => void
   // Tasks data is lifted to the parent (StudentDataWrapper) so it
-  // persists across route switches. Previously AcademicsPage fetched
-  // tasks itself, which worked for tab switches within Academics but
-  // still re-fetched when navigating away and back. Now the parent
-  // fetches once and passes the data down.
+  // persists across route switches.
   tasks: Task[]
   tasksLoading: boolean
   tasksError: string | null
@@ -174,7 +169,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onBack, onProfile, onEvents, onLogout, tasks, tasksLoading, tasksError, setTasks }: AcademicsPageProps) {
+export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks }: AcademicsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
@@ -186,10 +181,9 @@ export function AcademicsPage({ student, onBack, onProfile, onEvents, onLogout, 
   const cumulativeGPA = useMemo(() => computeGPA(completedSubjects), [completedSubjects])
   const totalUnits = useMemo(() => student.subjects.reduce((sum, s) => sum + s.units, 0), [student.subjects])
 
-  const handleNavigate = (v: any) => {
-    if (v === 'dashboard') onBack()
-    else if (v === 'events') onEvents()
-    else if (v === 'profile') onProfile()
+  // Sidebar navigation — just delegate to onNavigate.
+  const handleNavigate = (v: View) => {
+    onNavigate(v)
   }
 
   return (
@@ -204,14 +198,14 @@ export function AcademicsPage({ student, onBack, onProfile, onEvents, onLogout, 
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={onProfile}
+          onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
             <button
-              onClick={onBack}
+              onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard

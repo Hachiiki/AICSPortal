@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { usePortalRoute, type PortalRoute } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
@@ -10,10 +10,13 @@ import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
-import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton } from '@/components/portal/Skeleton'
+import { ProfessorsPage } from '@/components/portal/ProfessorsPage'
+import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
+import type { View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -23,6 +26,9 @@ import type { PortalEvent, EventCategory } from '@/lib/aics/events'
  *   /portal/login                                    → LoginView
  *   /portal/{branch}/student/{username}              → StudentDashboard
  *   /portal/{branch}/student/{username}/profile      → StudentProfile
+ *   /portal/{branch}/student/{username}/academics    → AcademicsPage
+ *   /portal/{branch}/student/{username}/events       → EventsPage
+ *   /portal/{branch}/student/{username}/professors   → ProfessorsPage
  *
  * Auth rules:
  *   - Unauthenticated + protected route → redirect to /portal/login
@@ -126,6 +132,21 @@ export default function AICSLoginPage() {
 
 // ============================================================
 //  Wrapper that fetches student data and renders the right view
+//
+//  CENTRALIZED NAVIGATION:
+//  Instead of passing individual callback props (onBack, onProfile,
+//  onAcademics, onEvents, onProfessors, ...) to each page, we pass
+//  a single `onNavigate(view: View)` function. Each page calls
+//  `onNavigate('academics')` or `onNavigate('dashboard')` etc.
+//
+//  This means adding a new sidebar tab only requires:
+//    1. Add the view to the `View` type (types.ts)
+//    2. Add the route to parsePath/routeToPath (use-portal-route.ts)
+//    3. Add the nav item to Sidebar.tsx
+//    4. Create the page component
+//    5. Add one `if (route.view === 'newView')` block below
+//
+//  No existing page needs to change — they all use `onNavigate`.
 // ============================================================
 
 function StudentDataWrapper({
@@ -135,24 +156,35 @@ function StudentDataWrapper({
   onLogout,
 }: {
   username: string
-  route: { view: 'dashboard' | 'profile' | 'academics' | 'events'; branch: string; username: string }
-  navigate: (r: any) => void
+  route: PortalRoute
+  navigate: (r: PortalRoute) => void
   onLogout: () => void
 }) {
   const { student, courses, sessions, loading, error } = useStudentData(username)
 
   // ----------------------------------------------------------
-  //  Tasks + Events data — lifted here so it persists across
-  //  ALL route switches (Dashboard ↔ Academics ↔ Events).
-  //  Previously:
-  //    - AcademicsPage fetched tasks itself (re-fetched on every
-  //      Academics route mount).
-  //    - EventsPage fetched events+tasks itself (re-fetched on
-  //      every Events route mount, causing the skeleton to flash
-  //      every time you visited Events).
-  //  Now both are fetched ONCE when the wrapper mounts (in
-  //  parallel with student data) and passed down as props.
-  //  Switching routes shows already-loaded data instantly.
+  //  Centralized navigation handler.
+  //  Every page receives this as `onNavigate` and calls it with
+  //  a View string. The routing logic lives HERE, not in each
+  //  page component. Adding a new view = adding one case here.
+  // ----------------------------------------------------------
+  const handleNavigate = useCallback((view: View) => {
+    if (view === 'login') {
+      onLogout()
+      return
+    }
+    // All non-login views need branch + username
+    if (route.view === 'login') return
+    navigate({
+      view: view as PortalRoute['view'],
+      branch: route.branch,
+      username: route.username,
+    } as PortalRoute)
+  }, [navigate, route, onLogout])
+
+  // ----------------------------------------------------------
+  //  Tasks + Events + Professors data — lifted here so it
+  //  persists across ALL route switches.
   // ----------------------------------------------------------
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksLoading, setTasksLoading] = useState(true)
@@ -161,6 +193,10 @@ function StudentDataWrapper({
   const [events, setEvents] = useState<PortalEvent[]>([])
   const [eventsLoading, setEventsLoading] = useState(true)
   const [eventsError, setEventsError] = useState<string | null>(null)
+
+  const [professors, setProfessors] = useState<Professor[]>([])
+  const [professorsLoading, setProfessorsLoading] = useState(true)
+  const [professorsError, setProfessorsError] = useState<string | null>(null)
 
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
@@ -172,31 +208,36 @@ function StudentDataWrapper({
 
   useEffect(() => {
     let cancelled = false
-    async function fetchTasksAndEvents() {
+    async function fetchAll() {
       try {
-        const [tkRes, evRes] = await Promise.all([
+        const [tkRes, evRes, profRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
+          fetch(`/api/professors?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData] = await Promise.all([tkRes.json(), evRes.json()])
+        const [tkData, evData, profData] = await Promise.all([tkRes.json(), evRes.json(), profRes.json()])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
         else setTasksError(tkData.error || 'Failed to load tasks')
         if (evData.ok) setEvents(evData.events)
         else setEventsError(evData.error || 'Failed to load events')
+        if (profData.ok) setProfessors(profData.professors)
+        else setProfessorsError(profData.error || 'Failed to load professors')
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
           setEventsError('Network error')
+          setProfessorsError('Network error')
         }
       } finally {
         if (!cancelled) {
           setTasksLoading(false)
           setEventsLoading(false)
+          setProfessorsLoading(false)
         }
       }
     }
-    fetchTasksAndEvents()
+    fetchAll()
     return () => { cancelled = true }
   }, [username])
 
@@ -222,14 +263,16 @@ function StudentDataWrapper({
     )
   }
 
+  // ----------------------------------------------------------
+  //  Render the right page based on route.view.
+  //  Each page receives `onNavigate` + `onLogout` + its data props.
+  //  No individual navigation callbacks — just `onNavigate`.
+  // ----------------------------------------------------------
   if (route.view === 'profile') {
     return (
       <StudentProfile
         student={student}
-        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
-        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
-        onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
-        onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
+        onNavigate={handleNavigate}
         onLogout={onLogout}
       />
     )
@@ -239,9 +282,7 @@ function StudentDataWrapper({
     return (
       <AcademicsPage
         student={student}
-        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
-        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
-        onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
+        onNavigate={handleNavigate}
         onLogout={onLogout}
         tasks={tasks}
         tasksLoading={tasksLoading}
@@ -255,9 +296,7 @@ function StudentDataWrapper({
     return (
       <EventsPage
         student={student}
-        onBack={() => navigate({ view: 'dashboard', branch: route.branch, username: route.username })}
-        onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
-        onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
+        onNavigate={handleNavigate}
         onLogout={onLogout}
         events={events}
         eventsLoading={eventsLoading}
@@ -271,14 +310,23 @@ function StudentDataWrapper({
     )
   }
 
+  if (route.view === 'professors') {
+    return (
+      <ProfessorsPage
+        student={student}
+        professors={professors}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+      />
+    )
+  }
+
   return (
     <StudentDashboard
       student={student}
       courses={courses}
       sessions={sessions}
-      onProfile={() => navigate({ view: 'profile', branch: route.branch, username: route.username })}
-      onAcademics={() => navigate({ view: 'academics', branch: route.branch, username: route.username })}
-      onEvents={() => navigate({ view: 'events', branch: route.branch, username: route.username })}
+      onNavigate={handleNavigate}
       onLogout={onLogout}
     />
   )
@@ -289,11 +337,14 @@ function StudentDataWrapper({
 //  view being loaded. Each skeleton mirrors the real page's
 //  shell (sidebar + topbar + main content blocks) so the
 //  transition from skeleton → real content is jitter-free.
+//
+//  To add a new view's skeleton: add one `if` line here.
 // ============================================================
 
-function PortalSkeleton({ view }: { view: 'dashboard' | 'profile' | 'academics' | 'events' }) {
+function PortalSkeleton({ view }: { view: string }) {
   if (view === 'academics') return <AcademicsSkeleton />
   if (view === 'profile') return <ProfileSkeleton />
   if (view === 'events') return <EventsSkeleton />
+  if (view === 'professors') return <ProfessorsSkeleton />
   return <DashboardSkeleton />
 }

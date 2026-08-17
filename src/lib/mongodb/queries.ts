@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { getCollection } from './connection'
-import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, Branch } from './types'
+import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, MongoProfessor, Branch } from './types'
 
 // ============================================================
 //  Data access layer — all queries are scoped by branch
@@ -107,4 +107,15 @@ export async function submitTask(
 export async function getEvents(branch: Branch): Promise<MongoEvent[]> {
   const col = await getCollection<MongoEvent>('events')
   return col.find({ branch }).sort({ date: 1 }).toArray()
+}
+
+// ADMIN CONTROL: Professor directory details (office
+// hours, room, contact) are maintained by Admin. Students
+// have read-only access.
+//
+// Returns all professors for the branch. The client joins
+// them with the student's current-term subjects by name.
+export async function getProfessors(branch: Branch): Promise<MongoProfessor[]> {
+  const col = await getCollection<MongoProfessor>('professors')
+  return col.find({ branch }).toArray()
 }

@@ -15,9 +15,7 @@ interface StudentDashboardProps {
   student: Student
   courses: Course[]
   sessions: Session[]
-  onProfile: () => void
-  onAcademics: () => void
-  onEvents: () => void
+  onNavigate: (view: View) => void
   onLogout: () => void
 }
 
@@ -25,7 +23,7 @@ interface StudentDashboardProps {
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onProfile, onAcademics, onEvents, onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -49,20 +47,14 @@ export function StudentDashboard({ student, courses, sessions, onProfile, onAcad
     return { currentTermSubjects: current, totalUnits: units, cumulativeGPA: gpa }
   }, [student])
 
+  // Sidebar navigation — just delegate to onNavigate. The parent
+  // handles all routing. No per-view branching needed here.
   const handleNavigate = (v: View) => {
-    if (v === 'profile') {
-      onProfile()
+    if (v === 'dashboard') {
+      setView('dashboard')
       return
     }
-    if (v === 'academics') {
-      onAcademics()
-      return
-    }
-    if (v === 'events') {
-      onEvents()
-      return
-    }
-    setView('dashboard')
+    onNavigate(v)
   }
 
   // Create a student object with only current-term subjects for the dashboard
@@ -81,7 +73,7 @@ export function StudentDashboard({ student, courses, sessions, onProfile, onAcad
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={onProfile}
+          onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
         />
 
@@ -93,7 +85,7 @@ export function StudentDashboard({ student, courses, sessions, onProfile, onAcad
           {/* Link to full academic record */}
           <div className="flex justify-end">
             <button
-              onClick={onAcademics}
+              onClick={() => onNavigate('academics')}
               className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
             >
               View full academic record <ChevronRight className="w-4 h-4" />

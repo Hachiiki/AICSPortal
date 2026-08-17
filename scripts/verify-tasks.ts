@@ -1,8 +1,12 @@
 // Quick verification script — checks the seeded tasks for the
 // submissionsClosed flag and the expected counts.
 import { MongoClient } from 'mongodb'
+import { config } from 'dotenv'
 
-const uri = 'mongodb+srv://aicsPortal:BTD08mvUpFjziCQU@cluster0.x6tc5le.mongodb.net/?appName=Cluster0'
+// Load .env.local into process.env (silent if file is missing)
+config({ path: '.env.local' })
+
+const uri = process.env.MONGODB_URI!
 
 async function verify() {
   const client = new MongoClient(uri)

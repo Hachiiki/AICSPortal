@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Users,
   Stamp,
-  Files,
   Settings,
   CircleHelp,
   X,
@@ -32,16 +31,15 @@ interface NavItem {
   enabled: boolean
 }
 
-// Dashboard, Academics, and Events are functional.
+// Dashboard, Academics, Events, and Professors are functional.
 // All other nav items are "coming soon" — rendered grayed out with a
 // "Soon" badge and made non-interactive.
 const PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   { view: 'academics', label: 'Academics', icon: GraduationCap, enabled: true },
   { view: 'events', label: 'Events', icon: CalendarDays, enabled: true },
-  { view: 'professors', label: 'Professors', icon: Users, enabled: false },
+  { view: 'professors', label: 'Professors', icon: Users, enabled: true },
   { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: false },
-  { view: 'documents', label: 'Documents', icon: Files, enabled: false },
 ]
 
 const SECONDARY_NAV: NavItem[] = [
