@@ -315,6 +315,7 @@ function StudentDataWrapper({
       <ProfessorsPage
         student={student}
         professors={professors}
+        courses={courses}
         onNavigate={handleNavigate}
         onLogout={onLogout}
       />

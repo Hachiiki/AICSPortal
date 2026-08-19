@@ -461,28 +461,32 @@ export function ProfessorsSkeleton() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            {/* Header */}
+            {/* Header — avatar + name/email + contact button */}
             <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
               <SkeletonBlock className="w-11 h-11 rounded-full flex-shrink-0" />
               <div className="flex-1 space-y-1.5">
                 <SkeletonBlock className="h-4 w-40" />
                 <SkeletonBlock className="h-3 w-32" />
               </div>
+              <SkeletonBlock className="w-8 h-8 rounded-full flex-shrink-0" />
             </div>
-            {/* Body */}
+            {/* Body — subject chip + title + schedule, office strip */}
             <div className="px-5 py-4 space-y-3">
-              <SkeletonBlock className="h-3 w-48" />
-              <SkeletonBlock className="h-3 w-44" />
-              <div className="pt-2 border-t border-slate-50 space-y-2">
-                <SkeletonBlock className="h-2.5 w-16" />
-                <SkeletonBlock className="h-3 w-32" />
-                <SkeletonBlock className="h-2.5 w-10" />
-                <SkeletonBlock className="h-3 w-40" />
+              <div className="flex items-center gap-2.5">
+                <SkeletonBlock className="h-6 w-16 rounded-md flex-shrink-0" />
+                <SkeletonBlock className="h-4 flex-1" />
               </div>
-            </div>
-            {/* Footer */}
-            <div className="px-5 py-3 bg-slate-50 border-t border-slate-100">
-              <SkeletonBlock className="h-2.5 w-full" />
+              <SkeletonBlock className="h-3 w-48" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-lg bg-slate-50 border border-slate-100 px-4 py-3">
+                <div className="space-y-1.5">
+                  <SkeletonBlock className="h-2.5 w-16" />
+                  <SkeletonBlock className="h-3 w-32" />
+                </div>
+                <div className="space-y-1.5">
+                  <SkeletonBlock className="h-2.5 w-10" />
+                  <SkeletonBlock className="h-3 w-36" />
+                </div>
+              </div>
             </div>
           </div>
         ))}
