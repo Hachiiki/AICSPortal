@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
+import type { PortalEvent } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
+import type { Task } from '@/lib/aics/tasks'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { AcademicHeader } from './AcademicHeader'
@@ -17,13 +20,18 @@ interface StudentDashboardProps {
   sessions: Session[]
   onNavigate: (view: View) => void
   onLogout: () => void
+  // Search index collections — lifted in the parent so the
+  // Topbar's global search works the same on every screen.
+  events?: PortalEvent[]
+  professors?: Professor[]
+  tasks?: Task[]
 }
 
 /**
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -75,6 +83,10 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
+          onNavigate={onNavigate}
+          events={events}
+          professors={professors}
+          tasks={tasks}
         />
 
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">

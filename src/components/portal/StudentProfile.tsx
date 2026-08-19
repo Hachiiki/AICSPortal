@@ -28,6 +28,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
+import type { PortalEvent } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
+import type { Task } from '@/lib/aics/tasks'
 import { getInitials } from '@/lib/aics/format'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -39,6 +42,11 @@ interface StudentProfileProps {
   student: Student
   onNavigate: (view: View) => void
   onLogout: () => void
+  // Search index collections — lifted in the parent so the
+  // Topbar's global search works the same on every screen.
+  events?: PortalEvent[]
+  professors?: Professor[]
+  tasks?: Task[]
 }
 
 // Stagger config for section entrance animation.
@@ -54,7 +62,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onNavigate, onLogout }: StudentProfileProps) {
+export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -95,6 +103,10 @@ export function StudentProfile({ student, onNavigate, onLogout }: StudentProfile
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
+          onNavigate={onNavigate}
+          events={events}
+          professors={professors}
+          tasks={tasks}
         />
 
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">

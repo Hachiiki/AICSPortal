@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { EventsSkeleton } from './Skeleton'
@@ -34,6 +35,9 @@ interface EventsPageProps {
   setShowTasks: React.Dispatch<React.SetStateAction<boolean>>
   enabledCats: Set<EventCategory>
   setEnabledCats: React.Dispatch<React.SetStateAction<Set<EventCategory>>>
+  // Search index collections — lifted in the parent so the
+  // Topbar's global search works the same on every screen.
+  professors?: Professor[]
 }
 
 // ============================================================
@@ -42,7 +46,7 @@ interface EventsPageProps {
 //  LegendChips) are in EventsPageParts.tsx.
 // ============================================================
 
-export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats }: EventsPageProps) {
+export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats, professors }: EventsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   // Calendar view state
@@ -177,6 +181,10 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
+          onNavigate={onNavigate}
+          events={events}
+          professors={professors}
+          tasks={tasks}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
