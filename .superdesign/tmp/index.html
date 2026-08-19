@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professors page — redesign mockups</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', sans-serif; }
+  .font-mono { font-family: 'Geist Mono', monospace; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<main class="max-w-3xl mx-auto px-6 py-16 space-y-8">
+  <div>
+    <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700 mb-2">AICS Student Portal</p>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Professors page &mdash; redesign mockups</h1>
+    <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+      Three layout directions, all inside the existing AICS design system (same colors, fonts, and components as the rest of the portal).
+      Data is the real seed data: 7 professors, 1st Sem AY 2026-2027. V1 and V3 are interactive.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <a href="../replica_html_template/professors.html" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-blue-300 transition-colors block">
+      <span class="inline-block text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-400">Current</span>
+      <h2 class="text-base font-semibold text-slate-900 mt-3">Today's layout</h2>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">2-column card grid. Reference for comparison &mdash; this is what the page looks like now.</p>
+      <p class="text-sm font-semibold text-blue-600 mt-4">Open &rarr;</p>
+    </a>
+
+    <a href="professors-v1-directory.html" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-blue-300 transition-colors block">
+      <span class="inline-block text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">V1 &middot; Directory rows</span>
+      <h2 class="text-base font-semibold text-slate-900 mt-3">One row per professor</h2>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Aligned columns (professor, subject, office hours, room, contact) + live search. Fastest to scan, best use of horizontal space.</p>
+      <p class="text-sm font-semibold text-blue-600 mt-4">Open &rarr;</p>
+    </a>
+
+    <a href="professors-v2-cards.html" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-blue-300 transition-colors block">
+      <span class="inline-block text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">V2 &middot; Refined cards</span>
+      <h2 class="text-base font-semibold text-slate-900 mt-3">Cards, with better hierarchy</h2>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Keeps the 2-column grid. Adds color-coded subject chips, class schedule, a readable office-hours/room strip, contact button &mdash; and drops the hint repeated on every card.</p>
+      <p class="text-sm font-semibold text-blue-600 mt-4">Open &rarr;</p>
+    </a>
+
+    <a href="professors-v3-split.html" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-blue-300 transition-colors block">
+      <span class="inline-block text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">V3 &middot; Master&ndash;detail</span>
+      <h2 class="text-base font-semibold text-slate-900 mt-3">List + detail panel</h2>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Slim clickable list on the left, full detail on the right: subjects with schedule and room, office hours, contact. Click professors in the list to try it.</p>
+      <p class="text-sm font-semibold text-blue-600 mt-4">Open &rarr;</p>
+    </a>
+  </div>
+
+  <p class="text-xs text-slate-400">Mockups only &mdash; nothing is applied to the app yet. Pick a direction (or mix elements) and it will be implemented in <span class="font-mono">ProfessorsPage.tsx</span>.</p>
+</main>
+</body>
+</html>

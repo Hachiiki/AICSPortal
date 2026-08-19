@@ -9,17 +9,39 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import type { Student } from '@/lib/aics/types'
+import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
+import { GlobalSearch } from './GlobalSearch'
+import type { PortalEvent } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
+import type { Task } from '@/lib/aics/tasks'
 
 interface TopbarProps {
   student: Student
   onOpenMobileNav: () => void
   onProfile: () => void
   onLogout: () => void
+  /** Drives the global search in the top bar. Lets the user jump to
+   *  any page and find subjects, professors, events, and tasks. */
+  onNavigate: (view: View) => void
+  /** Optional collections the search can index. Each page passes the
+   *  data it already has loaded; the parent wrapper supplies all of
+   *  them so the search works the same on every screen. */
+  events?: PortalEvent[]
+  professors?: Professor[]
+  tasks?: Task[]
 }
 
-export function Topbar({ student, onOpenMobileNav, onProfile, onLogout }: TopbarProps) {
+export function Topbar({
+  student,
+  onOpenMobileNav,
+  onProfile,
+  onLogout,
+  onNavigate,
+  events,
+  professors,
+  tasks,
+}: TopbarProps) {
   const handleNotifications = () => {
     toast.info('No new notifications.')
   }
@@ -30,9 +52,9 @@ export function Topbar({ student, onOpenMobileNav, onProfile, onLogout }: Topbar
 
   return (
     <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200">
-      <div className="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {/* Left — mobile hamburger */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           <button
             type="button"
             onClick={onOpenMobileNav}
@@ -43,8 +65,19 @@ export function Topbar({ student, onOpenMobileNav, onProfile, onLogout }: Topbar
           </button>
         </div>
 
+        {/* Center — global search */}
+        <div className="flex-1 flex justify-center min-w-0">
+          <GlobalSearch
+            student={student}
+            events={events}
+            professors={professors}
+            tasks={tasks}
+            onNavigate={onNavigate}
+          />
+        </div>
+
         {/* Right — notifications + profile dropdown + logout */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <button
             type="button"
             onClick={handleNotifications}

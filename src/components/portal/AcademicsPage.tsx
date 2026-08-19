@@ -9,6 +9,8 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import type { Student, Subject, View } from '@/lib/aics/types'
+import type { PortalEvent } from '@/lib/aics/events'
+import type { Professor } from '@/lib/aics/professors'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { RemarksBadge } from './RemarksBadge'
@@ -26,6 +28,10 @@ interface AcademicsPageProps {
   tasksLoading: boolean
   tasksError: string | null
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+  // Search index collections — lifted in the parent so the
+  // Topbar's global search works the same on every screen.
+  events?: PortalEvent[]
+  professors?: Professor[]
 }
 
 // GPA computation: unit-weighted average of finalGrade
@@ -169,7 +175,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks }: AcademicsPageProps) {
+export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors }: AcademicsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
@@ -200,6 +206,10 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
+          onNavigate={onNavigate}
+          events={events}
+          professors={professors}
+          tasks={tasks}
         />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}

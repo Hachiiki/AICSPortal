@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AICS Portal — Events (Replica)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', sans-serif; }
+  .font-mono { font-family: 'Geist Mono', monospace; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<div class="min-h-screen">
+  <!-- Sidebar (Events active) -->
+  <aside class="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 p-4 z-30">
+    <div class="px-2 py-5 flex items-center gap-3 border-b border-slate-100 mb-4">
+      <div class="w-10 h-10 rounded-lg bg-blue-700 flex items-center justify-center"><span class="text-white font-bold text-sm">A</span></div>
+      <div class="leading-tight"><p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">Student Portal</p><p class="text-sm font-bold text-slate-900 leading-snug">Asian Institute of Computer Studies</p></div>
+    </div>
+    <nav class="flex-1 space-y-1">
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3"/></svg><span>Dashboard</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/></svg><span>Academics</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium" style="background: #1e40af; color: #ffffff;"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span>Events</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg><span>Professors</span></button>
+    </nav>
+  </aside>
+
+  <div class="lg:pl-60">
+    <!-- Topbar -->
+    <header class="sticky top-0 z-20 h-16 bg-white border-b border-slate-200"><div class="h-full flex items-center justify-between px-6"><div></div><div class="flex items-center gap-3"><button class="p-2 rounded-md text-slate-600 hover:bg-slate-100"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 5.165 6 7.388 6 10v4.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></button><div class="w-px h-6 bg-slate-200"></div><div class="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 cursor-pointer"><div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold" style="background: #1e293b;">JS</div><div class="hidden sm:block text-left leading-tight"><p class="text-sm font-semibold text-slate-900">Juan Dela Cruz Santos</p><p class="text-[11px] text-slate-500 font-mono">251438</p></div></div></div></div></header>
+
+    <main class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+      <!-- Page header -->
+      <div>
+        <button class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg> Back to Dashboard</button>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Events</h1>
+        <p class="text-sm text-slate-500 mt-1">School events and deadlines • AY 2026-2027</p>
+      </div>
+
+      <!-- 2-column grid: calendar (2/3) + rail (1/3) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Calendar column -->
+        <div class="lg:col-span-2 space-y-4">
+          <!-- Legend + toggle -->
+          <div class="flex items-center justify-between">
+            <div class="flex flex-wrap gap-2">
+              <button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200"><span class="w-2 h-2 rounded-full bg-blue-500"></span>Academic</button>
+              <button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-red-50 text-red-700 border-red-200"><span class="w-2 h-2 rounded-full bg-red-500"></span>Deadline</button>
+              <button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-violet-50 text-violet-700 border-violet-200"><span class="w-2 h-2 rounded-full bg-violet-500"></span>Campus</button>
+              <button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-green-50 text-green-700 border-green-200"><span class="w-2 h-2 rounded-full bg-green-500"></span>Holiday</button>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-amber-50 text-amber-700 border-amber-200"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Tasks due</span>
+            </div>
+            <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600"><span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span></button>
+          </div>
+          <p class="text-xs text-slate-500 -mt-2">Show my task due dates</p>
+
+          <!-- Calendar card -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 class="text-base font-semibold text-slate-900">August 2026</h2>
+              <div class="flex items-center gap-2">
+                <button class="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                <button class="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-blue-600 hover:bg-blue-50">Today</button>
+                <button class="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+              </div>
+            </div>
+            <!-- Weekday row -->
+            <div class="grid grid-cols-7 border-b border-slate-100">
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Sun</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Mon</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Tue</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Wed</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Thu</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Fri</div>
+              <div class="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Sat</div>
+            </div>
+            <!-- Day grid (simplified — first week) -->
+            <div class="grid grid-cols-7">
+              <!-- Other month day -->
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-slate-50/40 text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-300">27</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-slate-50/40 text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-300">28</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-slate-50/40 text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-300">29</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-slate-50/40 text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-300">30</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-slate-50/40 text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-300">31</span></button>
+              <!-- August days -->
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">1</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">2</span><div class="mt-1 flex flex-wrap gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span></div></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">3</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">4</span></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">5</span><div class="mt-1 flex flex-wrap gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">6</span><div class="mt-1 flex flex-wrap gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span></div></button>
+              <!-- Today (Aug 17) -->
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left ring-2 ring-blue-500 ring-inset"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-medium">17</span><div class="mt-1 flex flex-wrap gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div></button>
+              <button class="relative min-h-[88px] p-1.5 border-b border-r border-slate-100 bg-white text-left"><span class="inline-flex items-center justify-center text-xs font-medium text-slate-700">18</span><div class="mt-1 flex flex-wrap gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span></div></button>
+            </div>
+          </div>
+
+          <!-- Day details panel -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100"><h3 class="text-sm font-semibold text-slate-900">Events on August 17, 2026</h3></div>
+            <div class="divide-y divide-slate-100">
+              <div class="px-6 py-3 flex items-start gap-3"><span class="mt-1 w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></span><div class="min-w-0 flex-1"><p class="text-sm font-medium text-slate-900">CS 206 Activity 1: ERD Modeling</p><p class="text-xs text-slate-500 mt-0.5">CS 206 • Task due</p></div><span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border bg-red-50 text-red-700 border-red-200">Overdue</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right rail: Upcoming events -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-20">
+            <div class="px-5 py-4 border-b border-slate-100"><h3 class="text-base font-semibold text-slate-900">Upcoming events</h3><p class="text-xs text-slate-500 mt-0.5">Next 8 events from today</p></div>
+            <div class="max-h-[600px] overflow-auto divide-y divide-slate-100">
+              <button class="w-full px-5 py-3 flex items-center gap-3 hover:bg-slate-50 text-left">
+                <div class="flex-shrink-0 w-12 text-center"><p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aug</p><p class="text-lg font-bold text-slate-900 leading-none">19</p></div>
+                <div class="min-w-0 flex-1"><p class="text-sm font-medium text-slate-900 truncate">Campus Clean-up Drive</p><span class="inline-flex items-center mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium border bg-violet-50 text-violet-700 border-violet-200">Campus</span></div>
+                <svg class="w-4 h-4 text-slate-300 -rotate-90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <button class="w-full px-5 py-3 flex items-center gap-3 hover:bg-slate-50 text-left">
+                <div class="flex-shrink-0 w-12 text-center"><p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aug</p><p class="text-lg font-bold text-slate-900 leading-none">22</p></div>
+                <div class="min-w-0 flex-1"><p class="text-sm font-medium text-slate-900 truncate">Research Summit 2026</p><span class="inline-flex items-center mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium border bg-blue-50 text-blue-700 border-blue-200">Academic</span></div>
+                <svg class="w-4 h-4 text-slate-300 -rotate-90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <button class="w-full px-5 py-3 flex items-center gap-3 hover:bg-slate-50 text-left">
+                <div class="flex-shrink-0 w-12 text-center"><p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Aug</p><p class="text-lg font-bold text-slate-900 leading-none">28</p></div>
+                <div class="min-w-0 flex-1"><p class="text-sm font-medium text-slate-900 truncate">Career Fair</p><span class="inline-flex items-center mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium border bg-violet-50 text-violet-700 border-violet-200">Campus</span></div>
+                <svg class="w-4 h-4 text-slate-300 -rotate-90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

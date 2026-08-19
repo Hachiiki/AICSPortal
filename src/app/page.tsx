@@ -274,6 +274,9 @@ function StudentDataWrapper({
         student={student}
         onNavigate={handleNavigate}
         onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
       />
     )
   }
@@ -288,6 +291,8 @@ function StudentDataWrapper({
         tasksLoading={tasksLoading}
         tasksError={tasksError}
         setTasks={setTasks}
+        events={events}
+        professors={professors}
       />
     )
   }
@@ -306,6 +311,7 @@ function StudentDataWrapper({
         setShowTasks={setShowTasks}
         enabledCats={enabledCats}
         setEnabledCats={setEnabledCats}
+        professors={professors}
       />
     )
   }
@@ -318,6 +324,8 @@ function StudentDataWrapper({
         courses={courses}
         onNavigate={handleNavigate}
         onLogout={onLogout}
+        events={events}
+        tasks={tasks}
       />
     )
   }
@@ -329,6 +337,9 @@ function StudentDataWrapper({
       sessions={sessions}
       onNavigate={handleNavigate}
       onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
     />
   )
 }

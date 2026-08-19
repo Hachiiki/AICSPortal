@@ -36,7 +36,6 @@ yarn-error.log*
 # vercel
 .vercel
 .zcode/
-.fallow/
 
 # typescript
 *.tsbuildinfo
@@ -51,8 +50,3 @@ test
 prompt
 
 server.log
-# Skills directory
-/skills/
-# Superdesign temp files
-.superdesign/tmp/
-.superdesign/
