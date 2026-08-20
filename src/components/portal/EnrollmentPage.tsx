@@ -100,18 +100,17 @@ function StatusPill({
 }: {
   status: EnrollmentStep['status']
 }) {
-  const labels: Record<EnrollmentStep['status'], string> = {
-    completed: 'Completed',
-    current: 'Current',
-    upcoming: 'Upcoming',
-  }
-  const style = STEP_STYLES[status]
+  // Only show a pill for the current step.
+  // Completed steps already show a checkmark.
+  // Upcoming steps are visually distinct via the gray circle.
+  if (status === 'completed' || status === 'upcoming') return null
+
   return (
     <span
       className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider"
-      style={style.pill}
+      style={STEP_STYLES[status].pill}
     >
-      {labels[status]}
+      Current
     </span>
   )
 }
@@ -129,7 +128,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
         <Stamp className="w-5 h-5 text-blue-600 flex-shrink-0" />
       </div>
 
-      {/* Desktop / tablet horizontal tracker — compact, no descriptions */}
+      {/* Desktop / tablet horizontal tracker — circles + labels only */}
       <div className="hidden md:block px-6 py-6">
         <div className="flex items-start">
           {steps.map((s, i) => {
@@ -138,18 +137,20 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
             return (
               <div
                 key={s.step}
-                className="flex-1 flex flex-col items-center relative"
-                style={{ minWidth: 0 }}
+                className="flex-1 flex flex-col items-center"
               >
-                {/* Top row: circle + connector */}
+                {/* Circle row: spacer | connector | circle | connector | spacer */}
+                {/* Spacers on the ends keep every circle centered in its column */}
                 <div className="w-full flex items-center">
-                  {/* Left connector (line to previous step) */}
-                  {i > 0 && (
+                  {/* Left spacer/connector */}
+                  {i > 0 ? (
                     <div
                       className="flex-1 h-0.5"
                       style={{ background: STEP_STYLES[steps[i - 1].status].connector }}
                       aria-hidden="true"
                     />
+                  ) : (
+                    <div className="flex-1" aria-hidden="true" />
                   )}
                   {/* Circle */}
                   <div
@@ -163,17 +164,19 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                       <span className="text-sm font-bold">{s.step}</span>
                     )}
                   </div>
-                  {/* Right connector (line to next step) */}
-                  {!isLast && (
+                  {/* Right spacer/connector */}
+                  {!isLast ? (
                     <div
                       className="flex-1 h-0.5"
                       style={{ background: style.connector }}
                       aria-hidden="true"
                     />
+                  ) : (
+                    <div className="flex-1" aria-hidden="true" />
                   )}
                 </div>
 
-                {/* Label + status only (no description here — it gets its own section below) */}
+                {/* Label + status pill + date */}
                 <div className="mt-3 text-center px-1 w-full">
                   <p className="text-xs font-semibold" style={style.label}>
                     {s.label}
@@ -197,38 +200,12 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
         </div>
       </div>
 
-      {/* Step detail list — full descriptions, readable */}
-      <div className="hidden md:block border-t border-slate-100">
-        <div className="px-6 py-4 grid grid-cols-3 gap-x-4 gap-y-3">
-          {steps.map((s) => {
-            const style = STEP_STYLES[s.status]
-            return (
-              <div key={s.step} className="flex items-start gap-2.5">
-                <span className="text-[10px] font-bold mt-0.5 flex-shrink-0" style={style.sublabel}>
-                  {s.step}.
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold" style={style.label}>
-                    {s.label}
-                  </p>
-                  <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
-                    {s.description}
-                  </p>
-                </div>
-              </div>
-            )
-          })}
-          {/* Fill the grid if odd number of steps */}
-          {steps.length % 3 !== 0 && <div />}
-        </div>
-      </div>
-
       {/* Mobile vertical tracker */}
       <div className="md:hidden px-5 py-5 divide-y divide-slate-100">
         {steps.map((s) => {
           const style = STEP_STYLES[s.status]
           return (
-            <div key={s.step} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+            <div key={s.step} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
               <div
                 className="w-9 h-9 rounded-full border-2 flex items-center justify-center flex-shrink-0"
                 style={style.circle}
@@ -246,11 +223,8 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   </p>
                   <StatusPill status={s.status} />
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5 leading-snug">
-                  {s.description}
-                </p>
                 {s.date && (
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     {new Date(s.date).toLocaleDateString('en-PH', {
                       month: 'short',
                       day: 'numeric',
