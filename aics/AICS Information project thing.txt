@@ -1,16 +1,16 @@
 AICS Information project thing.
 
+The problem I'm having — and I know I'm not the only one — is that the school has "Computer Studies" right in its name. Asian Institute of Computer Studies. Yet everything still runs on paper. We're stuck in the late 90s. The point of this project is to actually use the tech we have. Put it to work.
 
-The problem I am having or maybe also most of us, is that the school is about computers it's already in their name Asian Institute of Computer Studies yet the program and other things they do still require a paper which is it can be turn as a online, it's like we are stuck in the late 90's. The purpose of this project or system is that put some use to the technology we have right now and fully utilize it. 
+I want a portal. Something I can log into and see my grades, my schedule, my info — in real time. No more waiting for a printed report. That transparency matters. Students should see where they stand.
 
-I want to solve the problem where such as me a student dont have their own portal they can access, I cannot see my profile info in real-time such as grades and other information. I want to solve that problem and it will also make a transparency between the school and the students. Making the student see their grades, infos, schedules, the status of them and other more.
+Same goes for teachers. If students can access their grades, teachers should be able to manage them online. Submit, lock, done. No more spreadsheet shuffling.
 
-Also by this I also wanted to make the professors/teachers/faculty members life easier, since the student can acess these info the teachers should also be too, manage our grades online and etc etc.
+Admins too. Branch-scoped. Each admin only sees their own campus. Students, teachers, rooms, schedules, documents — all of it.
 
-Same application for the administrator and much more user type in the future as of im adding more and more things that I found hard and possibly to make it easier than before.
+---
 
-
-School color palette that I could extract.
+School colors I pulled from the brand:
 
 #FFFFFF
 #D2D2D3
@@ -19,373 +19,236 @@ School color palette that I could extract.
 #287CBB
 #153357
 
-First design and create something what the login page would look like. THe goal is to look like minimal and modern and just fine for everyone to understand the login. The login will use face recognition using the face-api and a default user and password login.
+Login page first. Clean, minimal. Two ways in: password (primary) and face scan via face-api.js (convenience layer, embeddings only — never raw images). The whole app lives in this palette.
 
-The whole app design will play around the color palette range to keep the style and aesthetic feel of the school.
+Stack: Next.js 16 (App Router), React 19, TypeScript 5, Bun, Tailwind CSS 4, shadcn/ui, Lucide React, Framer Motion, Sonner, MongoDB, Cloudinary.
 
-I will be using nextjs, tailwind css, react, mongodb for database and for storing images cloudinary, for the logo and icons I will be using open source project lucid reacts. Thus making the web app portal more flexible.
+Branch detection baked in. You log in, the app reads your branchId, redirects to /portal/[branch]/[role]. Custom features per campus later.
 
-The app will also detect the users branch of the school where they are in and it will redirect to the branch portal to access it and other, by this we can add custom freature for each branch.
-
-There will be a three 3 users that can login in the portal.
+Three roles:
 
 - Students
-- Teachers/Faculty members
+- Teachers/Faculty
 - Administrators
 
-Student: 
-On the main page of the student:
- - Can see their grades into a table format
- - Subject they have and enrolled
- - The subject units
- - Their professors
- - Their professors/teacher subject they have in subjects
- - Time schedule (full time schedule in a week, built in callendar)
+---
 
-There will be a user student menu profile, that once its click it will then open a new screen window. Here the student will see their own personal informations such as:
- - Full name
- - Enroll status
- - preview of their ID (digital)
- - the docuements they give to the school
- - Their own COE (there will be an option where the student can click a button to print the document or to download it)
- - Weather they are deanlister or not
- - Address
- - Contact number
- - Profile picture
- - What branch of the school they are enrolled
- - Emergency contact number
- - and other more info
+Student dashboard:
 
-The students can also their all previous grades from the previous years that they are enrolled, all the doucments they submitted, subjects, current schedules (previous schedules wont be recorded since it will be just bloat to the database) In the student dashboard also they can see all their professors the professors schedules for them and the status of the their enrollment when need to enroll again and more info about.
+Grades in a table. Subjects, units, professors. Weekly calendar view — Mon through Sat, 8 AM to 4 PM. Today's classes in a sidebar.
 
-Now the Teachers/Faculty Members
+Profile panel (slide-over): name, enrollment status, digital ID preview, submitted documents, COE with print/download, Dean's Lister flag, address, contact, profile photo, branch, emergency contact. Previous years' grades. All documents submitted. Current schedule. Professor schedules. Enrollment status — when to enroll again. Previous schedules not stored (bloat).
 
-Teachers/Faculty Members:
-On their main page dashboard they will be able to see the rooms/classes that they are assigned. They also can see:
- - Room/Classes they are in/assigned
-	- Classroom Management
- 	- For each room of that there will list of students. And inside the list of the student they can click it and they can manage that student data (read & write), such as grades. All the change they made in this are recorded to the higher level which is the administrator logs. And upon this changes it will notify the student in their own notification box/log. 
-	- Grading Management: 
-	 - Where teachers can see the student submitted activites, such as quizes, activitie, projects, assignement per grading period like prelim, midterm and finals. And this also make the teacher can compute the student grades here and just on click of the button it will record it to the student. Also once the grade is submitted the grades will be lock unless the teachers contact the admin to chang something up.
- - Their schedule for each rooms
- - In and Out log
- - Subjects that in enrolled/hold
- - They can also change the student status enrolled a student if they wanted but this (Active, Inactive, Dropped, Transferred, Graduated, Archieved) but this require a administrator priviliges/req to admin and full reason why like sending an email to admin but on this web app.
- - They can also see their own information like in the student they have their own profile page where they can see their own informations
- - Submitted docuements too
- - Digital ID
- - What branch they in
- - Teachers can also take attendance to their classes directly and of course the history
- - Teachers can also make change the schedule for tomrrow in the student schedule callender like change the subject for tomorrow or the topic or having a quiz.
- - Teachers can also make announcement for the classroom theyre are in and able the student see that notification or pop up warning in their class schedule.
- - Teachers will be able to upload the class materials such pdf file, presentations etc etc for their class so that student can access
- - romm information where the scheudle teachers are in
+---
 
-Now the Administrators
+Teachers see their assigned rooms/classes. Classroom management — student roster per room, click a student, manage their data (read/write grades). Every change logged to admin audit trail. Student gets notified.
 
-Administrators:
+Grading management: submitted activities — quizzes, activities, projects, assignments — per grading period (prelim, midterm, finals). Teacher computes, clicks submit, grade locks. Admin unlock required to change.
 
-Each administrator is assigned to a specific branch of the school. They can only
-manage and access the students, teachers/faculty members, classes, rooms,
-schedules, documents, records, and other information belonging to their assigned
-branch.
+Their schedule per room. In/out log. Subjects they handle. Student status changes (Active, Inactive, Dropped, Transferred, Graduated, Archived) — but needs admin approval with reason, handled in-app.
 
-On their main dashboard they will be able to see an overview of their branch
-and all important activities happening within it. They can also see:
+Teacher profile mirrors student: info, documents, digital ID, branch. Attendance taking with history. Tomorrow's schedule edits — change subject, topic, announce a quiz. Class announcements push to student calendars. Upload materials (PDFs, slides). Room info where they teach.
 
-- Administrator Dashboard
-  - Total number of students in their branch
-  - Total number of teachers/faculty members in their branch
-  - Total number of active classes
-  - Total number of rooms
-  - Pending requests
-  - Pending document verifications
-  - Recent activities within the branch
-  - Important notifications and alerts
-  - Recent enrollment activities
-  - Recent grade changes
-  - Recent schedule changes
+---
 
-- Student Management
-  - View all students belonging to their branch
-  - Search and filter students
-  - Create student accounts
-  - Edit student information
-  - View student academic records
-  - View student grades
-  - View student attendance
-  - View submitted documents
-  - View enrollment information
-  - Change student status
-  - Activate/deactivate student accounts
-  - Archive student records
-  - Reset student account/password when necessary
-  - View the student's complete history within the branch
+Administrators — branch-scoped everything.
 
-- Teacher/Faculty Management
-  - View all teachers/faculty members belonging to their branch
-  - Search and filter faculty members
-  - Create faculty accounts
-  - Edit faculty information
-  - View faculty schedules
-  - Assign subjects to teachers
-  - Assign teachers to classes
-  - Assign teachers to rooms
-  - Activate/deactivate faculty accounts
-  - Manage faculty permissions
-  - View faculty documents
-  - View faculty attendance/in and out logs
-  - View classes handled by each teacher
-  - View faculty requests
+Dashboard: student count, teacher count, active classes, rooms, pending requests, pending doc verifications, recent activity, alerts, recent enrollments, recent grade changes, recent schedule changes.
 
-- Enrollment Management
-  - View all enrollment applications for their branch
-  - Approve or reject enrollment
-  - View incomplete enrollment requirements
-  - Assign students to their course/program
-  - Assign students to their year level
-  - Assign students to sections/classes
-  - Enroll students into subjects
-  - Remove students from subjects/classes
-  - View current enrollment status
-  - Manage enrollment periods for their branch
-  - Manage the current academic year and semester
-  - View enrollment history
+Student management: view/search/create/edit, academic records, grades, attendance, documents, enrollment info, status changes, activate/deactivate, archive, reset passwords, full history.
 
-- Classroom / Section Management
-  - Create classes/sections
-  - Edit classes/sections
-  - Assign students to sections
-  - Assign teachers to sections
-  - Assign subjects to sections
-  - Assign rooms to classes
-  - View the students inside each class
-  - View the teacher assigned to each class
-  - View the class schedule
-  - Detect conflicting teachers, rooms, or schedules
-  - Archive old classes/sections
+Teacher management: view/search/create/edit, schedules, assign subjects/classes/rooms, activate/deactivate, permissions, documents, attendance/in-out logs, classes handled, requests.
 
-- Subject Management
-  - Create subjects for their branch
-  - Edit subjects
-  - Set subject codes
-  - Set subject units
-  - Set the year level
-  - Set the semester
-  - Set prerequisites
-  - Assign subjects to courses/programs
-  - Assign subjects to classes
-  - Assign teachers to subjects
+Enrollment management: applications, approve/reject, incomplete requirements, assign course/year/section, enroll in subjects, remove from subjects/classes, enrollment status, manage periods, manage academic year/semester, history.
 
-- Curriculum Management
-  - View and manage the curriculum used by their branch
-  - Set subjects for each course/program
-  - Set subjects for each year level
-  - Set subjects for each semester
-  - Set required and elective subjects
-  - Set subject units
-  - Set subject prerequisites
-  - Update curriculum information when authorized
-  - Manage curriculum versions for different academic years
+Classroom/section management: create/edit, assign students/teachers/subjects/rooms, view roster, view teacher, view schedule, detect conflicts (teacher, room, time), archive old sections.
 
-- Schedule Management
-  - Create and manage the official branch schedule
-  - Assign teachers to schedules
-  - Assign rooms to schedules
-  - Assign classes/sections to schedules
-  - View teacher schedules
-  - View student schedules
-  - View room schedules
-  - Detect schedule conflicts
-  - Change or cancel schedules
-  - Manage temporary schedule changes
-  - View schedule history
-  - Review teacher-requested schedule changes
+Subject management: create/edit, codes, units, year level, semester, prerequisites, assign to courses/programs, assign to classes, assign teachers.
 
-- Room / Facility Management
-  - Add and manage rooms belonging to their branch
-  - Set room numbers
-  - Set room capacity
-  - Set room type
-  - Set available equipment
-  - View room schedules
-  - View which classes are using each room
-  - Mark rooms as available/unavailable
-  - Manage computer laboratories and other branch facilities
+Curriculum management: view/manage per branch, set subjects per course/year/semester, required vs elective, units, prerequisites, versioning per academic year.
 
-- Grade Management
-  - View student grades
-  - View grades by subject
-  - View grades by grading period
-  - View submitted/finalized grades
-  - Review teacher grade submissions
-  - Approve grade change requests
-  - Reject grade change requests
-  - Unlock grades when authorized
-  - View previous grade versions
-  - Keep a record of who changed a grade and when
-  - View grade change reasons
-  - Monitor incomplete or missing grade submissions
+Schedule management: official branch schedule, assign teachers/rooms/sections, view all schedules (teacher, student, room), detect conflicts, change/cancel, temporary changes, history, review teacher-requested changes.
 
-- Attendance Management
-  - View student attendance
-  - View faculty attendance
-  - View attendance by class
-  - View attendance history
-  - Correct attendance records when authorized
-  - Review attendance correction requests
-  - View students with frequent absences
-  - Generate attendance reports
-  - View faculty in and out logs
+Room/facility management: add/manage rooms, numbers, capacity, type, equipment, view schedules, view classes per room, mark available/unavailable, manage labs.
 
-- Request / Approval Management
-  - View all pending requests within their branch
-  - Approve or reject enrollment requests
-  - Approve or reject student status change requests
-  - Approve or reject grade change requests
-  - Approve or reject schedule change requests
-  - Approve or reject faculty requests
-  - Approve or reject document verification requests
-  - Require a reason for approvals/rejections
-  - Keep a history of all requests
-  - Notify the requester when a decision has been made
+Grade management: view by student/subject/period, submitted/finalized, review teacher submissions, approve/reject grade changes, unlock when authorized, version history, who/when/why, monitor incomplete submissions.
 
-- Document Management
-  - View documents submitted by students
-  - View documents submitted by teachers/faculty
-  - Verify submitted documents
-  - Approve documents
-  - Reject documents
-  - Request document resubmission
-  - View document history
-  - Manage document requirements for their branch
-  - Archive documents when necessary
+Attendance management: student/faculty by class, history, correct when authorized, review correction requests, flag frequent absences, generate reports, faculty in/out logs.
 
-- Branch Announcements
-  - Create announcements for their branch
-  - Send announcements to all students in their branch
-  - Send announcements to teachers/faculty
-  - Send announcements to specific courses/programs
-  - Send announcements to specific year levels
-  - Send announcements to specific classes
-  - Schedule announcements
-  - Edit or remove announcements
-  - View announcement history
+Request/approval: all pending in branch, approve/reject enrollment/status changes/grade changes/schedule changes/faculty requests/doc verifications, require reason, history, notify requester.
 
-- School Calendar
-  - Manage the official calendar for their branch
-  - Add important branch events
-  - Set enrollment dates
-  - Set examination periods
-  - Set holidays when applicable
-  - Set semester dates
-  - Set academic year dates
-  - Publish calendar changes to students and teachers
-  - View calendar history
+Document management: view student/teacher submissions, verify, approve/reject, request resubmission, history, manage requirements, archive.
 
-- Notifications Management
-  - Send notifications to students
-  - Send notifications to teachers/faculty
-  - Send branch-specific notifications
-  - Send system alerts related to their branch
-  - View notification history
-  - Manage important branch notifications
+Branch announcements: create, send to all students / all teachers / specific course / specific year / specific class, schedule, edit/remove, history.
 
-- Audit Logs
-  - Record important actions made by users within their branch
-  - Record who made the change
-  - Record when the change happened
-  - Record what was changed
-  - Record the previous value
-  - Record the new value
-  - Record the reason for sensitive changes
-  - Search and filter logs
-  - View student-related activity
-  - View teacher-related activity
-  - View administrator activity
-  - View grade changes
-  - View enrollment changes
-  - View schedule changes
-  - View account changes
+School calendar: official branch calendar, add events, set enrollment/exam/holiday/semester/academic year dates, publish changes, history.
 
-- Reports and Analytics
-  - Generate student reports for their branch
-  - Generate enrollment reports
-  - Generate grade reports
-  - Generate attendance reports
-  - Generate faculty reports
-  - Generate class/section reports
-  - View student population statistics
-  - View enrollment statistics
-  - View academic performance statistics
-  - View attendance statistics
-  - View faculty statistics
-  - Export reports as PDF/Excel/CSV
+Notifications: send to students/teachers/branch/system alerts, history, manage important ones.
 
-- User and Permission Management
-  - Create user accounts belonging to their branch
-  - Disable user accounts
-  - Manage user roles within their branch
-  - Manage faculty permissions
-  - Manage branch administrator permissions when authorized
-  - Reset user passwords
-  - Force password resets when necessary
-  - Manage account access
-  - Activate/deactivate accounts
-  - View account activity
+Audit logs: every important action — who, when, what changed, previous value, new value, reason for sensitive changes. Search/filter. By student/teacher/admin activity. Grade changes. Enrollment changes. Schedule changes. Account changes.
 
-- Faculty Requests
-  - View faculty requests
-  - Review leave requests
-  - Review schedule requests
-  - Review class-related requests
-  - Review student-related requests
-  - Approve or reject requests
-  - Keep a record of the request and decision
-  - Notify the faculty member about the decision
+Reports/analytics: student, enrollment, grade, attendance, faculty, class/section reports. Population stats. Enrollment stats. Academic performance. Attendance stats. Faculty stats. Export PDF/Excel/CSV.
 
-- Security Management
-  - View login activity for their branch
-  - View failed login attempts
-  - Disable suspicious accounts
-  - Manage account sessions when authorized
-  - Manage branch-level password policies
-  - Manage branch-level login security settings
-  - Manage face recognition registration/settings
-  - View important security logs
-  - Monitor unusual account activity
+User/permission management: create accounts in branch, disable, manage roles, manage faculty permissions, manage admin permissions (when authorized), reset passwords, force resets, manage access, activate/deactivate, view activity.
 
-- Branch Settings
-  - View branch information
-  - Edit authorized branch information
-  - Manage branch contact information
-  - Manage branch announcements
-  - Manage branch-specific settings
-  - Manage academic year
-  - Manage semesters
-  - Manage grading periods
-  - Manage notification settings
-  - Manage branch-specific system settings
+Faculty requests: view, review leave/schedule/class/student requests, approve/reject, record decision, notify.
 
-- Administrator Profile
-  - View personal information
-  - Edit allowed personal information
-  - View administrator ID
-  - View digital ID
-  - View submitted documents
-  - View assigned branch
-  - View administrator activity
-  - View account permissions
+Security: login activity, failed attempts, disable suspicious accounts, manage sessions, branch password policies, branch login security, face recognition settings, security logs, monitor unusual activity.
 
-- Branch-Wide Search
-  - Search students within their branch
-  - Search teachers/faculty within their branch
-  - Search classes
-  - Search subjects
-  - Search rooms
-  - Search documents
-  - Search enrollment records
-  - Search requests
-  - Search audit logs
-  - Search schedules
+Branch settings: view/edit branch info, contact info, announcements, branch-specific settings, academic year, semesters, grading periods, notification settings, system settings.
 
+Admin profile: personal info, edit allowed fields, admin ID, digital ID, documents, assigned branch, activity, permissions.
+
+Branch-wide search: students, teachers, classes, subjects, rooms, documents, enrollment records, requests, audit logs, schedules.
+
+---
+
+Algorithms used:
+
+Password auth: bcrypt (cost 12) for hashing. Constant-time comparison. JWT in httpOnly cookie, 7-day expiry, rotated on refresh.
+
+Face recognition: face-api.js TinyFaceDetector + FaceLandmark68Net + FaceRecognitionNet. 128-dim embeddings. Euclidean distance with 0.6 threshold. Enrollment stores embedding only — never the image. Login compares live embedding against stored. Falls back to password on failure. No liveness detection — documented honestly as convenience, not security. (later be implemented once everything is settled)
+
+Grade computation: weighted average — prelim 30%, midterm 30%, finals 40%. Missing periods redistribute weight. Rounded to 2 decimals. Remarks: ≥90 Excellent, ≥85 Very Good, ≥80 Good, ≥75 Passed, ≥70 Conditional, else Failed.
+
+Schedule grid: 6×9 matrix (Mon–Sat × 8–16). Each section's schedule paints cells. Overlap detection flags conflicts. Teacher/room conflict check runs on every schedule create/edit — O(n) scan of existing assignments for same timeslot.
+
+Enrollment prerequisite check: topological sort on curriculum graph. Student's completed subjects (final ≥75) vs required prerequisites. Blocks enrollment if any missing.
+
+Capacity check: atomic counter on subject document. Decrement on enroll, increment on drop. Prevents race conditions.
+
+Conflict detection (schedules): sweep-line algorithm. Sort all assignments by start time. Track active teachers/rooms. Overlap = conflict.
+
+Search: MongoDB text indexes on name, email, studentId, subjectCode. Compound indexes on (branchId, role, status) for role-scoped lists.
+
+Audit logging: append-only. Every sensitive action writes one document with actor, target, before/after values, timestamp, IP, user agent. Immutable.
+
+Notifications: write to notifications collection. If user has active WebSocket, push real-time. Else pull on next page load.
+
+COE PDF: client-side jsPDF + autotable. Fetches current-term enrollments, builds table (code, name, units), totals units, adds registrar signature line and issue date.
+
+---
+
+Data structures (MongoDB collections):
+
+users:
+  _id, role (student|teacher|admin), branchId, email, passwordHash, faceEmbedding?, studentId?, employeeId?, fullName, courseId?, yearLevel?, sectionId?, status (active|inactive|dropped|transferred|graduated|archived), profilePicture?, address?, contact?, emergencyContact?, deansLister?, createdAt, updatedAt
+
+branches:
+  _id, name, slug, contactInfo, settings (academicYear, semesters, gradingPeriods, notificationDefaults, securityPolicy)
+
+courses:
+  _id, branchId, code, name, description, yearLevels (1–4)
+
+subjects:
+  _id, branchId, courseId, code, name, description, units, yearLevel, semester, prerequisites (subjectId[]), maxCapacity, type (lecture|lab), createdAt
+
+sections:
+  _id, branchId, subjectId, teacherId, roomId, scheduleId, termId, yearLevel, semester, status (active|archived), studentIds[], createdAt
+
+enrollments:
+  _id, branchId, studentId, sectionId, subjectId, termId, status (enrolled|dropped|completed), finalGrade?, enrolledAt, droppedAt?
+
+grades:
+  _id, branchId, enrollmentId, studentId, subjectId, sectionId, teacherId, termId, period (prelim|midterm|finals), value, submittedBy, submittedAt, locked, lockedAt?, lockedBy?, unlockReason?, createdAt, updatedAt
+
+schedules:
+  _id, branchId, sectionId, day (0–5), startTime, endTime, roomId, teacherId, type (lecture|lab), termId, isTemporary?, originalScheduleId?
+
+rooms:
+  _id, branchId, number, capacity, type (lecture|lab|computer), equipment[], isAvailable, createdAt
+
+documents:
+  _id, branchId, userId, userRole, type (enrollment|id|clearance|etc), fileUrl (Cloudinary), status (pending|verified|rejected), verifiedBy?, verifiedAt?, rejectionReason?, createdAt
+
+audit_logs:
+  _id, branchId, action, actorId, actorRole, actorName, targetType, targetId, previousValue, newValue, metadata, ipAddress, userAgent, timestamp
+
+notifications:
+  _id, userId, type, title, message, metadata, read, createdAt
+
+enrollment_periods:
+  _id, branchId, termId, startDate, endDate, status (active|closed), createdAt
+
+terms:
+  _id, branchId, academicYear, name (1st Sem|2nd Sem|Summer), startDate, endDate, status
+
+curriculum:
+  _id, branchId, courseId, yearLevel, semester, subjectIds[], version, effectiveAcademicYear, createdAt
+
+requests:
+  _id, branchId, requesterId, requesterRole, type (grade_change|status_change|schedule_change|leave|document|etc), targetId, reason, status (pending|approved|rejected), decidedBy?, decidedAt?, decisionReason?, createdAt
+
+announcements:
+  _id, branchId, title, body, audience (all_students|all_teachers|course|yearLevel|section), authorId, scheduledAt, publishedAt?, expiresAt?, createdAt
+
+events:
+  _id, branchId, title, description, category (academic|deadline|campus|holiday), startDate, endDate, allDay, targetAudience, createdAt
+
+attendance:
+  _id, branchId, sectionId, studentId, date, status (present|absent|late|excused), recordedBy, recordedAt, correctedBy?, correctedAt?, correctionReason?
+
+faculty_attendance:
+  _id, branchId, teacherId, date, timeIn?, timeOut?, status (present|absent|on_leave), recordedAt
+
+---
+
+Information flow outline:
+
+1. Login
+   - Credentials → /api/auth/login → bcrypt verify → JWT cookie → middleware attaches user + branchId
+   - Face → webcam → face-api.js embed → compare against branch users → match → same JWT flow
+   - Middleware protects all /portal/* routes, redirects unauthenticated to /login
+
+2. Branch scoping
+   - Every API handler reads request.user.branchId
+   - Query helper auto-injects { branchId: user.branchId } into every find/update/delete
+   - No cross-branch leaks possible at query level
+
+3. Student dashboard load
+   - Parallel fetches: /api/student (profile), /api/grades (current term), /api/schedule (grid), /api/tasks (today)
+   - Grades: enrollments → subjects → grade records → compute weighted final → remarks
+   - Schedule: sections → schedules → paint 6×9 grid → conflict flags
+   - Tasks: enrollment subjects → activities → status (graded/pending/missing/needs attention)
+
+4. Teacher grades
+   - Teacher opens section → fetches roster (enrollments + student info)
+   - Enters grades per period → bulk upsert to grades collection
+   - On submit: lock flag set, audit log written, notifications created for each student
+   - Admin unlock: writes unlock reason, clears lock, audit log, notifies teacher
+
+5. Enrollment period
+   - Admin sets enrollment_periods dates
+   - Student clicks enroll → checks period open → prerequisites (topo sort) → capacity (atomic counter) → conflict (sweep-line) → creates enrollment doc
+   - Admin bulk enroll: same checks, batch insert
+
+6. Schedule management
+   - Admin creates schedule → conflict check (teacher + room) → if clean, write schedule doc
+   - Teacher requests change → creates request doc → admin reviews → if approved, marks original temporary, writes new schedule, audit log
+
+7. Documents
+   - Student uploads → Cloudinary → document record with pending status
+   - Admin verifies/rejects → status update → notification to student
+   - COE generation: client fetches enrollments → jsPDF builds blob → download/print
+
+8. Notifications
+   - Any state change (grade posted, doc verified, request decided, announcement) → create notification doc
+   - WebSocket server pushes to connected clients
+   - Fallback: poll /api/notifications on page focus
+
+9. Audit trail
+   - Middleware wraps sensitive routes (grades, enrollments, users, schedules, documents)
+   - On mutation: capture before state, perform write, capture after state, write audit_log
+   - Immutable — no update/delete on audit_logs collection
+
+10. Reports
+    - Admin requests report → aggregation pipelines (student count by course, grade distribution, attendance rates, etc.)
+    - Results formatted → PDF/Excel/CSV export via serverless function
+
+11. Search
+    - Global search bar → text index query across users/subjects/rooms/sections/documents
+    - Results grouped by type, scoped to branchId
+
+---
+
+That's the system. Built it because the school needed it. Still building.
