@@ -281,7 +281,71 @@ async function seed() {
   await db.collection('professors').createIndex({ branch: 1, name: 1 }, { unique: true })
 
   // ----------------------------------------------------------
-  //  8. Indexes
+  //  8. Enrollments (per-student, per-term — registrar-managed)
+  //
+  //  ADMIN/REGISTRAR CONTROL: Enrollment steps, assessment of
+  //  fees, payment status, and registrar contact info are
+  //  maintained by the Registrar / Admin. Students have
+  //  read-only access via the Enrollment page.
+  //
+  //  One document per student per term. The current-term
+  //  enrollment record is fetched via getEnrollment() and
+  //  displayed on the Enrollment page.
+  // ----------------------------------------------------------
+  const enrollments = [
+    {
+      branch: BRANCH,
+      studentUsername: 'juan.santos',
+      academicYear: '2026-2027',
+      semester: '1st Sem',
+      currentStep: 3, // currently on Payment
+      steps: [
+        { step: 1, label: 'Pre-enrollment', description: 'Submit pre-enrollment form and select subjects for the upcoming term.', status: 'completed' as const, date: '2026-05-20' },
+        { step: 2, label: 'Assessment', description: 'Registrar reviews subject load and issues the official assessment of fees.', status: 'completed' as const, date: '2026-06-02' },
+        { step: 3, label: 'Payment', description: 'Pay tuition and miscellaneous fees at the Accounting Office. Installment plans are available.', status: 'current' as const, date: null },
+        { step: 4, label: 'Enrolled', description: 'Officially enrolled once full payment (or approved installment) is posted.', status: 'upcoming' as const, date: null },
+        { step: 5, label: 'Add/Drop', description: 'Final week to add or drop subjects without academic penalty.', status: 'upcoming' as const, date: null },
+      ],
+      assessment: {
+        tuitionPerUnit: 1500,
+        totalUnits: 20,
+        tuitionAmount: 30000,
+        miscFees: [
+          { description: 'Library Fee', amount: 500 },
+          { description: 'Laboratory Fee', amount: 1000 },
+          { description: 'IT Fee', amount: 500 },
+          { description: 'Athletic Fee', amount: 300 },
+          { description: 'Medical & Dental Fee', amount: 300 },
+          { description: 'ID Fee', amount: 150 },
+        ],
+        totalAssessment: 32750,
+        amountPaid: 20000,
+        balance: 12750,
+        paymentStatus: 'partial' as const,
+        paymentDeadline: '2026-09-15',
+        paymentDate: null,
+      },
+      registrar: {
+        name: 'Mrs. Rosario Tan',
+        room: 'Room 100',
+        officeHours: 'Mon-Fri 9:00 AM - 4:00 PM',
+        email: 'registrar@aics.edu.ph',
+        phone: '(02) 8XXX-XXXX',
+      },
+    },
+  ]
+
+  await db.collection('enrollments').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+  await db.collection('enrollments').insertMany(enrollments)
+  console.log(`  ✓ Inserted ${enrollments.length} enrollment records`)
+
+  await db.collection('enrollments').createIndex(
+    { branch: 1, studentUsername: 1, academicYear: 1, semester: 1 },
+    { unique: true }
+  )
+
+  // ----------------------------------------------------------
+  //  9. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
@@ -299,6 +363,7 @@ async function seed() {
   console.log(`   Tasks: 11 current term + 2 previous term (hidden from student)`)
   console.log(`   Events: 10 school-wide calendar events`)
   console.log(`   Professors: ${professors.length} directory entries`)
+  console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
 
   await client.close()
 }

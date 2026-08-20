@@ -31,7 +31,7 @@ interface NavItem {
   enabled: boolean
 }
 
-// Dashboard, Academics, Events, and Professors are functional.
+// Dashboard, Academics, Events, Professors, and Enrollment are functional.
 // All other nav items are "coming soon" — rendered grayed out with a
 // "Soon" badge and made non-interactive.
 const PRIMARY_NAV: NavItem[] = [
@@ -39,7 +39,7 @@ const PRIMARY_NAV: NavItem[] = [
   { view: 'academics', label: 'Academics', icon: GraduationCap, enabled: true },
   { view: 'events', label: 'Events', icon: CalendarDays, enabled: true },
   { view: 'professors', label: 'Professors', icon: Users, enabled: true },
-  { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: false },
+  { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: true },
 ]
 
 const SECONDARY_NAV: NavItem[] = [
