@@ -50,3 +50,12 @@ test
 prompt
 
 server.log
+# Removed from repo — do not track these folders
+.zscripts/
+db/
+download/
+mini-services/
+prisma/
+tests/
+tool-results/
+upload/
