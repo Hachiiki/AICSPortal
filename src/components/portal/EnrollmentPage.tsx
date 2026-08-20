@@ -129,7 +129,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
         <Stamp className="w-5 h-5 text-blue-600 flex-shrink-0" />
       </div>
 
-      {/* Desktop / tablet horizontal tracker */}
+      {/* Desktop / tablet horizontal tracker — compact, no descriptions */}
       <div className="hidden md:block px-6 py-6">
         <div className="flex items-start">
           {steps.map((s, i) => {
@@ -173,15 +173,12 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   )}
                 </div>
 
-                {/* Label + description */}
+                {/* Label + status only (no description here — it gets its own section below) */}
                 <div className="mt-3 text-center px-1 w-full">
-                  <p className="text-xs font-semibold truncate" style={style.label}>
+                  <p className="text-xs font-semibold" style={style.label}>
                     {s.label}
                   </p>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-snug line-clamp-2">
-                    {s.description}
-                  </p>
-                  <div className="mt-2 flex flex-col items-center gap-1">
+                  <div className="mt-1.5 flex flex-col items-center gap-1">
                     <StatusPill status={s.status} />
                     {s.date && (
                       <span className="text-[10px] text-slate-400">
@@ -197,6 +194,32 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
               </div>
             )
           })}
+        </div>
+      </div>
+
+      {/* Step detail list — full descriptions, readable */}
+      <div className="hidden md:block border-t border-slate-100">
+        <div className="px-6 py-4 grid grid-cols-3 gap-x-4 gap-y-3">
+          {steps.map((s) => {
+            const style = STEP_STYLES[s.status]
+            return (
+              <div key={s.step} className="flex items-start gap-2.5">
+                <span className="text-[10px] font-bold mt-0.5 flex-shrink-0" style={style.sublabel}>
+                  {s.step}.
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold" style={style.label}>
+                    {s.label}
+                  </p>
+                  <p className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                    {s.description}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+          {/* Fill the grid if odd number of steps */}
+          {steps.length % 3 !== 0 && <div />}
         </div>
       </div>
 
