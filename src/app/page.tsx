@@ -11,12 +11,14 @@ import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
 import { ProfessorsPage } from '@/components/portal/ProfessorsPage'
+import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 import type { View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
+import type { Enrollment } from '@/lib/aics/enrollment'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -29,6 +31,7 @@ import type { Professor } from '@/lib/aics/professors'
  *   /portal/{branch}/student/{username}/academics    → AcademicsPage
  *   /portal/{branch}/student/{username}/events       → EventsPage
  *   /portal/{branch}/student/{username}/professors   → ProfessorsPage
+ *   /portal/{branch}/student/{username}/enrollment    → EnrollmentPage
  *
  * Auth rules:
  *   - Unauthenticated + protected route → redirect to /portal/login
@@ -198,6 +201,10 @@ function StudentDataWrapper({
   const [professorsLoading, setProfessorsLoading] = useState(true)
   const [professorsError, setProfessorsError] = useState<string | null>(null)
 
+  const [enrollment, setEnrollment] = useState<Enrollment | null>(null)
+  const [enrollmentLoading, setEnrollmentLoading] = useState(true)
+  const [enrollmentError, setEnrollmentError] = useState<string | null>(null)
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -210,12 +217,18 @@ function StudentDataWrapper({
     let cancelled = false
     async function fetchAll() {
       try {
-        const [tkRes, evRes, profRes] = await Promise.all([
+        const [tkRes, evRes, profRes, enrRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
           fetch(`/api/professors?username=${encodeURIComponent(username)}`),
+          fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData, profData] = await Promise.all([tkRes.json(), evRes.json(), profRes.json()])
+        const [tkData, evData, profData, enrData] = await Promise.all([
+          tkRes.json(),
+          evRes.json(),
+          profRes.json(),
+          enrRes.json(),
+        ])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
         else setTasksError(tkData.error || 'Failed to load tasks')
@@ -223,17 +236,23 @@ function StudentDataWrapper({
         else setEventsError(evData.error || 'Failed to load events')
         if (profData.ok) setProfessors(profData.professors)
         else setProfessorsError(profData.error || 'Failed to load professors')
+        // Enrollment is a single record (not found is fine — the page shows an
+        // empty state). Only set an error if the API itself fails.
+        if (enrData.ok) setEnrollment(enrData.enrollment ?? null)
+        else setEnrollmentError(enrData.error || 'Failed to load enrollment')
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
           setEventsError('Network error')
           setProfessorsError('Network error')
+          setEnrollmentError('Network error')
         }
       } finally {
         if (!cancelled) {
           setTasksLoading(false)
           setEventsLoading(false)
           setProfessorsLoading(false)
+          setEnrollmentLoading(false)
         }
       }
     }
@@ -325,6 +344,22 @@ function StudentDataWrapper({
         onNavigate={handleNavigate}
         onLogout={onLogout}
         events={events}
+        tasks={tasks}
+      />
+    )
+  }
+
+  if (route.view === 'enrollment') {
+    return (
+      <EnrollmentPage
+        student={student}
+        enrollment={enrollment}
+        enrollmentLoading={enrollmentLoading}
+        enrollmentError={enrollmentError}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
         tasks={tasks}
       />
     )

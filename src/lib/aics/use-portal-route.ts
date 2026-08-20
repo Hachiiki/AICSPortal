@@ -23,6 +23,7 @@ export type PortalRoute =
   | { view: 'academics'; branch: string; username: string }
   | { view: 'events'; branch: string; username: string }
   | { view: 'professors'; branch: string; username: string }
+  | { view: 'enrollment'; branch: string; username: string }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
@@ -44,6 +45,9 @@ function parsePath(path: string): PortalRoute {
     if (parts[4] === 'professors') {
       return { view: 'professors', branch, username }
     }
+    if (parts[4] === 'enrollment') {
+      return { view: 'enrollment', branch, username }
+    }
     return { view: 'dashboard', branch, username }
   }
   return { view: 'login' }
@@ -64,6 +68,8 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/events`
     case 'professors':
       return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/professors`
+    case 'enrollment':
+      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/enrollment`
   }
 }
 

@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { getCollection } from './connection'
-import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, MongoProfessor, Branch } from './types'
+import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, MongoProfessor, MongoEnrollment, Branch } from './types'
 
 // ============================================================
 //  Data access layer — all queries are scoped by branch
@@ -119,3 +119,27 @@ export async function getProfessors(branch: Branch): Promise<MongoProfessor[]> {
   const col = await getCollection<MongoProfessor>('professors')
   return col.find({ branch }).toArray()
 }
+
+// ADMIN/REGISTRAR CONTROL: Enrollment steps, assessment of
+// fees, payment status, and registrar contact info are
+// maintained by the Registrar / Admin. Students have
+// read-only access via the Enrollment page.
+//
+// Returns the single enrollment record for this student's
+// current term (academicYear + semester). One document per
+// student per term is expected; if there are duplicates the
+// most recently inserted one wins.
+export async function getEnrollment(
+  studentUsername: string,
+  branch: Branch,
+  currentTerm: { academicYear: string; semester: string }
+): Promise<MongoEnrollment | null> {
+  const col = await getCollection<MongoEnrollment>('enrollments')
+  return col.findOne({
+    studentUsername,
+    branch,
+    academicYear: currentTerm.academicYear,
+    semester: currentTerm.semester,
+  })
+}
+

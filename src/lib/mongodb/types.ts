@@ -145,3 +145,65 @@ export interface MongoProfessor {
   officeHours: string // e.g. "Mon & Wed • 1:00-3:00 PM"
   room: string // e.g. "Faculty Office / Room 204"
 }
+
+// ============================================================
+//  Enrollment — per-student, per-term enrollment record.
+//
+//  ADMIN/REGISTRAR CONTROL: Enrollment steps, assessment of
+//  fees, payment status, and registrar contact info are
+//  maintained by the Registrar / Admin. Students have
+//  read-only access via the Enrollment page.
+//
+//  One document per student per term, keyed by
+//  { studentUsername, branch, academicYear, semester }.
+// ============================================================
+
+export type EnrollmentStepStatus = 'completed' | 'current' | 'upcoming'
+export type PaymentStatus = 'paid' | 'partial' | 'unpaid'
+
+export interface MongoEnrollmentStep {
+  step: number
+  label: string
+  description: string
+  status: EnrollmentStepStatus
+  date: string | null // ISO date or null if not yet scheduled
+}
+
+export interface MongoMiscFee {
+  description: string
+  amount: number
+}
+
+export interface MongoAssessment {
+  tuitionPerUnit: number
+  totalUnits: number
+  tuitionAmount: number
+  miscFees: MongoMiscFee[]
+  totalAssessment: number
+  amountPaid: number
+  balance: number
+  paymentStatus: PaymentStatus
+  paymentDeadline: string | null
+  paymentDate: string | null
+}
+
+export interface MongoRegistrar {
+  name: string
+  room: string
+  officeHours: string
+  email: string
+  phone: string
+}
+
+export interface MongoEnrollment {
+  _id?: string
+  branch: Branch
+  studentUsername: string
+  academicYear: string // e.g. "2026-2027"
+  semester: string // e.g. "1st Sem"
+  currentStep: number // 1-based index into steps
+  steps: MongoEnrollmentStep[]
+  assessment: MongoAssessment
+  registrar: MongoRegistrar
+}
+
