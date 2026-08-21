@@ -266,6 +266,7 @@ async function GET(request) {
         ]);
         const student = {
             username: mongoStudent.username,
+            role: mongoStudent.role || 'student',
             fullName: mongoStudent.fullName,
             firstName: mongoStudent.firstName,
             lastName: mongoStudent.lastName,
