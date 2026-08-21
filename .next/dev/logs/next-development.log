@@ -1,6 +1,0 @@
-[00:00:00.930] Server  LOG     ✓ Ready in 698ms
-[00:00:04.598] Server  LOG     ○ Compiling /portal/[...slug] ...
-[00:00:09.758] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:09.758] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/portal/commonwealth/student/juan.santos","route":"/portal/[...slug]"}
-[00:00:09.758] Browser LOG     %c[Vercel Web Analytics]%c [view] https://preview-chat-8d02ca1e-9f21-41ea-858d-f86ef2190e31.space-z.ai/portal/commonwealth/student/juan.santos color: rgb(120, 120, 120) color: inherit {"dp":"/portal/[...slug]","o":"https://preview-chat-8d02ca1e-9f21-41ea-858d-f86ef2190e31.space-z.ai/portal/commonwealth/student/juan.santos","sdkn":"@vercel/analytics/next","sdkv":"2.0.1","sv":"0.1.3","ts":1787326745035} /_vercel/insights/view
-[00:00:09.758] Browser LOG     %c[Vercel Speed Insights]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit

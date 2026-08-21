@@ -1,9 +1,0 @@
-{
-  "/api/announcements/route": "app/api/announcements/route.js",
-  "/api/enrollment/route": "app/api/enrollment/route.js",
-  "/api/events/route": "app/api/events/route.js",
-  "/api/professors/route": "app/api/professors/route.js",
-  "/api/student/route": "app/api/student/route.js",
-  "/api/tasks/route": "app/api/tasks/route.js",
-  "/portal/[...slug]/page": "app/portal/[...slug]/page.js"
-}
