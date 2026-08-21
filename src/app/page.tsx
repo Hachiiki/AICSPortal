@@ -12,6 +12,7 @@ import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
 import { ProfessorsPage } from '@/components/portal/ProfessorsPage'
 import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
+import { SettingsPage } from '@/components/portal/SettingsPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 import type { View } from '@/lib/aics/types'
@@ -356,6 +357,19 @@ function StudentDataWrapper({
         enrollment={enrollment}
         enrollmentLoading={enrollmentLoading}
         enrollmentError={enrollmentError}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+      />
+    )
+  }
+
+  if (route.view === 'settings') {
+    return (
+      <SettingsPage
+        student={student}
         onNavigate={handleNavigate}
         onLogout={onLogout}
         events={events}

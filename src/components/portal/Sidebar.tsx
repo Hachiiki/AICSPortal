@@ -43,7 +43,7 @@ const PRIMARY_NAV: NavItem[] = [
 ]
 
 const SECONDARY_NAV: NavItem[] = [
-  { view: 'settings', label: 'Settings', icon: Settings, enabled: false },
+  { view: 'settings', label: 'Settings', icon: Settings, enabled: true },
   { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
 ]
 
