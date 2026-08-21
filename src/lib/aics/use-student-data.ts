@@ -106,6 +106,9 @@ function getClientUsername(): string | null {
 function getClientBranch(): string | null {
   return localStorage.getItem('aics_branch')
 }
+function getClientRole(): string | null {
+  return localStorage.getItem('aics_role')
+}
 
 // Server snapshot: always null (no localStorage on server)
 function getServerValue(): string | null {
@@ -121,6 +124,7 @@ export function useAuth() {
   //    → reads real values from localStorage
   const username = useSyncExternalStore(authSubscribe, getClientUsername, getServerValue)
   const branch = useSyncExternalStore(authSubscribe, getClientBranch, getServerValue)
+  const role = useSyncExternalStore(authSubscribe, getClientRole, getServerValue)
 
   // loading is true on the server and first client render (hydration),
   // then becomes false after mount. This prevents hydration mismatch
@@ -137,7 +141,7 @@ export function useAuth() {
     async (
       user: string,
       pass: string
-    ): Promise<{ ok: boolean; error?: string; branch?: string; username?: string }> => {
+    ): Promise<{ ok: boolean; error?: string; branch?: string; username?: string; role?: string }> => {
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
@@ -150,8 +154,9 @@ export function useAuth() {
         }
         localStorage.setItem('aics_username', data.username)
         localStorage.setItem('aics_branch', data.branch)
+        localStorage.setItem('aics_role', data.role || 'student')
         dispatchAuthChange()
-        return { ok: true, branch: data.branch, username: data.username }
+        return { ok: true, branch: data.branch, username: data.username, role: data.role || 'student' }
       } catch {
         return { ok: false, error: 'Network error. Please try again.' }
       }
@@ -162,8 +167,9 @@ export function useAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem('aics_username')
     localStorage.removeItem('aics_branch')
+    localStorage.removeItem('aics_role')
     dispatchAuthChange()
   }, [])
 
-  return { username, branch, loading, login, logout }
+  return { username, branch, role, loading, login, logout }
 }

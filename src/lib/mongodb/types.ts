@@ -13,6 +13,7 @@ export interface MongoStudent {
   branch: Branch
   username: string
   password: string // NOTE: plaintext for demo only — hash with bcrypt in production
+  role: 'student' | 'faculty' | 'admin' // determines which portal the user sees
   fullName: string
   firstName: string
   lastName: string

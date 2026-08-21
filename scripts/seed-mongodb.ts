@@ -140,6 +140,7 @@ async function seed() {
     branch: BRANCH,
     username: 'juan.santos',
     password: 'student123',
+    role: 'student' as const,
     fullName: 'Juan Dela Cruz Santos',
     firstName: 'Juan',
     lastName: 'Santos',

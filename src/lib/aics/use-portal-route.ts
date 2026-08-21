@@ -7,52 +7,64 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 // ============================================================
 //  URL structure:
 //
-//    /portal/login                                    → login page
-//    /portal/{branch}/student/{username}              → student dashboard
-//    /portal/{branch}/student/{username}/profile      → student profile
+//    /portal/login                                         → login page
+//    /portal/{branch}/student/{username}                   → student dashboard
+//    /portal/{branch}/student/{username}/profile           → student profile
+//    /portal/{branch}/student/{username}/academics         → academics
+//    /portal/{branch}/student/{username}/events             → events
+//    /portal/{branch}/student/{username}/professors        → professors
+//    /portal/{branch}/student/{username}/enrollment         → enrollment
+//    /portal/{branch}/student/{username}/settings           → settings
+//    /portal/{branch}/faculty/{username}                    → faculty dashboard (future)
 //
-//  The branch segment (e.g. "commonwealth") is detected from the
-//  student's record at login and embedded in the URL so every
-//  screen is branch-aware.
+//  The `role` field on each route determines which portal
+//  shell to render (student vs faculty vs admin).
 // ============================================================
+
+export type PortalRole = 'student' | 'faculty' | 'admin'
 
 export type PortalRoute =
   | { view: 'login' }
-  | { view: 'dashboard'; branch: string; username: string }
-  | { view: 'profile'; branch: string; username: string }
-  | { view: 'academics'; branch: string; username: string }
-  | { view: 'events'; branch: string; username: string }
-  | { view: 'professors'; branch: string; username: string }
-  | { view: 'enrollment'; branch: string; username: string }
-  | { view: 'settings'; branch: string; username: string }
+  | { view: 'dashboard'; branch: string; username: string; role: PortalRole }
+  | { view: 'profile'; branch: string; username: string; role: PortalRole }
+  | { view: 'academics'; branch: string; username: string; role: PortalRole }
+  | { view: 'events'; branch: string; username: string; role: PortalRole }
+  | { view: 'professors'; branch: string; username: string; role: PortalRole }
+  | { view: 'enrollment'; branch: string; username: string; role: PortalRole }
+  | { view: 'settings'; branch: string; username: string; role: PortalRole }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
   const parts = path.replace(/^\/+|\/+$/g, '').split('/')
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
-  if (parts[2] === 'student' && parts[3]) {
+
+  // Role segment: parts[2] is 'student' or 'faculty'
+  const roleSegment = parts[2]
+  if ((roleSegment === 'student' || roleSegment === 'faculty') && parts[3]) {
     const branch = decodeURIComponent(parts[1])
     const username = decodeURIComponent(parts[3])
+    const role = roleSegment as PortalRole
+
     if (parts[4] === 'profile') {
-      return { view: 'profile', branch, username }
+      return { view: 'profile', branch, username, role }
     }
     if (parts[4] === 'academics') {
-      return { view: 'academics', branch, username }
+      return { view: 'academics', branch, username, role }
     }
     if (parts[4] === 'events') {
-      return { view: 'events', branch, username }
+      return { view: 'events', branch, username, role }
     }
     if (parts[4] === 'professors') {
-      return { view: 'professors', branch, username }
+      return { view: 'professors', branch, username, role }
     }
     if (parts[4] === 'enrollment') {
-      return { view: 'enrollment', branch, username }
+      return { view: 'enrollment', branch, username, role }
     }
     if (parts[4] === 'settings') {
-      return { view: 'settings', branch, username }
+      return { view: 'settings', branch, username, role }
     }
-    return { view: 'dashboard', branch, username }
+    return { view: 'dashboard', branch, username, role }
   }
   return { view: 'login' }
 }
@@ -63,19 +75,19 @@ function routeToPath(route: PortalRoute): string {
     case 'login':
       return '/portal/login'
     case 'dashboard':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}`
     case 'profile':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/profile`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/profile`
     case 'academics':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/academics`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/academics`
     case 'events':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/events`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
     case 'professors':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/professors`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/professors`
     case 'enrollment':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/enrollment`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/enrollment`
     case 'settings':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/settings`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/settings`
   }
 }
 

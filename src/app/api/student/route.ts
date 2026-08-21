@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
     ])
 
     const student: Student = {
-      username: mongoStudent.username, fullName: mongoStudent.fullName,
+      username: mongoStudent.username,
+      role: mongoStudent.role || 'student',
+      fullName: mongoStudent.fullName,
       firstName: mongoStudent.firstName, lastName: mongoStudent.lastName,
       middleName: mongoStudent.middleName, photoUrl: mongoStudent.photoUrl,
       studentNumber: mongoStudent.studentNumber, program: mongoStudent.program,

@@ -11,7 +11,12 @@ export async function POST(request: NextRequest) {
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Invalid username or password.' }, { status: 401 })
     }
-    return NextResponse.json({ ok: true, username: student.username, branch: student.branch })
+    return NextResponse.json({
+      ok: true,
+      username: student.username,
+      branch: student.branch,
+      role: student.role || 'student',
+    })
   } catch (err) {
     console.error('Login error:', err)
     // Don't leak internal errors to the client. If MongoDB is down, the

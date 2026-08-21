@@ -57,6 +57,7 @@ export interface StudentDocument {
 
 export interface Student {
   username: string
+  role?: 'student' | 'faculty' | 'admin'
   fullName: string
   firstName: string
   lastName: string

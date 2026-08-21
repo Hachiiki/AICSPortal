@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { usePortalRoute, type PortalRoute } from '@/lib/aics/use-portal-route'
+import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
@@ -42,9 +42,10 @@ import type { Enrollment } from '@/lib/aics/enrollment'
  */
 export default function AICSLoginPage() {
   const { route, navigate } = usePortalRoute()
-  const { username, branch, loading: authLoading, login, logout } = useAuth()
+  const { username, branch, role, loading: authLoading, login, logout } = useAuth()
   const [redirecting, setRedirecting] = useState(false)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
+  const [redirectRole, setRedirectRole] = useState<string>('')
 
   // --- Route guards ---
   useEffect(() => {
@@ -61,16 +62,17 @@ export default function AICSLoginPage() {
 
     // Authenticated user on the login page → redirect to dashboard
     if (username && branch && isLoginRoute) {
-      navigate({ view: 'dashboard', branch, username })
+      navigate({ view: 'dashboard', branch, username, role: (role || 'student') as PortalRole })
       return
     }
-  }, [authLoading, username, branch, route.view, navigate])
+  }, [authLoading, username, branch, role, route.view, navigate])
 
   const handleLogin = useCallback(
     async (user: string, pass: string): Promise<{ ok: boolean; error?: string }> => {
       const result = await login(user, pass)
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
+        setRedirectRole(result.role || 'student')
         setRedirecting(true)
       }
       return result
@@ -81,9 +83,9 @@ export default function AICSLoginPage() {
   const handleRedirectComplete = useCallback(() => {
     setRedirecting(false)
     if (redirectBranch && username) {
-      navigate({ view: 'dashboard', branch: redirectBranch, username })
+      navigate({ view: 'dashboard', branch: redirectBranch, username, role: (redirectRole || 'student') as PortalRole })
     }
-  }, [redirectBranch, username, navigate])
+  }, [redirectBranch, redirectRole, username, navigate])
 
   const handleLogout = useCallback(() => {
     logout()
@@ -177,12 +179,12 @@ function StudentDataWrapper({
       onLogout()
       return
     }
-    // All non-login views need branch + username
     if (route.view === 'login') return
     navigate({
       view: view as PortalRoute['view'],
       branch: route.branch,
       username: route.username,
+      role: route.role,
     } as PortalRoute)
   }, [navigate, route, onLogout])
 
