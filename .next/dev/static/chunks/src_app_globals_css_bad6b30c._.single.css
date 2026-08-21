@@ -1889,6 +1889,10 @@
     background-color: var(--color-slate-300);
   }
 
+  .bg-slate-400 {
+    background-color: var(--color-slate-400);
+  }
+
   .bg-slate-900\/40 {
     background-color: #0f172b66;
   }
@@ -2180,6 +2184,10 @@
 
   .pl-1 {
     padding-left: calc(var(--spacing) * 1);
+  }
+
+  .pl-5 {
+    padding-left: calc(var(--spacing) * 5);
   }
 
   .pl-8 {

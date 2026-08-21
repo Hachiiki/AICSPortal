@@ -939,12 +939,12 @@ function AICSLoginPage() {
                     onComplete: handleRedirectComplete
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 103,
+                    lineNumber: 104,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$MobileWarning$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MobileWarning"], {}, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 104,
+                    lineNumber: 105,
                     columnNumber: 9
                 }, this)
             ]
@@ -958,12 +958,12 @@ function AICSLoginPage() {
                     onLogin: handleLogin
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 113,
+                    lineNumber: 114,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$MobileWarning$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MobileWarning"], {}, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 114,
+                    lineNumber: 115,
                     columnNumber: 9
                 }, this)
             ]
@@ -974,7 +974,7 @@ function AICSLoginPage() {
     if (route.view === 'login') {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$MobileWarning$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MobileWarning"], {}, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 122,
+            lineNumber: 123,
             columnNumber: 12
         }, this);
     }
@@ -988,12 +988,12 @@ function AICSLoginPage() {
                 onLogout: handleLogout
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 128,
+                lineNumber: 129,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$MobileWarning$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MobileWarning"], {}, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 134,
+                lineNumber: 135,
                 columnNumber: 7
             }, this)
         ]
@@ -1058,6 +1058,8 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
     const [enrollment, setEnrollment] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [enrollmentLoading, setEnrollmentLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     const [enrollmentError, setEnrollmentError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [announcements, setAnnouncements] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [announcementsLoading, setAnnouncementsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     // Events page UI preferences — lifted here so they persist across
     // route switches. Without this, navigating away from Events and
     // back would reset the task-due toggle and category filters.
@@ -1072,17 +1074,19 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
         let cancelled = false;
         async function fetchAll() {
             try {
-                const [tkRes, evRes, profRes, enrRes] = await Promise.all([
+                const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
                     fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
                     fetch(`/api/events?username=${encodeURIComponent(username)}`),
                     fetch(`/api/professors?username=${encodeURIComponent(username)}`),
-                    fetch(`/api/enrollment?username=${encodeURIComponent(username)}`)
+                    fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
+                    fetch(`/api/announcements?username=${encodeURIComponent(username)}`)
                 ]);
-                const [tkData, evData, profData, enrData] = await Promise.all([
+                const [tkData, evData, profData, enrData, annData] = await Promise.all([
                     tkRes.json(),
                     evRes.json(),
                     profRes.json(),
-                    enrRes.json()
+                    enrRes.json(),
+                    annRes.json()
                 ]);
                 if (cancelled) return;
                 if (tkData.ok) setTasks(tkData.tasks);
@@ -1095,6 +1099,8 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
                 // empty state). Only set an error if the API itself fails.
                 if (enrData.ok) setEnrollment(enrData.enrollment ?? null);
                 else setEnrollmentError(enrData.error || 'Failed to load enrollment');
+                if (annData.ok) setAnnouncements(annData.announcements);
+            // Announcements failure is non-fatal — dashboard shows empty state
             } catch  {
                 if (!cancelled) {
                     setTasksError('Network error');
@@ -1108,6 +1114,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
                     setEventsLoading(false);
                     setProfessorsLoading(false);
                     setEnrollmentLoading(false);
+                    setAnnouncementsLoading(false);
                 }
             }
         }
@@ -1123,7 +1130,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             view: route.view
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 267,
+            lineNumber: 276,
             columnNumber: 12
         }, this);
     }
@@ -1138,7 +1145,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
                         children: error || 'Failed to load student data.'
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 274,
+                        lineNumber: 283,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1147,18 +1154,18 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
                         children: "Back to login"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 277,
+                        lineNumber: 286,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 273,
+                lineNumber: 282,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 272,
+            lineNumber: 281,
             columnNumber: 7
         }, this);
     }
@@ -1177,7 +1184,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             tasks: tasks
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 295,
+            lineNumber: 304,
             columnNumber: 7
         }, this);
     }
@@ -1194,7 +1201,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             professors: professors
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 308,
+            lineNumber: 317,
             columnNumber: 7
         }, this);
     }
@@ -1214,7 +1221,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             professors: professors
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 324,
+            lineNumber: 333,
             columnNumber: 7
         }, this);
     }
@@ -1229,7 +1236,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             tasks: tasks
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 343,
+            lineNumber: 352,
             columnNumber: 7
         }, this);
     }
@@ -1246,7 +1253,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             tasks: tasks
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 357,
+            lineNumber: 366,
             columnNumber: 7
         }, this);
     }
@@ -1260,7 +1267,7 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
             tasks: tasks
         }, void 0, false, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 373,
+            lineNumber: 382,
             columnNumber: 7
         }, this);
     }
@@ -1272,10 +1279,11 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
         onLogout: onLogout,
         events: events,
         professors: professors,
-        tasks: tasks
+        tasks: tasks,
+        announcements: announcements
     }, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 385,
+        lineNumber: 394,
         columnNumber: 5
     }, this);
 }
@@ -1290,27 +1298,27 @@ function StudentDataWrapper({ username, route, navigate, onLogout }) {
 function PortalSkeleton({ view }) {
     if (view === 'academics') return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$Skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AcademicsSkeleton"], {}, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 408,
+        lineNumber: 418,
         columnNumber: 36
     }, this);
     if (view === 'profile') return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$Skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ProfileSkeleton"], {}, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 409,
+        lineNumber: 419,
         columnNumber: 34
     }, this);
     if (view === 'events') return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$Skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["EventsSkeleton"], {}, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 410,
+        lineNumber: 420,
         columnNumber: 33
     }, this);
     if (view === 'professors') return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$Skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ProfessorsSkeleton"], {}, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 411,
+        lineNumber: 421,
         columnNumber: 37
     }, this);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$Skeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardSkeleton"], {}, void 0, false, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 412,
+        lineNumber: 422,
         columnNumber: 10
     }, this);
 }

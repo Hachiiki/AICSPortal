@@ -346,7 +346,72 @@ async function seed() {
   )
 
   // ----------------------------------------------------------
-  //  9. Indexes
+  //  9. Announcements (school-wide notices — admin/faculty managed)
+  //
+  //  ADMIN CONTROL: Announcements are created/edited/deleted by
+  //  Admin and Faculty. Students have read-only access.
+  // ----------------------------------------------------------
+  const announcements = [
+    {
+      branch: BRANCH,
+      title: 'Enrollment deadline extended',
+      body: 'The enrollment deadline for 1st Sem AY 2026-2027 has been extended to August 20. Please complete your payment and submit requirements before this date.',
+      category: 'deadline',
+      priority: 'urgent',
+      author: 'Registrar Office',
+      postedDate: daysFromNow(-2),
+      expiryDate: daysFromNow(5),
+    },
+    {
+      branch: BRANCH,
+      title: 'Classes suspended on Monday',
+      body: 'Due to Typhoon Signal No. 2, all classes are suspended on Monday. Online classes will continue as scheduled. Stay safe everyone.',
+      category: 'campus',
+      priority: 'urgent',
+      author: 'Admin Office',
+      postedDate: daysFromNow(-1),
+      expiryDate: daysFromNow(3),
+    },
+    {
+      branch: BRANCH,
+      title: 'Midterm examination schedule released',
+      body: 'The midterm examination schedule is now available. Check the Events calendar for your exam dates. Please bring your student ID and arrive 15 minutes early.',
+      category: 'academic',
+      priority: 'normal',
+      author: 'Academic Affairs',
+      postedDate: daysFromNow(-4),
+      expiryDate: null,
+    },
+    {
+      branch: BRANCH,
+      title: 'Library extended hours during exam week',
+      body: 'The library will be open from 7:00 AM to 9:00 PM during midterm exam week. Study rooms can be reserved at the front desk.',
+      category: 'campus',
+      priority: 'normal',
+      author: 'Library Services',
+      postedDate: daysFromNow(-3),
+      expiryDate: daysFromNow(10),
+    },
+    {
+      branch: BRANCH,
+      title: 'Foundation Day celebration on August 25',
+      body: 'No classes on August 25 in celebration of AICS Foundation Day. There will be a program at the gymnasium at 9:00 AM. All students are encouraged to attend.',
+      category: 'holiday',
+      priority: 'normal',
+      author: 'Student Affairs',
+      postedDate: daysFromNow(-5),
+      expiryDate: daysFromNow(15),
+    },
+  ]
+
+  await db.collection('announcements').deleteMany({ branch: BRANCH })
+  await db.collection('announcements').insertMany(announcements)
+  console.log(`  \u2713 Inserted ${announcements.length} announcements`)
+
+  await db.collection('announcements').createIndex({ branch: 1, postedDate: -1 })
+
+  // ----------------------------------------------------------
+  //  10. Indexes
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })

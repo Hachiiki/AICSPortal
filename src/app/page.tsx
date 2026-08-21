@@ -20,6 +20,7 @@ import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Enrollment } from '@/lib/aics/enrollment'
+import type { Announcement } from '@/lib/aics/announcements'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -208,6 +209,9 @@ function StudentDataWrapper({
   const [enrollmentLoading, setEnrollmentLoading] = useState(true)
   const [enrollmentError, setEnrollmentError] = useState<string | null>(null)
 
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true)
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -220,17 +224,19 @@ function StudentDataWrapper({
     let cancelled = false
     async function fetchAll() {
       try {
-        const [tkRes, evRes, profRes, enrRes] = await Promise.all([
+        const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
           fetch(`/api/professors?username=${encodeURIComponent(username)}`),
           fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
+          fetch(`/api/announcements?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData, profData, enrData] = await Promise.all([
+        const [tkData, evData, profData, enrData, annData] = await Promise.all([
           tkRes.json(),
           evRes.json(),
           profRes.json(),
           enrRes.json(),
+          annRes.json(),
         ])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
@@ -243,6 +249,8 @@ function StudentDataWrapper({
         // empty state). Only set an error if the API itself fails.
         if (enrData.ok) setEnrollment(enrData.enrollment ?? null)
         else setEnrollmentError(enrData.error || 'Failed to load enrollment')
+        if (annData.ok) setAnnouncements(annData.announcements)
+        // Announcements failure is non-fatal — dashboard shows empty state
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
@@ -256,6 +264,7 @@ function StudentDataWrapper({
           setEventsLoading(false)
           setProfessorsLoading(false)
           setEnrollmentLoading(false)
+          setAnnouncementsLoading(false)
         }
       }
     }
@@ -391,6 +400,7 @@ function StudentDataWrapper({
       events={events}
       professors={professors}
       tasks={tasks}
+      announcements={announcements}
     />
   )
 }

@@ -2375,7 +2375,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$
 ;
 ;
 ;
-function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks }) {
+function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements }) {
     const [view, setView] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('dashboard');
     const [mobileNavOpen, setMobileNavOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     // Filter to current-term subjects + compute derived values
@@ -2428,7 +2428,7 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                 onMobileClose: ()=>setMobileNavOpen(false)
             }, void 0, false, {
                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                lineNumber: 73,
+                lineNumber: 76,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2445,7 +2445,7 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                         tasks: tasks
                     }, void 0, false, {
                         fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                        lineNumber: 81,
+                        lineNumber: 84,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2456,14 +2456,14 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                                 totalUnits: totalUnits
                             }, void 0, false, {
                                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                lineNumber: 93,
+                                lineNumber: 96,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$GradesTable$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["GradesTable"], {
                                 student: dashboardStudent
                             }, void 0, false, {
                                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                lineNumber: 95,
+                                lineNumber: 98,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2477,18 +2477,18 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                                             className: "w-4 h-4"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                            lineNumber: 103,
+                                            lineNumber: 106,
                                             columnNumber: 41
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                    lineNumber: 99,
+                                    lineNumber: 102,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                lineNumber: 98,
+                                lineNumber: 101,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2499,7 +2499,7 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                                         sessions: sessions
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                        lineNumber: 108,
+                                        lineNumber: 111,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$portal$2f$TodaysClasses$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TodaysClasses"], {
@@ -2507,31 +2507,31 @@ function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, ev
                                         sessions: sessions
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                        lineNumber: 109,
+                                        lineNumber: 112,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                                lineNumber: 107,
+                                lineNumber: 110,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                        lineNumber: 92,
+                        lineNumber: 95,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-                lineNumber: 80,
+                lineNumber: 83,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/portal/StudentDashboard.tsx",
-        lineNumber: 72,
+        lineNumber: 75,
         columnNumber: 5
     }, this);
 }

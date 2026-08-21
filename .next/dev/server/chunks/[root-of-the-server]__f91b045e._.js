@@ -96,6 +96,8 @@ async function getCollection(name) {
 "use strict";
 
 __turbopack_context__.s([
+    "getAnnouncements",
+    ()=>getAnnouncements,
     "getCourses",
     ()=>getCourses,
     "getEnrollment",
@@ -226,6 +228,25 @@ async function getEnrollment(studentUsername, branch, currentTerm) {
         academicYear: currentTerm.academicYear,
         semester: currentTerm.semester
     });
+}
+async function getAnnouncements(branch) {
+    const col = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$mongodb$2f$connection$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getCollection"])('announcements');
+    const now = new Date();
+    return col.find({
+        branch,
+        $or: [
+            {
+                expiryDate: null
+            },
+            {
+                expiryDate: {
+                    $gte: now
+                }
+            }
+        ]
+    }).sort({
+        postedDate: -1
+    }).toArray();
 }
 }),
 "[project]/src/app/api/tasks/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {

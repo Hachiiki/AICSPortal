@@ -208,3 +208,18 @@ export interface MongoEnrollment {
   registrar: MongoRegistrar
 }
 
+
+// ADMIN CONTROL: Announcements are created/edited/deleted by
+// Admin and Faculty. Students have read-only access.
+export interface MongoAnnouncement {
+  _id?: string
+  branch: Branch
+  title: string
+  body: string
+  category: 'academic' | 'deadline' | 'campus' | 'holiday' | 'general'
+  priority: 'normal' | 'urgent'
+  author: string // name of the admin/faculty who posted
+  postedDate: Date
+  // null = no expiry; otherwise hide after this date
+  expiryDate?: Date | null
+}

@@ -7,12 +7,14 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { Announcement } from '@/lib/aics/announcements'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { AcademicHeader } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
 import { TodaysClasses } from './TodaysClasses'
+import { AnnouncementsWidget } from './AnnouncementsWidget'
 
 interface StudentDashboardProps {
   student: Student
@@ -25,13 +27,14 @@ interface StudentDashboardProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  announcements?: Announcement[]
 }
 
 /**
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements }: StudentDashboardProps) {
   const [view, setView] = useState<View>('dashboard')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -91,6 +94,11 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
 
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} />
+
+          {announcements && announcements.length > 0 && (
+            <AnnouncementsWidget announcements={announcements} />
+          )}
+
 
           <GradesTable student={dashboardStudent} />
 

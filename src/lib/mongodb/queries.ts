@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import { getCollection } from './connection'
-import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, MongoProfessor, MongoEnrollment, Branch } from './types'
+import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, MongoEvent, MongoProfessor, MongoEnrollment, MongoAnnouncement, Branch } from './types'
 
 // ============================================================
 //  Data access layer — all queries are scoped by branch
@@ -143,3 +143,17 @@ export async function getEnrollment(
   })
 }
 
+
+// Returns active announcements for the branch, sorted newest first.
+// Filters out expired announcements (expiryDate < now).
+export async function getAnnouncements(branch: Branch): Promise<MongoAnnouncement[]> {
+  const col = await getCollection<MongoAnnouncement>('announcements')
+  const now = new Date()
+  return col.find({
+    branch,
+    $or: [
+      { expiryDate: null },
+      { expiryDate: { $gte: now } },
+    ],
+  }).sort({ postedDate: -1 }).toArray()
+}
