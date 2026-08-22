@@ -93,12 +93,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
         />
 
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
-          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} />
-
-          {announcements && announcements.length > 0 && (
-            <AnnouncementsWidget announcements={announcements} />
-          )}
-
+          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} />
 
           <GradesTable student={dashboardStudent} />
 
