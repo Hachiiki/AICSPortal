@@ -178,6 +178,49 @@ async function seed() {
   console.log(`  ✓ Inserted student: juan.santos (2nd Year, CS-2A, AY 2026-2027)`)
 
   // ----------------------------------------------------------
+  //  4b. Faculty user — same `students` collection, role='faculty'.
+  //  The faculty member's name MUST match the `professor` field on
+  //  their assigned subjects in the `subjects` collection. "Engr.
+  //  Maria Cristina Reyes" matches the CS 101 row above (and the
+  //  matching professor entry in the `professors` collection), so
+  //  the faculty dashboard will show CS 101 + Juan Santos in the
+  //  roster. More subject assignments can be added later.
+  // ----------------------------------------------------------
+  const facultyUser = {
+    branch: BRANCH,
+    username: 'm.reyes',
+    password: 'faculty123',
+    role: 'faculty' as const,
+    fullName: 'Engr. Maria Cristina Reyes',
+    firstName: 'Maria Cristina',
+    lastName: 'Reyes',
+    middleName: '',
+    studentNumber: 'FAC-001',
+    program: 'Faculty — Computer Science Department',
+    programShort: 'Faculty',
+    yearLevel: '',
+    section: '',
+    semester: '1st Sem',
+    academicYear: '2026-2027',
+    enrollmentStatus: 'Active',
+    deanLister: false,
+    deanListerSemester: '',
+    gpa: '',
+    email: 'm.reyes@aics.edu.ph',
+    phone: '+63 917 555 0101',
+    address: 'AICS Faculty Housing, Commonwealth Ave., Quezon City',
+    emergencyContactName: '',
+    emergencyContactNumber: '',
+    branch_name: BRANCH_NAME,
+    branchAddress: BRANCH_ADDRESS,
+    documents: [],
+  }
+
+  await db.collection('students').deleteMany({ branch: BRANCH, username: 'm.reyes' })
+  await db.collection('students').insertOne(facultyUser)
+  console.log(`  ✓ Inserted faculty user: m.reyes / faculty123`)
+
+  // ----------------------------------------------------------
   //  5. Tasks (current term + previous term for visibility test)
   // ----------------------------------------------------------
   const now = new Date()
@@ -430,6 +473,7 @@ async function seed() {
   console.log(`   Events: 10 school-wide calendar events`)
   console.log(`   Professors: ${professors.length} directory entries`)
   console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
+  console.log(`   Faculty: m.reyes / faculty123`)
 
   await client.close()
 }
