@@ -46,9 +46,9 @@ prisma/
 tests/
 tool-results/
 upload/
+agent-ctx/
+skills/
+worklog.md
 
-# Agent/tool cache
-.fallow/
-.claude/
+# Agent config
 .z-ai-config
-graphify-out/
