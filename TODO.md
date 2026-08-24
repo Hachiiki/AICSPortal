@@ -33,7 +33,7 @@
 - [x] Role-based routing (faculty gets FacultyDashboard, students get StudentDashboard)
 
 ### Next
-- [ ] **My Students** — Roster view showing all students enrolled in the faculty's subjects. Click a student to see their full record (grades, contact, enrollment status). Needs a faculty-specific route and page component.
+- [x] **My Students** — Roster view showing all students enrolled in the faculty's subjects. Click a student to see their full record (grades, contact, enrollment status). Needs a faculty-specific route and page component.
 - [ ] **Grade Encoding** — Editable grade table where faculty inputs midterm/finals grades per student. Needs a PATCH endpoint to update grades in the subjects collection. This is the highest-value faculty feature.
 - [ ] **Announcements (write side)** — Form where faculty can create new announcements. Needs a POST `/api/announcements` endpoint and a create-announcement UI. Faculty and admin only.
 - [ ] **Schedule** — Faculty's weekly calendar. Reuses ScheduleGrid filtered to their sessions only.
