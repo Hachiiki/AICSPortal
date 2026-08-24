@@ -44,12 +44,13 @@ interface FacultyDashboardProps {
   sessions: Session[]
   onNavigate: (view: View) => void
   onLogout: () => void
-  // Search index collections — lifted in the parent so the
-  // Topbar's global search works the same on every screen.
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  // Faculty-specific data lifted to parent so it persists across route switches
+  facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  facultyLoading?: boolean
 }
 
 interface FacultyApiSubject {
@@ -91,48 +92,17 @@ export function FacultyDashboard({
   professors,
   tasks,
   announcements,
+  facultyData,
+  facultyLoading,
 }: FacultyDashboardProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
-  // ----------------------------------------------------------
-  //  Faculty-specific data (subjects they teach + enrolled
-  //  students roster). Fetched from /api/faculty in-band.
-  // ----------------------------------------------------------
-  const [faculty, setFaculty] = useState<FacultyMember | null>(null)
-  const [taughtSubjects, setTaughtSubjects] = useState<FacultyApiSubject[]>([])
-  const [enrolledStudents, setEnrolledStudents] = useState<FacultyStudent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchFaculty() {
-      try {
-        setLoading(true)
-        const res = await fetch(
-          `/api/faculty?username=${encodeURIComponent(student.username)}`
-        )
-        const data = await res.json()
-        if (cancelled) return
-        if (!data.ok) {
-          setError(data.error || 'Failed to load faculty data')
-          return
-        }
-        setFaculty(data.faculty)
-        setTaughtSubjects(data.subjects)
-        setEnrolledStudents(data.students)
-        setError(null)
-      } catch {
-        if (!cancelled) setError('Network error')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-    fetchFaculty()
-    return () => {
-      cancelled = true
-    }
-  }, [student.username])
+  // Faculty data comes from the parent (lifted state), not an internal fetch.
+  // This prevents re-fetching when navigating between dashboard and my-students.
+  const faculty = facultyData?.faculty ?? null
+  const taughtSubjects: FacultyApiSubject[] = facultyData?.subjects ?? []
+  const enrolledStudents: FacultyStudent[] = facultyData?.students ?? []
+  const loading = facultyLoading ?? true
 
   // ----------------------------------------------------------
   //  Group subjects by code so each row is a unique subject
@@ -176,22 +146,6 @@ export function FacultyDashboard({
   // parent wrapper before this component is mounted.
   if (loading || !faculty) {
     return <DashboardSkeleton />
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-dvh bg-slate-50 grid place-items-center">
-        <div className="text-center">
-          <p className="text-red-600 text-sm font-medium mb-2">{error}</p>
-          <button
-            onClick={onLogout}
-            className="text-blue-600 text-sm font-medium hover:underline"
-          >
-            Back to login
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (

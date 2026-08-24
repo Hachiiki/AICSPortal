@@ -169,7 +169,7 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="events"
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}

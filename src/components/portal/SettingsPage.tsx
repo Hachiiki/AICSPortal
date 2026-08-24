@@ -124,7 +124,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="settings"
         onNavigate={onNavigate}
         mobileOpen={mobileNavOpen}

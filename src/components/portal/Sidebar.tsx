@@ -10,6 +10,7 @@ import {
   Stamp,
   Settings,
   CircleHelp,
+  Megaphone,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -21,6 +22,8 @@ interface SidebarProps {
   /** Mobile drawer open state (below lg) */
   mobileOpen: boolean
   onMobileClose: () => void
+  /** When 'faculty', shows faculty nav items instead of student ones. */
+  role?: 'student' | 'faculty' | 'admin'
 }
 
 interface NavItem {
@@ -34,12 +37,20 @@ interface NavItem {
 // Dashboard, Academics, Events, Professors, and Enrollment are functional.
 // All other nav items are "coming soon" — rendered grayed out with a
 // "Soon" badge and made non-interactive.
-const PRIMARY_NAV: NavItem[] = [
+const STUDENT_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   { view: 'academics', label: 'Academics', icon: GraduationCap, enabled: true },
   { view: 'events', label: 'Events', icon: CalendarDays, enabled: true },
   { view: 'professors', label: 'Professors', icon: Users, enabled: true },
   { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: true },
+]
+
+const FACULTY_NAV: NavItem[] = [
+  { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
+  { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
+  { view: 'grades', label: 'Grade Encoding', icon: GraduationCap, enabled: false },
+  { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
+  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
 ]
 
 const SECONDARY_NAV: NavItem[] = [
@@ -110,7 +121,9 @@ function NavButton({
   )
 }
 
-function SidebarContent({ active, onNavigate }: { active: View; onNavigate: (v: View) => void }) {
+function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
+  const primaryNav = role === 'faculty' ? FACULTY_NAV : STUDENT_NAV
+  const portalLabel = role === 'faculty' ? 'Faculty Portal' : 'Student Portal'
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
@@ -118,7 +131,7 @@ function SidebarContent({ active, onNavigate }: { active: View; onNavigate: (v: 
         <img src="/aics-logo.svg" alt="AICS" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">
-            Student Portal
+            {portalLabel}
           </p>
           <p className="text-sm font-bold text-slate-900 leading-snug">
             Asian Institute of Computer Studies
@@ -128,7 +141,7 @@ function SidebarContent({ active, onNavigate }: { active: View; onNavigate: (v: 
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Main navigation">
-        {PRIMARY_NAV.map((item) => (
+        {primaryNav.map((item) => (
           <NavButton
             key={item.view}
             item={item}
@@ -161,7 +174,7 @@ function SidebarContent({ active, onNavigate }: { active: View; onNavigate: (v: 
   )
 }
 
-export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose }: SidebarProps) {
+export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
   // Close the mobile drawer on Escape key
   useEffect(() => {
     if (!mobileOpen) return
@@ -179,7 +192,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose }: Sideb
         className="hidden lg:flex flex-col fixed top-0 left-0 h-screen w-60 bg-white border-r border-slate-200 z-30"
         aria-label="Primary"
       >
-        <SidebarContent active={active} onNavigate={onNavigate} />
+        <SidebarContent active={active} onNavigate={onNavigate} role={role} />
       </aside>
 
       {/* Mobile drawer — slide-in below lg */}
@@ -222,6 +235,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose }: Sideb
                   onNavigate(v)
                   onMobileClose()
                 }}
+                role={role}
               />
             </motion.aside>
           </>

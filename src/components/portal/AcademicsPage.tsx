@@ -194,7 +194,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="academics"
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}

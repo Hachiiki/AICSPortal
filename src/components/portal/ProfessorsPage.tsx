@@ -112,7 +112,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="professors"
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}

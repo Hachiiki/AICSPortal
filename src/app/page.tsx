@@ -8,6 +8,7 @@ import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
+import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -22,6 +23,7 @@ import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Enrollment } from '@/lib/aics/enrollment'
 import type { Announcement } from '@/lib/aics/announcements'
+import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -213,6 +215,11 @@ function StudentDataWrapper({
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
 
+  // Faculty-specific data (only fetched for faculty users, but lifted
+  // here so it persists across route switches — same pattern as tasks/events)
+  const [facultyData, setFacultyData] = useState<{ faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null>(null)
+  const [facultyLoading, setFacultyLoading] = useState(true)
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -225,19 +232,21 @@ function StudentDataWrapper({
     let cancelled = false
     async function fetchAll() {
       try {
-        const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
+        const [tkRes, evRes, profRes, enrRes, annRes, facRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
           fetch(`/api/professors?username=${encodeURIComponent(username)}`),
           fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
           fetch(`/api/announcements?username=${encodeURIComponent(username)}`),
+          fetch(`/api/faculty?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData, profData, enrData, annData] = await Promise.all([
+        const [tkData, evData, profData, enrData, annData, facData] = await Promise.all([
           tkRes.json(),
           evRes.json(),
           profRes.json(),
           enrRes.json(),
           annRes.json(),
+          facRes.json(),
         ])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
@@ -252,6 +261,8 @@ function StudentDataWrapper({
         else setEnrollmentError(enrData.error || 'Failed to load enrollment')
         if (annData.ok) setAnnouncements(annData.announcements)
         // Announcements failure is non-fatal — dashboard shows empty state
+        // Faculty data (non-fatal for student users — the API returns 404)
+        if (facData.ok) setFacultyData({ faculty: facData.faculty, subjects: facData.subjects, students: facData.students })
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
@@ -266,6 +277,7 @@ function StudentDataWrapper({
           setProfessorsLoading(false)
           setEnrollmentLoading(false)
           setAnnouncementsLoading(false)
+          setFacultyLoading(false)
         }
       }
     }
@@ -316,6 +328,26 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         announcements={announcements}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+      />
+    )
+  }
+
+  if (route.view === 'my-students' && route.role === 'faculty') {
+    return (
+      <FacultyStudentsPage
+        student={student}
+        courses={courses}
+        sessions={sessions}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        announcements={announcements}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
       />
     )
   }

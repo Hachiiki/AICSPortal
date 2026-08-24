@@ -53,7 +53,7 @@ interface NavItem {
 // route; it's never reached because the item is disabled.)
 const PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
-  { view: 'subjects', label: 'My Students', icon: Users, enabled: false },
+  { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
   { view: 'grades', label: 'Grade Encoding', icon: GraduationCap, enabled: false },
   { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
