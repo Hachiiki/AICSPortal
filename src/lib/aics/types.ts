@@ -13,6 +13,7 @@ export type View =
   | 'enrollment'
   | 'documents'
   | 'settings'
+  | 'my-students'
   | 'help'
 
 export type AuthMode = 'credentials' | 'face'

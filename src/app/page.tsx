@@ -8,6 +8,7 @@ import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
+import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -307,6 +308,22 @@ function StudentDataWrapper({
   if (route.view === 'dashboard' && route.role === 'faculty') {
     return (
       <FacultyDashboard
+        student={student}
+        courses={courses}
+        sessions={sessions}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        announcements={announcements}
+      />
+    )
+  }
+
+  if (route.view === 'my-students' && route.role === 'faculty') {
+    return (
+      <FacultyStudentsPage
         student={student}
         courses={courses}
         sessions={sessions}
