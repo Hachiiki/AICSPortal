@@ -73,7 +73,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active={view}
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}

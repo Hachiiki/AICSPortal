@@ -565,7 +565,7 @@ export function EnrollmentPage({
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="enrollment"
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}

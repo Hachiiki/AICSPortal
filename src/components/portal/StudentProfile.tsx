@@ -90,7 +90,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar
+      <Sidebar role={student.role}
         active="profile"
         onNavigate={handleNavigate}
         mobileOpen={mobileNavOpen}
