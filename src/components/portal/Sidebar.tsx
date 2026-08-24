@@ -123,6 +123,7 @@ function NavButton({
 
 function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
   const primaryNav = role === 'faculty' ? FACULTY_NAV : STUDENT_NAV
+  const portalLabel = role === 'faculty' ? 'Faculty Portal' : 'Student Portal'
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
@@ -130,7 +131,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
         <img src="/aics-logo.svg" alt="AICS" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">
-            Student Portal
+            {portalLabel}
           </p>
           <p className="text-sm font-bold text-slate-900 leading-snug">
             Asian Institute of Computer Studies

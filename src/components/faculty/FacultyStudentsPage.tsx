@@ -22,6 +22,7 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { FacultySidebar } from './FacultySidebar'
 import { Topbar } from '../portal/Topbar'
 import { RemarksBadge } from '../portal/RemarksBadge'
+import { DashboardSkeleton } from '../portal/Skeleton'
 
 interface FacultyStudentsPageProps {
   student: Student
@@ -33,6 +34,9 @@ interface FacultyStudentsPageProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  // Faculty-specific data lifted to parent so it persists across route switches
+  facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  facultyLoading?: boolean
 }
 
 interface FacultyApiSubject {
@@ -58,40 +62,17 @@ interface StudentWithGrades extends FacultyStudent {
   subjects: FacultyApiSubject[]
 }
 
-export function FacultyStudentsPage({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements }: FacultyStudentsPageProps) {
+export function FacultyStudentsPage({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, facultyData, facultyLoading }: FacultyStudentsPageProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [faculty, setFaculty] = useState<FacultyMember | null>(null)
-  const [subjects, setSubjects] = useState<FacultyApiSubject[]>([])
-  const [allStudents, setAllStudents] = useState<FacultyStudent[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState<StudentWithGrades | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    async function fetchFaculty() {
-      try {
-        const res = await fetch(`/api/faculty?username=${encodeURIComponent(student.username)}`)
-        const data = await res.json()
-        if (cancelled) return
-        if (data.ok) {
-          setFaculty(data.faculty)
-          setSubjects(data.subjects || [])
-          setAllStudents(data.students || [])
-        } else {
-          setError(data.error || 'Failed to load faculty data')
-        }
-      } catch {
-        if (!cancelled) setError('Network error')
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-    fetchFaculty()
-    return () => { cancelled = true }
-  }, [student.username])
+  // Faculty data comes from the parent (lifted state), not an internal fetch.
+  const faculty = facultyData?.faculty ?? null
+  const subjects: FacultyApiSubject[] = facultyData?.subjects ?? []
+  const allStudents: FacultyStudent[] = facultyData?.students ?? []
+  const loading = facultyLoading ?? true
 
   // Build unique subject codes the faculty teaches
   const subjectCodes = useMemo(() => {
@@ -131,29 +112,13 @@ export function FacultyStudentsPage({ student, courses, sessions, onNavigate, on
   }
 
   if (loading) {
-    return (
-      <div className="min-h-dvh bg-slate-50 font-sans">
-        <FacultySidebar active="my-students" onNavigate={handleNavigate} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-        <div className="lg:pl-60">
-          <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
-          <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-            <p className="text-sm text-slate-500">Loading student roster...</p>
-          </main>
-        </div>
-      </div>
-    )
+    return <DashboardSkeleton />
   }
 
-  if (error) {
+  if (!faculty) {
     return (
-      <div className="min-h-dvh bg-slate-50 font-sans">
-        <FacultySidebar active="my-students" onNavigate={handleNavigate} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-        <div className="lg:pl-60">
-          <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
-          <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-            <p className="text-red-600 text-sm">{error}</p>
-          </main>
-        </div>
+      <div className="min-h-dvh bg-slate-50 font-sans flex items-center justify-center">
+        <p className="text-red-600 text-sm">Faculty data not found.</p>
       </div>
     )
   }
