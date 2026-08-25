@@ -9,6 +9,7 @@ import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
+import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -337,6 +338,24 @@ function StudentDataWrapper({
   if (route.view === 'my-students' && route.role === 'faculty') {
     return (
       <FacultyStudentsPage
+        student={student}
+        courses={courses}
+        sessions={sessions}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        announcements={announcements}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+      />
+    )
+  }
+
+  if (route.view === 'grade-encoding' && route.role === 'faculty') {
+    return (
+      <FacultyGradeEncodingPage
         student={student}
         courses={courses}
         sessions={sessions}

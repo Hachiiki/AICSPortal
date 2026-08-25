@@ -14,6 +14,7 @@ export type View =
   | 'documents'
   | 'settings'
   | 'my-students'
+  | 'grade-encoding'
   | 'help'
 
 export type AuthMode = 'credentials' | 'face'
