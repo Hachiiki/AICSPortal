@@ -48,6 +48,9 @@ export async function PATCH(request: NextRequest) {
       if (finals !== undefined) setDoc.finals = String(finals)
       if (finalGrade !== undefined) setDoc.finalGrade = String(finalGrade)
       if (remarks !== undefined) setDoc.remarks = String(remarks)
+      // GRADE APPROVAL WORKFLOW: saving grades sets status to 'draft'
+      // so students don't see unsaved/in-progress grades.
+      setDoc.gradeStatus = 'draft'
 
       if (Object.keys(setDoc).length === 0) {
         results.push({ ok: false, studentUsername, subjectCode })

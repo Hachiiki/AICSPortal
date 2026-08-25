@@ -1,0 +1,485 @@
+     1→     1→// ============================================================
+     2→     2→//  Seed script — pushes all data into MongoDB
+     3→     3→//  under the "commonwealth" branch.
+     4→     4→//
+     5→     5→//  Reads MONGODB_URI and MONGODB_DB from .env.local
+     6→     6→//  automatically (via the dotenv package). You can also
+     7→     7→//  override them inline if needed:
+     8→     8→//
+     9→     9→//    node --experimental-strip-types scripts/seed-mongodb.ts
+    10→    10→//    MONGODB_URI=... node --experimental-strip-types scripts/seed-mongodb.ts
+    11→    11→// ============================================================
+    12→    12→
+    13→    13→import { MongoClient } from 'mongodb'
+    14→    14→import { config } from 'dotenv'
+    15→    15→
+    16→    16→// Load .env.local into process.env (silent if file is missing)
+    17→    17→config({ path: '.env.local' })
+    18→    18→
+    19→    19→const uri = process.env.MONGODB_URI!
+    20→    20→const dbName = process.env.MONGODB_DB || 'aics_portal'
+    21→    21→
+    22→    22→if (!uri) {
+    23→    23→  console.error('MONGODB_URI is not set. Add it to .env.local')
+    24→    24→  process.exit(1)
+    25→    25→}
+    26→    26→
+    27→    27→const BRANCH = 'commonwealth' as const
+    28→    28→const BRANCH_NAME = 'AICS Commonwealth'
+    29→    29→const BRANCH_ADDRESS = 'AICS Bldg., Commonwealth Ave., Cor., Holy Spirit Drive Brgy. Don Antonio, Quezon City'
+    30→    30→
+    31→    31→// GPA computation: unit-weighted average of finalGrade (2 decimals)
+    32→    32→function computeGPA(subjects: { units: number; finalGrade: string }[]): string {
+    33→    33→  let totalUnits = 0
+    34→    34→  let weightedSum = 0
+    35→    35→  for (const s of subjects) {
+    36→    36→    const grade = parseFloat(s.finalGrade)
+    37→    37→    if (!isNaN(grade)) {
+    38→    38→      totalUnits += s.units
+    39→    39→      weightedSum += grade * s.units
+    40→    40→    }
+    41→    41→  }
+    42→    42→  if (totalUnits === 0) return '-'
+    43→    43→  return (weightedSum / totalUnits).toFixed(2)
+    44→    44→}
+    45→    45→
+    46→    46→async function seed() {
+    47→    47→  const client = new MongoClient(uri)
+    48→    48→  await client.connect()
+    49→    49→  const db = client.db(dbName)
+    50→    50→
+    51→    51→  console.log(`Connected to MongoDB: ${dbName}`)
+    52→    52→  console.log(`Seeding branch: ${BRANCH}`)
+    53→    53→
+    54→    54→  // ----------------------------------------------------------
+    55→    55→  //  1. Courses
+    56→    56→  // ----------------------------------------------------------
+    57→    57→  const courses = [
+    58→    58→    { branch: BRANCH, code: 'CS 101', title: 'Introduction to Computing', shortTitle: 'Intro Computing', color: 'blue' as const },
+    59→    59→    { branch: BRANCH, code: 'CS 102', title: 'Computer Programming I', shortTitle: 'Programming I', color: 'green' as const },
+    60→    60→    { branch: BRANCH, code: 'CS 201', title: 'Data Structures and Algorithms', shortTitle: 'Data Structures', color: 'amber' as const },
+    61→    61→    { branch: BRANCH, code: 'CS 202', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'violet' as const },
+    62→    62→    { branch: BRANCH, code: 'CS 203', title: 'Database Systems', shortTitle: 'Database', color: 'blue' as const },
+    63→    63→    { branch: BRANCH, code: 'CS 204', title: 'Web Development', shortTitle: 'Web Dev', color: 'green' as const },
+    64→    64→    { branch: BRANCH, code: 'CS 205', title: 'Discrete Structures', shortTitle: 'Discrete', color: 'amber' as const },
+    65→    65→    { branch: BRANCH, code: 'CS 206', title: 'Information Management', shortTitle: 'Info Mgmt', color: 'violet' as const },
+    66→    66→    { branch: BRANCH, code: 'CS 207', title: 'Platform Technologies', shortTitle: 'Platform Tech', color: 'blue' as const },
+    67→    67→    { branch: BRANCH, code: 'CS 208', title: 'Systems Administration', shortTitle: 'SysAdmin', color: 'green' as const },
+    68→    68→    { branch: BRANCH, code: 'CS 209', title: 'Human-Computer Interaction', shortTitle: 'HCI', color: 'amber' as const },
+    69→    69→    { branch: BRANCH, code: 'CS 210', title: 'Application Development', shortTitle: 'App Dev', color: 'violet' as const },
+    70→    70→    { branch: BRANCH, code: 'PE 1', title: 'Physical Fitness', shortTitle: 'PE', color: 'red' as const },
+    71→    71→    { branch: BRANCH, code: 'PE 2', title: 'Team Sports', shortTitle: 'PE', color: 'red' as const },
+    72→    72→  ]
+    73→    73→
+    74→    74→  await db.collection('courses').deleteMany({ branch: BRANCH })
+    75→    75→  await db.collection('courses').insertMany(courses)
+    76→    76→  console.log(`  ✓ Inserted ${courses.length} courses`)
+    77→    77→
+    78→    78→  // ----------------------------------------------------------
+    79→    79→  //  2. Sessions (weekly schedule — current term only)
+    80→    80→  // ----------------------------------------------------------
+    81→    81→  const sessions = [
+    82→    82→    { branch: BRANCH, code: 'CS 205', day: 0, start: 8, end: 9.5, room: 'Room 101' },
+    83→    83→    { branch: BRANCH, code: 'CS 207', day: 0, start: 10, end: 11.5, room: 'Lab 201' },
+    84→    84→    { branch: BRANCH, code: 'CS 209', day: 0, start: 13, end: 14.5, room: 'Lab 202' },
+    85→    85→    { branch: BRANCH, code: 'CS 206', day: 1, start: 10, end: 11.5, room: 'Room 105' },
+    86→    86→    { branch: BRANCH, code: 'CS 209', day: 1, start: 13, end: 14.5, room: 'Lab 202' },
+    87→    87→    { branch: BRANCH, code: 'CS 205', day: 2, start: 8, end: 9.5, room: 'Room 101' },
+    88→    88→    { branch: BRANCH, code: 'CS 207', day: 2, start: 10, end: 11.5, room: 'Lab 201' },
+    89→    89→    { branch: BRANCH, code: 'CS 206', day: 3, start: 10, end: 11.5, room: 'Room 105' },
+    90→    90→    { branch: BRANCH, code: 'CS 210', day: 3, start: 13, end: 14.5, room: 'Lab 203' },
+    91→    91→    { branch: BRANCH, code: 'CS 208', day: 4, start: 8, end: 9.5, room: 'Room 203' },
+    92→    92→    { branch: BRANCH, code: 'PE 2', day: 5, start: 8, end: 10, room: 'Gym' },
+    93→    93→  ]
+    94→    94→
+    95→    95→  await db.collection('sessions').deleteMany({ branch: BRANCH })
+    96→    96→  await db.collection('sessions').insertMany(sessions)
+    97→    97→  console.log(`  ✓ Inserted ${sessions.length} class sessions`)
+    98→    98→
+    99→    99→  // ----------------------------------------------------------
+   100→   100→  //  3. Subjects (enrollments — TWO terms for Juan)
+   101→   101→  // ----------------------------------------------------------
+   102→   102→
+   103→   103→  // TERM 1: 1st Year / 1st Sem / AY 2025-2026 (completed)
+   104→   104→  const term1Subjects = [
+   105→   105→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 101', title: 'Introduction to Computing', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '1.25', finals: '1.25', finalGrade: '1.25', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   106→   106→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 102', title: 'Computer Programming I', units: 3, professor: 'Engr. Carlos Santos', professorEmail: 'c.santos@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', midterm: '1.50', finals: '1.50', finalGrade: '1.50', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   107→   107→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 201', title: 'Data Structures and Algorithms', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', midterm: '1.00', finals: '1.25', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   108→   108→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 202', title: 'Object-Oriented Programming', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '1.75', finals: '1.50', finalGrade: '1.50', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   109→   109→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 203', title: 'Database Systems', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '1.25', finals: '1.50', finalGrade: '1.25', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   110→   110→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 204', title: 'Web Development', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   111→   111→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 1', title: 'Physical Fitness', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed' },
+   112→   112→  ]
+   113→   113→
+   114→   114→  // TERM 2: 2nd Year / 1st Sem / AY 2026-2027 (in-progress)
+   115→   115→  const term2Subjects = [
+   116→   116→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   117→   117→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 206', title: 'Information Management', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   118→   118→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 207', title: 'Platform Technologies', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   119→   119→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Carlos Santos', professorEmail: 'c.santos@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   120→   120→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Prof. Denise Ong', professorEmail: 'd.ong@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   121→   121→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 210', title: 'Application Development', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   122→   122→    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 2', title: 'Team Sports', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+   123→   123→  ]
+   124→   124→
+   125→   125→  const allSubjects = [...term1Subjects, ...term2Subjects]
+   126→   126→
+   127→   127→  await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+   128→   128→  await db.collection('subjects').insertMany(allSubjects)
+   129→   129→  console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms)`)
+   130→   130→
+   131→   131→  // Compute GPA for completed term
+   132→   132→  const term1GPA = computeGPA(term1Subjects)
+   133→   133→  const isDeansLister = parseFloat(term1GPA) <= 1.50
+   134→   134→  console.log(`  ✓ Term 1 GPA: ${term1GPA}, Dean's Lister: ${isDeansLister}`)
+   135→   135→
+   136→   136→  // ----------------------------------------------------------
+   137→   137→  //  4. Student — 2nd Year, AY 2026-2027
+   138→   138→  // ----------------------------------------------------------
+   139→   139→  const student = {
+   140→   140→    branch: BRANCH,
+   141→   141→    username: 'juan.santos',
+   142→   142→    password: 'student123',
+   143→   143→    role: 'student' as const,
+   144→   144→    fullName: 'Juan Dela Cruz Santos',
+   145→   145→    firstName: 'Juan',
+   146→   146→    lastName: 'Santos',
+   147→   147→    middleName: 'Dela Cruz',
+   148→   148→    studentNumber: '251438',
+   149→   149→    program: 'Bachelor of Science in Computer Science',
+   150→   150→    programShort: 'BSCS',
+   151→   151→    yearLevel: '2nd Year',
+   152→   152→    section: 'CS-2A',
+   153→   153→    semester: '1st Sem',
+   154→   154→    academicYear: '2026-2027',
+   155→   155→    enrollmentStatus: 'Enrolled',
+   156→   156→    deanLister: isDeansLister,
+   157→   157→    deanListerSemester: '1st Sem, AY 2025-2026',
+   158→   158→    gpa: term1GPA,
+   159→   159→    email: 'juan.santos@aics.edu.ph',
+   160→   160→    phone: '+63 917 123 4567',
+   161→   161→    address: '123 Mabini Street, Brgy. Masambong, Quezon City, Metro Manila 1115',
+   162→   162→    emergencyContactName: 'Maria Santos (Mother)',
+   163→   163→    emergencyContactNumber: '+63 917 987 6543',
+   164→   164→    branch_name: BRANCH_NAME,
+   165→   165→    branchAddress: BRANCH_ADDRESS,
+   166→   166→    documents: [
+   167→   167→      { name: 'Form 138 (Senior High School Report Card)', submitted: true, dateSubmitted: 'Jun 15, 2024' },
+   168→   168→      { name: 'PSA Birth Certificate', submitted: true, dateSubmitted: 'Jun 15, 2024' },
+   169→   169→      { name: '2x2 ID Picture (2 copies)', submitted: true, dateSubmitted: 'Jun 15, 2024' },
+   170→   170→      { name: 'Certificate of Good Moral Character', submitted: true, dateSubmitted: 'Jun 16, 2024' },
+   171→   171→      { name: 'Medical Certificate', submitted: false, dateSubmitted: null },
+   172→   172→      { name: 'Honorable Dismissal (for transferees)', submitted: true, dateSubmitted: 'Jun 15, 2024' },
+   173→   173→    ],
+   174→   174→  }
+   175→   175→
+   176→   176→  await db.collection('students').deleteMany({ branch: BRANCH, username: 'juan.santos' })
+   177→   177→  await db.collection('students').insertOne(student)
+   178→   178→  console.log(`  ✓ Inserted student: juan.santos (2nd Year, CS-2A, AY 2026-2027)`)
+   179→   179→
+   180→   180→  // ----------------------------------------------------------
+   181→   181→  //  4b. Faculty user — same `students` collection, role='faculty'.
+   182→   182→  //  The faculty member's name MUST match the `professor` field on
+   183→   183→  //  their assigned subjects in the `subjects` collection. "Engr.
+   184→   184→  //  Maria Cristina Reyes" matches the CS 101 row above (and the
+   185→   185→  //  matching professor entry in the `professors` collection), so
+   186→   186→  //  the faculty dashboard will show CS 101 + Juan Santos in the
+   187→   187→  //  roster. More subject assignments can be added later.
+   188→   188→  // ----------------------------------------------------------
+   189→   189→  const facultyUser = {
+   190→   190→    branch: BRANCH,
+   191→   191→    username: 'm.reyes',
+   192→   192→    password: 'faculty123',
+   193→   193→    role: 'faculty' as const,
+   194→   194→    fullName: 'Engr. Maria Cristina Reyes',
+   195→   195→    firstName: 'Maria Cristina',
+   196→   196→    lastName: 'Reyes',
+   197→   197→    middleName: '',
+   198→   198→    studentNumber: 'FAC-001',
+   199→   199→    program: 'Faculty — Computer Science Department',
+   200→   200→    programShort: 'Faculty',
+   201→   201→    yearLevel: '',
+   202→   202→    section: '',
+   203→   203→    semester: '1st Sem',
+   204→   204→    academicYear: '2026-2027',
+   205→   205→    enrollmentStatus: 'Active',
+   206→   206→    deanLister: false,
+   207→   207→    deanListerSemester: '',
+   208→   208→    gpa: '',
+   209→   209→    email: 'm.reyes@aics.edu.ph',
+   210→   210→    phone: '+63 917 555 0101',
+   211→   211→    address: 'AICS Faculty Housing, Commonwealth Ave., Quezon City',
+   212→   212→    emergencyContactName: '',
+   213→   213→    emergencyContactNumber: '',
+   214→   214→    branch_name: BRANCH_NAME,
+   215→   215→    branchAddress: BRANCH_ADDRESS,
+   216→   216→    documents: [],
+   217→   217→  }
+   218→   218→
+   219→   219→  await db.collection('students').deleteMany({ branch: BRANCH, username: 'm.reyes' })
+   220→   220→  await db.collection('students').insertOne(facultyUser)
+   221→   221→  console.log(`  ✓ Inserted faculty user: m.reyes / faculty123`)
+   222→   222→
+   223→   223→  // ----------------------------------------------------------
+   224→   224→  //  5. Tasks (current term + previous term for visibility test)
+   225→   225→  // ----------------------------------------------------------
+   226→   226→  const now = new Date()
+   227→   227→  const daysFromNow = (n: number) => new Date(now.getTime() + n * 24 * 60 * 60 * 1000)
+   228→   228→
+   229→   229→  const currentTerm = { academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year' }
+   230→   230→  const prevTerm = { academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year' }
+   231→   231→
+   232→   232→  const tasks = [
+   233→   233→    // CURRENT TERM (AY 2026-2027) — 11 tasks
+   234→   234→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'Problem Set 1: Logic & Proofs', type: 'Activity', description: null, dueDate: daysFromNow(-6), postedDate: daysFromNow(-20), submitted: true, submittedAt: daysFromNow(-7), score: 9, maxScore: 10, feedback: 'Good work on indirect proofs.', submissionsClosed: false },
+   235→   235→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'Quiz 1: Set Theory', type: 'Quiz', description: null, dueDate: daysFromNow(-2), postedDate: daysFromNow(-10), submitted: true, submittedAt: daysFromNow(-3), score: null, maxScore: 10, feedback: null, submissionsClosed: false },
+   236→   236→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 205', term: currentTerm, title: 'MP 1: Proof Checker', type: 'Project', description: 'Build a simple proof verification tool', dueDate: daysFromNow(5), postedDate: daysFromNow(-5), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null, submissionsClosed: false },
+   237→   237→    // CS 206 Activity 1 ERD Modeling — submissions OPEN (overdue + open => MISSING_OPEN => "Submit (Late)")
+   238→   238→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 206', term: currentTerm, title: 'Activity 1: ERD Modeling', type: 'Activity', description: null, dueDate: daysFromNow(-3), postedDate: daysFromNow(-15), submitted: false, submittedAt: null, score: null, maxScore: 10, feedback: null, submissionsClosed: false },
+   239→   239→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 206', term: currentTerm, title: 'Quiz 1: Key Concepts', type: 'Quiz', description: null, dueDate: daysFromNow(-8), postedDate: daysFromNow(-18), submitted: true, submittedAt: daysFromNow(-9), score: 8, maxScore: 10, feedback: null, submissionsClosed: false },
+   240→   240→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 207', term: currentTerm, title: 'Lab Exercise 1: Audit Tools', type: 'Activity', description: null, dueDate: daysFromNow(-5), postedDate: daysFromNow(-12), submitted: true, submittedAt: daysFromNow(-6), score: 10, maxScore: 10, feedback: 'Perfect submission.', submissionsClosed: false },
+   241→   241→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 207', term: currentTerm, title: 'Project 1: Site Audit', type: 'Project', description: 'Conduct a full security audit of a sample site', dueDate: daysFromNow(7), postedDate: daysFromNow(-3), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null, submissionsClosed: false },
+   242→   242→    // CS 208 Activity 1 Users & Permissions — submissions CLOSED by teacher (=> MISSING_CLOSED => "Closed")
+   243→   243→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 208', term: currentTerm, title: 'Activity 1: Users & Permissions', type: 'Activity', description: null, dueDate: daysFromNow(-1), postedDate: daysFromNow(-10), submitted: false, submittedAt: null, score: null, maxScore: 10, feedback: null, submissionsClosed: true },
+   244→   244→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 209', term: currentTerm, title: 'Quiz 1: Heuristics', type: 'Quiz', description: null, dueDate: daysFromNow(-2), postedDate: daysFromNow(-8), submitted: true, submittedAt: daysFromNow(-3), score: null, maxScore: 10, feedback: null, submissionsClosed: false },
+   245→   245→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 210', term: currentTerm, title: 'Project 1: Requirements Spec', type: 'Project', description: 'Write a full SRS document', dueDate: daysFromNow(3), postedDate: daysFromNow(-2), submitted: false, submittedAt: null, score: null, maxScore: 50, feedback: null, submissionsClosed: false },
+   246→   246→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'PE 2', term: currentTerm, title: 'Fitness Assessment', type: 'Test', description: null, dueDate: daysFromNow(-4), postedDate: daysFromNow(-14), submitted: true, submittedAt: daysFromNow(-5), score: 20, maxScore: 20, feedback: 'Excellent fitness level.', submissionsClosed: false },
+   247→   247→    // PREVIOUS TERM (AY 2025-2026) — MUST NOT render for student
+   248→   248→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 101', term: prevTerm, title: 'Final Project', type: 'Project', description: null, dueDate: daysFromNow(-200), postedDate: daysFromNow(-220), submitted: true, submittedAt: daysFromNow(-201), score: 95, maxScore: 100, feedback: null, submissionsClosed: false },
+   249→   249→    { branch: BRANCH, studentUsername: 'juan.santos', subjectCode: 'CS 102', term: prevTerm, title: 'Quiz 3: Loops', type: 'Quiz', description: null, dueDate: daysFromNow(-210), postedDate: daysFromNow(-225), submitted: true, submittedAt: daysFromNow(-211), score: 7, maxScore: 10, feedback: null, submissionsClosed: false },
+   250→   250→  ]
+   251→   251→
+   252→   252→  await db.collection('tasks').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+   253→   253→  await db.collection('tasks').insertMany(tasks)
+   254→   254→  console.log(`  ✓ Inserted ${tasks.length} tasks (${tasks.length - 2} current term, 2 previous term)`)
+   255→   255→
+   256→   256→  await db.collection('tasks').createIndex({ branch: 1, studentUsername: 1, 'term.academicYear': 1, 'term.semester': 1 })
+   257→   257→
+   258→   258→  // ----------------------------------------------------------
+   259→   259→  //  6. Events (school-wide calendar — admin-managed)
+   260→   260→  //
+   261→   261→  //  ADMIN CONTROL: Events are created/edited/deleted by
+   262→   262→  //  Admin only. Students have read-only access to this
+   263→   263→  //  calendar. The admin UI for managing events will be
+   264→   264→  //  wired when the admin portal exists.
+   265→   265→  //
+   266→   266→  //  Dates are now-relative so the CURRENT month always
+   267→   267→  //  has 4-6 events for demo purposes.
+   268→   268→  // ----------------------------------------------------------
+   269→   269→
+   270→   270→  // Helper: pick a date in the current month at a given day offset
+   271→   271→  // from "today". Negative = earlier this month, positive = later.
+   272→   272→  const dayOfThisMonth = (offset: number) => {
+   273→   273→    const d = new Date()
+   274→   274→    d.setHours(0, 0, 0, 0)
+   275→   275→    d.setDate(d.getDate() + offset)
+   276→   276→    return d
+   277→   277→  }
+   278→   278→
+   279→   279→  const events = [
+   280→   280→    // Current month — mix of categories
+   281→   281→    { branch: BRANCH, title: 'Flag Ceremony', description: 'Monthly flag ceremony at the main quadrangle. All students required to attend.', date: dayOfThisMonth(-12), endDate: null, category: 'campus' as const },
+   282→   282→    { branch: BRANCH, title: 'Midterm Examination Week', description: 'Midterm exams for all year levels. Check your subject schedules for exact dates.', date: dayOfThisMonth(-8), endDate: dayOfThisMonth(-4), category: 'academic' as const },
+   283→   283→    { branch: BRANCH, title: 'Tuition Installment Deadline', description: 'Second installment of tuition fees due at the Accounting Office.', date: dayOfThisMonth(-2), endDate: null, category: 'deadline' as const },
+   284→   284→    { branch: BRANCH, title: 'Foundation Day — No Classes', description: 'AICS Foundation Day celebration. All classes suspended.', date: dayOfThisMonth(2), endDate: null, category: 'holiday' as const },
+   285→   285→    { branch: BRANCH, title: 'Campus Clean-up Drive', description: 'Community service event. Bring your own cleaning materials.', date: dayOfThisMonth(5), endDate: null, category: 'campus' as const },
+   286→   286→    { branch: BRANCH, title: 'Research Summit 2026', description: 'Annual research presentation by graduating students. Venue: Auditorium.', date: dayOfThisMonth(8), endDate: dayOfThisMonth(9), category: 'academic' as const },
+   287→   287→    // Later this month / next month
+   288→   288→    { branch: BRANCH, title: 'Career Fair', description: 'IT and CS companies on campus for recruitment. Bring printed resumes.', date: dayOfThisMonth(14), endDate: null, category: 'campus' as const },
+   289→   289→    { branch: BRANCH, title: 'Intramurals Opening', description: 'Opening ceremony and parade of teams. Color coding per year level.', date: dayOfThisMonth(18), endDate: dayOfThisMonth(20), category: 'campus' as const },
+   290→   290→    { branch: BRANCH, title: 'Final Examination Week', description: 'Final exams for the 1st Semester. Check room assignments.', date: dayOfThisMonth(25), endDate: dayOfThisMonth(28), category: 'academic' as const },
+   291→   291→    { branch: BRANCH, title: 'Enrollment Opens — 2nd Sem', description: 'Online enrollment for the 2nd Semester opens at the student portal.', date: dayOfThisMonth(35), endDate: null, category: 'deadline' as const },
+   292→   292→  ]
+   293→   293→
+   294→   294→  await db.collection('events').deleteMany({ branch: BRANCH })
+   295→   295→  await db.collection('events').insertMany(events)
+   296→   296→  console.log(`  ✓ Inserted ${events.length} events`)
+   297→   297→
+   298→   298→  await db.collection('events').createIndex({ branch: 1, date: 1 })
+   299→   299→
+   300→   300→  // ----------------------------------------------------------
+   301→   301→  //  7. Professors (directory — admin-managed)
+   302→   302→  //
+   303→   303→  //  ADMIN CONTROL: Professor directory details (office
+   304→   304→  //  hours, room, contact) are maintained by Admin. Students
+   305→   305→  //  have read-only access.
+   306→   306→  //
+   307→   307→  //  The `name` and `email` fields must match the professor
+   308→   308→  //  and professorEmail fields on the subjects collection.
+   309→   309→  // ----------------------------------------------------------
+   310→   310→  const professors = [
+   311→   311→    { branch: BRANCH, name: 'Engr. Maria Cristina Reyes', email: 'm.reyes@aics.edu.ph', officeHours: 'Mon & Wed • 1:00-3:00 PM', room: 'Faculty Office / Room 204' },
+   312→   312→    { branch: BRANCH, name: 'Engr. Carlos Santos', email: 'c.santos@aics.edu.ph', officeHours: 'Tue & Thu • 9:00-11:00 AM', room: 'Faculty Office / Room 208' },
+   313→   313→    { branch: BRANCH, name: 'Prof. Anna Lim', email: 'a.lim@aics.edu.ph', officeHours: 'Mon & Wed • 3:00-5:00 PM', room: 'Faculty Office / Room 210' },
+   314→   314→    { branch: BRANCH, name: 'Engr. Roberto Cruz', email: 'r.cruz@aics.edu.ph', officeHours: 'Fri • 10:00 AM-12:00 PM', room: 'Faculty Office / Room 212' },
+   315→   315→    { branch: BRANCH, name: 'Prof. Patricia Villanueva', email: 'p.villanueva@aics.edu.ph', officeHours: 'Tue & Thu • 1:00-3:00 PM', room: 'Faculty Office / Room 214' },
+   316→   316→    { branch: BRANCH, name: 'Engr. James Villanueva', email: 'j.villanueva@aics.edu.ph', officeHours: 'Mon & Wed • 9:00-11:00 AM', room: 'Faculty Office / Room 216' },
+   317→   317→    { branch: BRANCH, name: 'Prof. Denise Ong', email: 'd.ong@aics.edu.ph', officeHours: 'Wed & Fri • 2:00-4:00 PM', room: 'Faculty Office / Room 218' },
+   318→   318→    { branch: BRANCH, name: 'Coach Felix Guerrero', email: 'f.guerrero@aics.edu.ph', officeHours: 'Sat • 10:00 AM-12:00 PM', room: 'Gymnasium Office' },
+   319→   319→  ]
+   320→   320→
+   321→   321→  await db.collection('professors').deleteMany({ branch: BRANCH })
+   322→   322→  await db.collection('professors').insertMany(professors)
+   323→   323→  console.log(`  ✓ Inserted ${professors.length} professors`)
+   324→   324→
+   325→   325→  await db.collection('professors').createIndex({ branch: 1, name: 1 }, { unique: true })
+   326→   326→
+   327→   327→  // ----------------------------------------------------------
+   328→   328→  //  8. Enrollments (per-student, per-term — registrar-managed)
+   329→   329→  //
+   330→   330→  //  ADMIN/REGISTRAR CONTROL: Enrollment steps, assessment of
+   331→   331→  //  fees, payment status, and registrar contact info are
+   332→   332→  //  maintained by the Registrar / Admin. Students have
+   333→   333→  //  read-only access via the Enrollment page.
+   334→   334→  //
+   335→   335→  //  One document per student per term. The current-term
+   336→   336→  //  enrollment record is fetched via getEnrollment() and
+   337→   337→  //  displayed on the Enrollment page.
+   338→   338→  // ----------------------------------------------------------
+   339→   339→  const enrollments = [
+   340→   340→    {
+   341→   341→      branch: BRANCH,
+   342→   342→      studentUsername: 'juan.santos',
+   343→   343→      academicYear: '2026-2027',
+   344→   344→      semester: '1st Sem',
+   345→   345→      currentStep: 3, // currently on Payment
+   346→   346→      steps: [
+   347→   347→        { step: 1, label: 'Pre-enrollment', description: 'Submit pre-enrollment form and select subjects for the upcoming term.', status: 'completed' as const, date: '2026-05-20' },
+   348→   348→        { step: 2, label: 'Assessment', description: 'Registrar reviews subject load and issues the official assessment of fees.', status: 'completed' as const, date: '2026-06-02' },
+   349→   349→        { step: 3, label: 'Payment', description: 'Pay tuition and miscellaneous fees at the Accounting Office. Installment plans are available.', status: 'current' as const, date: null },
+   350→   350→        { step: 4, label: 'Enrolled', description: 'Officially enrolled once full payment (or approved installment) is posted.', status: 'upcoming' as const, date: null },
+   351→   351→        { step: 5, label: 'Add/Drop', description: 'Final week to add or drop subjects without academic penalty.', status: 'upcoming' as const, date: null },
+   352→   352→      ],
+   353→   353→      assessment: {
+   354→   354→        tuitionPerUnit: 1500,
+   355→   355→        totalUnits: 20,
+   356→   356→        tuitionAmount: 30000,
+   357→   357→        miscFees: [
+   358→   358→          { description: 'Library Fee', amount: 500 },
+   359→   359→          { description: 'Laboratory Fee', amount: 1000 },
+   360→   360→          { description: 'IT Fee', amount: 500 },
+   361→   361→          { description: 'Athletic Fee', amount: 300 },
+   362→   362→          { description: 'Medical & Dental Fee', amount: 300 },
+   363→   363→          { description: 'ID Fee', amount: 150 },
+   364→   364→        ],
+   365→   365→        totalAssessment: 32750,
+   366→   366→        amountPaid: 20000,
+   367→   367→        balance: 12750,
+   368→   368→        paymentStatus: 'partial' as const,
+   369→   369→        paymentDeadline: '2026-09-15',
+   370→   370→        paymentDate: null,
+   371→   371→      },
+   372→   372→      registrar: {
+   373→   373→        name: 'Mrs. Rosario Tan',
+   374→   374→        room: 'Room 100',
+   375→   375→        officeHours: 'Mon-Fri 9:00 AM - 4:00 PM',
+   376→   376→        email: 'registrar@aics.edu.ph',
+   377→   377→        phone: '(02) 8XXX-XXXX',
+   378→   378→      },
+   379→   379→    },
+   380→   380→  ]
+   381→   381→
+   382→   382→  await db.collection('enrollments').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+   383→   383→  await db.collection('enrollments').insertMany(enrollments)
+   384→   384→  console.log(`  ✓ Inserted ${enrollments.length} enrollment records`)
+   385→   385→
+   386→   386→  await db.collection('enrollments').createIndex(
+   387→   387→    { branch: 1, studentUsername: 1, academicYear: 1, semester: 1 },
+   388→   388→    { unique: true }
+   389→   389→  )
+   390→   390→
+   391→   391→  // ----------------------------------------------------------
+   392→   392→  //  9. Announcements (school-wide notices — admin/faculty managed)
+   393→   393→  //
+   394→   394→  //  ADMIN CONTROL: Announcements are created/edited/deleted by
+   395→   395→  //  Admin and Faculty. Students have read-only access.
+   396→   396→  // ----------------------------------------------------------
+   397→   397→  const announcements = [
+   398→   398→    {
+   399→   399→      branch: BRANCH,
+   400→   400→      title: 'Enrollment deadline extended',
+   401→   401→      body: 'The enrollment deadline for 1st Sem AY 2026-2027 has been extended to August 20. Please complete your payment and submit requirements before this date.',
+   402→   402→      category: 'deadline',
+   403→   403→      priority: 'urgent',
+   404→   404→      author: 'Registrar Office',
+   405→   405→      postedDate: daysFromNow(-2),
+   406→   406→      expiryDate: daysFromNow(5),
+   407→   407→    },
+   408→   408→    {
+   409→   409→      branch: BRANCH,
+   410→   410→      title: 'Classes suspended on Monday',
+   411→   411→      body: 'Due to Typhoon Signal No. 2, all classes are suspended on Monday. Online classes will continue as scheduled. Stay safe everyone.',
+   412→   412→      category: 'campus',
+   413→   413→      priority: 'urgent',
+   414→   414→      author: 'Admin Office',
+   415→   415→      postedDate: daysFromNow(-1),
+   416→   416→      expiryDate: daysFromNow(3),
+   417→   417→    },
+   418→   418→    {
+   419→   419→      branch: BRANCH,
+   420→   420→      title: 'Midterm examination schedule released',
+   421→   421→      body: 'The midterm examination schedule is now available. Check the Events calendar for your exam dates. Please bring your student ID and arrive 15 minutes early.',
+   422→   422→      category: 'academic',
+   423→   423→      priority: 'normal',
+   424→   424→      author: 'Academic Affairs',
+   425→   425→      postedDate: daysFromNow(-4),
+   426→   426→      expiryDate: null,
+   427→   427→    },
+   428→   428→    {
+   429→   429→      branch: BRANCH,
+   430→   430→      title: 'Library extended hours during exam week',
+   431→   431→      body: 'The library will be open from 7:00 AM to 9:00 PM during midterm exam week. Study rooms can be reserved at the front desk.',
+   432→   432→      category: 'campus',
+   433→   433→      priority: 'normal',
+   434→   434→      author: 'Library Services',
+   435→   435→      postedDate: daysFromNow(-3),
+   436→   436→      expiryDate: daysFromNow(10),
+   437→   437→    },
+   438→   438→    {
+   439→   439→      branch: BRANCH,
+   440→   440→      title: 'Foundation Day celebration on August 25',
+   441→   441→      body: 'No classes on August 25 in celebration of AICS Foundation Day. There will be a program at the gymnasium at 9:00 AM. All students are encouraged to attend.',
+   442→   442→      category: 'holiday',
+   443→   443→      priority: 'normal',
+   444→   444→      author: 'Student Affairs',
+   445→   445→      postedDate: daysFromNow(-5),
+   446→   446→      expiryDate: daysFromNow(15),
+   447→   447→    },
+   448→   448→  ]
+   449→   449→
+   450→   450→  await db.collection('announcements').deleteMany({ branch: BRANCH })
+   451→   451→  await db.collection('announcements').insertMany(announcements)
+   452→   452→  console.log(`  \u2713 Inserted ${announcements.length} announcements`)
+   453→   453→
+   454→   454→  await db.collection('announcements').createIndex({ branch: 1, postedDate: -1 })
+   455→   455→
+   456→   456→  // ----------------------------------------------------------
+   457→   457→  //  10. Indexes
+   458→   458→  // ----------------------------------------------------------
+   459→   459→  await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
+   460→   460→  await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
+   461→   461→  await db.collection('sessions').createIndex({ branch: 1 })
+   462→   462→  await db.collection('courses').createIndex({ branch: 1, code: 1 }, { unique: true })
+   463→   463→  console.log(`  ✓ Created indexes`)
+   464→   464→
+   465→   465→  console.log('\n✅ Seed complete!')
+   466→   466→  console.log(`   Student: juan.santos / student123`)
+   467→   467→  console.log(`   Student #: 251438`)
+   468→   468→  console.log(`   Year: 2nd Year, Section: CS-2A`)
+   469→   469→  console.log(`   Current AY: 2026-2027 (in-progress)`)
+   470→   470→  console.log(`   Completed AY: 2025-2026 (GPA: ${term1GPA})`)
+   471→   471→  console.log(`   Dean's Lister: ${isDeansLister}`)
+   472→   472→  console.log(`   Tasks: 11 current term + 2 previous term (hidden from student)`)
+   473→   473→  console.log(`   Events: 10 school-wide calendar events`)
+   474→   474→  console.log(`   Professors: ${professors.length} directory entries`)
+   475→   475→  console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
+   476→   476→  console.log(`   Faculty: m.reyes / faculty123`)
+   477→   477→
+   478→   478→  await client.close()
+   479→   479→}
+   480→   480→
+   481→   481→seed().catch((err) => {
+   482→   482→  console.error('Seed failed:', err)
+   483→   483→  process.exit(1)
+   484→   484→})
+   485→   485→

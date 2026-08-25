@@ -39,7 +39,13 @@ export async function GET(request: NextRequest) {
       subjects: subjects.map((x) => ({
         code: x.code, title: x.title, units: x.units, professor: x.professor,
         professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,
-        midterm: x.midterm, finals: x.finals, finalGrade: x.finalGrade, remarks: x.remarks,
+        // GRADE APPROVAL WORKFLOW: students only see grades where
+        // gradeStatus === 'released'. Draft/submitted grades show
+        // as '-' (hidden). Defaults to 'released' for backward compat.
+        midterm: x.gradeStatus === 'released' || !x.gradeStatus ? x.midterm : '-',
+        finals: x.gradeStatus === 'released' || !x.gradeStatus ? x.finals : '-',
+        finalGrade: x.gradeStatus === 'released' || !x.gradeStatus ? x.finalGrade : '-',
+        remarks: x.gradeStatus === 'released' || !x.gradeStatus ? x.remarks : 'Pending',
         academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status,
       })),
       // schedule is an empty array — kept on the type for backward compat.

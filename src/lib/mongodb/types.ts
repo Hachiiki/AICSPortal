@@ -83,6 +83,12 @@ export interface MongoSubject {
   semester?: string // e.g. "1st Sem"
   yearLevel?: string // e.g. "1st Year"
   status?: string // "completed" | "in-progress"
+  // GRADE APPROVAL WORKFLOW:
+  //   draft     = teacher is editing, NOT visible to students
+  //   submitted = teacher has submitted, waiting for admin approval
+  //   released  = admin has approved, visible to students
+  // Defaults to 'released' for backward compatibility with existing seed data.
+  gradeStatus?: 'draft' | 'submitted' | 'released'
 }
 
 export type TaskType = 'Activity' | 'Quiz' | 'Test' | 'Project'
