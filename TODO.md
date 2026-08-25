@@ -34,7 +34,10 @@
 
 ### Next
 - [x] **My Students** — Roster view showing all students enrolled in the faculty's subjects. Click a student to see their full record (grades, contact, enrollment status). Needs a faculty-specific route and page component.
-- [ ] **Grade Encoding** — Editable grade table where faculty inputs midterm/finals grades per student. Needs a PATCH endpoint to update grades in the subjects collection. This is the highest-value faculty feature.
+- [x] **Grade Encoding** — Editable grade table where faculty inputs midterm/finals grades per student. Needs a PATCH endpoint to update grades in the subjects collection. This is the highest-value faculty feature.
+- [ ] **Redesign My Students as section/room-based view** — Per the project roadmap, teachers should see students organized by their assigned rooms/classes, not a flat list. Each section should show: room number, schedule, student roster, with click-to-view student detail. Current implementation is a flat table — needs accordion or card-per-section layout.
+- [ ] **Grade approval workflow** — Per the project roadmap: (1) Teacher saves grades as "draft" (only visible to teacher), (2) Teacher submits all grades for a subject (status: "submitted"), (3) Admin reviews and releases (status: "released"), (4) Only "released" grades are visible to students. Currently grades save directly and are immediately visible to students. Needs: `gradeStatus` field on subjects collection, submit/release API endpoints, status badges on the grade encoding page, student API filtering by `gradeStatus === 'released'`.
+- [ ] **Faculty teaches more subjects** — Seed data only has m.reyes teaching CS 101 (1st Year). Add more subjects where m.reyes teaches 2nd Year classes so the grade encoding page and My Students show more data.
 - [ ] **Announcements (write side)** — Form where faculty can create new announcements. Needs a POST `/api/announcements` endpoint and a create-announcement UI. Faculty and admin only.
 - [ ] **Schedule** — Faculty's weekly calendar. Reuses ScheduleGrid filtered to their sessions only.
 - [ ] **Task management** — Faculty can create tasks for their subjects (the write side of the existing tasks system). Needs POST/PATCH/DELETE endpoints.

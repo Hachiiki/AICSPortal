@@ -6,9 +6,22 @@ import { getCollection } from '@/lib/mongodb/connection'
 //
 // Updates grades for one or more student-subject pairs.
 // Only the fields provided are updated ($set), not the whole document.
-// This endpoint is for faculty only — the client should verify the
-// logged-in user's role before calling, but server-side role
-// enforcement will be added when session tokens are implemented.
+//
+// GRADE APPROVAL WORKFLOW (not yet implemented):
+// Per the project roadmap, grades should follow this flow:
+//   1. Teacher saves grades as "draft" (only visible to teacher)
+//   2. Teacher submits all grades for a subject (status: "submitted")
+//   3. Admin reviews and releases (status: "released")
+//   4. Only "released" grades are visible to students
+//
+// TODO: Add gradeStatus field to subjects collection:
+//   gradeStatus: 'draft' | 'submitted' | 'released'
+// - This endpoint should set gradeStatus = 'draft' on save
+// - Add POST /api/grades/submit to change status to 'submitted'
+// - Add POST /api/grades/release (admin only) to change to 'released'
+// - Student API (/api/student) should filter: only show grades where
+//   gradeStatus === 'released'
+// - Faculty grade encoding page shows all grades with status badge
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()

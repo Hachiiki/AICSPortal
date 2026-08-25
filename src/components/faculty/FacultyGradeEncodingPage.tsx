@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   ChevronRight,
@@ -112,12 +112,13 @@ export function FacultyGradeEncodingPage({
     })
   }, [subjects, allStudents])
 
-  // Sync external data to local editable state
-  if (loading && rows.length === 0) {
-    // still loading
-  } else if (!loading && rows.length === 0 && gradeRows.length > 0) {
-    setRows(gradeRows)
-  }
+  // Sync external data to local editable state when facultyData changes
+  // (e.g. on initial load, or when parent re-fetches after save)
+  useEffect(() => {
+    if (!loading && gradeRows.length > 0) {
+      setRows(gradeRows)
+    }
+  }, [gradeRows, loading])
 
   // Unique subject codes for the filter
   const subjectCodes = useMemo(() => {
@@ -177,7 +178,10 @@ export function FacultyGradeEncodingPage({
       const data = await res.json()
       if (data.ok) {
         toast.success(`${data.message}`)
-        setRows((prev) => prev.map((r) => ({ ...r, dirty: false })))
+        // Update local state: mark all dirty rows as clean + keep saved values
+        setRows((prev) => prev.map((r) =>
+          r.dirty ? { ...r, dirty: false } : r
+        ))
       } else {
         toast.error(data.error || 'Failed to save grades.')
       }
