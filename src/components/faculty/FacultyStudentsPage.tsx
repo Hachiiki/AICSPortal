@@ -176,16 +176,26 @@ export function FacultyStudentsPage({
       <div className="lg:pl-60">
         <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
-          {/* Page header — 1st Sem • AY 2026-2027 - 3 classes • 72 students (prototype V23) */}
-          <div>
-            <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
-            </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
-            <p className="text-sm text-slate-500 mt-1">1st Sem • AY 2026-2027 - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
+          {/* Page header — 1st Sem • AY 2026-2027 - 3 classes • 72 students + Export/Take attendance (prototype V23) */}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
+                <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              </button>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
+              <p className="text-sm text-slate-500 mt-1">1st Sem • AY 2026-2027 - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
+            </div>
+            <div className="flex gap-2">
+              <button className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
+              </button>
+              <button className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
+              </button>
+            </div>
           </div>
 
-          {/* Filters — card-less, styled dropdowns (prototype V23) */}
+          {/* Filters — card-less, styled dropdowns with section details (prototype V23) */}
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
@@ -196,15 +206,24 @@ export function FacultyStudentsPage({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search student name, number, or subject..."
-                  className="w-full h-10 pl-10 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
               <div className="relative mt-1">
-                <select className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option>All sections ({sections.length})</option>
+                <select
+                  value={searchQuery ? 'all' : 'all'}
+                  onChange={() => {}}
+                  className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none"
+                >
+                  <option value="all">All sections ({sections.length})</option>
+                  {sections.map((s) => (
+                    <option key={s.key} value={s.key}>
+                      {s.subjectCode} — {s.room} • {s.schedule}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
@@ -214,6 +233,9 @@ export function FacultyStudentsPage({
               <div className="relative mt-1">
                 <select className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
                   <option>All statuses</option>
+                  <option>Active</option>
+                  <option>Dropped</option>
+                  <option>Transferred</option>
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
@@ -266,57 +288,82 @@ export function FacultyStudentsPage({
                       </div>
                     </div>
 
-                    {/* Expanded roster */}
+                    {/* Expanded roster — matches prototype V23: Prelim/Mid/Finals/FG with audit footer */}
                     {isExpanded && (
                       <div className="border-t border-slate-100">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-slate-50 border-b border-slate-100">
-                              <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student #</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
-                              <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
-                              <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {sec.students.map((stu) => {
-                              const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
-                              return (
-                                <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                                  <td className="px-6 py-3">
-                                    <div className="flex items-center gap-2.5">
-                                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>
-                                        {stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-slate-50 border-b border-slate-100">
+                                <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student #</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Prelim</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
+                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Status</th>
+                                <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sec.students.map((stu) => {
+                                const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+                                const prelim = (subj as any)?.prelim || '-'
+                                return (
+                                  <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                                    <td className="px-6 py-3">
+                                      <div className="flex items-center gap-2.5">
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>
+                                          {stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-900">{stu.fullName}</span>
                                       </div>
-                                      <span className="text-sm font-medium text-slate-900">{stu.fullName}</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3"><span className="font-mono text-xs text-slate-500">{stu.studentNumber}</span></td>
-                                  <td className="px-4 py-3"><span className="text-xs text-slate-600">{stu.section}</span></td>
-                                  <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.midterm || '-'}</td>
-                                  <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.finals || '-'}</td>
-                                  <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{subj?.finalGrade || '-'}</span></td>
-                                  <td className="px-4 py-3 text-center">
-                                    {subj && <RemarksBadge remarks={subj.remarks} />}
-                                  </td>
-                                  <td className="px-6 py-3 text-right">
-                                    <button
-                                      type="button"
-                                      onClick={() => setSelectedStudent(stu)}
-                                      className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200"
-                                    >
-                                      View
-                                    </button>
-                                  </td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
+                                    </td>
+                                    <td className="px-4 py-3"><span className="font-mono text-xs text-slate-500">{stu.studentNumber}</span></td>
+                                    <td className="px-4 py-3"><span className="text-xs text-slate-600">{stu.section}</span></td>
+                                    <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{prelim}</td>
+                                    <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.midterm || '-'}</td>
+                                    <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.finals || '-'}</td>
+                                    <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{subj?.finalGrade || '-'}</span></td>
+                                    <td className="px-4 py-3 text-center">{subj && <RemarksBadge remarks={subj.remarks} />}</td>
+                                    <td className="px-4 py-3 text-center">
+                                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                                    </td>
+                                    <td className="px-6 py-3 text-right">
+                                      <div className="flex justify-end gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedStudent(stu)}
+                                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200"
+                                        >
+                                          View
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => onNavigate('grade-encoding')}
+                                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50"
+                                        >
+                                          Grade
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
+                          <button className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
+                            <UsersIcon className="w-3.5 h-3.5" /> Message section
+                          </button>
+                          <button className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" /> Take attendance
+                          </button>
+                          <span className="ml-auto text-slate-500">Click View for student file.</span>
+                        </div>
                       </div>
                     )}
                   </div>
