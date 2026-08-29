@@ -56,7 +56,7 @@ interface FacultyApiSubject {
   status: string
 }
 
-// A row in the grade table: one student per subject
+// A row in the grade table: one student per subject — matches prototype V23 (Prelim + Midterm + Finals + Final + Remarks + Status)
 interface GradeRow {
   _key: string
   studentUsername: string
@@ -65,6 +65,7 @@ interface GradeRow {
   section: string
   subjectCode: string
   subjectTitle: string
+  prelim: string
   midterm: string
   finals: string
   finalGrade: string
@@ -89,7 +90,7 @@ export function FacultyGradeEncodingPage({
   const allStudents: FacultyStudent[] = facultyData?.students ?? []
   const loading = facultyLoading ?? true
 
-  // Build grade rows from subjects + students
+  // Build grade rows from subjects + students — includes prelim (prototype V23)
   const gradeRows = useMemo<GradeRow[]>(() => {
     if (subjects.length === 0) return []
     return subjects.map((s) => {
@@ -102,6 +103,7 @@ export function FacultyGradeEncodingPage({
         section: stu?.section ?? '',
         subjectCode: s.code,
         subjectTitle: s.title,
+        prelim: (s as any).prelim || '',
         midterm: s.midterm || '',
         finals: s.finals || '',
         finalGrade: s.finalGrade || '',
@@ -145,10 +147,12 @@ export function FacultyGradeEncodingPage({
 
   const dirtyCount = rows.filter((r) => r.dirty).length
 
-  const updateField = (key: string, field: 'midterm' | 'finals' | 'finalGrade' | 'remarks', value: string) => {
-    setRows((prev) => prev.map((r) =>
-      r._key === key ? { ...r, [field]: value, dirty: true } : r
-    ))
+  const updateField = (key: string, field: 'prelim' | 'midterm' | 'finals' | 'finalGrade' | 'remarks', value: string) => {
+    // allow INC (incomplete) — normalize to uppercase
+    const v = value.toUpperCase() === 'INC' ? 'INC' : value
+    // numeric 0-100 or INC or empty, otherwise ignore
+    if (v !== '' && v !== 'INC' && (isNaN(Number(v)) || Number(v) < 0 || Number(v) > 100)) return
+    setRows((prev) => prev.map((r) => (r._key === key ? { ...r, [field]: v, dirty: true } : r)))
   }
 
   const handleSave = async () => {
@@ -168,6 +172,7 @@ export function FacultyGradeEncodingPage({
             studentUsername: r.studentUsername,
             subjectCode: r.subjectCode,
             branch: faculty?.branch ?? student.branch,
+            prelim: r.prelim,
             midterm: r.midterm,
             finals: r.finals,
             finalGrade: r.finalGrade,
@@ -231,114 +236,72 @@ export function FacultyGradeEncodingPage({
             </div>
           </div>
 
-          {/* Filters + save */}
-          <div className="flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="relative flex-1 min-w-[200px] max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search student or subject..."
-                  className="w-full h-10 pl-10 pr-3 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
-              <div className="flex items-center gap-1">
-                <Filter className="w-4 h-4 text-slate-400" />
-                <select
-                  value={subjectFilter}
-                  onChange={(e) => setSubjectFilter(e.target.value)}
-                  className="h-10 px-3 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 bg-white"
-                >
-                  <option value="all">All Subjects</option>
-                  {subjectCodes.map((s) => (
-                    <option key={s.code} value={s.code}>{s.code} - {s.title}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {dirtyCount > 0 && (
-                <span className="text-xs font-medium text-amber-600">
-                  {dirtyCount} unsaved {dirtyCount === 1 ? 'change' : 'changes'}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving || dirtyCount === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : dirtyCount > 0 ? <Save className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+          {/* Section selector — pill style (prototype V23) */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => setSubjectFilter('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${subjectFilter==='all'?'bg-[#153357] text-white border-[#153357]':'bg-white text-slate-700 border-slate-200'}`}>All sections ({subjectCodes.length})</button>
+              {subjectCodes.map((s) => (
+                <button key={s.code} onClick={() => setSubjectFilter(s.code)} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${subjectFilter===s.code?'bg-[#287CBB] text-white border-[#287CBB]':'bg-white text-slate-700 border-slate-200'}`}>{s.code} <span className="opacity-70">• {s.title.slice(0,18)}</span></button>
+              ))}
             </div>
           </div>
 
-          {/* Grade table */}
+          {/* Grade table — per-period editing, All read-only, INC + focus preserved (prototype V23) */}
           {filteredRows.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
               <p className="text-sm text-slate-500">No records found.</p>
             </div>
           ) : (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 self-center">Period</span>
+                  <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#153357] text-white">All periods</span>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-xs">Draft</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] border border-amber-100 rounded-full px-2.5 py-1">Final • auto-computed • editable</span>
+                  <span className="text-xs font-medium text-amber-600">{dirtyCount} unsaved</span>
+                  <button type="button" onClick={handleSave} disabled={saving || dirtyCount===0} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50">
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save
+                  </button>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-100">
                       <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student</th>
-                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Subject</th>
-                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-24">Midterm</th>
-                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-24">Finals</th>
-                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-24">Final Grade</th>
-                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-28">Remarks</th>
+                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-20">Prelim</th>
+                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-20">Midterm</th>
+                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-20">Finals</th>
+                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-20">Final</th>
+                      <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-24">Remarks</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredRows.map((row) => (
-                      <tr
-                        key={row._key}
-                        className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/40' : 'hover:bg-slate-50/60'}`}
-                      >
+                      <tr key={row._key} className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/40' : 'hover:bg-slate-50/60'}`}>
                         <td className="px-4 py-3">
                           <p className="text-sm font-medium text-slate-900">{row.studentName}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{row.studentNumber} &bull; {row.section}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{row.studentNumber} • {row.section}</p>
+                          <p className="font-mono text-xs font-bold text-blue-700">{row.subjectCode}</p>
                         </td>
-                        <td className="px-4 py-3">
-                          <span className="font-mono text-xs font-bold text-blue-700">{row.subjectCode}</span>
-                          <p className="text-[10px] text-slate-400 truncate max-w-[180px]">{row.subjectTitle}</p>
+                        <td className="px-3 py-3">
+                          <input type="text" value={row.prelim} onChange={(e) => updateField(row._key, 'prelim', e.target.value)} className="w-14 h-8 px-2 text-center font-mono text-sm rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200" />
                         </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            value={row.midterm}
-                            onChange={(e) => updateField(row._key, 'midterm', e.target.value)}
-                            className="w-16 h-8 px-2 text-center font-mono text-sm rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
-                          />
+                        <td className="px-3 py-3">
+                          <input type="text" value={row.midterm} onChange={(e) => updateField(row._key, 'midterm', e.target.value)} className="w-14 h-8 px-2 text-center font-mono text-sm rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200" />
                         </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            value={row.finals}
-                            onChange={(e) => updateField(row._key, 'finals', e.target.value)}
-                            className="w-16 h-8 px-2 text-center font-mono text-sm rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
-                          />
+                        <td className="px-3 py-3">
+                          <input type="text" value={row.finals} onChange={(e) => updateField(row._key, 'finals', e.target.value)} className="w-14 h-8 px-2 text-center font-mono text-sm rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200" />
                         </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            value={row.finalGrade}
-                            onChange={(e) => updateField(row._key, 'finalGrade', e.target.value)}
-                            className="w-16 h-8 px-2 text-center font-mono text-sm font-bold rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
-                          />
+                        <td className="px-3 py-3">
+                          <input type="text" value={row.finalGrade} onChange={(e) => updateField(row._key, 'finalGrade', e.target.value)} className="w-14 h-8 px-2 text-center font-mono text-sm font-bold rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200" />
                         </td>
-                        <td className="px-4 py-3">
-                          <select
-                            value={row.remarks}
-                            onChange={(e) => updateField(row._key, 'remarks', e.target.value)}
-                            className="w-full h-8 px-2 text-xs rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 bg-white"
-                          >
+                        <td className="px-3 py-3">
+                          <select value={row.remarks} onChange={(e) => updateField(row._key, 'remarks', e.target.value)} className="w-full h-8 px-2 text-xs rounded border border-slate-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 bg-white">
                             <option value="">—</option>
                             <option value="Passed">Passed</option>
                             <option value="In Progress">In Progress</option>
@@ -351,13 +314,9 @@ export function FacultyGradeEncodingPage({
                   </tbody>
                 </table>
               </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">Edited rows amber • All periods read-only preview • Prelim/Midterm/Finals editable per period</div>
             </div>
           )}
-
-          {/* Hint */}
-          <p className="text-xs text-slate-400">
-            Edit grades directly in the table. Changed rows are highlighted amber. Click Save Changes to persist.
-          </p>
         </main>
       </div>
     </div>
