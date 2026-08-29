@@ -114,6 +114,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     setRows(prev=>prev.map(r=> r._key===key ? {...r,[field]:val,dirty: !(r.prelim===r.original.prelim && r.midterm===r.original.midterm && r.finals===r.original.finals && (r.finalGrade||'')===(r.original.finalGrade||'')), gradeStatus:'draft'} : r))
   }
 
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
+  const [submitPeriod, setSubmitPeriod] = useState<'prelim'|'midterm'|'finals'|'all'>('prelim')
+  const [submitNote, setSubmitNote] = useState('')
+  const submitScope = (() => {
+    const visible = activeSection==='all' ? filtered : filtered.filter(r=>r.subjectCode===activeSection)
+    // not used directly, computed in modal
+    return visible
+  })()
+
   if(loading) return <DashboardSkeleton />
   if(!faculty) return <div className="min-h-dvh grid place-items-center"><p className="text-sm text-red-600">Faculty data not found.</p></div>
 
@@ -121,6 +130,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const showMidterm = period==='all'||period==='midterm'
   const showFinals = period==='all'||period==='finals'
   const showFinal = period==='all'||period==='finals'
+
+  const openSubmit = (p: 'prelim'|'midterm'|'finals'|'all') => {
+    setSubmitPeriod(p)
+    setShowSubmitModal(true)
+  }
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
@@ -169,8 +183,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <div className="px-4 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${filtered.length} students`} • per-period save/lock</span></p>
                 <div className="flex items-center gap-2">
-                  <button onClick={()=>toast.info('Save '+period+' — per-period')} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Save {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'}</button>
-                  <button onClick={()=>toast.info('Submit '+period+' — '+ (activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} (${filtered.length})`))} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Submit {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${activeSection} (${filtered.length})`}</button>
+                  <button onClick={()=>{ const c=filtered.filter(r=>r.dirty).length; if(c===0) toast.info('No changes to save.'); else { setRows(prev=>prev.map(r=> filtered.some(f=>f._key===r._key && r.dirty) ? {...r, dirty:false, original:{...r, [period]: r[period as any]}}:r)); toast.success(`Saved ${c} ${period} draft(s)`)} } } className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Save {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'}</button>
+                  <button onClick={()=>openSubmit(period)} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Submit {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${activeSection} (${filtered.length})`}</button>
                 </div>
               </div>
             )}
@@ -221,6 +235,76 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           </div>
         </main>
       </div>
+
+      {/* Submit modal — scope-aware, blank → INC, draft→submitted */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={()=>setShowSubmitModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="font-bold">Submit grades?</h3>
+              <p className="text-xs text-slate-500 mt-1">This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</p>
+              <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <p className="text-xs font-semibold" id="submitScopeText">{activeSection==='all'?`All sections (${filtered.length})`: `${activeSection} • ${filtered.length} students`} — {submitPeriod==='all'?'All periods': submitPeriod==='prelim'?'Prelim only': submitPeriod==='midterm'?'Midterm only':'Finals only'}</p>
+                <p className="text-xs text-slate-500 mt-1" id="submitScopeDetail">
+                  {(() => {
+                    const vis = activeSection==='all'? filtered : filtered.filter(r=>r.subjectCode===activeSection)
+                    const need = submitPeriod==='prelim' ? vis.filter(r=>!r.prelim).length : submitPeriod==='midterm' ? vis.filter(r=>!r.midterm).length : submitPeriod==='finals' ? vis.filter(r=>!r.finals && !r.finalGrade).length : 0
+                    const drafts = vis.filter(r=>r.gradeStatus==='draft' && !r.locked && (submitPeriod==='prelim'?r.prelim: submitPeriod==='midterm'?r.midterm: r.finals||r.finalGrade)).length
+                    if(need>0) return `${need} blank(s) will be set to INC on submit — ${drafts} graded + ${need} INC total.`
+                    return `This will submit ${drafts} draft grades in this scope.`
+                  })()}
+                </p>
+              </div>
+              {(() => {
+                const vis = activeSection==='all'? filtered : filtered.filter(r=>r.subjectCode===activeSection)
+                const need = submitPeriod==='prelim' ? vis.filter(r=>!r.prelim).length : submitPeriod==='midterm' ? vis.filter(r=>!r.midterm).length : submitPeriod==='finals' ? vis.filter(r=>!r.finals && !r.finalGrade).length : 0
+                if(need===0) return null
+                return (
+                  <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 flex gap-2">
+                    <span className="text-amber-600">⚠</span>
+                    <div className="text-xs">
+                      <p className="font-semibold text-amber-800">Blanks will be set to INC on submit</p>
+                      <p className="text-amber-700 mt-1">{need} student(s) still have blank {submitPeriod}. Fill with a grade (0-100) or INC, or they will become INC.</p>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
+              <select value={submitPeriod} onChange={e=>setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
+                <option value="prelim">Prelim only</option>
+                <option value="midterm">Midterm only</option>
+                <option value="finals">Finals only</option>
+                <option value="all">All periods (Final Grade)</option>
+              </select>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
+              <textarea value={submitNote} onChange={e=>setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={()=>setShowSubmitModal(false)} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium">Cancel</button>
+              <button onClick={()=>{
+                const vis = activeSection==='all'? filtered : filtered.filter(r=>r.subjectCode===activeSection)
+                let toSubmit: any[] = []
+                if(submitPeriod==='all'){
+                  vis.forEach(r=>{ if(r.gradeStatus==='draft' && !r.locked){ ['prelim','midterm','finals'].forEach((f:any)=>{ if(!r[f]){ r[f]='INC'; if(f==='finals') r.finalGrade='INC' }}) } })
+                  toSubmit = vis.filter(r=>r.gradeStatus==='draft' && !r.locked)
+                } else {
+                  const f = submitPeriod as any
+                  vis.forEach(r=>{ if(!r[f] && r.gradeStatus==='draft' && !r.locked){ r[f]='INC'; if(f==='finals') r.finalGrade='INC'; r.dirty=true } })
+                  toSubmit = vis.filter(r=>r.gradeStatus==='draft' && !r.locked && r[f]!=='')
+                }
+                if(toSubmit.length===0){ toast.info('No draft grades to submit for '+submitPeriod); return }
+                toSubmit.forEach(r=>{ r.locked=true; r.gradeStatus='submitted'; r.dirty=false; r.original={...r} })
+                setRows([...rows])
+                setShowSubmitModal(false)
+                toast.success(`Submitted ${toSubmit.length} records (${submitPeriod}) — draft → submitted`)
+              }} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">Submit <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">{filtered.filter(r=>r.gradeStatus==='draft').length}</span></button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
