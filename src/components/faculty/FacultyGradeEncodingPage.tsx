@@ -117,11 +117,22 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const [submitPeriod, setSubmitPeriod] = useState<'prelim'|'midterm'|'finals'|'all'>('prelim')
   const [submitNote, setSubmitNote] = useState('')
+  const [showFillModal, setShowFillModal] = useState(false)
+  const [fillValue, setFillValue] = useState('')
   const submitScope = (() => {
     const visible = activeSection==='all' ? filtered : filtered.filter(r=>r.subjectCode===activeSection)
     // not used directly, computed in modal
     return visible
   })()
+  const isFillDisabled = period==='all' || activeSection==='all'
+  const openFill = () => {
+    if(isFillDisabled){
+      toast.info('Fill down only works for a specific section and period (Prelim/Midterm/Finals). Select a section and period first.')
+      return
+    }
+    setFillValue('')
+    setShowFillModal(true)
+  }
 
   if(loading) return <DashboardSkeleton />
   if(!faculty) return <div className="min-h-dvh grid place-items-center"><p className="text-sm text-red-600">Faculty data not found.</p></div>
@@ -176,14 +187,25 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5"/> Final • auto-computed • editable</span>
                 <button onClick={()=>toast.info('Auto-compute: Final = Prelim*0.3+Mid*0.3+Finals*0.4')} className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-semibold text-blue-700 hover:bg-blue-100 inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5"/> Auto-compute</button>
-                <button onClick={()=>toast.info('Fill down — enter value for current period')} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><ArrowDown className="w-3.5 h-3.5"/> Fill down…</button>
+                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for '+period+' in '+activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' : 'bg-white border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5"/> Fill down…</button>
               </div>
             </div>
             {period!=='all' && (
               <div className="px-4 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${filtered.length} students`} • per-period save/lock</span></p>
                 <div className="flex items-center gap-2">
-                  <button onClick={()=>{ const c=filtered.filter(r=>r.dirty).length; if(c===0) toast.info('No changes to save.'); else { setRows(prev=>prev.map(r=> filtered.some(f=>f._key===r._key && r.dirty) ? {...r, dirty:false, original:{...r, [period]: r[period as any]}}:r)); toast.success(`Saved ${c} ${period} draft(s)`)} } } className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Save {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'}</button>
+                  <button onClick={()=>{
+                    const field = period as any
+                    const perDirty = filtered.filter(r=> r.dirty && r[field]!==r.original[field]).length
+                    if(perDirty===0) { toast.info(`No ${period} changes to save for ${activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} (${filtered.length})`}.`); return }
+                    setRows(prev=>prev.map(r=> {
+                      const isTarget = filtered.some(f=>f._key===r._key) && r.dirty && (r as any)[field] !== (r.original as any)[field]
+                      return isTarget ? {...r, dirty: !(r.prelim===r.original.prelim && r.midterm===r.original.midterm && r.finals===r.original.finals && (r.finalGrade||'')===(r.original.finalGrade||'')), original:{...r.original, [field]: (r as any)[field]}, gradeStatus:'draft'} : r
+                    }))
+                    // recalc after save
+                    setTimeout(()=> setRows(prev=>prev.map(r=> ({...r, dirty: !(r.prelim===r.original.prelim && r.midterm===r.original.midterm && r.finals===r.original.finals && (r.finalGrade||'')===(r.original.finalGrade||''))}))),0)
+                    toast.success(`Saved ${perDirty} ${period} draft(s) — ${activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} (${filtered.length})`}`)
+                  }} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Save {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'}</button>
                   <button onClick={()=>openSubmit(period)} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Submit {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${activeSection} (${filtered.length})`}</button>
                 </div>
               </div>
@@ -235,6 +257,36 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           </div>
         </main>
       </div>
+
+      {/* Fill down modal — per section + per period only */}
+      {showFillModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/50" onClick={()=>setShowFillModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="font-bold">Fill down — <span className="text-[#287CBB]">{period==='prelim'?'Prelim': period==='midterm'?'Midterm':'Finals'}</span></h3>
+              <p className="text-xs text-slate-500 mt-1">Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${filtered.length} students`}</span> • {period==='prelim'?'Prelim':period==='midterm'?'Midterm':'Finals'} only.</p>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
+              <input value={fillValue} onChange={e=>setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+              <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section.</p>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+              <button onClick={()=>setShowFillModal(false)} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium">Cancel</button>
+              <button onClick={()=>{
+                const v=fillValue.trim(); const up=v.toUpperCase();
+                let val=v; if(up==='INC') val='INC'; else if(v===''||isNaN(Number(v))||Number(v)<0||Number(v)>100){ toast.info('Enter 0-100 or INC'); return }
+                const field = period as any
+                if(period==='all'){ toast.info('Select a specific period (Prelim/Midterm/Finals) to use Fill down'); return }
+                if(activeSection==='all'){ toast.info('Select a specific section to use Fill down'); return }
+                setRows(prev=>prev.map(r=> (r.subjectCode===activeSection && !r.locked) ? {...r, [field]: val, dirty:true, gradeStatus:'draft'} : r))
+                setShowFillModal(false); setFillValue(''); toast.success(`Filled ${val} for ${activeSection} • ${field}`)
+              }} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2"><ArrowDown className="w-4 h-4"/> Fill</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submit modal — scope-aware, blank → INC, draft→submitted */}
       {showSubmitModal && (
