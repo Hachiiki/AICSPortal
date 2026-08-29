@@ -1,2 +1,55 @@
-skills/
+# Dependencies
 node_modules/
+/.pnp
+.pnp.*
+
+# Next.js build output
+.next/
+/out/
+/build/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dev.log
+server.log
+bun.lock
+
+# Env files
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Local artifacts
+local-*
+
+# Removed from repo — do not track these folders
+.zscripts/
+db/
+download/
+mini-services/
+prisma/
+tests/
+tool-results/
+upload/
+agent-ctx/
+skills/
+worklog.md
+
+# Agent config
+.z-ai-config
