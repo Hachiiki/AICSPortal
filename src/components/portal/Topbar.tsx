@@ -53,8 +53,8 @@ export function Topbar({
   return (
     <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200">
       <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        {/* Left — mobile hamburger */}
-        <div className="flex items-center flex-shrink-0">
+        {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
+        <div className="flex items-center gap-3 flex-shrink-0">
           <button
             type="button"
             onClick={onOpenMobileNav}
@@ -63,6 +63,9 @@ export function Topbar({
           >
             <Menu className="w-5 h-5" />
           </button>
+          <span className="hidden sm:inline-flex px-2.5 py-1 rounded bg-[#153357] text-white text-xs font-semibold tracking-wide">
+            BRANCH: {student.branch?.toUpperCase() || 'MANILA'}
+          </span>
         </div>
 
         {/* Center — global search */}

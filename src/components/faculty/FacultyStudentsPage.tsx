@@ -176,41 +176,48 @@ export function FacultyStudentsPage({
       <div className="lg:pl-60">
         <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
-          {/* Page header */}
+          {/* Page header — 1st Sem • AY 2026-2027 - 3 classes • 72 students (prototype V23) */}
           <div>
             <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
             </button>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              {faculty.semester} &bull; AY {faculty.academicYear} &bull; {sections.length} classes &bull; {totalStudents} students
-            </p>
+            <p className="text-sm text-slate-500 mt-1">1st Sem • AY 2026-2027 - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
           </div>
 
-          {/* Summary chips */}
-          <div className="flex gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
-              <UsersIcon className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-medium text-slate-500">Students</span>
-              <span className="text-sm font-bold text-slate-900">{totalStudents}</span>
+          {/* Filters — card-less, styled dropdowns (prototype V23) */}
+          <div className="flex flex-wrap gap-3 items-end">
+            <div className="flex-1 min-w-[220px]">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
+              <div className="relative mt-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search student name, number, or subject..."
+                  className="w-full h-10 pl-10 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
-              <MapPin className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-medium text-slate-500">Classes</span>
-              <span className="text-sm font-bold text-slate-900">{sections.length}</span>
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
+              <div className="relative mt-1">
+                <select className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                  <option>All sections ({sections.length})</option>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
             </div>
-          </div>
-
-          {/* Search */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search student name, number, or subject..."
-              className="w-full h-10 pl-10 pr-3 rounded-lg border border-slate-200 text-sm bg-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
+              <div className="relative mt-1">
+                <select className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                  <option>All statuses</option>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
           </div>
 
           {/* Section cards (accordion) */}

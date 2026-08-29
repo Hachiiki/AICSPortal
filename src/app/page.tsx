@@ -10,6 +10,7 @@ import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
+import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -365,6 +366,21 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         announcements={announcements}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+      />
+    )
+  }
+
+  if (route.view === 'previous-records' && route.role === 'faculty') {
+    return (
+      <FacultyPreviousRecordsPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
       />

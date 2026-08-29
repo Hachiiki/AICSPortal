@@ -214,15 +214,21 @@ export function FacultyGradeEncodingPage({
       <div className="lg:pl-60">
         <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
-          {/* Page header */}
-          <div>
-            <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
-            </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Grade Encoding</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              {faculty.semester} &bull; AY {faculty.academicYear} &bull; {gradeRows.length} enrollment records
-            </p>
+          {/* Page header — 1st Sem • AY 2026-2027 - Prelim / Midterm / Finals → final auto-computed + legend on right (prototype V23) */}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
+                <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              </button>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">Grade Encoding</h1>
+              <p className="text-sm text-slate-500 mt-1">1st Sem • AY 2026-2027 - Prelim / Midterm / Finals → final auto-computed</p>
+            </div>
+            <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-slate-50 border border-slate-200 shadow-sm self-center">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-xs font-medium"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Draft</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-medium"><span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Submitted</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Released</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-medium">Incomplete</span>
+            </div>
           </div>
 
           {/* Filters + save */}
