@@ -165,6 +165,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 <button onClick={()=>toast.info('Fill down — enter value for current period')} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><ArrowDown className="w-3.5 h-3.5"/> Fill down…</button>
               </div>
             </div>
+            {period!=='all' && (
+              <div className="px-4 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${filtered.length} students`} • per-period save/lock</span></p>
+                <div className="flex items-center gap-2">
+                  <button onClick={()=>toast.info('Save '+period+' — per-period')} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Save {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'}</button>
+                  <button onClick={()=>toast.info('Submit '+period+' — '+ (activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} (${filtered.length})`))} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] inline-flex items-center gap-1.5"><Save className="w-3.5 h-3.5"/> Submit {period==='prelim'?'Prelim only':period==='midterm'?'Midterm only':'Finals only'} — {activeSection==='all'?`All sections (${filtered.length})`:`${activeSection} • ${activeSection} (${filtered.length})`}</button>
+                </div>
+              </div>
+            )}
             <div className="px-4 py-3 flex flex-wrap gap-3 items-center border-b border-slate-100">
               <div className="relative flex-1 min-w-[200px] max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
