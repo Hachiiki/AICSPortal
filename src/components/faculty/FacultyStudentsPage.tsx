@@ -374,72 +374,131 @@ export function FacultyStudentsPage({
         </main>
       </div>
 
-      {/* Student detail modal */}
-      {selectedStudent && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50"
-          onClick={() => setSelectedStudent(null)}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-bold text-sm text-slate-900">Student Details</h3>
-              <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="px-6 py-5 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>
-                  {selectedStudent.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
-                  <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber}</p>
-                </div>
+      {/* Student detail drawer — slide-over from right (prototype V23 drawer, not modal) */}
+      <AnimatePresence>
+        {selectedStudent && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40"
+              onClick={() => setSelectedStudent(null)}
+              aria-hidden="true"
+            />
+            <motion.div
+              initial={{ x: 520 }}
+              animate={{ x: 0 }}
+              exit={{ x: 520 }}
+              transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
+              className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Student file"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <h3 className="font-bold text-sm text-slate-900">Student file • Branch-scoped</h3>
+                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900">
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div><span className="text-slate-400">Program</span><p className="text-slate-700 font-medium">{selectedStudent.program}</p></div>
-                <div><span className="text-slate-400">Year / Section</span><p className="text-slate-700 font-medium">{selectedStudent.yearLevel} / {selectedStudent.section}</p></div>
-                <div><span className="text-slate-400">Username</span><p className="text-slate-700 font-medium font-mono">{selectedStudent.username}</p></div>
-              </div>
-              <div className="pt-3 border-t border-slate-100">
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium mb-2">Subjects you teach this student</p>
-                {selectedStudent.subjects.length === 0 ? (
-                  <p className="text-xs text-slate-400">No shared subjects.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {selectedStudent.subjects.map((s, i) => (
-                      <div key={i} className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-slate-50">
-                        <div className="min-w-0">
-                          <p className="font-mono text-xs font-bold text-blue-700">{s.code}</p>
-                          <p className="text-xs text-slate-600 truncate">{s.title}</p>
-                          <p className="text-[10px] text-slate-400">{s.academicYear} {s.semester}</p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="flex gap-3 text-xs">
-                            <div><span className="text-slate-400">M:</span> <span className="font-mono text-slate-700">{s.midterm}</span></div>
-                            <div><span className="text-slate-400">F:</span> <span className="font-mono text-slate-700">{s.finals}</span></div>
-                            <div><span className="text-slate-400">FG:</span> <span className="font-mono font-bold text-blue-700">{s.finalGrade}</span></div>
-                          </div>
-                          <div className="mt-1">
-                            <RemarksBadge remarks={s.remarks} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: '#1e293b' }}>
+                    {selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
                   </div>
-                )}
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
+                    <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber} • {selectedStudent.username} • {selectedStudent.program} {selectedStudent.section}</p>
+                    <div className="flex gap-2 mt-1">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Branch-scoped</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Contact</p>
+                    <p className="font-medium mt-1 text-slate-900">{selectedStudent.fullName}</p>
+                    <p className="text-xs text-slate-500">—</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Year / Section</p>
+                    <p className="font-medium mt-1 text-slate-900">{selectedStudent.yearLevel} / {selectedStudent.section}</p>
+                    <p className="text-xs text-slate-500">{selectedStudent.program}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Username</p>
+                    <p className="font-medium mt-1 font-mono text-slate-900">{selectedStudent.username}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Program</p>
+                    <p className="font-medium mt-1 text-slate-900">{selectedStudent.program}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Grades you teach this student</p>
+                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects</span>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    {selectedStudent.subjects.length === 0 ? (
+                      <p className="text-xs text-slate-400">No shared subjects.</p>
+                    ) : (
+                      selectedStudent.subjects.map((s, i) => (
+                        <div key={i} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="min-w-0">
+                            <p className="font-mono text-xs font-bold text-blue-700">{s.code}</p>
+                            <p className="text-xs text-slate-700 truncate">{s.title}</p>
+                            <p className="text-[10px] text-slate-500">{s.academicYear} {s.semester} • {s.yearLevel}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="flex gap-2 text-xs">
+                              <span>
+                                <span className="text-slate-400">P:</span> <span className="font-mono text-slate-700">{(s as any).prelim || '-'}</span>
+                              </span>
+                              <span>
+                                <span className="text-slate-400">M:</span> <span className="font-mono text-slate-700">{s.midterm || '-'}</span>
+                              </span>
+                              <span>
+                                <span className="text-slate-400">F:</span> <span className="font-mono text-slate-700">{s.finals || '-'}</span>
+                              </span>
+                              <span>
+                                <span className="text-slate-400">FG:</span> <span className="font-mono font-bold text-blue-700">{s.finalGrade || '-'}</span>
+                              </span>
+                            </div>
+                            <div className="mt-1">
+                              <RemarksBadge remarks={s.remarks} />
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-slate-200 p-4 space-y-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Classroom management</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
+                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Announce quiz</button>
+                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
+                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">In/Out log</button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
-              <button type="button" onClick={() => setSelectedStudent(null)} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Close</button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+              <div className="p-4 border-t border-slate-200 flex gap-2 shrink-0">
+                <button type="button" onClick={() => setSelectedStudent(null)} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">
+                  Close
+                </button>
+                <button type="button" onClick={() => onNavigate('grade-encoding')} className="flex-1 h-10 rounded-lg bg-[#153357] text-white font-semibold text-sm inline-flex items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg> Encode grades
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
