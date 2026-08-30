@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { ChevronRight, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
+import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -371,9 +371,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search student…" className="w-full h-9 pl-9 pr-3 rounded-xl border border-slate-200 bg-white shadow-sm text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-9 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm shadow-sm">
-                <option value="all">All statuses</option><option value="">No status</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="released">Released</option>
-              </select>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
+                <div className="relative mt-1">
+                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                    <option value="all">All statuses</option><option value="">No status</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="released">Released</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
               <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
