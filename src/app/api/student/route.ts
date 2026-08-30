@@ -40,13 +40,13 @@ export async function GET(request: NextRequest) {
         code: x.code, title: x.title, units: x.units, professor: x.professor,
         professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,
         // GRADE APPROVAL WORKFLOW: students only see grades where
-        // gradeStatus === 'released'. Draft/submitted grades show
-        // as '-' (hidden). Defaults to 'released' for backward compat.
-        prelim: x.gradeStatus === 'released' || !x.gradeStatus ? (x.prelim ?? '-') : '-',
-        midterm: x.gradeStatus === 'released' || !x.gradeStatus ? x.midterm : '-',
-        finals: x.gradeStatus === 'released' || !x.gradeStatus ? x.finals : '-',
-        finalGrade: x.gradeStatus === 'released' || !x.gradeStatus ? x.finalGrade : '-',
-        remarks: x.gradeStatus === 'released' || !x.gradeStatus ? x.remarks : 'Pending',
+        // gradeStatus === 'released'. Draft/submitted or empty (not yet
+        // released, e.g. 2026-2027 INC) shows as '-' / Pending.
+        prelim: x.gradeStatus === 'released' ? (x.prelim ?? '-') : '-',
+        midterm: x.gradeStatus === 'released' ? x.midterm : '-',
+        finals: x.gradeStatus === 'released' ? x.finals : '-',
+        finalGrade: x.gradeStatus === 'released' ? x.finalGrade : '-',
+        remarks: x.gradeStatus === 'released' ? x.remarks : 'Pending',
         academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status,
       })),
       // schedule is an empty array — kept on the type for backward compat.

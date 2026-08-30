@@ -65,7 +65,6 @@ interface StudentWithGrades extends FacultyStudent {
   subjects: FacultyApiSubject[]
 }
 
-// A section is a unique subject + room + schedule combo — backed by MongoDB subjects collection
 interface Section {
   key: string
   subjectCode: string
@@ -96,7 +95,6 @@ export function FacultyStudentsPage({
   const allStudents: FacultyStudent[] = facultyData?.students ?? []
   const loading = facultyLoading ?? true
 
-  // Build enriched students with their subjects — all from MongoDB via /api/faculty
   const enrichedStudents = useMemo<StudentWithGrades[]>(() => {
     return allStudents.map((stu) => ({
       ...stu,
@@ -104,13 +102,9 @@ export function FacultyStudentsPage({
     }))
   }, [allStudents, subjects])
 
-  // Group students by section (subject code + academic year + semester) — derived from MongoDB subjects collection
   const sections = useMemo<Section[]>(() => {
     const map = new Map<string, Section>()
-
     for (const s of subjects) {
-      // Section key = subject code + academic year + semester
-      // (same subject taught in different terms = different sections)
       const key = `${s.code}|${s.academicYear || ''}|${s.semester || ''}`
       if (!map.has(key)) {
         map.set(key, {
@@ -126,31 +120,22 @@ export function FacultyStudentsPage({
           students: [],
         })
       }
-
-      // Find the student for this subject enrollment — from MongoDB students collection
       const stu = enrichedStudents.find((st) => st.username === s.studentUsername)
       if (stu && !map.get(key)!.students.find((st) => st.username === stu.username)) {
         map.get(key)!.students.push(stu)
       }
     }
-
     return Array.from(map.values()).sort((a, b) => {
-      // Sort by academic year descending (current term first), then by subject code
       if (a.academicYear !== b.academicYear) return b.academicYear.localeCompare(a.academicYear)
       return a.subjectCode.localeCompare(b.subjectCode)
     })
   }, [subjects, enrichedStudents])
 
-  // Filter sections by search + section + status — all filters operate on MongoDB-backed data
   const filteredSections = useMemo(() => {
     let result = sections
-
-    // Section filter (subject-level)
     if (sectionFilter !== 'all') {
       result = result.filter((sec) => sec.key === sectionFilter)
     }
-
-    // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       result = result.map((sec) => ({
@@ -162,8 +147,6 @@ export function FacultyStudentsPage({
         ),
       })).filter((sec) => sec.students.length > 0 || sec.subjectCode.toLowerCase().includes(q) || sec.subjectTitle.toLowerCase().includes(q))
     }
-
-    // Status filter — uses enrollmentStatus from MongoDB students collection
     if (statusFilter !== 'all') {
       result = result.map((sec) => ({
         ...sec,
@@ -173,13 +156,10 @@ export function FacultyStudentsPage({
         }),
       })).filter((sec) => sec.students.length > 0)
     }
-
     return result
   }, [sections, searchQuery, sectionFilter, statusFilter])
 
-  const handleNavigate = (v: View) => {
-    onNavigate(v)
-  }
+  const handleNavigate = (v: View) => { onNavigate(v) }
 
   const totalStudents = useMemo(() => {
     const usernames = new Set<string>()
@@ -187,14 +167,12 @@ export function FacultyStudentsPage({
     return usernames.size
   }, [sections])
 
-  // Export roster as CSV — generates from live MongoDB-backed filtered data
   const handleExportCsv = () => {
     const rows: string[] = []
     rows.push(['Student Name', 'Student #', 'Username', 'Section', 'Program', 'Subject Code', 'Subject Title', 'Prelim', 'Midterm', 'Finals', 'Final Grade', 'Remarks', 'Status', 'Academic Year', 'Semester'].join(','))
     for (const sec of filteredSections) {
       for (const stu of sec.students) {
         const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
-        const prelim = subj?.prelim || ''
         rows.push([
           `"${stu.fullName.replace(/"/g, '""')}"`,
           stu.studentNumber,
@@ -203,7 +181,7 @@ export function FacultyStudentsPage({
           `"${(stu.program || '').replace(/"/g, '""')}"`,
           sec.subjectCode,
           `"${sec.subjectTitle.replace(/"/g, '""')}"`,
-          prelim,
+          subj?.prelim || '',
           subj?.midterm || '',
           subj?.finals || '',
           subj?.finalGrade || '',
@@ -227,13 +205,10 @@ export function FacultyStudentsPage({
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    toast.success(`Exported ${rows.length - 1} roster rows from MongoDB.`)
+    toast.success(`Exported ${rows.length - 1} rows.`)
   }
 
-  if (loading) {
-    return <DashboardSkeleton />
-  }
-
+  if (loading) return <DashboardSkeleton />
   if (!faculty) {
     return (
       <div className="min-h-dvh bg-slate-50 font-sans flex items-center justify-center">
@@ -248,54 +223,38 @@ export function FacultyStudentsPage({
       <div className="lg:pl-60">
         <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
-          {/* Page header — branch-scoped term from MongoDB faculty record */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
                 <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
               </button>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
-              <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span> <span className="text-xs text-slate-400 ml-1">(MongoDB: {faculty.branch} branch)</span></p>
+              <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
             <div className="flex gap-2">
               <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
               </button>
-              <button onClick={() => toast.info('Attendance module coming soon — roster is live from MongoDB.')} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
+              <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
               </button>
             </div>
           </div>
 
-          {/* Filters — all operate on MongoDB-backed sections/students */}
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search student name, number, or subject..."
-                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
               <div className="relative mt-1">
-                <select
-                  value={sectionFilter}
-                  onChange={(e) => setSectionFilter(e.target.value)}
-                  className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none"
-                >
+                <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
                   <option value="all">All sections ({sections.length})</option>
-                  {sections.map((s) => (
-                    <option key={s.key} value={s.key}>
-                      {s.subjectCode} — {s.room} • {s.schedule}
-                    </option>
-                  ))}
+                  {sections.map((s) => (<option key={s.key} value={s.key}>{s.subjectCode} — {s.room} • {s.schedule}</option>))}
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
@@ -315,14 +274,11 @@ export function FacultyStudentsPage({
             </div>
           </div>
 
-          {/* Section cards (accordion) — each card maps 1 MongoDB subject grouping */}
           {filteredSections.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
               <UsersIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm text-slate-500">No classes found.</p>
-              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (
-                <button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all') }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>
-              )}
+              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (<button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all') }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>)}
             </div>
           ) : (
             <div className="space-y-4">
@@ -330,41 +286,23 @@ export function FacultyStudentsPage({
                 const isExpanded = expandedSection === sec.key
                 return (
                   <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    {/* Section header (clickable) — subject metadata from MongoDB subjects collection */}
-                    <div
-                      onClick={() => setExpandedSection(isExpanded ? null : sec.key)}
-                      className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
-                    >
+                    <div onClick={() => setExpandedSection(isExpanded ? null : sec.key)} className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-blue-700">{sec.subjectCode}</span>
                           <h3 className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</h3>
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500">
-                            <MapPin className="w-3 h-3" /> {sec.room}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500">
-                            <Clock className="w-3 h-3" /> {sec.schedule}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            {sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}
-                          </span>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" /> {sec.room}</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" /> {sec.schedule}</span>
+                          <span className="text-[10px] text-slate-400">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">
-                          {sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}
-                        </span>
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-slate-400" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        )}
+                        <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                       </div>
                     </div>
-
-                    {/* Expanded roster — every row is a MongoDB student + subject enrollment join */}
                     {isExpanded && (
                       <div className="border-t border-slate-100">
                         <div className="overflow-x-auto">
@@ -389,19 +327,12 @@ export function FacultyStudentsPage({
                                 const prelim = subj?.prelim || '-'
                                 const rawStatus = stu.enrollmentStatus || 'Enrolled'
                                 const statusLower = rawStatus.toLowerCase()
-                                const statusBadge =
-                                  statusLower === 'dropped'
-                                    ? 'bg-red-50 text-red-700 border-red-200'
-                                    : statusLower === 'transferred'
-                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                const statusBadge = statusLower === 'dropped' ? 'bg-red-50 text-red-700 border-red-200' : statusLower === 'transferred' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 return (
                                   <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                                     <td className="px-6 py-3">
                                       <div className="flex items-center gap-2.5">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>
-                                          {stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                                        </div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900">{stu.fullName}</span>
                                       </div>
                                     </td>
@@ -412,25 +343,11 @@ export function FacultyStudentsPage({
                                     <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.finals || '-'}</td>
                                     <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{subj?.finalGrade || '-'}</span></td>
                                     <td className="px-4 py-3 text-center">{subj && <RemarksBadge remarks={subj.remarks} />}</td>
-                                    <td className="px-4 py-3 text-center">
-                                      <span className={`text-[11px] px-2 py-0.5 rounded-full border ${statusBadge}`}>{rawStatus}</span>
-                                    </td>
+                                    <td className="px-4 py-3 text-center"><span className={`text-[11px] px-2 py-0.5 rounded-full border ${statusBadge}`}>{rawStatus}</span></td>
                                     <td className="px-6 py-3 text-right">
                                       <div className="flex justify-end gap-1">
-                                        <button
-                                          type="button"
-                                          onClick={() => setSelectedStudent(stu)}
-                                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200"
-                                        >
-                                          View
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => onNavigate('grade-encoding')}
-                                          className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50"
-                                        >
-                                          Grade
-                                        </button>
+                                        <button type="button" onClick={() => setSelectedStudent(stu)} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200">View</button>
+                                        <button type="button" onClick={() => onNavigate('grade-encoding')} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50">Grade</button>
                                       </div>
                                     </td>
                                   </tr>
@@ -440,13 +357,9 @@ export function FacultyStudentsPage({
                           </table>
                         </div>
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
-                          <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
-                            <UsersIcon className="w-3.5 h-3.5" /> Message section
-                          </button>
-                          <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5" /> Take attendance
-                          </button>
-                          <span className="ml-auto text-slate-500">Branch-scoped • {faculty.branch} • MongoDB live • Click View for student file.</span>
+                          <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
+                          <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <span className="ml-auto text-slate-500">Click View for student file.</span>
                         </div>
                       </div>
                     )}
@@ -458,46 +371,24 @@ export function FacultyStudentsPage({
         </main>
       </div>
 
-      {/* Student detail drawer — slide-over from right (MongoDB student + subjects join) */}
       <AnimatePresence>
         {selectedStudent && (
           <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40"
-              onClick={() => setSelectedStudent(null)}
-              aria-hidden="true"
-            />
-            <motion.div
-              initial={{ x: 520 }}
-              animate={{ x: 0 }}
-              exit={{ x: 520 }}
-              transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Student file"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedStudent(null)} aria-hidden="true" />
+            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
-                <h3 className="font-bold text-sm text-slate-900">Student file • Branch-scoped • MongoDB</h3>
-                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900">
-                  <X className="w-4 h-4" />
-                </button>
+                <h3 className="font-bold text-sm text-slate-900">Student file</h3>
+                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: '#1e293b' }}>
-                    {selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
-                  </div>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: '#1e293b' }}>{selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                   <div>
                     <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
                     <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber} • {selectedStudent.username} • {selectedStudent.program} {selectedStudent.section}</p>
                     <div className="flex gap-2 mt-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${selectedStudent.enrollmentStatus?.toLowerCase() === 'dropped' ? 'bg-red-50 text-red-700 border-red-200' : selectedStudent.enrollmentStatus?.toLowerCase() === 'transferred' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>{selectedStudent.enrollmentStatus || 'Enrolled'}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{faculty.branch} • Branch-scoped</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{faculty.branch}</span>
                       {selectedStudent.gpa && <span className="text-xs px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">GPA {selectedStudent.gpa}</span>}
                     </div>
                   </div>
@@ -516,7 +407,6 @@ export function FacultyStudentsPage({
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Username</p>
                     <p className="font-medium mt-1 font-mono text-slate-900">{selectedStudent.username}</p>
-                    <p className="text-xs text-slate-500">MongoDB: students collection</p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Program</p>
@@ -527,13 +417,10 @@ export function FacultyStudentsPage({
                 <div className="rounded-xl border border-slate-200 overflow-hidden">
                   <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Grades you teach this student</p>
-                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects • subjects collection</span>
+                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects</span>
                   </div>
                   <div className="p-3 space-y-2">
-                    {selectedStudent.subjects.length === 0 ? (
-                      <p className="text-xs text-slate-400">No shared subjects.</p>
-                    ) : (
-                      selectedStudent.subjects.map((s, i) => (
+                    {selectedStudent.subjects.length === 0 ? (<p className="text-xs text-slate-400">No shared subjects.</p>) : (selectedStudent.subjects.map((s, i) => (
                         <div key={i} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
                           <div className="min-w-0">
                             <p className="font-mono text-xs font-bold text-blue-700">{s.code}</p>
@@ -542,27 +429,16 @@ export function FacultyStudentsPage({
                           </div>
                           <div className="text-right shrink-0">
                             <div className="flex gap-2 text-xs">
-                              <span>
-                                <span className="text-slate-400">P:</span> <span className="font-mono text-slate-700">{s.prelim || '-'}</span>
-                              </span>
-                              <span>
-                                <span className="text-slate-400">M:</span> <span className="font-mono text-slate-700">{s.midterm || '-'}</span>
-                              </span>
-                              <span>
-                                <span className="text-slate-400">F:</span> <span className="font-mono text-slate-700">{s.finals || '-'}</span>
-                              </span>
-                              <span>
-                                <span className="text-slate-400">FG:</span> <span className="font-mono font-bold text-blue-700">{s.finalGrade || '-'}</span>
-                              </span>
+                              <span><span className="text-slate-400">P:</span> <span className="font-mono text-slate-700">{s.prelim || '-'}</span></span>
+                              <span><span className="text-slate-400">M:</span> <span className="font-mono text-slate-700">{s.midterm || '-'}</span></span>
+                              <span><span className="text-slate-400">F:</span> <span className="font-mono text-slate-700">{s.finals || '-'}</span></span>
+                              <span><span className="text-slate-400">FG:</span> <span className="font-mono font-bold text-blue-700">{s.finalGrade || '-'}</span></span>
                             </div>
-                            <div className="mt-1">
-                              <RemarksBadge remarks={s.remarks} />
-                            </div>
-                            <p className="text-[10px] text-slate-400 mt-1">{s.gradeStatus} • {s.status}</p>
+                            <div className="mt-1"><RemarksBadge remarks={s.remarks} /></div>
+                            <p className="text-[10px] text-slate-400 mt-1">{s.gradeStatus || 'No status'} • {s.status}</p>
                           </div>
                         </div>
-                      ))
-                    )}
+                      )))}
                   </div>
                 </div>
                 <div className="rounded-xl border border-slate-200 p-4 space-y-3">
@@ -576,12 +452,8 @@ export function FacultyStudentsPage({
                 </div>
               </div>
               <div className="p-4 border-t border-slate-200 flex gap-2 shrink-0">
-                <button type="button" onClick={() => setSelectedStudent(null)} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">
-                  Close
-                </button>
-                <button type="button" onClick={() => onNavigate('grade-encoding')} className="flex-1 h-10 rounded-lg bg-[#153357] text-white font-semibold text-sm inline-flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg> Encode grades
-                </button>
+                <button type="button" onClick={() => setSelectedStudent(null)} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
+                <button type="button" onClick={() => onNavigate('grade-encoding')} className="flex-1 h-10 rounded-lg bg-[#153357] text-white font-semibold text-sm inline-flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg> Encode grades</button>
               </div>
             </motion.div>
           </>
