@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Archive, Search, MapPin, Clock, Eye } from 'lucide-react'
+import { Archive, Search, MapPin, Clock, Eye, ChevronDown } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -123,20 +123,26 @@ export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, even
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Academic Year</label>
-              <select value={year} onChange={(e) => setYear(e.target.value)} className="mt-1 h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                <option value="all">All years</option>
-                <option value="2026-2027">AY 2026-2027</option>
-                <option value="2025-2026">AY 2025-2026</option>
-                <option value="2024-2025">AY 2024-2025</option>
-              </select>
+              <div className="relative mt-1">
+                <select value={year} onChange={(e) => setYear(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                  <option value="all">All years</option>
+                  <option value="2026-2027">AY 2026-2027</option>
+                  <option value="2025-2026">AY 2025-2026</option>
+                  <option value="2024-2025">AY 2024-2025</option>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Assignment</label>
-              <select value={assignment} onChange={(e) => setAssignment(e.target.value)} className="mt-1 h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                <option value="all">All</option>
-                <option value="current">Currently teaching</option>
-                <option value="former">Formerly taught (switched)</option>
-              </select>
+              <div className="relative mt-1">
+                <select value={assignment} onChange={(e) => setAssignment(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                  <option value="all">All</option>
+                  <option value="current">Currently teaching</option>
+                  <option value="former">Formerly taught (switched)</option>
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
             </div>
           </div>
 
