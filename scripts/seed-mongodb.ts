@@ -134,15 +134,15 @@ async function seed() {
     { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 1', title: 'Physical Fitness', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', midterm: '1.00', finals: '1.00', finalGrade: '1.00', remarks: 'Passed', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', gradeStatus: 'released' },
   ]
 
-  // TERM 2: 2nd Year / 1st Sem / AY 2026-2027 — all INC, not yet released, no gradeStatus
+  // TERM 2: 2nd Year / 1st Sem / AY 2026-2027 — all INC, per-period status '' (not yet encoded)
   const term2Subjects = [
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 206', title: 'Information Management', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 207', title: 'Platform Technologies', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 210', title: 'Application Development', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 2', title: 'Team Sports', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 206', title: 'Information Management', units: 3, professor: 'Prof. Patricia Villanueva', professorEmail: 'p.villanueva@aics.edu.ph', schedule: 'Tue / Thu 10:00 - 11:30 AM', room: 'Room 105', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 207', title: 'Platform Technologies', units: 3, professor: 'Engr. James Villanueva', professorEmail: 'j.villanueva@aics.edu.ph', schedule: 'Mon / Wed 10:00 - 11:30 AM', room: 'Lab 201', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'CS 210', title: 'Application Development', units: 3, professor: 'Engr. Roberto Cruz', professorEmail: 'r.cruz@aics.edu.ph', schedule: 'Thu 1:00 - 2:30 PM', room: 'Lab 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 2', title: 'Team Sports', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
   ]
 
   const allSubjects = [...term1Subjects, ...term2Subjects]
@@ -226,18 +226,20 @@ async function seed() {
         academicYear: '2026-2027',
         semester: '1st Sem',
         yearLevel: sec.yearLevel,
-        section: (sec as any).section,
         status: 'in-progress',
+        prelimStatus: '',
+        midtermStatus: '',
+        finalsStatus: '',
       })
       globalIdx++
     }
   }
-  // keep the 3 demo students' real subjects — also INC, no gradeStatus (not released)
+  // keep the 3 demo students' real subjects — also INC, per-period '' (not released)
   const additionalSubjects = [
-    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
-    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress' },
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
     ...protoSubjects,
   ]
 
@@ -654,8 +656,10 @@ async function seed() {
   // ----------------------------------------------------------
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
+  await db.collection('subjects').createIndex({ branch: 1, code: 1, academicYear: 1, semester: 1 })
   await db.collection('sessions').createIndex({ branch: 1 })
   await db.collection('courses').createIndex({ branch: 1, code: 1 }, { unique: true })
+  await db.collection('grade_audits').createIndex({ branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 })
   console.log(`  ✓ Created indexes`)
 
   console.log('\n✅ Seed complete!')

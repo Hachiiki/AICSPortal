@@ -24,6 +24,7 @@ import { FacultySidebar } from './FacultySidebar'
 import { Topbar } from '../portal/Topbar'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
+import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
 
 interface FacultyStudentsPageProps {
   student: Student
@@ -39,31 +40,7 @@ interface FacultyStudentsPageProps {
   facultyLoading?: boolean
 }
 
-interface FacultyApiSubject {
-  code: string
-  title: string
-  units: number
-  studentUsername: string
-  professor: string
-  professorEmail: string
-  schedule: string
-  room: string
-  prelim: string
-  midterm: string
-  finals: string
-  finalGrade: string
-  remarks: string
-  academicYear: string
-  semester: string
-  yearLevel: string
-  section: string
-  status: string
-  gradeStatus: string
-}
 
-interface StudentWithGrades extends FacultyStudent {
-  subjects: FacultyApiSubject[]
-}
 
 interface Section {
   key: string
@@ -91,45 +68,8 @@ export function FacultyStudentsPage({
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   const faculty = facultyData?.faculty ?? null
-  const subjects: FacultyApiSubject[] = facultyData?.subjects ?? []
-  const allStudents: FacultyStudent[] = facultyData?.students ?? []
   const loading = facultyLoading ?? true
-
-  const enrichedStudents = useMemo<StudentWithGrades[]>(() => {
-    return allStudents.map((stu) => ({
-      ...stu,
-      subjects: subjects.filter((s) => s.studentUsername === stu.username),
-    }))
-  }, [allStudents, subjects])
-
-  const sections = useMemo<Section[]>(() => {
-    const map = new Map<string, Section>()
-    for (const s of subjects) {
-      const key = `${s.code}|${s.academicYear || ''}|${s.semester || ''}`
-      if (!map.has(key)) {
-        map.set(key, {
-          key,
-          subjectCode: s.code,
-          subjectTitle: s.title,
-          room: s.room || 'TBA',
-          schedule: s.schedule || 'TBA',
-          yearLevel: s.yearLevel || '',
-          section: (s as any).section || s.yearLevel || '',
-          academicYear: s.academicYear || '',
-          semester: s.semester || '',
-          students: [],
-        })
-      }
-      const stu = enrichedStudents.find((st) => st.username === s.studentUsername)
-      if (stu && !map.get(key)!.students.find((st) => st.username === stu.username)) {
-        map.get(key)!.students.push(stu)
-      }
-    }
-    return Array.from(map.values()).sort((a, b) => {
-      if (a.academicYear !== b.academicYear) return b.academicYear.localeCompare(a.academicYear)
-      return a.subjectCode.localeCompare(b.subjectCode)
-    })
-  }, [subjects, enrichedStudents])
+  const { sections, enrichedStudents } = useFacultyRows(facultyData as any)
 
   const filteredSections = useMemo(() => {
     let result = sections

@@ -116,9 +116,11 @@ export async function GET(request: NextRequest) {
         academicYear: s.academicYear,
         semester: s.semester,
         yearLevel: s.yearLevel,
-        section: s.section || s.yearLevel || '',
         status: s.status,
         gradeStatus: s.gradeStatus || '',
+        prelimStatus: (s as any).prelimStatus ?? s.gradeStatus ?? '',
+        midtermStatus: (s as any).midtermStatus ?? s.gradeStatus ?? '',
+        finalsStatus: (s as any).finalsStatus ?? s.gradeStatus ?? '',
       })),
       students: students.map((s) => ({
         username: s.username,

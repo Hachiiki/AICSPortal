@@ -73,6 +73,8 @@ export interface MongoSession {
   room: string
 }
 
+export type GradePeriodStatus = 'draft' | 'submitted' | 'released' | ''
+
 export interface MongoSubject {
   _id?: string
   branch: Branch
@@ -89,18 +91,34 @@ export interface MongoSubject {
   finals: string
   finalGrade: string
   remarks: string
-  // Term fields (added for academics module — backward compatible)
+  // Term fields
   academicYear?: string // e.g. "2025-2026"
   semester?: string // e.g. "1st Sem"
   yearLevel?: string // e.g. "1st Year"
-  section?: string // e.g. "BSCS 1-A" — denormalized for quick roster grouping
   status?: string // "completed" | "in-progress"
-  // GRADE APPROVAL WORKFLOW:
-  //   draft     = teacher is editing, NOT visible to students
-  //   submitted = teacher has submitted, waiting for admin approval
-  //   released  = admin has approved, visible to students
-  // Defaults to 'released' for backward compatibility with existing seed data.
-  gradeStatus?: 'draft' | 'submitted' | 'released'
+  // GRADE APPROVAL WORKFLOW — per period (teacher wants independent prelim/midterm/finals release)
+  // '' = not yet set, not visible to students
+  gradeStatus?: GradePeriodStatus // legacy overall — kept for backward compat, prefer per-period below
+  prelimStatus?: GradePeriodStatus
+  midtermStatus?: GradePeriodStatus
+  finalsStatus?: GradePeriodStatus
+}
+
+// Real audit log — every grade change is recorded
+export interface MongoGradeAudit {
+  _id?: string
+  branch: Branch
+  studentUsername: string
+  subjectCode: string
+  academicYear: string
+  semester: string
+  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade'
+  oldValue: string
+  newValue: string
+  action: 'save' | 'submit' | 'release' | 'fill'
+  performedBy: string // faculty username
+  performedAt: Date
+  note?: string
 }
 
 export type TaskType = 'Activity' | 'Quiz' | 'Test' | 'Project'
