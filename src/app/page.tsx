@@ -222,6 +222,14 @@ function StudentDataWrapper({
   const [facultyData, setFacultyData] = useState<{ faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null>(null)
   const [facultyLoading, setFacultyLoading] = useState(true)
 
+  const refreshFacultyData = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/faculty?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
+    } catch {}
+  }, [username])
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -368,6 +376,7 @@ function StudentDataWrapper({
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
+        onRefresh={refreshFacultyData}
       />
     )
   }

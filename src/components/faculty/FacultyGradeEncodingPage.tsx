@@ -27,6 +27,7 @@ interface Props {
   announcements?: Announcement[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
   facultyLoading?: boolean
+  onRefresh?: () => Promise<void>
 }
 
 function badgeForRemarks(r: string) {
@@ -35,7 +36,7 @@ function badgeForRemarks(r: string) {
   return `<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${m[r] || 'bg-slate-100 text-slate-600 border-slate-200'}">${r}</span>`
 }
 
-export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading }: Props) {
+export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh }: Props) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [period, setPeriod] = useState<'all' | 'prelim' | 'midterm' | 'finals'>('all')
   const [activeSection, setActiveSection] = useState('all')
@@ -119,9 +120,20 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         const statusForPeriod = field === 'prelim' ? r.prelimStatus : field === 'midterm' ? r.midtermStatus : field === 'finals' ? r.finalsStatus : r.gradeStatus
         const isLocked = statusForPeriod === 'submitted' || statusForPeriod === 'released'
         if (isLocked) return r
-        const next = { ...r, [field]: val }
+        const next: any = { ...r, [field]: val }
+        // real-time finalGrade update with INC as 0
+        const newPrelim = field === 'prelim' ? val : r.prelim
+        const newMidterm = field === 'midterm' ? val : r.midterm
+        const newFinals = field === 'finals' ? val : r.finals
+        const newFg = computedFinalINCasZero(newPrelim, newMidterm, newFinals)
+        if (newFg) {
+          next.finalGrade = newFg
+          next.remarks = remarksFor(newFg) || r.remarks
+        } else if (!newPrelim && !newMidterm && !newFinals) {
+          next.finalGrade = ''
+          next.remarks = ''
+        }
         const isDirty = !(next.prelim === r.original.prelim && next.midterm === r.original.midterm && next.finals === r.original.finals && (next.finalGrade || '') === (r.original.finalGrade || ''))
-        // per-period draft
         if (field === 'prelim') next.prelimStatus = 'draft'
         if (field === 'midterm') next.midtermStatus = 'draft'
         if (field === 'finals') next.finalsStatus = 'draft'
@@ -179,9 +191,12 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           const isTarget = targets.some((t: any) => t._key === r._key)
           if (!isTarget) return r
           const fg = computedFinalINCasZero(r.prelim, r.midterm, r.finals)
-          return { ...r, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: fg || r.finalGrade }, [statusKey]: 'draft', gradeStatus: 'draft' }
+          const newFg = fg || r.finalGrade
+          const newRemarks = fg ? remarksFor(fg) : r.remarks
+          return { ...r, finalGrade: newFg, remarks: newRemarks, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: newFg }, [statusKey]: 'draft', gradeStatus: 'draft' }
         })
       )
+      if (onRefresh) await onRefresh()
       toast.success(`Saved ${targets.length} ${period} draft(s) — ${activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} (${filtered.length})`}`)
     } catch (e: any) {
       toast.error(e.message || 'Save failed')
@@ -249,6 +264,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             return { ...r, [sKey]: 'submitted', gradeStatus: 'submitted', locked: true, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: r.finalGrade } }
           })
         )
+        if (onRefresh) await onRefresh()
         toast.success(`Submitted ${totalSubmitted || vis.filter((r: any) => !(r as any)[sKey] || (r as any)[sKey] === 'draft').length} records (${submitPeriod}) — draft → submitted`)
         setShowSubmitModal(false)
       } else {
@@ -281,6 +297,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           totalSubmitted += data.modifiedCount || 0
         }
         setRows((prev) => prev.map((r: any) => vis.some((v: any) => v._key === r._key) && !r.locked ? { ...r, prelimStatus: 'submitted', midtermStatus: 'submitted', finalsStatus: 'submitted', gradeStatus: 'submitted', locked: true, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: r.finalGrade } } : r))
+        if (onRefresh) await onRefresh()
         toast.success(`Submitted ${totalSubmitted || vis.length} records (all periods)`)
         setShowSubmitModal(false)
       }
@@ -503,21 +520,29 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   <div className="text-center py-10">
                     <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">No history yet</p>
-                    <p className="text-xs text-slate-400 mt-1">Saves and submits will appear here. API: GET /api/grades/audits?branch=&subjectCode=&studentUsername=</p>
+                    <p className="text-xs text-slate-400 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {historyAudits.map((a: any, i: number) => (
-                      <div key={a._id || i} className="p-3 rounded-xl border border-slate-200 bg-slate-50">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-semibold text-slate-700">{a.period} • {a.action}</span>
-                          <span className="text-[10px] text-slate-500">{a.performedAt ? new Date(a.performedAt).toLocaleString() : ''}</span>
+                    {historyAudits.map((a: any, i: number) => {
+                      const periodLabel = a.period === 'prelim' ? 'Prelim' : a.period === 'midterm' ? 'Midterm' : a.period === 'finals' ? 'Finals' : a.period === 'finalGrade' ? 'Final grade' : a.period
+                      const actionLabel = a.action === 'save' ? 'saved' : a.action === 'submit' ? 'submitted' : a.action === 'release' ? 'released' : a.action === 'fill' ? 'filled' : a.action
+                      const when = a.performedAt ? new Date(a.performedAt).toLocaleString() : ''
+                      const studentLabel = a.studentUsername === historyRow?.studentUsername ? historyRow?.studentName || a.studentUsername : a.studentUsername
+                      const subjectLabel = a.subjectCode === historyRow?.subjectCode ? `${a.subjectCode} — ${historyRow?.subjectTitle || ''}`.trim() : a.subjectCode
+                      return (
+                        <div key={a._id || i} className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-semibold text-slate-700">{periodLabel} {actionLabel}</span>
+                            <span className="text-[10px] text-slate-500">{when}</span>
+                          </div>
+                          <p className="text-xs mt-1 leading-relaxed">
+                            <span className="font-medium text-slate-900">{a.performedBy}</span> <span className="text-slate-600">{actionLabel} {periodLabel.toLowerCase()} from</span> <span className="font-mono text-slate-500">{a.oldValue || 'blank'}</span> <span className="text-slate-500">to</span> <span className="font-mono font-medium text-slate-900">{a.newValue || 'blank'}</span> <span className="text-slate-600">for</span> <span className="font-medium text-slate-900">{studentLabel}</span> <span className="text-slate-600">in</span> <span className="font-mono text-xs bg-white px-1 py-0.5 rounded border">{subjectLabel}</span>
+                          </p>
+                          {a.note ? <p className="text-xs mt-1 text-slate-500 italic">Note: {a.note}</p> : null}
                         </div>
-                        <p className="text-xs mt-1"><span className="text-slate-500">By</span> <span className="font-medium text-slate-900">{a.performedBy}</span> {a.note ? `• ${a.note}` : ''}</p>
-                        <p className="text-xs mt-1 font-mono"><span className="text-slate-400">{a.oldValue || '—'}</span> <span className="text-slate-500">→</span> <span className="font-medium text-slate-900">{a.newValue || '—'}</span></p>
-                        <p className="text-[10px] text-slate-400 mt-1">{a.branch} • {a.subjectCode} • {a.studentUsername}</p>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
