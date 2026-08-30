@@ -35,7 +35,7 @@ export async function PATCH(request: NextRequest) {
     const results: { ok: boolean; studentUsername: string; subjectCode: string }[] = []
 
     for (const update of updates) {
-      const { studentUsername, subjectCode, branch, midterm, finals, finalGrade, remarks } = update
+      const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks } = update
 
       if (!studentUsername || !subjectCode || !branch) {
         results.push({ ok: false, studentUsername, subjectCode })
@@ -44,6 +44,7 @@ export async function PATCH(request: NextRequest) {
 
       // Build the $set object with only provided fields
       const setDoc: Record<string, string> = {}
+      if (prelim !== undefined) setDoc.prelim = String(prelim)
       if (midterm !== undefined) setDoc.midterm = String(midterm)
       if (finals !== undefined) setDoc.finals = String(finals)
       if (finalGrade !== undefined) setDoc.finalGrade = String(finalGrade)

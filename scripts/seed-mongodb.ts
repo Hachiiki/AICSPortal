@@ -158,9 +158,9 @@ async function seed() {
   //  the prototype's genStudents(26,24,22) — see index.html:458
   // ----------------------------------------------------------
   const sectionsDef = [
-    { code: 'CS 101', title: 'Introduction to Computing', room: 'Room 301 — Comp Lab A', schedule: 'MWF 08:00-09:30', yearLevel: 'BSIS 1-A', count: 26 },
-    { code: 'CS 102', title: 'Data Structures', room: 'Room 302 — Lecture', schedule: 'TTH 10:00-11:30', yearLevel: 'BSIS 2-A', count: 24 },
-    { code: 'CS 201', title: 'Database Systems', room: 'Room 304 — Comp Lab B', schedule: 'MWF 13:00-14:30', yearLevel: 'BSIS 2-B', count: 22 },
+    { code: 'CS 101', title: 'Introduction to Computing', room: 'Room 301 — Comp Lab A', schedule: 'MWF 08:00-09:30', yearLevel: '1st Year', section: 'BSCS 1-A', count: 26 },
+    { code: 'CS 102', title: 'Data Structures', room: 'Room 302 — Lecture', schedule: 'TTH 10:00-11:30', yearLevel: '2nd Year', section: 'BSCS 2-A', count: 24 },
+    { code: 'CS 201', title: 'Database Systems', room: 'Room 304 — Comp Lab B', schedule: 'MWF 13:00-14:30', yearLevel: '2nd Year', section: 'BSCS 2-B', count: 22 },
   ]
   const firstNames = ['Alex','Maria','John','Sofia','Daniel','Ana','Kevin','Liza','Miguel','Jamie','Paolo','Andrea','Carlo','Bianca','Ethan','Chloe','Gabriel','Hannah','Ivan','Julia','Ken','Luna','Mark','Nina','Oscar','Paula','Quinn','Rhea','Sam','Tina','Uma','Victor','Wendy','Xander','Yara','Zane']
   const lastNames = ['Santos','Reyes','Garcia','Cruz','Lee','Mendoza','Torres','Dela Cruz','Ramos','Bautista','Villanueva','Aquino','Domingo','Flores','Gonzales','Herrera','Ibarra','Javier','Lim','Navarro','Ortiz','Perez','Quinto','Rivera','Santiago','Tan','Uy','Vargas','Yap','Zamora']
@@ -173,10 +173,12 @@ async function seed() {
       const ln = lastNames[(globalIdx * 13) % lastNames.length]
       const username = `${fn[0].toLowerCase()}.${ln.toLowerCase()}${100 + globalIdx}`
       const fullName = `${fn} ${ln}`
-      const studentNumber = `2024-${String(10000 + globalIdx).padStart(5,'0')}`
+      const studentNumber = String(251000 + Math.floor(Math.random()*9000) + globalIdx) // 6-digit like 251438 per AICS
       const prelim = String(78 + Math.floor(Math.random() * 20)) // 78-97, prelim-only per V22
       // keep existing demo students if they match
       if (['maria.cruz','jose.garcia','juan.santos'].includes(username)) { globalIdx++; continue }
+      // Program is BSCS for all 3 prototype sections (now explicit in sectionsDef)
+      const prog = { program: 'Bachelor of Science in Computer Science', short: 'BSCS' }
       protoStudents.push({
         branch: BRANCH,
         username,
@@ -187,10 +189,10 @@ async function seed() {
         lastName: ln,
         middleName: '',
         studentNumber,
-        program: 'Bachelor of Science in Computer Science',
-        programShort: 'BSCS',
-        yearLevel: sec.yearLevel.split(' ')[0] + ' Year',
-        section: sec.yearLevel,
+        program: prog.program,
+        programShort: prog.short,
+        yearLevel: sec.yearLevel,
+        section: (sec as any).section,
         semester: '1st Sem',
         academicYear: '2026-2027',
         enrollmentStatus: 'Enrolled',
@@ -224,6 +226,7 @@ async function seed() {
         academicYear: '2026-2027',
         semester: '1st Sem',
         yearLevel: sec.yearLevel,
+        section: (sec as any).section,
         status: 'in-progress',
         gradeStatus: 'draft',
       })

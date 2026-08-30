@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
         // GRADE APPROVAL WORKFLOW: students only see grades where
         // gradeStatus === 'released'. Draft/submitted grades show
         // as '-' (hidden). Defaults to 'released' for backward compat.
+        prelim: x.gradeStatus === 'released' || !x.gradeStatus ? (x.prelim ?? '-') : '-',
         midterm: x.gradeStatus === 'released' || !x.gradeStatus ? x.midterm : '-',
         finals: x.gradeStatus === 'released' || !x.gradeStatus ? x.finals : '-',
         finalGrade: x.gradeStatus === 'released' || !x.gradeStatus ? x.finalGrade : '-',

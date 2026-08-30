@@ -12,6 +12,7 @@ import {
   Users as UsersIcon,
   Search,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -47,6 +48,7 @@ interface FacultyApiSubject {
   professorEmail: string
   schedule: string
   room: string
+  prelim: string
   midterm: string
   finals: string
   finalGrade: string
@@ -54,6 +56,7 @@ interface FacultyApiSubject {
   academicYear: string
   semester: string
   yearLevel: string
+  section: string
   status: string
   gradeStatus: string
 }
@@ -62,7 +65,7 @@ interface StudentWithGrades extends FacultyStudent {
   subjects: FacultyApiSubject[]
 }
 
-// A section is a unique subject + room + schedule combo
+// A section is a unique subject + room + schedule combo — backed by MongoDB subjects collection
 interface Section {
   key: string
   subjectCode: string
@@ -70,6 +73,7 @@ interface Section {
   room: string
   schedule: string
   yearLevel: string
+  section: string
   academicYear: string
   semester: string
   students: StudentWithGrades[]
@@ -84,13 +88,15 @@ export function FacultyStudentsPage({
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
   const [selectedStudent, setSelectedStudent] = useState<StudentWithGrades | null>(null)
+  const [sectionFilter, setSectionFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
 
   const faculty = facultyData?.faculty ?? null
   const subjects: FacultyApiSubject[] = facultyData?.subjects ?? []
   const allStudents: FacultyStudent[] = facultyData?.students ?? []
   const loading = facultyLoading ?? true
 
-  // Build enriched students with their subjects
+  // Build enriched students with their subjects — all from MongoDB via /api/faculty
   const enrichedStudents = useMemo<StudentWithGrades[]>(() => {
     return allStudents.map((stu) => ({
       ...stu,
@@ -98,7 +104,7 @@ export function FacultyStudentsPage({
     }))
   }, [allStudents, subjects])
 
-  // Group students by section (subject code + room + schedule)
+  // Group students by section (subject code + academic year + semester) — derived from MongoDB subjects collection
   const sections = useMemo<Section[]>(() => {
     const map = new Map<string, Section>()
 
@@ -114,13 +120,14 @@ export function FacultyStudentsPage({
           room: s.room || 'TBA',
           schedule: s.schedule || 'TBA',
           yearLevel: s.yearLevel || '',
+          section: (s as any).section || s.yearLevel || '',
           academicYear: s.academicYear || '',
           semester: s.semester || '',
           students: [],
         })
       }
 
-      // Find the student for this subject enrollment
+      // Find the student for this subject enrollment — from MongoDB students collection
       const stu = enrichedStudents.find((st) => st.username === s.studentUsername)
       if (stu && !map.get(key)!.students.find((st) => st.username === stu.username)) {
         map.get(key)!.students.push(stu)
@@ -134,19 +141,41 @@ export function FacultyStudentsPage({
     })
   }, [subjects, enrichedStudents])
 
-  // Filter sections by search
+  // Filter sections by search + section + status — all filters operate on MongoDB-backed data
   const filteredSections = useMemo(() => {
-    if (!searchQuery) return sections
-    const q = searchQuery.toLowerCase()
-    return sections.map((sec) => ({
-      ...sec,
-      students: sec.students.filter((stu) =>
-        stu.fullName.toLowerCase().includes(q) ||
-        stu.studentNumber.toLowerCase().includes(q) ||
-        stu.username.toLowerCase().includes(q)
-      ),
-    })).filter((sec) => sec.students.length > 0 || sec.subjectCode.toLowerCase().includes(q) || sec.subjectTitle.toLowerCase().includes(q))
-  }, [sections, searchQuery])
+    let result = sections
+
+    // Section filter (subject-level)
+    if (sectionFilter !== 'all') {
+      result = result.filter((sec) => sec.key === sectionFilter)
+    }
+
+    // Search filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      result = result.map((sec) => ({
+        ...sec,
+        students: sec.students.filter((stu) =>
+          stu.fullName.toLowerCase().includes(q) ||
+          stu.studentNumber.toLowerCase().includes(q) ||
+          stu.username.toLowerCase().includes(q)
+        ),
+      })).filter((sec) => sec.students.length > 0 || sec.subjectCode.toLowerCase().includes(q) || sec.subjectTitle.toLowerCase().includes(q))
+    }
+
+    // Status filter — uses enrollmentStatus from MongoDB students collection
+    if (statusFilter !== 'all') {
+      result = result.map((sec) => ({
+        ...sec,
+        students: sec.students.filter((stu) => {
+          const status = (stu.enrollmentStatus || 'Enrolled').toLowerCase()
+          return status === statusFilter.toLowerCase()
+        }),
+      })).filter((sec) => sec.students.length > 0)
+    }
+
+    return result
+  }, [sections, searchQuery, sectionFilter, statusFilter])
 
   const handleNavigate = (v: View) => {
     onNavigate(v)
@@ -157,6 +186,49 @@ export function FacultyStudentsPage({
     sections.forEach((sec) => sec.students.forEach((s) => usernames.add(s.username)))
     return usernames.size
   }, [sections])
+
+  // Export roster as CSV — generates from live MongoDB-backed filtered data
+  const handleExportCsv = () => {
+    const rows: string[] = []
+    rows.push(['Student Name', 'Student #', 'Username', 'Section', 'Program', 'Subject Code', 'Subject Title', 'Prelim', 'Midterm', 'Finals', 'Final Grade', 'Remarks', 'Status', 'Academic Year', 'Semester'].join(','))
+    for (const sec of filteredSections) {
+      for (const stu of sec.students) {
+        const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+        const prelim = subj?.prelim || ''
+        rows.push([
+          `"${stu.fullName.replace(/"/g, '""')}"`,
+          stu.studentNumber,
+          stu.username,
+          stu.section,
+          `"${(stu.program || '').replace(/"/g, '""')}"`,
+          sec.subjectCode,
+          `"${sec.subjectTitle.replace(/"/g, '""')}"`,
+          prelim,
+          subj?.midterm || '',
+          subj?.finals || '',
+          subj?.finalGrade || '',
+          subj?.remarks || '',
+          stu.enrollmentStatus || 'Enrolled',
+          sec.academicYear,
+          sec.semester,
+        ].join(','))
+      }
+    }
+    if (rows.length === 1) {
+      toast.info('No students to export for the current filters.')
+      return
+    }
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `my-students-${faculty?.academicYear || 'export'}-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${rows.length - 1} roster rows from MongoDB.`)
+  }
 
   if (loading) {
     return <DashboardSkeleton />
@@ -176,26 +248,26 @@ export function FacultyStudentsPage({
       <div className="lg:pl-60">
         <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
-          {/* Page header — 1st Sem • AY 2026-2027 - 3 classes • 72 students + Export/Take attendance (prototype V23) */}
+          {/* Page header — branch-scoped term from MongoDB faculty record */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
                 <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
               </button>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
-              <p className="text-sm text-slate-500 mt-1">1st Sem • AY 2026-2027 - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
+              <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span> <span className="text-xs text-slate-400 ml-1">(MongoDB: {faculty.branch} branch)</span></p>
             </div>
             <div className="flex gap-2">
-              <button className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
+              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
               </button>
-              <button className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
+              <button onClick={() => toast.info('Attendance module coming soon — roster is live from MongoDB.')} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
               </button>
             </div>
           </div>
 
-          {/* Filters — card-less, styled dropdowns with section details (prototype V23) */}
+          {/* Filters — all operate on MongoDB-backed sections/students */}
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
@@ -214,8 +286,8 @@ export function FacultyStudentsPage({
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
               <div className="relative mt-1">
                 <select
-                  value={searchQuery ? 'all' : 'all'}
-                  onChange={() => {}}
+                  value={sectionFilter}
+                  onChange={(e) => setSectionFilter(e.target.value)}
                   className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none"
                 >
                   <option value="all">All sections ({sections.length})</option>
@@ -231,22 +303,26 @@ export function FacultyStudentsPage({
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
               <div className="relative mt-1">
-                <select className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option>All statuses</option>
-                  <option>Active</option>
-                  <option>Dropped</option>
-                  <option>Transferred</option>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                  <option value="all">All statuses</option>
+                  <option value="Enrolled">Enrolled</option>
+                  <option value="Active">Active</option>
+                  <option value="Dropped">Dropped</option>
+                  <option value="Transferred">Transferred</option>
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               </div>
             </div>
           </div>
 
-          {/* Section cards (accordion) */}
+          {/* Section cards (accordion) — each card maps 1 MongoDB subject grouping */}
           {filteredSections.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
               <UsersIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm text-slate-500">No classes found.</p>
+              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (
+                <button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all') }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -254,7 +330,7 @@ export function FacultyStudentsPage({
                 const isExpanded = expandedSection === sec.key
                 return (
                   <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    {/* Section header (clickable) */}
+                    {/* Section header (clickable) — subject metadata from MongoDB subjects collection */}
                     <div
                       onClick={() => setExpandedSection(isExpanded ? null : sec.key)}
                       className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
@@ -272,7 +348,7 @@ export function FacultyStudentsPage({
                             <Clock className="w-3 h-3" /> {sec.schedule}
                           </span>
                           <span className="text-[10px] text-slate-400">
-                            {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}
+                            {sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}
                           </span>
                         </div>
                       </div>
@@ -288,7 +364,7 @@ export function FacultyStudentsPage({
                       </div>
                     </div>
 
-                    {/* Expanded roster — matches prototype V23: Prelim/Mid/Finals/FG with audit footer */}
+                    {/* Expanded roster — every row is a MongoDB student + subject enrollment join */}
                     {isExpanded && (
                       <div className="border-t border-slate-100">
                         <div className="overflow-x-auto">
@@ -310,7 +386,15 @@ export function FacultyStudentsPage({
                             <tbody>
                               {sec.students.map((stu) => {
                                 const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
-                                const prelim = (subj as any)?.prelim || '-'
+                                const prelim = subj?.prelim || '-'
+                                const rawStatus = stu.enrollmentStatus || 'Enrolled'
+                                const statusLower = rawStatus.toLowerCase()
+                                const statusBadge =
+                                  statusLower === 'dropped'
+                                    ? 'bg-red-50 text-red-700 border-red-200'
+                                    : statusLower === 'transferred'
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 return (
                                   <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                                     <td className="px-6 py-3">
@@ -329,7 +413,7 @@ export function FacultyStudentsPage({
                                     <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{subj?.finalGrade || '-'}</span></td>
                                     <td className="px-4 py-3 text-center">{subj && <RemarksBadge remarks={subj.remarks} />}</td>
                                     <td className="px-4 py-3 text-center">
-                                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                                      <span className={`text-[11px] px-2 py-0.5 rounded-full border ${statusBadge}`}>{rawStatus}</span>
                                     </td>
                                     <td className="px-6 py-3 text-right">
                                       <div className="flex justify-end gap-1">
@@ -356,13 +440,13 @@ export function FacultyStudentsPage({
                           </table>
                         </div>
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
-                          <button className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
+                          <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
                             <UsersIcon className="w-3.5 h-3.5" /> Message section
                           </button>
-                          <button className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
+                          <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" /> Take attendance
                           </button>
-                          <span className="ml-auto text-slate-500">Click View for student file.</span>
+                          <span className="ml-auto text-slate-500">Branch-scoped • {faculty.branch} • MongoDB live • Click View for student file.</span>
                         </div>
                       </div>
                     )}
@@ -374,7 +458,7 @@ export function FacultyStudentsPage({
         </main>
       </div>
 
-      {/* Student detail drawer — slide-over from right (prototype V23 drawer, not modal) */}
+      {/* Student detail drawer — slide-over from right (MongoDB student + subjects join) */}
       <AnimatePresence>
         {selectedStudent && (
           <>
@@ -398,7 +482,7 @@ export function FacultyStudentsPage({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
-                <h3 className="font-bold text-sm text-slate-900">Student file • Branch-scoped</h3>
+                <h3 className="font-bold text-sm text-slate-900">Student file • Branch-scoped • MongoDB</h3>
                 <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900">
                   <X className="w-4 h-4" />
                 </button>
@@ -412,16 +496,17 @@ export function FacultyStudentsPage({
                     <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
                     <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber} • {selectedStudent.username} • {selectedStudent.program} {selectedStudent.section}</p>
                     <div className="flex gap-2 mt-1">
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Branch-scoped</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ${selectedStudent.enrollmentStatus?.toLowerCase() === 'dropped' ? 'bg-red-50 text-red-700 border-red-200' : selectedStudent.enrollmentStatus?.toLowerCase() === 'transferred' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>{selectedStudent.enrollmentStatus || 'Enrolled'}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{faculty.branch} • Branch-scoped</span>
+                      {selectedStudent.gpa && <span className="text-xs px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">GPA {selectedStudent.gpa}</span>}
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Contact</p>
-                    <p className="font-medium mt-1 text-slate-900">{selectedStudent.fullName}</p>
-                    <p className="text-xs text-slate-500">—</p>
+                    <p className="font-medium mt-1 text-slate-900">{selectedStudent.email || '—'}</p>
+                    <p className="text-xs text-slate-500">{selectedStudent.phone || 'No phone on file'}</p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Year / Section</p>
@@ -431,16 +516,18 @@ export function FacultyStudentsPage({
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Username</p>
                     <p className="font-medium mt-1 font-mono text-slate-900">{selectedStudent.username}</p>
+                    <p className="text-xs text-slate-500">MongoDB: students collection</p>
                   </div>
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                     <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Program</p>
                     <p className="font-medium mt-1 text-slate-900">{selectedStudent.program}</p>
+                    <p className="text-xs text-slate-500">GPA: {selectedStudent.gpa || '—'}</p>
                   </div>
                 </div>
                 <div className="rounded-xl border border-slate-200 overflow-hidden">
                   <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Grades you teach this student</p>
-                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects</span>
+                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects • subjects collection</span>
                   </div>
                   <div className="p-3 space-y-2">
                     {selectedStudent.subjects.length === 0 ? (
@@ -456,7 +543,7 @@ export function FacultyStudentsPage({
                           <div className="text-right shrink-0">
                             <div className="flex gap-2 text-xs">
                               <span>
-                                <span className="text-slate-400">P:</span> <span className="font-mono text-slate-700">{(s as any).prelim || '-'}</span>
+                                <span className="text-slate-400">P:</span> <span className="font-mono text-slate-700">{s.prelim || '-'}</span>
                               </span>
                               <span>
                                 <span className="text-slate-400">M:</span> <span className="font-mono text-slate-700">{s.midterm || '-'}</span>
@@ -471,6 +558,7 @@ export function FacultyStudentsPage({
                             <div className="mt-1">
                               <RemarksBadge remarks={s.remarks} />
                             </div>
+                            <p className="text-[10px] text-slate-400 mt-1">{s.gradeStatus} • {s.status}</p>
                           </div>
                         </div>
                       ))
@@ -480,10 +568,10 @@ export function FacultyStudentsPage({
                 <div className="rounded-xl border border-slate-200 p-4 space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Classroom management</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
-                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Announce quiz</button>
-                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
-                    <button className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">In/Out log</button>
+                    <button onClick={() => toast.info('Upload materials — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
+                    <button onClick={() => toast.info('Announce quiz — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Announce quiz</button>
+                    <button onClick={() => toast.info('Attendance history — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
+                    <button onClick={() => toast.info('In/Out log — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">In/Out log</button>
                   </div>
                 </div>
               </div>

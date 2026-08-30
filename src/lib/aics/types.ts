@@ -15,6 +15,7 @@ export type View =
   | 'settings'
   | 'my-students'
   | 'grade-encoding'
+  | 'previous-records'
   | 'help'
 
 export type AuthMode = 'credentials' | 'face'
@@ -29,6 +30,7 @@ export interface Subject {
   professorEmail: string
   schedule: string
   room: string
+  prelim: string
   midterm: string
   finals: string
   finalGrade: string

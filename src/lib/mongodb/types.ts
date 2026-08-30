@@ -7,13 +7,14 @@
 // ============================================================
 
 export type Branch = 'commonwealth' | (string & {}) // extensible for future branches
+export type Role = 'student' | 'faculty' | 'admin'
 
 export interface MongoStudent {
   _id?: string
   branch: Branch
   username: string
   password: string // NOTE: plaintext for demo only — hash with bcrypt in production
-  role: 'student' | 'faculty' | 'admin' // determines which portal the user sees
+  role: Role // determines which portal the user sees
   fullName: string
   firstName: string
   lastName: string
@@ -83,6 +84,7 @@ export interface MongoSubject {
   professorEmail: string
   schedule: string // human-readable, e.g. "Mon / Wed 8:00 - 9:30 AM"
   room: string
+  prelim: string
   midterm: string
   finals: string
   finalGrade: string
@@ -91,6 +93,7 @@ export interface MongoSubject {
   academicYear?: string // e.g. "2025-2026"
   semester?: string // e.g. "1st Sem"
   yearLevel?: string // e.g. "1st Year"
+  section?: string // e.g. "BSCS 1-A" — denormalized for quick roster grouping
   status?: string // "completed" | "in-progress"
   // GRADE APPROVAL WORKFLOW:
   //   draft     = teacher is editing, NOT visible to students
