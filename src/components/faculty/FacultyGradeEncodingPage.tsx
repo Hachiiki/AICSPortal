@@ -1,6 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { ChevronRight, Search, Save, Calculator, ArrowDown, Info, Loader2 } from 'lucide-react'
+import { ChevronRight, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
@@ -45,12 +46,29 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const loading = facultyLoading ?? true
   const branch = faculty?.branch || student.branch || 'commonwealth'
 
-  const { sections, gradeRows: initialRows } = useFacultyRows(facultyData as any)
+  const { sections, gradeRows: initialRows, allStudents } = useFacultyRows(facultyData as any)
 
   const [rows, setRows] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   useEffect(() => { if (!loading && initialRows.length) setRows(initialRows) }, [initialRows, loading])
+
+  // History drawer per student per subject (API-only until now)
+  const [historyRow, setHistoryRow] = useState<any | null>(null)
+  const [historyAudits, setHistoryAudits] = useState<any[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const openHistory = useCallback(async (row: any) => {
+    setHistoryRow(row)
+    setHistoryLoading(true)
+    setHistoryAudits([])
+    try {
+      const params = new URLSearchParams({ branch, subjectCode: row.subjectCode, studentUsername: row.studentUsername, limit: '50' })
+      const res = await fetch(`/api/grades/audits?${params.toString()}`)
+      const data = await res.json()
+      if (data.ok) setHistoryAudits(data.audits || [])
+    } catch {}
+    setHistoryLoading(false)
+  }, [branch])
 
   const getPeriodStatus = useCallback((r: any, p: string) => {
     if (p === 'prelim') return r.prelimStatus ?? ''
@@ -59,8 +77,22 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     return r.gradeStatus ?? ''
   }, [])
 
+  const hiddenDroppedCount = useMemo(() => {
+    return rows.filter((r) => {
+      const stu = allStudents.find((s: any) => s.username === r.studentUsername)
+      const st = (stu?.enrollmentStatus || '').toLowerCase()
+      return st === 'dropped' || st === 'transferred'
+    }).length
+  }, [rows, allStudents])
+
   const filtered = useMemo(() => {
     let r = [...rows]
+    // Hide Dropped/Transferred in Grade Encoding (keep in My Students)
+    r = r.filter((x) => {
+      const stu = allStudents.find((s: any) => s.username === x.studentUsername)
+      const st = (stu?.enrollmentStatus || '').toLowerCase()
+      return st !== 'dropped' && st !== 'transferred'
+    })
     if (activeSection !== 'all') r = r.filter((x) => x.subjectCode === activeSection)
     if (search) {
       const q = search.toLowerCase()
@@ -75,7 +107,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     }
     if (showOnlyDirty) r = r.filter((x) => x.dirty)
     return r
-  }, [rows, activeSection, search, statusFilter, showOnlyDirty, period, getPeriodStatus])
+  }, [rows, activeSection, search, statusFilter, showOnlyDirty, period, getPeriodStatus, allStudents])
 
   const onGradeInput = useCallback((key: string, field: string, val: string) => {
     const up = val.toUpperCase()
@@ -326,7 +358,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 <option value="all">All statuses</option><option value="">No status</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="released">Released</option>
               </select>
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
-              <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records</span>
+              <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -340,6 +372,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     {period === 'finals' && <th className="px-2 py-2.5 text-center w-28">Remarks</th>}
                     {period !== 'all' && <th className="px-3 py-2.5 text-center w-24">Status</th>}
                     {period !== 'all' && <th className="px-3 py-2.5 text-left w-40">Audit</th>}
+                    <th className="px-2 py-2.5 text-center w-20">History</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,6 +392,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                         {period === 'finals' && <td className="px-2 py-2.5 text-center" dangerouslySetInnerHTML={{ __html: badgeForRemarks(rm) }} />}
                         {period !== 'all' && <td className="px-3 py-2.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${statusBadge}`}>{periodStatus || '—'}</span></td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-left text-[11px] text-slate-500">{faculty?.username || '—'} • {periodStatus || 'No status'} {row.dirty ? '• unsaved' : ''}</td>}
+                        <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[10px] font-medium hover:bg-slate-50"><History className="w-3 h-3" /> History</button></td>
                       </tr>
                     )
                   })}
@@ -449,6 +483,51 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {historyRow && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setHistoryRow(null)} aria-hidden="true" />
+            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Grade history" onClick={(e) => e.stopPropagation()}>
+              <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+                <div>
+                  <h3 className="font-bold text-sm text-slate-900">Grade history</h3>
+                  <p className="text-xs text-slate-500">{historyRow.studentName} • {historyRow.subjectCode} • {historyRow.academicYear} {historyRow.semester}</p>
+                </div>
+                <button type="button" onClick={() => setHistoryRow(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                {historyLoading ? (
+                  <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
+                ) : historyAudits.length === 0 ? (
+                  <div className="text-center py-10">
+                    <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <p className="text-sm text-slate-500">No history yet</p>
+                    <p className="text-xs text-slate-400 mt-1">Saves and submits will appear here. API: GET /api/grades/audits?branch=&subjectCode=&studentUsername=</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {historyAudits.map((a: any, i: number) => (
+                      <div key={a._id || i} className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-semibold text-slate-700">{a.period} • {a.action}</span>
+                          <span className="text-[10px] text-slate-500">{a.performedAt ? new Date(a.performedAt).toLocaleString() : ''}</span>
+                        </div>
+                        <p className="text-xs mt-1"><span className="text-slate-500">By</span> <span className="font-medium text-slate-900">{a.performedBy}</span> {a.note ? `• ${a.note}` : ''}</p>
+                        <p className="text-xs mt-1 font-mono"><span className="text-slate-400">{a.oldValue || '—'}</span> <span className="text-slate-500">→</span> <span className="font-medium text-slate-900">{a.newValue || '—'}</span></p>
+                        <p className="text-[10px] text-slate-400 mt-1">{a.branch} • {a.subjectCode} • {a.studentUsername}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="p-4 border-t border-slate-200 shrink-0">
+                <button onClick={() => setHistoryRow(null)} className="w-full h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
