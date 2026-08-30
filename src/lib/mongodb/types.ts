@@ -44,6 +44,14 @@ export interface MongoStudent {
   }[]
 }
 
+export interface MongoProgram {
+  _id?: string
+  branch: Branch
+  code: 'BSCS' | 'BSCE' | 'BSENTREP' | (string & {})
+  title: string // e.g. BS Computer Science
+  color: 'blue' | 'green' | 'amber' | 'violet' | 'red'
+}
+
 export interface MongoCourse {
   _id?: string
   branch: Branch
@@ -51,6 +59,7 @@ export interface MongoCourse {
   title: string
   shortTitle: string
   color: 'blue' | 'green' | 'amber' | 'violet' | 'red'
+  programCode?: 'BSCS' | 'BSCE' | 'BSENTREP' | string // FK → programs.code
 }
 
 export interface MongoSession {

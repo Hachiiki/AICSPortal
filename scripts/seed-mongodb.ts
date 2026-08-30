@@ -52,28 +52,51 @@ async function seed() {
   console.log(`Seeding branch: ${BRANCH}`)
 
   // ----------------------------------------------------------
-  //  1. Courses
+  //  0. Programs (new — 3 degree programs, easy to understand)
+  // ----------------------------------------------------------
+  const programs = [
+    { branch: BRANCH, code: 'BSCS', title: 'BS Computer Science', color: 'blue' as const },
+    { branch: BRANCH, code: 'BSCE', title: 'BS Computer Engineering', color: 'green' as const },
+    { branch: BRANCH, code: 'BSENTREP', title: 'BS Entrepreneurship', color: 'amber' as const },
+  ]
+  await db.collection('programs').deleteMany({ branch: BRANCH })
+  await db.collection('programs').insertMany(programs)
+  console.log(`  ✓ Inserted ${programs.length} programs (BSCS, BSCE, BSENTREP)`)
+  await db.collection('programs').createIndex({ branch: 1, code: 1 }, { unique: true })
+
+  // ----------------------------------------------------------
+  //  1. Courses — now 21 subjects (7 per program) with programCode FK
   // ----------------------------------------------------------
   const courses = [
-    { branch: BRANCH, code: 'CS 101', title: 'Introduction to Computing', shortTitle: 'Intro Computing', color: 'blue' as const },
-    { branch: BRANCH, code: 'CS 102', title: 'Computer Programming I', shortTitle: 'Programming I', color: 'green' as const },
-    { branch: BRANCH, code: 'CS 201', title: 'Data Structures and Algorithms', shortTitle: 'Data Structures', color: 'amber' as const },
-    { branch: BRANCH, code: 'CS 202', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'violet' as const },
-    { branch: BRANCH, code: 'CS 203', title: 'Database Systems', shortTitle: 'Database', color: 'blue' as const },
-    { branch: BRANCH, code: 'CS 204', title: 'Web Development', shortTitle: 'Web Dev', color: 'green' as const },
-    { branch: BRANCH, code: 'CS 205', title: 'Discrete Structures', shortTitle: 'Discrete', color: 'amber' as const },
-    { branch: BRANCH, code: 'CS 206', title: 'Information Management', shortTitle: 'Info Mgmt', color: 'violet' as const },
-    { branch: BRANCH, code: 'CS 207', title: 'Platform Technologies', shortTitle: 'Platform Tech', color: 'blue' as const },
-    { branch: BRANCH, code: 'CS 208', title: 'Systems Administration', shortTitle: 'SysAdmin', color: 'green' as const },
-    { branch: BRANCH, code: 'CS 209', title: 'Human-Computer Interaction', shortTitle: 'HCI', color: 'amber' as const },
-    { branch: BRANCH, code: 'CS 210', title: 'Application Development', shortTitle: 'App Dev', color: 'violet' as const },
-    { branch: BRANCH, code: 'PE 1', title: 'Physical Fitness', shortTitle: 'PE', color: 'red' as const },
-    { branch: BRANCH, code: 'PE 2', title: 'Team Sports', shortTitle: 'PE', color: 'red' as const },
+    // BSCS — 7 (keep BSCS at 7 as requested)
+    { branch: BRANCH, code: 'CS 101', title: 'Introduction to Computing', shortTitle: 'Intro Computing', color: 'blue' as const, programCode: 'BSCS' as const },
+    { branch: BRANCH, code: 'CS 102', title: 'Computer Programming I', shortTitle: 'Programming I', color: 'green' as const, programCode: 'BSCS' as const },
+    { branch: BRANCH, code: 'CS 201', title: 'Data Structures and Algorithms', shortTitle: 'Data Structures', color: 'amber' as const, programCode: 'BSCS' as const },
+    { branch: BRANCH, code: 'CS 202', title: 'Object-Oriented Programming', shortTitle: 'OOP', color: 'violet' as const, programCode: 'BSCS' as const },
+    { branch: BRANCH, code: 'CS 203', title: 'Database System', shortTitle: 'Database', color: 'blue' as const, programCode: 'BSCS' as const }, // full name Database System per confirm
+    { branch: BRANCH, code: 'CS 204', title: 'Web Development', shortTitle: 'Web Dev', color: 'green' as const, programCode: 'BSCS' as const },
+    { branch: BRANCH, code: 'CS 210', title: 'Application Development', shortTitle: 'App Dev', color: 'violet' as const, programCode: 'BSCS' as const },
+    // BSCE — 7
+    { branch: BRANCH, code: 'CPE 101', title: 'Digital Logic Design', shortTitle: 'Digital Logic', color: 'blue' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 102', title: 'Electric Circuits', shortTitle: 'Circuits', color: 'green' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 103', title: 'Microprocessors', shortTitle: 'Micro', color: 'amber' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 104', title: 'Embedded Systems', shortTitle: 'Embedded', color: 'violet' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 105', title: 'Signals and Systems', shortTitle: 'Signals', color: 'blue' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 106', title: 'Computer Architecture', shortTitle: 'Architecture', color: 'green' as const, programCode: 'BSCE' as const },
+    { branch: BRANCH, code: 'CPE 107', title: 'Control Systems', shortTitle: 'Control', color: 'amber' as const, programCode: 'BSCE' as const },
+    // BSENTREP — 7
+    { branch: BRANCH, code: 'ENTRE 101', title: 'Principles of Entrepreneurship', shortTitle: 'Principles', color: 'violet' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 102', title: 'Marketing Management', shortTitle: 'Marketing', color: 'blue' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 103', title: 'Financial Management', shortTitle: 'Finance', color: 'green' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 104', title: 'Business Plan Development', shortTitle: 'Business Plan', color: 'amber' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 105', title: 'Operations Management', shortTitle: 'Operations', color: 'violet' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 106', title: 'Human Resource Management', shortTitle: 'HR', color: 'blue' as const, programCode: 'BSENTREP' as const },
+    { branch: BRANCH, code: 'ENTRE 107', title: 'Business Ethics', shortTitle: 'Ethics', color: 'green' as const, programCode: 'BSENTREP' as const },
   ]
 
   await db.collection('courses').deleteMany({ branch: BRANCH })
   await db.collection('courses').insertMany(courses)
-  console.log(`  ✓ Inserted ${courses.length} courses`)
+  console.log(`  ✓ Inserted ${courses.length} courses (7 BSCS + 7 BSCE + 7 BSENTREP)`)
 
   // ----------------------------------------------------------
   //  2. Sessions (weekly schedule — current term only)
@@ -129,26 +152,97 @@ async function seed() {
   console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms)`)
 
   // ----------------------------------------------------------
-  //  3b. Additional test students + their subjects
-  //  (2nd Year, AY 2026-2027, in-progress — all gradeStatus 'released')
-  //  Gives Engr. Maria Cristina Reyes (m.reyes) a real roster
-  //  beyond Juan Santos — she now teaches CS 208 and CS 209
-  //  to 3 students total (juan.santos, maria.cruz, jose.garcia).
+  //  3b. Prototype V23 faculty roster — 72 students across 3 sections
+  //  CS101 (26) • CS102 (24) • CS201 (22) — 1st Sem AY 2026-2027, prelim-only, draft
+  //  Gives Engr. Maria Cristina Reyes (m.reyes) a real roster matching
+  //  the prototype's genStudents(26,24,22) — see index.html:458
   // ----------------------------------------------------------
+  const sectionsDef = [
+    { code: 'CS 101', title: 'Introduction to Computing', room: 'Room 301 — Comp Lab A', schedule: 'MWF 08:00-09:30', yearLevel: 'BSIS 1-A', count: 26 },
+    { code: 'CS 102', title: 'Data Structures', room: 'Room 302 — Lecture', schedule: 'TTH 10:00-11:30', yearLevel: 'BSIS 2-A', count: 24 },
+    { code: 'CS 201', title: 'Database Systems', room: 'Room 304 — Comp Lab B', schedule: 'MWF 13:00-14:30', yearLevel: 'BSIS 2-B', count: 22 },
+  ]
+  const firstNames = ['Alex','Maria','John','Sofia','Daniel','Ana','Kevin','Liza','Miguel','Jamie','Paolo','Andrea','Carlo','Bianca','Ethan','Chloe','Gabriel','Hannah','Ivan','Julia','Ken','Luna','Mark','Nina','Oscar','Paula','Quinn','Rhea','Sam','Tina','Uma','Victor','Wendy','Xander','Yara','Zane']
+  const lastNames = ['Santos','Reyes','Garcia','Cruz','Lee','Mendoza','Torres','Dela Cruz','Ramos','Bautista','Villanueva','Aquino','Domingo','Flores','Gonzales','Herrera','Ibarra','Javier','Lim','Navarro','Ortiz','Perez','Quinto','Rivera','Santiago','Tan','Uy','Vargas','Yap','Zamora']
+  const protoSubjects: any[] = []
+  const protoStudents: any[] = []
+  let globalIdx = 0
+  for (const sec of sectionsDef) {
+    for (let i = 0; i < sec.count; i++) {
+      const fn = firstNames[(globalIdx * 7) % firstNames.length]
+      const ln = lastNames[(globalIdx * 13) % lastNames.length]
+      const username = `${fn[0].toLowerCase()}.${ln.toLowerCase()}${100 + globalIdx}`
+      const fullName = `${fn} ${ln}`
+      const studentNumber = `2024-${String(10000 + globalIdx).padStart(5,'0')}`
+      const prelim = String(78 + Math.floor(Math.random() * 20)) // 78-97, prelim-only per V22
+      // keep existing demo students if they match
+      if (['maria.cruz','jose.garcia','juan.santos'].includes(username)) { globalIdx++; continue }
+      protoStudents.push({
+        branch: BRANCH,
+        username,
+        password: 'student123',
+        role: 'student' as const,
+        fullName,
+        firstName: fn,
+        lastName: ln,
+        middleName: '',
+        studentNumber,
+        program: 'Bachelor of Science in Computer Science',
+        programShort: 'BSCS',
+        yearLevel: sec.yearLevel.split(' ')[0] + ' Year',
+        section: sec.yearLevel,
+        semester: '1st Sem',
+        academicYear: '2026-2027',
+        enrollmentStatus: 'Enrolled',
+        deanLister: false,
+        deanListerSemester: '',
+        gpa: '',
+        email: `${username}@aics.edu.ph`,
+        phone: `+63 917 000 ${String(1000+globalIdx).padStart(4,'0')}`,
+        address: 'Manila',
+        emergencyContactName: '',
+        emergencyContactNumber: '',
+        branch_name: BRANCH_NAME,
+        branchAddress: BRANCH_ADDRESS,
+        documents: [],
+      })
+      protoSubjects.push({
+        branch: BRANCH,
+        studentUsername: username,
+        code: sec.code,
+        title: sec.title,
+        units: 3,
+        professor: 'Engr. Maria Cristina Reyes',
+        professorEmail: 'm.reyes@aics.edu.ph',
+        schedule: sec.schedule,
+        room: sec.room,
+        prelim,
+        midterm: '',
+        finals: '',
+        finalGrade: '',
+        remarks: 'In Progress',
+        academicYear: '2026-2027',
+        semester: '1st Sem',
+        yearLevel: sec.yearLevel,
+        status: 'in-progress',
+        gradeStatus: 'draft',
+      })
+      globalIdx++
+    }
+  }
+  // keep the 3 demo students' real subjects but ensure they are prelim-only draft as per prototype
   const additionalSubjects = [
-    // Maria Cruz — CS 205, CS 208, CS 209
-    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
-    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '1.50', finals: '1.75', finalGrade: '1.63', remarks: 'Passed', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
-    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
-    // Jose Garcia — CS 205, CS 208, CS 209
-    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 205', title: 'Discrete Structures', units: 3, professor: 'Prof. Anna Lim', professorEmail: 'a.lim@aics.edu.ph', schedule: 'Mon / Wed 8:00 - 9:30 AM', room: 'Room 101', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
-    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', midterm: '1.50', finals: '1.75', finalGrade: '1.63', remarks: 'Passed', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
-    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', midterm: '-', finals: '-', finalGrade: '-', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'released' },
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: String(78+Math.floor(Math.random()*15)), midterm: '', finals: '', finalGrade: '', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'draft' },
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: String(78+Math.floor(Math.random()*15)), midterm: '', finals: '', finalGrade: '', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'draft' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: String(78+Math.floor(Math.random()*15)), midterm: '', finals: '', finalGrade: '', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'draft' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: String(78+Math.floor(Math.random()*15)), midterm: '', finals: '', finalGrade: '', remarks: 'In Progress', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', gradeStatus: 'draft' },
+    ...protoSubjects,
   ]
 
-  await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: { $in: ['maria.cruz', 'jose.garcia'] } })
+  const protoUsernames = protoStudents.map(s=>s.username)
+  await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: { $in: ['maria.cruz', 'jose.garcia', ...protoUsernames] } })
   await db.collection('subjects').insertMany(additionalSubjects)
-  console.log(`  ✓ Inserted ${additionalSubjects.length} subjects for maria.cruz + jose.garcia (m.reyes roster)`)
+  console.log(`  ✓ Inserted ${additionalSubjects.length} subjects — ${protoSubjects.length} prototype roster (72 total with prelim-only) + 4 demo`)
 
   const student2 = {
     branch: BRANCH,
@@ -224,9 +318,9 @@ async function seed() {
     ],
   }
 
-  await db.collection('students').deleteMany({ branch: BRANCH, username: { $in: ['maria.cruz', 'jose.garcia'] } })
-  await db.collection('students').insertMany([student2, student3])
-  console.log(`  ✓ Inserted 2 additional students: maria.cruz / student123, jose.garcia / student123`)
+  await db.collection('students').deleteMany({ branch: BRANCH, username: { $in: ['maria.cruz', 'jose.garcia', ...protoUsernames] } })
+  await db.collection('students').insertMany([student2, student3, ...protoStudents])
+  console.log(`  ✓ Inserted ${2 + protoStudents.length} students: maria.cruz, jose.garcia + ${protoStudents.length} prototype roster (72 total)`)
 
   // Compute GPA for completed term
   const term1GPA = computeGPA(term1Subjects)
