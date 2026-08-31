@@ -66,6 +66,8 @@ export function FacultyStudentsPage({
   const [selectedStudent, setSelectedStudent] = useState<StudentWithGrades | null>(null)
   const [sectionFilter, setSectionFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<'name' | 'number' | 'prelim'>('name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
@@ -96,8 +98,28 @@ export function FacultyStudentsPage({
         }),
       })).filter((sec) => sec.students.length > 0)
     }
+    // Sorting per section for polish
+    const dir = sortDir === 'asc' ? 1 : -1
+    result = result.map((sec) => ({
+      ...sec,
+      students: [...sec.students].sort((a, b) => {
+        if (sortBy === 'name') return a.fullName.localeCompare(b.fullName) * dir
+        if (sortBy === 'number') return a.studentNumber.localeCompare(b.studentNumber) * dir
+        if (sortBy === 'prelim') {
+          const aSub = a.subjects.find((s) => s.code === sec.subjectCode)
+          const bSub = b.subjects.find((s) => s.code === sec.subjectCode)
+          const aPre = aSub?.prelim || ''
+          const bPre = bSub?.prelim || ''
+          // INC sorts last
+          if (aPre === 'INC' && bPre !== 'INC') return 1 * dir
+          if (bPre === 'INC' && aPre !== 'INC') return -1 * dir
+          return aPre.localeCompare(bPre) * dir
+        }
+        return 0
+      }),
+    }))
     return result
-  }, [sections, searchQuery, sectionFilter, statusFilter])
+  }, [sections, searchQuery, sectionFilter, statusFilter, sortBy, sortDir])
 
   const handleNavigate = (v: View) => { onNavigate(v) }
 
@@ -249,10 +271,10 @@ export function FacultyStudentsPage({
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="bg-slate-50 border-b border-slate-100">
-                                <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Student #</th>
+                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } }} className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Prelim</th>
+                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
