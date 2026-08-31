@@ -48,7 +48,7 @@ const STUDENT_NAV: NavItem[] = [
 const FACULTY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
-  { view: 'grades', label: 'Grade Encoding', icon: GraduationCap, enabled: false },
+  { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true },
   { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
 ]

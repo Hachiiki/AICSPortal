@@ -7,13 +7,14 @@
 // ============================================================
 
 export type Branch = 'commonwealth' | (string & {}) // extensible for future branches
+export type Role = 'student' | 'faculty' | 'admin'
 
 export interface MongoStudent {
   _id?: string
   branch: Branch
   username: string
   password: string // NOTE: plaintext for demo only — hash with bcrypt in production
-  role: 'student' | 'faculty' | 'admin' // determines which portal the user sees
+  role: Role // determines which portal the user sees
   fullName: string
   firstName: string
   lastName: string
@@ -44,6 +45,14 @@ export interface MongoStudent {
   }[]
 }
 
+export interface MongoProgram {
+  _id?: string
+  branch: Branch
+  code: 'BSCS' | 'BSCE' | 'BSENTREP' | (string & {})
+  title: string // e.g. BS Computer Science
+  color: 'blue' | 'green' | 'amber' | 'violet' | 'red'
+}
+
 export interface MongoCourse {
   _id?: string
   branch: Branch
@@ -51,6 +60,7 @@ export interface MongoCourse {
   title: string
   shortTitle: string
   color: 'blue' | 'green' | 'amber' | 'violet' | 'red'
+  programCode?: 'BSCS' | 'BSCE' | 'BSENTREP' | string // FK → programs.code
 }
 
 export interface MongoSession {
@@ -63,6 +73,8 @@ export interface MongoSession {
   room: string
 }
 
+export type GradePeriodStatus = 'draft' | 'submitted' | 'released' | ''
+
 export interface MongoSubject {
   _id?: string
   branch: Branch
@@ -74,15 +86,39 @@ export interface MongoSubject {
   professorEmail: string
   schedule: string // human-readable, e.g. "Mon / Wed 8:00 - 9:30 AM"
   room: string
+  prelim: string
   midterm: string
   finals: string
   finalGrade: string
   remarks: string
-  // Term fields (added for academics module — backward compatible)
+  // Term fields
   academicYear?: string // e.g. "2025-2026"
   semester?: string // e.g. "1st Sem"
   yearLevel?: string // e.g. "1st Year"
   status?: string // "completed" | "in-progress"
+  // GRADE APPROVAL WORKFLOW — per period (teacher wants independent prelim/midterm/finals release)
+  // '' = not yet set, not visible to students
+  gradeStatus?: GradePeriodStatus // legacy overall — kept for backward compat, prefer per-period below
+  prelimStatus?: GradePeriodStatus
+  midtermStatus?: GradePeriodStatus
+  finalsStatus?: GradePeriodStatus
+}
+
+// Real audit log — every grade change is recorded
+export interface MongoGradeAudit {
+  _id?: string
+  branch: Branch
+  studentUsername: string
+  subjectCode: string
+  academicYear: string
+  semester: string
+  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade'
+  oldValue: string
+  newValue: string
+  action: 'save' | 'submit' | 'release' | 'fill'
+  performedBy: string // faculty username
+  performedAt: Date
+  note?: string
 }
 
 export type TaskType = 'Activity' | 'Quiz' | 'Test' | 'Project'

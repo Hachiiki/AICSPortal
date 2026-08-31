@@ -33,4 +33,8 @@ export interface FacultyStudent {
   program: string
   yearLevel: string
   section: string
+  enrollmentStatus?: string
+  email?: string
+  phone?: string
+  gpa?: string
 }

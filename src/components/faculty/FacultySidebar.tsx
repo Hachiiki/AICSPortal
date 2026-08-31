@@ -6,6 +6,7 @@ import {
   Home,
   Users,
   GraduationCap,
+  Archive,
   Megaphone,
   CalendarDays,
   Settings,
@@ -54,7 +55,8 @@ interface NavItem {
 const PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
-  { view: 'grades', label: 'Grade Encoding', icon: GraduationCap, enabled: false },
+  { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true },
+  { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true },
   { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
 ]

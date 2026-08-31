@@ -36,12 +36,23 @@ export async function GET(request: NextRequest) {
       emergencyContactNumber: mongoStudent.emergencyContactNumber,
       branch: mongoStudent.branch, branchAddress: mongoStudent.branchAddress,
       documents: mongoStudent.documents,
-      subjects: subjects.map((x) => ({
-        code: x.code, title: x.title, units: x.units, professor: x.professor,
-        professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,
-        midterm: x.midterm, finals: x.finals, finalGrade: x.finalGrade, remarks: x.remarks,
-        academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status,
-      })),
+      subjects: subjects.map((x) => {
+        const prelimStatus = (x as any).prelimStatus ?? x.gradeStatus
+        const midtermStatus = (x as any).midtermStatus ?? x.gradeStatus
+        const finalsStatus = (x as any).finalsStatus ?? x.gradeStatus
+        // Per-period workflow: each period visible only when its status is 'released'.
+        // '' / draft / submitted → hidden as '-' / Pending.
+        return {
+          code: x.code, title: x.title, units: x.units, professor: x.professor,
+          professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,
+          prelim: prelimStatus === 'released' ? (x.prelim ?? '-') : '-',
+          midterm: midtermStatus === 'released' ? x.midterm : '-',
+          finals: finalsStatus === 'released' ? x.finals : '-',
+          finalGrade: x.gradeStatus === 'released' ? x.finalGrade : '-',
+          remarks: x.gradeStatus === 'released' ? x.remarks : 'Pending',
+          academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status,
+        }
+      }),
       // schedule is an empty array — kept on the type for backward compat.
       // The live weekly schedule is rendered from the `sessions` collection
       // (passed separately in this response) plus the `courses` collection.
