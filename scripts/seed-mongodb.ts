@@ -147,9 +147,20 @@ async function seed() {
 
   const allSubjects = [...term1Subjects, ...term2Subjects]
 
-  await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
-  await db.collection('subjects').insertMany(allSubjects)
-  console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms)`)
+  const forceSeed = process.argv.includes('--force')
+  if (forceSeed) {
+    await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: 'juan.santos' })
+    await db.collection('subjects').insertMany(allSubjects)
+    console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms) — forced`)
+  } else {
+    const existing = await db.collection('subjects').countDocuments({ branch: BRANCH, studentUsername: 'juan.santos' })
+    if (existing === 0) {
+      await db.collection('subjects').insertMany(allSubjects)
+      console.log(`  ✓ Inserted ${allSubjects.length} subjects for juan.santos (2 terms)`)
+    } else {
+      console.log(`  ⊘ Skipped juan.santos subjects (${existing} exist) — use --force to overwrite`)
+    }
+  }
 
   // ----------------------------------------------------------
   //  3b. Prototype V23 faculty roster — 72 students across 3 sections
