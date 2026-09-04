@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
@@ -8,8 +8,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 import { AcademicHeader } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
@@ -35,9 +34,6 @@ interface StudentDashboardProps {
  * The sidebar includes an "Academics" link to the full academic record.
  */
 export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements }: StudentDashboardProps) {
-  const [view, setView] = useState<View>('dashboard')
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
   // Filter to current-term subjects + compute derived values
   const { currentTermSubjects, totalUnits, cumulativeGPA } = useMemo(() => {
     const current = student.subjects.filter((s) => {
@@ -58,40 +54,19 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
     return { currentTermSubjects: current, totalUnits: units, cumulativeGPA: gpa }
   }, [student])
 
-  // Sidebar navigation — just delegate to onNavigate. The parent
-  // handles all routing. No per-view branching needed here.
-  const handleNavigate = (v: View) => {
-    if (v === 'dashboard') {
-      setView('dashboard')
-      return
-    }
-    onNavigate(v)
-  }
-
   // Create a student object with only current-term subjects for the dashboard
   const dashboardStudent = { ...student, subjects: currentTermSubjects, gpa: cumulativeGPA }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active={view}
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
-
+    <PortalShell
+      student={student}
+      active="dashboard"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} />
 
@@ -112,7 +87,6 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
             <TodaysClasses courses={courses} sessions={sessions} />
           </div>
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }

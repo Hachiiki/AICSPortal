@@ -11,8 +11,7 @@ import {
 import type { Student, Subject, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 import { RemarksBadge } from './RemarksBadge'
 import { GradesHeader, GradesRow, GradesFooter } from './GradesRow'
 import { TasksTab } from './TasksTab'
@@ -176,7 +175,6 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 }
 
 export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors }: AcademicsPageProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
   // Tasks state is now lifted to the parent (StudentDataWrapper) so
@@ -193,24 +191,15 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="academics"
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
+    <PortalShell
+      student={student}
+      active="academics"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
@@ -403,8 +392,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             />
           )}
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }
 

@@ -18,8 +18,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
@@ -37,7 +36,6 @@ type Section = 'profile' | 'security' | 'notifications'
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
@@ -123,24 +121,15 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   ]
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="settings"
-        onNavigate={onNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onNavigate={onNavigate}
-          onLogout={onLogout}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
+    <PortalShell
+      student={student}
+      active="settings"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 max-w-4xl">
           {/* Page header */}
           <div>
@@ -362,8 +351,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             </div>
           )}
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }
 

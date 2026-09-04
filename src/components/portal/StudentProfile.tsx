@@ -32,8 +32,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import { getInitials } from '@/lib/aics/format'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 import { COEModal } from './COEModal'
 import { DigitalIDCardLarge } from './DigitalIDCardLarge'
 import { StudentIdCard } from './StudentIdCard'
@@ -65,7 +64,7 @@ const containerVariants = {
 export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const isFaculty = student.role === 'faculty'
 
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
   const submittedDocs = student.documents.filter((d) => d.submitted).length
@@ -89,26 +88,15 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="profile"
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
-
+    <PortalShell
+      student={student}
+      active="profile"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">
           <motion.div
             variants={containerVariants}
@@ -126,7 +114,9 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               </button>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-3">My Profile</h1>
               <p className="text-sm text-slate-500 mt-1">
-                Manage your student information, identification, and documents.
+                {isFaculty
+                  ? 'Manage your faculty information, identification, and documents.'
+                  : 'Manage your student information, identification, and documents.'}
               </p>
             </motion.div>
 
@@ -391,7 +381,6 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
             </motion.div>
           </motion.div>
         </main>
-      </div>
 
       {/* COE Modal */}
       <AnimatePresence>
@@ -407,7 +396,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
           <DigitalIDCardLarge student={student} />
         </DialogContent>
       </Dialog>
-    </div>
+    </PortalShell>
   )
 }
 

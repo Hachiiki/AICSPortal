@@ -20,8 +20,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
-import { FacultySidebar } from './FacultySidebar'
-import { Topbar } from '../portal/Topbar'
+import { PortalShell } from '../portal/PortalShell'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
@@ -60,7 +59,6 @@ export function FacultyStudentsPage({
   events, professors, tasks, announcements,
   facultyData, facultyLoading,
 }: FacultyStudentsPageProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
   const [selectedStudent, setSelectedStudent] = useState<StudentWithGrades | null>(null)
@@ -180,10 +178,15 @@ export function FacultyStudentsPage({
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <FacultySidebar active="my-students" onNavigate={handleNavigate} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-      <div className="lg:pl-60">
-        <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
+    <PortalShell
+      student={student}
+      active="my-students"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -331,7 +334,6 @@ export function FacultyStudentsPage({
             </div>
           )}
         </main>
-      </div>
 
       <AnimatePresence>
         {selectedStudent && (
@@ -421,6 +423,6 @@ export function FacultyStudentsPage({
           </>
         )}
       </AnimatePresence>
-    </div>
+    </PortalShell>
   )
 }

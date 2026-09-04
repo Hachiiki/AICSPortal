@@ -3,18 +3,16 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Home,
-  GraduationCap,
-  CalendarDays,
-  Users,
-  Stamp,
-  Settings,
-  CircleHelp,
-  Megaphone,
   X,
-  type LucideIcon,
 } from 'lucide-react'
 import type { View } from '@/lib/aics/types'
+import {
+  SECONDARY_NAV,
+  getPortalAria,
+  getPortalLabel,
+  getPrimaryNav,
+  type NavItem,
+} from '@/lib/aics/nav-config'
 
 interface SidebarProps {
   active: View
@@ -25,38 +23,6 @@ interface SidebarProps {
   /** When 'faculty', shows faculty nav items instead of student ones. */
   role?: 'student' | 'faculty' | 'admin'
 }
-
-interface NavItem {
-  view: View
-  label: string
-  icon: LucideIcon
-  /** When false, the item is grayed out, shows a "Soon" badge, and cannot be clicked. */
-  enabled: boolean
-}
-
-// Dashboard, Academics, Events, Professors, and Enrollment are functional.
-// All other nav items are "coming soon" — rendered grayed out with a
-// "Soon" badge and made non-interactive.
-const STUDENT_NAV: NavItem[] = [
-  { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
-  { view: 'academics', label: 'Academics', icon: GraduationCap, enabled: true },
-  { view: 'events', label: 'Events', icon: CalendarDays, enabled: true },
-  { view: 'professors', label: 'Professors', icon: Users, enabled: true },
-  { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: true },
-]
-
-const FACULTY_NAV: NavItem[] = [
-  { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
-  { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
-  { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true },
-  { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
-  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
-]
-
-const SECONDARY_NAV: NavItem[] = [
-  { view: 'settings', label: 'Settings', icon: Settings, enabled: true },
-  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
-]
 
 function NavButton({
   item,
@@ -122,8 +88,8 @@ function NavButton({
 }
 
 function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
-  const primaryNav = role === 'faculty' ? FACULTY_NAV : STUDENT_NAV
-  const portalLabel = role === 'faculty' ? 'Faculty Portal' : 'Student Portal'
+  const primaryNav = getPrimaryNav(role)
+  const portalLabel = getPortalLabel(role)
   return (
     <div className="flex flex-col h-full">
       {/* Brand */}
@@ -140,7 +106,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Main navigation">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label={getPortalAria(role)}>
         {primaryNav.map((item) => (
           <NavButton
             key={item.view}

@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   ChevronRight,
   Check,
@@ -20,8 +19,7 @@ import type { Enrollment, EnrollmentStep, PaymentStatus } from '@/lib/aics/enrol
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 
 // ============================================================
 //  EnrollmentPage — current-term enrollment tracker.
@@ -559,29 +557,18 @@ export function EnrollmentPage({
   professors,
   tasks,
 }: EnrollmentPageProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
   const handleNavigate = (v: View) => onNavigate(v)
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="enrollment"
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
+    <PortalShell
+      student={student}
+      active="enrollment"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
@@ -641,7 +628,6 @@ export function EnrollmentPage({
             </>
           )}
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }
