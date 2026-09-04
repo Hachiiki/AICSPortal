@@ -7,8 +7,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
-import { FacultySidebar } from './FacultySidebar'
-import { Topbar } from '../portal/Topbar'
+import { PortalShell } from '../portal/PortalShell'
 import { DashboardSkeleton } from '../portal/Skeleton'
 
 interface Props {
@@ -55,7 +54,6 @@ const previousRecords = [
 ]
 
 export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading }: Props) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('all')
   const [assignment, setAssignment] = useState('all')
@@ -88,10 +86,15 @@ export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, even
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <FacultySidebar active="previous-records" onNavigate={onNavigate} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-      <div className="lg:pl-64">
-        <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onLogout={onLogout} onNavigate={onNavigate} events={events} professors={professors} tasks={tasks} />
+    <PortalShell
+      student={student}
+      active="previous-records"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -208,7 +211,6 @@ export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, even
             <Archive className="w-4 h-4" /> Former sections remain read-only. If you were replaced, the current professor is shown. History is branch-scoped and audit-logged.
           </div>
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }

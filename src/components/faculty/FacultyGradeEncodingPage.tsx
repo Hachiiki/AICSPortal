@@ -10,8 +10,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
-import { FacultySidebar } from './FacultySidebar'
-import { Topbar } from '../portal/Topbar'
+import { PortalShell } from '../portal/PortalShell'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
 
@@ -37,7 +36,6 @@ function badgeForRemarks(r: string) {
 }
 
 export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh }: Props) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [period, setPeriod] = useState<'all' | 'prelim' | 'midterm' | 'finals'>('all')
   const [activeSection, setActiveSection] = useState('all')
   const [search, setSearch] = useState('')
@@ -319,10 +317,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const openSubmit = (p: 'prelim' | 'midterm' | 'finals' | 'all') => { setSubmitPeriod(p); setShowSubmitModal(true) }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <FacultySidebar active="grade-encoding" onNavigate={onNavigate} mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
-      <div className="lg:pl-64">
-        <Topbar student={student} onOpenMobileNav={() => setMobileNavOpen(true)} onProfile={() => onNavigate('profile')} onNavigate={onNavigate} onLogout={onLogout} events={events} professors={professors} tasks={tasks} />
+    <PortalShell
+      student={student}
+      active="grade-encoding"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -422,7 +425,6 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             {filtered.length === 0 && <div className="py-10 text-center text-sm text-slate-500">No records for current filters</div>}
           </div>
         </main>
-      </div>
 
       {showFillModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -556,6 +558,6 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           </>
         )}
       </AnimatePresence>
-    </div>
+    </PortalShell>
   )
 }

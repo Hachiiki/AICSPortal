@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Mail, Clock, MapPin, Info, ChevronRight, Users, BookOpen } from 'lucide-react'
 import type { Student, Subject, View } from '@/lib/aics/types'
 import type { Professor } from '@/lib/aics/professors'
@@ -8,8 +8,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Task } from '@/lib/aics/tasks'
 import { getCourse, type Course, type CourseColor } from '@/lib/schedule'
 import { getInitials } from '@/lib/aics/format'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 
 // ============================================================
 //  ProfessorsPage — current-term professor directory.
@@ -55,8 +54,6 @@ const CHIP_STYLES: Record<CourseColor, { chip: string; dot: string; code: string
 }
 
 export function ProfessorsPage({ student, professors, courses, onNavigate, onLogout, events, tasks }: ProfessorsPageProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
   // Sidebar navigation — just delegate to onNavigate.
   const handleNavigate = (v: View) => {
     onNavigate(v)
@@ -111,24 +108,15 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
   }, [professors, currentSubjects])
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="professors"
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
+    <PortalShell
+      student={student}
+      active="professors"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
@@ -264,7 +252,6 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
             </>
           )}
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }

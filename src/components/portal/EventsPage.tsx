@@ -6,8 +6,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
-import { Sidebar } from './Sidebar'
-import { Topbar } from './Topbar'
+import { PortalShell } from './PortalShell'
 import { EventsSkeleton } from './Skeleton'
 import {
   CalendarGrid,
@@ -47,8 +46,6 @@ interface EventsPageProps {
 // ============================================================
 
 export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats, professors }: EventsPageProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
   // Calendar view state
   const [viewMonth, setViewMonth] = useState<Date>(() => {
     const d = new Date()
@@ -168,24 +165,15 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
   if (eventsError) return <div className="text-red-600 text-sm">{eventsError}</div>
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <Sidebar role={student.role}
-        active="events"
-        onNavigate={handleNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
+    <PortalShell
+      student={student}
+      active="events"
+      onNavigate={handleNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
@@ -244,7 +232,6 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
             </div>
           </div>
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }

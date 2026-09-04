@@ -323,9 +323,10 @@ function StudentDataWrapper({
   //  No individual navigation callbacks — just `onNavigate`.
   // ----------------------------------------------------------
 
-  // Faculty users get a different dashboard shell than students.
-  // For all other views (profile, settings, etc.) they currently
-  // reuse the student pages — only the dashboard is faculty-specific.
+  // Faculty users get faculty pages for dashboard, my-students,
+  // grade-encoding, and previous-records. Profile and settings reuse
+  // the shared pages, which render inside PortalShell with role-aware
+  // nav so the sidebar and top bar never change between tabs.
   if (route.view === 'dashboard' && route.role === 'faculty') {
     return (
       <FacultyDashboard

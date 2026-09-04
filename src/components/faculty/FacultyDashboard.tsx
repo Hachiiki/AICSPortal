@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { BookOpen, Users, LayoutGrid } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
@@ -10,8 +10,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
-import { FacultySidebar } from './FacultySidebar'
-import { Topbar } from '../portal/Topbar'
+import { PortalShell } from '../portal/PortalShell'
 import { AnnouncementsDeck } from '../portal/AnnouncementsDeck'
 import { DashboardSkeleton } from '../portal/Skeleton'
 
@@ -31,7 +30,7 @@ import { DashboardSkeleton } from '../portal/Skeleton'
 //  chrome stays visible.
 //
 //  Layout mirrors the student dashboard:
-//    - FacultySidebar (only "Dashboard" enabled today)
+//    - PortalShell with faculty nav
 //    - Topbar (with global search)
 //    - Hero (eyebrow + welcome + program subtitle + stats)
 //    - "My Subjects" table card
@@ -95,8 +94,6 @@ export function FacultyDashboard({
   facultyData,
   facultyLoading,
 }: FacultyDashboardProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
   // Faculty data comes from the parent (lifted state), not an internal fetch.
   // This prevents re-fetching when navigating between dashboard and my-students.
   const faculty = facultyData?.faculty ?? null
@@ -149,26 +146,15 @@ export function FacultyDashboard({
   }
 
   return (
-    <div className="min-h-dvh bg-slate-50 font-sans">
-      <FacultySidebar
-        active="dashboard"
-        onNavigate={onNavigate}
-        mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
-      />
-
-      <div className="lg:pl-60">
-        <Topbar
-          student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
-          onProfile={() => onNavigate('profile')}
-          onLogout={onLogout}
-          onNavigate={onNavigate}
-          events={events}
-          professors={professors}
-          tasks={tasks}
-        />
-
+    <PortalShell
+      student={student}
+      active="dashboard"
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      events={events}
+      professors={professors}
+      tasks={tasks}
+    >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}
           <motion.section
@@ -287,8 +273,7 @@ export function FacultyDashboard({
             )}
           </motion.section>
         </main>
-      </div>
-    </div>
+    </PortalShell>
   )
 }
 
