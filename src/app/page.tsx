@@ -335,7 +335,7 @@ function StudentDataWrapper({
   // nav so the sidebar and top bar never change between tabs.
   // Admin users get the release queue. Any other admin view falls
   // back to it since admin has no other screens yet.
-  if (route.role === 'admin' && route.view !== 'settings') {
+  if (route.view !== 'login' && route.role === 'admin' && route.view !== 'settings') {
     return (
       <AdminReleasePage
         student={student}
