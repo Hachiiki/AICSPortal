@@ -16,6 +16,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 //    /portal/{branch}/student/{username}/enrollment         → enrollment
 //    /portal/{branch}/student/{username}/settings           → settings
 //    /portal/{branch}/faculty/{username}                    → faculty dashboard (future)
+//    /portal/{branch}/admin/{username}                      → admin release queue
 //
 //  The `role` field on each route determines which portal
 //  shell to render (student vs faculty vs admin).
@@ -42,9 +43,9 @@ function parsePath(path: string): PortalRoute {
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
 
-  // Role segment: parts[2] is 'student' or 'faculty'
+  // Role segment: parts[2] is 'student', 'faculty', or 'admin'
   const roleSegment = parts[2]
-  if ((roleSegment === 'student' || roleSegment === 'faculty') && parts[3]) {
+  if ((roleSegment === 'student' || roleSegment === 'faculty' || roleSegment === 'admin') && parts[3]) {
     const branch = decodeURIComponent(parts[1])
     const username = decodeURIComponent(parts[3])
     const role = roleSegment as PortalRole

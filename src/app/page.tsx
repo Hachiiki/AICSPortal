@@ -11,6 +11,7 @@ import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
 import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
+import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -39,6 +40,11 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
  *   /portal/{branch}/student/{username}/events       → EventsPage
  *   /portal/{branch}/student/{username}/professors   → ProfessorsPage
  *   /portal/{branch}/student/{username}/enrollment    → EnrollmentPage
+ *   /portal/{branch}/faculty/{username}                   → FacultyDashboard
+ *   /portal/{branch}/faculty/{username}/my-students       → FacultyStudentsPage
+ *   /portal/{branch}/faculty/{username}/grade-encoding    → FacultyGradeEncodingPage
+ *   /portal/{branch}/faculty/{username}/previous-records  → FacultyPreviousRecordsPage
+ *   /portal/{branch}/admin/{username}                     → AdminReleasePage
  *
  * Auth rules:
  *   - Unauthenticated + protected route → redirect to /portal/login
@@ -327,6 +333,21 @@ function StudentDataWrapper({
   // grade-encoding, and previous-records. Profile and settings reuse
   // the shared pages, which render inside PortalShell with role-aware
   // nav so the sidebar and top bar never change between tabs.
+  // Admin users get the release queue. Any other admin view falls
+  // back to it since admin has no other screens yet.
+  if (route.role === 'admin' && route.view !== 'settings') {
+    return (
+      <AdminReleasePage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+      />
+    )
+  }
+
   if (route.view === 'dashboard' && route.role === 'faculty') {
     return (
       <FacultyDashboard

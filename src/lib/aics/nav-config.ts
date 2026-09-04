@@ -43,19 +43,29 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
 ]
 
+export const ADMIN_PRIMARY_NAV: NavItem[] = [
+  { view: 'dashboard', label: 'Release Queue', icon: Stamp, enabled: true },
+]
+
 export const SECONDARY_NAV: NavItem[] = [
   { view: 'settings', label: 'Settings', icon: Settings, enabled: true },
   { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
 ]
 
 export function getPrimaryNav(role?: PortalRole | string): NavItem[] {
-  return role === 'faculty' ? FACULTY_PRIMARY_NAV : STUDENT_PRIMARY_NAV
+  if (role === 'faculty') return FACULTY_PRIMARY_NAV
+  if (role === 'admin') return ADMIN_PRIMARY_NAV
+  return STUDENT_PRIMARY_NAV
 }
 
 export function getPortalLabel(role?: PortalRole | string): string {
-  return role === 'faculty' ? 'Faculty Portal' : 'Student Portal'
+  if (role === 'faculty') return 'Faculty Portal'
+  if (role === 'admin') return 'Admin Portal'
+  return 'Student Portal'
 }
 
 export function getPortalAria(role?: PortalRole | string): string {
-  return role === 'faculty' ? 'Faculty navigation' : 'Main navigation'
+  if (role === 'faculty') return 'Faculty navigation'
+  if (role === 'admin') return 'Admin navigation'
+  return 'Main navigation'
 }
