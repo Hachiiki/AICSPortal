@@ -47,7 +47,7 @@
 - [x] **Unified portal shell** — One `PortalShell` (`src/components/portal/PortalShell.tsx`) plus one nav config (`src/lib/aics/nav-config.ts`) for student and faculty. Fixed settings rendering the student sidebar for faculty and the `lg:pl-64` vs `lg:pl-60` drift. New tabs only touch nav config, routes, and one page component.
 - [x] **Announcement deck layering** — Deck cards capped at z 3/2/1 inside an `isolate` wrapper so scrolling cards slide under the sticky Topbar (z-20) on student and faculty dashboards. Z-index scale documented in `PortalShell`.
 - [ ] **Previous Records backend (mock today)** — Page runs on a hardcoded `previousRecords` const (`src/components/faculty/FacultyPreviousRecordsPage.tsx:26`). Export CSV and per-section View are dead buttons. Needs `GET /api/faculty/history`, professor-switch detection across terms, and a released seed term. See `docs/faculty-roadmap.md` phase 2.
-- [ ] **Grade release UI** — Release is admin-only but no admin user or screen exists, so submitted grades stall forever and history can never populate. Needs admin seed plus minimal release screen. See `docs/faculty-roadmap.md` phase 1.
+- [x] **Grade release UI** — Admin seed (dmin / dmin123) plus release queue page (src/components/admin/AdminReleasePage.tsx). Pending-groups endpoint (GET /api/grades/release) lists submitted periods with counts. Release requires performedBy and admin role. Full flow verified in browser on scratch data: draft to submitted to released to student-visible, then scratch removed.
 - [ ] **Redesign My Students follow-up — pagination + bulk actions** — Sorting done; remaining: pagination for 25+ per section, and bulk actions (`Message section` / `Take attendance` are still toasts).
 - [ ] **Announcements (write side)** — Form where faculty can create new announcements. Needs a POST `/api/announcements` endpoint and a create-announcement UI. Faculty and admin only.
 - [ ] **Schedule** — Faculty's weekly calendar. Reuses ScheduleGrid filtered to their sessions only.
@@ -58,7 +58,7 @@
 ## Admin Portal (not started)
 
 ### Planned
-- [ ] Admin seed user (role: admin)
+- [x] Admin seed user (role: admin) — seeded as dmin / dmin123, release queue page live as the first admin screen.
 - [ ] Admin dashboard (school-wide stats: enrollment counts, GPA distribution, branch overview)
 - [ ] Manage events (CRUD for the events collection)
 - [ ] Manage announcements (CRUD for announcements)
