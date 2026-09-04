@@ -1,0 +1,412 @@
+{
+  "app/api/announcements/route.ts": {
+    "mtime": 1788480996.4662902,
+    "ast_hash": "edaba74f6e99f88a5f2df7e5efb16540",
+    "semantic_hash": "edaba74f6e99f88a5f2df7e5efb16540"
+  },
+  "app/api/auth/change-password/route.ts": {
+    "mtime": 1788480996.4703207,
+    "ast_hash": "ac3f586ddb1f8c8cb893f2a1309bc42e",
+    "semantic_hash": "ac3f586ddb1f8c8cb893f2a1309bc42e"
+  },
+  "app/api/auth/login/route.ts": {
+    "mtime": 1788480996.4723332,
+    "ast_hash": "1aade31f3ff65728d3c8e14533ade81d",
+    "semantic_hash": "1aade31f3ff65728d3c8e14533ade81d"
+  },
+  "app/api/enrollment/route.ts": {
+    "mtime": 1788104526.0124152,
+    "ast_hash": "b846adb1a60c73913e5de59a6822181a",
+    "semantic_hash": "b846adb1a60c73913e5de59a6822181a"
+  },
+  "app/api/events/route.ts": {
+    "mtime": 1788104526.016651,
+    "ast_hash": "2d166abeb45933f00c04a6098e61b59b",
+    "semantic_hash": "2d166abeb45933f00c04a6098e61b59b"
+  },
+  "app/api/faculty/route.ts": {
+    "mtime": 1788480996.4803965,
+    "ast_hash": "851615682091f00a4a9523b8d33e18d8",
+    "semantic_hash": "851615682091f00a4a9523b8d33e18d8"
+  },
+  "app/api/grades/audits/route.ts": {
+    "mtime": 1788480996.4824083,
+    "ast_hash": "eb9303727f17091b983f565236a3e55d",
+    "semantic_hash": "eb9303727f17091b983f565236a3e55d"
+  },
+  "app/api/grades/release/route.ts": {
+    "mtime": 1788480996.4928012,
+    "ast_hash": "0205e9fd63a01f259d70b70b5177d98b",
+    "semantic_hash": "0205e9fd63a01f259d70b70b5177d98b"
+  },
+  "app/api/grades/submit/route.ts": {
+    "mtime": 1788480996.5067647,
+    "ast_hash": "3d13a039f6fd88237e490b5496495395",
+    "semantic_hash": "3d13a039f6fd88237e490b5496495395"
+  },
+  "app/api/grades/update/route.ts": {
+    "mtime": 1788480996.5192409,
+    "ast_hash": "004c6d93e3b97f59dbf025940d6e6de1",
+    "semantic_hash": "004c6d93e3b97f59dbf025940d6e6de1"
+  },
+  "app/api/professors/route.ts": {
+    "mtime": 1788104526.052876,
+    "ast_hash": "4e00b5046d88a0b344baf82f19b0dad4",
+    "semantic_hash": "4e00b5046d88a0b344baf82f19b0dad4"
+  },
+  "app/api/route.ts": {
+    "mtime": 1788104526.0569606,
+    "ast_hash": "bea7bb6c5e8f4a6fad2e9ccc6324ae8a",
+    "semantic_hash": "bea7bb6c5e8f4a6fad2e9ccc6324ae8a"
+  },
+  "app/api/student/route.ts": {
+    "mtime": 1788480996.5273073,
+    "ast_hash": "9fdbe70d3698b82ff07f984c991fb4bd",
+    "semantic_hash": "9fdbe70d3698b82ff07f984c991fb4bd"
+  },
+  "app/api/student/update/route.ts": {
+    "mtime": 1788480996.5293207,
+    "ast_hash": "ecea21aec2f8977b0479924a1a13d503",
+    "semantic_hash": "ecea21aec2f8977b0479924a1a13d503"
+  },
+  "app/api/tasks/[taskId]/submit/route.ts": {
+    "mtime": 1788104526.0650146,
+    "ast_hash": "2b3dc4ea35547e4b7bcd08649db20eec",
+    "semantic_hash": "2b3dc4ea35547e4b7bcd08649db20eec"
+  },
+  "app/api/tasks/route.ts": {
+    "mtime": 1788104526.0670264,
+    "ast_hash": "1c36e0f2e5e85b753c1435f941bbe938",
+    "semantic_hash": "1c36e0f2e5e85b753c1435f941bbe938"
+  },
+  "app/layout.tsx": {
+    "mtime": 1788104526.0710547,
+    "ast_hash": "12aaf96f374b5e1764e73401274e0d5f",
+    "semantic_hash": "12aaf96f374b5e1764e73401274e0d5f"
+  },
+  "app/page.tsx": {
+    "mtime": 1788481378.5412521,
+    "ast_hash": "d5b781d2f59a6793f4d2e95b25be595d",
+    "semantic_hash": "d5b781d2f59a6793f4d2e95b25be595d"
+  },
+  "app/portal/[...slug]/page.tsx": {
+    "mtime": 1788104526.0791018,
+    "ast_hash": "9a0c94e6acd49d9d016facb18dfb36d2",
+    "semantic_hash": "9a0c94e6acd49d9d016facb18dfb36d2"
+  },
+  "components/MobileWarning.tsx": {
+    "mtime": 1788104526.0811174,
+    "ast_hash": "42722d6dd34839d84060fa4c0306c1a9",
+    "semantic_hash": "42722d6dd34839d84060fa4c0306c1a9"
+  },
+  "components/auth/BranchRedirect.tsx": {
+    "mtime": 1788104526.085158,
+    "ast_hash": "4468bc1e4fec9f789fd1c58394b4211f",
+    "semantic_hash": "4468bc1e4fec9f789fd1c58394b4211f"
+  },
+  "components/auth/CredentialsForm.tsx": {
+    "mtime": 1788104526.0891857,
+    "ast_hash": "a9a9808b0b6661549c73955832c2b72c",
+    "semantic_hash": "a9a9808b0b6661549c73955832c2b72c"
+  },
+  "components/auth/FaceIdPanel.tsx": {
+    "mtime": 1788104526.0911965,
+    "ast_hash": "2fa23d3dbb601605d1bfebf0bd8054e2",
+    "semantic_hash": "2fa23d3dbb601605d1bfebf0bd8054e2"
+  },
+  "components/auth/LoginView.tsx": {
+    "mtime": 1788104526.0972364,
+    "ast_hash": "f9952db1d91d6afa2e27409130d9145e",
+    "semantic_hash": "f9952db1d91d6afa2e27409130d9145e"
+  },
+  "components/auth/login-tokens.ts": {
+    "mtime": 1788104526.101271,
+    "ast_hash": "7411e6a6ffc4d33ac5fddf862cf9fa41",
+    "semantic_hash": "7411e6a6ffc4d33ac5fddf862cf9fa41"
+  },
+  "components/faculty/FacultyDashboard.tsx": {
+    "mtime": 1788481167.4400468,
+    "ast_hash": "802b2eb9e4b030821527ed7c9fdd6ebc",
+    "semantic_hash": "802b2eb9e4b030821527ed7c9fdd6ebc"
+  },
+  "components/faculty/FacultyGradeEncodingPage.tsx": {
+    "mtime": 1788481245.5929887,
+    "ast_hash": "92695c525c85b7e2e3e05c00a5049f11",
+    "semantic_hash": "92695c525c85b7e2e3e05c00a5049f11"
+  },
+  "components/faculty/FacultyPreviousRecordsPage.tsx": {
+    "mtime": 1788481273.4945261,
+    "ast_hash": "073ae4d070f4adb6b5a81aa50f216284",
+    "semantic_hash": "073ae4d070f4adb6b5a81aa50f216284"
+  },
+  "components/faculty/FacultySidebar.tsx": {
+    "mtime": 1788481125.6023962,
+    "ast_hash": "5f2311af5be18e07ee79b2d9ff33641e",
+    "semantic_hash": "5f2311af5be18e07ee79b2d9ff33641e"
+  },
+  "components/faculty/FacultyStudentsPage.tsx": {
+    "mtime": 1788481209.1666694,
+    "ast_hash": "a6d5c04b1531b3d8ad53c86aff00743b",
+    "semantic_hash": "a6d5c04b1531b3d8ad53c86aff00743b"
+  },
+  "components/portal/AcademicHeader.tsx": {
+    "mtime": 1788480996.5695448,
+    "ast_hash": "2765363a009942a4ec62204966415f19",
+    "semantic_hash": "2765363a009942a4ec62204966415f19"
+  },
+  "components/portal/AcademicsPage.tsx": {
+    "mtime": 1788481446.418469,
+    "ast_hash": "9517b4c32b12ac6dfea03ba989f9bb5b",
+    "semantic_hash": "9517b4c32b12ac6dfea03ba989f9bb5b"
+  },
+  "components/portal/AnnouncementsDeck.tsx": {
+    "mtime": 1788480996.571568,
+    "ast_hash": "4ad91996b586d4783e696b4d799eb8b2",
+    "semantic_hash": "4ad91996b586d4783e696b4d799eb8b2"
+  },
+  "components/portal/AnnouncementsWidget.tsx": {
+    "mtime": 1788480996.5735936,
+    "ast_hash": "56a110c985ada875283210caec9cefe3",
+    "semantic_hash": "56a110c985ada875283210caec9cefe3"
+  },
+  "components/portal/COEDocument.tsx": {
+    "mtime": 1788104526.127473,
+    "ast_hash": "faab810eb8a2deca2e028ea4431e27cb",
+    "semantic_hash": "faab810eb8a2deca2e028ea4431e27cb"
+  },
+  "components/portal/COEModal.tsx": {
+    "mtime": 1788104526.1294868,
+    "ast_hash": "88c72d468848974718e11244b0e577db",
+    "semantic_hash": "88c72d468848974718e11244b0e577db"
+  },
+  "components/portal/DigitalIDCardLarge.tsx": {
+    "mtime": 1788104526.1335084,
+    "ast_hash": "feaa62cb7f21e3d6e4d2b525cab5470d",
+    "semantic_hash": "feaa62cb7f21e3d6e4d2b525cab5470d"
+  },
+  "components/portal/EnrollmentPage.tsx": {
+    "mtime": 1788481530.6052632,
+    "ast_hash": "f251ccb0fae66cca99cbe3b5dbb2462a",
+    "semantic_hash": "f251ccb0fae66cca99cbe3b5dbb2462a"
+  },
+  "components/portal/EventsPage.tsx": {
+    "mtime": 1788481468.3882396,
+    "ast_hash": "dd6798b06a3434302cabd124f68e647a",
+    "semantic_hash": "dd6798b06a3434302cabd124f68e647a"
+  },
+  "components/portal/EventsPageParts.tsx": {
+    "mtime": 1788104526.1395476,
+    "ast_hash": "b9325722c442eba0f6c7da94f03dbc73",
+    "semantic_hash": "b9325722c442eba0f6c7da94f03dbc73"
+  },
+  "components/portal/FitText.tsx": {
+    "mtime": 1788104526.1395476,
+    "ast_hash": "629d544c6dbe54741b028e6743e888dd",
+    "semantic_hash": "629d544c6dbe54741b028e6743e888dd"
+  },
+  "components/portal/GlobalSearch.tsx": {
+    "mtime": 1788104526.143572,
+    "ast_hash": "3a012d36eeb71590b4f9f061954fd7d6",
+    "semantic_hash": "3a012d36eeb71590b4f9f061954fd7d6"
+  },
+  "components/portal/GradesRow.tsx": {
+    "mtime": 1788104526.1478598,
+    "ast_hash": "f7a68f6b38573a1cde241e4da3ce3fe7",
+    "semantic_hash": "f7a68f6b38573a1cde241e4da3ce3fe7"
+  },
+  "components/portal/GradesTable.tsx": {
+    "mtime": 1788104526.1518927,
+    "ast_hash": "b2603d90e66b210d0e14707b186f8aa6",
+    "semantic_hash": "b2603d90e66b210d0e14707b186f8aa6"
+  },
+  "components/portal/PortalShell.tsx": {
+    "mtime": 1788481092.981552,
+    "ast_hash": "ed49ca6db0eadf85c05ebc64b12c32f5",
+    "semantic_hash": "ed49ca6db0eadf85c05ebc64b12c32f5"
+  },
+  "components/portal/ProfessorsPage.tsx": {
+    "mtime": 1788481497.3193212,
+    "ast_hash": "6f2771a2fab1fb2b90d3d32c1a7aca5e",
+    "semantic_hash": "6f2771a2fab1fb2b90d3d32c1a7aca5e"
+  },
+  "components/portal/RemarksBadge.tsx": {
+    "mtime": 1788104526.15593,
+    "ast_hash": "f013402b5e551b9a4b80396c9024aa83",
+    "semantic_hash": "f013402b5e551b9a4b80396c9024aa83"
+  },
+  "components/portal/RoleGate.tsx": {
+    "mtime": 1788480996.5816603,
+    "ast_hash": "1d66f44054a8a64b0985279a5614c992",
+    "semantic_hash": "1d66f44054a8a64b0985279a5614c992"
+  },
+  "components/portal/ScheduleGrid.tsx": {
+    "mtime": 1788104526.1619751,
+    "ast_hash": "0b4348415bc4c8a36454b3b850501ff3",
+    "semantic_hash": "0b4348415bc4c8a36454b3b850501ff3"
+  },
+  "components/portal/SettingsPage.tsx": {
+    "mtime": 1788481303.1670785,
+    "ast_hash": "516791219f8308d2032bb32bb48bbc87",
+    "semantic_hash": "516791219f8308d2032bb32bb48bbc87"
+  },
+  "components/portal/Sidebar.tsx": {
+    "mtime": 1788481114.847823,
+    "ast_hash": "23f20ce81e3cce60680dc9f0d681789e",
+    "semantic_hash": "23f20ce81e3cce60680dc9f0d681789e"
+  },
+  "components/portal/Skeleton.tsx": {
+    "mtime": 1788104526.1720533,
+    "ast_hash": "21ce7763a64fabcf424c386dd99b06fb",
+    "semantic_hash": "21ce7763a64fabcf424c386dd99b06fb"
+  },
+  "components/portal/StudentDashboard.tsx": {
+    "mtime": 1788481403.7618105,
+    "ast_hash": "f080ba01bc641f2e2d20943fc29d1430",
+    "semantic_hash": "f080ba01bc641f2e2d20943fc29d1430"
+  },
+  "components/portal/StudentIdCard.tsx": {
+    "mtime": 1788104526.1782436,
+    "ast_hash": "a1b0a577c167604f1d10868b09869c73",
+    "semantic_hash": "a1b0a577c167604f1d10868b09869c73"
+  },
+  "components/portal/StudentIdFront.tsx": {
+    "mtime": 1788104526.1782436,
+    "ast_hash": "aeee7e7110a64a0f4110917cb970567c",
+    "semantic_hash": "aeee7e7110a64a0f4110917cb970567c"
+  },
+  "components/portal/StudentProfile.tsx": {
+    "mtime": 1788481368.8751156,
+    "ast_hash": "24273ee479ade51f15f65594f12fd218",
+    "semantic_hash": "24273ee479ade51f15f65594f12fd218"
+  },
+  "components/portal/TasksTab.tsx": {
+    "mtime": 1788104526.1855302,
+    "ast_hash": "e335e13135b341f1f5eaab57befc929c",
+    "semantic_hash": "e335e13135b341f1f5eaab57befc929c"
+  },
+  "components/portal/TodaysClasses.tsx": {
+    "mtime": 1788104526.1885653,
+    "ast_hash": "3c021c6963333e47c5c26af9e5508cb9",
+    "semantic_hash": "3c021c6963333e47c5c26af9e5508cb9"
+  },
+  "components/portal/Topbar.tsx": {
+    "mtime": 1788480996.6018434,
+    "ast_hash": "05ddebc8e9a4b554ede9889534093cb5",
+    "semantic_hash": "05ddebc8e9a4b554ede9889534093cb5"
+  },
+  "components/ui/button.tsx": {
+    "mtime": 1788104526.1946032,
+    "ast_hash": "7cf5063b66e3ea629115772120bc57e7",
+    "semantic_hash": "7cf5063b66e3ea629115772120bc57e7"
+  },
+  "components/ui/dialog.tsx": {
+    "mtime": 1788104526.1987584,
+    "ast_hash": "48a74bc4e6b2a9609c91582cae95730f",
+    "semantic_hash": "48a74bc4e6b2a9609c91582cae95730f"
+  },
+  "components/ui/dropdown-menu.tsx": {
+    "mtime": 1788104526.2007728,
+    "ast_hash": "61ed555c8e1fdeb8556a276a1721c8d4",
+    "semantic_hash": "61ed555c8e1fdeb8556a276a1721c8d4"
+  },
+  "components/ui/sonner.tsx": {
+    "mtime": 1788104526.208846,
+    "ast_hash": "6ea1f5a74a5c8a3463d405fcd3099771",
+    "semantic_hash": "6ea1f5a74a5c8a3463d405fcd3099771"
+  },
+  "lib/aics/announcements.ts": {
+    "mtime": 1788480996.6038694,
+    "ast_hash": "16d9487fbf70554b172569e0aea965aa",
+    "semantic_hash": "16d9487fbf70554b172569e0aea965aa"
+  },
+  "lib/aics/enrollment.ts": {
+    "mtime": 1788104526.2108626,
+    "ast_hash": "8a6a224b247b85beeb1bb49b53c4b34d",
+    "semantic_hash": "8a6a224b247b85beeb1bb49b53c4b34d"
+  },
+  "lib/aics/events.ts": {
+    "mtime": 1788104526.2149918,
+    "ast_hash": "8f3de98d42b437b0c4655207c557573c",
+    "semantic_hash": "8f3de98d42b437b0c4655207c557573c"
+  },
+  "lib/aics/faculty.ts": {
+    "mtime": 1788480996.6088285,
+    "ast_hash": "6c6cb6da6cfe51a5ba3e8b2cfdc09d09",
+    "semantic_hash": "6c6cb6da6cfe51a5ba3e8b2cfdc09d09"
+  },
+  "lib/aics/format.ts": {
+    "mtime": 1788104526.2230532,
+    "ast_hash": "c9827be5eb6566fca7b9bad06651ca73",
+    "semantic_hash": "c9827be5eb6566fca7b9bad06651ca73"
+  },
+  "lib/aics/id-card-config.ts": {
+    "mtime": 1788104526.2230532,
+    "ast_hash": "2a5d2098cd16c526392767ad4bb8194a",
+    "semantic_hash": "2a5d2098cd16c526392767ad4bb8194a"
+  },
+  "lib/aics/nav-config.ts": {
+    "mtime": 1788481085.0880535,
+    "ast_hash": "bd03941d72d15425927edd303777a0c9",
+    "semantic_hash": "bd03941d72d15425927edd303777a0c9"
+  },
+  "lib/aics/palette.ts": {
+    "mtime": 1788104526.2258954,
+    "ast_hash": "a47001ce6ca5b894d9547f6beb78abdb",
+    "semantic_hash": "a47001ce6ca5b894d9547f6beb78abdb"
+  },
+  "lib/aics/professors.ts": {
+    "mtime": 1788104526.2314496,
+    "ast_hash": "3505f714ad49de4876caa1cb7653274a",
+    "semantic_hash": "3505f714ad49de4876caa1cb7653274a"
+  },
+  "lib/aics/tasks.ts": {
+    "mtime": 1788104526.233816,
+    "ast_hash": "790bbfef8169289a90bd934fcf044ec6",
+    "semantic_hash": "790bbfef8169289a90bd934fcf044ec6"
+  },
+  "lib/aics/types.ts": {
+    "mtime": 1788480996.6128407,
+    "ast_hash": "35a5ff065a7d097beeb1a34ec1570cb0",
+    "semantic_hash": "35a5ff065a7d097beeb1a34ec1570cb0"
+  },
+  "lib/aics/use-faculty-rows.ts": {
+    "mtime": 1788480996.6147742,
+    "ast_hash": "df6e2e562c134f74811befc7f7e7296e",
+    "semantic_hash": "df6e2e562c134f74811befc7f7e7296e"
+  },
+  "lib/aics/use-portal-route.ts": {
+    "mtime": 1788480996.6175508,
+    "ast_hash": "44f3f26f8b3ee86561cdfaeb7068d1af",
+    "semantic_hash": "44f3f26f8b3ee86561cdfaeb7068d1af"
+  },
+  "lib/aics/use-student-data.ts": {
+    "mtime": 1788480996.6195698,
+    "ast_hash": "505e062f9299d9dfabfda6cf20c69199",
+    "semantic_hash": "505e062f9299d9dfabfda6cf20c69199"
+  },
+  "lib/mongodb/connection.ts": {
+    "mtime": 1788104526.2482083,
+    "ast_hash": "e03c649ff1212d993b963ba7229d44da",
+    "semantic_hash": "e03c649ff1212d993b963ba7229d44da"
+  },
+  "lib/mongodb/queries.ts": {
+    "mtime": 1788480996.623603,
+    "ast_hash": "80c19c524b49027de3ff255a82f1c632",
+    "semantic_hash": "80c19c524b49027de3ff255a82f1c632"
+  },
+  "lib/mongodb/types.ts": {
+    "mtime": 1788480996.6271372,
+    "ast_hash": "5d03a78193f9189afba5e5d5431a7f56",
+    "semantic_hash": "5d03a78193f9189afba5e5d5431a7f56"
+  },
+  "lib/schedule.ts": {
+    "mtime": 1788104526.253998,
+    "ast_hash": "21edb6e2624fa24678598d6e8796a795",
+    "semantic_hash": "21edb6e2624fa24678598d6e8796a795"
+  },
+  "lib/utils.ts": {
+    "mtime": 1788104526.258027,
+    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
+    "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
+  }
+}
