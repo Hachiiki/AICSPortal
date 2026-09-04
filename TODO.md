@@ -23,7 +23,7 @@
 - [ ] **Profile photo upload** — Settings page has a placeholder. Needs a file upload endpoint + image storage.
 - [ ] **Notification system activation** — Settings page has toggles for email/SMS/event/task notifications. These are local-only. Needs a backend notifications service to actually send alerts.
 
-## Faculty Portal (current state: shell only)
+## Faculty Portal (current state: core tabs live, history is mock)
 
 ### Done
 - [x] Faculty seed user (`m.reyes` / `faculty123`, role: faculty)
@@ -44,11 +44,16 @@
 - [x] **Small history drawer** — API `GET /api/grades/audits` + slide-over per student per subject in `FacultyGradeEncodingPage` (`History` button per row, fetches `branch`/`subjectCode`/`studentUsername`, shows plain English `m.reyes saved Prelim from INC to 85 for Juan...`). Added `History` column, `AnimatePresence` drawer. `My Students` drawer remains simple by design.
 - [x] **Hide Dropped/Transferred in Grade Encoding** — `useFacultyRows` + `Grade Encoding` filtered out `enrollmentStatus` `dropped`/`transferred` (kept visible in My Students). Header shows `X hidden (Dropped/Transferred)` count.
 - [x] **My Students sorting + shared styling** — Sortable `Student`/`Student #`/`Prelim` headers with `↑`/`↓` (`src/components/faculty/FacultyStudentsPage.tsx:274`), `INC` sorts last, dropdowns unified to `My Students` look (`h-10` `rounded-xl` `font-medium` with `ChevronDown`) for both `My Students` and `Grade Encoding`/`Previous Records` (verified build). Grade Encoding search now `h-10` to match dropdown.
+- [x] **Unified portal shell** — One `PortalShell` (`src/components/portal/PortalShell.tsx`) plus one nav config (`src/lib/aics/nav-config.ts`) for student and faculty. Fixed settings rendering the student sidebar for faculty and the `lg:pl-64` vs `lg:pl-60` drift. New tabs only touch nav config, routes, and one page component.
+- [x] **Announcement deck layering** — Deck cards capped at z 3/2/1 inside an `isolate` wrapper so scrolling cards slide under the sticky Topbar (z-20) on student and faculty dashboards. Z-index scale documented in `PortalShell`.
+- [ ] **Previous Records backend (mock today)** — Page runs on a hardcoded `previousRecords` const (`src/components/faculty/FacultyPreviousRecordsPage.tsx:26`). Export CSV and per-section View are dead buttons. Needs `GET /api/faculty/history`, professor-switch detection across terms, and a released seed term. See `docs/faculty-roadmap.md` phase 2.
+- [ ] **Grade release UI** — Release is admin-only but no admin user or screen exists, so submitted grades stall forever and history can never populate. Needs admin seed plus minimal release screen. See `docs/faculty-roadmap.md` phase 1.
 - [ ] **Redesign My Students follow-up — pagination + bulk actions** — Sorting done; remaining: pagination for 25+ per section, and bulk actions (`Message section` / `Take attendance` are still toasts).
 - [ ] **Announcements (write side)** — Form where faculty can create new announcements. Needs a POST `/api/announcements` endpoint and a create-announcement UI. Faculty and admin only.
 - [ ] **Schedule** — Faculty's weekly calendar. Reuses ScheduleGrid filtered to their sessions only.
 - [ ] **Task management** — Faculty can create tasks for their subjects (the write side of the existing tasks system). Needs POST/PATCH/DELETE endpoints.
 - [ ] **SubmissionsClose toggle** — Faculty can close submissions on individual tasks (the `submissionsClosed` field already exists in the schema, but there's no UI to toggle it).
+- [ ] **Faculty identity cleanup** — Profile, Settings, and Topbar reuse student copy and `studentNumber` for faculty. Dashboard My Subjects has no term filter. See `docs/faculty-roadmap.md`.
 
 ## Admin Portal (not started)
 
