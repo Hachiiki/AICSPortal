@@ -21,6 +21,18 @@ interface PortalShellProps {
 
 // Single portal chrome. Sidebar tabs, top bar, and content offset
 // live here so adding a tab never drifts between faculty and student views.
+//
+// Z-index scale — page content must stay below the Topbar:
+//   page content ............ no z-index, or z under 20
+//   stacked widgets ......... wrap the widget root in `isolate`,
+//                             keep internal z single-digit
+//   Topbar (sticky) ......... z-20
+//   Sidebar (desktop) ....... z-30
+//   drawer backdrops ........ z-40
+//   drawers, modals,
+//   dropdowns, toasts ....... z-50
+// Fixed overlays above the Topbar are intentional. Anything else
+// painting over the Topbar on scroll is a bug in that widget.
 export function PortalShell({
   student,
   active,

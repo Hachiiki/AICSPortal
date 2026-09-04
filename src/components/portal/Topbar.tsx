@@ -52,6 +52,7 @@ export function Topbar({
 
   return (
     <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200">
+      {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
       <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
         <div className="flex items-center gap-3 flex-shrink-0">

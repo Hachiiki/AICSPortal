@@ -166,11 +166,13 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
   const second = topThree[1]
   const third = topThree[2]
 
-  // Stacked card transforms
+  // Stacked card transforms. z stays single-digit and the deck root
+  // uses `isolate`, so card order never competes with page chrome
+  // (Topbar z-20, Sidebar z-30). See PortalShell for the full scale.
   const cardTransforms = [
-    { rotate: 0, y: 0, scale: 1, z: 30 },
-    { rotate: 2.5, y: 10, scale: 0.96, z: 20 },
-    { rotate: -3, y: 20, scale: 0.92, z: 10 },
+    { rotate: 0, y: 0, scale: 1, z: 3 },
+    { rotate: 2.5, y: 10, scale: 0.96, z: 2 },
+    { rotate: -3, y: 20, scale: 0.92, z: 1 },
   ]
 
   // Render a single card's content
@@ -246,14 +248,14 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
       <div
         ref={deckRef}
         tabIndex={0}
-        className="relative"
+        className="relative isolate"
         style={{ minHeight: 210 + 28, paddingBottom: 28 }}
       >
-        {/* Dismiss X button — floats above the deck */}
+        {/* Dismiss X button — floats above the deck, stays inside its stacking context */}
         <button
           type="button"
           onClick={dismissAll}
-          className="absolute top-2 right-2 z-40 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-600"
+          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-600"
           aria-label="Dismiss all announcements"
         >
           <X className="w-3.5 h-3.5" />
