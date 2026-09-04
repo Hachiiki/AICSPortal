@@ -430,6 +430,46 @@ async function seed() {
   console.log(`  ✓ Inserted faculty user: m.reyes / faculty123`)
 
   // ----------------------------------------------------------
+  //  4c. Admin user — same `students` collection, role='admin'.
+  //  Grade release is admin-only, so the lifecycle needs this
+  //  account. Scoped delete: only the admin username, never
+  //  anything else.
+  // ----------------------------------------------------------
+  const adminUser = {
+    branch: BRANCH,
+    username: 'admin',
+    password: 'admin123',
+    role: 'admin' as const,
+    fullName: 'AICS Registrar Admin',
+    firstName: 'Registrar',
+    lastName: 'Admin',
+    middleName: '',
+    studentNumber: 'ADM-001',
+    program: 'Registrar Office',
+    programShort: 'Admin',
+    yearLevel: '',
+    section: '',
+    semester: '1st Sem',
+    academicYear: '2026-2027',
+    enrollmentStatus: 'Active',
+    deanLister: false,
+    deanListerSemester: '',
+    gpa: '',
+    email: 'registrar@aics.edu.ph',
+    phone: '+63 917 555 0100',
+    address: 'AICS Registrar Office, Commonwealth Ave., Quezon City',
+    emergencyContactName: '',
+    emergencyContactNumber: '',
+    branch_name: BRANCH_NAME,
+    branchAddress: BRANCH_ADDRESS,
+    documents: [],
+  }
+
+  await db.collection('students').deleteMany({ branch: BRANCH, username: 'admin' })
+  await db.collection('students').insertOne(adminUser)
+  console.log(`  ✓ Inserted admin user: admin / admin123`)
+
+  // ----------------------------------------------------------
   //  5. Tasks (current term + previous term for visibility test)
   // ----------------------------------------------------------
   const now = new Date()
@@ -685,6 +725,7 @@ async function seed() {
   console.log(`   Professors: ${professors.length} directory entries`)
   console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
   console.log(`   Faculty: m.reyes / faculty123`)
+  console.log(`   Admin: admin / admin123`)
   console.log(`   Additional students: maria.cruz / student123, jose.garcia / student123`)
   console.log(`   m.reyes roster: 3 students (juan.santos, maria.cruz, jose.garcia) in CS 208 & CS 209`)
 
