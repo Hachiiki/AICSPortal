@@ -210,9 +210,9 @@ export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, even
 
           {/* Summary */}
           <div className="flex flex-wrap gap-2 text-xs">
-            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.years} academic years</span>
-            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.sections} sections historically</span>
-            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.students} students taught</span>
+            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.years} academic year{summary.years === 1 ? '' : 's'}</span>
+            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.sections} section{summary.sections === 1 ? '' : 's'} historically</span>
+            <span className="px-3 py-1.5 rounded-full bg-white border border-slate-200">{summary.students} student{summary.students === 1 ? '' : 's'} taught</span>
             <span className="px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800">Former sections are read-only</span>
           </div>
 
