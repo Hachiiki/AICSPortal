@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight,
@@ -130,9 +130,10 @@ export function FacultyStudentsPage({
 
   const handleNavigate = (v: View) => { onNavigate(v) }
 
-  useEffect(() => {
-    setPage(1)
-  }, [expandedSection, searchQuery, sectionFilter, statusFilter, sortBy, sortDir])
+  // Page resets to 1 whenever the visible rows change. Each filter,
+  // sort, and expand handler calls resetPage alongside its own setter
+  // so the pager never points past the last page.
+  const resetPage = () => { setPage(1) }
 
   // Section the attendance modal is open for, resolved from its key
   // so the modal always sees fresh roster data.
@@ -247,13 +248,13 @@ export function FacultyStudentsPage({
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
               <div className="relative mt-1">
-                <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                <select value={sectionFilter} onChange={(e) => { setSectionFilter(e.target.value); resetPage() }} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
                   <option value="all">All sections ({sections.length})</option>
                   {sections.map((s) => (<option key={s.key} value={s.key}>{s.subjectCode} — {s.room} • {s.schedule}</option>))}
                 </select>
@@ -263,7 +264,7 @@ export function FacultyStudentsPage({
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
               <div className="relative mt-1">
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
+                <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); resetPage() }} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
                   <option value="all">All statuses</option>
                   <option value="Enrolled">Enrolled</option>
                   <option value="Active">Active</option>
@@ -279,7 +280,7 @@ export function FacultyStudentsPage({
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
               <UsersIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
               <p className="text-sm text-slate-500">No classes found.</p>
-              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (<button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all') }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>)}
+              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (<button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all'); resetPage() }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>)}
             </div>
           ) : (
             <div className="space-y-4">
@@ -290,7 +291,7 @@ export function FacultyStudentsPage({
                 const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
                   <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div onClick={() => setExpandedSection(isExpanded ? null : sec.key)} className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+                    <div onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }} className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-blue-700">{sec.subjectCode}</span>
@@ -313,10 +314,10 @@ export function FacultyStudentsPage({
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="bg-slate-50 border-b border-slate-100">
-                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } }} className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
-                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
                                 <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
