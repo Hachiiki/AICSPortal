@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight,
@@ -23,6 +23,7 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
+import { AttendanceModal } from './AttendanceModal'
 import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
 
 interface FacultyStudentsPageProps {
@@ -54,6 +55,10 @@ interface Section {
   students: StudentWithGrades[]
 }
 
+// Roster rows per page in an expanded section. The pager only
+// appears when a section holds more than this many students.
+const PAGE_SIZE = 25
+
 export function FacultyStudentsPage({
   student, courses, sessions, onNavigate, onLogout,
   events, professors, tasks, announcements,
@@ -66,6 +71,10 @@ export function FacultyStudentsPage({
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'name' | 'number' | 'prelim'>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  // Roster pagination: one page number shared by the single expanded
+  // section. Resets whenever the visible rows change.
+  const [page, setPage] = useState(1)
+  const [attendanceKey, setAttendanceKey] = useState<string | null>(null)
 
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
@@ -120,6 +129,33 @@ export function FacultyStudentsPage({
   }, [sections, searchQuery, sectionFilter, statusFilter, sortBy, sortDir])
 
   const handleNavigate = (v: View) => { onNavigate(v) }
+
+  useEffect(() => {
+    setPage(1)
+  }, [expandedSection, searchQuery, sectionFilter, statusFilter, sortBy, sortDir])
+
+  // Section the attendance modal is open for, resolved from its key
+  // so the modal always sees fresh roster data.
+  const attendanceSec = attendanceKey
+    ? filteredSections.find((sec) => sec.key === attendanceKey) || null
+    : null
+
+  const openAttendance = (sec: { key: string } | null) => {
+    if (!sec) {
+      toast.info('Pick a section first, then take attendance.')
+      return
+    }
+    setAttendanceKey(sec.key)
+  }
+
+  const openHeaderAttendance = () => {
+    if (sectionFilter !== 'all') {
+      const sec = filteredSections.find((s) => s.key === sectionFilter)
+      openAttendance(sec || null)
+      return
+    }
+    openAttendance(filteredSections[0] || null)
+  }
 
   const totalStudents = useMemo(() => {
     const usernames = new Set<string>()
@@ -200,7 +236,7 @@ export function FacultyStudentsPage({
               <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
               </button>
-              <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
+              <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
               </button>
             </div>
@@ -249,6 +285,9 @@ export function FacultyStudentsPage({
             <div className="space-y-4">
               {filteredSections.map((sec) => {
                 const isExpanded = expandedSection === sec.key
+                const pageCount = Math.max(1, Math.ceil(sec.students.length / PAGE_SIZE))
+                const safePage = Math.min(page, pageCount)
+                const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
                   <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div onClick={() => setExpandedSection(isExpanded ? null : sec.key)} className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
@@ -287,7 +326,7 @@ export function FacultyStudentsPage({
                               </tr>
                             </thead>
                             <tbody>
-                              {sec.students.map((stu) => {
+                              {pageStudents.map((stu) => {
                                 const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
                                 const prelim = subj?.prelim || '-'
                                 const rawStatus = stu.enrollmentStatus || 'Enrolled'
@@ -321,9 +360,35 @@ export function FacultyStudentsPage({
                             </tbody>
                           </table>
                         </div>
+                        {sec.students.length > PAGE_SIZE && (
+                          <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+                            <span className="text-slate-500">
+                              Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sec.students.length)} of {sec.students.length}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={safePage <= 1}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Prev
+                              </button>
+                              <span className="text-slate-500 font-medium">Page {safePage} of {pageCount}</span>
+                              <button
+                                type="button"
+                                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                                disabled={safePage >= pageCount}
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Next
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
                           <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
-                          <button onClick={() => toast.info('Attendance module coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
                           <span className="ml-auto text-slate-500">Click View for student file.</span>
                         </div>
                       </div>
@@ -423,6 +488,19 @@ export function FacultyStudentsPage({
           </>
         )}
       </AnimatePresence>
+
+      {attendanceSec && (
+        <AttendanceModal
+          sectionKey={attendanceSec.key}
+          code={attendanceSec.subjectCode}
+          title={attendanceSec.subjectTitle}
+          students={attendanceSec.students}
+          facultyUsername={student.username}
+          branch={faculty.branch}
+          onClose={() => setAttendanceKey(null)}
+          onSaved={() => setAttendanceKey(null)}
+        />
+      )}
     </PortalShell>
   )
 }
