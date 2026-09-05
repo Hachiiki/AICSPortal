@@ -259,6 +259,33 @@ async function seed() {
   await db.collection('subjects').insertMany(additionalSubjects)
   console.log(`  ✓ Inserted ${additionalSubjects.length} subjects — ${protoSubjects.length} prototype roster (72 total with prelim-only) + 4 demo`)
 
+  // ----------------------------------------------------------
+  //  3c. Released prior term for m.reyes — one finished subject
+  //  (CS 105, AY 2025-2026) so Previous Records is not empty on a
+  //  fresh database. Scoped to this code + term + professor, so a
+  //  reseed never touches live grades. Skipped when present
+  //  unless --force. Uses maria.cruz + jose.garcia only — juan's
+  //  2025-2026 rows stay unreleased per user request.
+  // ----------------------------------------------------------
+  const historySubjects = [
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '88', midterm: '84', finals: '86', finalGrade: '86.00', remarks: 'Very Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '82', midterm: '85', finals: '84', finalGrade: '83.70', remarks: 'Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
+  ]
+  const historyFilter = { branch: BRANCH, code: 'CS 105', academicYear: '2025-2026', semester: '1st Sem', professor: 'Engr. Maria Cristina Reyes' }
+  if (forceSeed) {
+    await db.collection('subjects').deleteMany(historyFilter)
+    await db.collection('subjects').insertMany(historySubjects)
+    console.log(`  ✓ Inserted ${historySubjects.length} released history subjects (CS 105, AY 2025-2026) — forced`)
+  } else {
+    const existingHistory = await db.collection('subjects').countDocuments(historyFilter)
+    if (existingHistory === 0) {
+      await db.collection('subjects').insertMany(historySubjects)
+      console.log(`  ✓ Inserted ${historySubjects.length} released history subjects (CS 105, AY 2025-2026)`)
+    } else {
+      console.log(`  ⊘ Skipped released history subjects (${existingHistory} exist) — use --force to overwrite`)
+    }
+  }
+
   const student2 = {
     branch: BRANCH,
     username: 'maria.cruz',
@@ -708,6 +735,7 @@ async function seed() {
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
   await db.collection('subjects').createIndex({ branch: 1, code: 1, academicYear: 1, semester: 1 })
+  await db.collection('subjects').createIndex({ branch: 1, professor: 1, academicYear: 1, semester: 1 })
   await db.collection('sessions').createIndex({ branch: 1 })
   await db.collection('courses').createIndex({ branch: 1, code: 1 }, { unique: true })
   await db.collection('grade_audits').createIndex({ branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 })
