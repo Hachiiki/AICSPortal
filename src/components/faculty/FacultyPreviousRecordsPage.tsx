@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Archive, Search, MapPin, Clock, Eye, ChevronDown, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -21,39 +21,13 @@ interface Props {
   tasks?: Task[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
   facultyLoading?: boolean
+  // Lifted teaching history. The wrapper fetches at most once per
+  // session, so revisits render instantly instead of refetching.
+  historyData?: { terms: HistoryTerm[] } | null
+  historyLoading?: boolean
+  historyError?: string | null
+  onFetchHistory?: () => void
 }
-
-// Mock previous records history — mirrors prototype V23
-const previousRecords = [
-  {
-    ay: '2025-2026',
-    sem: '1st Sem',
-    status: 'Graded' as const,
-    sections: [
-      { code: 'CS 101', title: 'Introduction to Computing', room: 'Room 301 — Comp Lab A', schedule: 'MWF 08:00-09:30', yearLevel: 'BSIS 1-A', enrolled: 24, avg: '84.2', assignment: 'current' as const, note: '' },
-      { code: 'CS 102', title: 'Data Structures', room: 'Room 302 — Lecture', schedule: 'TTH 10:00-11:30', yearLevel: 'BSIS 2-A', enrolled: 22, avg: '81.7', assignment: 'current' as const, note: '' },
-      { code: 'CS 105', title: 'Networking Fundamentals', room: 'Room 303 — Lab B', schedule: 'TTH 13:00-14:30', yearLevel: 'BSIS 2-A', enrolled: 23, avg: '79.4', assignment: 'former' as const, note: 'You taught AY 2025-2026 • Now Prof. Santos is assigned (switched AY 2026-2027)' },
-    ],
-  },
-  {
-    ay: '2024-2025',
-    sem: '2nd Sem',
-    status: 'Graded' as const,
-    sections: [
-      { code: 'CS 101', title: 'Introduction to Computing', room: 'Room 301 — Comp Lab A', schedule: 'MWF 08:00-09:30', yearLevel: 'BSIS 1-A', enrolled: 25, avg: '83.5', assignment: 'current' as const, note: '' },
-      { code: 'CS 106', title: 'Object-Oriented Programming', room: 'Room 303 — Lab A', schedule: 'TTH 10:00-11:30', yearLevel: 'BSIS 2-A', enrolled: 20, avg: '82.1', assignment: 'former' as const, note: 'You taught AY 2024-2025 • Now Prof. Cruz is assigned — section reassigned (CS 201 remains yours)' },
-    ],
-  },
-  {
-    ay: '2024-2025',
-    sem: '1st Sem',
-    status: 'Archived' as const,
-    sections: [
-      { code: 'CS 100', title: 'Computer Fundamentals', room: 'Room 301', schedule: 'MWF 10:00-11:30', yearLevel: 'BSIS 1-A', enrolled: 28, avg: '85.0', assignment: 'current' as const, note: '' },
-      { code: 'CS 105', title: 'Networking Fundamentals', room: 'Room 303', schedule: 'TTH 13:00-14:30', yearLevel: 'BSIS 2-A', enrolled: 24, avg: '78.9', assignment: 'former' as const, note: 'Former — you were replaced AY 2025-2026' },
-    ],
-  },
-]
 
 // Released teaching history from GET /api/faculty/history.
 // Only fully released rows qualify. The current term never appears.
@@ -76,36 +50,25 @@ interface HistoryTerm {
   sections: HistorySection[]
 }
 
-export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading }: Props) {
+export function FacultyPreviousRecordsPage({
+  student, onNavigate, onLogout, events, professors, tasks,
+  facultyData, facultyLoading, historyData, historyLoading, historyError, onFetchHistory,
+}: Props) {
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('all')
   const [assignment, setAssignment] = useState('all')
-  const [terms, setTerms] = useState<HistoryTerm[]>([])
-  const [historyLoading, setHistoryLoading] = useState(true)
-  const [historyError, setHistoryError] = useState<string | null>(null)
   const [selectedSection, setSelectedSection] = useState<(HistorySection & { ay: string; sem: string }) | null>(null)
 
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
+  const terms = historyData?.terms ?? []
+  const historyPending = historyLoading ?? false
 
-  const fetchHistory = useCallback(async () => {
-    setHistoryLoading(true)
-    setHistoryError(null)
-    try {
-      const res = await fetch(`/api/faculty/history?username=${encodeURIComponent(student.username)}`)
-      const data = await res.json()
-      if (data.ok) setTerms(data.terms || [])
-      else setHistoryError(data.error || 'Failed to load teaching history.')
-    } catch {
-      setHistoryError('Network error. Please try again.')
-    } finally {
-      setHistoryLoading(false)
-    }
-  }, [student.username])
-
+  // Lazy once-per-session fetch. The wrapper caches the result, so
+  // remounts from tab switches render instantly with no refetch.
   useEffect(() => {
-    if (!loading && faculty) fetchHistory()
-  }, [loading, faculty, fetchHistory])
+    if (!loading && faculty && !historyData && !historyPending && onFetchHistory) onFetchHistory()
+  }, [loading, faculty, historyData, historyPending, onFetchHistory])
 
   const yearOptions = useMemo(() => Array.from(new Set(terms.map((t) => t.ay))).sort().reverse(), [terms])
 
@@ -165,13 +128,13 @@ export function FacultyPreviousRecordsPage({ student, onNavigate, onLogout, even
     return data
   }, [terms, search, year])
 
-  if (loading || historyLoading) return <DashboardSkeleton />
+  if (loading || historyPending) return <DashboardSkeleton />
   if (historyError) {
     return (
       <div className="min-h-dvh bg-slate-50 grid place-items-center">
         <div className="text-center">
           <p className="text-red-600 text-sm font-medium mb-2">{historyError}</p>
-          <button onClick={fetchHistory} className="text-blue-600 text-sm font-medium hover:underline">
+          <button onClick={onFetchHistory} className="text-blue-600 text-sm font-medium hover:underline">
             Try again
           </button>
         </div>

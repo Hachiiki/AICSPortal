@@ -236,6 +236,35 @@ function StudentDataWrapper({
     } catch {}
   }, [username])
 
+  // Released teaching history for the Previous Records tab. Lifted
+  // here for the same reason as facultyData: tab switches unmount
+  // pages, so anything a page fetches on mount refetches on every
+  // visit and flashes a skeleton like a hard refresh.
+  //
+  // Permanent rule for future tabs: tab pages never fetch on mount.
+  // Shared server data lives in this wrapper, is fetched at most
+  // once per session (lazily on first need, never upfront for data
+  // most sessions never open), and pages render from props.
+  // On-demand fetches belong behind user actions only.
+  const [historyData, setHistoryData] = useState<{ terms: any[] } | null>(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+
+  const fetchHistoryData = useCallback(async () => {
+    setHistoryLoading(true)
+    setHistoryError(null)
+    try {
+      const res = await fetch(`/api/faculty/history?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setHistoryData({ terms: data.terms || [] })
+      else setHistoryError(data.error || 'Failed to load teaching history.')
+    } catch {
+      setHistoryError('Network error. Please try again.')
+    } finally {
+      setHistoryLoading(false)
+    }
+  }, [username])
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -414,6 +443,10 @@ function StudentDataWrapper({
         tasks={tasks}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
+        historyData={historyData}
+        historyLoading={historyLoading}
+        historyError={historyError}
+        onFetchHistory={fetchHistoryData}
       />
     )
   }
