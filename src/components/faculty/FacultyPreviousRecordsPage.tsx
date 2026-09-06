@@ -61,7 +61,9 @@ export function FacultyPreviousRecordsPage({
 
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
-  const terms = historyData?.terms ?? []
+  // historyData identity is stable (set once per session), so this
+  // keeps every downstream memo stable across remounts and renders.
+  const terms = useMemo(() => historyData?.terms ?? [], [historyData])
   const historyPending = historyLoading ?? false
 
   // Lazy once-per-session fetch. The wrapper caches the result, so
@@ -113,7 +115,9 @@ export function FacultyPreviousRecordsPage({
     toast.success(`Exported ${rows.length - 1} rows.`)
   }
 
-  const filtered = useMemo(() => {
+  // Plain computation on purpose: the values are tiny, and the
+  // compiler manages memoization itself from here.
+  const filtered = (() => {
     let data = terms
     if (year !== 'all') data = data.filter((t) => t.ay === year)
     if (search) {
@@ -126,7 +130,7 @@ export function FacultyPreviousRecordsPage({
         .filter((t) => t.sections.length > 0 || t.ay.toLowerCase().includes(q) || t.sem.toLowerCase().includes(q))
     }
     return data
-  }, [terms, search, year])
+  })()
 
   if (loading || historyPending) return <DashboardSkeleton />
   if (historyError) {
