@@ -110,7 +110,9 @@ export function Topbar({
                 </div>
                 <div className="hidden sm:block text-left leading-tight">
                   <p className="text-sm font-semibold text-slate-900">{student.fullName}</p>
-                  <p className="text-[11px] text-slate-500 font-mono">{student.studentNumber}</p>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    {student.role === 'faculty' ? `Faculty • ${student.studentNumber}` : student.studentNumber}
+                  </p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" aria-hidden="true" />
               </button>
