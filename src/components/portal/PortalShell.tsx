@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
+import { motion, MotionConfig } from 'framer-motion'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -52,6 +53,7 @@ export function PortalShell({
   const role = student.role ?? 'student'
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-dvh bg-slate-50 font-sans">
       <Sidebar
         role={role}
@@ -73,8 +75,20 @@ export function PortalShell({
           facultyData={facultyData}
           taskGroups={taskGroups}
         />
-        {children}
+        {/* Shared entrance transition. Every tab mounts through this
+            shell, so all of them fade up the same way instead of each
+            page inventing its own. Page-level section animations nest
+            inside and keep working. */}
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
       </div>
     </div>
+    </MotionConfig>
   )
 }
