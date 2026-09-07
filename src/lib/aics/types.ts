@@ -16,6 +16,7 @@ export type View =
   | 'my-students'
   | 'grade-encoding'
   | 'previous-records'
+  | 'announcements'
   | 'help'
 
 export type AuthMode = 'credentials' | 'face'

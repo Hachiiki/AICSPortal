@@ -11,6 +11,7 @@ import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
 import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
+import { FacultyAnnouncementsPage } from '@/components/faculty/FacultyAnnouncementsPage'
 import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
@@ -44,6 +45,7 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
  *   /portal/{branch}/faculty/{username}/my-students       → FacultyStudentsPage
  *   /portal/{branch}/faculty/{username}/grade-encoding    → FacultyGradeEncodingPage
  *   /portal/{branch}/faculty/{username}/previous-records  → FacultyPreviousRecordsPage
+ *   /portal/{branch}/faculty/{username}/announcements     → FacultyAnnouncementsPage
  *   /portal/{branch}/admin/{username}                     → AdminReleasePage
  *
  * Auth rules:
@@ -447,6 +449,20 @@ function StudentDataWrapper({
         historyLoading={historyLoading}
         historyError={historyError}
         onFetchHistory={fetchHistoryData}
+      />
+    )
+  }
+
+  if (route.view === 'announcements' && route.role === 'faculty') {
+    return (
+      <FacultyAnnouncementsPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        announcements={announcements}
       />
     )
   }
