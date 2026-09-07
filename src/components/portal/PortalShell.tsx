@@ -16,6 +16,9 @@ interface PortalShellProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  taskGroups?: { title: string; subjectCode: string }[]
   children: ReactNode
 }
 
@@ -41,6 +44,8 @@ export function PortalShell({
   events,
   professors,
   tasks,
+  facultyData,
+  taskGroups,
   children,
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -65,6 +70,8 @@ export function PortalShell({
           events={events}
           professors={professors}
           tasks={tasks}
+          facultyData={facultyData}
+          taskGroups={taskGroups}
         />
         {children}
       </div>

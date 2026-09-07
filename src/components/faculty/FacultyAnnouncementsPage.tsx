@@ -19,6 +19,7 @@ interface FacultyAnnouncementsPageProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  facultyData?: { subjects: any[]; students: any[] } | null
 }
 
 const CATEGORIES = Object.keys(ANNOUNCEMENT_STYLES) as AnnouncementCategory[]
@@ -30,7 +31,7 @@ function formatDate(iso: string): string {
 }
 
 export function FacultyAnnouncementsPage({
-  student, onNavigate, onLogout, events, professors, tasks, announcements,
+  student, onNavigate, onLogout, events, professors, tasks, announcements, facultyData,
 }: FacultyAnnouncementsPageProps) {
   // Seeded from the wrapper's lifted announcements. Refreshed locally
   // after posting. Never refetched on mount, so tab revisits are instant.
@@ -100,6 +101,7 @@ export function FacultyAnnouncementsPage({
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
         <div>

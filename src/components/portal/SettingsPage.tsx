@@ -30,11 +30,13 @@ interface SettingsPageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data, used only for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
 }
 
 type Section = 'profile' | 'security' | 'notifications'
 
-export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks }: SettingsPageProps) {
+export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
 
   // Profile edit state
@@ -129,6 +131,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 max-w-4xl">
           {/* Page header */}

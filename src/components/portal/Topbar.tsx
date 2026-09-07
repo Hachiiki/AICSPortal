@@ -30,6 +30,9 @@ interface TopbarProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  taskGroups?: { title: string; subjectCode: string }[]
 }
 
 export function Topbar({
@@ -41,6 +44,8 @@ export function Topbar({
   events,
   professors,
   tasks,
+  facultyData,
+  taskGroups,
 }: TopbarProps) {
   const handleNotifications = () => {
     toast.info('No new notifications.')
@@ -76,6 +81,8 @@ export function Topbar({
             events={events}
             professors={professors}
             tasks={tasks}
+            facultyData={facultyData}
+            taskGroups={taskGroups}
             onNavigate={onNavigate}
           />
         </div>

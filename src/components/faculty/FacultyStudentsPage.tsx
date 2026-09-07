@@ -223,6 +223,7 @@ export function FacultyStudentsPage({
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

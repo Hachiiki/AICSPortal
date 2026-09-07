@@ -46,6 +46,8 @@ interface StudentProfileProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data, used only for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
 }
 
 // Stagger config for section entrance animation.
@@ -61,7 +63,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks }: StudentProfileProps) {
+export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks, facultyData }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const isFaculty = student.role === 'faculty'
@@ -96,6 +98,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">
           <motion.div

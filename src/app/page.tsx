@@ -488,6 +488,7 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         announcements={announcements}
+        facultyData={facultyData}
       />
     )
   }
@@ -537,6 +538,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        facultyData={facultyData}
       />
     )
   }
@@ -615,6 +617,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        facultyData={facultyData}
       />
     )
   }
