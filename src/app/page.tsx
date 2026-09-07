@@ -12,6 +12,7 @@ import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
 import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
 import { FacultyAnnouncementsPage } from '@/components/faculty/FacultyAnnouncementsPage'
+import { FacultySchedulePage } from '@/components/faculty/FacultySchedulePage'
 import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
@@ -463,6 +464,23 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         announcements={announcements}
+      />
+    )
+  }
+
+  if (route.view === 'schedule' && route.role === 'faculty') {
+    return (
+      <FacultySchedulePage
+        student={student}
+        courses={courses}
+        sessions={sessions}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
       />
     )
   }

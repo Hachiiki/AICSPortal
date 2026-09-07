@@ -40,7 +40,7 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true },
   { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true },
   { view: 'announcements', label: 'Announcements', icon: Megaphone, enabled: true },
-  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
+  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: true },
 ]
 
 export const ADMIN_PRIMARY_NAV: NavItem[] = [
