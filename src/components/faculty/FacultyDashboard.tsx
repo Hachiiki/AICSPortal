@@ -102,15 +102,14 @@ export function FacultyDashboard({
   const loading = facultyLoading ?? true
 
   // ----------------------------------------------------------
-  //  Group subjects by code so each row is a unique subject
-  //  with the count of enrolled students. We intentionally
-  //  don't filter by academicYear/semester here — the seed
-  //  currently only has current-term rows, and faculty want
-  //  to see everything they're teaching this term.
+  //  Group current-term subjects by code so each row is a unique
+  //  subject with the count of enrolled students. Older terms stay
+  //  out — they live on Previous Records once released.
   // ----------------------------------------------------------
   const subjectRows = useMemo<FacultySubjectRow[]>(() => {
     const map = new Map<string, FacultySubjectRow>()
     for (const s of taughtSubjects) {
+      if ((s.academicYear || '') !== (faculty?.academicYear || '') || (s.semester || '') !== (faculty?.semester || '')) continue
       const existing = map.get(s.code)
       if (existing) {
         existing.enrolled += 1
@@ -126,7 +125,7 @@ export function FacultyDashboard({
       })
     }
     return Array.from(map.values())
-  }, [taughtSubjects])
+  }, [taughtSubjects, faculty])
 
   // Unique sections taught (e.g. "CS-2A", "CS-2B"). We derive
   // these from the enrolled students' `section` field.
