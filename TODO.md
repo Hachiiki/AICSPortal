@@ -50,9 +50,9 @@
 - [x] **Grade release UI** — Admin seed (dmin / dmin123) plus release queue page (src/components/admin/AdminReleasePage.tsx). Pending-groups endpoint (GET /api/grades/release) lists submitted periods with counts. Release requires performedBy and admin role. Full flow verified in browser on scratch data: draft to submitted to released to student-visible, then scratch removed.
 - [x] **Redesign My Students follow-up — pagination plus attendance** — Roster pages at 25 per expanded section with pager, page resets on filter or sort change. Take attendance is real: per-section modal with date picker, present or absent toggles, POST /api/attendance (faculty-only, branch-scoped, unique per section plus date). Verified in browser on a test date, then the test session was deleted. Message section plus Upload materials, Announce quiz, Attendance history, In/Out log stay stubs.
 - [x] **Announcements (write side)** — POST /api/announcements (faculty or admin, branch match, validated category) plus FacultyAnnouncementsPage with create form and published list. Faculty Announcements nav item enabled on its own view. Verified in browser: faculty post lands on top of the student deck, then the test post was deleted.
-- [ ] **Schedule** — Faculty's weekly calendar. Reuses ScheduleGrid filtered to their sessions only.
-- [ ] **Task management** — Faculty can create tasks for their subjects (the write side of the existing tasks system). Needs POST/PATCH/DELETE endpoints.
-- [ ] **SubmissionsClose toggle** — Faculty can close submissions on individual tasks (the `submissionsClosed` field already exists in the schema, but there's no UI to toggle it).
+- [x] **Schedule** — FacultySchedulePage reuses ScheduleGrid filtered to the faculty member’s session codes. Verified in browser: only her classes render.
+- [x] **Task management** — POST /api/tasks fans out one doc per enrolled student, PATCH /api/tasks flips submissionsClosed, GET /api/faculty/tasks groups by assignment. FacultyTasksPage posts and toggles. Verified in browser: posted to 3 students, closed renders as Missing on the student side, then test docs deleted.
+- [x] **SubmissionsClose toggle** — Close and Reopen buttons per task group, wired to the same PATCH endpoint.
 - [ ] **Faculty identity cleanup** — Profile, Settings, and Topbar reuse student copy and `studentNumber` for faculty. Dashboard My Subjects has no term filter. See `docs/faculty-roadmap.md`.
 
 ## Admin Portal (not started)
