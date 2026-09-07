@@ -248,9 +248,9 @@ function StudentDataWrapper({
   // visit and flashes a skeleton like a hard refresh.
   //
   // Permanent rule for future tabs: tab pages never fetch on mount.
-  // Shared server data lives in this wrapper, is fetched at most
-  // once per session (lazily on first need, never upfront for data
-  // most sessions never open), and pages render from props.
+  // Shared server data lives in this wrapper. It prefetches in the
+  // background once the faculty roster lands, so first visits render
+  // instantly, and it never refetches within a session.
   // On-demand fetches belong behind user actions only.
   const [historyData, setHistoryData] = useState<{ terms: any[] } | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -271,9 +271,8 @@ function StudentDataWrapper({
     }
   }, [username])
 
-  // Faculty task groups for the Tasks tab. Same lazy once-per-session
-  // rule as teaching history.
-  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
+  // Faculty task groups for the Tasks tab. Prefetched with history
+  // below, same once-per-session rule.  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
   const [taskGroupsLoading, setTaskGroupsLoading] = useState(false)
   const [taskGroupsError, setTaskGroupsError] = useState<string | null>(null)
 
@@ -356,6 +355,16 @@ function StudentDataWrapper({
     fetchAll()
     return () => { cancelled = true }
   }, [username])
+
+  // Prefetch faculty-only slices in the background once the roster
+  // lands, so first tab visits render instantly. Each fetch is
+  // guarded to run at most once per session. Non-faculty sessions
+  // never have facultyData, so they pay nothing.
+  useEffect(() => {
+    if (!facultyData) return
+    if (!historyData && !historyLoading) fetchHistoryData()
+    if (!taskGroupsData && !taskGroupsLoading) fetchTaskGroups()
+  }, [facultyData, historyData, historyLoading, taskGroupsData, taskGroupsLoading, fetchHistoryData, fetchTaskGroups])
 
   if (loading) {
     return <PortalSkeleton view={route.view} />
