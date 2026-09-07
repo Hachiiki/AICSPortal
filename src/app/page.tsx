@@ -272,7 +272,8 @@ function StudentDataWrapper({
   }, [username])
 
   // Faculty task groups for the Tasks tab. Prefetched with history
-  // below, same once-per-session rule.  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
+  // below, same once-per-session rule.
+  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
   const [taskGroupsLoading, setTaskGroupsLoading] = useState(false)
   const [taskGroupsError, setTaskGroupsError] = useState<string | null>(null)
 
