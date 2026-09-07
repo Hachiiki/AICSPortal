@@ -115,7 +115,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-3">My Profile</h1>
               <p className="text-sm text-slate-500 mt-1">
                 {isFaculty
-                  ? 'Manage your faculty information, identification, and documents.'
+                  ? 'Manage your faculty information and identification.'
                   : 'Manage your student information, identification, and documents.'}
               </p>
             </motion.div>
