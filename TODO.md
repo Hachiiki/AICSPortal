@@ -54,6 +54,7 @@
 - [x] **Task management** — POST /api/tasks fans out one doc per enrolled student, PATCH /api/tasks flips submissionsClosed, GET /api/faculty/tasks groups by assignment. FacultyTasksPage posts and toggles. Verified in browser: posted to 3 students, closed renders as Missing on the student side, then test docs deleted.
 - [x] **SubmissionsClose toggle** — Close and Reopen buttons per task group, wired to the same PATCH endpoint.
 - [x] **Faculty identity cleanup** — Profile hides COE, documents, Digital ID, GPA stats, and Year plus Section for faculty, showing department facts instead. Topbar and profile hero read Faculty plus ID number. Dashboard subjects table filters to the current term. Verified in browser for both roles.
+- [x] **Prefetch plus instant tabs plus shared transition plus search RBAC** — History and task groups prefetch at portal load, so first tab visits render with zero new requests. One fade-up transition lives in the shell for every tab. GlobalSearch is role-aware: faculty see their pages, subjects, roster, and tasks only, students keep their index, admins get pages only.
 
 ## Admin Portal (not started)
 
