@@ -38,6 +38,7 @@ export type PortalRoute =
   | { view: 'previous-records'; branch: string; username: string; role: PortalRole }
   | { view: 'announcements'; branch: string; username: string; role: PortalRole }
   | { view: 'schedule'; branch: string; username: string; role: PortalRole }
+  | { view: 'tasks'; branch: string; username: string; role: PortalRole }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
@@ -85,6 +86,9 @@ function parsePath(path: string): PortalRoute {
     if (parts[4] === 'schedule') {
       return { view: 'schedule', branch, username, role }
     }
+    if (parts[4] === 'tasks') {
+      return { view: 'tasks', branch, username, role }
+    }
     return { view: 'dashboard', branch, username, role }
   }
   return { view: 'login' }
@@ -119,6 +123,8 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/announcements`
     case 'schedule':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/schedule`
+    case 'tasks':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/tasks`
   }
 }
 

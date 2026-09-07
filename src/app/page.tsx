@@ -13,6 +13,7 @@ import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncod
 import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
 import { FacultyAnnouncementsPage } from '@/components/faculty/FacultyAnnouncementsPage'
 import { FacultySchedulePage } from '@/components/faculty/FacultySchedulePage'
+import { FacultyTasksPage } from '@/components/faculty/FacultyTasksPage'
 import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
@@ -47,6 +48,8 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
  *   /portal/{branch}/faculty/{username}/grade-encoding    → FacultyGradeEncodingPage
  *   /portal/{branch}/faculty/{username}/previous-records  → FacultyPreviousRecordsPage
  *   /portal/{branch}/faculty/{username}/announcements     → FacultyAnnouncementsPage
+ *   /portal/{branch}/faculty/{username}/schedule          → FacultySchedulePage
+ *   /portal/{branch}/faculty/{username}/tasks             → FacultyTasksPage
  *   /portal/{branch}/admin/{username}                     → AdminReleasePage
  *
  * Auth rules:
@@ -268,6 +271,27 @@ function StudentDataWrapper({
     }
   }, [username])
 
+  // Faculty task groups for the Tasks tab. Same lazy once-per-session
+  // rule as teaching history.
+  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
+  const [taskGroupsLoading, setTaskGroupsLoading] = useState(false)
+  const [taskGroupsError, setTaskGroupsError] = useState<string | null>(null)
+
+  const fetchTaskGroups = useCallback(async () => {
+    setTaskGroupsLoading(true)
+    setTaskGroupsError(null)
+    try {
+      const res = await fetch(`/api/faculty/tasks?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setTaskGroupsData({ groups: data.groups || [] })
+      else setTaskGroupsError(data.error || 'Failed to load tasks.')
+    } catch {
+      setTaskGroupsError('Network error. Please try again.')
+    } finally {
+      setTaskGroupsLoading(false)
+    }
+  }, [username])
+
   // Events page UI preferences — lifted here so they persist across
   // route switches. Without this, navigating away from Events and
   // back would reset the task-due toggle and category filters.
@@ -481,6 +505,25 @@ function StudentDataWrapper({
         tasks={tasks}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
+      />
+    )
+  }
+
+  if (route.view === 'tasks' && route.role === 'faculty') {
+    return (
+      <FacultyTasksPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+        taskGroupsData={taskGroupsData}
+        taskGroupsLoading={taskGroupsLoading}
+        taskGroupsError={taskGroupsError}
+        onFetchTaskGroups={fetchTaskGroups}
       />
     )
   }

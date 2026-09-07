@@ -3,6 +3,7 @@
 import {
   Archive,
   CalendarDays,
+  ClipboardList,
   GraduationCap,
   Home,
   Megaphone,
@@ -41,6 +42,7 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true },
   { view: 'announcements', label: 'Announcements', icon: Megaphone, enabled: true },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: true },
+  { view: 'tasks', label: 'Tasks', icon: ClipboardList, enabled: true },
 ]
 
 export const ADMIN_PRIMARY_NAV: NavItem[] = [
