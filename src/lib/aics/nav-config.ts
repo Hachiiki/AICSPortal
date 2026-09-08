@@ -51,7 +51,7 @@ export const ADMIN_PRIMARY_NAV: NavItem[] = [
 
 export const SECONDARY_NAV: NavItem[] = [
   { view: 'settings', label: 'Settings', icon: Settings, enabled: true },
-  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
+  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: true },
 ]
 
 export function getPrimaryNav(role?: PortalRole | string): NavItem[] {

@@ -16,6 +16,7 @@ import {
   Archive,
   Stamp,
   Settings,
+  CircleHelp,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -74,6 +75,7 @@ const STUDENT_QUICK_LINKS: SearchItem[] = [
   { id: 'page-events', type: 'Page', label: 'Events', hint: 'School calendar', icon: CalendarDays, view: 'events', keywords: 'events calendar schedule holiday deadline campus' },
   { id: 'page-professors', type: 'Page', label: 'Professors', hint: 'Faculty directory', icon: Users, view: 'professors', keywords: 'professors faculty teacher instructor directory' },
   { id: 'page-profile', type: 'Page', label: 'Profile', hint: 'Student ID & documents', icon: User, view: 'profile', keywords: 'profile id card account documents settings' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]
 
 const FACULTY_QUICK_LINKS: SearchItem[] = [
@@ -85,11 +87,13 @@ const FACULTY_QUICK_LINKS: SearchItem[] = [
   { id: 'page-schedule', type: 'Page', label: 'Schedule', hint: 'Weekly classes', icon: CalendarDays, view: 'schedule', keywords: 'schedule calendar weekly classes timetable' },
   { id: 'page-tasks', type: 'Page', label: 'Tasks', hint: 'Post work & close submissions', icon: ClipboardList, view: 'tasks', keywords: 'tasks assignments post close submissions' },
   { id: 'page-profile', type: 'Page', label: 'Profile', hint: 'Faculty information', icon: User, view: 'profile', keywords: 'profile account information' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]
 
 const ADMIN_QUICK_LINKS: SearchItem[] = [
   { id: 'page-dashboard', type: 'Page', label: 'Release Queue', hint: 'Approve submitted grades', icon: Stamp, view: 'dashboard', keywords: 'release queue approve grades admin' },
   { id: 'page-settings', type: 'Page', label: 'Settings', hint: 'Account & preferences', icon: Settings, view: 'settings', keywords: 'settings account preferences' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]
 
 function quickLinksFor(role?: string): SearchItem[] {
@@ -389,7 +393,13 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search pages, subjects, professors, events…"
+          placeholder={
+            student.role === 'faculty'
+              ? 'Search pages, students, subjects, tasks…'
+              : student.role === 'admin'
+                ? 'Search pages…'
+                : 'Search pages, subjects, professors, events…'
+          }
           aria-label="Search the portal"
           role="combobox"
           aria-expanded={open}

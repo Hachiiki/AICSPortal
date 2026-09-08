@@ -21,6 +21,7 @@ import { EventsPage } from '@/components/portal/EventsPage'
 import { ProfessorsPage } from '@/components/portal/ProfessorsPage'
 import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { SettingsPage } from '@/components/portal/SettingsPage'
+import { HelpSupportPage } from '@/components/portal/HelpSupportPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 import type { View } from '@/lib/aics/types'
@@ -628,6 +629,19 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         facultyData={facultyData}
+      />
+    )
+  }
+
+  if (route.view === 'help') {
+    return (
+      <HelpSupportPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
       />
     )
   }
