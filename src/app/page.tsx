@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
@@ -30,6 +30,7 @@ import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Enrollment } from '@/lib/aics/enrollment'
 import type { Announcement } from '@/lib/aics/announcements'
+import type { Notification as NotificationItem, NotificationInbox } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 
 /**
@@ -230,6 +231,44 @@ function StudentDataWrapper({
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
 
+  // Bell inbox notifications. Students read their own docs here.
+  // Lifted for the same reason as announcements: the Topbar lives
+  // in the shell, so per-page fetching would refetch on every tab.
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
+
+  const refreshNotifications = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/notifications?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setNotifications(data.notifications || [])
+    } catch {}
+    finally {
+      setNotificationsLoading(false)
+    }
+  }, [username])
+
+  const markNotificationRead = useCallback(async (id?: string, all?: boolean) => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, id, all }),
+      })
+      const data = await res.json()
+      if (data.ok) refreshNotifications()
+    } catch {}
+  }, [username, refreshNotifications])
+
+  // Single inbox object for the shell. Memoized so the Topbar bell
+  // does not re-render on every wrapper render.
+  const inbox = useMemo<NotificationInbox>(() => ({
+    notifications,
+    loading: notificationsLoading,
+    onRefresh: refreshNotifications,
+    onMark: markNotificationRead,
+  }), [notifications, notificationsLoading, refreshNotifications, markNotificationRead])
+
   // Faculty-specific data (only fetched for faculty users, but lifted
   // here so it persists across route switches — same pattern as tasks/events)
   const [facultyData, setFacultyData] = useState<{ faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null>(null)
@@ -290,6 +329,26 @@ function StudentDataWrapper({
       setTaskGroupsError('Network error. Please try again.')
     } finally {
       setTaskGroupsLoading(false)
+    }
+  }, [username])
+
+  // Notifications this faculty member sent. Same once-per-session rule.
+  const [sentData, setSentData] = useState<{ notifications: NotificationItem[] } | null>(null)
+  const [sentLoading, setSentLoading] = useState(false)
+  const [sentError, setSentError] = useState<string | null>(null)
+
+  const fetchSent = useCallback(async () => {
+    setSentLoading(true)
+    setSentError(null)
+    try {
+      const res = await fetch(`/api/notifications?sentBy=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setSentData({ notifications: data.notifications || [] })
+      else setSentError(data.error || 'Failed to load sent messages.')
+    } catch {
+      setSentError('Network error. Please try again.')
+    } finally {
+      setSentLoading(false)
     }
   }, [username])
 
@@ -355,6 +414,7 @@ function StudentDataWrapper({
       }
     }
     fetchAll()
+    refreshNotifications()
     return () => { cancelled = true }
   }, [username])
 
@@ -366,7 +426,8 @@ function StudentDataWrapper({
     if (!facultyData) return
     if (!historyData && !historyLoading) fetchHistoryData()
     if (!taskGroupsData && !taskGroupsLoading) fetchTaskGroups()
-  }, [facultyData, historyData, historyLoading, taskGroupsData, taskGroupsLoading, fetchHistoryData, fetchTaskGroups])
+    if (!sentData && !sentLoading) fetchSent()
+  }, [facultyData, historyData, historyLoading, taskGroupsData, taskGroupsLoading, sentData, sentLoading, fetchHistoryData, fetchTaskGroups, fetchSent])
 
   if (loading) {
     return <PortalSkeleton view={route.view} />
@@ -411,6 +472,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -426,6 +488,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
@@ -444,6 +507,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
@@ -462,6 +526,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
@@ -479,6 +544,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
         historyData={historyData}
@@ -498,8 +564,12 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
-        announcements={announcements}
         facultyData={facultyData}
+        inbox={inbox}
+        sentData={sentData}
+        sentLoading={sentLoading}
+        sentError={sentError}
+        onFetchSent={fetchSent}
       />
     )
   }
@@ -515,6 +585,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
       />
@@ -530,6 +601,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
         taskGroupsData={taskGroupsData}
@@ -549,6 +621,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
       />
     )
@@ -561,6 +634,7 @@ function StudentDataWrapper({
         onNavigate={handleNavigate}
         onLogout={onLogout}
         tasks={tasks}
+        inbox={inbox}
         tasksLoading={tasksLoading}
         tasksError={tasksError}
         setTasks={setTasks}
@@ -580,6 +654,7 @@ function StudentDataWrapper({
         eventsLoading={eventsLoading}
         eventsError={eventsError}
         tasks={tasks}
+        inbox={inbox}
         showTasks={showTasks}
         setShowTasks={setShowTasks}
         enabledCats={enabledCats}
@@ -599,6 +674,7 @@ function StudentDataWrapper({
         onLogout={onLogout}
         events={events}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -615,6 +691,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -628,6 +705,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
       />
     )
@@ -642,6 +720,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -657,6 +736,7 @@ function StudentDataWrapper({
       professors={professors}
       tasks={tasks}
       announcements={announcements}
+      inbox={inbox}
     />
   )
 }

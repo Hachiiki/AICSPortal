@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import { Megaphone, Send, Loader2, AlertTriangle } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Megaphone, Send, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
-import type { Announcement, AnnouncementCategory } from '@/lib/aics/announcements'
-import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
+import type { Notification } from '@/lib/aics/notifications'
+import { formatNotifTime, type NotificationInbox } from '@/lib/aics/notifications'
+import { useFacultyRows } from '@/lib/aics/use-faculty-rows'
 import { PortalShell } from '../portal/PortalShell'
+import { DashboardSkeleton } from '../portal/Skeleton'
 
 interface FacultyAnnouncementsPageProps {
   student: Student
@@ -18,78 +21,117 @@ interface FacultyAnnouncementsPageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
-  announcements?: Announcement[]
-  facultyData?: { subjects: any[]; students: any[] } | null
-}
-
-const CATEGORIES = Object.keys(ANNOUNCEMENT_STYLES) as AnnouncementCategory[]
-
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return ''
-  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+  facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  facultyLoading?: boolean
+  inbox?: NotificationInbox
+  sentData?: { notifications: Notification[] } | null
+  sentLoading?: boolean
+  sentError?: string | null
+  onFetchSent?: () => void
 }
 
 export function FacultyAnnouncementsPage({
-  student, onNavigate, onLogout, events, professors, tasks, announcements, facultyData,
+  student, onNavigate, onLogout, events, professors, tasks,
+  facultyData, facultyLoading, inbox, sentData, sentLoading, sentError, onFetchSent,
 }: FacultyAnnouncementsPageProps) {
-  // Seeded from the wrapper's lifted announcements. Refreshed locally
-  // after posting. Never refetched on mount, so tab revisits are instant.
-  const [items, setItems] = useState<Announcement[]>(announcements ?? [])
+  const faculty = facultyData?.faculty ?? null
+  const loading = facultyLoading ?? true
+  const sent = sentData?.notifications ?? []
+  const sentPending = sentLoading ?? false
+
+  // Sections come from the shared roster hook, so targeting always
+  // matches the teacher's actual assignments.
+  const { sections } = useFacultyRows(facultyData as any)
+  const [checkedKeys, setCheckedKeys] = useState<string[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [category, setCategory] = useState<AnnouncementCategory>('general')
-  const [urgent, setUrgent] = useState(false)
-  const [expiry, setExpiry] = useState('')
   const [posting, setPosting] = useState(false)
 
-  const refresh = async () => {
-    try {
-      const res = await fetch(`/api/announcements?username=${encodeURIComponent(student.username)}`)
-      const data = await res.json()
-      if (data.ok) setItems(data.announcements || [])
-    } catch {}
+  // Default to every assigned section once the roster lands.
+  useEffect(() => {
+    if (checkedKeys.length === 0 && sections.length > 0) {
+      setCheckedKeys(sections.map((s) => s.key))
+    }
+  }, [sections, checkedKeys.length])
+
+  // Lazy once-per-session fetch, same rule as teaching history.
+  useEffect(() => {
+    if (!loading && faculty && !sentData && !sentPending && onFetchSent) onFetchSent()
+  }, [loading, faculty, sentData, sentPending, onFetchSent])
+
+  const targetedStudents = useMemo(() => {
+    const usernames = new Set<string>()
+    for (const s of sections) {
+      if (checkedKeys.includes(s.key)) {
+        for (const stu of s.students) usernames.add(stu.username)
+      }
+    }
+    return usernames.size
+  }, [sections, checkedKeys])
+
+  const toggleKey = (key: string) => {
+    setCheckedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
   }
 
-  const canPost = title.trim().length > 0 && body.trim().length > 0 && !posting
+  const canPost = title.trim().length > 0 && body.trim().length > 0 && checkedKeys.length > 0 && !posting
 
   const handlePost = async () => {
-    if (!canPost) {
-      toast.error('Give the announcement a title and a body first.')
+    if (title.trim().length === 0 || body.trim().length === 0) {
+      toast.error('Give the message a title and a body first.')
+      return
+    }
+    if (checkedKeys.length === 0) {
+      toast.error('Pick at least one section to notify.')
       return
     }
     setPosting(true)
     try {
-      const res = await fetch('/api/announcements', {
+      const res = await fetch('/api/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           branch: student.branch,
           title: title.trim(),
           body: body.trim(),
-          category,
-          priority: urgent ? 'urgent' : 'normal',
-          expiryDate: expiry || null,
+          sectionKeys: checkedKeys,
           performedBy: student.username,
         }),
       })
       const data = await res.json()
       if (data.ok) {
-        toast.success('Announcement posted.')
+        toast.success(data.message || 'Notification sent.')
         setTitle('')
         setBody('')
-        setCategory('general')
-        setUrgent(false)
-        setExpiry('')
-        refresh()
+        onFetchSent?.()
       } else {
-        toast.error(data.error || 'Failed to post announcement.')
+        toast.error(data.error || 'Failed to send notification.')
       }
     } catch {
       toast.error('Network error. Please try again.')
     } finally {
       setPosting(false)
     }
+  }
+
+  if (loading || sentPending) return <DashboardSkeleton />
+  if (sentError) {
+    return (
+      <div className="min-h-dvh bg-slate-50 grid place-items-center">
+        <div className="text-center">
+          <p className="text-red-600 text-sm font-medium mb-2">{sentError}</p>
+          <button onClick={onFetchSent} className="text-blue-600 text-sm font-medium hover:underline">
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+  if (!faculty) {
+    return (
+      <div className="min-h-dvh bg-slate-50 grid place-items-center">
+        <p className="text-sm text-red-600">Faculty data not found.</p>
+      </div>
+    )
   }
 
   return (
@@ -102,20 +144,21 @@ export function FacultyAnnouncementsPage({
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Announcements</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Post updates for your students. Published posts appear in the student and faculty decks.
+            Notify your sections. Messages land in each student's bell inbox, never in the main announcement deck.
           </p>
         </div>
 
-        {/* Create form */}
+        {/* Compose */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-blue-600" />
-            <h2 className="text-base font-semibold text-slate-900">New announcement</h2>
+            <h2 className="text-base font-semibold text-slate-900">Notify sections</h2>
           </div>
           <div className="px-6 py-5 space-y-4">
             <div>
@@ -125,57 +168,55 @@ export function FacultyAnnouncementsPage({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={120}
-                placeholder="e.g., Midterm exam moved to Friday"
+                placeholder="e.g., Quiz moved to Friday"
                 className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Body</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Message</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 maxLength={2000}
                 rows={4}
-                placeholder="Write the details students need..."
+                placeholder="Write what your students need to know..."
                 className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
               />
               <p className="text-[11px] text-slate-400 mt-1 text-right">{body.length}/2000</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Category</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as AnnouncementCategory)}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{ANNOUNCEMENT_STYLES[c].label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Priority</label>
-                <button
-                  type="button"
-                  onClick={() => setUrgent((v) => !v)}
-                  aria-pressed={urgent}
-                  className={`w-full h-10 px-3 rounded-lg border text-sm font-semibold inline-flex items-center justify-center gap-2 ${
-                    urgent ? 'bg-red-50 border-red-200 text-red-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
-                  }`}
-                >
-                  <AlertTriangle className="w-4 h-4" /> {urgent ? 'Urgent' : 'Normal'}
-                </button>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Expires (optional)</label>
-                <input
-                  type="date"
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </div>
+            <div>
+              <span className="block text-xs font-medium text-slate-700 mb-1.5">
+                Sections ({checkedKeys.length} selected • {targetedStudents} students)
+              </span>
+              {sections.length === 0 ? (
+                <p className="text-sm text-slate-500">No assigned sections found.</p>
+              ) : (
+                <div className="space-y-2">
+                  {sections.map((s) => {
+                    const checked = checkedKeys.includes(s.key)
+                    return (
+                      <label
+                        key={s.key}
+                        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors ${
+                          checked ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleKey(s.key)}
+                          className="w-4 h-4 rounded accent-blue-700 flex-shrink-0"
+                        />
+                        <span className="font-mono text-xs font-bold text-blue-700">{s.subjectCode}</span>
+                        <span className="text-sm text-slate-700 truncate flex-1">{s.subjectTitle}</span>
+                        <span className="text-xs text-slate-500 flex-shrink-0">
+                          {s.room} • {s.students.length} students
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
             </div>
             <div className="flex justify-end">
               <button
@@ -185,38 +226,30 @@ export function FacultyAnnouncementsPage({
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {posting ? 'Posting...' : 'Post announcement'}
+                {posting ? 'Sending...' : `Notify ${targetedStudents} student${targetedStudents === 1 ? '' : 's'}`}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Published list */}
+        {/* Sent */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-slate-900">Published ({items.length})</h2>
-          {items.length === 0 ? (
+          <h2 className="text-sm font-semibold text-slate-900">Sent ({sent.length})</h2>
+          {sent.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
-              <p className="text-sm text-slate-500">No announcements yet. Post the first one above.</p>
+              <p className="text-sm text-slate-500">Nothing sent yet. Your messages to sections will appear here.</p>
             </div>
           ) : (
-            items.map((a) => {
-              const style = ANNOUNCEMENT_STYLES[a.category] || ANNOUNCEMENT_STYLES.general
-              return (
-                <div key={a._id} className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-semibold text-slate-900">{a.title}</p>
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border flex-shrink-0 ${style.pill}`}>
-                      {style.label}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-600 mt-1 leading-relaxed">{a.body}</p>
-                  <p className="text-[11px] text-slate-400 mt-2">
-                    {formatDate(a.postedDate)} by {a.author}
-                    {a.priority === 'urgent' ? ' • Urgent' : ''}
-                  </p>
+            sent.map((n) => (
+              <div key={n._id} className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                  <span className="font-mono text-xs font-bold text-blue-700 flex-shrink-0">{n.subjectCode}</span>
                 </div>
-              )
-            })
+                <p className="text-sm text-slate-600 mt-1 leading-relaxed">{n.body}</p>
+                <p className="text-[11px] text-slate-400 mt-2">{formatNotifTime(n.createdAt)}</p>
+              </div>
+            ))
           )}
         </div>
       </main>
