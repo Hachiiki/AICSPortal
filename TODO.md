@@ -18,7 +18,7 @@
 
 ### Remaining
 - [ ] **Mobile responsive** — Remove the phone blocker. Make schedule grid, tasks table, enrollment tracker, and card deck work on phones. This is the last gap before the student portal is complete.
-- [ ] **Help & Support page** — FAQ + IT contact form. Last disabled sidebar item.
+- [x] **Help & Support page** — Shared HelpSupportPage with role-specific FAQs plus IT and registrar contact card. Enabled in nav for every role. Verified in browser as faculty and student.
 - [ ] **Dark mode** — The CSS infrastructure exists (`@custom-variant dark`). Wire the theme toggle in the topbar.
 - [ ] **Profile photo upload** — Settings page has a placeholder. Needs a file upload endpoint + image storage.
 - [ ] **Notification system activation** — Settings page has toggles for email/SMS/event/task notifications. These are local-only. Needs a backend notifications service to actually send alerts.
