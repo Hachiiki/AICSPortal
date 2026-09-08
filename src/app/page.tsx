@@ -565,6 +565,7 @@ function StudentDataWrapper({
         professors={professors}
         tasks={tasks}
         facultyData={facultyData}
+        facultyLoading={facultyLoading}
         inbox={inbox}
         sentData={sentData}
         sentLoading={sentLoading}
