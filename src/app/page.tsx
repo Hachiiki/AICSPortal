@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
@@ -11,12 +11,17 @@ import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
 import { FacultyPreviousRecordsPage } from '@/components/faculty/FacultyPreviousRecordsPage'
+import { FacultyAnnouncementsPage } from '@/components/faculty/FacultyAnnouncementsPage'
+import { FacultySchedulePage } from '@/components/faculty/FacultySchedulePage'
+import { FacultyTasksPage } from '@/components/faculty/FacultyTasksPage'
+import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
 import { ProfessorsPage } from '@/components/portal/ProfessorsPage'
 import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { SettingsPage } from '@/components/portal/SettingsPage'
+import { HelpSupportPage } from '@/components/portal/HelpSupportPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
 import { MobileWarning } from '@/components/MobileWarning'
 import type { View } from '@/lib/aics/types'
@@ -25,6 +30,7 @@ import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Enrollment } from '@/lib/aics/enrollment'
 import type { Announcement } from '@/lib/aics/announcements'
+import type { Notification as NotificationItem, NotificationInbox } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 
 /**
@@ -39,6 +45,14 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
  *   /portal/{branch}/student/{username}/events       → EventsPage
  *   /portal/{branch}/student/{username}/professors   → ProfessorsPage
  *   /portal/{branch}/student/{username}/enrollment    → EnrollmentPage
+ *   /portal/{branch}/faculty/{username}                   → FacultyDashboard
+ *   /portal/{branch}/faculty/{username}/my-students       → FacultyStudentsPage
+ *   /portal/{branch}/faculty/{username}/grade-encoding    → FacultyGradeEncodingPage
+ *   /portal/{branch}/faculty/{username}/previous-records  → FacultyPreviousRecordsPage
+ *   /portal/{branch}/faculty/{username}/announcements     → FacultyAnnouncementsPage
+ *   /portal/{branch}/faculty/{username}/schedule          → FacultySchedulePage
+ *   /portal/{branch}/faculty/{username}/tasks             → FacultyTasksPage
+ *   /portal/{branch}/admin/{username}                     → AdminReleasePage
  *
  * Auth rules:
  *   - Unauthenticated + protected route → redirect to /portal/login
@@ -216,6 +230,45 @@ function StudentDataWrapper({
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
+  const [announcementReadIds, setAnnouncementReadIds] = useState<string[]>([])
+
+  // Bell inbox notifications. Students read their own docs here.
+  // Lifted for the same reason as announcements: the Topbar lives
+  // in the shell, so per-page fetching would refetch on every tab.
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
+
+  const refreshNotifications = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/notifications?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setNotifications(data.notifications || [])
+    } catch {}
+    finally {
+      setNotificationsLoading(false)
+    }
+  }, [username])
+
+  const markNotificationRead = useCallback(async (id?: string, all?: boolean) => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, id, all }),
+      })
+      const data = await res.json()
+      if (data.ok) refreshNotifications()
+    } catch {}
+  }, [username, refreshNotifications])
+
+  // Single inbox object for the shell. Memoized so the Topbar bell
+  // does not re-render on every wrapper render.
+  const inbox = useMemo<NotificationInbox>(() => ({
+    notifications,
+    loading: notificationsLoading,
+    onRefresh: refreshNotifications,
+    onMark: markNotificationRead,
+  }), [notifications, notificationsLoading, refreshNotifications, markNotificationRead])
 
   // Faculty-specific data (only fetched for faculty users, but lifted
   // here so it persists across route switches — same pattern as tasks/events)
@@ -228,6 +281,76 @@ function StudentDataWrapper({
       const data = await res.json()
       if (data.ok) setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
     } catch {}
+  }, [username])
+
+  // Released teaching history for the Previous Records tab. Lifted
+  // here for the same reason as facultyData: tab switches unmount
+  // pages, so anything a page fetches on mount refetches on every
+  // visit and flashes a skeleton like a hard refresh.
+  //
+  // Permanent rule for future tabs: tab pages never fetch on mount.
+  // Shared server data lives in this wrapper. It prefetches in the
+  // background once the faculty roster lands, so first visits render
+  // instantly, and it never refetches within a session.
+  // On-demand fetches belong behind user actions only.
+  const [historyData, setHistoryData] = useState<{ terms: any[] } | null>(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+
+  const fetchHistoryData = useCallback(async () => {
+    setHistoryLoading(true)
+    setHistoryError(null)
+    try {
+      const res = await fetch(`/api/faculty/history?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setHistoryData({ terms: data.terms || [] })
+      else setHistoryError(data.error || 'Failed to load teaching history.')
+    } catch {
+      setHistoryError('Network error. Please try again.')
+    } finally {
+      setHistoryLoading(false)
+    }
+  }, [username])
+
+  // Faculty task groups for the Tasks tab. Prefetched with history
+  // below, same once-per-session rule.
+  const [taskGroupsData, setTaskGroupsData] = useState<{ groups: any[] } | null>(null)
+  const [taskGroupsLoading, setTaskGroupsLoading] = useState(false)
+  const [taskGroupsError, setTaskGroupsError] = useState<string | null>(null)
+
+  const fetchTaskGroups = useCallback(async () => {
+    setTaskGroupsLoading(true)
+    setTaskGroupsError(null)
+    try {
+      const res = await fetch(`/api/faculty/tasks?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setTaskGroupsData({ groups: data.groups || [] })
+      else setTaskGroupsError(data.error || 'Failed to load tasks.')
+    } catch {
+      setTaskGroupsError('Network error. Please try again.')
+    } finally {
+      setTaskGroupsLoading(false)
+    }
+  }, [username])
+
+  // Notifications this faculty member sent. Same once-per-session rule.
+  const [sentData, setSentData] = useState<{ notifications: NotificationItem[] } | null>(null)
+  const [sentLoading, setSentLoading] = useState(false)
+  const [sentError, setSentError] = useState<string | null>(null)
+
+  const fetchSent = useCallback(async () => {
+    setSentLoading(true)
+    setSentError(null)
+    try {
+      const res = await fetch(`/api/notifications?sentBy=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) setSentData({ notifications: data.notifications || [] })
+      else setSentError(data.error || 'Failed to load sent messages.')
+    } catch {
+      setSentError('Network error. Please try again.')
+    } finally {
+      setSentLoading(false)
+    }
   }, [username])
 
   // Events page UI preferences — lifted here so they persist across
@@ -269,7 +392,10 @@ function StudentDataWrapper({
         // empty state). Only set an error if the API itself fails.
         if (enrData.ok) setEnrollment(enrData.enrollment ?? null)
         else setEnrollmentError(enrData.error || 'Failed to load enrollment')
-        if (annData.ok) setAnnouncements(annData.announcements)
+        if (annData.ok) {
+          setAnnouncements(annData.announcements)
+          setAnnouncementReadIds(annData.readIds || [])
+        }
         // Announcements failure is non-fatal — dashboard shows empty state
         // Faculty data (non-fatal for student users — the API returns 404)
         if (facData.ok) setFacultyData({ faculty: facData.faculty, subjects: facData.subjects, students: facData.students })
@@ -292,8 +418,20 @@ function StudentDataWrapper({
       }
     }
     fetchAll()
+    refreshNotifications()
     return () => { cancelled = true }
   }, [username])
+
+  // Prefetch faculty-only slices in the background once the roster
+  // lands, so first tab visits render instantly. Each fetch is
+  // guarded to run at most once per session. Non-faculty sessions
+  // never have facultyData, so they pay nothing.
+  useEffect(() => {
+    if (!facultyData) return
+    if (!historyData && !historyLoading) fetchHistoryData()
+    if (!taskGroupsData && !taskGroupsLoading) fetchTaskGroups()
+    if (!sentData && !sentLoading) fetchSent()
+  }, [facultyData, historyData, historyLoading, taskGroupsData, taskGroupsLoading, sentData, sentLoading, fetchHistoryData, fetchTaskGroups, fetchSent])
 
   if (loading) {
     return <PortalSkeleton view={route.view} />
@@ -327,6 +465,22 @@ function StudentDataWrapper({
   // grade-encoding, and previous-records. Profile and settings reuse
   // the shared pages, which render inside PortalShell with role-aware
   // nav so the sidebar and top bar never change between tabs.
+  // Admin users get the release queue. Any other admin view falls
+  // back to it since admin has no other screens yet.
+  if (route.view !== 'login' && route.role === 'admin' && route.view !== 'settings') {
+    return (
+      <AdminReleasePage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        inbox={inbox}
+      />
+    )
+  }
+
   if (route.view === 'dashboard' && route.role === 'faculty') {
     return (
       <FacultyDashboard
@@ -338,7 +492,9 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
+        announcementReadIds={announcementReadIds}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
       />
@@ -356,6 +512,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
@@ -374,6 +531,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
@@ -391,8 +549,71 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
+        historyData={historyData}
+        historyLoading={historyLoading}
+        historyError={historyError}
+        onFetchHistory={fetchHistoryData}
+      />
+    )
+  }
+
+  if (route.view === 'announcements' && route.role === 'faculty') {
+    return (
+      <FacultyAnnouncementsPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+        inbox={inbox}
+        sentData={sentData}
+        sentLoading={sentLoading}
+        sentError={sentError}
+        onFetchSent={fetchSent}
+      />
+    )
+  }
+
+  if (route.view === 'schedule' && route.role === 'faculty') {
+    return (
+      <FacultySchedulePage
+        student={student}
+        courses={courses}
+        sessions={sessions}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        inbox={inbox}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+      />
+    )
+  }
+
+  if (route.view === 'tasks' && route.role === 'faculty') {
+    return (
+      <FacultyTasksPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        inbox={inbox}
+        facultyData={facultyData}
+        facultyLoading={facultyLoading}
+        taskGroupsData={taskGroupsData}
+        taskGroupsLoading={taskGroupsLoading}
+        taskGroupsError={taskGroupsError}
+        onFetchTaskGroups={fetchTaskGroups}
       />
     )
   }
@@ -406,6 +627,8 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
+        facultyData={facultyData}
       />
     )
   }
@@ -417,6 +640,7 @@ function StudentDataWrapper({
         onNavigate={handleNavigate}
         onLogout={onLogout}
         tasks={tasks}
+        inbox={inbox}
         tasksLoading={tasksLoading}
         tasksError={tasksError}
         setTasks={setTasks}
@@ -436,6 +660,7 @@ function StudentDataWrapper({
         eventsLoading={eventsLoading}
         eventsError={eventsError}
         tasks={tasks}
+        inbox={inbox}
         showTasks={showTasks}
         setShowTasks={setShowTasks}
         enabledCats={enabledCats}
@@ -455,6 +680,7 @@ function StudentDataWrapper({
         onLogout={onLogout}
         events={events}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -471,6 +697,7 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -484,6 +711,22 @@ function StudentDataWrapper({
         events={events}
         professors={professors}
         tasks={tasks}
+        inbox={inbox}
+        facultyData={facultyData}
+      />
+    )
+  }
+
+  if (route.view === 'help') {
+    return (
+      <HelpSupportPage
+        student={student}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
+        events={events}
+        professors={professors}
+        tasks={tasks}
+        inbox={inbox}
       />
     )
   }
@@ -499,6 +742,8 @@ function StudentDataWrapper({
       professors={professors}
       tasks={tasks}
       announcements={announcements}
+      announcementReadIds={announcementReadIds}
+      inbox={inbox}
     />
   )
 }

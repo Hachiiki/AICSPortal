@@ -8,6 +8,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -25,6 +26,7 @@ interface Props {
   tasks?: Task[]
   announcements?: Announcement[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
   onRefresh?: () => Promise<void>
 }
@@ -35,7 +37,7 @@ function badgeForRemarks(r: string) {
   return `<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${m[r] || 'bg-slate-100 text-slate-600 border-slate-200'}">${r}</span>`
 }
 
-export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh }: Props) {
+export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh, inbox }: Props) {
   const [period, setPeriod] = useState<'all' | 'prelim' | 'midterm' | 'finals'>('all')
   const [activeSection, setActiveSection] = useState('all')
   const [search, setSearch] = useState('')
@@ -325,6 +327,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

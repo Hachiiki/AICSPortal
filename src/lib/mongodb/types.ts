@@ -246,7 +246,8 @@ export interface MongoEnrollment {
 
 
 // ADMIN CONTROL: Announcements are created/edited/deleted by
-// Admin and Faculty. Students have read-only access.
+// Admin only. Students have read-only access. Faculty reach
+// students through section notifications instead (see below).
 export interface MongoAnnouncement {
   _id?: string
   branch: Branch
@@ -254,8 +255,39 @@ export interface MongoAnnouncement {
   body: string
   category: 'academic' | 'deadline' | 'campus' | 'holiday' | 'general'
   priority: 'normal' | 'urgent'
-  author: string // name of the admin/faculty who posted
+  author: string // name of the admin who posted
   postedDate: Date
   // null = no expiry; otherwise hide after this date
   expiryDate?: Date | null
+}
+
+// Per-user announcement reads. One doc per user per announcement
+// so dismissed cards stay gone across refreshes. A new
+// announcement has no doc and shows up normally.
+export interface MongoAnnouncementRead {
+  _id?: string
+  branch: Branch
+  username: string
+  announcementId: string
+  action: 'read' | 'dismissed'
+  at: Date
+}
+
+// Section notifications from faculty. One doc per targeted student
+// so unread counts and read state stay trivial. Never rendered in
+// the announcements deck — the bell inbox owns these.
+export interface MongoNotification {
+  _id?: string
+  branch: Branch
+  studentUsername: string
+  title: string
+  body: string
+  fromName: string
+  fromUsername: string
+  // sectionKey is `code|academicYear|semester`, matching the roster hook
+  sectionKey: string
+  subjectCode: string
+  createdAt: Date
+  read: boolean
+  readAt: Date | null
 }

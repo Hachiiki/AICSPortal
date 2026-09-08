@@ -8,6 +8,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -47,8 +48,10 @@ interface FacultyDashboardProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  announcementReadIds?: string[]
   // Faculty-specific data lifted to parent so it persists across route switches
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
 }
 
@@ -91,8 +94,10 @@ export function FacultyDashboard({
   professors,
   tasks,
   announcements,
+  announcementReadIds,
   facultyData,
   facultyLoading,
+  inbox,
 }: FacultyDashboardProps) {
   // Faculty data comes from the parent (lifted state), not an internal fetch.
   // This prevents re-fetching when navigating between dashboard and my-students.
@@ -102,15 +107,14 @@ export function FacultyDashboard({
   const loading = facultyLoading ?? true
 
   // ----------------------------------------------------------
-  //  Group subjects by code so each row is a unique subject
-  //  with the count of enrolled students. We intentionally
-  //  don't filter by academicYear/semester here — the seed
-  //  currently only has current-term rows, and faculty want
-  //  to see everything they're teaching this term.
+  //  Group current-term subjects by code so each row is a unique
+  //  subject with the count of enrolled students. Older terms stay
+  //  out — they live on Previous Records once released.
   // ----------------------------------------------------------
   const subjectRows = useMemo<FacultySubjectRow[]>(() => {
     const map = new Map<string, FacultySubjectRow>()
     for (const s of taughtSubjects) {
+      if ((s.academicYear || '') !== (faculty?.academicYear || '') || (s.semester || '') !== (faculty?.semester || '')) continue
       const existing = map.get(s.code)
       if (existing) {
         existing.enrolled += 1
@@ -126,7 +130,7 @@ export function FacultyDashboard({
       })
     }
     return Array.from(map.values())
-  }, [taughtSubjects])
+  }, [taughtSubjects, faculty])
 
   // Unique sections taught (e.g. "CS-2A", "CS-2B"). We derive
   // these from the enrolled students' `section` field.
@@ -154,6 +158,8 @@ export function FacultyDashboard({
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}
@@ -198,7 +204,7 @@ export function FacultyDashboard({
 
             {/* Announcements deck — reuses the student component unchanged */}
             {announcements && announcements.length > 0 && (
-              <AnnouncementsDeck announcements={announcements} />
+              <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
             )}
           </motion.section>
 

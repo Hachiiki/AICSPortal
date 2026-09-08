@@ -22,6 +22,7 @@ import { PortalShell } from './PortalShell'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 
 interface SettingsPageProps {
   student: Student
@@ -30,11 +31,14 @@ interface SettingsPageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data, used only for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  inbox?: NotificationInbox
 }
 
 type Section = 'profile' | 'security' | 'notifications'
 
-export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks }: SettingsPageProps) {
+export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
 
   // Profile edit state
@@ -129,6 +133,8 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 max-w-4xl">
           {/* Page header */}

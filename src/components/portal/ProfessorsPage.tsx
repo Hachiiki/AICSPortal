@@ -6,6 +6,7 @@ import type { Student, Subject, View } from '@/lib/aics/types'
 import type { Professor } from '@/lib/aics/professors'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { getCourse, type Course, type CourseColor } from '@/lib/schedule'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
@@ -33,6 +34,7 @@ interface ProfessorsPageProps {
   // Topbar's global search works the same on every screen.
   events?: PortalEvent[]
   tasks?: Task[]
+  inbox?: NotificationInbox
 }
 
 /** A professor + all their current-term subjects. */
@@ -53,7 +55,7 @@ const CHIP_STYLES: Record<CourseColor, { chip: string; dot: string; code: string
   red: { chip: 'border-red-200 bg-red-50', dot: 'bg-red-500', code: 'text-red-700' },
 }
 
-export function ProfessorsPage({ student, professors, courses, onNavigate, onLogout, events, tasks }: ProfessorsPageProps) {
+export function ProfessorsPage({ student, professors, courses, onNavigate, onLogout, events, tasks, inbox }: ProfessorsPageProps) {
   // Sidebar navigation — just delegate to onNavigate.
   const handleNavigate = (v: View) => {
     onNavigate(v)
@@ -116,6 +118,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}

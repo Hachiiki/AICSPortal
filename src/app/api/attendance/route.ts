@@ -1,0 +1,107 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getCollection } from '@/lib/mongodb/connection'
+
+// ============================================================
+//  Attendance API
+// ============================================================
+//
+//  One doc per section session:
+//    { branch, sectionKey, date, takenBy, records, takenAt }
+//  sectionKey is `code|academicYear|semester`, the same key the
+//  faculty roster hook builds. records maps student username to
+//  'present' or 'absent'.
+//
+//  GET /api/attendance?username=&sectionKey=[&date=]
+//    Faculty or admin of the same branch. Without date, returns
+//    every session for the section plus the latest record map.
+//  POST /api/attendance
+//    Body: { branch, sectionKey, date, records, performedBy }
+//    Faculty only, same branch. Upserts the session.
+// ============================================================
+
+async function getPerformer(username: string | null) {
+  if (!username) return null
+  const studentsCol = await getCollection('students')
+  return studentsCol.findOne({ username })
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const username = request.nextUrl.searchParams.get('username')
+    const sectionKey = request.nextUrl.searchParams.get('sectionKey')
+    const date = request.nextUrl.searchParams.get('date')
+    if (!username || !sectionKey) {
+      return NextResponse.json({ ok: false, error: 'Username and sectionKey are required.' }, { status: 400 })
+    }
+    const performer = await getPerformer(username)
+    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
+    }
+    const col = await getCollection('attendance')
+    const query: Record<string, string> = { branch: performer.branch, sectionKey }
+    const sessions = await col
+      .find(query)
+      .project({ date: 1, takenBy: 1, takenAt: 1 })
+      .sort({ date: -1 })
+      .toArray()
+    let records: Record<string, string> | null = null
+    if (date) {
+      const session = await col.findOne({ ...query, date })
+      if (session) records = session.records || {}
+    } else if (sessions.length) {
+      const latest = await col.findOne({ ...query, date: (sessions[0] as any).date })
+      if (latest) records = latest.records || {}
+    }
+    return NextResponse.json({
+      ok: true,
+      sessions: sessions.map((s: any) => ({ date: s.date, takenBy: s.takenBy, takenAt: s.takenAt })),
+      records,
+    })
+  } catch (err) {
+    console.error('Attendance read error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to load attendance.' }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { branch, sectionKey, date, records, performedBy } = await request.json()
+    if (!branch || !sectionKey || !date || !records || typeof records !== 'object') {
+      return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return NextResponse.json({ ok: false, error: 'Date must be YYYY-MM-DD.' }, { status: 400 })
+    }
+    if (!performedBy) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+    }
+    const performer = await getPerformer(performedBy)
+    if (!performer || performer.role !== 'faculty') {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
+    }
+    if (performer.branch !== branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
+    for (const [studentUsername, status] of Object.entries(records)) {
+      if (typeof studentUsername !== 'string' || (status !== 'present' && status !== 'absent')) {
+        return NextResponse.json({ ok: false, error: 'Records must map usernames to present or absent.' }, { status: 400 })
+      }
+    }
+    const col = await getCollection('attendance')
+    await col.createIndex({ branch: 1, sectionKey: 1, date: 1 }, { unique: true })
+    await col.updateOne(
+      { branch, sectionKey, date },
+      { $set: { records, takenBy: performedBy, takenAt: new Date() } },
+      { upsert: true }
+    )
+    const present = Object.values(records).filter((s) => s === 'present').length
+    const absent = Object.values(records).length - present
+    return NextResponse.json({ ok: true, message: `Attendance saved: ${present} present, ${absent} absent.`, present, absent })
+  } catch (err: any) {
+    if (err?.code === 11000) {
+      return NextResponse.json({ ok: false, error: 'That session was just saved. Reload and try again.' }, { status: 409 })
+    }
+    console.error('Attendance save error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to save attendance.' }, { status: 500 })
+  }
+}

@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
+import { motion, MotionConfig } from 'framer-motion'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 
@@ -16,6 +18,11 @@ interface PortalShellProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  taskGroups?: { title: string; subjectCode: string }[]
+  // Bell inbox bundle.
+  inbox?: NotificationInbox
   children: ReactNode
 }
 
@@ -41,12 +48,16 @@ export function PortalShell({
   events,
   professors,
   tasks,
+  facultyData,
+  taskGroups,
+  inbox,
   children,
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const role = student.role ?? 'student'
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-dvh bg-slate-50 font-sans">
       <Sidebar
         role={role}
@@ -65,9 +76,24 @@ export function PortalShell({
           events={events}
           professors={professors}
           tasks={tasks}
+          facultyData={facultyData}
+          taskGroups={taskGroups}
+          inbox={inbox}
         />
-        {children}
+        {/* Shared entrance transition. Every tab mounts through this
+            shell, so all of them fade up the same way instead of each
+            page inventing its own. Page-level section animations nest
+            inside and keep working. */}
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
       </div>
     </div>
+    </MotionConfig>
   )
 }

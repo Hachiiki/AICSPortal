@@ -12,6 +12,11 @@ import {
   FileText,
   ClipboardList,
   CornerDownLeft,
+  Megaphone,
+  Archive,
+  Stamp,
+  Settings,
+  CircleHelp,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -26,6 +31,10 @@ interface GlobalSearchProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data for a role-aware index. Students never
+  // receive this, so their index cannot leak other users' records.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  taskGroups?: { title: string; subjectCode: string }[]
   onNavigate: (view: View) => void
 }
 
@@ -41,14 +50,15 @@ interface SearchItem {
   keywords: string
 }
 
-type ResultType = 'Page' | 'Subject' | 'Professor' | 'Event' | 'Task' | 'Document'
+type ResultType = 'Page' | 'Subject' | 'Student' | 'Professor' | 'Event' | 'Task' | 'Document'
 
 // Order in which result groups are displayed.
-const GROUP_ORDER: ResultType[] = ['Page', 'Subject', 'Professor', 'Event', 'Task', 'Document']
+const GROUP_ORDER: ResultType[] = ['Page', 'Subject', 'Student', 'Professor', 'Event', 'Task', 'Document']
 
 const GROUP_LABELS: Record<ResultType, string> = {
   Page: 'Pages',
   Subject: 'Subjects',
+  Student: 'My Students',
   Professor: 'Professors',
   Event: 'Events',
   Task: 'Tasks',
@@ -57,13 +67,40 @@ const GROUP_LABELS: Record<ResultType, string> = {
 
 // Pages the user can jump to. Shown verbatim when the search is empty
 // (focused with no query) so the search doubles as quick navigation.
-const QUICK_LINKS: SearchItem[] = [
+// Role-filtered: a role only ever sees pages inside its own portal,
+// so search can never offer a door into another role's screens.
+const STUDENT_QUICK_LINKS: SearchItem[] = [
   { id: 'page-dashboard', type: 'Page', label: 'Dashboard', hint: 'Overview & today\'s classes', icon: Home, view: 'dashboard', keywords: 'dashboard home overview' },
   { id: 'page-academics', type: 'Page', label: 'Academics', hint: 'Grades, subjects & tasks', icon: GraduationCap, view: 'academics', keywords: 'academics grades subjects tasks school' },
   { id: 'page-events', type: 'Page', label: 'Events', hint: 'School calendar', icon: CalendarDays, view: 'events', keywords: 'events calendar schedule holiday deadline campus' },
   { id: 'page-professors', type: 'Page', label: 'Professors', hint: 'Faculty directory', icon: Users, view: 'professors', keywords: 'professors faculty teacher instructor directory' },
   { id: 'page-profile', type: 'Page', label: 'Profile', hint: 'Student ID & documents', icon: User, view: 'profile', keywords: 'profile id card account documents settings' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]
+
+const FACULTY_QUICK_LINKS: SearchItem[] = [
+  { id: 'page-dashboard', type: 'Page', label: 'Dashboard', hint: 'Subjects & announcements', icon: Home, view: 'dashboard', keywords: 'dashboard home overview' },
+  { id: 'page-my-students', type: 'Page', label: 'My Students', hint: 'Class rosters', icon: Users, view: 'my-students', keywords: 'students roster classes my students' },
+  { id: 'page-grade-encoding', type: 'Page', label: 'Grade Encoding', hint: 'Encode prelim, midterm & finals', icon: GraduationCap, view: 'grade-encoding', keywords: 'grades encoding prelim midterm finals encode' },
+  { id: 'page-previous-records', type: 'Page', label: 'Previous Records', hint: 'Released teaching history', icon: Archive, view: 'previous-records', keywords: 'history previous records archive past' },
+  { id: 'page-announcements', type: 'Page', label: 'Announcements', hint: 'Post updates', icon: Megaphone, view: 'announcements', keywords: 'announcements post publish update' },
+  { id: 'page-schedule', type: 'Page', label: 'Schedule', hint: 'Weekly classes', icon: CalendarDays, view: 'schedule', keywords: 'schedule calendar weekly classes timetable' },
+  { id: 'page-tasks', type: 'Page', label: 'Tasks', hint: 'Post work & close submissions', icon: ClipboardList, view: 'tasks', keywords: 'tasks assignments post close submissions' },
+  { id: 'page-profile', type: 'Page', label: 'Profile', hint: 'Faculty information', icon: User, view: 'profile', keywords: 'profile account information' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
+]
+
+const ADMIN_QUICK_LINKS: SearchItem[] = [
+  { id: 'page-dashboard', type: 'Page', label: 'Release Queue', hint: 'Approve submitted grades', icon: Stamp, view: 'dashboard', keywords: 'release queue approve grades admin' },
+  { id: 'page-settings', type: 'Page', label: 'Settings', hint: 'Account & preferences', icon: Settings, view: 'settings', keywords: 'settings account preferences' },
+  { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
+]
+
+function quickLinksFor(role?: string): SearchItem[] {
+  if (role === 'faculty') return FACULTY_QUICK_LINKS
+  if (role === 'admin') return ADMIN_QUICK_LINKS
+  return STUDENT_QUICK_LINKS
+}
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -71,18 +108,68 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-// Build the full searchable index from the student's data plus the
-// optional collections (events / professors / tasks) that the parent
-// page happens to have loaded.
+// Build the searchable index for the current role. Students index
+// their own subjects, documents, and tasks. Faculty index their
+// taught subjects, their own roster (landing on My Students, never
+// on grades), and their posted task groups. Professors directory
+// and school events stay student-only since faculty have no screens
+// for them. Admins get pages only.
 function buildIndex(
   student: Student,
   events?: PortalEvent[],
   professors?: Professor[],
   tasks?: Task[],
+  facultyData?: { subjects: any[]; students: any[] } | null,
+  taskGroups?: { title: string; subjectCode: string }[],
 ): SearchItem[] {
-  const items: SearchItem[] = [...QUICK_LINKS]
+  const role = student.role ?? 'student'
+  const items: SearchItem[] = [...quickLinksFor(role)]
 
-  for (const s of student.subjects) {
+  if (role === 'faculty') {
+    const seen = new Set<string>()
+    for (const s of facultyData?.subjects ?? []) {
+      if (!s?.code || seen.has(s.code)) continue
+      seen.add(s.code)
+      items.push({
+        id: `subject-${s.code}`,
+        type: 'Subject',
+        label: s.title || s.code,
+        hint: `${s.code} · Grade Encoding`,
+        icon: BookOpen,
+        view: 'grade-encoding',
+        keywords: `${s.code} ${s.title || ''} subject`.toLowerCase(),
+      })
+    }
+    for (const s of facultyData?.students ?? []) {
+      items.push({
+        id: `roster-${s.username}`,
+        type: 'Student',
+        label: s.fullName,
+        hint: `${s.studentNumber || ''} · ${s.section || ''}`.trim(),
+        icon: User,
+        view: 'my-students',
+        keywords: `${s.fullName} ${s.studentNumber || ''} ${s.username || ''} student`.toLowerCase(),
+      })
+    }
+    for (const t of taskGroups ?? []) {
+      items.push({
+        id: `ftask-${t.subjectCode}-${t.title}`,
+        type: 'Task',
+        label: t.title,
+        hint: `${t.subjectCode} · posted by you`,
+        icon: ClipboardList,
+        view: 'tasks',
+        keywords: `${t.title} ${t.subjectCode} task assignment`.toLowerCase(),
+      })
+    }
+    return items
+  }
+
+  if (role === 'admin') {
+    return items
+  }
+
+  for (const s of student.subjects ?? []) {
     items.push({
       id: `subject-${s.code}`,
       type: 'Subject',
@@ -197,23 +284,25 @@ function searchIndex(index: SearchItem[], query: string): SearchItem[] {
   return out
 }
 
-export function GlobalSearch({ student, events, professors, tasks, onNavigate }: GlobalSearchProps) {
+export function GlobalSearch({ student, events, professors, tasks, facultyData, taskGroups, onNavigate }: GlobalSearchProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const roleLinks = useMemo(() => quickLinksFor(student.role), [student.role])
+
   const index = useMemo(
-    () => buildIndex(student, events, professors, tasks),
-    [student, events, professors, tasks],
+    () => buildIndex(student, events, professors, tasks, facultyData, taskGroups),
+    [student, events, professors, tasks, facultyData, taskGroups],
   )
 
   // Empty query → quick links; otherwise filter the full index.
   const results = useMemo(() => {
-    if (!query.trim()) return QUICK_LINKS
+    if (!query.trim()) return roleLinks
     return searchIndex(index, query)
-  }, [index, query])
+  }, [index, query, roleLinks])
 
   // Keep the active index in range as the result set changes.
   useEffect(() => {
@@ -304,7 +393,13 @@ export function GlobalSearch({ student, events, professors, tasks, onNavigate }:
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search pages, subjects, professors, events…"
+          placeholder={
+            student.role === 'faculty'
+              ? 'Search pages, students, subjects, tasks…'
+              : student.role === 'admin'
+                ? 'Search pages…'
+                : 'Search pages, subjects, professors, events…'
+          }
           aria-label="Search the portal"
           role="combobox"
           aria-expanded={open}

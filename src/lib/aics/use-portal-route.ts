@@ -16,6 +16,7 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 //    /portal/{branch}/student/{username}/enrollment         → enrollment
 //    /portal/{branch}/student/{username}/settings           → settings
 //    /portal/{branch}/faculty/{username}                    → faculty dashboard (future)
+//    /portal/{branch}/admin/{username}                      → admin release queue
 //
 //  The `role` field on each route determines which portal
 //  shell to render (student vs faculty vs admin).
@@ -35,6 +36,10 @@ export type PortalRoute =
   | { view: 'my-students'; branch: string; username: string; role: PortalRole }
   | { view: 'grade-encoding'; branch: string; username: string; role: PortalRole }
   | { view: 'previous-records'; branch: string; username: string; role: PortalRole }
+  | { view: 'announcements'; branch: string; username: string; role: PortalRole }
+  | { view: 'schedule'; branch: string; username: string; role: PortalRole }
+  | { view: 'tasks'; branch: string; username: string; role: PortalRole }
+  | { view: 'help'; branch: string; username: string; role: PortalRole }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
@@ -42,9 +47,9 @@ function parsePath(path: string): PortalRoute {
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
 
-  // Role segment: parts[2] is 'student' or 'faculty'
+  // Role segment: parts[2] is 'student', 'faculty', or 'admin'
   const roleSegment = parts[2]
-  if ((roleSegment === 'student' || roleSegment === 'faculty') && parts[3]) {
+  if ((roleSegment === 'student' || roleSegment === 'faculty' || roleSegment === 'admin') && parts[3]) {
     const branch = decodeURIComponent(parts[1])
     const username = decodeURIComponent(parts[3])
     const role = roleSegment as PortalRole
@@ -76,6 +81,18 @@ function parsePath(path: string): PortalRoute {
     if (parts[4] === 'previous-records') {
       return { view: 'previous-records', branch, username, role }
     }
+    if (parts[4] === 'announcements') {
+      return { view: 'announcements', branch, username, role }
+    }
+    if (parts[4] === 'schedule') {
+      return { view: 'schedule', branch, username, role }
+    }
+    if (parts[4] === 'tasks') {
+      return { view: 'tasks', branch, username, role }
+    }
+    if (parts[4] === 'help') {
+      return { view: 'help', branch, username, role }
+    }
     return { view: 'dashboard', branch, username, role }
   }
   return { view: 'login' }
@@ -106,6 +123,14 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/grade-encoding`
     case 'previous-records':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/previous-records`
+    case 'announcements':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/announcements`
+    case 'schedule':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/schedule`
+    case 'tasks':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/tasks`
+    case 'help':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/help`
   }
 }
 

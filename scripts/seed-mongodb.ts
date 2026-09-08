@@ -259,6 +259,33 @@ async function seed() {
   await db.collection('subjects').insertMany(additionalSubjects)
   console.log(`  ✓ Inserted ${additionalSubjects.length} subjects — ${protoSubjects.length} prototype roster (72 total with prelim-only) + 4 demo`)
 
+  // ----------------------------------------------------------
+  //  3c. Released prior term for m.reyes — one finished subject
+  //  (CS 105, AY 2025-2026) so Previous Records is not empty on a
+  //  fresh database. Scoped to this code + term + professor, so a
+  //  reseed never touches live grades. Skipped when present
+  //  unless --force. Uses maria.cruz + jose.garcia only — juan's
+  //  2025-2026 rows stay unreleased per user request.
+  // ----------------------------------------------------------
+  const historySubjects = [
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '88', midterm: '84', finals: '86', finalGrade: '86.00', remarks: 'Very Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '82', midterm: '85', finals: '84', finalGrade: '83.70', remarks: 'Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
+  ]
+  const historyFilter = { branch: BRANCH, code: 'CS 105', academicYear: '2025-2026', semester: '1st Sem', professor: 'Engr. Maria Cristina Reyes' }
+  if (forceSeed) {
+    await db.collection('subjects').deleteMany(historyFilter)
+    await db.collection('subjects').insertMany(historySubjects)
+    console.log(`  ✓ Inserted ${historySubjects.length} released history subjects (CS 105, AY 2025-2026) — forced`)
+  } else {
+    const existingHistory = await db.collection('subjects').countDocuments(historyFilter)
+    if (existingHistory === 0) {
+      await db.collection('subjects').insertMany(historySubjects)
+      console.log(`  ✓ Inserted ${historySubjects.length} released history subjects (CS 105, AY 2025-2026)`)
+    } else {
+      console.log(`  ⊘ Skipped released history subjects (${existingHistory} exist) — use --force to overwrite`)
+    }
+  }
+
   const student2 = {
     branch: BRANCH,
     username: 'maria.cruz',
@@ -428,6 +455,46 @@ async function seed() {
   await db.collection('students').deleteMany({ branch: BRANCH, username: 'm.reyes' })
   await db.collection('students').insertOne(facultyUser)
   console.log(`  ✓ Inserted faculty user: m.reyes / faculty123`)
+
+  // ----------------------------------------------------------
+  //  4c. Admin user — same `students` collection, role='admin'.
+  //  Grade release is admin-only, so the lifecycle needs this
+  //  account. Scoped delete: only the admin username, never
+  //  anything else.
+  // ----------------------------------------------------------
+  const adminUser = {
+    branch: BRANCH,
+    username: 'admin',
+    password: 'admin123',
+    role: 'admin' as const,
+    fullName: 'AICS Registrar Admin',
+    firstName: 'Registrar',
+    lastName: 'Admin',
+    middleName: '',
+    studentNumber: 'ADM-001',
+    program: 'Registrar Office',
+    programShort: 'Admin',
+    yearLevel: '',
+    section: '',
+    semester: '1st Sem',
+    academicYear: '2026-2027',
+    enrollmentStatus: 'Active',
+    deanLister: false,
+    deanListerSemester: '',
+    gpa: '',
+    email: 'registrar@aics.edu.ph',
+    phone: '+63 917 555 0100',
+    address: 'AICS Registrar Office, Commonwealth Ave., Quezon City',
+    emergencyContactName: '',
+    emergencyContactNumber: '',
+    branch_name: BRANCH_NAME,
+    branchAddress: BRANCH_ADDRESS,
+    documents: [],
+  }
+
+  await db.collection('students').deleteMany({ branch: BRANCH, username: 'admin' })
+  await db.collection('students').insertOne(adminUser)
+  console.log(`  ✓ Inserted admin user: admin / admin123`)
 
   // ----------------------------------------------------------
   //  5. Tasks (current term + previous term for visibility test)
@@ -668,6 +735,7 @@ async function seed() {
   await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
   await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
   await db.collection('subjects').createIndex({ branch: 1, code: 1, academicYear: 1, semester: 1 })
+  await db.collection('subjects').createIndex({ branch: 1, professor: 1, academicYear: 1, semester: 1 })
   await db.collection('sessions').createIndex({ branch: 1 })
   await db.collection('courses').createIndex({ branch: 1, code: 1 }, { unique: true })
   await db.collection('grade_audits').createIndex({ branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 })
@@ -685,6 +753,7 @@ async function seed() {
   console.log(`   Professors: ${professors.length} directory entries`)
   console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
   console.log(`   Faculty: m.reyes / faculty123`)
+  console.log(`   Admin: admin / admin123`)
   console.log(`   Additional students: maria.cruz / student123, jose.garcia / student123`)
   console.log(`   m.reyes roster: 3 students (juan.santos, maria.cruz, jose.garcia) in CS 208 & CS 209`)
 

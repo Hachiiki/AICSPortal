@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
+import { getCollection } from '@/lib/mongodb/connection'
+import type { MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
 
 // GET /api/tasks?username=juan.santos
@@ -48,5 +50,140 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('Tasks API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch tasks.' }, { status: 500 })
+  }
+}
+
+const VALID_TASK_TYPES: TaskType[] = ['Activity', 'Quiz', 'Test', 'Project']
+
+// Faculty must only create for codes they teach this term. Returns
+// the faculty doc plus the code list, or an error response.
+async function requireTeachingFaculty(performedBy: string, branch: string, subjectCode: string) {
+  const studentsCol = await getCollection('students')
+  const performer = await studentsCol.findOne({ username: performedBy })
+  if (!performer || performer.role !== 'faculty') {
+    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 }) }
+  }
+  if (performer.branch !== branch) {
+    return { error: NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 }) }
+  }
+  const subjectsCol = await getCollection('subjects')
+  const taught = await subjectsCol
+    .find({ branch, professor: performer.fullName, code: subjectCode })
+    .project({ academicYear: 1, semester: 1, yearLevel: 1, studentUsername: 1 })
+    .toArray()
+  const current = taught.filter(
+    (d: any) => (d.academicYear || '') === (performer.academicYear || '') && (d.semester || '') === (performer.semester || '')
+  )
+  if (current.length === 0) {
+    return { error: NextResponse.json({ ok: false, error: 'Subject is not in your current teaching load.' }, { status: 403 }) }
+  }
+  return { performer, current }
+}
+
+// POST /api/tasks
+// Body: { branch, subjectCode, title, type, description?, maxScore, dueDate, performedBy }
+// Faculty only. Fans out one task doc per enrolled student in that
+// subject so each student's submit and score stay independent.
+export async function POST(request: NextRequest) {
+  try {
+    const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await request.json()
+    if (!branch || !subjectCode || !title || !type || maxScore === undefined || !dueDate) {
+      return NextResponse.json({ ok: false, error: 'Branch, subject, title, type, max score, and due date are required.' }, { status: 400 })
+    }
+    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 120) {
+      return NextResponse.json({ ok: false, error: 'Title must be 1-120 characters.' }, { status: 400 })
+    }
+    if (!VALID_TASK_TYPES.includes(type)) {
+      return NextResponse.json({ ok: false, error: 'Invalid task type.' }, { status: 400 })
+    }
+    const max = Number(maxScore)
+    if (!isFinite(max) || max <= 0) {
+      return NextResponse.json({ ok: false, error: 'Max score must be a positive number.' }, { status: 400 })
+    }
+    const due = new Date(dueDate)
+    if (isNaN(due.getTime())) {
+      return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
+    }
+    if (!performedBy) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+    }
+    const check = await requireTeachingFaculty(performedBy, branch, subjectCode)
+    if (check.error) return check.error
+    const { performer, current } = check as { performer: any; current: any[] }
+    const yearLevel = current[0]?.yearLevel || ''
+    const usernames = Array.from(new Set(current.map((d) => d.studentUsername).filter(Boolean)))
+    if (usernames.length === 0) {
+      return NextResponse.json({ ok: false, error: 'No enrolled students in this subject.' }, { status: 400 })
+    }
+    const now = new Date()
+    const docs: MongoTask[] = usernames.map((studentUsername) => ({
+      branch,
+      studentUsername,
+      subjectCode,
+      term: { academicYear: performer.academicYear, semester: performer.semester, yearLevel },
+      title: title.trim(),
+      type,
+      description: typeof description === 'string' ? description.trim().slice(0, 2000) : undefined,
+      dueDate: due,
+      postedDate: now,
+      submitted: false,
+      submittedAt: null,
+      score: null,
+      maxScore: max,
+      feedback: null,
+      submissionsClosed: false,
+    }))
+    const col = await getCollection<MongoTask>('tasks')
+    const result = await col.insertMany(docs as any)
+    return NextResponse.json({ ok: true, message: `Task posted to ${result.insertedCount} students.`, created: result.insertedCount })
+  } catch (err) {
+    console.error('Task create error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to create task.' }, { status: 500 })
+  }
+}
+
+// PATCH /api/tasks
+// Body: { branch, subjectCode, title, dueDate?, submissionsClosed, performedBy }
+// Faculty only. Flips submissionsClosed on every matching student doc.
+export async function PATCH(request: NextRequest) {
+  try {
+    const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await request.json()
+    if (!branch || !subjectCode || !title || submissionsClosed === undefined) {
+      return NextResponse.json({ ok: false, error: 'Branch, subject, title, and submissionsClosed are required.' }, { status: 400 })
+    }
+    if (!performedBy) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+    }
+    const check = await requireTeachingFaculty(performedBy, branch, subjectCode)
+    if (check.error) return check.error
+    const { performer } = check as { performer: any }
+    const query: Record<string, any> = {
+      branch,
+      subjectCode,
+      title,
+      'term.academicYear': performer.academicYear,
+      'term.semester': performer.semester,
+    }
+    if (dueDate) {
+      const due = new Date(dueDate)
+      if (isNaN(due.getTime())) {
+        return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
+      }
+      const start = new Date(due)
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(start)
+      end.setDate(end.getDate() + 1)
+      query.dueDate = { $gte: start, $lt: end }
+    }
+    const col = await getCollection<MongoTask>('tasks')
+    const result = await col.updateMany(query, { $set: { submissionsClosed: submissionsClosed === true } })
+    return NextResponse.json({
+      ok: true,
+      message: submissionsClosed ? `Submissions closed for ${result.modifiedCount} students.` : `Submissions reopened for ${result.modifiedCount} students.`,
+      modifiedCount: result.modifiedCount,
+    })
+  } catch (err) {
+    console.error('Task toggle error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to update task.' }, { status: 500 })
   }
 }

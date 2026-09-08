@@ -3,6 +3,7 @@
 import {
   Archive,
   CalendarDays,
+  ClipboardList,
   GraduationCap,
   Home,
   Megaphone,
@@ -39,23 +40,34 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'my-students', label: 'My Students', icon: Users, enabled: true },
   { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true },
   { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true },
-  { view: 'events', label: 'Announcements', icon: Megaphone, enabled: false },
-  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: false },
+  { view: 'announcements', label: 'Announcements', icon: Megaphone, enabled: true },
+  { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: true },
+  { view: 'tasks', label: 'Tasks', icon: ClipboardList, enabled: true },
+]
+
+export const ADMIN_PRIMARY_NAV: NavItem[] = [
+  { view: 'dashboard', label: 'Release Queue', icon: Stamp, enabled: true },
 ]
 
 export const SECONDARY_NAV: NavItem[] = [
   { view: 'settings', label: 'Settings', icon: Settings, enabled: true },
-  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: false },
+  { view: 'help', label: 'Help & Support', icon: CircleHelp, enabled: true },
 ]
 
 export function getPrimaryNav(role?: PortalRole | string): NavItem[] {
-  return role === 'faculty' ? FACULTY_PRIMARY_NAV : STUDENT_PRIMARY_NAV
+  if (role === 'faculty') return FACULTY_PRIMARY_NAV
+  if (role === 'admin') return ADMIN_PRIMARY_NAV
+  return STUDENT_PRIMARY_NAV
 }
 
 export function getPortalLabel(role?: PortalRole | string): string {
-  return role === 'faculty' ? 'Faculty Portal' : 'Student Portal'
+  if (role === 'faculty') return 'Faculty Portal'
+  if (role === 'admin') return 'Admin Portal'
+  return 'Student Portal'
 }
 
 export function getPortalAria(role?: PortalRole | string): string {
-  return role === 'faculty' ? 'Faculty navigation' : 'Main navigation'
+  if (role === 'faculty') return 'Faculty navigation'
+  if (role === 'admin') return 'Admin navigation'
+  return 'Main navigation'
 }

@@ -31,6 +31,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
 import { COEModal } from './COEModal'
@@ -46,6 +47,9 @@ interface StudentProfileProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  // Faculty teaching data, used only for the role-aware search index.
+  facultyData?: { subjects: any[]; students: any[] } | null
+  inbox?: NotificationInbox
 }
 
 // Stagger config for section entrance animation.
@@ -61,7 +65,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks }: StudentProfileProps) {
+export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const isFaculty = student.role === 'faculty'
@@ -96,6 +100,8 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
       events={events}
       professors={professors}
       tasks={tasks}
+      facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">
           <motion.div
@@ -115,7 +121,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 mt-3">My Profile</h1>
               <p className="text-sm text-slate-500 mt-1">
                 {isFaculty
-                  ? 'Manage your faculty information, identification, and documents.'
+                  ? 'Manage your faculty information and identification.'
                   : 'Manage your student information, identification, and documents.'}
               </p>
             </motion.div>
@@ -142,17 +148,19 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                         {student.fullName}
                       </h2>
                       <p className="text-sm text-slate-500 font-mono mt-0.5">
-                        {student.studentNumber}
+                        {isFaculty ? `Faculty • ${student.studentNumber}` : student.studentNumber}
                       </p>
                       <p className="text-sm text-slate-500 mt-0.5">{student.program}</p>
-                      <p className="text-sm text-slate-500 mt-0.5">
-                        {student.yearLevel} &bull; {student.section}
-                      </p>
+                      {!isFaculty && (
+                        <p className="text-sm text-slate-500 mt-0.5">
+                          {student.yearLevel} &bull; {student.section}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-start sm:items-end gap-2 flex-shrink-0">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Enrolled
+                      <ShieldCheck className="w-3.5 h-3.5" /> {student.enrollmentStatus || 'Enrolled'}
                     </span>
                     {student.deanLister && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
@@ -165,15 +173,26 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                 {/* Divider */}
                 <div className="my-6 border-t border-slate-200" />
 
-                {/* Stats row */}
+                {/* Stats row — faculty see department facts, not student grades */}
                 <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-slate-200">
-                  <StatCell label="GPA" value={student.gpa} />
-                  <StatCell label="Units Enrolled" value={String(totalUnits)} />
-                  <StatCell label="Subjects" value={String(student.subjects.length)} />
-                  <StatCell
-                    label="Standing"
-                    value={student.deanLister ? "Dean's Lister" : 'Regular'}
-                  />
+                  {isFaculty ? (
+                    <>
+                      <StatCell label="Department" value={student.programShort || 'Faculty'} />
+                      <StatCell label="Branch" value={student.branch} />
+                      <StatCell label="Term" value={`${student.semester}, AY ${student.academicYear}`} />
+                      <StatCell label="Status" value={student.enrollmentStatus || 'Active'} />
+                    </>
+                  ) : (
+                    <>
+                      <StatCell label="GPA" value={student.gpa} />
+                      <StatCell label="Units Enrolled" value={String(totalUnits)} />
+                      <StatCell label="Subjects" value={String(student.subjects.length)} />
+                      <StatCell
+                        label="Standing"
+                        value={student.deanLister ? "Dean's Lister" : 'Regular'}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -184,8 +203,8 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               transition={{ duration: 0.35 }}
               className="grid lg:grid-cols-3 gap-6"
             >
-              {/* Personal Information (2 cols) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0">
+              {/* Personal Information (2 cols, full width for faculty without Digital ID) */}
+              <div className={`${isFaculty ? '' : 'lg:col-span-2 '}bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0`}>
                 <div className="p-6 pb-4">
                   <h3 className="text-lg font-semibold text-slate-900">Personal Information</h3>
                 </div>
@@ -195,20 +214,24 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                   {/* Academic Information */}
                   <SubSection icon={GraduationCap} title="Academic Information">
                     <Field label="Program" value={student.program} />
-                    <Field
-                      label="Year & Section"
-                      value={`${student.yearLevel}, ${student.section}`}
-                    />
+                    {!isFaculty && (
+                      <Field
+                        label="Year & Section"
+                        value={`${student.yearLevel}, ${student.section}`}
+                      />
+                    )}
                     <Field label="Branch" value={student.branch} />
                     <Field
                       label="Semester"
                       value={`${student.semester}, AY ${student.academicYear}`}
                     />
                     <Field label="Enrollment Status" value={student.enrollmentStatus} />
-                    <Field
-                      label="Standing"
-                      value={student.deanLister ? "Dean's Lister" : 'Regular'}
-                    />
+                    {!isFaculty && (
+                      <Field
+                        label="Standing"
+                        value={student.deanLister ? "Dean's Lister" : 'Regular'}
+                      />
+                    )}
                   </SubSection>
 
                   {/* Contact Information */}
@@ -232,7 +255,8 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                 </div>
               </div>
 
-              {/* Digital ID (1 col) */}
+              {/* Digital ID (1 col, students only — faculty have no student ID card) */}
+              {!isFaculty && (
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
                 <div className="p-6 pb-4">
                   <h3 className="text-lg font-semibold text-slate-900">Digital ID</h3>
@@ -252,9 +276,11 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                   </Button>
                 </div>
               </div>
+              )}
             </motion.div>
 
-            {/* ===================== ROW 3: Documents + COE ===================== */}
+            {/* ===================== ROW 3: Documents + COE (students only) ===================== */}
+            {!isFaculty && (
             <motion.div
               variants={sectionVariants}
               transition={{ duration: 0.35 }}
@@ -354,6 +380,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                 </div>
               </div>
             </motion.div>
+            )}
 
             {/* ===================== BOTTOM BANNER ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
@@ -366,8 +393,9 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                     Keep your information up to date
                   </p>
                   <p className="text-sm text-slate-600 mt-0.5">
-                    Ensure your personal information and documents are accurate and complete for a
-                    smooth academic experience.
+                    {isFaculty
+                      ? 'Ensure your personal information is accurate and complete.'
+                      : 'Ensure your personal information and documents are accurate and complete for a smooth academic experience.'}
                   </p>
                 </div>
                 <Button

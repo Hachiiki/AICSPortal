@@ -16,6 +16,10 @@ import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
 
 interface AnnouncementsDeckProps {
   announcements: Announcement[]
+  username: string
+  // Ids this user already read or dismissed, from GET /api/announcements.
+  // They stay hidden across refreshes. New arrivals have no doc and show.
+  readIds?: string[]
 }
 
 function timeAgo(iso: string): string {
@@ -30,7 +34,7 @@ function timeAgo(iso: string): string {
 const SWIPE_THRESHOLD = 120
 const FLICK_VELOCITY = 500
 
-export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
+export function AnnouncementsDeck({ announcements, username, readIds }: AnnouncementsDeckProps) {
   const [deck, setDeck] = useState<Announcement[]>(announcements)
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
   const [dragX, setDragX] = useState(0)
@@ -56,14 +60,26 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
     setExiting(null)
   }
 
-  const visible = deck.filter((a) => !removedIds.has(a._id) && a._id !== exiting)
+  const visible = deck.filter((a) => !removedIds.has(a._id) && !(readIds || []).includes(a._id) && a._id !== exiting)
   const topThree = visible.slice(0, 3)
+
+  // Persist a dismissal so refresh brings back nothing already seen.
+  // Fire and forget: the card is already gone locally.
+  const persistMark = useCallback((ids: string[], action: 'read' | 'dismissed') => {
+    if (ids.length === 0) return
+    fetch('/api/announcements/read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, ids, action }),
+    }).catch(() => {})
+  }, [username])
 
   const removeTop = useCallback((direction: 'left' | 'right') => {
     if (visible.length === 0) return
     const top = visible[0]
     if (!top) return
 
+    persistMark([top._id], direction === 'right' ? 'read' : 'dismissed')
     if (!prefersReducedMotion) {
       setExiting(top._id)
       setExitX(direction === 'right' ? 600 : -600)
@@ -77,7 +93,7 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
       setRemovedIds((prev) => new Set(prev).add(top._id))
       setDragX(0)
     }
-  }, [visible, prefersReducedMotion])
+  }, [visible, prefersReducedMotion, persistMark])
 
   // Keyboard navigation
   useEffect(() => {
@@ -95,15 +111,16 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [removeTop])
 
-  // Pointer handlers for swipe
+  // Pointer handlers for swipe. Drag-to-advance stays available
+  // under reduced motion — only the animation is skipped, never
+  // the interaction itself.
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    if (prefersReducedMotion) return
     if (topThree.length === 0) return
     dragStartX.current = e.clientX
     dragStartTime.current = Date.now()
     setIsDragging(true)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-  }, [prefersReducedMotion, topThree.length])
+  }, [topThree.length])
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return
@@ -129,8 +146,9 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
 
   // Dismiss entire widget
   const dismissAll = () => {
-    const allIds = new Set(deck.map((a) => a._id))
-    setRemovedIds(allIds)
+    const allIds = visible.map((a) => a._id)
+    persistMark(allIds, 'dismissed')
+    setRemovedIds(new Set(deck.map((a) => a._id)))
   }
 
   // Empty state
@@ -310,7 +328,7 @@ export function AnnouncementsDeck({ announcements }: AnnouncementsDeckProps) {
                 style={{
                   minHeight: 210,
                   touchAction: 'pan-y',
-                  cursor: isTop && !prefersReducedMotion ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                  cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'default',
                 }}
                 onPointerDown={isTop ? onPointerDown : undefined}
                 onPointerMove={isTop ? onPointerMove : undefined}
