@@ -16,6 +16,7 @@ import { RemarksBadge } from './RemarksBadge'
 import { GradesHeader, GradesRow, GradesFooter } from './GradesRow'
 import { TasksTab } from './TasksTab'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 
 interface AcademicsPageProps {
   student: Student
@@ -27,6 +28,7 @@ interface AcademicsPageProps {
   tasksLoading: boolean
   tasksError: string | null
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+  inbox?: NotificationInbox
   // Search index collections — lifted in the parent so the
   // Topbar's global search works the same on every screen.
   events?: PortalEvent[]
@@ -174,7 +176,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors }: AcademicsPageProps) {
+export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
   const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
 
   // Tasks state is now lifted to the parent (StudentDataWrapper) so
@@ -199,6 +201,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}

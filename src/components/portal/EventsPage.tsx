@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { ChevronRight } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import { PortalShell } from './PortalShell'
@@ -37,6 +38,7 @@ interface EventsPageProps {
   // Search index collections — lifted in the parent so the
   // Topbar's global search works the same on every screen.
   professors?: Professor[]
+  inbox?: NotificationInbox
 }
 
 // ============================================================
@@ -45,7 +47,7 @@ interface EventsPageProps {
 //  LegendChips) are in EventsPageParts.tsx.
 // ============================================================
 
-export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats, professors }: EventsPageProps) {
+export function EventsPage({ student, onNavigate, onLogout, events, eventsLoading, eventsError, tasks, showTasks, setShowTasks, enabledCats, setEnabledCats, professors, inbox }: EventsPageProps) {
   // Calendar view state
   const [viewMonth, setViewMonth] = useState<Date>(() => {
     const d = new Date()
@@ -173,6 +175,7 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}

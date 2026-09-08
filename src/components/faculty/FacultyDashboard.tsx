@@ -8,6 +8,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -49,6 +50,7 @@ interface FacultyDashboardProps {
   announcements?: Announcement[]
   // Faculty-specific data lifted to parent so it persists across route switches
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
 }
 
@@ -93,6 +95,7 @@ export function FacultyDashboard({
   announcements,
   facultyData,
   facultyLoading,
+  inbox,
 }: FacultyDashboardProps) {
   // Faculty data comes from the parent (lifted state), not an internal fetch.
   // This prevents re-fetching when navigating between dashboard and my-students.
@@ -154,6 +157,7 @@ export function FacultyDashboard({
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}

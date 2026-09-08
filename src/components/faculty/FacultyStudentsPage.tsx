@@ -18,6 +18,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -37,6 +38,7 @@ interface FacultyStudentsPageProps {
   tasks?: Task[]
   announcements?: Announcement[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
 }
 
@@ -63,6 +65,7 @@ export function FacultyStudentsPage({
   student, courses, sessions, onNavigate, onLogout,
   events, professors, tasks, announcements,
   facultyData, facultyLoading,
+  inbox,
 }: FacultyStudentsPageProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
@@ -224,6 +227,7 @@ export function FacultyStudentsPage({
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

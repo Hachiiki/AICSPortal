@@ -6,6 +6,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { ScheduleGrid } from '../portal/ScheduleGrid'
@@ -21,12 +22,14 @@ interface FacultySchedulePageProps {
   professors?: Professor[]
   tasks?: Task[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
 }
 
 export function FacultySchedulePage({
   student, courses, sessions, onNavigate, onLogout,
   events, professors, tasks, facultyData, facultyLoading,
+  inbox,
 }: FacultySchedulePageProps) {
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
@@ -67,6 +70,7 @@ export function FacultySchedulePage({
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>

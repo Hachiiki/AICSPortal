@@ -6,6 +6,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from './PortalShell'
 
 interface HelpSupportPageProps {
@@ -15,6 +16,7 @@ interface HelpSupportPageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  inbox?: NotificationInbox
 }
 
 // Shared FAQ. Role-specific answers branch on isFaculty so one page
@@ -60,7 +62,7 @@ function faqsFor(isFaculty: boolean): { q: string; a: string }[] {
   ]
 }
 
-export function HelpSupportPage({ student, onNavigate, onLogout, events, professors, tasks }: HelpSupportPageProps) {
+export function HelpSupportPage({ student, onNavigate, onLogout, events, professors, tasks, inbox }: HelpSupportPageProps) {
   const isFaculty = student.role === 'faculty'
   const faqs = faqsFor(isFaculty)
   const [openIndex, setOpenIndex] = useState<number | null>(0)
@@ -74,6 +76,7 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
         <div>

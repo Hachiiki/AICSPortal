@@ -19,6 +19,7 @@ import type { Enrollment, EnrollmentStep, PaymentStatus } from '@/lib/aics/enrol
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from './PortalShell'
 
 // ============================================================
@@ -48,6 +49,7 @@ interface EnrollmentPageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  inbox?: NotificationInbox
 }
 
 // Peso formatter — used for all monetary values on this page.
@@ -556,6 +558,7 @@ export function EnrollmentPage({
   events,
   professors,
   tasks,
+  inbox,
 }: EnrollmentPageProps) {
   const handleNavigate = (v: View) => onNavigate(v)
 
@@ -568,6 +571,7 @@ export function EnrollmentPage({
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}

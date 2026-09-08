@@ -31,6 +31,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
 import { COEModal } from './COEModal'
@@ -48,6 +49,7 @@ interface StudentProfileProps {
   tasks?: Task[]
   // Faculty teaching data, used only for the role-aware search index.
   facultyData?: { subjects: any[]; students: any[] } | null
+  inbox?: NotificationInbox
 }
 
 // Stagger config for section entrance animation.
@@ -63,7 +65,7 @@ const containerVariants = {
   },
 }
 
-export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks, facultyData }: StudentProfileProps) {
+export function StudentProfile({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox }: StudentProfileProps) {
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const isFaculty = student.role === 'faculty'
@@ -99,6 +101,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">
           <motion.div

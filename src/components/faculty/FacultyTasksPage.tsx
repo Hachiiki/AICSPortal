@@ -7,6 +7,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task, TaskType } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { TYPE_COLORS } from '@/lib/aics/tasks'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -32,6 +33,7 @@ interface FacultyTasksPageProps {
   professors?: Professor[]
   tasks?: Task[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
   taskGroupsData?: { groups: TaskGroup[] } | null
   taskGroupsLoading?: boolean
@@ -56,6 +58,7 @@ function formatDue(iso: string): string {
 export function FacultyTasksPage({
   student, onNavigate, onLogout, events, professors, tasks,
   facultyData, facultyLoading, taskGroupsData, taskGroupsLoading, taskGroupsError, onFetchTaskGroups,
+  inbox,
 }: FacultyTasksPageProps) {
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
@@ -193,6 +196,7 @@ export function FacultyTasksPage({
       tasks={tasks}
       facultyData={facultyData}
       taskGroups={taskGroupsData?.groups}
+      inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
         <div>

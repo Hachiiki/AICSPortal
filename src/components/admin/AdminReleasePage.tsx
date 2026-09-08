@@ -7,6 +7,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from '../portal/PortalShell'
 
 interface PendingGroup {
@@ -25,13 +26,14 @@ interface AdminReleasePageProps {
   events?: PortalEvent[]
   professors?: Professor[]
   tasks?: Task[]
+  inbox?: NotificationInbox
 }
 
 function periodLabel(period: PendingGroup['period']): string {
   return period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'
 }
 
-export function AdminReleasePage({ student, onNavigate, onLogout, events, professors, tasks }: AdminReleasePageProps) {
+export function AdminReleasePage({ student, onNavigate, onLogout, events, professors, tasks, inbox }: AdminReleasePageProps) {
   const [groups, setGroups] = useState<PendingGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -103,6 +105,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>

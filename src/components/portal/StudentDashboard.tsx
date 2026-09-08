@@ -7,6 +7,7 @@ import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import { PortalShell } from './PortalShell'
 import { AcademicHeader } from './AcademicHeader'
@@ -27,13 +28,14 @@ interface StudentDashboardProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  inbox?: NotificationInbox
 }
 
 /**
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, inbox }: StudentDashboardProps) {
   // Filter to current-term subjects + compute derived values
   const { currentTermSubjects, totalUnits, cumulativeGPA } = useMemo(() => {
     const current = student.subjects.filter((s) => {
@@ -66,6 +68,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       events={events}
       professors={professors}
       tasks={tasks}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} />

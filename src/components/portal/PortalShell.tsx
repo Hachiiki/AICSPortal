@@ -6,6 +6,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 
@@ -20,6 +21,8 @@ interface PortalShellProps {
   // Faculty teaching data for the role-aware search index.
   facultyData?: { subjects: any[]; students: any[] } | null
   taskGroups?: { title: string; subjectCode: string }[]
+  // Bell inbox bundle.
+  inbox?: NotificationInbox
   children: ReactNode
 }
 
@@ -47,6 +50,7 @@ export function PortalShell({
   tasks,
   facultyData,
   taskGroups,
+  inbox,
   children,
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -74,6 +78,7 @@ export function PortalShell({
           tasks={tasks}
           facultyData={facultyData}
           taskGroups={taskGroups}
+          inbox={inbox}
         />
         {/* Shared entrance transition. Every tab mounts through this
             shell, so all of them fade up the same way instead of each

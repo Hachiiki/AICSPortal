@@ -8,6 +8,7 @@ import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { DashboardSkeleton } from '../portal/Skeleton'
@@ -20,6 +21,7 @@ interface Props {
   professors?: Professor[]
   tasks?: Task[]
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  inbox?: NotificationInbox
   facultyLoading?: boolean
   // Lifted teaching history. The wrapper fetches at most once per
   // session, so revisits render instantly instead of refetching.
@@ -53,6 +55,7 @@ interface HistoryTerm {
 export function FacultyPreviousRecordsPage({
   student, onNavigate, onLogout, events, professors, tasks,
   facultyData, facultyLoading, historyData, historyLoading, historyError, onFetchHistory,
+  inbox,
 }: Props) {
   const [search, setSearch] = useState('')
   const [year, setYear] = useState('all')
@@ -163,6 +166,7 @@ export function FacultyPreviousRecordsPage({
       professors={professors}
       tasks={tasks}
       facultyData={facultyData}
+      inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           {/* Header */}

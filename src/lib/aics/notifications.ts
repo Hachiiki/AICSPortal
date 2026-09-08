@@ -10,6 +10,15 @@ export interface Notification {
   read: boolean
 }
 
+// One prop bundle carrying the bell inbox through the shell so
+// pages pass a single object instead of four separate props.
+export interface NotificationInbox {
+  notifications: Notification[]
+  loading: boolean
+  onRefresh: () => void
+  onMark: (id?: string, all?: boolean) => void
+}
+
 export function formatNotifTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
