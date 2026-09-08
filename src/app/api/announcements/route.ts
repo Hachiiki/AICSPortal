@@ -38,7 +38,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/announcements
 // Body: { branch, title, body, category, priority?, expiryDate?, performedBy }
-// Faculty or admin only, same branch. Students get 403.
+// Admin only. These posts render in the main announcement deck.
+// Faculty reach students through POST /api/notifications instead,
+// so teacher posts never land in the deck.
 const VALID_CATEGORIES = ['academic', 'deadline', 'campus', 'holiday', 'general'] as const
 
 export async function POST(request: NextRequest) {
@@ -69,8 +71,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
     }
     const performer = await getStudentByUsername(performedBy)
-    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
+    if (!performer || performer.role !== 'admin') {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
     }
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
