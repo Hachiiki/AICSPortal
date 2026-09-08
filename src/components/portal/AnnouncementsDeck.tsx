@@ -111,15 +111,16 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
     return () => window.removeEventListener('keydown', handleKey)
   }, [removeTop])
 
-  // Pointer handlers for swipe
+  // Pointer handlers for swipe. Drag-to-advance stays available
+  // under reduced motion — only the animation is skipped, never
+  // the interaction itself.
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    if (prefersReducedMotion) return
     if (topThree.length === 0) return
     dragStartX.current = e.clientX
     dragStartTime.current = Date.now()
     setIsDragging(true)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-  }, [prefersReducedMotion, topThree.length])
+  }, [topThree.length])
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return
@@ -327,7 +328,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
                 style={{
                   minHeight: 210,
                   touchAction: 'pan-y',
-                  cursor: isTop && !prefersReducedMotion ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                  cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'default',
                 }}
                 onPointerDown={isTop ? onPointerDown : undefined}
                 onPointerMove={isTop ? onPointerMove : undefined}

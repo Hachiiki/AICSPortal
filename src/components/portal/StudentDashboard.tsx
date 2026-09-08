@@ -14,7 +14,6 @@ import { AcademicHeader } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
 import { TodaysClasses } from './TodaysClasses'
-import { AnnouncementsWidget } from './AnnouncementsWidget'
 
 interface StudentDashboardProps {
   student: Student
