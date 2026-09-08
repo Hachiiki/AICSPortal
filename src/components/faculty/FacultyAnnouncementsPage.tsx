@@ -40,19 +40,13 @@ export function FacultyAnnouncementsPage({
   const sentPending = sentLoading ?? false
 
   // Sections come from the shared roster hook, so targeting always
-  // matches the teacher's actual assignments.
+  // matches the teacher's actual assignments. Nothing is checked by
+  // default — the teacher picks sections or uses Select All.
   const { sections } = useFacultyRows(facultyData as any)
   const [checkedKeys, setCheckedKeys] = useState<string[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [posting, setPosting] = useState(false)
-
-  // Default to every assigned section once the roster lands.
-  useEffect(() => {
-    if (checkedKeys.length === 0 && sections.length > 0) {
-      setCheckedKeys(sections.map((s) => s.key))
-    }
-  }, [sections, checkedKeys.length])
 
   // Lazy once-per-session fetch, same rule as teaching history.
   useEffect(() => {
@@ -71,6 +65,11 @@ export function FacultyAnnouncementsPage({
 
   const toggleKey = (key: string) => {
     setCheckedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
+  }
+
+  const allChecked = sections.length > 0 && checkedKeys.length === sections.length
+  const toggleAll = () => {
+    setCheckedKeys(allChecked ? [] : sections.map((s) => s.key))
   }
 
   const canPost = title.trim().length > 0 && body.trim().length > 0 && checkedKeys.length > 0 && !posting
@@ -146,7 +145,7 @@ export function FacultyAnnouncementsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
+      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Announcements</h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -154,6 +153,9 @@ export function FacultyAnnouncementsPage({
           </p>
         </div>
 
+        {/* Form left, sent history right on wide screens */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+        <div className="lg:col-span-3">
         {/* Compose */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
@@ -185,9 +187,20 @@ export function FacultyAnnouncementsPage({
               <p className="text-[11px] text-slate-400 mt-1 text-right">{body.length}/2000</p>
             </div>
             <div>
-              <span className="block text-xs font-medium text-slate-700 mb-1.5">
-                Sections ({checkedKeys.length} selected • {targetedStudents} students)
-              </span>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="block text-xs font-medium text-slate-700">
+                  Sections ({checkedKeys.length} selected • {targetedStudents} students)
+                </span>
+                {sections.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleAll}
+                    className="text-xs font-semibold text-blue-700 hover:underline"
+                  >
+                    {allChecked ? 'Clear all' : 'Select all'}
+                  </button>
+                )}
+              </div>
               {sections.length === 0 ? (
                 <p className="text-sm text-slate-500">No assigned sections found.</p>
               ) : (
@@ -231,9 +244,10 @@ export function FacultyAnnouncementsPage({
             </div>
           </div>
         </div>
+        </div>
 
         {/* Sent */}
-        <div className="space-y-3">
+        <div className="lg:col-span-2 space-y-3">
           <h2 className="text-sm font-semibold text-slate-900">Sent ({sent.length})</h2>
           {sent.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
@@ -251,6 +265,7 @@ export function FacultyAnnouncementsPage({
               </div>
             ))
           )}
+        </div>
         </div>
       </main>
     </PortalShell>
