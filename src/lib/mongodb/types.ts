@@ -261,6 +261,18 @@ export interface MongoAnnouncement {
   expiryDate?: Date | null
 }
 
+// Per-user announcement reads. One doc per user per announcement
+// so dismissed cards stay gone across refreshes. A new
+// announcement has no doc and shows up normally.
+export interface MongoAnnouncementRead {
+  _id?: string
+  branch: Branch
+  username: string
+  announcementId: string
+  action: 'read' | 'dismissed'
+  at: Date
+}
+
 // Section notifications from faculty. One doc per targeted student
 // so unread counts and read state stay trivial. Never rendered in
 // the announcements deck — the bell inbox owns these.

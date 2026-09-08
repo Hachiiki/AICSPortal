@@ -48,6 +48,7 @@ interface FacultyDashboardProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  announcementReadIds?: string[]
   // Faculty-specific data lifted to parent so it persists across route switches
   facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
   inbox?: NotificationInbox
@@ -93,6 +94,7 @@ export function FacultyDashboard({
   professors,
   tasks,
   announcements,
+  announcementReadIds,
   facultyData,
   facultyLoading,
   inbox,
@@ -202,7 +204,7 @@ export function FacultyDashboard({
 
             {/* Announcements deck — reuses the student component unchanged */}
             {announcements && announcements.length > 0 && (
-              <AnnouncementsDeck announcements={announcements} />
+              <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
             )}
           </motion.section>
 

@@ -230,6 +230,7 @@ function StudentDataWrapper({
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
+  const [announcementReadIds, setAnnouncementReadIds] = useState<string[]>([])
 
   // Bell inbox notifications. Students read their own docs here.
   // Lifted for the same reason as announcements: the Topbar lives
@@ -391,7 +392,10 @@ function StudentDataWrapper({
         // empty state). Only set an error if the API itself fails.
         if (enrData.ok) setEnrollment(enrData.enrollment ?? null)
         else setEnrollmentError(enrData.error || 'Failed to load enrollment')
-        if (annData.ok) setAnnouncements(annData.announcements)
+        if (annData.ok) {
+          setAnnouncements(annData.announcements)
+          setAnnouncementReadIds(annData.readIds || [])
+        }
         // Announcements failure is non-fatal — dashboard shows empty state
         // Faculty data (non-fatal for student users — the API returns 404)
         if (facData.ok) setFacultyData({ faculty: facData.faculty, subjects: facData.subjects, students: facData.students })
@@ -490,6 +494,7 @@ function StudentDataWrapper({
         tasks={tasks}
         inbox={inbox}
         announcements={announcements}
+        announcementReadIds={announcementReadIds}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
       />
@@ -737,6 +742,7 @@ function StudentDataWrapper({
       professors={professors}
       tasks={tasks}
       announcements={announcements}
+      announcementReadIds={announcementReadIds}
       inbox={inbox}
     />
   )

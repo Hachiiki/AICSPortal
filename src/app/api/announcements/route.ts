@@ -19,6 +19,14 @@ export async function GET(request: NextRequest) {
 
     const announcements = await getAnnouncements(student.branch)
 
+    // Announcements this user already read or dismissed, so the
+    // deck can hide them instead of replaying them every visit.
+    const readsCol = await getCollection('announcement_reads')
+    const reads = await readsCol
+      .find({ branch: student.branch, username })
+      .project({ announcementId: 1 })
+      .toArray()
+
     const clientAnnouncements = announcements.map((a) => ({
       _id: a._id?.toString() || '',
       title: a.title,
@@ -29,7 +37,11 @@ export async function GET(request: NextRequest) {
       postedDate: a.postedDate instanceof Date ? a.postedDate.toISOString() : String(a.postedDate),
     }))
 
-    return NextResponse.json({ ok: true, announcements: clientAnnouncements })
+    return NextResponse.json({
+      ok: true,
+      announcements: clientAnnouncements,
+      readIds: reads.map((r: any) => String(r.announcementId)),
+    })
   } catch (err) {
     console.error('Announcements API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch announcements.' }, { status: 500 })

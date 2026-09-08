@@ -9,6 +9,7 @@ interface AcademicHeaderProps {
   student: Student
   totalUnits: number
   announcements?: Announcement[]
+  announcementReadIds?: string[]
 }
 
 /**
@@ -17,7 +18,7 @@ interface AcademicHeaderProps {
  *
  * Below lg breakpoint, the deck stacks full-width under the stats.
  */
-export function AcademicHeader({ student, totalUnits, announcements }: AcademicHeaderProps) {
+export function AcademicHeader({ student, totalUnits, announcements, announcementReadIds }: AcademicHeaderProps) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 8 }}
@@ -55,7 +56,7 @@ export function AcademicHeader({ student, totalUnits, announcements }: AcademicH
 
       {/* Right column: announcements deck (hidden if no announcements) */}
       {announcements && announcements.length > 0 && (
-        <AnnouncementsDeck announcements={announcements} />
+        <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
       )}
     </motion.section>
   )

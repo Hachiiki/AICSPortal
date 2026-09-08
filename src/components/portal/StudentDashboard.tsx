@@ -28,6 +28,7 @@ interface StudentDashboardProps {
   professors?: Professor[]
   tasks?: Task[]
   announcements?: Announcement[]
+  announcementReadIds?: string[]
   inbox?: NotificationInbox
 }
 
@@ -35,7 +36,7 @@ interface StudentDashboardProps {
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, inbox }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, announcementReadIds, inbox }: StudentDashboardProps) {
   // Filter to current-term subjects + compute derived values
   const { currentTermSubjects, totalUnits, cumulativeGPA } = useMemo(() => {
     const current = student.subjects.filter((s) => {
@@ -71,7 +72,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       inbox={inbox}
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
-          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} />
+          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} announcementReadIds={announcementReadIds} />
 
           <GradesTable student={dashboardStudent} />
 
