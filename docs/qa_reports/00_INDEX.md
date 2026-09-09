@@ -41,6 +41,9 @@ Positive results worth noting: admin-only and faculty-only role checks work on a
 - [06 Bug registry](./06_BUG_REGISTRY.md): all 18 bugs with severity, evidence, root cause, and impact
 - [07 Test coverage matrix](./07_TEST_COVERAGE_MATRIX.md): what was tested, what passed, what was not covered
 - [08 Recommendations and fixes](./08_RECOMMENDATIONS_AND_FIXES.md): prioritized fixes with code sketches
+- [09 Fix plan](./09_FIX_PLAN.md): master issue table, root causes, strategy, acceptance criteria
+- [10 Fix phases](./10_FIX_PHASES.md): phased execution with statuses and evidence
+- [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md): retest results and remaining work
 
 ## Top priorities
 

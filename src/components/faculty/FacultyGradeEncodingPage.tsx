@@ -63,13 +63,14 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     setHistoryLoading(true)
     setHistoryAudits([])
     try {
-      const params = new URLSearchParams({ branch, subjectCode: row.subjectCode, studentUsername: row.studentUsername, limit: '50' })
+      // BUG-007: audits now requires faculty/admin username + branch scoping.
+      const params = new URLSearchParams({ branch, subjectCode: row.subjectCode, studentUsername: row.studentUsername, limit: '50', username: faculty?.username || student.username })
       const res = await fetch(`/api/grades/audits?${params.toString()}`)
       const data = await res.json()
       if (data.ok) setHistoryAudits(data.audits || [])
     } catch {}
     setHistoryLoading(false)
-  }, [branch])
+  }, [branch, faculty?.username, student.username])
 
   const getPeriodStatus = useCallback((r: any, p: string) => {
     if (p === 'prelim') return r.prelimStatus ?? ''

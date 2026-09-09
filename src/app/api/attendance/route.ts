@@ -20,7 +20,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 // ============================================================
 
 async function getPerformer(username: string | null) {
-  if (!username) return null
+  if (!username || typeof username !== 'string') return null
   const studentsCol = await getCollection('students')
   return studentsCol.findOne({ username })
 }
@@ -65,7 +65,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { branch, sectionKey, date, records, performedBy } = await request.json()
+    const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await request.json()
+    // BUG-010: branch/sectionKey/date/performedBy must be strings pre-query; objects become operators.
+    if (typeof branch !== 'string' || !branch || typeof sectionKey !== 'string' || !sectionKey || typeof date !== 'string' || !date || typeof performedBy !== 'string' || !performedBy) {
+      // Preserve 403 semantics for missing auth, 400 for missing fields.
+      if (typeof performedBy !== 'string' || !performedBy) {
+        return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+      }
+      return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
+    }
     if (!branch || !sectionKey || !date || !records || typeof records !== 'object') {
       return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
     }
@@ -88,12 +96,37 @@ export async function POST(request: NextRequest) {
       }
     }
     const col = await getCollection('attendance')
-    await col.createIndex({ branch: 1, sectionKey: 1, date: 1 }, { unique: true })
-    await col.updateOne(
-      { branch, sectionKey, date },
-      { $set: { records, takenBy: performedBy, takenAt: new Date() } },
-      { upsert: true }
-    )
+    // BUG-017: unique index is created by seed/migration tooling, not per request.
+    // BUG-015: silent overwrite guard — existing session requires explicit allowOverwrite.
+    const existing = await col.findOne({ branch, sectionKey, date })
+    if (existing && allowOverwrite !== true) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Attendance already exists for this session. Resubmit with allowOverwrite:true to update.',
+          existing: { takenBy: (existing as any).takenBy, takenAt: (existing as any).takenAt, records: (existing as any).records },
+        },
+        { status: 409 }
+      )
+    }
+    if (existing && allowOverwrite === true) {
+      const prevRecords = (existing as any).records || {}
+      const changedFields = Object.keys(records).filter((k) => prevRecords[k] !== (records as Record<string, string>)[k])
+      await col.updateOne(
+        { branch, sectionKey, date },
+        {
+          $set: { records, takenBy: performedBy, takenAt: new Date() },
+          $push: { history: { updatedAt: new Date(), updatedBy: performedBy, changedFields } as any },
+        },
+        { upsert: true }
+      )
+    } else {
+      await col.updateOne(
+        { branch, sectionKey, date },
+        { $set: { records, takenBy: performedBy, takenAt: new Date() } },
+        { upsert: true }
+      )
+    }
     const present = Object.values(records).filter((s) => s === 'present').length
     const absent = Object.values(records).length - present
     return NextResponse.json({ ok: true, message: `Attendance saved: ${present} present, ${absent} absent.`, present, absent })

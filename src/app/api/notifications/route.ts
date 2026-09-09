@@ -76,6 +76,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { branch, title, body, sectionKeys, performedBy } = await request.json()
+    // BUG-010: reject operator objects before they reach Mongo filters.
+    if (typeof branch !== 'string' || !branch || typeof performedBy !== 'string' || !performedBy) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+    }
     if (!branch || !title || !body || !Array.isArray(sectionKeys) || sectionKeys.length === 0) {
       return NextResponse.json({ ok: false, error: 'Branch, title, body, and at least one section are required.' }, { status: 400 })
     }
@@ -94,6 +98,10 @@ export async function POST(request: NextRequest) {
     }
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
+    // BUG-010: sectionKeys must be strings; objects would pollute the fan-out.
+    if (!(sectionKeys as unknown[]).every((k) => typeof k === 'string')) {
+      return NextResponse.json({ ok: false, error: 'Section keys must be strings.' }, { status: 400 })
     }
 
     // Resolve the performer's own sections from their teaching load.
@@ -143,8 +151,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'The chosen sections have no enrolled students.' }, { status: 400 })
     }
     const col = await getCollection<MongoNotification>('notifications')
-    await col.createIndex({ branch: 1, studentUsername: 1, createdAt: -1 })
-    await col.createIndex({ branch: 1, fromUsername: 1, createdAt: -1 })
+    // BUG-017: indexes are created by seed/migration tooling, not per request.
     const result = await col.insertMany(docs as any)
     const sections = targets.length
     return NextResponse.json({

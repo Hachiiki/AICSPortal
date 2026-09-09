@@ -37,6 +37,10 @@ export async function GET(request: NextRequest) {
     if (!faculty) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
     }
+    // BUG-006: same role gate as /api/faculty (caller-supplied until sessions land).
+    if (faculty.role !== 'faculty' && faculty.role !== 'admin') {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
+    }
 
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol

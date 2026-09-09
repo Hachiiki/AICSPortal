@@ -2,6 +2,8 @@
 
 # 07 Test coverage matrix
 
+> Post-fix update (2026-09-09): regression probes added as isolated checks (asString, validGrade, rate-limit, scrypt round-trip, attendance 409, envelope 400/207/200 — all PASS, temp file deleted). Full per-bug retest in [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md). Recommended persistent suite (vitest + Playwright) still open per [08](./08_RECOMMENDATIONS_AND_FIXES.md#regression-tests).
+
 75 API requests, 12 database checks, 5 UI flows, 11 screenshots. Evidence logs: `../qa-evidence/api-tests.log`, `../qa-evidence/api-retests.log`, `../qa-evidence/db-analysis.json`, `../qa-evidence/screenshots/`.
 
 ## Feature coverage

@@ -28,9 +28,20 @@ export async function PATCH(request: NextRequest) {
     const updateDoc: Record<string, string> = {}
     for (const field of allowedFields) {
       if (typeof body[field] === 'string') {
-        updateDoc[field] = body[field].trim()
+        const trimmed = body[field].trim()
+        // BUG-005 partial: photoUrl is rendered in an img tag — require http(s) + length cap.
+        if (field === 'photoUrl') {
+          if (trimmed.length > 2000 || (trimmed.length > 0 && !/^https?:\/\/.+/i.test(trimmed))) {
+            return NextResponse.json({ ok: false, error: 'Invalid photo URL.' }, { status: 400 })
+          }
+        } else if (trimmed.length > 500) {
+          return NextResponse.json({ ok: false, error: `Invalid ${field}.` }, { status: 400 })
+        }
+        updateDoc[field] = trimmed
       }
     }
+    // NOTE: caller-vs-target auth still requires server sessions (BUG-009).
+    // Full IDOR fix (401/403 on cross-user writes) is NEEDS_APPROVAL breaking change.
 
     if (Object.keys(updateDoc).length === 0) {
       return NextResponse.json({ ok: false, error: 'No valid fields to update.' }, { status: 400 })

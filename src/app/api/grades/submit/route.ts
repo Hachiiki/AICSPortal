@@ -1,16 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { asString, HttpError } from '@/lib/http'
 
 export async function POST(request: NextRequest) {
   try {
-    const { branch, subjectCode, academicYear, semester, period, performedBy, note } = await request.json()
+    const body = await request.json()
+    const { branch, subjectCode, academicYear, semester, period, note } = body
+    // BUG-002: performedBy required (matches release). BUG-010: must be a string pre-query.
+    let performedBy: string
+    try {
+      performedBy = asString(body?.performedBy, 'performedBy')
+    } catch (e) {
+      if (e instanceof HttpError) {
+        return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
+      }
+      throw e
+    }
 
     if (!branch || !subjectCode) {
       return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
     }
+    // BUG-010: keys reaching Mongo filters must be strings.
+    if (typeof branch !== 'string' || typeof subjectCode !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
+    }
+    if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string') || (period !== undefined && typeof period !== 'string') || (note !== undefined && typeof note !== 'string')) {
+      return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
+    }
 
-    // Auth: performedBy must be faculty in same branch
-    if (performedBy) {
+    // Auth: performedBy must be faculty in same branch (now required, not optional).
+    {
       const studentsCol = await getCollection('students')
       const performer = await studentsCol.findOne({ username: performedBy })
       if (!performer || performer.role !== 'faculty') {
@@ -50,7 +69,7 @@ export async function POST(request: NextRequest) {
         oldValue: d[period as string] || '',
         newValue: d[period as string] || '',
         action: 'submit',
-        performedBy: performedBy || 'unknown',
+        performedBy,
         performedAt: now,
         note: note || '',
       }))
@@ -81,14 +100,25 @@ export async function POST(request: NextRequest) {
         oldValue: '',
         newValue: '',
         action: 'submit',
-        performedBy: performedBy || 'unknown',
+        performedBy,
         performedAt: now,
         note: note || '',
       }))
     }
 
     if (auditEntries.length > 0) {
-      try { await auditCol.insertMany(auditEntries) } catch {}
+      // BUG-011: surface audit failures instead of swallowing them.
+      try {
+        await auditCol.insertMany(auditEntries)
+      } catch (auditErr) {
+        console.error('Grade submit audit insert failed:', auditErr)
+        return NextResponse.json({
+          ok: true,
+          message: `${result.modifiedCount} grade(s) submitted for approval.`,
+          modifiedCount: result.modifiedCount,
+          auditWarning: 'Some grade audits failed to persist. See server logs.',
+        })
+      }
     }
 
     return NextResponse.json({

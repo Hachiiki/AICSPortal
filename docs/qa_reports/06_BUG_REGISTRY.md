@@ -2,6 +2,8 @@
 
 # 06 Bug registry
 
+> Post-fix update (2026-09-09): see [09 Fix plan](./09_FIX_PLAN.md), [10 Fix phases](./10_FIX_PHASES.md), [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md) for per-bug fix phase, retest, and final status. Statuses below are original QA verdicts; final verdicts live in 11.
+
 Severity counts: 3 Critical, 6 High, 5 Medium, 3 Low, 1 Info. Status labels: Confirmed (live evidence), Code-confirmed (read from source, not safely provable live), Observed (environment/tooling).
 
 <a id="bug-001"></a>

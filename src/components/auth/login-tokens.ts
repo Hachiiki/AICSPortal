@@ -20,6 +20,11 @@ export const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
 // MongoDB (scripts/seed-mongodb.ts) and exist ONLY so developers can
 // log in with one click during local development. They are NOT mock
 // data — the auth still hits the real MongoDB via /api/auth/login.
+//
+// BUG-012: this constant ships in the client bundle even in production
+// (module scope). Do NOT add privileged accounts here. Before any real
+// deployment, replace this with a server-only demo endpoint or delete it.
+// Face ID mock (FaceIdPanel) must stay disabled outside development.
 export const DEV_CREDENTIALS = { username: 'juan.santos', password: 'student123' } as const
 
 // Gradient for the "AICS Portal." accent text — top (#4EA4D7) to bottom (#64BFE9)

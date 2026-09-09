@@ -38,6 +38,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // BUG-006: role gate (mirrors faculty/tasks FAC-03). Still caller-supplied
+    // until server sessions land (BUG-009); closes anonymous student-shaped access.
+    if (faculty.role !== 'faculty' && faculty.role !== 'admin') {
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized: faculty only' },
+        { status: 403 }
+      )
+    }
+
     // Subjects are student-scoped (one doc per student per subject).
     // Faculty teaches ALL subjects where `professor === faculty.fullName`.
     // We query the collection directly instead of going through

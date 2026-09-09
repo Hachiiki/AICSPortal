@@ -55,10 +55,18 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
   try {
-    const { branch, subjectCode, academicYear, semester, period, performedBy } = await request.json()
+    const body = await request.json()
+    const { branch, subjectCode, academicYear, semester, period, performedBy } = body
 
     if (!branch || !subjectCode) {
       return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
+    }
+    // BUG-010: keys reaching Mongo filters must be strings.
+    if (typeof branch !== 'string' || typeof subjectCode !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
+    }
+    if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string') || (period !== undefined && typeof period !== 'string') || (typeof performedBy !== 'string' && performedBy !== undefined)) {
+      return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
     }
 
     // Auth: admin only, and the performer must be named. An unnamed
@@ -70,6 +78,10 @@ export async function POST(request: NextRequest) {
     const performer = await studentsCol.findOne({ username: performedBy })
     if (!performer || performer.role !== 'admin') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
+    }
+    // BUG-008 context: enforce branch parity like tasks/announcements (cross-branch gap was code-confirmed).
+    if (performer.branch !== branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
     const col = await getCollection('subjects')
@@ -91,7 +103,12 @@ export async function POST(request: NextRequest) {
         const audits = docs.map((d: any) => ({
           branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: d[period as string] || '', newValue: d[period as string] || '', action: 'release', performedBy: performedBy || 'unknown', performedAt: now,
         }))
-        try { await auditCol.insertMany(audits) } catch {}
+        // BUG-011: log audit failures instead of swallowing.
+        try {
+          await auditCol.insertMany(audits)
+        } catch (auditErr) {
+          console.error('Grade release audit insert failed:', auditErr)
+        }
       }
     } else {
       const docs = await col.find({ ...query, $or: [{ prelimStatus: 'submitted' }, { midtermStatus: 'submitted' }, { finalsStatus: 'submitted' }, { gradeStatus: 'submitted' }] }).toArray()
@@ -106,7 +123,11 @@ export async function POST(request: NextRequest) {
         const audits = docs.map((d: any) => ({
           branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: '', newValue: '', action: 'release', performedBy: performedBy || 'unknown', performedAt: now,
         }))
-        try { await auditCol.insertMany(audits) } catch {}
+        try {
+          await auditCol.insertMany(audits)
+        } catch (auditErr) {
+          console.error('Grade release audit insert failed:', auditErr)
+        }
       }
     }
 

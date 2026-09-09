@@ -78,7 +78,12 @@ export function FaceIdPanel({ onLogin }: FaceIdPanelProps) {
           setTimeout(() => {
             setFaceState('success')
             toast.success('Face verified. Welcome back to AICS Portal.')
-            // Face ID is a mock — log in with the dev demo credentials
+            // Face ID is a MOCK (no biometric matching) — dev-only demo login.
+            // BUG-012: disabled outside development; production needs a real backend.
+            if (process.env.NODE_ENV !== 'development') {
+              toast.error('Face ID demo is disabled in this build.')
+              return
+            }
             setTimeout(() => {
               onLogin(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
             }, 1200)

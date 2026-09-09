@@ -11,8 +11,15 @@ import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
 export async function POST(request: NextRequest) {
   try {
     const { username, announcementId, ids, action } = await request.json()
-    if (!username) {
+    // BUG-010: username must be a string pre-query; ids must be strings (no [object Object] rows).
+    if (typeof username !== 'string' || !username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (announcementId !== undefined && typeof announcementId !== 'string') {
+      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
+    }
+    if (ids !== undefined && (!Array.isArray(ids) || !ids.every((x: unknown) => typeof x === 'string'))) {
+      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
     }
     const idList: string[] = announcementId ? [announcementId] : Array.isArray(ids) ? ids : []
     if (idList.length === 0) {
@@ -26,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'User not found.' }, { status: 404 })
     }
     const col = await getCollection<MongoAnnouncementRead>('announcement_reads')
-    await col.createIndex({ branch: 1, username: 1, announcementId: 1 }, { unique: true })
+    // BUG-017: index created by seed/migration tooling, not per request.
     const now = new Date()
     const ops = idList.map((id) => ({
       updateOne: {
