@@ -46,6 +46,7 @@ Positive results worth noting: admin-only and faculty-only role checks work on a
 - [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md): retest results and remaining work
 - [12 Phase 6 verification (sessions)](./12_SESSIONS_VERIFICATION.md): 32/32 live probes close 004/005/009 (+012 full)
 - [13 Phase 7 pre-flight (QA rehearsal)](./13_PHASE7_PREFLIGHT.md): hardened tool, scope audit, rollback drill, exact prod commands
+- [14 Phase 7 window report (prod)](./14_PHASE7_WINDOW_REPORT.md): 77/77 rehashed, 0 plaintext, BUG-003 Fixed-Verified
 
 ## Top priorities
 

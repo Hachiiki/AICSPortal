@@ -8,6 +8,8 @@
 
 Phase 6.5 update (2026-09-09): logout-replay gap (E6) closed via tokenVersion revocation — replay after logout and after password change now 401. `scripts/rehash-passwords.ts` created for Phase 7 (dry-run default). Evidence: [12 addendum](./12_SESSIONS_VERIFICATION.md#addendum--phase-65-real-logout--revocation-e6-gap-closed).
 
+Phase 7 update (2026-09-10 window): BUG-003 **Fixed-Verified** — prod `aics_portal.students` 77/77 `scrypt$`, 0 plaintext, tv ≥ 1 all docs, user test logins 200/200. Evidence: [14 Phase 7 window report](./14_PHASE7_WINDOW_REPORT.md).
+
 Severity counts: 3 Critical, 6 High, 5 Medium, 3 Low, 1 Info. Status labels: Confirmed (live evidence), Code-confirmed (read from source, not safely provable live), Observed (environment/tooling).
 
 <a id="bug-001"></a>
