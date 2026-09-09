@@ -11,13 +11,15 @@
 //                        every affected collection) -> AES-256-GCM encrypt
 //                        with BACKUP_KEY env (64 hex chars) -> write ONLY
 //                        ciphertext -> decrypt-verify -> print path + bytes.
-//   --apply --expect <N> [--bump-tv | --no-bump-tv] --backup <path>
+//   --apply --expect <N> [--bump-tv | --no-bump-tv] [--bump-all] --backup <path>
 //                        real run: decrypt-verifies <path> first, aborts unless
 //                        live todo count === N, rehashes with per-doc
 //                        round-trip check (abort on mismatch), concurrency
 //                        guard (filter matches the read-time password;
 //                        0 matches = abort), then self-verifies every updated
 //                        doc with the app's own verifyPassword ("verified X/X").
+//                        --bump-all additionally bumps tokenVersion on EVERY
+//                        doc (including already-hashed) so all sessions die.
 //   --rollback --backup <path>
 //                        restore password + tokenVersion per _id from backup.
 //                        Ask the user before using; never improvise.
@@ -29,13 +31,14 @@
 //
 // Examples:
 //   MONGODB_DB=aics_portal_qa BACKUP_KEY=<hex> node --experimental-strip-types scripts/rehash-passwords.ts --backup-to /backups/students-2026-09-09.json.enc
-//   MONGODB_DB=aics_portal_qa BACKUP_KEY=<hex> node --experimental-strip-types scripts/rehash-passwords.ts --apply --expect 74 --bump-tv --backup /backups/students-2026-09-09.json.enc
+//   MONGODB_DB=aics_portal_qa BACKUP_KEY=<hex> node --experimental-strip-types scripts/rehash-passwords.ts --apply --expect 74 --bump-tv --bump-all --backup /backups/students-2026-09-09.json.enc
 
 import { MongoClient, ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
 import { readFileSync, writeFileSync, statSync } from 'fs'
-import { verifyPassword } from '../src/lib/password.ts'
+// @ts-expect-error: explicit .ts import required by node --experimental-strip-types at runtime
+import { hashPassword, verifyPassword } from '../src/lib/password.ts'
 
 config({ path: '.env.local' })
 
@@ -182,14 +185,16 @@ async function main() {
     fail(`live todo count ${liveTodo} !== --expect ${expectN}. Someone changed state — investigate, do not proceed.`)
   }
 
-  // Import the app's own hashing via verifyPassword's module sibling.
-  const { hashPassword } = await import('../src/lib/password.ts')
+  // Import the app's own hashing (static import at top; .ts extension required at runtime).
   const updated: { id: string; plain: string }[] = []
   let done = 0
   for (const doc of todo) {
     const plain: string = doc.password
     const hash = await hashPassword(plain)
-    if (!(await verifyPassword(plain, hash))) {
+    // FINDING 1 FIX: verifyPassword returns {ok}, an object that is ALWAYS
+    // truthy — read .ok explicitly or the check can never fire.
+    const rt = await verifyPassword(plain, hash)
+    if (!rt.ok) {
       fail(`round-trip mismatch after ${done} writes — aborting. Already-written docs stay hashed (rerun is safe).`)
     }
     // Concurrency guard: match the read-time password so a concurrent
@@ -205,11 +210,12 @@ async function main() {
     if (done % 10 === 0) console.log(`  … ${done}/${todo.length}`)
   }
 
-  // Post-apply self-verify with the app's own verify function.
+  // Post-apply self-verify with the app's own verify function (.ok read explicitly — see above).
   let verified = 0
   for (const u of updated) {
     const fresh = await col.findOne({ _id: new ObjectId(u.id) }, { projection: { password: 1 } })
-    if (fresh && (await verifyPassword(u.plain, (fresh as any).password))) verified++
+    const res = fresh ? await verifyPassword(u.plain, (fresh as any).password) : { ok: false }
+    if (res.ok) verified++
     else fail(`self-verify mismatch (${verified}/${updated.length} verified) — investigate immediately.`)
   }
   console.log(`verified ${verified}/${updated.length}`)
@@ -220,6 +226,15 @@ async function main() {
   })
   console.log(`apply done: rehashed=${done} remaining-plaintext=${remaining} tv-mode=${BUMP_TV ? 'bump' : 'no-bump'}`)
   if (remaining !== 0) fail('plaintext remains after apply.')
+
+  // FINDING 2 FIX (--bump-all): --bump-tv only touches rehashed docs, so
+  // already-hashed accounts keep live sessions. With --bump-all, every doc
+  // in the collection gets tokenVersion+1, killing ALL sessions by design.
+  // Default OFF; prod runs --bump-all per the Q3 answer (yes).
+  if (args.includes('--bump-all')) {
+    const b = await col.updateMany({}, { $inc: { tokenVersion: 1 } })
+    console.log(`bumped=${b.matchedCount}`)
+  }
   await client.close()
 }
 

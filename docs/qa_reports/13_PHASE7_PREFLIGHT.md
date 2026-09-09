@@ -4,6 +4,13 @@
 
 Date: 2026-09-09 (local). Branch `fix/bug-fixes-findings`. PROD LOCKED throughout — every write below hit `aics_portal_qa` only. The 4 window questions remain pending; this rehearsal needed none of them.
 
+## Remediation (verifier findings, fixed + re-drilled same day)
+
+- **FINDING 1 (Critical, fixed):** the tool's round-trip and self-verify checks never read `verifyPassword().ok` (object = always truthy), so `verified 74/74` could never fail. Both call sites now read `.ok` explicitly; `password.ts` untouched (the app was already correct). `tsc` is clean (TS5097 silenced via expect-error on the strip-types `.ts` import; only pre-existing FitText remains).
+- **FINDING 2 (High, fixed):** `--bump-tv` spared already-hashed accounts (proven: `m.reyes` tv=0). New `--bump-all` bumps `tokenVersion` on EVERY doc (`bumped=<matchedCount>`, default OFF). Prod runs `--bump-all` per Q3=yes, so **all** sessions die by design — corrected wording below (the old "rehashed docs bump" line was the overclaim).
+- **Negative test (new, passes):** corrupted one stored hash on QA → the fixed self-verify loop failed loud (`SELF-VERIFY MISMATCH`, exit 2) → restored the hash from backup → `verified 77/77`.
+- **Re-drill:** backup (77 docs, decrypt-verified) → `--apply --expect 0 --bump-tv --bump-all` → `verified 0/0`, `bumped=77`, 0 plaintext → min tv=1 across all 77, `m.reyes` included → rollback → full diff 77/77 identical → re-apply → final 77/77 hashed, seed logins 200/200/200. (Mid-drill `--expect` abort also re-proven live when a rehearsal login shifted the count; re-derived and proceeded.)
+
 ## Commits
 
 - `cb1544b` — Phase 7 pre-flight: rehash tool aborts on unset MONGODB_DB (standalone, pushed pre-authorized).
@@ -46,8 +53,8 @@ BACKUP_KEY=<hex> MONGODB_DB=<PROD_DB> node --experimental-strip-types scripts/re
 # 2. Dry run, record the to-rehash count as N.
 BACKUP_KEY=<hex> MONGODB_DB=<PROD_DB> node --experimental-strip-types scripts/rehash-passwords.ts
 # 3. Apply (inside window only). Freeze logins first.
-BACKUP_KEY=<hex> MONGODB_DB=<PROD_DB> node --experimental-strip-types scripts/rehash-passwords.ts --apply --expect <N> --bump-tv --backup <BACKUP_PATH>.enc
-#    -> expect: "verified N/N", "remaining-plaintext=0"
+BACKUP_KEY=<hex> MONGODB_DB=<PROD_DB> node --experimental-strip-types scripts/rehash-passwords.ts --apply --expect <N> --bump-tv --bump-all --backup <BACKUP_PATH>.enc
+#    -> expect: "verified N/N", "bumped=<total docs>", "remaining-plaintext=0"
 # 4. Verify: dry-run again (to-rehash=0), 3 API logins, replay one pre-window cookie -> 401.
 # 5. Report + update 06 (BUG-003 Fixed-Verified) + tell user to rotate the credential.
 ```
