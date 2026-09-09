@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getSession, spoofCheck } from '@/lib/session'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // POST /api/grades/release
 // Body: { branch, subjectCode, academicYear, semester, period?, performedBy }

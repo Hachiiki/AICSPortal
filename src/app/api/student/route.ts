@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getSubjectsForStudent, getCourses, getSessions } from '@/lib/mongodb/queries'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 import type { Student } from '@/lib/aics/types'
 
 export async function GET(request: NextRequest) {

@@ -6,6 +6,8 @@
 >
 > Phase 6 update (2026-09-09): server sessions landed — [BUG-004](./06_BUG_REGISTRY.md#bug-004), [BUG-005](./06_BUG_REGISTRY.md#bug-005), [BUG-009](./06_BUG_REGISTRY.md#bug-009) are FIXED-VERIFIED (32/32 live probes) and [BUG-012](./06_BUG_REGISTRY.md#bug-012) is FIXED-VERIFIED (bundle). Evidence: [12 Phase 6 verification](./12_SESSIONS_VERIFICATION.md).
 
+Phase 6.5 update (2026-09-09): logout-replay gap (E6) closed via tokenVersion revocation — replay after logout and after password change now 401. `scripts/rehash-passwords.ts` created for Phase 7 (dry-run default). Evidence: [12 addendum](./12_SESSIONS_VERIFICATION.md#addendum--phase-65-real-logout--revocation-e6-gap-closed).
+
 Severity counts: 3 Critical, 6 High, 5 Medium, 3 Low, 1 Info. Status labels: Confirmed (live evidence), Code-confirmed (read from source, not safely provable live), Observed (environment/tooling).
 
 <a id="bug-001"></a>

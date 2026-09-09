@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getProfessors } from '@/lib/mongodb/queries'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ADMIN CONTROL: Professor directory details (office
 // hours, room, contact) are maintained by Admin. Students

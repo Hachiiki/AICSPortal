@@ -66,7 +66,46 @@ Note: two first-run failures were probe-script artifacts (PowerShell `$args` spl
 - QA DB restored and verified: `juan.santos / CS 208 / 2026-2027 / 1st Sem` back to `prelim: INC`, `prelimStatus: ''`; 2 probe audit rows deleted; 1 attendance probe doc (`2020-01-02`) deleted. No other writes were possible (all other mutations returned 4xx).
 - No server left running (port 3100 closed, verified). No temp files left (probe scripts, jars, JSON bodies, logs, PID file all deleted). No secrets in this report (passwords redacted to field names only).
 
-## Remaining (unchanged plan)
+## Addendum — Phase 6.5: real logout / revocation (E6 gap closed)
+
+External verdict found report 12's probe 32 overclaimed: logout cleared the cookie but the stateless JWT stayed valid 8h (replay → 200, expected 401). Fixed and re-probed below.
+
+### Change
+
+- `tokenVersion: number` (default 0) on student docs (`types.ts`, seed writes 0 for all 6 seeded accounts).
+- Claims carry `tv`; new `src/lib/session-auth.ts` (server-only — NOT imported by Edge middleware) re-checks `tv` against the DB on every API call. All 20 routes switched via `getAuthedSession as getSession` (call sites unchanged). Middleware keeps the signature-only fast path: stale tokens pass it but die at the route, and the client bounces to login on 401.
+- Bumpers: `POST /api/auth/logout` (`$inc`, always clears cookie even on DB failure), `POST /api/auth/change-password` success (same `updateOne` as the hash write), and the new `scripts/rehash-passwords.ts` (dry-run default, `--apply` for Phase 7; per-user round-trip verify, abort on mismatch, counts only, bumps `tokenVersion` so Phase 7 logs everyone out).
+- Stale `NEEDS_APPROVAL` comment in `student/update` removed (sessions exist).
+
+### Live replay probes (all PASS, `aics_portal_qa`, port 3100)
+
+| Probe | Expected | Actual | Verdict |
+|---|---|---|---|
+| Login → session live | 200 | 200 | PASS |
+| Logout | 200 | 200 | PASS |
+| **REPLAY raw pre-logout cookie → session** | **401** | **401** | **PASS (was 200)** |
+| Jar session after logout | 401 | 401 | PASS |
+| Login after logout (normal use) | 200 | 200 | PASS |
+| Change password | 200 | 200 | PASS |
+| **REPLAY pre-change token** | **401** | **401** | **PASS** |
+| Hand-edit DB `tokenVersion` +1, replay | 401 | 401 | PASS |
+| Restore version, replay (mechanism check) | 200 | 200 | PASS |
+| Regression subset: anon 401, injection 400, cross-user 403s, spoof 403, faculty 200s, grade write 200 | — | — | PASS (20/20 incl. replays; 2 script bugs fixed mid-run, see below) |
+
+Mid-run notes (honest): my first replay script used the stale pre-change token for the password *revert*, so revert/change-back/logins 401'd (5 fails) — script bug, not app bug. Recovered with a fresh session, reverted the password, re-ran: all green. A faculty write returning 400 mid-run was the honest no-change envelope (rewriting identical `90` over `90/draft`); rewriting `91` → 200 confirmed the path.
+
+### Final QA DB state (verified by query)
+
+- Grade `juan.santos / CS 208 / 2026-2027 / 1st Sem`: `INC`/empty statuses (restored).
+- `grade_audits`: 0 docs (4 probe rows deleted). Attendance probe doc: deleted (0).
+- `juan.santos` password is now `scrypt$`-hashed with `tokenVersion: 3` (logout +1, change +1, revert +1 — all from these probes; login re-verified 200). Same designed upgrade path as `maria.cruz` earlier. No other accounts touched.
+- No server running (port closed). No temp files (scripts, jars, bodies, logs removed).
+
+### Regression checks (re-run)
+
+- `tsc`: only pre-existing FitText error. `npm run build`: 26/26 green.
+
+## Remaining (updated plan)
 
 - **Phase 7** (needs explicit "go" + maintenance window): production password rehash + credential rotation.
 - **Phase 8**: FitText null check + `ignoreBuildErrors: false`, CSP report-only, M0 seed re-run + `db:indexes` split, substitute-teacher override proposal.

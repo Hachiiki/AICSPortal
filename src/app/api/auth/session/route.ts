@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // GET /api/auth/session — returns the current session claims or 401.
 // The client calls this on load instead of reading localStorage flags.

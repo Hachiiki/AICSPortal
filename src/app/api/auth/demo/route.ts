@@ -15,7 +15,8 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: 'Demo account not seeded.' }, { status: 404 })
   }
   const role = demo.role || 'student'
-  const token = await signSession({ username: demo.username, role, branch: demo.branch })
+  const tv = typeof demo.tokenVersion === 'number' ? demo.tokenVersion : 0
+  const token = await signSession({ username: demo.username, role, branch: demo.branch, tv })
   const res = NextResponse.json({ ok: true, username: demo.username, branch: demo.branch, role })
   res.cookies.set(sessionCookie(token))
   return res

@@ -14,6 +14,10 @@ export interface SessionClaims {
   username: string
   role: string
   branch: string
+  // Phase 6.5: revocation counter. Compared against the user's CURRENT
+  // tokenVersion in the DB (see session-auth.ts). Logout / password change
+  // bumps the DB value, instantly killing all previously issued tokens.
+  tv: number
 }
 
 const DEV_FALLBACK_SECRET = 'dev-only-insecure-secret-change-in-production'
@@ -29,7 +33,7 @@ function getAuthSecret(): Uint8Array {
 }
 
 export async function signSession(claims: SessionClaims): Promise<string> {
-  return new SignJWT({ role: claims.role, branch: claims.branch })
+  return new SignJWT({ role: claims.role, branch: claims.branch, tv: claims.tv ?? 0 })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(claims.username)
     .setIssuedAt()
@@ -43,7 +47,9 @@ export async function verifySessionToken(token: string): Promise<SessionClaims |
     if (typeof payload.sub !== 'string' || !payload.sub) return null
     if (typeof payload.role !== 'string' || !payload.role) return null
     if (typeof payload.branch !== 'string' || !payload.branch) return null
-    return { username: payload.sub, role: payload.role, branch: payload.branch }
+    // Pre-session-era tokens (no tv) read as 0, matching the DB default.
+    const tv = typeof payload.tv === 'number' ? payload.tv : 0
+    return { username: payload.sub, role: payload.role, branch: payload.branch, tv }
   } catch {
     return null
   }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getCourses, getSessions } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ============================================================
 //  Faculty API — GET /api/faculty?username=...

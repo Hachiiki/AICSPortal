@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getEnrollment } from '@/lib/mongodb/queries'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 export async function GET(request: NextRequest) {
   try {

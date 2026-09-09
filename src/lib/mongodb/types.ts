@@ -13,7 +13,10 @@ export interface MongoStudent {
   _id?: string
   branch: Branch
   username: string
-  password: string // NOTE: plaintext for demo only — hash with bcrypt in production
+  password: string // scrypt hash for new writes; legacy plaintext upgrades on login (BUG-003)
+  // Phase 6.5: session revocation counter. Bumped on logout / password
+  // change; tokens carrying an older value 401. Defaults to 0.
+  tokenVersion?: number
   role: Role // determines which portal the user sees
   fullName: string
   firstName: string

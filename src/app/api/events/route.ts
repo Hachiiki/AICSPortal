@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getEvents } from '@/lib/mongodb/queries'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ADMIN CONTROL: Events are created/edited/deleted by
 // Admin only. Students have read-only access to this

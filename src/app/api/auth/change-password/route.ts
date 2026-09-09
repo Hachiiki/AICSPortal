@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
 import { rateLimit } from '@/lib/rate-limit'
 import { hashPassword, verifyPassword } from '@/lib/password'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // POST /api/auth/change-password?username=juan.santos
 // Body: { currentPassword, newPassword }
@@ -61,8 +61,9 @@ export async function POST(request: NextRequest) {
     }
 
     // BUG-003: always store scrypt hash for new passwords.
+    // Phase 6.5: bump tokenVersion so every pre-change token dies with the old password.
     const hashed = await hashPassword(newPassword)
-    await col.updateOne({ username }, { $set: { password: hashed } })
+    await col.updateOne({ username }, { $set: { password: hashed }, $inc: { tokenVersion: 1 } })
 
     return NextResponse.json({ ok: true, message: 'Password changed successfully.' })
   } catch (err) {

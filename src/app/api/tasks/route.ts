@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getSession, spoofCheck } from '@/lib/session'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 import type { MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
 

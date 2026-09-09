@@ -49,9 +49,12 @@ export async function POST(request: NextRequest) {
     }
     // Phase 6: identity lives in a signed httpOnly session cookie.
     // The JSON body is display-only for client routing; the server
-    // never trusts it — every route reads getSession(request).
+    // never trusts it — every route reads getAuthedSession(request).
+    // Phase 6.5: the token carries the user's current tokenVersion so
+    // logout / password changes revoke previously issued tokens.
     const role = student.role || 'student'
-    const token = await signSession({ username: student.username, role, branch: student.branch })
+    const tv = typeof student.tokenVersion === 'number' ? student.tokenVersion : 0
+    const token = await signSession({ username: student.username, role, branch: student.branch, tv })
     const res = NextResponse.json({
       ok: true,
       username: student.username,

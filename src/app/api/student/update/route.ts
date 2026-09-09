@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getSession } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // PATCH /api/student/update?username=juan.santos
 // Updates editable student fields: phone, email, address,
@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest) {
     for (const field of allowedFields) {
       if (typeof body[field] === 'string') {
         const trimmed = body[field].trim()
-        // BUG-005 partial: photoUrl is rendered in an img tag — require http(s) + length cap.
+        // BUG-005: photoUrl is rendered in an img tag — require http(s) + length cap.
         if (field === 'photoUrl') {
           if (trimmed.length > 2000 || (trimmed.length > 0 && !/^https?:\/\/.+/i.test(trimmed))) {
             return NextResponse.json({ ok: false, error: 'Invalid photo URL.' }, { status: 400 })
@@ -50,8 +50,6 @@ export async function PATCH(request: NextRequest) {
         updateDoc[field] = trimmed
       }
     }
-    // NOTE: caller-vs-target auth still requires server sessions (BUG-009).
-    // Full IDOR fix (401/403 on cross-user writes) is NEEDS_APPROVAL breaking change.
 
     if (Object.keys(updateDoc).length === 0) {
       return NextResponse.json({ ok: false, error: 'No valid fields to update.' }, { status: 400 })

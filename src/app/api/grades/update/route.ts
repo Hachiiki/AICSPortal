@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getSession, spoofCheck } from '@/lib/session'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
   const norm = (v: string) => {

@@ -205,6 +205,7 @@ async function seed() {
         branch: BRANCH,
         username,
         password: 'student123',
+        tokenVersion: 0,
         role: 'student' as const,
         fullName,
         firstName: fn,
@@ -436,7 +437,8 @@ async function seed() {
   const facultyUser = {
     branch: BRANCH,
     username: 'm.reyes',
-    password: 'faculty123',
+      password: 'faculty123',
+      tokenVersion: 0,
     role: 'faculty' as const,
     fullName: 'Engr. Maria Cristina Reyes',
     firstName: 'Maria Cristina',
@@ -476,7 +478,8 @@ async function seed() {
   const adminUser = {
     branch: BRANCH,
     username: 'admin',
-    password: 'admin123',
+      password: 'admin123',
+      tokenVersion: 0,
     role: 'admin' as const,
     fullName: 'AICS Registrar Admin',
     firstName: 'Registrar',
