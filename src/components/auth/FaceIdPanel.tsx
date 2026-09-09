@@ -11,23 +11,24 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { FaceState } from '@/lib/aics/types'
-import { T, DEV_CREDENTIALS } from './login-tokens'
+import { T } from './login-tokens'
 
 // ============================================================
 //  FaceIdPanel — the Face ID webcam-based auth panel.
 //  Extracted from LoginView.tsx to reduce its size and complexity
 //  (was 670 lines / CRAP 812).
 //
-//  This is a MOCK face recognition: it starts the webcam, shows a
-//  scanning animation for ~5 seconds, then "verifies" and logs in
-//  with the dev demo credentials. No actual biometric matching happens.
+//  This is a MOCK face recognition (dev only): it starts the webcam,
+//  shows a scanning animation, then "verifies" and calls onDemoLogin,
+//  which issues a real server session for the demo student.
+//  No biometric matching happens. Disabled outside development.
 // ============================================================
 
 interface FaceIdPanelProps {
-  onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  onDemoLogin: () => Promise<{ ok: boolean; error?: string }>
 }
 
-export function FaceIdPanel({ onLogin }: FaceIdPanelProps) {
+export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
   const [faceState, setFaceState] = useState<FaceState>('idle')
   const [faceProgress, setFaceProgress] = useState(0)
   const [streamError, setStreamError] = useState<string | null>(null)
@@ -79,13 +80,14 @@ export function FaceIdPanel({ onLogin }: FaceIdPanelProps) {
             setFaceState('success')
             toast.success('Face verified. Welcome back to AICS Portal.')
             // Face ID is a MOCK (no biometric matching) — dev-only demo login.
-            // BUG-012: disabled outside development; production needs a real backend.
+            // Phase 6: the server issues the demo session; no creds in the bundle.
             if (process.env.NODE_ENV !== 'development') {
               toast.error('Face ID demo is disabled in this build.')
               return
             }
-            setTimeout(() => {
-              onLogin(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
+            setTimeout(async () => {
+              const result = await onDemoLogin()
+              if (!result.ok) toast.error(result.error || 'Demo login failed.')
             }, 1200)
           }, 1100)
         } else {
@@ -102,7 +104,7 @@ export function FaceIdPanel({ onLogin }: FaceIdPanelProps) {
       setFaceState('error')
       stopStream()
     }
-  }, [stopStream, onLogin])
+  }, [stopStream, onDemoLogin])
 
   const cancelFaceScan = useCallback(() => {
     stopStream()

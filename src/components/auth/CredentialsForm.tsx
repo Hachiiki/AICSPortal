@@ -12,7 +12,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { T, SHOW_DEMO_LOGIN, DEV_CREDENTIALS } from './login-tokens'
+import { T, SHOW_DEMO_LOGIN } from './login-tokens'
 
 // ============================================================
 //  CredentialsForm — username/password login form.
@@ -21,9 +21,10 @@ import { T, SHOW_DEMO_LOGIN, DEV_CREDENTIALS } from './login-tokens'
 
 interface CredentialsFormProps {
   onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  onDemoLogin: () => Promise<{ ok: boolean; error?: string }>
 }
 
-export function CredentialsForm({ onLogin }: CredentialsFormProps) {
+export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -54,23 +55,23 @@ export function CredentialsForm({ onLogin }: CredentialsFormProps) {
     [username, password, onLogin]
   )
 
+  // Dev-only demo login. No credentials in the bundle — the server
+  // issues the demo session (POST /api/auth/demo, 404 in production).
   const handleTestLogin = useCallback(async () => {
-    setUsername(DEV_CREDENTIALS.username)
-    setPassword(DEV_CREDENTIALS.password)
     setSubmitting(true)
     try {
-      const result = await onLogin(DEV_CREDENTIALS.username, DEV_CREDENTIALS.password)
+      const result = await onDemoLogin()
       if (!result.ok) {
         setSubmitting(false)
         toast.error(result.error || 'Test login failed.')
         return
       }
-      toast.success('Test login successful. Welcome, Juan!')
+      toast.success('Test login successful. Welcome!')
     } catch {
       setSubmitting(false)
       toast.error('Network error. Please try again.')
     }
-  }, [onLogin])
+  }, [onDemoLogin])
 
   return (
     <motion.form
@@ -226,9 +227,7 @@ export function CredentialsForm({ onLogin }: CredentialsFormProps) {
             <UserRound className="w-3.5 h-3.5" /> Test Student Login
           </button>
           <p className="text-center text-[10px]" style={{ color: T.muted }}>
-            <span className="font-mono">{DEV_CREDENTIALS.username}</span>
-            {' / '}
-            <span className="font-mono">{DEV_CREDENTIALS.password}</span>
+            Seeded demo student (dev only)
           </p>
         </>
       )}

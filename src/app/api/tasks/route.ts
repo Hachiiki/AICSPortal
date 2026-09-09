@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession, spoofCheck } from '@/lib/session'
 import type { MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
 
 // GET /api/tasks?username=juan.santos
 // Returns tasks for the student's CURRENT TERM only (visibility rule).
+// Phase 6: self or same-branch staff (faculty/admin) only.
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -16,6 +22,12 @@ export async function GET(request: NextRequest) {
     const student = await getStudentByUsername(username)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
+    }
+    if (student.username !== session.username) {
+      const isStaff = session.role === 'faculty' || session.role === 'admin'
+      if (!isStaff || student.branch !== session.branch) {
+        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     // VISIBILITY RULE: Students only see tasks of the ACTIVE
@@ -90,7 +102,19 @@ async function requireTeachingFaculty(performedBy: unknown, branch: unknown, sub
 // subject so each student's submit and score stay independent.
 export async function POST(request: NextRequest) {
   try {
+    // Phase 6: performer is the session user. A mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await request.json()
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    if (typeof branch !== 'string' || branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
     if (!branch || !subjectCode || !title || !type || maxScore === undefined || !dueDate) {
       return NextResponse.json({ ok: false, error: 'Branch, subject, title, type, max score, and due date are required.' }, { status: 400 })
     }
@@ -108,10 +132,9 @@ export async function POST(request: NextRequest) {
     if (isNaN(due.getTime())) {
       return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
     }
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
-    const check = await requireTeachingFaculty(performedBy, branch, subjectCode)
+    // Phase 6: teaching-load check runs as the session user, not a body field.
+    // (Legacy performedBy already spoof-checked above; it is otherwise ignored.)
+    const check = await requireTeachingFaculty(session.username, branch, subjectCode)
     if (check.error) return check.error
     const { performer, current } = check as { performer: any; current: any[] }
     const yearLevel = current[0]?.yearLevel || ''
@@ -148,17 +171,26 @@ export async function POST(request: NextRequest) {
 
 // PATCH /api/tasks
 // Body: { branch, subjectCode, title, dueDate?, submissionsClosed, performedBy }
-// Faculty only. Flips submissionsClosed on every matching student doc.
+// Faculty only (session). Flips submissionsClosed on every matching student doc.
 export async function PATCH(request: NextRequest) {
   try {
+    // Phase 6: performer is the session user; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await request.json()
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    if (typeof branch !== 'string' || branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
     if (!branch || !subjectCode || !title || submissionsClosed === undefined) {
       return NextResponse.json({ ok: false, error: 'Branch, subject, title, and submissionsClosed are required.' }, { status: 400 })
     }
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
-    const check = await requireTeachingFaculty(performedBy, branch, subjectCode)
+    const check = await requireTeachingFaculty(session.username, branch, subjectCode)
     if (check.error) return check.error
     const { performer } = check as { performer: any }
     const query: Record<string, any> = {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getCourses, getSessions } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession } from '@/lib/session'
 
 // ============================================================
 //  Faculty API — GET /api/faculty?username=...
@@ -22,11 +23,23 @@ import { getCollection } from '@/lib/mongodb/connection'
 
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: workspace belongs to the session user; the username param
+    // must match (spoofing another faculty's roster is a 403).
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json(
         { ok: false, error: 'Username is required.' },
         { status: 400 }
+      )
+    }
+    if (username !== session.username) {
+      return NextResponse.json(
+        { ok: false, error: 'Forbidden' },
+        { status: 403 }
       )
     }
 

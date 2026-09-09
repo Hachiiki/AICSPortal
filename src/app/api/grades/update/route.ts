@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { asString, HttpError } from '@/lib/http'
+import { getSession, spoofCheck } from '@/lib/session'
 
 function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
   const norm = (v: string) => {
@@ -31,32 +31,35 @@ function remarksFor(final: string): string {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { updates } = body
-    // BUG-002: performedBy is required (matches release route). An omitted
-    // performer previously skipped the entire role check.
-    let performedBy: string
-    try {
-      performedBy = asString(body?.performedBy, 'performedBy')
-    } catch (e) {
-      if (e instanceof HttpError) {
-        return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-      }
-      throw e
+    const { updates, performedBy } = body
+    // Phase 6: writer is the session user. A mismatched performedBy is a
+    // spoof attempt (403). The field is otherwise ignored — no dual-auth paths.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performedByUser = session.username
 
     if (!updates || !Array.isArray(updates) || updates.length === 0) {
       return NextResponse.json({ ok: false, error: 'No updates provided.' }, { status: 400 })
     }
 
-    // Simple auth: performedBy must be a faculty in the same branch.
-    // BUG-010: performedBy is now a validated string, so it cannot steer the lookup as an operator.
+    // Auth: writer must be the session faculty in the same branch.
+    // (Session replaces the old optional-performer pattern — BUG-002.)
     const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: performedBy })
+    const performer = await studentsCol.findOne({ username: performedByUser })
     if (!performer || performer.role !== 'faculty') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
     }
     const performerBranch: string | null = performer.branch
     const performerName: string | null = performer.fullName
+    if (performerBranch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
 
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
@@ -135,7 +138,7 @@ export async function PATCH(request: NextRequest) {
             oldValue: oldVal || '',
             newValue: newVal || '',
             action: 'save',
-            performedBy,
+            performedBy: performedByUser,
             performedAt: now,
           })
         }

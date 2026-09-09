@@ -4,6 +4,7 @@ import { asString, HttpError } from '@/lib/http'
 import { rateLimit } from '@/lib/rate-limit'
 import { verifyPassword } from '@/lib/password'
 import { getCollection } from '@/lib/mongodb/connection'
+import { sessionCookie, signSession } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,12 +47,19 @@ export async function POST(request: NextRequest) {
       }
       return NextResponse.json({ ok: false, error: 'Invalid username or password.' }, { status: 401 })
     }
-    return NextResponse.json({
+    // Phase 6: identity lives in a signed httpOnly session cookie.
+    // The JSON body is display-only for client routing; the server
+    // never trusts it — every route reads getSession(request).
+    const role = student.role || 'student'
+    const token = await signSession({ username: student.username, role, branch: student.branch })
+    const res = NextResponse.json({
       ok: true,
       username: student.username,
       branch: student.branch,
-      role: student.role || 'student',
+      role,
     })
+    res.cookies.set(sessionCookie(token))
+    return res
   } catch (err) {
     if (err instanceof HttpError) {
       return NextResponse.json({ ok: false, error: err.message }, { status: err.status })

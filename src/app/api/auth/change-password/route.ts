@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
 import { rateLimit } from '@/lib/rate-limit'
 import { hashPassword, verifyPassword } from '@/lib/password'
+import { getSession } from '@/lib/session'
 
 // POST /api/auth/change-password?username=juan.santos
 // Body: { currentPassword, newPassword }
@@ -10,9 +11,17 @@ import { hashPassword, verifyPassword } from '@/lib/password'
 // BUG-003 incremental: new writes are always hashed; legacy verifies then upgrades.
 export async function POST(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: password changes require the session user (closes unauth oracle).
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username || typeof username !== 'string') {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const { currentPassword, newPassword } = await request.json()

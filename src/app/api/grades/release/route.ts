@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession, spoofCheck } from '@/lib/session'
 
 // POST /api/grades/release
 // Body: { branch, subjectCode, academicYear, semester, period?, performedBy }
@@ -11,12 +12,20 @@ import { getCollection } from '@/lib/mongodb/connection'
 // [{ subjectCode, title, academicYear, semester, period, count }]
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: release queue belongs to the session admin.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
     const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username })
+    const performer = await studentsCol.findOne({ username: session.username })
     if (!performer || performer.role !== 'admin') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
     }
@@ -55,8 +64,18 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
   try {
+    // Phase 6: releaser is the session admin; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const body = await request.json()
     const { branch, subjectCode, academicYear, semester, period, performedBy } = body
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performedByUser = session.username
 
     if (!branch || !subjectCode) {
       return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
@@ -69,13 +88,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
     }
 
-    // Auth: admin only, and the performer must be named. An unnamed
-    // release is rejected instead of recorded as 'unknown'.
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
+    // Auth: releaser is the session admin (legacy performedBy already spoof-checked; ignored).
     const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: performedBy })
+    const performer = await studentsCol.findOne({ username: performedByUser })
     if (!performer || performer.role !== 'admin') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
     }
@@ -101,7 +116,7 @@ export async function POST(request: NextRequest) {
       )
       if (docs.length) {
         const audits = docs.map((d: any) => ({
-          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: d[period as string] || '', newValue: d[period as string] || '', action: 'release', performedBy: performedBy || 'unknown', performedAt: now,
+          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: d[period as string] || '', newValue: d[period as string] || '', action: 'release', performedBy: performedByUser, performedAt: now,
         }))
         // BUG-011: log audit failures instead of swallowing.
         try {
@@ -121,7 +136,7 @@ export async function POST(request: NextRequest) {
       }
       if (docs.length) {
         const audits = docs.map((d: any) => ({
-          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: '', newValue: '', action: 'release', performedBy: performedBy || 'unknown', performedAt: now,
+          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: '', newValue: '', action: 'release', performedBy: performedByUser, performedAt: now,
         }))
         try {
           await auditCol.insertMany(audits)

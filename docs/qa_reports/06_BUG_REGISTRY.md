@@ -3,6 +3,8 @@
 # 06 Bug registry
 
 > Post-fix update (2026-09-09): see [09 Fix plan](./09_FIX_PLAN.md), [10 Fix phases](./10_FIX_PHASES.md), [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md) for per-bug fix phase, retest, and final status. Statuses below are original QA verdicts; final verdicts live in 11.
+>
+> Phase 6 update (2026-09-09): server sessions landed — [BUG-004](./06_BUG_REGISTRY.md#bug-004), [BUG-005](./06_BUG_REGISTRY.md#bug-005), [BUG-009](./06_BUG_REGISTRY.md#bug-009) are FIXED-VERIFIED (32/32 live probes) and [BUG-012](./06_BUG_REGISTRY.md#bug-012) is FIXED-VERIFIED (bundle). Evidence: [12 Phase 6 verification](./12_SESSIONS_VERIFICATION.md).
 
 Severity counts: 3 Critical, 6 High, 5 Medium, 3 Low, 1 Info. Status labels: Confirmed (live evidence), Code-confirmed (read from source, not safely provable live), Observed (environment/tooling).
 

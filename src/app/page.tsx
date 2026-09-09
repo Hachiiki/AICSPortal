@@ -58,11 +58,12 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
  *   - Unauthenticated + protected route → redirect to /portal/login
  *   - Authenticated + /portal/login → redirect to dashboard
  *   - Root / → redirect to /portal/login (or dashboard if authed)
- *   - Session persists in localStorage across refreshes
+ *   - Session lives in a server httpOnly cookie; the client holds no
+ *     auth flags (Phase 6). URLs are display-only.
  */
 export default function AICSLoginPage() {
   const { route, navigate } = usePortalRoute()
-  const { username, branch, role, loading: authLoading, login, logout } = useAuth()
+  const { username, branch, role, loading: authLoading, login, loginDemo, logout } = useAuth()
   const [redirecting, setRedirecting] = useState(false)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
@@ -100,6 +101,20 @@ export default function AICSLoginPage() {
     [login]
   )
 
+  // Dev-only demo login (server-issued session, no bundle credentials).
+  const handleDemoLogin = useCallback(
+    async (): Promise<{ ok: boolean; error?: string }> => {
+      const result = await loginDemo()
+      if (result.ok && result.branch) {
+        setRedirectBranch(result.branch)
+        setRedirectRole(result.role || 'student')
+        setRedirecting(true)
+      }
+      return result
+    },
+    [loginDemo]
+  )
+
   const handleRedirectComplete = useCallback(() => {
     setRedirecting(false)
     if (redirectBranch && username) {
@@ -130,7 +145,7 @@ export default function AICSLoginPage() {
   if (!username) {
     return (
       <>
-        <LoginView onLogin={handleLogin} />
+        <LoginView onLogin={handleLogin} onDemoLogin={handleDemoLogin} />
         <MobileWarning />
       </>
     )

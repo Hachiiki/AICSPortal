@@ -44,6 +44,7 @@ Positive results worth noting: admin-only and faculty-only role checks work on a
 - [09 Fix plan](./09_FIX_PLAN.md): master issue table, root causes, strategy, acceptance criteria
 - [10 Fix phases](./10_FIX_PHASES.md): phased execution with statuses and evidence
 - [11 Post-fix verification](./11_POST_FIX_VERIFICATION.md): retest results and remaining work
+- [12 Phase 6 verification (sessions)](./12_SESSIONS_VERIFICATION.md): 32/32 live probes close 004/005/009 (+012 full)
 
 ## Top priorities
 

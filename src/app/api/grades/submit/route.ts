@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { asString, HttpError } from '@/lib/http'
+import { getSession, spoofCheck } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { branch, subjectCode, academicYear, semester, period, note } = body
-    // BUG-002: performedBy required (matches release). BUG-010: must be a string pre-query.
-    let performedBy: string
-    try {
-      performedBy = asString(body?.performedBy, 'performedBy')
-    } catch (e) {
-      if (e instanceof HttpError) {
-        return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-      }
-      throw e
+    const { branch, subjectCode, academicYear, semester, period, note, performedBy } = body
+    // Phase 6: writer is the session user; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performedByUser = session.username
 
     if (!branch || !subjectCode) {
       return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
     }
 
-    // Auth: performedBy must be faculty in same branch (now required, not optional).
+    // Auth: writer must be the session faculty in the same branch.
     {
       const studentsCol = await getCollection('students')
-      const performer = await studentsCol.findOne({ username: performedBy })
+      const performer = await studentsCol.findOne({ username: performedByUser })
       if (!performer || performer.role !== 'faculty') {
         return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
       }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         oldValue: d[period as string] || '',
         newValue: d[period as string] || '',
         action: 'submit',
-        performedBy,
+        performedBy: performedByUser,
         performedAt: now,
         note: note || '',
       }))
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         oldValue: '',
         newValue: '',
         action: 'submit',
-        performedBy,
+        performedBy: performedByUser,
         performedAt: now,
         note: note || '',
       }))

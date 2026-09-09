@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getAnnouncements } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession, spoofCheck } from '@/lib/session'
 import type { MongoAnnouncement } from '@/lib/mongodb/types'
 
 // GET /api/announcements?username=juan.santos
-// Returns active announcements for the student's branch, newest first.
+// Returns active announcements for the session user's branch, newest first.
+// Phase 6: the username param must match the session (read markers are per-user).
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const student = await getStudentByUsername(username)
@@ -57,7 +66,19 @@ const VALID_CATEGORIES = ['academic', 'deadline', 'campus', 'holiday', 'general'
 
 export async function POST(request: NextRequest) {
   try {
+    // Phase 6: author is the session admin; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { branch, title, body, category, priority, expiryDate, performedBy } = await request.json()
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    if (typeof branch !== 'string' || branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
     if (!branch || !title || !body || !category) {
       return NextResponse.json({ ok: false, error: 'Branch, title, body, and category are required.' }, { status: 400 })
     }
@@ -79,10 +100,8 @@ export async function POST(request: NextRequest) {
       }
       safeExpiry = parsed
     }
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
-    const performer = await getStudentByUsername(performedBy)
+    // Phase 6: author is the session user (legacy performedBy already spoof-checked; ignored).
+    const performer = await getStudentByUsername(session.username)
     if (!performer || performer.role !== 'admin') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
     }

@@ -27,9 +27,10 @@ import { FaceIdPanel } from './FaceIdPanel'
 
 interface LoginViewProps {
   onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  onDemoLogin: () => Promise<{ ok: boolean; error?: string }>
 }
 
-export function LoginView({ onLogin }: LoginViewProps) {
+export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const [authMode, setAuthMode] = useState<AuthMode>('credentials')
 
   return (
@@ -158,9 +159,9 @@ export function LoginView({ onLogin }: LoginViewProps) {
 
           <AnimatePresence mode="wait">
             {authMode === 'credentials' ? (
-              <CredentialsForm key="cred" onLogin={onLogin} />
+              <CredentialsForm key="cred" onLogin={onLogin} onDemoLogin={onDemoLogin} />
             ) : (
-              <FaceIdPanel key="face" onLogin={onLogin} />
+              <FaceIdPanel key="face" onDemoLogin={onDemoLogin} />
             )}
           </AnimatePresence>
 

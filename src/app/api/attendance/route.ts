@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession, spoofCheck } from '@/lib/session'
 
 // ============================================================
 //  Attendance API
@@ -27,34 +28,42 @@ async function getPerformer(username: string | null) {
 
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: reader is the session user; branch comes from the session.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     const sectionKey = request.nextUrl.searchParams.get('sectionKey')
     const date = request.nextUrl.searchParams.get('date')
     if (!username || !sectionKey) {
       return NextResponse.json({ ok: false, error: 'Username and sectionKey are required.' }, { status: 400 })
     }
-    const performer = await getPerformer(username)
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performer = await getPerformer(session.username)
     if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
     }
     const col = await getCollection('attendance')
-    const query: Record<string, string> = { branch: performer.branch, sectionKey }
-    const sessions = await col
+    const query: Record<string, string> = { branch: session.branch, sectionKey }
+    const sessionList = await col
       .find(query)
       .project({ date: 1, takenBy: 1, takenAt: 1 })
       .sort({ date: -1 })
       .toArray()
     let records: Record<string, string> | null = null
     if (date) {
-      const session = await col.findOne({ ...query, date })
-      if (session) records = session.records || {}
-    } else if (sessions.length) {
-      const latest = await col.findOne({ ...query, date: (sessions[0] as any).date })
+      const doc = await col.findOne({ ...query, date })
+      if (doc) records = doc.records || {}
+    } else if (sessionList.length) {
+      const latest = await col.findOne({ ...query, date: (sessionList[0] as any).date })
       if (latest) records = latest.records || {}
     }
     return NextResponse.json({
       ok: true,
-      sessions: sessions.map((s: any) => ({ date: s.date, takenBy: s.takenBy, takenAt: s.takenAt })),
+      sessions: sessionList.map((s: any) => ({ date: s.date, takenBy: s.takenBy, takenAt: s.takenAt })),
       records,
     })
   } catch (err) {
@@ -65,13 +74,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Phase 6: taker is the session faculty; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await request.json()
-    // BUG-010: branch/sectionKey/date/performedBy must be strings pre-query; objects become operators.
-    if (typeof branch !== 'string' || !branch || typeof sectionKey !== 'string' || !sectionKey || typeof date !== 'string' || !date || typeof performedBy !== 'string' || !performedBy) {
-      // Preserve 403 semantics for missing auth, 400 for missing fields.
-      if (typeof performedBy !== 'string' || !performedBy) {
-        return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-      }
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    // BUG-010: branch/sectionKey/date must be strings pre-query; objects become operators.
+    if (typeof branch !== 'string' || branch !== session.branch || typeof sectionKey !== 'string' || !sectionKey || typeof date !== 'string' || !date) {
       return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
     }
     if (!branch || !sectionKey || !date || !records || typeof records !== 'object') {
@@ -80,10 +94,8 @@ export async function POST(request: NextRequest) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       return NextResponse.json({ ok: false, error: 'Date must be YYYY-MM-DD.' }, { status: 400 })
     }
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
-    const performer = await getPerformer(performedBy)
+    // Phase 6: taker is the session faculty (legacy performedBy already spoof-checked; ignored).
+    const performer = await getPerformer(session.username)
     if (!performer || performer.role !== 'faculty') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
     }
@@ -115,15 +127,15 @@ export async function POST(request: NextRequest) {
       await col.updateOne(
         { branch, sectionKey, date },
         {
-          $set: { records, takenBy: performedBy, takenAt: new Date() },
-          $push: { history: { updatedAt: new Date(), updatedBy: performedBy, changedFields } as any },
+          $set: { records, takenBy: session.username, takenAt: new Date() },
+          $push: { history: { updatedAt: new Date(), updatedBy: session.username, changedFields } as any },
         },
         { upsert: true }
       )
     } else {
       await col.updateOne(
         { branch, sectionKey, date },
-        { $set: { records, takenBy: performedBy, takenAt: new Date() } },
+        { $set: { records, takenBy: session.username, takenAt: new Date() } },
         { upsert: true }
       )
     }

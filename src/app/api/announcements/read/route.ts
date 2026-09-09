@@ -1,19 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getSession } from '@/lib/session'
 import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
 
 // POST /api/announcements/read
 // Body: { username, announcementId?, ids?, action }
-// Records that a user read or dismissed announcements so the deck
-// hides them on later visits. Accepts one id or many. Any role may
-// record reads, but only for its own username and branch.
+// Phase 6: users record reads for their own session username only.
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { username, announcementId, ids, action } = await request.json()
     // BUG-010: username must be a string pre-query; ids must be strings (no [object Object] rows).
+    // Phase 6: username must be the session user.
     if (typeof username !== 'string' || !username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     if (announcementId !== undefined && typeof announcementId !== 'string') {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })

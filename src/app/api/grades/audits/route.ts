@@ -1,29 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
+import { getSession } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   try {
-    // BUG-007: audit trail was fully public. Require a faculty/admin username
-    // (caller-supplied until sessions land — BUG-009) + branch scoping.
-    const username = request.nextUrl.searchParams.get('username')
-    if (!username) {
+    // Phase 6: audit trail belongs to the session faculty/admin, branch-forced.
+    const session = await getSession(request)
+    if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const performer = await getStudentByUsername(username)
-    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
+    if (session.role !== 'faculty' && session.role !== 'admin') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
     }
+    // Legacy username param must match the session when supplied.
+    const username = request.nextUrl.searchParams.get('username')
+    if (username && username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
     const branch = request.nextUrl.searchParams.get('branch')
-    // Branch must match the performer's branch; cross-branch reads rejected.
-    if (branch && branch !== performer.branch) {
+    // Branch is forced to the session branch; cross-branch reads rejected.
+    if (branch && branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
     const subjectCode = request.nextUrl.searchParams.get('subjectCode')
     const studentUsername = request.nextUrl.searchParams.get('studentUsername')
     const limit = Math.min(parseInt(request.nextUrl.searchParams.get('limit') || '50', 10), 200)
 
-    const query: any = { branch: performer.branch }
+    const query: any = { branch: session.branch }
     if (subjectCode) query.subjectCode = subjectCode
     if (studentUsername) query.studentUsername = studentUsername
 
