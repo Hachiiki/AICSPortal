@@ -29,7 +29,13 @@ config({ path: '.env.local' })
 
 const scrypt = promisify(_scrypt)
 const APPLY = process.argv.includes('--apply')
-const dbName = process.env.MONGODB_DB || 'aics_portal'
+// Phase 7 pre-flight: the target DB must be explicit. A silent fallback
+// once risked running the rehash against the wrong database — abort instead.
+const dbName = process.env.MONGODB_DB
+if (!dbName) {
+  console.error('Refusing to run: MONGODB_DB is not set. Set it explicitly to the target database (e.g. MONGODB_DB=aics_portal).')
+  process.exit(1)
+}
 
 async function hashPassword(plain: string): Promise<string> {
   const salt = randomBytes(16).toString('hex')
