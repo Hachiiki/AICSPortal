@@ -111,7 +111,7 @@ Architecture rules:
 
 - Plan before code: `Request -> Plan -> Execute -> Verify -> Deliver`. Break large work into testable chunks, small PRs.
 - Orchestration: on complex tasks use `project-orchestrator` — analyze, map to best skill(s), announce `To accomplish this, I will use: [...]`, always include `unslop`.
-- Commits/PRs: only when explicitly requested. Before commit inspect `git status/diff/log --oneline -10`, stage only intended files, never commit secrets/`.env.local`/`.next/`. Never `--force`, `--no-verify`, or config changes unless asked.
+- Commits: ALWAYS commit every change made (standing user instruction). Before commit inspect `git status/diff/log --oneline -10`, stage only intended files, never commit secrets/`.env.local`/`.next/`. Never `--force`, `--no-verify`, or config changes unless asked. PRs/pushes only when explicitly requested.
 - Never: modify `.env.local`, rotate keys, edit `src/components/ui/` primitives by hand, create `*.md` docs unless asked, ` subjects.section` writes, unchecked `Select All` on faculty notify (default nothing checked).
 - Sensitive: passwords plaintext today — do not log them, do not expose in client bundle, do not add new plaintext flows. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
 
