@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { submitTask } from '@/lib/mongodb/queries'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // TEACHER CONTROL: Teachers can close submissions per task
 // (task.submissionsClosed = true). Once closed, students
@@ -21,10 +22,18 @@ export async function PATCH(
 ) {
   try {
     const { taskId } = await params
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6 (closes BUG-004 cross-user submit): only the session user may submit their own tasks.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
 
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const result = await submitTask(taskId, username)

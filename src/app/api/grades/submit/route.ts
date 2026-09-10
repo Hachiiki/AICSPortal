@@ -1,18 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { branch, subjectCode, academicYear, semester, period, performedBy, note } = await request.json()
+    const body = await request.json()
+    const { branch, subjectCode, academicYear, semester, period, note, performedBy } = body
+    // Phase 6: writer is the session user; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performedByUser = session.username
 
     if (!branch || !subjectCode) {
       return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
     }
+    // BUG-010: keys reaching Mongo filters must be strings.
+    if (typeof branch !== 'string' || typeof subjectCode !== 'string') {
+      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
+    }
+    if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string') || (period !== undefined && typeof period !== 'string') || (note !== undefined && typeof note !== 'string')) {
+      return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
+    }
 
-    // Auth: performedBy must be faculty in same branch
-    if (performedBy) {
+    // Auth: writer must be the session faculty in the same branch.
+    {
       const studentsCol = await getCollection('students')
-      const performer = await studentsCol.findOne({ username: performedBy })
+      const performer = await studentsCol.findOne({ username: performedByUser })
       if (!performer || performer.role !== 'faculty') {
         return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
       }
@@ -50,7 +70,7 @@ export async function POST(request: NextRequest) {
         oldValue: d[period as string] || '',
         newValue: d[period as string] || '',
         action: 'submit',
-        performedBy: performedBy || 'unknown',
+        performedBy: performedByUser,
         performedAt: now,
         note: note || '',
       }))
@@ -81,14 +101,25 @@ export async function POST(request: NextRequest) {
         oldValue: '',
         newValue: '',
         action: 'submit',
-        performedBy: performedBy || 'unknown',
+        performedBy: performedByUser,
         performedAt: now,
         note: note || '',
       }))
     }
 
     if (auditEntries.length > 0) {
-      try { await auditCol.insertMany(auditEntries) } catch {}
+      // BUG-011: surface audit failures instead of swallowing them.
+      try {
+        await auditCol.insertMany(auditEntries)
+      } catch (auditErr) {
+        console.error('Grade submit audit insert failed:', auditErr)
+        return NextResponse.json({
+          ok: true,
+          message: `${result.modifiedCount} grade(s) submitted for approval.`,
+          modifiedCount: result.modifiedCount,
+          auditWarning: 'Some grade audits failed to persist. See server logs.',
+        })
+      }
     }
 
     return NextResponse.json({

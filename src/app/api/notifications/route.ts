@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 import type { MongoNotification } from '@/lib/mongodb/types'
 
 // ============================================================
@@ -38,15 +40,29 @@ function toClient(d: any) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Phase 6: inbox reads are self-or-staff; sent-mail reads are own only.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const username = request.nextUrl.searchParams.get('username')
     const sentBy = request.nextUrl.searchParams.get('sentBy')
     if (!username && !sentBy) {
       return NextResponse.json({ ok: false, error: 'Username or sentBy is required.' }, { status: 400 })
     }
     if (username) {
+      if (username !== session.username) {
+        const isStaff = session.role === 'faculty' || session.role === 'admin'
+        if (!isStaff) {
+          return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+        }
+      }
       const student = await getStudentByUsername(username)
       if (!student) {
         return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
+      }
+      if (student.branch !== session.branch) {
+        return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
       }
       const col = await getCollection<MongoNotification>('notifications')
       const docs = await col
@@ -59,6 +75,10 @@ export async function GET(request: NextRequest) {
     const performer = await getStudentByUsername(sentBy as string)
     if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
+    }
+    // Phase 6: sent-mail belongs to the session user; staff cannot read each other's outbox.
+    if (sentBy !== session.username || performer.branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const col = await getCollection<MongoNotification>('notifications')
     const docs = await col
@@ -75,7 +95,19 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Phase 6: sender is the session user; mismatched performedBy is a spoof attempt.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { branch, title, body, sectionKeys, performedBy } = await request.json()
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    if (typeof branch !== 'string' || branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
     if (!branch || !title || !body || !Array.isArray(sectionKeys) || sectionKeys.length === 0) {
       return NextResponse.json({ ok: false, error: 'Branch, title, body, and at least one section are required.' }, { status: 400 })
     }
@@ -85,15 +117,17 @@ export async function POST(request: NextRequest) {
     if (typeof body !== 'string' || body.trim().length === 0 || body.length > 2000) {
       return NextResponse.json({ ok: false, error: 'Body must be 1-2000 characters.' }, { status: 400 })
     }
-    if (!performedBy) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 })
-    }
-    const performer = await getStudentByUsername(performedBy)
+    // Phase 6: sender is the session user (legacy performedBy already spoof-checked; ignored).
+    const performer = await getStudentByUsername(session.username)
     if (!performer || performer.role !== 'faculty') {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
     }
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
+    }
+    // BUG-010: sectionKeys must be strings; objects would pollute the fan-out.
+    if (!(sectionKeys as unknown[]).every((k) => typeof k === 'string')) {
+      return NextResponse.json({ ok: false, error: 'Section keys must be strings.' }, { status: 400 })
     }
 
     // Resolve the performer's own sections from their teaching load.
@@ -130,7 +164,7 @@ export async function POST(request: NextRequest) {
           title: title.trim(),
           body: body.trim(),
           fromName: performer.fullName,
-          fromUsername: performedBy,
+          fromUsername: session.username,
           sectionKey: key,
           subjectCode: entry.code,
           createdAt: now,
@@ -143,8 +177,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'The chosen sections have no enrolled students.' }, { status: 400 })
     }
     const col = await getCollection<MongoNotification>('notifications')
-    await col.createIndex({ branch: 1, studentUsername: 1, createdAt: -1 })
-    await col.createIndex({ branch: 1, fromUsername: 1, createdAt: -1 })
+    // BUG-017: indexes are created by seed/migration tooling, not per request.
     const result = await col.insertMany(docs as any)
     const sections = targets.length
     return NextResponse.json({
@@ -161,9 +194,17 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Phase 6: readers may only mark their own docs (session-enforced).
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
     const { username, id, all } = await request.json()
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const student = await getStudentByUsername(username)
     if (!student) {
@@ -171,9 +212,7 @@ export async function PATCH(request: NextRequest) {
     }
     const col = await getCollection<MongoNotification>('notifications')
     const base = { branch: student.branch, studentUsername: username }
-    // Readers may only mark their own docs. No performer check is
-    // possible without sessions, so the query itself is scoped to
-    // the reader's own username and branch.
+    // Session-scoped to the reader's own username and branch (see above).
     if (all === true) {
       const result = await col.updateMany({ ...base, read: false }, { $set: { read: true, readAt: new Date() } })
       return NextResponse.json({ ok: true, marked: result.modifiedCount })

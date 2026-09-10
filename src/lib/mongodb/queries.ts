@@ -10,6 +10,9 @@ export async function getStudentByCredentials(
   username: string,
   password: string
 ): Promise<MongoStudent | null> {
+  // Defense-in-depth for BUG-001: never let operator objects reach the filter,
+  // even if a caller forgets asString(). Non-strings match nothing.
+  if (typeof username !== 'string' || typeof password !== 'string') return null
   const col = await getCollection<MongoStudent>('students')
   return col.findOne({ username, password })
 }

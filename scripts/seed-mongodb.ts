@@ -28,6 +28,17 @@ const BRANCH = 'commonwealth' as const
 const BRANCH_NAME = 'AICS Commonwealth'
 const BRANCH_ADDRESS = 'AICS Bldg., Commonwealth Ave., Cor., Holy Spirit Drive Brgy. Don Antonio, Quezon City'
 
+// BUG-018: index builds can stall silently on throttled tiers (observed on Atlas M0).
+// Helper adds per-index timeout + progress logs so a hang fails loudly instead of hanging.
+async function createIndexSafe(db: any, collection: string, spec: any, options: any, label: string) {
+  console.log(`  … index ${label} (${collection})`)
+  await Promise.race([
+    db.collection(collection).createIndex(spec, options),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`Index timeout: ${label}`)), 60000)),
+  ])
+  console.log(`  ✓ index ${label}`)
+}
+
 // GPA computation: unit-weighted average of finalGrade (2 decimals)
 function computeGPA(subjects: { units: number; finalGrade: string }[]): string {
   let totalUnits = 0
@@ -194,6 +205,7 @@ async function seed() {
         branch: BRANCH,
         username,
         password: 'student123',
+        tokenVersion: 0,
         role: 'student' as const,
         fullName,
         firstName: fn,
@@ -425,7 +437,8 @@ async function seed() {
   const facultyUser = {
     branch: BRANCH,
     username: 'm.reyes',
-    password: 'faculty123',
+      password: 'faculty123',
+      tokenVersion: 0,
     role: 'faculty' as const,
     fullName: 'Engr. Maria Cristina Reyes',
     firstName: 'Maria Cristina',
@@ -465,7 +478,8 @@ async function seed() {
   const adminUser = {
     branch: BRANCH,
     username: 'admin',
-    password: 'admin123',
+      password: 'admin123',
+      tokenVersion: 0,
     role: 'admin' as const,
     fullName: 'AICS Registrar Admin',
     firstName: 'Registrar',
@@ -730,15 +744,16 @@ async function seed() {
   await db.collection('announcements').createIndex({ branch: 1, postedDate: -1 })
 
   // ----------------------------------------------------------
-  //  10. Indexes
+  //  10. Indexes (BUG-018: progress + timeout per index; run `npm run db:indexes`
+  //  separately if data seeding must complete while index builds stall)
   // ----------------------------------------------------------
-  await db.collection('students').createIndex({ branch: 1, username: 1 }, { unique: true })
-  await db.collection('subjects').createIndex({ branch: 1, studentUsername: 1 })
-  await db.collection('subjects').createIndex({ branch: 1, code: 1, academicYear: 1, semester: 1 })
-  await db.collection('subjects').createIndex({ branch: 1, professor: 1, academicYear: 1, semester: 1 })
-  await db.collection('sessions').createIndex({ branch: 1 })
-  await db.collection('courses').createIndex({ branch: 1, code: 1 }, { unique: true })
-  await db.collection('grade_audits').createIndex({ branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 })
+  await createIndexSafe(db, 'students', { branch: 1, username: 1 }, { unique: true }, '1/7 students')
+  await createIndexSafe(db, 'subjects', { branch: 1, studentUsername: 1 }, {}, '2/7 subjects-student')
+  await createIndexSafe(db, 'subjects', { branch: 1, code: 1, academicYear: 1, semester: 1 }, {}, '3/7 subjects-code')
+  await createIndexSafe(db, 'subjects', { branch: 1, professor: 1, academicYear: 1, semester: 1 }, {}, '4/7 subjects-prof')
+  await createIndexSafe(db, 'sessions', { branch: 1 }, {}, '5/7 sessions')
+  await createIndexSafe(db, 'courses', { branch: 1, code: 1 }, { unique: true }, '6/7 courses')
+  await createIndexSafe(db, 'grade_audits', { branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 }, {}, '7/7 audits')
   console.log(`  ✓ Created indexes`)
 
   console.log('\n✅ Seed complete!')

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { spoofCheck } from '@/lib/session'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
   const norm = (v: string) => {
@@ -31,52 +33,94 @@ export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
     const { updates, performedBy } = body
+    // Phase 6: writer is the session user. A mismatched performedBy is a
+    // spoof attempt (403). The field is otherwise ignored — no dual-auth paths.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const spoof = spoofCheck(session, performedBy)
+    if (spoof) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    const performedByUser = session.username
 
     if (!updates || !Array.isArray(updates) || updates.length === 0) {
       return NextResponse.json({ ok: false, error: 'No updates provided.' }, { status: 400 })
     }
 
-    // Simple auth: performedBy must be a faculty in the same branch
-    let performerBranch: string | null = null
-    let performerName: string | null = null
-    if (performedBy) {
-      const studentsCol = await getCollection('students')
-      const performer = await studentsCol.findOne({ username: performedBy })
-      if (!performer || performer.role !== 'faculty') {
-        return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-      }
-      performerBranch = performer.branch
-      performerName = performer.fullName
+    // Auth: writer must be the session faculty in the same branch.
+    // (Session replaces the old optional-performer pattern — BUG-002.)
+    const studentsCol = await getCollection('students')
+    const performer = await studentsCol.findOne({ username: performedByUser })
+    if (!performer || performer.role !== 'faculty') {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
+    }
+    const performerBranch: string | null = performer.branch
+    const performerName: string | null = performer.fullName
+    if (performerBranch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
-    const results: { ok: boolean; studentUsername: string; subjectCode: string }[] = []
+    const results: { ok: boolean; studentUsername: string; subjectCode: string; reason?: string }[] = []
+    let auditOk = true
+
+    // BUG-008: grade values must be 0-100 (up to 2 decimals) or INC (case-insensitive).
+    const validGrade = (v: unknown): boolean => {
+      if (typeof v !== 'string') return false
+      if (v.toUpperCase() === 'INC') return true
+      return /^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/.test(v.trim())
+    }
 
     for (const update of updates) {
       const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester } = update
 
-      if (!studentUsername || !subjectCode || !branch) {
-        results.push({ ok: false, studentUsername, subjectCode })
+      // BUG-010: keys reaching Mongo filters must be strings; objects become operators.
+      if (typeof studentUsername !== 'string' || !studentUsername || typeof subjectCode !== 'string' || !subjectCode || typeof branch !== 'string' || !branch) {
+        results.push({ ok: false, studentUsername: String(studentUsername ?? ''), subjectCode: String(subjectCode ?? ''), reason: 'Invalid keys' })
+        continue
+      }
+      if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string')) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'Invalid term' })
         continue
       }
 
       // Branch guard: performer must match branch if provided
       if (performerBranch && performerBranch !== branch) {
-        results.push({ ok: false, studentUsername, subjectCode })
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'Branch mismatch' })
         continue
       }
 
       // Fetch existing for audit and for finalGrade compute
       const existing = await col.findOne({ studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) })
       if (!existing) {
-        results.push({ ok: false, studentUsername, subjectCode })
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'Not found' })
         continue
       }
 
-      // Optional: ensure faculty teaches this subject
+      // BUG-008: enforce professor-of-record. Faculty may only edit their own sections.
       if (performerName && existing.professor !== performerName) {
-        // Allow if performer is faculty but not the assigned professor? For now allow, but log
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'Not your section' })
+        continue
+      }
+
+      // BUG-008: validate grade values before they reach $set.
+      let invalidReason: string | null = null
+      for (const [label, val] of [['prelim', prelim], ['midterm', midterm], ['finals', finals]] as const) {
+        if (val !== undefined && !validGrade(val)) {
+          invalidReason = `Invalid ${label}`
+          break
+        }
+      }
+      if (invalidReason) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: invalidReason })
+        continue
+      }
+      if (finalGrade !== undefined && !validGrade(finalGrade)) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'Invalid finalGrade' })
+        continue
       }
 
       const setDoc: Record<string, string> = {}
@@ -95,7 +139,7 @@ export async function PATCH(request: NextRequest) {
             oldValue: oldVal || '',
             newValue: newVal || '',
             action: 'save',
-            performedBy: performedBy || 'unknown',
+            performedBy: performedByUser,
             performedAt: now,
           })
         }
@@ -159,7 +203,7 @@ export async function PATCH(request: NextRequest) {
       }
 
       if (Object.keys(setDoc).length === 0) {
-        results.push({ ok: false, studentUsername, subjectCode })
+        results.push({ ok: false, studentUsername, subjectCode, reason: 'No changes' })
         continue
       }
 
@@ -169,24 +213,37 @@ export async function PATCH(request: NextRequest) {
       )
 
       if (auditEntries.length > 0) {
-        try { await auditCol.insertMany(auditEntries) } catch {}
+        // BUG-011: never swallow audit failures silently; flag them for observability.
+        try {
+          await auditCol.insertMany(auditEntries)
+        } catch (auditErr) {
+          console.error('Grade audit insert failed:', auditErr)
+          auditOk = false
+        }
       }
 
       results.push({
         ok: result.modifiedCount > 0,
         studentUsername,
         subjectCode,
+        ...(result.modifiedCount === 0 ? { reason: 'No change' } : {}),
       })
     }
 
     const successCount = results.filter((r) => r.ok).length
     const failCount = results.filter((r) => !r.ok).length
 
-    return NextResponse.json({
-      ok: true,
-      message: `${successCount} updated, ${failCount} skipped`,
-      results,
-    })
+    // BUG-014: honest envelope — ok reflects whether anything succeeded.
+    const status = failCount === 0 ? 200 : successCount === 0 ? 400 : 207
+    return NextResponse.json(
+      {
+        ok: successCount > 0,
+        message: `${successCount} updated, ${failCount} skipped`,
+        results,
+        ...(auditOk ? {} : { auditWarning: 'Some grade audits failed to persist. See server logs.' }),
+      },
+      { status }
+    )
   } catch (err) {
     console.error('Grade update error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update grades.' }, { status: 500 })

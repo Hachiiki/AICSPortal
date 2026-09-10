@@ -1,7 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
-// useRef removed — not needed after hydration fix
+import { useCallback, useEffect, useState } from 'react'
 import type { Student } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
 
@@ -74,68 +73,49 @@ export function useStudentData(username: string | null) {
 }
 
 // ============================================================
-//  useAuth — manages the logged-in username + branch in
-//  localStorage. Uses useSyncExternalStore so the first client
-//  render matches the server (both null), then React updates
-//  to the real value after hydration. This prevents hydration
-//  mismatches that would break the page.
+//  useAuth — Phase 6: identity comes from the server session
+//  (httpOnly cookie set by /api/auth/login), NOT localStorage.
+//
+//  On mount the hook calls GET /api/auth/session: a 401 means
+//  signed-out. Editing any client-side flag grants nothing —
+//  every API route and /portal page re-verifies the cookie
+//  server-side (middleware + getSession). URLs stay display-only.
 // ============================================================
 
-// --- useSyncExternalStore for localStorage ---
-
-// A custom event dispatched whenever login/logout writes to localStorage
-const AUTH_EVENT = 'aics-auth-change'
-
-function dispatchAuthChange() {
-  window.dispatchEvent(new Event(AUTH_EVENT))
-}
-
-function authSubscribe(callback: () => void): () => void {
-  window.addEventListener(AUTH_EVENT, callback)
-  window.addEventListener('storage', callback)
-  return () => {
-    window.removeEventListener(AUTH_EVENT, callback)
-    window.removeEventListener('storage', callback)
-  }
-}
-
-// Client snapshot: reads from localStorage
-function getClientUsername(): string | null {
-  return localStorage.getItem('aics_username')
-}
-function getClientBranch(): string | null {
-  return localStorage.getItem('aics_branch')
-}
-function getClientRole(): string | null {
-  return localStorage.getItem('aics_role')
-}
-
-// Server snapshot: always null (no localStorage on server)
-function getServerValue(): string | null {
-  return null
+interface AuthState {
+  username: string | null
+  branch: string | null
+  role: string | null
 }
 
 export function useAuth() {
-  // useSyncExternalStore ensures:
-  // 1. Server render: username = null, branch = null (getServerValue)
-  // 2. Client first render (hydration): username = null, branch = null (getServerValue)
-  //    → matches server, no hydration mismatch
-  // 3. After hydration: React re-renders with getClientUsername/getClientBranch
-  //    → reads real values from localStorage
-  const username = useSyncExternalStore(authSubscribe, getClientUsername, getServerValue)
-  const branch = useSyncExternalStore(authSubscribe, getClientBranch, getServerValue)
-  const role = useSyncExternalStore(authSubscribe, getClientRole, getServerValue)
+  const [auth, setAuth] = useState<AuthState>({ username: null, branch: null, role: null })
+  // loading starts true on both server and first client render, so
+  // hydration matches; it flips false once the session check lands.
+  const [loading, setLoading] = useState(true)
 
-  // loading is true on the server and first client render (hydration),
-  // then becomes false after mount. This prevents hydration mismatch
-  // because both server and client first render see loading=true → null.
-  // After mount, the effect updates loading to false, which triggers
-  // a re-render with the real auth state from useSyncExternalStore.
-  const loading = useSyncExternalStore(
-    () => () => {},
-    () => false, // client: not loading (localStorage is available)
-    () => true   // server: loading (no localStorage)
-  )
+  useEffect(() => {
+    let cancelled = false
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/auth/session')
+        if (!cancelled && res.ok) {
+          const data = await res.json()
+          if (data.ok) {
+            setAuth({ username: data.username, branch: data.branch, role: data.role || 'student' })
+          }
+        }
+      } catch {
+        // Network failure reads as signed-out; the login view explains.
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    checkSession()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const login = useCallback(
     async (
@@ -152,10 +132,8 @@ export function useAuth() {
         if (!data.ok) {
           return { ok: false, error: data.error }
         }
-        localStorage.setItem('aics_username', data.username)
-        localStorage.setItem('aics_branch', data.branch)
-        localStorage.setItem('aics_role', data.role || 'student')
-        dispatchAuthChange()
+        // Session cookie was set by the server (httpOnly). State here is display-only.
+        setAuth({ username: data.username, branch: data.branch, role: data.role || 'student' })
         return { ok: true, branch: data.branch, username: data.username, role: data.role || 'student' }
       } catch {
         return { ok: false, error: 'Network error. Please try again.' }
@@ -164,12 +142,28 @@ export function useAuth() {
     []
   )
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('aics_username')
-    localStorage.removeItem('aics_branch')
-    localStorage.removeItem('aics_role')
-    dispatchAuthChange()
+  // Dev-only one-click login. No credentials in the client bundle —
+  // the server issues the demo session (POST /api/auth/demo, 404 in prod).
+  const loginDemo = useCallback(async (): Promise<{ ok: boolean; error?: string; branch?: string; username?: string; role?: string }> => {
+    try {
+      const res = await fetch('/api/auth/demo', { method: 'POST' })
+      const data = await res.json()
+      if (!data.ok) {
+        return { ok: false, error: data.error }
+      }
+      setAuth({ username: data.username, branch: data.branch, role: data.role || 'student' })
+      return { ok: true, branch: data.branch, username: data.username, role: data.role || 'student' }
+    } catch {
+      return { ok: false, error: 'Network error. Please try again.' }
+    }
   }, [])
 
-  return { username, branch, role, loading, login, logout }
+  const logout = useCallback(() => {
+    // Fire-and-forget: client state clears immediately; the server
+    // cookie clears in the background. Route guards bounce to login.
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    setAuth({ username: null, branch: null, role: null })
+  }, [])
+
+  return { username: auth.username, branch: auth.branch, role: auth.role, loading, login, loginDemo, logout }
 }

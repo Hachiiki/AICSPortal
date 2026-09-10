@@ -16,11 +16,9 @@ export const T = {
 // Whether to expose the demo / test-login shortcut (dev only).
 export const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
 
-// Dev-only demo credentials. These match the student record seeded in
-// MongoDB (scripts/seed-mongodb.ts) and exist ONLY so developers can
-// log in with one click during local development. They are NOT mock
-// data — the auth still hits the real MongoDB via /api/auth/login.
-export const DEV_CREDENTIALS = { username: 'juan.santos', password: 'student123' } as const
+// Phase 6 (BUG-012 full fix): demo credentials were deleted from the client
+// bundle. Dev one-click login calls POST /api/auth/demo, which issues a real
+// session server-side (404 in production). Never put passwords here again.
 
 // Gradient for the "AICS Portal." accent text — top (#4EA4D7) to bottom (#64BFE9)
 export const PORTAL_TEXT_GRADIENT = 'linear-gradient(to bottom, #4EA4D7 0%, #64BFE9 100%)'

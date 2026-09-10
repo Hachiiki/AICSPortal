@@ -1,3 +1,10 @@
+# AGENTS.md — delegates to CLAUDE.md
+
+> Single source of truth is `CLAUDE.md`. Read it first before any task.
+> This file retains the canonical agent-skills pointers below (also preserved in CLAUDE.md §11).
+
+@CLAUDE.md
+
 ## Agent skills
 
 ### Issue tracker

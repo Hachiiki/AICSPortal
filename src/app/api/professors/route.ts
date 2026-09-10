@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getProfessors } from '@/lib/mongodb/queries'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ADMIN CONTROL: Professor directory details (office
 // hours, room, contact) are maintained by Admin. Students
@@ -10,9 +11,17 @@ import { getStudentByUsername, getProfessors } from '@/lib/mongodb/queries'
 // joins them with the student's current-term subjects by name.
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: branch directory reads require a session; username must be self.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const student = await getStudentByUsername(username)

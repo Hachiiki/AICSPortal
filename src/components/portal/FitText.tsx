@@ -36,7 +36,7 @@ export function FitText({ maxCqw, minCqw, className, children, multiline }: FitT
       // For multiline, compare the span's scrollHeight against the
       // parent container's clientHeight (the overlay box with fixed % height).
       // For single-line, compare scrollWidth against clientWidth.
-      const container = multiline ? el.parentElement : el
+      const container = (multiline ? el.parentElement : el) ?? el
       while (s > minCqw) {
         const fits = multiline
           ? el.scrollHeight <= container.clientHeight + 1

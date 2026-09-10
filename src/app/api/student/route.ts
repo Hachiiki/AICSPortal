@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getSubjectsForStudent, getCourses, getSessions } from '@/lib/mongodb/queries'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 import type { Student } from '@/lib/aics/types'
 
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: identity comes from the session. Staff (faculty/admin) may
+    // read same-branch users (roster drawers); everyone else reads self.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -12,6 +19,12 @@ export async function GET(request: NextRequest) {
     const mongoStudent = await getStudentByUsername(username)
     if (!mongoStudent) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
+    }
+    if (mongoStudent.username !== session.username) {
+      const isStaff = session.role === 'faculty' || session.role === 'admin'
+      if (!isStaff || mongoStudent.branch !== session.branch) {
+        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+      }
     }
 
     const [subjects, courses, sessions] = await Promise.all([

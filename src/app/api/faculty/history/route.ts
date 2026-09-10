@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ============================================================
 //  Faculty history API — GET /api/faculty/history?username=...
@@ -29,13 +30,25 @@ function isReleased(doc: any): boolean {
 
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: history belongs to the session user.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const faculty = await getStudentByUsername(username)
     if (!faculty) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
+    }
+    // BUG-006: same role gate as /api/faculty (caller-supplied until sessions land).
+    if (faculty.role !== 'faculty' && faculty.role !== 'admin') {
+      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
     }
 
     const subjectsCol = await getCollection('subjects')

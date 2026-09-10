@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getEvents } from '@/lib/mongodb/queries'
+import { getAuthedSession as getSession } from '@/lib/session-auth'
 
 // ADMIN CONTROL: Events are created/edited/deleted by
 // Admin only. Students have read-only access to this
@@ -11,9 +12,17 @@ import { getStudentByUsername, getEvents } from '@/lib/mongodb/queries'
 // The client filters by visible month/range.
 export async function GET(request: NextRequest) {
   try {
-    const username = request.nextUrl.searchParams.get('username')
+    // Phase 6: branch directory reads require a session; username must be self.
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const username = request.nextUrl.searchParams.get('username') || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     // Resolve the student to determine their branch (events are
