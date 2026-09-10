@@ -199,10 +199,10 @@
       "skillPath": ".agents/skills/graphify/SKILL.md",
       "computedHash": ""
     },
-    "grill-with-docs": {
+    "grilling": {
       "source": "mattpocock/skills",
       "sourceType": "github",
-      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
       "computedHash": "35e62aa423aaeab6a414bcac273f56dfb17802ef2334b41b6a3b00f28196c8cf"
     },
     "image-edit": {
