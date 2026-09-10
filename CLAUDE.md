@@ -31,7 +31,7 @@ Core flows:
 - Faculty portal: core tabs live, previous-records live, attendance live. History drawer + release queue verified.
 - Admin portal: only release queue + seed admin (`admin/admin123`) live. Dashboard / CRUD not started.
 - Infra debt: password hashing, session tokens, rate limiting, Zod validation, error boundaries, CI/CD — all open, see `@TODO.md`.
-- QA: 18 confirmed bugs (3 Critical) in `docs/qa_reports/`, top is NoSQL injection on login + plaintext passwords + grade role-check gap. Fix order: sessions+middleware → hashing → grade guards.
+- QA: 18 confirmed bugs (3 Critical) in `docs/done/qa_reports/` (all fixed or accepted, archived Sep-2026), top was NoSQL injection on login + plaintext passwords + grade role-check gap. Fix order was: sessions+middleware → hashing → grade guards.
 
 ## 3. Build and Test Commands / Common Terminal Commands
 
@@ -176,7 +176,7 @@ Issue tracker ops (`gh` inside clone infers repo):
 - `@docs/agents/triage-labels.md` — canonical roles → label strings
 - `@docs/adr/` — 0001 branch-as-field … 0006 auth-on-grade-writes
 - `@docs/faculty-build-plan.md`, `@docs/faculty-roadmap.md`
-- `@docs/qa_reports/` + `@docs/qa_evidence/` — Sep-2026 QA verdict + logs/snapshots
+- `@docs/done/qa_reports/` + `@docs/done/qa_evidence/` — Sep-2026 QA verdict + logs/snapshots
 - `@graphify-out/GRAPH_REPORT.md` + `graph.json` — code graph, communities, god nodes
 - `@.superdesign/design-system.md` — design tokens, replica templates
 - `@src/lib/mongodb/types.ts`, `@src/lib/mongodb/queries.ts`, `@src/lib/mongodb/connection.ts`

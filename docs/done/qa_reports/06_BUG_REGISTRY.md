@@ -572,7 +572,7 @@ See [fix for BUG-017](./08_RECOMMENDATIONS_AND_FIXES.md#fix-bug-017)
 | Attribute | Details |
 | :--- | :--- |
 | Severity | Info |
-| Status | Observed |
+| Status | Observed-accepted (owner approved 2026-09-10; rationale: tooling quirk on this Atlas M0 tier, accepted with watch item, no code change required) |
 | Area | Tooling / Environment |
 | Environment | Atlas M0 cluster, 2026-09-08 |
 | Affected component | `scripts/seed-mongodb.ts:65,532,574,...` |
