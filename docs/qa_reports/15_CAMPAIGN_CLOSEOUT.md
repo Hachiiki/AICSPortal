@@ -2,7 +2,7 @@
 
 # Task 8 DRAFT — Campaign Closeout + Merge/Deploy Plan (do NOT execute)
 
-Status: DRAFT for verifier review. Nothing below has been executed. Post-rotation verification (Task 7 Part A) that backs this draft: `db: aics_portal`, 77 docs, 0 non-scrypt, min tv 2 / 0 below, test-account hashes PASS (juan.santos, maria.cruz, m.reyes), rotation 2026-09-10. Docs touched: `example.env.local` (placeholders only), this report, `00_INDEX.md`.
+Status: DRAFT for verifier review. Nothing below has been executed. Post-rotation verification (Task 7 Part A) that backs this draft: `db: aics_portal`, 77 docs, 0 non-scrypt, min tv 2 / 0 below, test-account hashes PASS (juan.santos, maria.cruz, m.reyes), rotation PENDING (deferred by owner 2026-09-10); old credential still live. Docs touched: `example.env.local` (placeholders only), this report, `00_INDEX.md`.
 
 ## 1. Merge strategy: `fix/bug-fixes-findings` → `main`
 
@@ -12,13 +12,13 @@ Status: DRAFT for verifier review. Nothing below has been executed. Post-rotatio
 2. `git checkout main && git merge --no-ff fix/bug-fixes-findings`.
 3. Push `main`. Keep the branch until post-deploy smoke passes, then delete it (reports live on `main` permanently).
 
-## 2. Deploy target — QUESTION for the user (do not assume)
+## 2. Deploy target — resolved: Vercel (owner confirmed repo connected, deployment paused)
 
-Options: **(a) VPS + Caddy** (repo ships a `Caddyfile`; keeps data path short to Atlas; needs `MONGODB_URI` + `AUTH_SECRET` in server env, HTTPS via Caddy) — **recommended**, because the Caddyfile already encodes that intent and a school portal benefits from a stable host + Atlas IP allowlisting; **(b) Vercel** (analytics already wired; requires Atlas 0.0.0.0 access + env vars in dashboard; rate limiter is in-memory per instance — fine at school scale, revisit if scaled out); **(c) local-only** (no deploy; campaign still closes, merge ships the code).
+Options: **(a) VPS + Caddy** (repo ships a `Caddyfile`; keeps data path short to Atlas; needs `MONGODB_URI` + `AUTH_SECRET` in server env, HTTPS via Caddy); **(b) Vercel** (analytics already wired; requires Atlas 0.0.0.0 access + env vars in dashboard; rate limiter is in-memory per instance — fine at school scale, revisit if scaled out) — **resolved: owner chose Vercel**; **(c) local-only** (no deploy; campaign still closes, merge ships the code).
 
 ## 3. Deployment env checklist (values set at deploy time, never committed)
 
-- `MONGODB_URI` = NEW rotated credential (user-provided at deploy; old value burned).
+- `MONGODB_URI` = credential at deploy time (placeholders only — never committed). Rotation is PENDING (deferred by owner; old credential still live). Two paths: **(a)** rotate before unpause (preferred — cleanest), or **(b)** deploy on the old credential and rotate after, with a Vercel env update + redeploy. Either way the deploy environment must hold the CURRENT value at deploy time.
 - `MONGODB_DB=aics_portal` (explicit; tooling aborts when unset).
 - `AUTH_SECRET` = fresh 32-byte hex (`openssl rand -hex 32`), distinct from BACKUP_KEY.
 - `NODE_ENV=production` (kills `/api/auth/demo` → 404, Secure cookies on, dev fallback disabled).
@@ -62,4 +62,8 @@ One forced re-login for everyone (new secret + bumped versions). Nothing else: s
 
 ## 8. Remaining user answers needed
 
-Deploy target choice (§2); Phase 8 execution order (FitText/CSP/seed-rerun/override proposal) if wanted before merge.
+Deploy target choice (§2 — resolved: Vercel); Phase 8 execution order (FitText/CSP/seed-rerun/override proposal) if wanted before merge.
+
+## 9. PENDING ITEMS (do not lose)
+
+- **Credential rotation: BEFORE real student data exists.** Old credential still live (rotation deferred 2026-09-10). When owner says "rotated": owner updates Vercel `MONGODB_URI` + local `.env.local`; agent runs the fresh-connect proof (`db:` must resolve `aics_portal`; 77/77 scrypt; tv ≥ 2) and confirms the redeploy is healthy.
