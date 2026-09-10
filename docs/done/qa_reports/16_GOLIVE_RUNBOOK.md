@@ -41,7 +41,7 @@ Date: 2026-09-10 (local). Branch work on `fix/bug-fixes-findings`; merged to `ma
 | 3 seed logins | 200 × 3 | 200 × 3 PASS |
 | logout replay / re-login | 401 / 200 | 401 / 200 PASS |
 | grade write + audit (reverted) | 200 + row, then clean | 200 + audit rows, reverted clean, baseline verified PASS |
-| 30-min log watch | no anomalies | pending owner |
+| 30-min log watch | no anomalies | clean; two expected role-mismatch responses observed (faculty->enrollment 404, student->faculty 403), adjudicated by verifier, guards correct |
 
 Smoke executed 2026-09-10 by verifier (Super Z) at owner request against https://aics-portal.vercel.app; auth probes 10/10; grade write proven with full revert (audit rows deleted exactly, baseline restored).
 
