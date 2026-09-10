@@ -35,13 +35,15 @@ Date: 2026-09-10 (local). Branch work on `fix/bug-fixes-findings`; merged to `ma
 
 ## Smoke table
 
-| Check | Expected | Actual (owner fills) |
+| Check | Expected | Actual |
 |---|---|---|
-| demo 404 / session 401 / tamper 401 | 404 / 401 / 401 | |
-| 3 seed logins | 200 × 3 | |
-| logout replay / re-login | 401 / 200 | |
-| grade write + audit (reverted) | 200 + row, then clean | |
-| 30-min log watch | no anomalies | |
+| demo 404 / session 401 / tamper 401 | 404 / 401 / 401 | 404 / 401 / 401 PASS |
+| 3 seed logins | 200 × 3 | 200 × 3 PASS |
+| logout replay / re-login | 401 / 200 | 401 / 200 PASS |
+| grade write + audit (reverted) | 200 + row, then clean | 200 + audit rows, reverted clean, baseline verified PASS |
+| 30-min log watch | no anomalies | pending owner |
+
+Smoke executed 2026-09-10 by verifier (Super Z) at owner request against https://aics-portal.vercel.app; auth probes 10/10; grade write proven with full revert (audit rows deleted exactly, baseline restored).
 
 ## PENDING (do not lose)
 
