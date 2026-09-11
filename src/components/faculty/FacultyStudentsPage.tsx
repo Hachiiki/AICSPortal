@@ -319,16 +319,16 @@ export function FacultyStudentsPage({
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="bg-slate-50 border-b border-slate-100">
-                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
-                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
-                                <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Status</th>
-                                <th className="px-6 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="px-6 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
+                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
+                                <th className="px-4 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Status</th>
+                                <th className="px-6 py-2.5 sticky top-16 z-10 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
                               </tr>
                             </thead>
                             <tbody>
