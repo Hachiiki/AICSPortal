@@ -173,14 +173,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-        style={{ background: T.primary }}
-        onMouseEnter={(e) => {
-          if (!submitting) e.currentTarget.style.background = T.primaryDark
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = T.primary
-        }}
+        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

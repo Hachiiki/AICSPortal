@@ -62,24 +62,11 @@ function NavButton({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-      style={
+      className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
         active
-          ? { background: '#1e40af', color: '#ffffff' }
-          : { color: '#475569' }
-      }
-      onMouseEnter={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = '#f1f5f9'
-          e.currentTarget.style.color = '#0f172a'
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = 'transparent'
-          e.currentTarget.style.color = '#475569'
-        }
-      }}
+          ? 'bg-blue-800 text-white'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+      }`}
     >
       <Icon className="w-4 h-4 flex-shrink-0" />
       <span className="truncate">{item.label}</span>
