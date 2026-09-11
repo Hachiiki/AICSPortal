@@ -216,7 +216,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
         <div className="flex flex-wrap gap-6 items-center">
           {/* Subject (custom dropdown) */}
           <div className="flex flex-col gap-1" ref={subjectDropdownRef}>
-            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Subject</label>
+            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Subject</label>
             <div className="relative">
               <button
                 type="button"
@@ -271,7 +271,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
           <div className="w-px h-10 bg-slate-100" />
           {/* Type */}
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Type</label>
+            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</label>
             <div className="flex gap-1">
               {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
                 <button key={t} type="button" onClick={() => setTypeFilter(t)}
@@ -284,7 +284,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
           <div className="w-px h-10 bg-slate-100" />
           {/* Status */}
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Status</label>
+            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</label>
             <div className="flex gap-1">
               {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
                 <button key={s} type="button" onClick={() => setStatusFilter(s)}
@@ -441,7 +441,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
                                       {isOverdue ? 'Submit (Late)' : 'Submit'}
                                     </button>
                                   ) : isClosed ? (
-                                    <span className="text-xs font-medium text-slate-400">Closed</span>
+                                    <span className="text-xs font-medium text-slate-500">Closed</span>
                                   ) : showDetails ? (
                                     <button type="button" onClick={() => setDetailTask(task)}
                                       aria-label="View details"
@@ -517,7 +517,7 @@ function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: T
           <p className="text-sm text-slate-600 leading-relaxed">
             You should have already passed the ACTUAL paper for this activity to your adviser/professor BEFORE submitting here. Submitting in the portal without passing the physical paper will result in a penalty the next day.
           </p>
-          <p className="text-xs text-slate-400 mt-3">Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})</p>
+          <p className="text-xs text-slate-500 mt-3">Task: <span className="font-medium text-slate-600">{task.title}</span> ({task.subjectCode})</p>
         </div>
         <div className="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end">
           <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Cancel</button>
@@ -569,7 +569,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">{label}</p>
+      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
       <p className="text-sm font-medium text-slate-700 mt-0.5 break-words">{value}</p>
     </div>
   )

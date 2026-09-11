@@ -137,7 +137,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
               <Inbox className="w-6 h-6 text-green-500" />
             </div>
             <p className="text-sm font-medium text-slate-600">Nothing waiting</p>
-            <p className="text-xs text-slate-400 mt-1">Submitted periods from faculty will appear here.</p>
+            <p className="text-xs text-slate-500 mt-1">Submitted periods from faculty will appear here.</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

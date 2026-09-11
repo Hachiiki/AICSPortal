@@ -405,7 +405,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           aria-expanded={open}
           aria-autocomplete="list"
           aria-controls="global-search-results"
-          className="flex-1 min-w-0 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+          className="flex-1 min-w-0 bg-transparent text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none"
         />
         {query ? (
           <button
@@ -420,7 +420,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
             <X className="w-4 h-4" />
           </button>
         ) : (
-          <kbd className="hidden sm:inline-block text-[10px] font-medium text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 flex-shrink-0">
+          <kbd className="hidden sm:inline-block text-[10px] font-medium text-slate-500 border border-slate-200 rounded px-1.5 py-0.5 flex-shrink-0">
             Ctrl K
           </kbd>
         )}
@@ -437,13 +437,13 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
             <div className="px-4 py-8 text-center">
               <Search className="w-6 h-6 text-slate-300 mx-auto mb-2" aria-hidden="true" />
               <p className="text-sm text-slate-500">No matches for &ldquo;{query}&rdquo;</p>
-              <p className="text-xs text-slate-400 mt-1">Try a different keyword.</p>
+              <p className="text-xs text-slate-500 mt-1">Try a different keyword.</p>
             </div>
           ) : (
             <div className="py-2">
               {grouped.map(({ type, items }) => (
                 <div key={type}>
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                     {GROUP_LABELS[type]}
                   </p>
                   {items.map((item) => {

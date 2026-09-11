@@ -195,7 +195,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
 
           {/* Footer */}
-          <p className="mt-6 text-center text-[11px]" style={{ color: '#9aa5b1' }}>
+          <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>
             &copy; {new Date().getFullYear()} Asian Institute of Computer Studies. All rights reserved.
           </p>
         </div>

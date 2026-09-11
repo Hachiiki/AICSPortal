@@ -30,8 +30,8 @@ Used across all authenticated pages (dashboard, academics, events, professors, p
 | **Ink** | `#0F172A` | `slate-900` | Headings, primary text |
 | **Body** | `#334155` | `slate-700` | Body text |
 | **Muted** | `#64748B` | `slate-500` | Secondary text, captions |
-| **Faint** | `#94A3B8` | `slate-400` | Placeholder, disabled |
-| **Ghost** | `#CBD5E1` | `slate-300` | Disabled items, empty states |
+| **Faint** | `#94A3B8` | `slate-400` | Decorative icons and large decorative glyphs only — never small text |
+| **Ghost** | `#CBD5E1` | `slate-300` | Borders, dividers, decorative lines — never text |
 
 ### 2.2 Brand (Blue) Scale
 

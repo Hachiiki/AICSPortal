@@ -32,7 +32,7 @@ interface Props {
 }
 
 function badgeForRemarks(r: string) {
-  if (!r) return '<span class="text-slate-400">—</span>'
+  if (!r) return '<span class="text-slate-500">—</span>'
   const m: any = { Excellent: 'bg-violet-50 text-violet-700 border-violet-200', 'Very Good': 'bg-blue-50 text-blue-700 border-blue-200', Good: 'bg-cyan-50 text-cyan-700 border-cyan-200', Passed: 'bg-emerald-50 text-emerald-700 border-emerald-200', Conditional: 'bg-amber-50 text-amber-700 border-amber-200', Failed: 'bg-red-50 text-red-700 border-red-200', INC: 'bg-amber-50 text-amber-700 border-amber-200' }
   return `<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${m[r] || 'bg-slate-100 text-slate-600 border-slate-200'}">${r}</span>`
 }
@@ -362,7 +362,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5" /> Final • auto-computed (INC = 0)</span>
                 <button onClick={() => toast.info('Auto-compute: Final = Prelim*0.3+Mid*0.3+Finals*0.4, INC counts as 0')} className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-semibold text-blue-700 hover:bg-blue-100 inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Auto-compute</button>
-                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' : 'bg-white border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
+                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed opacity-60' : 'bg-white border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
               </div>
             </div>
             {period !== 'all' && (
@@ -412,7 +412,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     const statusBadge = !periodStatus ? 'bg-slate-100 text-slate-500 border-slate-200' : periodStatus === 'submitted' ? 'bg-blue-50 text-blue-700 border-blue-200' : periodStatus === 'released' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'
                     return (
                       <tr key={row._key} className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/60' : ''} ${isLocked ? 'opacity-75' : ''}`}>
-                        <td className={`sticky left-0 z-0 px-3 py-2.5 border-r border-slate-200 ${row.dirty ? 'bg-amber-50' : 'bg-white'}`}><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-400">{row.academicYear} {row.semester}</p></td>
+                        <td className={`sticky left-0 z-0 px-3 py-2.5 border-r border-slate-200 ${row.dirty ? 'bg-amber-50' : 'bg-white'}`}><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-500">{row.academicYear} {row.semester}</p></td>
                         {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
@@ -530,7 +530,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   <div className="text-center py-10">
                     <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">No history yet</p>
-                    <p className="text-xs text-slate-400 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
+                    <p className="text-xs text-slate-500 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">

@@ -174,7 +174,7 @@ export function CalendarGrid({
                       isToday
                         ? 'w-6 h-6 rounded-full bg-blue-600 text-white'
                         : isOtherMonth
-                        ? 'text-slate-300'
+                        ? 'text-slate-500'
                         : 'text-slate-700'
                     }`}
                   >
@@ -192,7 +192,7 @@ export function CalendarGrid({
                       />
                     ))}
                     {overflow > 0 && (
-                      <span className="text-[9px] text-slate-400 font-medium">
+                      <span className="text-[9px] text-slate-500 font-medium">
                         +{overflow}
                       </span>
                     )}
@@ -340,7 +340,7 @@ export function UpcomingRail({ upcoming, onJumpTo }: UpcomingRailProps) {
                 >
                   {/* Date block */}
                   <div className="flex-shrink-0 w-12 text-center">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                       {formatMonthDay(d).split(' ')[0]}
                     </p>
                     <p className="text-lg font-bold text-slate-900 leading-none">
@@ -398,7 +398,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
-                    : 'bg-white text-slate-400 border-slate-200'
+                    : 'bg-white text-slate-500 border-slate-200'
                 }`}
               >
                 <span className={`w-2 h-2 rounded-full ${on ? CATEGORY_COLORS[cat] : 'bg-slate-300'}`} />

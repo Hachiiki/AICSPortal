@@ -142,7 +142,7 @@ export function Topbar({
                         {n.title}
                       </span>
                       <span className="block text-xs text-slate-500 truncate">{n.body}</span>
-                      <span className="block text-[11px] text-slate-400 mt-0.5">
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
                         {n.fromName} • {n.subjectCode} • {formatNotifTime(n.createdAt)}
                       </span>
                     </span>
@@ -175,7 +175,7 @@ export function Topbar({
                     {student.role === 'faculty' ? `Faculty • ${student.studentNumber}` : student.studentNumber}
                   </p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" aria-hidden="true" />
+                <ChevronDown className="w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -196,7 +196,7 @@ export function Topbar({
               <DropdownMenuItem onClick={handleTheme} className="cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
                 <span>Theme</span>
-                <span className="ml-auto text-[10px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-400">
+                <span className="ml-auto text-[10px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
                   Soon
                 </span>
               </DropdownMenuItem>

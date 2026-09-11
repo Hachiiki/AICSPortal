@@ -82,7 +82,7 @@ export function FacultySchedulePage({
         {mySessions.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <p className="text-sm font-medium text-slate-600">No scheduled sessions</p>
-            <p className="text-xs text-slate-400 mt-1">Sessions for your subjects will appear here once set.</p>
+            <p className="text-xs text-slate-500 mt-1">Sessions for your subjects will appear here once set.</p>
           </div>
         ) : (
           <ScheduleGrid courses={myCourses} sessions={mySessions} />

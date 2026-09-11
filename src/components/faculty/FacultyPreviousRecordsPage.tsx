@@ -230,7 +230,7 @@ export function FacultyPreviousRecordsPage({
                   <Archive className="w-6 h-6 text-slate-400" />
                 </div>
                 <p className="text-sm font-medium text-slate-600">No released history yet</p>
-                <p className="text-xs text-slate-400 mt-1">Released terms from prior academic years will appear here.</p>
+                <p className="text-xs text-slate-500 mt-1">Released terms from prior academic years will appear here.</p>
               </div>
             )}
             {filtered.map((term) => {
@@ -283,7 +283,7 @@ export function FacultyPreviousRecordsPage({
                           >
                             <Eye className="w-3.5 h-3.5" /> View
                           </button>
-                          {s.assignment === 'former' && <span className="text-[11px] text-slate-400">Reassigned</span>}
+                          {s.assignment === 'former' && <span className="text-[11px] text-slate-500">Reassigned</span>}
                         </div>
                       </div>
                     ))}

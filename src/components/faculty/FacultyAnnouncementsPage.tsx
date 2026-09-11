@@ -184,7 +184,7 @@ export function FacultyAnnouncementsPage({
                 placeholder="Write what your students need to know..."
                 className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
               />
-              <p className="text-[11px] text-slate-400 mt-1 text-right">{body.length}/2000</p>
+              <p className="text-[11px] text-slate-500 mt-1 text-right">{body.length}/2000</p>
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -261,7 +261,7 @@ export function FacultyAnnouncementsPage({
                   <span className="font-mono text-xs font-bold text-blue-700 flex-shrink-0">{n.subjectCode}</span>
                 </div>
                 <p className="text-sm text-slate-600 mt-1 leading-relaxed">{n.body}</p>
-                <p className="text-[11px] text-slate-400 mt-2">{formatNotifTime(n.createdAt)}</p>
+                <p className="text-[11px] text-slate-500 mt-2">{formatNotifTime(n.createdAt)}</p>
               </div>
             ))
           )}

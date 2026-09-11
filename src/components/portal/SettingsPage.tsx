@@ -185,7 +185,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-900">{student.fullName}</p>
-                    <p className="text-xs text-slate-400">Photo upload coming soon</p>
+                    <p className="text-xs text-slate-500">Photo upload coming soon</p>
                   </div>
                 </div>
 

@@ -77,9 +77,9 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
           <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium border ${style.pill} flex-shrink-0`}>
             {style.label}
           </span>
-          <span className="text-[10px] text-slate-400 flex-shrink-0">{timeAgo(active.postedDate)}</span>
+          <span className="text-[10px] text-slate-500 flex-shrink-0">{timeAgo(active.postedDate)}</span>
           {visible.length > 1 && (
-            <span className="text-[10px] text-slate-400 flex-shrink-0">
+            <span className="text-[10px] text-slate-500 flex-shrink-0">
               {clampedIndex + 1} of {visible.length}
             </span>
           )}

@@ -171,7 +171,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <Check className="w-6 h-6 text-green-500" />
             </div>
             <p className="text-sm font-medium text-slate-600">You're all caught up</p>
-            <p className="text-xs text-slate-400 mt-1">No new announcements to read.</p>
+            <p className="text-xs text-slate-500 mt-1">No new announcements to read.</p>
           </div>
         </div>
       </div>
@@ -229,13 +229,13 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium border ${style.pill}`}>
               {style.label}
             </span>
-            <span className="text-[10px] text-slate-400">{timeAgo(a.postedDate)}</span>
-            <span className="text-[10px] text-slate-400">by {a.author}</span>
+            <span className="text-[10px] text-slate-500">{timeAgo(a.postedDate)}</span>
+            <span className="text-[10px] text-slate-500">by {a.author}</span>
           </div>
         </div>
         {/* Footer */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-500">
             {visible.indexOf(a) + 1} of {visible.length}
           </span>
           <div className="flex items-center gap-1">

@@ -41,14 +41,14 @@ function NavButton({
       <div
         aria-disabled="true"
         className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none"
-        style={{ color: '#cbd5e1' }}
+        style={{ color: '#64748b', background: '#f1f5f9' }}
         title="Coming soon"
       >
         <Icon className="w-4 h-4 flex-shrink-0 opacity-50" />
         <span className="truncate flex-1">{item.label}</span>
         <span
           className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-          style={{ background: '#f1f5f9', color: '#94a3b8' }}
+          style={{ background: '#f1f5f9', color: '#64748b' }}
         >
           Soon
         </span>
@@ -130,7 +130,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
 
       {/* Footer */}
       <div className="px-4 py-4 border-t border-slate-100">
-        <p className="text-[11px] text-slate-400 leading-relaxed">
+        <p className="text-[11px] text-slate-500 leading-relaxed">
           &copy; 2026 Asian Institute of Computer Studies
           <br />
           All rights reserved.

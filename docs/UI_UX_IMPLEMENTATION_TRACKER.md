@@ -48,9 +48,9 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 |---|---|---|---|---|---|---|
 | Done | #16 | High | a11y / grade encoding | Grade inputs have no accessible labels + `mono` typo | `src/components/faculty/FacultyGradeEncodingPage.tsx:394-404,416-419` | Fixed 2026-09-11: `aria-label` student+period on all 4 inputs, `font-mono tabular-nums`, `w-20 h-10`, `th w-[88px]`→`w-24`, disabled styles preserved. Lint clean in touched file (2 pre-existing errors elsewhere), `npm run build` passes. |
 | Done | #17 | High | ux-blocker / mobile | Remove `MobileWarning` full-screen blocker, sticky table context | `src/components/MobileWarning.tsx` (deleted), `src/app/page.tsx:26,135-171`, grade table `FacultyGradeEncodingPage.tsx:394-415` | Fixed 2026-09-11: import + all 4 mount points removed, component deleted, no `z-[9999]` left in `src/`. Sticky `thead top-16` (solid bgs, corner `z-20`) + sticky first column (`z-0`, solid `bg-white`/`bg-amber-50` when dirty, `border-r` anchor). No banner added (drawer + scroll tables cover mobile). Lint clean in touched files (2 pre-existing errors elsewhere), `npm run build` passes. |
-| Not Started | #18 | Medium | a11y / design-system | Contrast failures muted/disabled text | `src/components/portal/Sidebar.tsx:43-54,132-138`, `Topbar.tsx:178,199`, `AnnouncementsDeck.tsx:228-234`, `LoginView.tsx:198`, `.superdesign/design-system.md:33-34` | Sweep `text-slate-300/400`, floor to `slate-500`. |
-| Not Started | #15 (H3) | High | a11y / keyboard | No skip link, JS-faked focus | `src/app/layout.tsx`, `src/components/portal/PortalShell.tsx:59-98`, `src/components/auth/CredentialsForm.tsx:105-112` | No child issue yet. Needs new issue or part of epic. |
-| Not Started | #15 (H4) | High | a11y / modals | Fill/Submit modals lack dialog semantics + Escape | `src/components/faculty/FacultyGradeEncodingPage.tsx:434-512` | No child issue yet. Extract shared `Modal`. |
+| Done | #18 | Medium | a11y / design-system | Contrast failures muted/disabled text | 16 files (Sidebar, Topbar, AnnouncementsDeck/Widget, LoginView, BranchRedirect, GlobalSearch, EnrollmentPage, EventsPageParts, ProfessorsPage, SettingsPage, TasksTab, AdminReleasePage, FacultyAnnouncements/GradeEncoding/PreviousRecords/Schedule/Students pages) + `.superdesign/design-system.md:33-34` | Fixed 2026-09-11: all small-size secondary text floored to `slate-500`; disabled nav `#cbd5e1`→`#64748b` on `slate-100`; Soon badges to `slate-500` on `slate-100` (4.76:1); placeholder to `slate-500`; LoginView `#9aa5b1`→`#64748B`; enrollment upcoming stepper circle/sublabel to `#64748b`; Faint/Ghost tokens redocumented as non-text. Decorative icons/spinners/connectors kept. Lint clean in touched files (2 pre-existing src errors + 16 in restored `.agents` skill scripts, all untouched), `npm run build` passes. |
+| Not Started | #19 | High | a11y / keyboard | No skip link, JS-faked focus | `src/app/layout.tsx`, `src/components/portal/PortalShell.tsx:59-98`, `src/components/auth/CredentialsForm.tsx:105-112,136-142` | Created 2026-09-11. Fix: skip link + `id="main"`, `focus-visible` ring, delete JS handlers. |
+| Not Started | #20 | High | a11y / modals | Fill/Submit modals lack dialog semantics + Escape | `src/components/faculty/FacultyGradeEncodingPage.tsx:434-512` | Created 2026-09-11. Extract shared `Modal` (`role=dialog`, Escape, focus trap/restore); History drawer (`:518`) is the reference pattern. |
 | Not Started | #15 (M2) | Medium | tables | Sticky header + first column for grade table | `FacultyGradeEncodingPage.tsx:392-404`, `ScheduleGrid.tsx:203` | Overlaps #17 acceptance (sticky). Coordinate. |
 | Not Started | #15 (M3) | Medium | design-system | Unify remark badges, drop `dangerouslySetInnerHTML` | `RemarksBadge.tsx:19-24`, `FacultyGradeEncodingPage.tsx:34-38,420` | Delete local fn, reuse component. |
 | Not Started | #15 (M4) | Medium | design-system | JS hover to Tailwind hover | `Sidebar.tsx:71-81`, `CredentialsForm.tsx:194-199` | Pure Tailwind + transitions. |
@@ -62,24 +62,25 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 
 ## Current phase
 
-Phase 1 — Accessibility blockers: #16 + #17 done. Next: #18 contrast (M1).
+Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All open child issues from the original audit except #19/#20 are done.
 
 ## Completed fixes
 
 - #16 (2026-09-11): labeled grade inputs, `font-mono tabular-nums`, `h-10` sizing, `scope="col"` on period headers.
 - #17 (2026-09-11): deleted `MobileWarning` blocker + usages, sticky grade `thead top-16` + sticky first column.
+- #18 (2026-09-11): contrast floor to `slate-500` across 16 files + design-system token docs.
 
 ## Remaining high-priority
 
-- H3 (skip link / JS focus), H4 (modal dialog semantics) — no child issues yet (#16 + #17 done).
+- #19 (skip link / JS focus), #20 (modal dialog semantics) — created 2026-09-11, not started (#16 + #17 done).
 
 ## Risks / blockers
 
-- `git status` shows many deleted files under `.agents/skills/design/` (pre-existing, unrelated). Do not stage them; stage only intended UI files.
-- No unit test runner (`npm test` does not exist). Verification = `npm run lint` + `npm run build` + manual keyboard/browser check.
+- Manual browser verification (keyboard pass, 390x844 mobile check, screenshots) deferred by owner until all fixes land; issues closed on code + lint + build verification.
+- No unit test runner (`npm test` does not exist). Verification = `npm run lint` + `npm run build` + deferred manual check.
 - #17 + M2 overlap on sticky table work; implement sticky once to satisfy both.
-- H3/H4 and M2-M8/L1-L5 have no child issues yet; create issues before implementing or track under #15.
+- M2-M8/L1-L5 have no child issues yet; create issues before implementing or track under #15.
 
 ## Next recommended issue
 
-#18 `[design-system] Muted and disabled text fails contrast (AA)` — medium priority, last open child issue. After that, create child issues for H3/H4 before implementing.
+#19 `[a11y] No skip link, login fakes focus with JS inline styles` — high priority, accessibility blocker. Then #20 modals. M2-M8/L1-L5 still have no child issues.
