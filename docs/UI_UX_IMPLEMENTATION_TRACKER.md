@@ -59,16 +59,27 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 | Done | #25 | Medium | feedback | Toast position + actions | `src/app/layout.tsx:55`, `AnnouncementsDeck.tsx` dismiss-all, new DELETE `announcements/read` | Fixed 2026-09-11: Toaster `bottom-right` (Sonner stretches bottom toasts near-full-width on mobile, effectively bottom-center); Dismiss-all fires a toast with working Undo (local restore + DELETE un-mark, POST-mirrored guards, branch-scoped). Submit toast deliberately actionless: no live faculty queue view exists (table reflects submitted status; previous-records covers prior released terms) — an action would be a dead end. Lint clean in touched files, build passes. |
 | Done | #28 | Medium | states | Standard empty/error patterns | `FacultyGradeEncodingPage.tsx` empty, `src/app/page.tsx:445+` error, `use-student-data.ts` retryKey | Fixed 2026-09-11: filtered-empty gets icon + title + why + Clear-filters (resets search/status/dirty); data-load error gets Retry (real refetch via `useStudentData` retryKey, single consumer) + secondary sign-out. Lint clean in touched files, build passes. |
 | Done | #26 | Low | polish | Login radius, forgot-pw toast, back icon, dot hack, icon sizes | `LoginView.tsx:115`, `CredentialsForm.tsx` forgot, 7 back links, `AnnouncementsDeck.tsx:215` | Fixed 2026-09-11: panel `rounded-t-[28px] lg:rounded-l-[40px]`; forgot-password is now a `mailto:it-support@aics.edu.ph` link (address confirmed in HelpSupportPage); all 7 rotated back chevrons → `ChevronLeft` (accordion rotations kept — correct usage); dot fallback branch deleted. L5 assessed: two-tier system already consistent (w-4 chrome / w-3 meta, default strokeWidth 2) — no library swap, no churn. Verified no `rotate-180`-as-back or `.replace('bg-'` remains. Lint clean in touched files, build passes. |
+| Ready for Review | #29 | High | bug / tables | Sticky `thead` vs `th` + scroll region | Grade table `thead` sticky + `max-h-[70vh]` region; roster/queue `thead` sticky | Fixed 2026-09-11 (left OPEN for owner screenshot sign-off): root cause was `top-16` resolving against the `overflow-x-auto` wrapper (forced `overflow-y:auto` scrollport) → 64px displacement. Live Chromium experiments showed `th`-level vertical sticky doesn't clamp (border-collapse interaction) but `thead`-level does, so vertical pinning moved to `thead`, horizontal freezing stayed on cells. Verified live: flush header, pinned thead, pinned first col, frozen Final. No `top-16` in `src/`. Lint clean in touched files, build passes. |
 
 ## Current phase
 
-Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All open child issues from the original audit except #19/#20 are done.
+Phase 3 — regression fix: #29 sticky-header offset in progress; all audit items otherwise done.
 
 ## Completed fixes
 
 - #16 (2026-09-11): labeled grade inputs, `font-mono tabular-nums`, `h-10` sizing, `scope="col"` on period headers.
-- #17 (2026-09-11): deleted `MobileWarning` blocker + usages, sticky grade `thead top-16` + sticky first column.
+- #17 (2026-09-11): deleted `MobileWarning` blocker + usages, sticky grade `thead` + sticky first column.
 - #18 (2026-09-11): contrast floor to `slate-500` across 16 files + design-system token docs.
+- #19 (2026-09-11): skip link in shell, `focus-visible` login inputs (plus border/color class follow-up).
+- #20 (2026-09-11): shared accessible `Modal`, Fill + Submit refactored.
+- #21 (2026-09-11): 24px touch targets (History, remember-me, search clear).
+- #24 (2026-09-11): unified remark badges, dropped `dangerouslySetInnerHTML`.
+- #22 (2026-09-11): frozen Final column, sticky roster/queue headers.
+- #23 (2026-09-11): Tailwind hover/active, dropped JS mouse handlers.
+- #27 (2026-09-11): locked H1 voice, `tabular-nums` on stats.
+- #25 (2026-09-11): bottom-right toasts, Undo dismissal with un-mark API.
+- #28 (2026-09-11): standard empty/error states with Clear-filters and real Retry.
+- #26 (2026-09-11): polish batch (login radius, mailto, back icons, dot fix).
 
 ## Remaining high-priority
 
@@ -83,5 +94,7 @@ Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All 
 - M2-M8/L1-L5 now have child issues (#21-#28, created 2026-09-11 with verified line refs; M5 corrected — Topbar bell already 36px and out of scope).
 
 ## Next recommended issue
+
+None pending — finish #29, then push + owner batch verification.
 
 None — every audit item (H1–H4, M1–M8, L1–L5) is implemented and its child issue closed (#16–#28, epic checklist fully ticked). Remaining: owner batch verification (browser pass + screenshots) and push.

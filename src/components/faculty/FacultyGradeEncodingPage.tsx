@@ -389,19 +389,19 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
               <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-auto max-h-[70vh]">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    <th scope="col" className="sticky top-16 left-0 z-20 px-3 py-2.5 text-left w-56 bg-slate-50 border-r border-slate-200">Student</th>
-                    {showPrelim && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Prelim</th>}
-                    {showMidterm && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Midterm</th>}
-                    {showFinals && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Finals</th>}
-                    {showFinal && <th scope="col" className={`sticky top-16 px-2 py-2.5 text-center w-24 bg-blue-50 ${period === 'all' ? 'right-0 z-20' : 'z-10'}`}>Final</th>}
-                    {period === 'finals' && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-28 bg-slate-50">Remarks</th>}
-                    {period !== 'all' && <th scope="col" className="sticky top-16 z-10 px-3 py-2.5 text-center w-24 bg-slate-50">Status</th>}
-                    {period !== 'all' && <th scope="col" className="sticky top-16 z-10 px-3 py-2.5 text-left w-40 bg-slate-50">Audit</th>}
-                    <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-20 bg-slate-50">History</th>
+                    <th scope="col" className="sticky left-0 z-20 px-3 py-2.5 text-left w-56 bg-slate-50 border-r border-slate-200">Student</th>
+                    {showPrelim && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Prelim</th>}
+                    {showMidterm && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Midterm</th>}
+                    {showFinals && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Finals</th>}
+                    {showFinal && <th scope="col" className={`px-2 py-2.5 text-center w-24 bg-blue-50 ${period === 'all' ? 'sticky right-0 z-20' : ''}`}>Final</th>}
+                    {period === 'finals' && <th scope="col" className="px-2 py-2.5 text-center w-28 bg-slate-50">Remarks</th>}
+                    {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-center w-24 bg-slate-50">Status</th>}
+                    {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-left w-40 bg-slate-50">Audit</th>}
+                    <th scope="col" className="px-2 py-2.5 text-center w-20 bg-slate-50">History</th>
                   </tr>
                 </thead>
                 <tbody>
