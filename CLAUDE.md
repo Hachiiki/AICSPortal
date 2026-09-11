@@ -143,21 +143,23 @@ Architecture rules:
 - [ ] No secrets in diff, no `.env.local`/`.next/` committed
 - [ ] TodoWrite items marked `completed` only after above
 
-## 9. Agent Skills & Memory Routing
+## 9. Agent Skills & Memory Routing (mandatory)
 
-Route via `project-orchestrator`. Never generic when a specialized skill exists.
+Session-start checklist — do this every session/task, state skill names explicitly:
+1. `memory search` (scope `project` first, then `all-projects`) + `memory profile` for prefs/QA findings before touching auth/grades.
+2. Codebase question? → `graphify` query on `graphify-out/` BEFORE Glob/Grep.
+3. Pick 1+ skills from router below, announce them. Never generic when a specialized skill exists.
+4. `TodoWrite` for 3+ step work. `unslop` on all output.
 
-- `coding-agent` — all code impl: plan → execute → verify. Check `~/code/memory.md` if exists, store prefs only on explicit `Remember...`.
-- `diagnosing-bugs` — slow/broken/failing/throwing reports. Use for QA follow-ups.
-- `tdd` — test-first features/fixes when user says red-green-refactor or wants integration tests.
-- `triage` — GitHub issues/PRs through `needs-triage/needs-info/ready-for-agent/ready-for-human/wontfix` (see `@docs/agents/triage-labels.md`). This repo: PRs are NOT a request surface.
-- `wayfinder` — work too big for one session: map issue (`wayfinder:map`) + child tickets (`wayfinder:<type>`) + native dependencies.
-- `grilling` / `improve-codebase-architecture` / `prototype` / `to-spec` / `to-questionnaire` — specs, ADRs, glossary via `/domain-modeling` lazy creation.
-- `graphify` — **mandatory first step for any codebase question** (`how does X work?`, architecture, file relations). Query `graphify-out/` (`graph.json/graph.html/GRAPH_REPORT.md`) before Glob/Grep. God nodes: `Student (48), View (37), Task (35), PortalEvent (32), Professor (31), cn() (20), getCollection() (16)`. 16 communities, 0 import cycles. Treat any input as graph query first.
-- `superdesign` — **mandatory for UI design/redesign/prototypes/variants/design-system work**. Check `@.superdesign/design-system.md` + `replica_html_template/` first, design on Superdesign canvas, then implement with shadcn/Tailwind tokens. Also `ui-ux-pro-max` + `visual-design-foundations` + `web-design-guidelines` for review, `redesign-existing-projects` for upgrades.
-- `opencode-mem` plugin — **always consult before starting**: search project memory (`memory search`) for prefs, QA findings, prior decisions; `memory profile` for user style; `memory add` to store durable learnings (tags: `qa, faculty-portal, auth, grades`). Scope `project` first, then `all-projects`. The Sep-2026 QA pass (18 bugs, 3 Critical) and PR #14 context live in memory — recall before touching auth/grades.
+Router — task type → skill(s). 26 on-disk skills in `.agents/skills/`, mirrored in `skills-lock.json`:
+- Understand: `graphify` — how does X work, architecture, file relations. God nodes: `Student (48), View (37), Task (35), PortalEvent (32), Professor (31), cn() (20), getCollection() (16)`.
+- Decide: `grilling` — vague plan/decision stress-test (design-tree rounds/frontier). `wayfinder` — work >1 session → map + decision tickets. `to-spec` — conversation → spec to tracker, no interview.
+- Track: `triage` — issues/PRs via `needs-triage/needs-info/ready-for-agent/ready-for-human/wontfix` (PRs NOT a request surface here).
+- Build: `coding-agent` — all impl plan→execute→verify. `writing-plans` — spec ready, before code, saves `docs/plans/`. `tdd` — test-first/red-green, agree seams first. `diagnosing-bugs` — broken/slow, build pass/fail loop, redact secrets. `resolving-merge-conflicts` — mid-merge/rebase, never `--abort`. `agent-browser` — browser navigate/click/type/snapshot to verify login→roster→grades flows.
+- Design: `superdesign` — mandatory for new pages/flows/design-system (canvas first, check `.superdesign/design-system.md`). `redesign-existing-projects` — upgrade existing UI scan→diagnose→fix, no rewrite. `webdesign-ui` — quick review/guide for Tailwind/CSS/typography. `ui-ux-pro-max` — full UX deliverable + impl plan. `visual-design-foundations` — tokens/type/color/spacing/dark-mode. `web-design-guidelines` — Vercel audit, `file:line` output. `charts` — charts/diagrams/dashboards (no matplotlib for diagrams). `web-shader-extractor` — ONLY on URL + rip-shader request.
+- Setup/knowledge/docs: `wizard` — human-only secrets/setup/migration (bash wizard, never for agent-doable steps). `writing-for-agents` — editing skills/`CLAUDE.md`/`AGENTS.md`. `web-search` / `web-reader` / `VLM` — backend-only z-ai SDK (search, extract URL, vision chat). `seo-content-writer` — public pages/help articles only (portal is auth-gated).
+- `opencode-mem` plugin — always consult before starting; `memory add` durable learnings (tags: `qa, faculty-portal, auth, grades`). Sep-2026 QA (18 bugs, 3 Critical) + PR #14 live in memory.
 - `unslop` — always in plan, applied to all text/code output.
-- Others available (`fullstack-dev`, `charts`, `pdf`, `xlsx`, `resolving-merge-conflicts`, `wizard`, `writing-plans`, `writing-for-agents`) — pick decisively per task.
 
 Domain doc consumption (single-context): before exploring read `@CONTEXT.md`, then `docs/adr/` touching the area. Use glossary vocabulary verbatim in titles/tests/proposals. If output contradicts an ADR, surface explicitly: `_Contradicts ADR-000X (...), but worth reopening because…_`. Missing CONTEXT/ADR files → proceed silently, create lazily via `/domain-modeling` only when terms resolve.
 
