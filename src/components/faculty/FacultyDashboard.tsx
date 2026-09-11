@@ -173,7 +173,7 @@ export function FacultyDashboard({
               <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
                 {faculty.semester} &bull; AY {faculty.academicYear}
               </p>
-              <h1 className="mt-1.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-blue-950">
+              <h1 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight text-balance text-blue-950">
                 Welcome back, {faculty.firstName}!
               </h1>
               <p className="mt-1.5 text-sm text-slate-600">
@@ -303,7 +303,7 @@ function Stat({
       </p>
       <div className="mt-0.5 flex items-center gap-1.5">
         {Icon && <Icon className="w-4 h-4 text-blue-700" />}
-        <p className="text-xl font-bold text-slate-900">{value}</p>
+        <p className="text-xl font-bold tabular-nums text-slate-900">{value}</p>
       </div>
     </div>
   )

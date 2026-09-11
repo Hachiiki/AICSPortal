@@ -102,7 +102,7 @@ export function BranchRedirect({ branch, onComplete }: BranchRedirectProps) {
               ) : (
                 <div className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0" />
               )}
-              <span className={i <= step ? 'text-slate-700 font-medium' : 'text-slate-400'}>
+              <span className={i <= step ? 'text-slate-700 font-medium' : 'text-slate-500'}>
                 {label}
               </span>
             </motion.div>

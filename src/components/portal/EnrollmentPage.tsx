@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  ChevronRight,
+  ChevronLeft,
   Check,
   Stamp,
   Wallet,
@@ -77,9 +77,9 @@ const STEP_STYLES = {
     pill: { background: '#dbeafe', color: '#1d4ed8' },
   },
   upcoming: {
-    circle: { background: '#ffffff', color: '#94a3b8', borderColor: '#cbd5e1' },
+    circle: { background: '#ffffff', color: '#64748b', borderColor: '#cbd5e1' },
     label: { color: '#64748b' },
-    sublabel: { color: '#94a3b8' },
+    sublabel: { color: '#64748b' },
     connector: '#e2e8f0',
     pill: { background: '#f1f5f9', color: '#64748b' },
   },
@@ -184,7 +184,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   <div className="mt-1.5 flex flex-col items-center gap-1">
                     <StatusPill status={s.status} />
                     {s.date && (
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-slate-500">
                         {new Date(s.date).toLocaleDateString('en-PH', {
                           month: 'short',
                           day: 'numeric',
@@ -224,7 +224,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   <StatusPill status={s.status} />
                 </div>
                 {s.date && (
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     {new Date(s.date).toLocaleDateString('en-PH', {
                       month: 'short',
                       day: 'numeric',
@@ -276,7 +276,7 @@ function AssessmentCard({ enrollment }: { enrollment: Enrollment }) {
 
         {/* Misc fees */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
             Miscellaneous Fees
           </p>
           <div className="space-y-1.5">
@@ -346,7 +346,7 @@ function AssessmentCard({ enrollment }: { enrollment: Enrollment }) {
         </div>
 
         {a.paymentDate && (
-          <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+          <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
             <Info className="w-3.5 h-3.5" aria-hidden="true" />
             Last payment posted on{' '}
             {new Date(a.paymentDate).toLocaleDateString('en-PH', {
@@ -446,7 +446,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
           <Stamp className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wider text-slate-400 font-medium">
+          <p className="text-xs uppercase tracking-wider text-slate-500 font-medium">
             Registrar
           </p>
           <p className="text-sm font-bold text-slate-900 truncate">{r.name}</p>
@@ -457,7 +457,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
         <div className="flex items-start gap-2.5">
           <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
               Office
             </p>
             <p className="text-xs font-medium text-slate-700 mt-0.5">{r.room}</p>
@@ -466,7 +466,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
         <div className="flex items-start gap-2.5">
           <Clock className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
               Office Hours
             </p>
             <p className="text-xs font-medium text-slate-700 mt-0.5">{r.officeHours}</p>
@@ -475,7 +475,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
         <div className="flex items-start gap-2.5">
           <Mail className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
               Email
             </p>
             <a
@@ -489,7 +489,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
         <div className="flex items-start gap-2.5">
           <Phone className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
               Phone
             </p>
             <p className="text-xs font-medium text-slate-700 mt-0.5">{r.phone}</p>
@@ -580,9 +580,9 @@ export function EnrollmentPage({
               onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Enrollment</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Enrollment</h1>
             <p className="text-sm text-slate-500 mt-1">
               {student.semester} &bull; AY {student.academicYear}
             </p>
@@ -607,7 +607,7 @@ export function EnrollmentPage({
               <p className="text-sm text-slate-500">
                 No enrollment record found for this term.
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 If you believe this is an error, please contact the Registrar&apos;s Office.
               </p>
             </div>

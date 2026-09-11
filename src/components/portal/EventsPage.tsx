@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
@@ -184,9 +184,9 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
               onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Events</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
             <p className="text-sm text-slate-500 mt-1">
               School events and deadlines &bull; AY {student.academicYear}
             </p>

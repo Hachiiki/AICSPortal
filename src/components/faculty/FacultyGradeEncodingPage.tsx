@@ -1,6 +1,6 @@
 'use client'
-import { useState, useMemo, useEffect, useCallback } from 'react'
-import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { ChevronLeft, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -12,6 +12,8 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
+import { Modal } from '../portal/Modal'
+import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
 
@@ -29,12 +31,6 @@ interface Props {
   inbox?: NotificationInbox
   facultyLoading?: boolean
   onRefresh?: () => Promise<void>
-}
-
-function badgeForRemarks(r: string) {
-  if (!r) return '<span class="text-slate-400">—</span>'
-  const m: any = { Excellent: 'bg-violet-50 text-violet-700 border-violet-200', 'Very Good': 'bg-blue-50 text-blue-700 border-blue-200', Good: 'bg-cyan-50 text-cyan-700 border-cyan-200', Passed: 'bg-emerald-50 text-emerald-700 border-emerald-200', Conditional: 'bg-amber-50 text-amber-700 border-amber-200', Failed: 'bg-red-50 text-red-700 border-red-200', INC: 'bg-amber-50 text-amber-700 border-amber-200' }
-  return `<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${m[r] || 'bg-slate-100 text-slate-600 border-slate-200'}">${r}</span>`
 }
 
 export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh, inbox }: Props) {
@@ -149,6 +145,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const [submitNote, setSubmitNote] = useState('')
   const [showFillModal, setShowFillModal] = useState(false)
   const [fillValue, setFillValue] = useState('')
+  const fillInputRef = useRef<HTMLInputElement>(null)
+  const submitPeriodRef = useRef<HTMLSelectElement>(null)
+  // Stable closers: Modal's mount-only focus effect depends on onClose identity.
+  const closeFillModal = useCallback(() => setShowFillModal(false), [])
+  const closeSubmitModal = useCallback(() => setShowSubmitModal(false), [])
   const isFillDisabled = period === 'all' || activeSection === 'all'
   const openFill = () => {
     if (isFillDisabled) {
@@ -334,8 +335,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard</button>
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Grade Encoding</h1>
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} — Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
             </div>
             <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-slate-50 border border-slate-200 shadow-sm self-center">
@@ -362,7 +363,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5" /> Final • auto-computed (INC = 0)</span>
                 <button onClick={() => toast.info('Auto-compute: Final = Prelim*0.3+Mid*0.3+Finals*0.4, INC counts as 0')} className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-semibold text-blue-700 hover:bg-blue-100 inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Auto-compute</button>
-                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' : 'bg-white border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
+                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed opacity-60' : 'bg-white border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
               </div>
             </div>
             {period !== 'all' && (
@@ -388,19 +389,19 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
               <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-auto max-h-[70vh]">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    <th className="px-3 py-2.5 text-left w-56">Student</th>
-                    {showPrelim && <th className="px-2 py-2.5 text-center w-[88px]">Prelim</th>}
-                    {showMidterm && <th className="px-2 py-2.5 text-center w-[88px]">Midterm</th>}
-                    {showFinals && <th className="px-2 py-2.5 text-center w-[88px]">Finals</th>}
-                    {showFinal && <th className="px-2 py-2.5 text-center w-[88px] bg-blue-50/50">Final</th>}
-                    {period === 'finals' && <th className="px-2 py-2.5 text-center w-28">Remarks</th>}
-                    {period !== 'all' && <th className="px-3 py-2.5 text-center w-24">Status</th>}
-                    {period !== 'all' && <th className="px-3 py-2.5 text-left w-40">Audit</th>}
-                    <th className="px-2 py-2.5 text-center w-20">History</th>
+                    <th scope="col" className="sticky left-0 z-20 px-3 py-2.5 text-left w-56 bg-slate-50 border-r border-slate-200">Student</th>
+                    {showPrelim && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Prelim</th>}
+                    {showMidterm && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Midterm</th>}
+                    {showFinals && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Finals</th>}
+                    {showFinal && <th scope="col" className={`px-2 py-2.5 text-center w-24 bg-blue-50 ${period === 'all' ? 'sticky right-0 z-20' : ''}`}>Final</th>}
+                    {period === 'finals' && <th scope="col" className="px-2 py-2.5 text-center w-28 bg-slate-50">Remarks</th>}
+                    {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-center w-24 bg-slate-50">Status</th>}
+                    {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-left w-40 bg-slate-50">Audit</th>}
+                    <th scope="col" className="px-2 py-2.5 text-center w-20 bg-slate-50">History</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -412,39 +413,49 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     const statusBadge = !periodStatus ? 'bg-slate-100 text-slate-500 border-slate-200' : periodStatus === 'submitted' ? 'bg-blue-50 text-blue-700 border-blue-200' : periodStatus === 'released' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'
                     return (
                       <tr key={row._key} className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/60' : ''} ${isLocked ? 'opacity-75' : ''}`}>
-                        <td className="px-3 py-2.5"><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-400">{row.academicYear} {row.semester}</p></td>
-                        {showPrelim && <td className="px-2 py-2.5 text-center"><input disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-[72px] h-8 px-2 text-center mono text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showMidterm && <td className="px-2 py-2.5 text-center"><input disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-[72px] h-8 px-2 text-center mono text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showFinals && <td className="px-2 py-2.5 text-center"><input disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-[72px] h-8 px-2 text-center mono text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showFinal && <td className="px-2 py-2.5 text-center"><input value={fg} readOnly className="w-[72px] h-8 px-2 text-center mono text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
-                        {period === 'finals' && <td className="px-2 py-2.5 text-center" dangerouslySetInnerHTML={{ __html: badgeForRemarks(rm) }} />}
+                        <td className={`sticky left-0 z-0 px-3 py-2.5 border-r border-slate-200 ${row.dirty ? 'bg-amber-50' : 'bg-white'}`}><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-500">{row.academicYear} {row.semester}</p></td>
+                        {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showFinal && <td className={`px-2 py-2.5 text-center ${period === 'all' ? 'sticky right-0 z-0 bg-blue-50' : ''}`}><input aria-label={`${row.studentName} computed final grade`} value={fg} readOnly className="w-20 h-10 px-2 text-center font-mono tabular-nums text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
+                        {period === 'finals' && <td className="px-2 py-2.5 text-center">{rm ? <RemarksBadge remarks={rm} /> : <span className="text-slate-500">—</span>}</td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${statusBadge}`}>{periodStatus || '—'}</span></td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-left text-[11px] text-slate-500">{faculty?.username || '—'} • {periodStatus || 'No status'} {row.dirty ? '• unsaved' : ''}</td>}
-                        <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[10px] font-medium hover:bg-slate-50"><History className="w-3 h-3" /> History</button></td>
+                        <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} aria-label={`Grade history for ${row.studentName}`} className="inline-flex items-center justify-center gap-1 h-6 min-w-6 px-2 rounded border border-slate-200 bg-white text-[10px] font-medium hover:bg-slate-50"><History className="w-3 h-3" /> History</button></td>
                       </tr>
                     )
                   })}
                 </tbody>
               </table>
             </div>
-            {filtered.length === 0 && <div className="py-10 text-center text-sm text-slate-500">No records for current filters</div>}
+            {filtered.length === 0 && (
+              <div className="py-10 px-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <SearchX className="w-6 h-6 text-slate-400" />
+                </div>
+                <p className="text-sm font-medium text-slate-900">No records match your filters</p>
+                <p className="text-xs text-slate-500 mt-1">Try a different search, or clear the filters below.</p>
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setStatusFilter('all'); setShowOnlyDirty(false) }}
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  <X className="w-4 h-4" /> Clear filters
+                </button>
+              </div>
+            )}
           </div>
         </main>
 
       {showFillModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setShowFillModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold">Fill down — <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></h3>
-              <p className="text-xs text-slate-500 mt-1">Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`}</span> • {period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'} only. Then <b>Save</b> to persist.</p>
-            </div>
-            <div className="px-6 py-4 space-y-3">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
-              <input value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
-              <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
-            </div>
-            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+        <Modal
+          title={<>Fill down — <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></>}
+          description={<>Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`}</span> • {period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'} only. Then <b>Save</b> to persist.</>}
+          onClose={closeFillModal}
+          maxWidthClass="max-w-sm"
+          initialFocusRef={fillInputRef}
+          footer={
+            <>
               <button onClick={() => setShowFillModal(false)} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium">Cancel</button>
               <button onClick={() => {
                 const v = fillValue.trim(); const up = v.toUpperCase()
@@ -456,18 +467,21 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 setRows((prev) => prev.map((r: any) => (r.subjectCode === activeSection && (r as any)[statusKey] !== 'submitted' && (r as any)[statusKey] !== 'released' ? { ...r, [field]: val, dirty: true, [statusKey]: 'draft', gradeStatus: 'draft' } : r)))
                 setShowFillModal(false); setFillValue(''); toast.success(`Filled ${val} for ${activeSection} • ${field} — click Save to persist`)
               }} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2"><ArrowDown className="w-4 h-4" /> Fill</button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
+          <input ref={fillInputRef} value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+          <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
+        </Modal>
       )}
 
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setShowSubmitModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold">Submit grades?</h3>
-              <p className="text-xs text-slate-500 mt-1">This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</p>
+        <Modal
+          title="Submit grades?"
+          description={<>This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</>}
+          headerExtra={
+            <>
               <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
                 <p className="text-xs font-semibold">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} — {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}</p>
                 <p className="text-xs text-slate-500 mt-1">
@@ -494,21 +508,24 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   </div>
                 )
               })()}
-            </div>
-            <div className="px-6 py-4 space-y-3">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
-              <select value={submitPeriod} onChange={(e) => setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
-                <option value="prelim">Prelim only</option><option value="midterm">Midterm only</option><option value="finals">Finals only</option><option value="all">All periods (Final Grade)</option>
-              </select>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
-              <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
-            </div>
-            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+            </>
+          }
+          onClose={closeSubmitModal}
+          initialFocusRef={submitPeriodRef}
+          footer={
+            <>
               <button onClick={() => setShowSubmitModal(false)} disabled={submitting} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-60">Cancel</button>
               <button onClick={handleSubmitConfirm} disabled={submitting} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-60">{submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {submitting ? 'Submitting…' : 'Submit'} <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">{filtered.filter((r: any) => { const k = period === 'all' ? 'gradeStatus' : period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : 'finalsStatus'; const st = (r as any)[k] ?? ''; return !st || st === 'draft' }).length}</span></button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
+          <select ref={submitPeriodRef} value={submitPeriod} onChange={(e) => setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
+            <option value="prelim">Prelim only</option><option value="midterm">Midterm only</option><option value="finals">Finals only</option><option value="all">All periods (Final Grade)</option>
+          </select>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
+          <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
+        </Modal>
       )}
 
       <AnimatePresence>
@@ -530,7 +547,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   <div className="text-center py-10">
                     <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">No history yet</p>
-                    <p className="text-xs text-slate-400 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
+                    <p className="text-xs text-slate-500 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">

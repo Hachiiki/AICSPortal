@@ -80,7 +80,7 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Help & Support</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Help & Support</h1>
           <p className="text-sm text-slate-500 mt-1">
             Answers to common questions, plus how to reach a human.
           </p>

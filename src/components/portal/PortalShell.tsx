@@ -59,6 +59,14 @@ export function PortalShell({
   return (
     <MotionConfig reducedMotion="user">
     <div className="min-h-dvh bg-slate-50 font-sans">
+      {/* Skip link — first tab stop on every portal page. Jumps past the
+          sidebar and topbar to the page content wrapper below. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-blue-700 focus:ring-2 focus:ring-blue-500"
+      >
+        Skip to content
+      </a>
       <Sidebar
         role={role}
         active={active}
@@ -86,6 +94,8 @@ export function PortalShell({
             inside and keep working. */}
         <motion.div
           key={active}
+          id="main-content"
+          tabIndex={-1}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}

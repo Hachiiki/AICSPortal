@@ -100,16 +100,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border outline-none transition-colors"
-            style={{ borderColor: T.border, color: T.text }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = T.primary
-              e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = T.border
-              e.currentTarget.style.boxShadow = 'none'
-            }}
+            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border border-[#D9E0E6] text-[#17324D] outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
           />
         </div>
       </div>
@@ -131,16 +122,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border outline-none transition-colors"
-            style={{ borderColor: T.border, color: T.text }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = T.primary
-              e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = T.border
-              e.currentTarget.style.boxShadow = 'none'
-            }}
+            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border border-[#D9E0E6] text-[#17324D] outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
           />
           <button
             type="button"
@@ -156,47 +138,39 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
 
       {/* Remember me + Forgot password */}
       <div className="flex items-center justify-between pt-1">
-        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+        <label className="inline-flex items-center gap-2 py-1 cursor-pointer select-none">
           <button
             type="button"
             role="checkbox"
             aria-checked={remember}
             onClick={() => setRemember((r) => !r)}
-            className="w-4 h-4 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors"
+            className="w-5 h-5 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors"
             style={
               remember
                 ? { background: T.primary, border: `1.5px solid ${T.primary}` }
                 : { background: T.white, border: `1.5px solid ${T.border}` }
             }
           >
-            {remember && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+            {remember && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
           </button>
           <span className="text-xs" style={{ color: T.muted }}>
             Remember me
           </span>
         </label>
-        <button
-          type="button"
-          onClick={() => toast.info('Contact the AICS IT Office to reset your password.')}
+        <a
+          href="mailto:it-support@aics.edu.ph?subject=Password%20Reset%20Request"
           className="text-xs font-medium transition-colors hover:underline"
           style={{ color: T.primary }}
         >
           Forgot password?
-        </button>
+        </a>
       </div>
 
       {/* Sign In — primary action */}
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
-        style={{ background: T.primary }}
-        onMouseEnter={(e) => {
-          if (!submitting) e.currentTarget.style.background = T.primaryDark
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = T.primary
-        }}
+        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

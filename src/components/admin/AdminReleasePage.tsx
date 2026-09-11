@@ -109,7 +109,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Release Queue</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Release Queue</h1>
           <p className="text-sm text-slate-500 mt-1">
             Submitted grade periods awaiting release. Released grades become visible to students.
           </p>
@@ -137,19 +137,19 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
               <Inbox className="w-6 h-6 text-green-500" />
             </div>
             <p className="text-sm font-medium text-slate-600">Nothing waiting</p>
-            <p className="text-xs text-slate-400 mt-1">Submitted periods from faculty will appear here.</p>
+            <p className="text-xs text-slate-500 mt-1">Submitted periods from faculty will appear here.</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
-                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Period</th>
-                    <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Students</th>
-                    <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</th>
+                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
+                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Period</th>
+                    <th className="bg-slate-50 px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Students</th>
+                    <th className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -172,7 +172,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold tabular-nums">
                             {group.count}
                           </span>
                         </td>

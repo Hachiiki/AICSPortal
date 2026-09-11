@@ -112,7 +112,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
 
       {/* ===================== RIGHT 40% — Login panel ===================== */}
       <section
-        className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-center justify-center px-6 sm:px-10 py-12 lg:min-h-dvh lg:-ml-12 rounded-l-[40px]"
+          className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-center justify-center px-6 sm:px-10 py-12 lg:min-h-dvh lg:-ml-12 rounded-t-[28px] lg:rounded-t-none lg:rounded-l-[40px]"
         style={{ background: T.white }}
       >
         <div className="relative w-full max-w-sm py-4">
@@ -195,7 +195,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
 
           {/* Footer */}
-          <p className="mt-6 text-center text-[11px]" style={{ color: '#9aa5b1' }}>
+          <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>
             &copy; {new Date().getFullYear()} Asian Institute of Computer Studies. All rights reserved.
           </p>
         </div>

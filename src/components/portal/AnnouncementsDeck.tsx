@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
 import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import { toast } from 'sonner'
 
 interface AnnouncementsDeckProps {
   announcements: Announcement[]
@@ -144,11 +145,29 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
     }
   }, [isDragging, removeTop])
 
-  // Dismiss entire widget
+  // Dismiss entire widget (reversible via toast Undo).
   const dismissAll = () => {
     const allIds = visible.map((a) => a._id)
+    if (allIds.length === 0) return
     persistMark(allIds, 'dismissed')
     setRemovedIds(new Set(deck.map((a) => a._id)))
+    toast('Announcements dismissed.', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setRemovedIds((prev) => {
+            const next = new Set(prev)
+            allIds.forEach((id) => next.delete(id))
+            return next
+          })
+          fetch('/api/announcements/read', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, ids: allIds }),
+          }).catch(() => {})
+        },
+      },
+    })
   }
 
   // Empty state
@@ -171,7 +190,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <Check className="w-6 h-6 text-green-500" />
             </div>
             <p className="text-sm font-medium text-slate-600">You're all caught up</p>
-            <p className="text-xs text-slate-400 mt-1">No new announcements to read.</p>
+            <p className="text-xs text-slate-500 mt-1">No new announcements to read.</p>
           </div>
         </div>
       </div>
@@ -212,7 +231,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             {isUrgent ? (
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
             ) : (
-              <div className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5" style={{ background: style.dot.replace('bg-', '#') === style.dot ? '#94a3b8' : undefined }}>
+              <div className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5">
                 <span className={`block w-2 h-2 rounded-full mx-auto mt-1 ${style.dot}`} />
               </div>
             )}
@@ -229,13 +248,13 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium border ${style.pill}`}>
               {style.label}
             </span>
-            <span className="text-[10px] text-slate-400">{timeAgo(a.postedDate)}</span>
-            <span className="text-[10px] text-slate-400">by {a.author}</span>
+            <span className="text-[10px] text-slate-500">{timeAgo(a.postedDate)}</span>
+            <span className="text-[10px] text-slate-500">by {a.author}</span>
           </div>
         </div>
         {/* Footer */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-500">
             {visible.indexOf(a) + 1} of {visible.length}
           </span>
           <div className="flex items-center gap-1">

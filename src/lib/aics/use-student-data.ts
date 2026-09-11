@@ -17,7 +17,7 @@ interface StudentDataState {
   error: string | null
 }
 
-export function useStudentData(username: string | null) {
+export function useStudentData(username: string | null, retryKey = 0) {
   const [state, setState] = useState<StudentDataState>({
     student: null,
     courses: [],
@@ -67,7 +67,7 @@ export function useStudentData(username: string | null) {
     return () => {
       cancelled = true
     }
-  }, [username])
+  }, [username, retryKey])
 
   return state
 }

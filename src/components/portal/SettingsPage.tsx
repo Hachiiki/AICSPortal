@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import {
-  ChevronRight,
+  ChevronLeft,
   User,
   Lock,
   Bell,
@@ -143,9 +143,9 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
               onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Settings</h1>
             <p className="text-sm text-slate-500 mt-1">
               Manage your account, security, and notification preferences
             </p>
@@ -185,7 +185,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-900">{student.fullName}</p>
-                    <p className="text-xs text-slate-400">Photo upload coming soon</p>
+                    <p className="text-xs text-slate-500">Photo upload coming soon</p>
                   </div>
                 </div>
 

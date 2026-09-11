@@ -172,7 +172,7 @@ export function FacultyPreviousRecordsPage({
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Previous Records</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Previous Records</h1>
               <p className="text-sm text-slate-500 mt-1">By Academic Year • easy to navigate • shows sections you formerly handled (professor switches)</p>
             </div>
             <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
@@ -230,7 +230,7 @@ export function FacultyPreviousRecordsPage({
                   <Archive className="w-6 h-6 text-slate-400" />
                 </div>
                 <p className="text-sm font-medium text-slate-600">No released history yet</p>
-                <p className="text-xs text-slate-400 mt-1">Released terms from prior academic years will appear here.</p>
+                <p className="text-xs text-slate-500 mt-1">Released terms from prior academic years will appear here.</p>
               </div>
             )}
             {filtered.map((term) => {
@@ -283,7 +283,7 @@ export function FacultyPreviousRecordsPage({
                           >
                             <Eye className="w-3.5 h-3.5" /> View
                           </button>
-                          {s.assignment === 'former' && <span className="text-[11px] text-slate-400">Reassigned</span>}
+                          {s.assignment === 'former' && <span className="text-[11px] text-slate-500">Reassigned</span>}
                         </div>
                       </div>
                     ))}

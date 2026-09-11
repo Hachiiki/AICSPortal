@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Mail, Clock, MapPin, Info, ChevronRight, Users, BookOpen } from 'lucide-react'
+import { Mail, Clock, MapPin, Info, ChevronLeft, Users, BookOpen } from 'lucide-react'
 import type { Student, Subject, View } from '@/lib/aics/types'
 import type { Professor } from '@/lib/aics/professors'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -127,9 +127,9 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
               onClick={() => onNavigate('dashboard')}
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
             >
-              <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Professors</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Professors</h1>
             <p className="text-sm text-slate-500 mt-1">
               Your instructors for {student.semester} &bull; AY {student.academicYear}
             </p>
@@ -217,7 +217,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                               {meta && (
                                 <>
                                   <span />
-                                  <span className="text-[11px] text-slate-400 truncate">{meta}</span>
+                                  <span className="text-[11px] text-slate-500 truncate">{meta}</span>
                                 </>
                               )}
                             </div>
@@ -230,14 +230,14 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                         <div className="flex items-start gap-2.5">
                           <Clock className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Office hours</p>
+                            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Office hours</p>
                             <p className="text-xs font-medium text-slate-700 mt-0.5">{professor.officeHours}</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-2.5">
                           <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Room</p>
+                            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Room</p>
                             <p className="text-xs font-medium text-slate-700 mt-0.5">{professor.room}</p>
                           </div>
                         </div>
@@ -248,7 +248,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
               </div>
 
               {/* Shared hint — once, below the grid */}
-              <p className="flex items-center gap-2 text-xs text-slate-400">
+              <p className="flex items-center gap-2 text-xs text-slate-500">
                 <Info className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
                 For paper submissions and consultations, please visit during office hours.
               </p>
