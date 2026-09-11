@@ -77,10 +77,11 @@ Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All 
 ## Risks / blockers
 
 - Manual browser verification (keyboard pass, 390x844 mobile check, screenshots) deferred by owner until all fixes land; issues closed on code + lint + build verification.
+- Browser smoke check (2026-09-11, dev server + headless Chromium, student demo session) verified live: skip link first Tab stop and activates to `#main-content`; login `focus-visible` border `#1769AA` + 3px ring; sidebar footer computes to `slate-500`; bottom-right error toast fires on failed login; DELETE un-mark API returns 200; login panel radius 28px top at 390px; L2 mailto href correct. Not verifiable without a faculty session: grade-encoding inputs/table, Fill/Submit modals, Undo toast click-through, announcement dismissal flow.
 - No unit test runner (`npm test` does not exist). Verification = `npm run lint` + `npm run build` + deferred manual check.
 - #17 + M2 overlap on sticky table work; implement sticky once to satisfy both.
 - M2-M8/L1-L5 now have child issues (#21-#28, created 2026-09-11 with verified line refs; M5 corrected — Topbar bell already 36px and out of scope).
 
 ## Next recommended issue
 
-#21 `[a11y] Touch targets below 24px` — last remaining a11y item. Then #24 (badges), #22 (tables), #23/#27 (design-system), #25/#28 (feedback/states), #26 (polish batch).
+None — every audit item (H1–H4, M1–M8, L1–L5) is implemented and its child issue closed (#16–#28, epic checklist fully ticked). Remaining: owner batch verification (browser pass + screenshots) and push.
