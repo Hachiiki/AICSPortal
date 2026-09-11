@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
+import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -428,7 +428,22 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 </tbody>
               </table>
             </div>
-            {filtered.length === 0 && <div className="py-10 text-center text-sm text-slate-500">No records for current filters</div>}
+            {filtered.length === 0 && (
+              <div className="py-10 px-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <SearchX className="w-6 h-6 text-slate-400" />
+                </div>
+                <p className="text-sm font-medium text-slate-900">No records match your filters</p>
+                <p className="text-xs text-slate-500 mt-1">Try a different search, or clear the filters below.</p>
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setStatusFilter('all'); setShowOnlyDirty(false) }}
+                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  <X className="w-4 h-4" /> Clear filters
+                </button>
+              </div>
+            )}
           </div>
         </main>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
@@ -191,7 +192,9 @@ function StudentDataWrapper({
   navigate: (r: PortalRoute) => void
   onLogout: () => void
 }) {
-  const { student, courses, sessions, loading, error } = useStudentData(username)
+  // Bumping this re-runs the student-data fetch (error-state Retry).
+  const [retryKey, setRetryKey] = useState(0)
+  const { student, courses, sessions, loading, error } = useStudentData(username, retryKey)
 
   // ----------------------------------------------------------
   //  Centralized navigation handler.
@@ -444,17 +447,29 @@ function StudentDataWrapper({
 
   if (error || !student) {
     return (
-      <div className="min-h-dvh bg-slate-50 grid place-items-center">
-        <div className="text-center">
-          <p className="text-red-600 text-sm font-medium mb-2">
-            {error || 'Failed to load student data.'}
-          </p>
-          <button
-            onClick={onLogout}
-            className="text-blue-600 text-sm font-medium hover:underline"
-          >
-            Back to login
-          </button>
+      <div className="min-h-dvh bg-slate-50 grid place-items-center px-4">
+        <div className="text-center max-w-sm">
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
+            <AlertTriangle className="w-6 h-6 text-red-500" />
+          </div>
+          <p className="text-sm font-medium text-slate-900">Couldn&apos;t load your portal data</p>
+          <p className="text-xs text-slate-500 mt-1">{error || 'Your session may have expired. Try again or go back to login.'}</p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setRetryKey((k) => k + 1)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744]"
+            >
+              <RotateCcw className="w-4 h-4" /> Try again
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Back to login
+            </button>
+          </div>
         </div>
       </div>
     )
