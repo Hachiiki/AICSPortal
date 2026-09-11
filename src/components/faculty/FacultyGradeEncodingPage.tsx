@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -12,6 +12,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
+import { Modal } from '../portal/Modal'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
 
@@ -149,6 +150,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const [submitNote, setSubmitNote] = useState('')
   const [showFillModal, setShowFillModal] = useState(false)
   const [fillValue, setFillValue] = useState('')
+  const fillInputRef = useRef<HTMLInputElement>(null)
+  const submitPeriodRef = useRef<HTMLSelectElement>(null)
+  // Stable closers: Modal's mount-only focus effect depends on onClose identity.
+  const closeFillModal = useCallback(() => setShowFillModal(false), [])
+  const closeSubmitModal = useCallback(() => setShowSubmitModal(false), [])
   const isFillDisabled = period === 'all' || activeSection === 'all'
   const openFill = () => {
     if (isFillDisabled) {
@@ -432,19 +438,14 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         </main>
 
       {showFillModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setShowFillModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold">Fill down — <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></h3>
-              <p className="text-xs text-slate-500 mt-1">Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`}</span> • {period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'} only. Then <b>Save</b> to persist.</p>
-            </div>
-            <div className="px-6 py-4 space-y-3">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
-              <input value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
-              <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
-            </div>
-            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+        <Modal
+          title={<>Fill down — <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></>}
+          description={<>Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`}</span> • {period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'} only. Then <b>Save</b> to persist.</>}
+          onClose={closeFillModal}
+          maxWidthClass="max-w-sm"
+          initialFocusRef={fillInputRef}
+          footer={
+            <>
               <button onClick={() => setShowFillModal(false)} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium">Cancel</button>
               <button onClick={() => {
                 const v = fillValue.trim(); const up = v.toUpperCase()
@@ -456,18 +457,21 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 setRows((prev) => prev.map((r: any) => (r.subjectCode === activeSection && (r as any)[statusKey] !== 'submitted' && (r as any)[statusKey] !== 'released' ? { ...r, [field]: val, dirty: true, [statusKey]: 'draft', gradeStatus: 'draft' } : r)))
                 setShowFillModal(false); setFillValue(''); toast.success(`Filled ${val} for ${activeSection} • ${field} — click Save to persist`)
               }} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2"><ArrowDown className="w-4 h-4" /> Fill</button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
+          <input ref={fillInputRef} value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+          <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
+        </Modal>
       )}
 
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/50" onClick={() => setShowSubmitModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold">Submit grades?</h3>
-              <p className="text-xs text-slate-500 mt-1">This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</p>
+        <Modal
+          title="Submit grades?"
+          description={<>This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</>}
+          headerExtra={
+            <>
               <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
                 <p className="text-xs font-semibold">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} — {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}</p>
                 <p className="text-xs text-slate-500 mt-1">
@@ -494,21 +498,24 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   </div>
                 )
               })()}
-            </div>
-            <div className="px-6 py-4 space-y-3">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
-              <select value={submitPeriod} onChange={(e) => setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
-                <option value="prelim">Prelim only</option><option value="midterm">Midterm only</option><option value="finals">Finals only</option><option value="all">All periods (Final Grade)</option>
-              </select>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
-              <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
-            </div>
-            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
+            </>
+          }
+          onClose={closeSubmitModal}
+          initialFocusRef={submitPeriodRef}
+          footer={
+            <>
               <button onClick={() => setShowSubmitModal(false)} disabled={submitting} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-60">Cancel</button>
               <button onClick={handleSubmitConfirm} disabled={submitting} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-60">{submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {submitting ? 'Submitting…' : 'Submit'} <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">{filtered.filter((r: any) => { const k = period === 'all' ? 'gradeStatus' : period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : 'finalsStatus'; const st = (r as any)[k] ?? ''; return !st || st === 'draft' }).length}</span></button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        >
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
+          <select ref={submitPeriodRef} value={submitPeriod} onChange={(e) => setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
+            <option value="prelim">Prelim only</option><option value="midterm">Midterm only</option><option value="finals">Finals only</option><option value="all">All periods (Final Grade)</option>
+          </select>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
+          <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
+        </Modal>
       )}
 
       <AnimatePresence>

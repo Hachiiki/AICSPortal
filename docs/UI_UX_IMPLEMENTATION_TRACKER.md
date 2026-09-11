@@ -50,7 +50,7 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 | Done | #17 | High | ux-blocker / mobile | Remove `MobileWarning` full-screen blocker, sticky table context | `src/components/MobileWarning.tsx` (deleted), `src/app/page.tsx:26,135-171`, grade table `FacultyGradeEncodingPage.tsx:394-415` | Fixed 2026-09-11: import + all 4 mount points removed, component deleted, no `z-[9999]` left in `src/`. Sticky `thead top-16` (solid bgs, corner `z-20`) + sticky first column (`z-0`, solid `bg-white`/`bg-amber-50` when dirty, `border-r` anchor). No banner added (drawer + scroll tables cover mobile). Lint clean in touched files (2 pre-existing errors elsewhere), `npm run build` passes. |
 | Done | #18 | Medium | a11y / design-system | Contrast failures muted/disabled text | 16 files (Sidebar, Topbar, AnnouncementsDeck/Widget, LoginView, BranchRedirect, GlobalSearch, EnrollmentPage, EventsPageParts, ProfessorsPage, SettingsPage, TasksTab, AdminReleasePage, FacultyAnnouncements/GradeEncoding/PreviousRecords/Schedule/Students pages) + `.superdesign/design-system.md:33-34` | Fixed 2026-09-11: all small-size secondary text floored to `slate-500`; disabled nav `#cbd5e1`→`#64748b` on `slate-100`; Soon badges to `slate-500` on `slate-100` (4.76:1); placeholder to `slate-500`; LoginView `#9aa5b1`→`#64748B`; enrollment upcoming stepper circle/sublabel to `#64748b`; Faint/Ghost tokens redocumented as non-text. Decorative icons/spinners/connectors kept. Lint clean in touched files (2 pre-existing src errors + 16 in restored `.agents` skill scripts, all untouched), `npm run build` passes. |
 | Done | #19 | High | a11y / keyboard | No skip link, JS-faked focus | `src/components/portal/PortalShell.tsx`, `src/components/auth/CredentialsForm.tsx` | Fixed 2026-09-11: skip link first tab stop in shell targeting `#main-content` wrapper (`tabindex=-1`; pages keep own `main` landmarks); `onFocus`/`onBlur` handlers deleted from both login inputs, replaced with `focus-visible` border `#1769AA` + 3px `#2F9ED8`/15 ring (same token look, keyboard-only). Lint clean in touched files (pre-existing errors elsewhere untouched), `npm run build` passes. |
-| Not Started | #20 | High | a11y / modals | Fill/Submit modals lack dialog semantics + Escape | `src/components/faculty/FacultyGradeEncodingPage.tsx:434-512` | Created 2026-09-11. Extract shared `Modal` (`role=dialog`, Escape, focus trap/restore); History drawer (`:518`) is the reference pattern. |
+| Done | #20 | High | a11y / modals | Fill/Submit modals lack dialog semantics + Escape | New `src/components/portal/Modal.tsx` + `src/components/faculty/FacultyGradeEncodingPage.tsx` (Fill + Submit) | Fixed 2026-09-11: shared `Modal` with `role=dialog` + `aria-modal` + `aria-labelledby` title, Escape-to-close, initial focus (Fill input / Submit select), focus restore, Tab trap, backdrop-click preserved, stable `useCallback` closers. No visual change. History drawer untouched. Lint clean in touched files (pre-existing errors elsewhere untouched), `npm run build` passes. |
 | Not Started | #15 (M2) | Medium | tables | Sticky header + first column for grade table | `FacultyGradeEncodingPage.tsx:392-404`, `ScheduleGrid.tsx:203` | Overlaps #17 acceptance (sticky). Coordinate. |
 | Not Started | #15 (M3) | Medium | design-system | Unify remark badges, drop `dangerouslySetInnerHTML` | `RemarksBadge.tsx:19-24`, `FacultyGradeEncodingPage.tsx:34-38,420` | Delete local fn, reuse component. |
 | Not Started | #15 (M4) | Medium | design-system | JS hover to Tailwind hover | `Sidebar.tsx:71-81`, `CredentialsForm.tsx:194-199` | Pure Tailwind + transitions. |
@@ -72,7 +72,7 @@ Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All 
 
 ## Remaining high-priority
 
-- #20 (modal dialog semantics) — last open high-priority issue (#16, #17, #19 done).
+- None. All high-priority audit items done (#16, #17, #19, #20).
 
 ## Risks / blockers
 
@@ -83,4 +83,4 @@ Phase 2 — High-priority a11y: #19 (skip link) up next, then #20 (modals). All 
 
 ## Next recommended issue
 
-#20 `[a11y] Fill/Submit modals lack dialog semantics and Escape handling` — high priority, last open audit child issue. M2-M8/L1-L5 still have no child issues.
+All open audit child issues are closed. Recommend creating child issues for M2-M8/L1-L5 (or batching low-priority L1-L5 into one polish pass) before continuing.
