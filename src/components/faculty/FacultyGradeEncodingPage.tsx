@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { ChevronRight, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
+import { ChevronLeft, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -335,7 +335,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard</button>
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
               <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} — Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
             </div>

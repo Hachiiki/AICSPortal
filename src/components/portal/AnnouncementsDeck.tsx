@@ -231,7 +231,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             {isUrgent ? (
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
             ) : (
-              <div className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5" style={{ background: style.dot.replace('bg-', '#') === style.dot ? '#94a3b8' : undefined }}>
+              <div className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5">
                 <span className={`block w-2 h-2 rounded-full mx-auto mt-1 ${style.dot}`} />
               </div>
             )}

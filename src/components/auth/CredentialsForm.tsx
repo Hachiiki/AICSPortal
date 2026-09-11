@@ -159,14 +159,13 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             Remember me
           </span>
         </label>
-        <button
-          type="button"
-          onClick={() => toast.info('Contact the AICS IT Office to reset your password.')}
+        <a
+          href="mailto:it-support@aics.edu.ph?subject=Password%20Reset%20Request"
           className="text-xs font-medium transition-colors hover:underline"
           style={{ color: T.primary }}
         >
           Forgot password?
-        </button>
+        </a>
       </div>
 
       {/* Sign In — primary action */}
