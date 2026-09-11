@@ -100,16 +100,8 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border outline-none transition-colors"
+            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
             style={{ borderColor: T.border, color: T.text }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = T.primary
-              e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = T.border
-              e.currentTarget.style.boxShadow = 'none'
-            }}
           />
         </div>
       </div>
@@ -131,16 +123,8 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border outline-none transition-colors"
+            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
             style={{ borderColor: T.border, color: T.text }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = T.primary
-              e.currentTarget.style.boxShadow = `0 0 0 3px ${T.accent}26`
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = T.border
-              e.currentTarget.style.boxShadow = 'none'
-            }}
           />
           <button
             type="button"
