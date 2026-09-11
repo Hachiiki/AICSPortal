@@ -172,7 +172,7 @@ export function FacultyPreviousRecordsPage({
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Previous Records</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Previous Records</h1>
               <p className="text-sm text-slate-500 mt-1">By Academic Year • easy to navigate • shows sections you formerly handled (professor switches)</p>
             </div>
             <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">

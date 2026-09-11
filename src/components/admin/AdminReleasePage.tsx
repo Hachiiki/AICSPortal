@@ -109,7 +109,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Release Queue</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Release Queue</h1>
           <p className="text-sm text-slate-500 mt-1">
             Submitted grade periods awaiting release. Released grades become visible to students.
           </p>
@@ -172,7 +172,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold tabular-nums">
                             {group.count}
                           </span>
                         </td>

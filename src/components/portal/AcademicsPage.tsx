@@ -212,7 +212,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             >
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Academics</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Academics</h1>
             <p className="text-sm text-slate-500 mt-1">
               {student.fullName} &bull; {student.studentNumber} &bull; {student.program}
             </p>

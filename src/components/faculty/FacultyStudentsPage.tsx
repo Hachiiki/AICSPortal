@@ -235,7 +235,7 @@ export function FacultyStudentsPage({
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
                 <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
               </button>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">My Classes</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
             <div className="flex gap-2">

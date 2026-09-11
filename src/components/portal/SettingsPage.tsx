@@ -145,7 +145,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             >
               <ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Settings</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Settings</h1>
             <p className="text-sm text-slate-500 mt-1">
               Manage your account, security, and notification preferences
             </p>

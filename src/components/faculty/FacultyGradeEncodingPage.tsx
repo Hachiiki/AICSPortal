@@ -336,7 +336,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronRight className="w-4 h-4 rotate-180" /> Back to Dashboard</button>
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Grade Encoding</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} — Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
             </div>
             <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-slate-50 border border-slate-200 shadow-sm self-center">
