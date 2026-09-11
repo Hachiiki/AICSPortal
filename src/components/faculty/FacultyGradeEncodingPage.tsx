@@ -13,6 +13,7 @@ import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { Modal } from '../portal/Modal'
+import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
 
@@ -30,12 +31,6 @@ interface Props {
   inbox?: NotificationInbox
   facultyLoading?: boolean
   onRefresh?: () => Promise<void>
-}
-
-function badgeForRemarks(r: string) {
-  if (!r) return '<span class="text-slate-500">—</span>'
-  const m: any = { Excellent: 'bg-violet-50 text-violet-700 border-violet-200', 'Very Good': 'bg-blue-50 text-blue-700 border-blue-200', Good: 'bg-cyan-50 text-cyan-700 border-cyan-200', Passed: 'bg-emerald-50 text-emerald-700 border-emerald-200', Conditional: 'bg-amber-50 text-amber-700 border-amber-200', Failed: 'bg-red-50 text-red-700 border-red-200', INC: 'bg-amber-50 text-amber-700 border-amber-200' }
-  return `<span class="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${m[r] || 'bg-slate-100 text-slate-600 border-slate-200'}">${r}</span>`
 }
 
 export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, facultyLoading, onRefresh, inbox }: Props) {
@@ -423,7 +418,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                         {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinal && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} computed final grade`} value={fg} readOnly className="w-20 h-10 px-2 text-center font-mono tabular-nums text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
-                        {period === 'finals' && <td className="px-2 py-2.5 text-center" dangerouslySetInnerHTML={{ __html: badgeForRemarks(rm) }} />}
+                        {period === 'finals' && <td className="px-2 py-2.5 text-center">{rm ? <RemarksBadge remarks={rm} /> : <span className="text-slate-500">—</span>}</td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${statusBadge}`}>{periodStatus || '—'}</span></td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-left text-[11px] text-slate-500">{faculty?.username || '—'} • {periodStatus || 'No status'} {row.dirty ? '• unsaved' : ''}</td>}
                         <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} aria-label={`Grade history for ${row.studentName}`} className="inline-flex items-center justify-center gap-1 h-6 min-w-6 px-2 rounded border border-slate-200 bg-white text-[10px] font-medium hover:bg-slate-50"><History className="w-3 h-3" /> History</button></td>
