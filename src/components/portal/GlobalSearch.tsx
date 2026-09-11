@@ -415,7 +415,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
               inputRef.current?.focus()
             }}
             aria-label="Clear search"
-            className="text-slate-400 hover:text-slate-700 flex-shrink-0"
+            className="p-2 -m-1 rounded-md text-slate-400 hover:text-slate-700 flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
