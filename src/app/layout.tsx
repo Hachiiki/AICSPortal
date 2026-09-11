@@ -52,7 +52,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
-        <Toaster richColors position="top-center" />
+        <Toaster richColors position="bottom-right" />
         <Analytics />
         <SpeedInsights />
       </body>

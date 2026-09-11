@@ -56,3 +56,42 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Failed to record read.' }, { status: 500 })
   }
 }
+
+// DELETE /api/announcements/read
+// Body: { username, announcementId?, ids? } — reverses marks (toast Undo).
+// Same guards as POST: session user only, string ids, branch-scoped delete.
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession(request)
+    if (!session) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    const { username, announcementId, ids } = await request.json()
+    if (typeof username !== 'string' || !username) {
+      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
+    }
+    if (username !== session.username) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    }
+    if (announcementId !== undefined && typeof announcementId !== 'string') {
+      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
+    }
+    if (ids !== undefined && (!Array.isArray(ids) || !ids.every((x: unknown) => typeof x === 'string'))) {
+      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
+    }
+    const idList: string[] = announcementId ? [announcementId] : Array.isArray(ids) ? ids : []
+    if (idList.length === 0) {
+      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
+    }
+    const user = await getStudentByUsername(username)
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'User not found.' }, { status: 404 })
+    }
+    const col = await getCollection<MongoAnnouncementRead>('announcement_reads')
+    const res = await col.deleteMany({ branch: user.branch, username, announcementId: { $in: idList } })
+    return NextResponse.json({ ok: true, unmarked: res.deletedCount })
+  } catch (err) {
+    console.error('Announcement unmark error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to undo dismissal.' }, { status: 500 })
+  }
+}

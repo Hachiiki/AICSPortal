@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
 import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import { toast } from 'sonner'
 
 interface AnnouncementsDeckProps {
   announcements: Announcement[]
@@ -144,11 +145,29 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
     }
   }, [isDragging, removeTop])
 
-  // Dismiss entire widget
+  // Dismiss entire widget (reversible via toast Undo).
   const dismissAll = () => {
     const allIds = visible.map((a) => a._id)
+    if (allIds.length === 0) return
     persistMark(allIds, 'dismissed')
     setRemovedIds(new Set(deck.map((a) => a._id)))
+    toast('Announcements dismissed.', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setRemovedIds((prev) => {
+            const next = new Set(prev)
+            allIds.forEach((id) => next.delete(id))
+            return next
+          })
+          fetch('/api/announcements/read', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, ids: allIds }),
+          }).catch(() => {})
+        },
+      },
+    })
   }
 
   // Empty state
