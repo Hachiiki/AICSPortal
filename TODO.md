@@ -23,7 +23,10 @@
 - [ ] **Profile photo upload** — Settings page has a placeholder. Needs a file upload endpoint + image storage.
 - [x] **Notification system activation** — Section-targeted bell inbox live. Faculty posts fan out to their sections only via POST /api/notifications, admin posts stay on the deck (POST /api/announcements is admin-only), students read and clear in the Topbar bell. Verified in browser with section in and out groups, then test docs deleted.
 
-## Faculty Portal (current state: core tabs live, history is mock)
+## Faculty Portal (current state: core tabs live, history is real)
+
+### Remaining
+- [ ] **Close the student-teacher interaction loop** — see `docs/student-faculty-interaction-plan.md` and epic #31. Task grading (#32), attendance history wiring (#33), message section (#34), upload materials (#35), stub cleanup (#36).
 
 ### Done
 - [x] Faculty seed user (`m.reyes` / `faculty123`, role: faculty)
