@@ -47,7 +47,7 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 | Status | GitHub Issue | Priority | Area | Summary | Affected Files | Notes |
 |---|---|---|---|---|---|---|
 | Done | #16 | High | a11y / grade encoding | Grade inputs have no accessible labels + `mono` typo | `src/components/faculty/FacultyGradeEncodingPage.tsx:394-404,416-419` | Fixed 2026-09-11: `aria-label` student+period on all 4 inputs, `font-mono tabular-nums`, `w-20 h-10`, `th w-[88px]`→`w-24`, disabled styles preserved. Lint clean in touched file (2 pre-existing errors elsewhere), `npm run build` passes. |
-| Not Started | #17 | High | ux-blocker / mobile | Remove `MobileWarning` full-screen blocker, sticky table context | `src/components/MobileWarning.tsx`, `src/app/page.tsx:139,149,157,169`, `src/components/portal/PortalShell.tsx:32-42`, `src/components/portal/Sidebar.tsx:165-210` | Next after #16. Decide: delete vs `localStorage` banner. |
+| Done | #17 | High | ux-blocker / mobile | Remove `MobileWarning` full-screen blocker, sticky table context | `src/components/MobileWarning.tsx` (deleted), `src/app/page.tsx:26,135-171`, grade table `FacultyGradeEncodingPage.tsx:394-415` | Fixed 2026-09-11: import + all 4 mount points removed, component deleted, no `z-[9999]` left in `src/`. Sticky `thead top-16` (solid bgs, corner `z-20`) + sticky first column (`z-0`, solid `bg-white`/`bg-amber-50` when dirty, `border-r` anchor). No banner added (drawer + scroll tables cover mobile). Lint clean in touched files (2 pre-existing errors elsewhere), `npm run build` passes. |
 | Not Started | #18 | Medium | a11y / design-system | Contrast failures muted/disabled text | `src/components/portal/Sidebar.tsx:43-54,132-138`, `Topbar.tsx:178,199`, `AnnouncementsDeck.tsx:228-234`, `LoginView.tsx:198`, `.superdesign/design-system.md:33-34` | Sweep `text-slate-300/400`, floor to `slate-500`. |
 | Not Started | #15 (H3) | High | a11y / keyboard | No skip link, JS-faked focus | `src/app/layout.tsx`, `src/components/portal/PortalShell.tsx:59-98`, `src/components/auth/CredentialsForm.tsx:105-112` | No child issue yet. Needs new issue or part of epic. |
 | Not Started | #15 (H4) | High | a11y / modals | Fill/Submit modals lack dialog semantics + Escape | `src/components/faculty/FacultyGradeEncodingPage.tsx:434-512` | No child issue yet. Extract shared `Modal`. |
@@ -62,15 +62,16 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 
 ## Current phase
 
-Phase 1 — Accessibility blockers: #16 done. #17 queued next (MobileWarning blocker).
+Phase 1 — Accessibility blockers: #16 + #17 done. Next: #18 contrast (M1).
 
 ## Completed fixes
 
 - #16 (2026-09-11): labeled grade inputs, `font-mono tabular-nums`, `h-10` sizing, `scope="col"` on period headers.
+- #17 (2026-09-11): deleted `MobileWarning` blocker + usages, sticky grade `thead top-16` + sticky first column.
 
 ## Remaining high-priority
 
-- #17, H3, H4 (#16 done).
+- H3 (skip link / JS focus), H4 (modal dialog semantics) — no child issues yet (#16 + #17 done).
 
 ## Risks / blockers
 
@@ -81,4 +82,4 @@ Phase 1 — Accessibility blockers: #16 done. #17 queued next (MobileWarning blo
 
 ## Next recommended issue
 
-#17 `[ux-blocker] MobileWarning full-screen blocker prevents all mobile use` — next. Overlaps M2 sticky-table work; implement sticky once.
+#18 `[design-system] Muted and disabled text fails contrast (AA)` — medium priority, last open child issue. After that, create child issues for H3/H4 before implementing.

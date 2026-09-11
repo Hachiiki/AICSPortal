@@ -23,7 +23,6 @@ import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { SettingsPage } from '@/components/portal/SettingsPage'
 import { HelpSupportPage } from '@/components/portal/HelpSupportPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
-import { MobileWarning } from '@/components/MobileWarning'
 import type { View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
@@ -134,40 +133,31 @@ export default function AICSLoginPage() {
   // Show the branch redirect animation overlay
   if (redirecting) {
     return (
-      <>
-        <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
-        <MobileWarning />
-      </>
+      <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
     )
   }
 
   // Not authenticated → show login (regardless of URL)
   if (!username) {
     return (
-      <>
-        <LoginView onLogin={handleLogin} onDemoLogin={handleDemoLogin} />
-        <MobileWarning />
-      </>
+      <LoginView onLogin={handleLogin} onDemoLogin={handleDemoLogin} />
     )
   }
 
   // Authenticated but on login route → the useEffect guard will redirect.
   // Show nothing in the meantime to avoid flashing the login form.
   if (route.view === 'login') {
-    return <MobileWarning />
+    return null
   }
 
   // Authenticated + protected route → render the right view
   return (
-    <>
-      <StudentDataWrapper
-        username={username}
-        route={route}
-        navigate={navigate}
-        onLogout={handleLogout}
-      />
-      <MobileWarning />
-    </>
+    <StudentDataWrapper
+      username={username}
+      route={route}
+      navigate={navigate}
+      onLogout={handleLogout}
+    />
   )
 }
 

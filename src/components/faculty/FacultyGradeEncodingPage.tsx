@@ -392,15 +392,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    <th className="px-3 py-2.5 text-left w-56">Student</th>
-                    {showPrelim && <th scope="col" className="px-2 py-2.5 text-center w-24">Prelim</th>}
-                    {showMidterm && <th scope="col" className="px-2 py-2.5 text-center w-24">Midterm</th>}
-                    {showFinals && <th scope="col" className="px-2 py-2.5 text-center w-24">Finals</th>}
-                    {showFinal && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-blue-50/50">Final</th>}
-                    {period === 'finals' && <th className="px-2 py-2.5 text-center w-28">Remarks</th>}
-                    {period !== 'all' && <th className="px-3 py-2.5 text-center w-24">Status</th>}
-                    {period !== 'all' && <th className="px-3 py-2.5 text-left w-40">Audit</th>}
-                    <th className="px-2 py-2.5 text-center w-20">History</th>
+                    <th scope="col" className="sticky top-16 left-0 z-20 px-3 py-2.5 text-left w-56 bg-slate-50 border-r border-slate-200">Student</th>
+                    {showPrelim && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Prelim</th>}
+                    {showMidterm && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Midterm</th>}
+                    {showFinals && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-slate-50">Finals</th>}
+                    {showFinal && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-24 bg-blue-50">Final</th>}
+                    {period === 'finals' && <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-28 bg-slate-50">Remarks</th>}
+                    {period !== 'all' && <th scope="col" className="sticky top-16 z-10 px-3 py-2.5 text-center w-24 bg-slate-50">Status</th>}
+                    {period !== 'all' && <th scope="col" className="sticky top-16 z-10 px-3 py-2.5 text-left w-40 bg-slate-50">Audit</th>}
+                    <th scope="col" className="sticky top-16 z-10 px-2 py-2.5 text-center w-20 bg-slate-50">History</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -412,7 +412,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     const statusBadge = !periodStatus ? 'bg-slate-100 text-slate-500 border-slate-200' : periodStatus === 'submitted' ? 'bg-blue-50 text-blue-700 border-blue-200' : periodStatus === 'released' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-800 border-amber-200'
                     return (
                       <tr key={row._key} className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/60' : ''} ${isLocked ? 'opacity-75' : ''}`}>
-                        <td className="px-3 py-2.5"><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-400">{row.academicYear} {row.semester}</p></td>
+                        <td className={`sticky left-0 z-0 px-3 py-2.5 border-r border-slate-200 ${row.dirty ? 'bg-amber-50' : 'bg-white'}`}><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-400">{row.academicYear} {row.semester}</p></td>
                         {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
