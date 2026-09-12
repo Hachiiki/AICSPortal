@@ -74,19 +74,22 @@ export function spoofForbidden(session: SessionClaims, performedBy: unknown) {
 
 // Best-effort Cloudinary destroy for file cleanup. Failures are
 // logged, never fatal — the DB record is still deleted.
+// `invalidate=true` purges the CDN copy too, otherwise delivery
+// URLs keep serving the cached asset after the destroy.
 export async function destroyAsset(publicId: string, resourceType: 'image' | 'raw'): Promise<void> {
   const env = cloudinaryEnv()
   if (!env || !publicId) return
   try {
     const timestamp = Math.floor(Date.now() / 1000)
-    const signature = createHash('sha1').update(`public_id=${publicId}&timestamp=${timestamp}${env.apiSecret}`).digest('hex')
+    const signature = createHash('sha1').update(`invalidate=true&public_id=${publicId}&timestamp=${timestamp}${env.apiSecret}`).digest('hex')
     const form = new URLSearchParams({
       public_id: publicId,
       timestamp: String(timestamp),
+      invalidate: 'true',
       api_key: env.apiKey,
       signature,
     })
-    await fetch(`https://api.cloudinary.com/v1_1/${env.cloudName}/${resourceType}/destroy`, {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${env.cloudName}/${resourceType}/destroy`, {
       method: 'POST',
       headers: {
         // Admin API authenticates with HTTP Basic (key:secret).
@@ -95,6 +98,10 @@ export async function destroyAsset(publicId: string, resourceType: 'image' | 'ra
       },
       body: form.toString(),
     })
+    const data = await res.json().catch(() => null)
+    if ((data as any)?.result !== 'ok') {
+      console.error('Cloudinary destroy non-ok (non-fatal):', JSON.stringify({ publicId, result: (data as any)?.result || null }))
+    }
   } catch (err) {
     console.error('Cloudinary destroy failed (non-fatal):', err)
   }
