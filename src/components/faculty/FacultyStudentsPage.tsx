@@ -9,6 +9,7 @@ import {
   X,
   MapPin,
   Clock,
+  History,
   Users as UsersIcon,
   Search,
 } from 'lucide-react'
@@ -78,6 +79,17 @@ export function FacultyStudentsPage({
   // section. Resets whenever the visible rows change.
   const [page, setPage] = useState(1)
   const [attendanceKey, setAttendanceKey] = useState<string | null>(null)
+  // Section the student-file drawer was opened from, so its
+  // Attendance history button knows which sessions to list.
+  const [selectedSectionKey, setSelectedSectionKey] = useState<string | null>(null)
+  // Attendance history drawer: sessions for one section (newest
+  // first) plus the present/absent map for the picked date.
+  const [historyKey, setHistoryKey] = useState<string | null>(null)
+  const [historySessions, setHistorySessions] = useState<{ date: string; takenBy: string; takenAt: string }[] | null>(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyDate, setHistoryDate] = useState<string | null>(null)
+  const [historyRecords, setHistoryRecords] = useState<Record<string, string> | null>(null)
+  const [recordsLoading, setRecordsLoading] = useState(false)
 
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
@@ -159,6 +171,57 @@ export function FacultyStudentsPage({
       return
     }
     openAttendance(filteredSections[0] || null)
+  }
+
+  const loadHistoryRecords = async (key: string, date: string) => {
+    setRecordsLoading(true)
+    try {
+      const params = new URLSearchParams({ username: student.username, sectionKey: key, date })
+      const res = await fetch(`/api/attendance?${params.toString()}`)
+      const data = await res.json()
+      if (data.ok) {
+        setHistoryDate(date)
+        setHistoryRecords(data.records || {})
+      } else {
+        toast.error(data.error || 'Failed to load attendance records.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setRecordsLoading(false)
+    }
+  }
+
+  const openHistory = async (sectionKey: string | null) => {
+    if (!sectionKey) {
+      toast.info('Expand a class first, then open its attendance history.')
+      return
+    }
+    setHistoryKey(sectionKey)
+    setHistorySessions(null)
+    setHistoryDate(null)
+    setHistoryRecords(null)
+    setHistoryLoading(true)
+    try {
+      const params = new URLSearchParams({ username: student.username, sectionKey })
+      const res = await fetch(`/api/attendance?${params.toString()}`)
+      const data = await res.json()
+      if (data.ok) {
+        const sessions = (data.sessions || []) as { date: string; takenBy: string; takenAt: string }[]
+        setHistorySessions(sessions)
+        // The API also returns the latest record map; show it right away.
+        if (sessions.length > 0) {
+          setHistoryDate(sessions[0].date)
+          setHistoryRecords(data.records || {})
+        }
+      } else {
+        toast.error(data.error || 'Failed to load attendance history.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setHistoryLoading(false)
+    }
   }
 
   const totalStudents = useMemo(() => {
@@ -356,7 +419,7 @@ export function FacultyStudentsPage({
                                     <td className="px-4 py-3 text-center"><span className={`text-[11px] px-2 py-0.5 rounded-full border ${statusBadge}`}>{rawStatus}</span></td>
                                     <td className="px-6 py-3 text-right">
                                       <div className="flex justify-end gap-1">
-                                        <button type="button" onClick={() => setSelectedStudent(stu)} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200">View</button>
+                                        <button type="button" onClick={() => { setSelectedStudent(stu); setSelectedSectionKey(sec.key) }} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200">View</button>
                                         <button type="button" onClick={() => onNavigate('grade-encoding')} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50">Grade</button>
                                       </div>
                                     </td>
@@ -395,6 +458,7 @@ export function FacultyStudentsPage({
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
                           <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
                           <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
                           <span className="ml-auto text-slate-500">Click View for student file.</span>
                         </div>
                       </div>
@@ -481,15 +545,120 @@ export function FacultyStudentsPage({
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <button onClick={() => toast.info('Upload materials — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
                     <button onClick={() => toast.info('Announce quiz — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Announce quiz</button>
-                    <button onClick={() => toast.info('Attendance history — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
+                    <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
                     <button onClick={() => toast.info('In/Out log — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">In/Out log</button>
                   </div>
                 </div>
               </div>
               <div className="p-4 border-t border-slate-200 flex gap-2 shrink-0">
-                <button type="button" onClick={() => setSelectedStudent(null)} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
+                <button type="button" onClick={() => { setSelectedStudent(null); setSelectedSectionKey(null) }} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
                 <button type="button" onClick={() => onNavigate('grade-encoding')} className="flex-1 h-10 rounded-lg bg-[#153357] text-white font-semibold text-sm inline-flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg> Encode grades</button>
               </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {historyKey && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setHistoryKey(null)} aria-hidden="true" />
+            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Attendance history" onClick={(e) => e.stopPropagation()}>
+              {(() => {
+                const sec = filteredSections.find((s) => s.key === historyKey)
+                const roster = new Map((sec?.students || []).map((s) => [s.username, s]))
+                const names = (u: string) => roster.get(u)?.fullName || u
+                const present = Object.entries(historyRecords || {}).filter(([, v]) => v === 'present').map(([u]) => u)
+                const absent = Object.entries(historyRecords || {}).filter(([, v]) => v !== 'present').map(([u]) => u)
+                const fmtDate = (d: string) => {
+                  const dt = new Date(d.length <= 10 ? `${d}T12:00:00` : d)
+                  return isNaN(dt.getTime()) ? d : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                }
+                return (
+                  <>
+                    <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm text-slate-900">Attendance history</h3>
+                        <p className="text-xs text-slate-500 truncate">{sec ? `${sec.subjectCode} — ${sec.subjectTitle} • ${sec.room}` : historyKey}</p>
+                      </div>
+                      <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">Sessions (newest first)</p>
+                        {historyLoading || historySessions === null ? (
+                          <p className="text-xs text-slate-500">Loading sessions…</p>
+                        ) : historySessions.length === 0 ? (
+                          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-center">
+                            <p className="text-sm text-slate-500">No sessions yet</p>
+                            <p className="text-xs text-slate-500 mt-1">Take attendance for this class and it will show up here.</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {historySessions.map((s) => (
+                              <button
+                                key={s.date}
+                                type="button"
+                                onClick={() => loadHistoryRecords(historyKey, s.date)}
+                                aria-pressed={historyDate === s.date}
+                                className={`px-3 py-1.5 rounded-lg border text-xs font-medium ${historyDate === s.date ? 'bg-[#153357] text-white border-[#153357]' : 'bg-white border-slate-200 hover:bg-slate-50'}`}
+                              >
+                                {fmtDate(s.date)}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {historyDate && (
+                        <div>
+                          <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
+                            {fmtDate(historyDate)} • {present.length} present • {absent.length} absent
+                          </p>
+                          {recordsLoading || historyRecords === null ? (
+                            <p className="text-xs text-slate-500">Loading records…</p>
+                          ) : (
+                            <div className="space-y-3">
+                              <div>
+                                <p className="text-xs font-semibold text-emerald-700 mb-1.5">Present ({present.length})</p>
+                                {present.length === 0 ? (
+                                  <p className="text-xs text-slate-500">Nobody marked present.</p>
+                                ) : (
+                                  <ul className="space-y-1">
+                                    {present.map((u) => (
+                                      <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-red-700 mb-1.5">Absent ({absent.length})</p>
+                                {absent.length === 0 ? (
+                                  <p className="text-xs text-slate-500">Nobody marked absent.</p>
+                                ) : (
+                                  <ul className="space-y-1">
+                                    {absent.map((u) => (
+                                      <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-red-50/60 border border-red-100">
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4 border-t border-slate-200 shrink-0">
+                      <button type="button" onClick={() => setHistoryKey(null)} className="w-full h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
+                    </div>
+                  </>
+                )
+              })()}
             </motion.div>
           </>
         )}
