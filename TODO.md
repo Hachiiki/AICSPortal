@@ -26,7 +26,7 @@
 ## Faculty Portal (current state: core tabs live, history is real)
 
 ### Remaining
-- [ ] **Close the student-teacher interaction loop** — see `docs/student-faculty-interaction-plan.md` and epic #31. Task grading (#32), attendance history wiring (#33), message section (#34), upload materials (#35), stub cleanup (#36).
+- [ ] **Close the student-teacher interaction loop** — see `docs/student-faculty-interaction-plan.md` and epic #31. Task grading (#32 done 2026-09-12), attendance history wiring (#33 done 2026-09-12), message section (#34 done 2026-09-12 as notification reuse), upload materials (#35 done 2026-09-12 as Cloudinary + link fallback), stub cleanup (#36 done 2026-09-12).
 
 ### Done
 - [x] Faculty seed user (`m.reyes` / `faculty123`, role: faculty)

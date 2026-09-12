@@ -37,9 +37,13 @@ interface TasksTabProps {
   loading: boolean
   error: string | null
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+  // Bell deep-link (refs #37-review): expand the course, scroll the
+  // row into view, flash it. Primitives drive the effect so a fresh
+  // parent object identity never refires it.
+  focusTask?: { subjectCode: string; taskId: string } | null
 }
 
-export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabProps) {
+export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }: TasksTabProps) {
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState<'all' | TaskType>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
@@ -49,7 +53,31 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
   const [detailTask, setDetailTask] = useState<Task | null>(null)
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
+  const [highlightId, setHighlightId] = useState<string | null>(null)
   const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
+
+  // Bell deep-link: expand the course, scroll the row into view, flash it once.
+  // Waits for the task list to finish loading — rows do not exist before that.
+  const focusTaskId = focusTask?.taskId || null
+  const focusSubject = focusTask?.subjectCode || null
+  useEffect(() => {
+    if (!focusTaskId || loading) return
+    if (focusSubject) {
+      setExpandedCourses((prev) => {
+        if (prev.has(focusSubject)) return prev
+        return new Set(prev).add(focusSubject)
+      })
+    }
+    const t = setTimeout(() => {
+      const el = rowRefs.current[focusTaskId]
+      if (!el) return
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setHighlightId(focusTaskId)
+      setTimeout(() => setHighlightId((cur) => (cur === focusTaskId ? null : cur)), 2600)
+    }, 250)
+    return () => clearTimeout(t)
+  }, [focusTaskId, focusSubject, loading, tasks.length])
 
   // Close subject dropdown on outside click or Esc
   useEffect(() => {
@@ -413,7 +441,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks }: TasksTabP
                           const isClosed = variant === 'MISSING_CLOSED'
                           const isOverdue = variant === 'MISSING_OPEN'
                           return (
-                            <tr key={task._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                            <tr key={task._id} ref={(el) => { rowRefs.current[task._id] = el }} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${highlightId === task._id ? 'bg-blue-100/70' : ''}`}>
                               <td className="px-4 py-3">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${TYPE_COLORS[task.type]}`}>{task.type}</span>
                               </td>
@@ -556,6 +584,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
           {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
           <DetailRow label="Status" value={STATUS_LABELS[status]} />
           {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}
+          {task.feedback && <DetailRow label="Feedback" value={task.feedback} />}
           {task.description && <DetailRow label="Description" value={task.description} />}
         </div>
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end">

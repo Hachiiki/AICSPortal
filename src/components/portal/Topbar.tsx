@@ -15,7 +15,7 @@ import { GlobalSearch } from './GlobalSearch'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
-import type { NotificationInbox } from '@/lib/aics/notifications'
+import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
 import { formatNotifTime } from '@/lib/aics/notifications'
 
 interface TopbarProps {
@@ -53,6 +53,19 @@ export function Topbar({
   inbox,
 }: TopbarProps) {
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
+
+  // Bell click: mark read as before, plus deep-link task
+  // announcements into Academics → Tasks for that doc. The focus
+  // handoff is one-shot (consumed + cleared on mount).
+  const openNotification = (n: Notification) => {
+    inbox?.onMark(n._id)
+    if (n.taskId) {
+      try {
+        window.sessionStorage.setItem('aics_academics_focus', JSON.stringify({ tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId }))
+      } catch {}
+      onNavigate('academics')
+    }
+  }
 
   const handleTheme = () => {
     toast.info('Theme switching is coming soon.')
@@ -133,7 +146,7 @@ export function Topbar({
                 inbox.notifications.slice(0, 8).map((n) => (
                   <DropdownMenuItem
                     key={n._id}
-                    onClick={() => inbox?.onMark(n._id)}
+                    onClick={() => openNotification(n)}
                     className="cursor-pointer items-start"
                   >
                     <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-200' : 'bg-blue-600'}`} />

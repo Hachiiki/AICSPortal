@@ -276,9 +276,42 @@ export interface MongoAnnouncementRead {
   at: Date
 }
 
+// Course materials from faculty. One doc per posting (not per
+// student): students see the materials of their own current-term
+// subjects, faculty see what they posted for their load.
+// kind 'link' = faculty-pasted URL (no file storage).
+// kind 'file' = Cloudinary asset under aics-portal/materials/
+// (branch/subject folder), uploaded direct from the browser with
+// a server-signed signature; only the record lives here.
+export type MaterialKind = 'link' | 'file'
+
+export interface MongoMaterial {
+  _id?: string
+  branch: Branch
+  subjectCode: string
+  term: {
+    academicYear: string
+    semester: string
+    yearLevel: string
+  }
+  title: string
+  kind: MaterialKind
+  // Links: any http(s) URL. Files: the Cloudinary secure_url.
+  url: string
+  // Files only: Cloudinary identifiers for cleanup.
+  publicId?: string | null
+  resourceType?: 'image' | 'raw' | null
+  bytes?: number | null
+  format?: string | null
+  uploadedBy: string // faculty username
+  uploadedAt: Date
+}
+
 // Section notifications from faculty. One doc per targeted student
 // so unread counts and read state stay trivial. Never rendered in
 // the announcements deck — the bell inbox owns these.
+// `taskId` links task-announcement notifications to the task doc so
+// the bell can deep-link into Academics → Tasks (refs #37-review).
 export interface MongoNotification {
   _id?: string
   branch: Branch
@@ -290,6 +323,9 @@ export interface MongoNotification {
   // sectionKey is `code|academicYear|semester`, matching the roster hook
   sectionKey: string
   subjectCode: string
+  // Task announcement link (task posts only, refs #37-review).
+  // Bell clicks deep-link into Academics → Tasks for this doc.
+  taskId?: string | null
   createdAt: Date
   read: boolean
   readAt: Date | null

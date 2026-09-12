@@ -35,6 +35,7 @@ function toClient(d: any) {
     subjectCode: d.subjectCode,
     createdAt: d.createdAt instanceof Date ? d.createdAt.toISOString() : String(d.createdAt),
     read: d.read === true,
+    taskId: typeof d.taskId === 'string' ? d.taskId : null,
   }
 }
 
