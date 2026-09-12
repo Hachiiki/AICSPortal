@@ -240,6 +240,7 @@ export function FacultyStudentsPage({
           resourceType,
           bytes: uploaded.bytes,
           format: uploaded.format,
+          filename: matFile.name,
           performedBy: student.username,
         }),
       })

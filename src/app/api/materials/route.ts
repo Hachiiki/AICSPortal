@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, subjectCode, title, kind, url, publicId, resourceType, bytes, format, performedBy } = await request.json()
+    const { branch, subjectCode, title, kind, url, publicId, resourceType, bytes, format, filename, performedBy } = await request.json()
     const forbidden = spoofForbidden(session, performedBy)
     if (forbidden) return forbidden
     if (typeof branch !== 'string' || branch !== session.branch) {
@@ -167,7 +167,13 @@ export async function POST(request: NextRequest) {
       await destroyAsset(publicId, resourceType)
       return NextResponse.json({ ok: false, error: `Files must be 10 MB or less.` }, { status: 400 })
     }
-    if (extResourceType(typeof format === 'string' ? format : '') !== resourceType) {
+    // Cloudinary omits `format` for some raw assets (e.g. .txt), so
+    // fall back to the original filename, then the public id.
+    const nameForExt = typeof filename === 'string' && filename
+      ? filename
+      : publicId;
+    const ext = (String(nameForExt).split('.').pop() || (typeof format === 'string' ? format : '')).toLowerCase();
+    if (extResourceType(ext) !== resourceType) {
       await destroyAsset(publicId, resourceType)
       return NextResponse.json({ ok: false, error: 'File type is not allowed.' }, { status: 400 })
     }
@@ -181,7 +187,7 @@ export async function POST(request: NextRequest) {
       publicId,
       resourceType,
       bytes: Math.floor(size),
-      format: typeof format === 'string' ? format.slice(0, 16) : null,
+      format: (typeof format === 'string' && format ? format : ext || null)?.slice(0, 16) || null,
       uploadedBy: session.username,
       uploadedAt: new Date(),
     }
