@@ -384,8 +384,8 @@ export function FacultyTasksPage({
           </p>
         </div>
 
-        {/* Create form */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        {/* Create form (kept at its original width) */}
+        <div className="max-w-4xl bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
             <ClipboardList className="w-4 h-4 text-blue-600" />
             <h2 className="text-base font-semibold text-slate-900">New task</h2>
