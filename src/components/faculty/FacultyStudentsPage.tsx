@@ -785,6 +785,19 @@ export function FacultyStudentsPage({
                       Announce quiz
                     </button>
                     <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
+                    <div
+                      aria-disabled="true"
+                      title="Coming soon — needs a campus entry/exit data source"
+                      className="h-9 rounded-lg border border-slate-200 bg-slate-50 font-medium inline-flex items-center justify-center gap-1.5 cursor-not-allowed select-none text-slate-500"
+                    >
+                      In/Out log
+                      <span
+                        className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                        style={{ background: '#f1f5f9', color: '#64748b' }}
+                      >
+                        Soon
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
