@@ -1,5 +1,0 @@
-interface:
-  display_name: "Grilling"
-  short_description: "Grill a plan, decision, or idea until shared understanding"
-policy:
-  allow_implicit_invocation: false
