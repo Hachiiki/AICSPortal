@@ -165,7 +165,8 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
             )}
           </AnimatePresence>
 
-          {/* IT support notice */}
+          {/* Sign-in help notice. No in-house IT desk exists for this portal,
+              password resets go through each branch's admin. */}
           <div
             className="mt-6 rounded-[10px] p-4"
             style={{ background: T.bg, border: `1px solid ${T.border}` }}
@@ -180,15 +181,8 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                   Need help signing in?
                 </p>
                 <p className="mt-0.5" style={{ color: T.muted }}>
-                  Contact AICS IT Support at{' '}
-                  <a
-                    href="mailto:it-support@aics.edu.ph"
-                    className="font-medium transition-colors hover:underline"
-                    style={{ color: T.primary }}
-                  >
-                    it-support@aics.edu.ph
-                  </a>{' '}
-                  or call <span className="font-medium" style={{ color: T.text }}>(02) 8XXX-XXXX</span>.
+                  Visit your branch admin or the registrar's office. They can reset your
+                  password and get you back in.
                 </p>
               </div>
             </div>
@@ -196,7 +190,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
 
           {/* Footer */}
           <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>
-            &copy; {new Date().getFullYear()} Asian Institute of Computer Studies. All rights reserved.
+            &copy; {new Date().getFullYear()} Wilard James Paluga · MIT License
           </p>
         </div>
       </section>

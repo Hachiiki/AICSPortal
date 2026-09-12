@@ -118,9 +118,9 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       {/* Footer */}
       <div className="px-4 py-4 border-t border-slate-100">
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          &copy; 2026 Asian Institute of Computer Studies
+          &copy; 2026 Wilard James Paluga
           <br />
-          All rights reserved.
+          MIT License.
         </p>
       </div>
     </div>

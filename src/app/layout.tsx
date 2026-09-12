@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   description:
     "Secure student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS).",
   keywords: ["AICS", "Asian Institute of Computer Studies", "portal", "login", "student portal"],
-  authors: [{ name: "AICS IT Office" }],
+  authors: [{ name: "Wilard James Paluga" }],
   icons: {
     icon: "/aics-logo.svg",
   },

@@ -25,11 +25,11 @@ function faqsFor(isFaculty: boolean): { q: string; a: string }[] {
   const shared = [
     {
       q: 'I forgot my password. What do I do?',
-      a: 'Open Settings, then the Security tab, and change it with your current password. If you cannot log in at all, email IT support below and include your username.',
+      a: 'Open Settings, then the Security tab, and change it with your current password. If you cannot log in at all, contact your branch admin to reset it.',
     },
     {
       q: 'Who do I contact about my account?',
-      a: 'The Registrar Office handles accounts and enrollment. Use the contact card on this page.',
+      a: 'Your branch admin handles portal accounts. The Registrar Office handles enrollment and records.',
     },
   ]
   if (isFaculty) {
@@ -122,19 +122,15 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
             <div className="flex items-start gap-2.5">
               <Mail className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Email</p>
-                <a href="mailto:it-support@aics.edu.ph" className="font-medium text-blue-700 hover:underline break-all">
-                  it-support@aics.edu.ph
-                </a>
+                <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Account help</p>
+                <p className="font-medium text-slate-900">Your branch admin, for password resets and login trouble.</p>
               </div>
             </div>
             <div className="flex items-start gap-2.5">
               <Inbox className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
                 <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Registrar</p>
-                <a href="mailto:registrar@aics.edu.ph" className="font-medium text-blue-700 hover:underline break-all">
-                  registrar@aics.edu.ph
-                </a>
+                <p className="font-medium text-slate-900">The registrar's office, for enrollment and records.</p>
               </div>
             </div>
             <div className="flex items-start gap-2.5">

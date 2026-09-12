@@ -157,13 +157,10 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             Remember me
           </span>
         </label>
-        <a
-          href="mailto:it-support@aics.edu.ph?subject=Password%20Reset%20Request"
-          className="text-xs font-medium transition-colors hover:underline"
-          style={{ color: T.primary }}
-        >
-          Forgot password?
-        </a>
+        {/* No self-service reset and no IT desk; branch admins reset passwords. */}
+        <span className="text-xs font-medium" style={{ color: T.muted }}>
+          Forgot password? Ask your branch admin.
+        </span>
       </div>
 
       {/* Sign In — primary action */}
