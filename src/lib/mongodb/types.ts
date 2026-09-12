@@ -276,6 +276,37 @@ export interface MongoAnnouncementRead {
   at: Date
 }
 
+// Course materials from faculty. One doc per posting (not per
+// student): students see the materials of their own current-term
+// subjects, faculty see what they posted for their load.
+// kind 'link' = faculty-pasted URL (no file storage).
+// kind 'file' = Cloudinary asset under aics-portal/materials/
+// (branch/subject folder), uploaded direct from the browser with
+// a server-signed signature; only the record lives here.
+export type MaterialKind = 'link' | 'file'
+
+export interface MongoMaterial {
+  _id?: string
+  branch: Branch
+  subjectCode: string
+  term: {
+    academicYear: string
+    semester: string
+    yearLevel: string
+  }
+  title: string
+  kind: MaterialKind
+  // Links: any http(s) URL. Files: the Cloudinary secure_url.
+  url: string
+  // Files only: Cloudinary identifiers for cleanup.
+  publicId?: string | null
+  resourceType?: 'image' | 'raw' | null
+  bytes?: number | null
+  format?: string | null
+  uploadedBy: string // faculty username
+  uploadedAt: Date
+}
+
 // Section notifications from faculty. One doc per targeted student
 // so unread counts and read state stay trivial. Never rendered in
 // the announcements deck — the bell inbox owns these.
