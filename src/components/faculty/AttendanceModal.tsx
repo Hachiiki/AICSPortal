@@ -40,6 +40,13 @@ function formatLong(day: string): string {
   return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 }
 
+// Section keys are `code|academicYear|semester` — surface the term
+// so same-code classes from different years stay distinguishable.
+function termOf(key: string): string {
+  const parts = key.split('|')
+  return parts.length >= 3 && parts[1] ? `${parts[1]} ${parts[2] || ''}`.trim() : ''
+}
+
 export function AttendanceModal({
   sections, initialKey, facultyUsername, branch, onClose, onSaved,
 }: AttendanceModalProps) {
@@ -129,7 +136,7 @@ export function AttendanceModal({
             <div>
               <h3 className="font-bold">Take attendance</h3>
               <p className="text-xs text-slate-500 mt-1">
-                {sec ? (<><span className="font-mono font-bold text-blue-700">{sec.code}</span> {sec.title}</>) : 'No classes found.'}
+                {sec ? (<><span className="font-mono font-bold text-blue-700">{sec.code}</span> {sec.title} • {termOf(sec.key)}</>) : 'No classes found.'}
               </p>
             </div>
             <button
@@ -150,7 +157,7 @@ export function AttendanceModal({
               className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500"
             >
               {sections.map((s) => (
-                <option key={s.key} value={s.key}>{s.code} — {s.title} • {s.students.length} students</option>
+                <option key={s.key} value={s.key}>{s.code} — {s.title}{termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • {s.students.length} {s.students.length === 1 ? 'student' : 'students'}</option>
               ))}
             </select>
           </div>
