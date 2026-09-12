@@ -57,6 +57,33 @@ interface FacultyTasksPageProps {
 
 const TASK_TYPES: TaskType[] = ['Activity', 'Quiz', 'Test', 'Project']
 
+// One-shot handoff for the roster drawer's Announce quiz button
+// (refs #36): the drawer stores { type: 'Quiz', subjectCode } in
+// sessionStorage, the freshly mounted Tasks page consumes it once
+// (type preselected, subject applied when codes arrive) and clears
+// it so later visits start at the defaults.
+const TASKS_HANDOFF_KEY = 'aics_tasks_handoff'
+
+function readTasksHandoff(): { type?: TaskType; subjectCode?: string } {
+  try {
+    if (typeof window === 'undefined') return {}
+    const raw = window.sessionStorage.getItem(TASKS_HANDOFF_KEY)
+    if (!raw) return {}
+    window.sessionStorage.removeItem(TASKS_HANDOFF_KEY)
+    const parsed = JSON.parse(raw) as { type?: unknown; subjectCode?: unknown }
+    const out: { type?: TaskType; subjectCode?: string } = {}
+    if (typeof parsed.type === 'string' && (TASK_TYPES as string[]).includes(parsed.type)) {
+      out.type = parsed.type as TaskType
+    }
+    if (typeof parsed.subjectCode === 'string' && parsed.subjectCode) {
+      out.subjectCode = parsed.subjectCode
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
 function defaultDue(): string {
   const d = new Date()
   d.setDate(d.getDate() + 7)
@@ -89,7 +116,9 @@ export function FacultyTasksPage({
 
   const [subjectCode, setSubjectCode] = useState('')
   const [title, setTitle] = useState('')
-  const [type, setType] = useState<TaskType>('Activity')
+  // Type may arrive preselected via the Announce quiz handoff (refs #36).
+  const [tasksHandoff] = useState(readTasksHandoff)
+  const [type, setType] = useState<TaskType>(tasksHandoff.type || 'Activity')
   const [description, setDescription] = useState('')
   const [maxScore, setMaxScore] = useState('10')
   const [dueDate, setDueDate] = useState(defaultDue)
@@ -115,10 +144,13 @@ export function FacultyTasksPage({
     if (!loading && faculty && !taskGroupsData && !groupsPending && onFetchTaskGroups) onFetchTaskGroups()
   }, [loading, faculty, taskGroupsData, groupsPending, onFetchTaskGroups])
 
-  // Default the subject picker once codes arrive.
+  // Default the subject picker once codes arrive, honoring a
+  // handoff subject when it is one of the faculty's codes.
   useEffect(() => {
-    if (!subjectCode && codes.length > 0) setSubjectCode(codes[0])
-  }, [codes, subjectCode])
+    if (!subjectCode && codes.length > 0) {
+      setSubjectCode(tasksHandoff.subjectCode && codes.includes(tasksHandoff.subjectCode) ? tasksHandoff.subjectCode : codes[0])
+    }
+  }, [codes, subjectCode, tasksHandoff])
 
   const canPost = subjectCode !== '' && title.trim().length > 0 && !posting
 

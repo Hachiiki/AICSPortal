@@ -544,9 +544,22 @@ export function FacultyStudentsPage({
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Classroom management</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <button onClick={() => toast.info('Upload materials — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
-                    <button onClick={() => toast.info('Announce quiz — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Announce quiz</button>
+                    <button
+                      onClick={() => {
+                        // Refs #36: Announce quiz is just a Quiz-type task post,
+                        // so hand off to the Tasks composer with Quiz (and this
+                        // class) preselected instead of toasting coming soon.
+                        try {
+                          const sec = filteredSections.find((s) => s.key === selectedSectionKey)
+                          window.sessionStorage.setItem('aics_tasks_handoff', JSON.stringify({ type: 'Quiz', subjectCode: sec?.subjectCode }))
+                        } catch {}
+                        onNavigate('tasks')
+                      }}
+                      className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50"
+                    >
+                      Announce quiz
+                    </button>
                     <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
-                    <button onClick={() => toast.info('In/Out log — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">In/Out log</button>
                   </div>
                 </div>
               </div>
