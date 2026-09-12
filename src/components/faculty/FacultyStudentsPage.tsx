@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft,
@@ -23,6 +23,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
+import { Modal } from '../portal/Modal'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { AttendanceModal } from './AttendanceModal'
@@ -82,6 +83,18 @@ export function FacultyStudentsPage({
   // Section the student-file drawer was opened from, so its
   // Attendance history button knows which sessions to list.
   const [selectedSectionKey, setSelectedSectionKey] = useState<string | null>(null)
+  // Message-section composer (refs #34, option B): one section at a
+  // time, sent through the existing notification fan-out.
+  const [messageSec, setMessageSec] = useState<{ key: string; subjectCode: string; subjectTitle: string; room: string } | null>(null)
+  const [msgTitle, setMsgTitle] = useState('')
+  const [msgBody, setMsgBody] = useState('')
+  const [sending, setSending] = useState(false)
+  // Stable closer: Modal's mount-only focus effect depends on onClose identity.
+  const closeMessage = useCallback(() => {
+    setMessageSec(null)
+    setMsgTitle('')
+    setMsgBody('')
+  }, [])
   // Attendance history drawer: sessions for one section (newest
   // first) plus the present/absent map for the picked date.
   const [historyKey, setHistoryKey] = useState<string | null>(null)
@@ -171,6 +184,39 @@ export function FacultyStudentsPage({
       return
     }
     openAttendance(filteredSections[0] || null)
+  }
+
+  const sendMessage = async () => {
+    if (!messageSec) return
+    if (msgTitle.trim().length === 0 || msgBody.trim().length === 0) {
+      toast.error('Give the message a title and a body first.')
+      return
+    }
+    setSending(true)
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branch: faculty?.branch || student.branch,
+          title: msgTitle.trim(),
+          body: msgBody.trim(),
+          sectionKeys: [messageSec.key],
+          performedBy: student.username,
+        }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        toast.success(data.message || 'Message sent.')
+        closeMessage()
+      } else {
+        toast.error(data.error || 'Failed to send message.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setSending(false)
+    }
   }
 
   const loadHistoryRecords = async (key: string, date: string) => {
@@ -456,7 +502,7 @@ export function FacultyStudentsPage({
                           </div>
                         )}
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
-                          <button onClick={() => toast.info('Messaging coming soon.')} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
+                          <button onClick={() => setMessageSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle, room: sec.room })} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
                           <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
                           <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
                           <span className="ml-auto text-slate-500">Click View for student file.</span>
@@ -676,6 +722,46 @@ export function FacultyStudentsPage({
           </>
         )}
       </AnimatePresence>
+
+      {messageSec && (
+        <Modal
+          title={<>Message section — <span className="font-mono text-blue-700">{messageSec.subjectCode}</span></>}
+          description={<>To every enrolled student in <span className="font-medium text-slate-700">{messageSec.subjectTitle} • {messageSec.room}</span>. Lands in their bell inbox; read state persists there.</>}
+          onClose={closeMessage}
+          footer={
+            <>
+              <button type="button" onClick={closeMessage} disabled={sending} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50 disabled:opacity-60">Cancel</button>
+              <button
+                type="button"
+                onClick={sendMessage}
+                disabled={sending || msgTitle.trim().length === 0 || msgBody.trim().length === 0}
+                className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] disabled:opacity-60"
+              >
+                {sending ? 'Sending...' : 'Send message'}
+              </button>
+            </>
+          }
+        >
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <input
+            type="text"
+            value={msgTitle}
+            onChange={(e) => setMsgTitle(e.target.value)}
+            maxLength={120}
+            placeholder="e.g., Quiz moved to Friday"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Message</label>
+          <textarea
+            value={msgBody}
+            onChange={(e) => setMsgBody(e.target.value)}
+            maxLength={2000}
+            rows={4}
+            placeholder="What should the section know..."
+            className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
+          />
+        </Modal>
+      )}
 
       {attendanceSec && (
         <AttendanceModal
