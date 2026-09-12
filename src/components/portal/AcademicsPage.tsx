@@ -15,6 +15,7 @@ import { PortalShell } from './PortalShell'
 import { RemarksBadge } from './RemarksBadge'
 import { GradesHeader, GradesRow, GradesFooter } from './GradesRow'
 import { TasksTab } from './TasksTab'
+import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 
@@ -177,7 +178,7 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 }
 
 export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
-  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks'>('grades')
+  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks' | 'materials'>('grades')
 
   // Tasks state is now lifted to the parent (StudentDataWrapper) so
   // it persists across route switches. See the props comment above.
@@ -246,6 +247,15 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               }`}
             >
               Tasks
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('materials')}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'materials' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Materials
             </button>
           </div>
 
@@ -393,6 +403,11 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               error={tasksError}
               setTasks={setTasks}
             />
+          )}
+
+          {/* MATERIALS TAB */}
+          {activeTab === 'materials' && (
+            <MaterialsTab student={student} />
           )}
         </main>
     </PortalShell>

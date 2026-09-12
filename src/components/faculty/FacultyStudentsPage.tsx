@@ -95,6 +95,184 @@ export function FacultyStudentsPage({
     setMsgTitle('')
     setMsgBody('')
   }, [])
+
+  // Materials manager (refs #35): files go to Cloudinary (signed
+  // direct upload into the portal's folder tree), links are just
+  // posted. One subject at a time, resolved from the drawer.
+  const [materialsSec, setMaterialsSec] = useState<{ key: string; subjectCode: string; subjectTitle: string } | null>(null)
+  const [matTitle, setMatTitle] = useState('')
+  const [matTab, setMatTab] = useState<'upload' | 'link'>('upload')
+  const [matUrl, setMatUrl] = useState('')
+  const [matFile, setMatFile] = useState<File | null>(null)
+  const [matSaving, setMatSaving] = useState(false)
+  const [matList, setMatList] = useState<{ _id: string; title: string; kind: string; url: string; bytes: number | null; format: string | null; uploadedAt: string }[] | null>(null)
+  const [matLoading, setMatLoading] = useState(false)
+  const [uploadsConfigured, setUploadsConfigured] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  // Stable closer for the materials modal.
+  const closeMaterials = useCallback(() => {
+    setMaterialsSec(null)
+    setMatTitle('')
+    setMatUrl('')
+    setMatFile(null)
+    setMatTab('upload')
+  }, [])
+
+  const fetchMaterials = useCallback(async (subjectCode: string) => {
+    setMatLoading(true)
+    try {
+      const res = await fetch(`/api/materials?username=${encodeURIComponent(student.username)}`)
+      const data = await res.json()
+      if (data.ok) {
+        setUploadsConfigured(data.uploadsConfigured !== false)
+        if (data.uploadsConfigured === false) setMatTab('link')
+        setMatList(((data.materials || []) as any[]).filter((m) => m.subjectCode === subjectCode))
+      } else {
+        toast.error(data.error || 'Failed to load materials.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setMatLoading(false)
+    }
+  }, [student.username])
+
+  const openMaterials = (sectionKey: string | null) => {
+    const sec = filteredSections.find((s) => s.key === sectionKey)
+    if (!sec) {
+      toast.info('Expand a class first, then open its materials.')
+      return
+    }
+    setMaterialsSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle })
+    setMatList(null)
+    fetchMaterials(sec.subjectCode)
+  }
+
+  const postLink = async () => {
+    if (!materialsSec) return
+    if (matTitle.trim().length === 0 || matUrl.trim().length === 0) {
+      toast.error('Give the link a title and a URL first.')
+      return
+    }
+    setMatSaving(true)
+    try {
+      const res = await fetch('/api/materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branch: faculty?.branch || student.branch,
+          subjectCode: materialsSec.subjectCode,
+          title: matTitle.trim(),
+          kind: 'link',
+          url: matUrl.trim(),
+          performedBy: student.username,
+        }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        toast.success(data.message || 'Link posted.')
+        setMatTitle('')
+        setMatUrl('')
+        fetchMaterials(materialsSec.subjectCode)
+      } else {
+        toast.error(data.error || 'Failed to post link.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setMatSaving(false)
+    }
+  }
+
+  const matExt = (name: string) => {
+    const parts = name.toLowerCase().split('.')
+    return parts.length > 1 ? parts[parts.length - 1] : ''
+  }
+
+  const postFile = async () => {
+    if (!materialsSec || !matFile) return
+    if (matTitle.trim().length === 0) {
+      toast.error('Give the file a title first.')
+      return
+    }
+    const ext = matExt(matFile.name)
+    const resourceType = ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext) ? 'image'
+      : ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'csv', 'zip'].includes(ext) ? 'raw' : null
+    if (!resourceType) {
+      toast.error('That file type is not allowed (pdf, office docs, images, txt, csv, zip).')
+      return
+    }
+    if (matFile.size > 10 * 1024 * 1024) {
+      toast.error('Files must be 10 MB or less.')
+      return
+    }
+    setMatSaving(true)
+    try {
+      // 1. Signed params for one direct browser upload.
+      const signRes = await fetch('/api/materials/sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subjectCode: materialsSec.subjectCode, resourceType, performedBy: student.username }),
+      })
+      const sign = await signRes.json()
+      if (!sign.ok) throw new Error(sign.error || 'Upload is not available right now.')
+      // 2. File goes straight to Cloudinary, never through Vercel.
+      const form = new FormData()
+      form.append('file', matFile)
+      form.append('api_key', sign.apiKey)
+      form.append('timestamp', String(sign.timestamp))
+      form.append('folder', sign.folder)
+      form.append('signature', sign.signature)
+      const upRes = await fetch(sign.uploadUrl, { method: 'POST', body: form })
+      const uploaded = await upRes.json()
+      if (!upRes.ok || !uploaded.secure_url) throw new Error(uploaded?.error?.message || 'Cloudinary upload failed.')
+      // 3. Record the asset so the subject sees it.
+      const recRes = await fetch('/api/materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branch: faculty?.branch || student.branch,
+          subjectCode: materialsSec.subjectCode,
+          title: matTitle.trim(),
+          kind: 'file',
+          url: uploaded.secure_url,
+          publicId: uploaded.public_id,
+          resourceType,
+          bytes: uploaded.bytes,
+          format: uploaded.format,
+          performedBy: student.username,
+        }),
+      })
+      const rec = await recRes.json()
+      if (!rec.ok) throw new Error(rec.error || 'Failed to save the file record.')
+      toast.success(rec.message || 'File posted.')
+      setMatTitle('')
+      setMatFile(null)
+      fetchMaterials(materialsSec.subjectCode)
+    } catch (e: any) {
+      toast.error(e.message || 'Upload failed.')
+    } finally {
+      setMatSaving(false)
+    }
+  }
+
+  const deleteMaterial = async (id: string) => {
+    setDeletingId(id)
+    try {
+      const res = await fetch(`/api/materials/${id}?username=${encodeURIComponent(student.username)}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.ok) {
+        toast.success(data.message || 'Material deleted.')
+        setMatList((prev) => (prev || []).filter((m) => m._id !== id))
+      } else {
+        toast.error(data.error || 'Failed to delete material.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
   // Attendance history drawer: sessions for one section (newest
   // first) plus the present/absent map for the picked date.
   const [historyKey, setHistoryKey] = useState<string | null>(null)
@@ -589,7 +767,7 @@ export function FacultyStudentsPage({
                 <div className="rounded-xl border border-slate-200 p-4 space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Classroom management</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <button onClick={() => toast.info('Upload materials — coming soon.')} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
+                    <button onClick={() => openMaterials(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
                     <button
                       onClick={() => {
                         // Refs #36: Announce quiz is just a Quiz-type task post,
@@ -760,6 +938,125 @@ export function FacultyStudentsPage({
             placeholder="What should the section know..."
             className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
           />
+        </Modal>
+      )}
+
+      {materialsSec && (
+        <Modal
+          title={<>Materials — <span className="font-mono text-blue-700">{materialsSec.subjectCode}</span></>}
+          description={<>Files upload to the portal's Cloudinary folder; links post as-is. Enrolled students see both under Academics → Materials.</>}
+          onClose={closeMaterials}
+          maxWidthClass="max-w-2xl"
+          footer={
+            <button type="button" onClick={closeMaterials} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50">Close</button>
+          }
+        >
+          {!uploadsConfigured && (
+            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              File uploads are not configured on this deployment — post a link instead.
+            </p>
+          )}
+          <div className="flex gap-1 p-1 rounded-xl bg-slate-100 w-fit">
+            <button
+              type="button"
+              onClick={() => setMatTab('upload')}
+              disabled={!uploadsConfigured}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'upload' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'} disabled:opacity-50`}
+            >
+              Upload file
+            </button>
+            <button
+              type="button"
+              onClick={() => setMatTab('link')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'link' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Paste link
+            </button>
+          </div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <input
+            type="text"
+            value={matTitle}
+            onChange={(e) => setMatTitle(e.target.value)}
+            maxLength={120}
+            placeholder="e.g., Week 3 slides: Normalization"
+            className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
+          {matTab === 'upload' ? (
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">File (10 MB max: pdf, office docs, images, txt, csv, zip)</label>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.webp,.gif,.zip"
+                onChange={(e) => setMatFile(e.target.files?.[0] || null)}
+                aria-label="Choose a file to upload"
+                className="w-full text-sm text-slate-600 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-slate-200 file:bg-white file:text-xs file:font-medium hover:file:bg-slate-50"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={postFile}
+                  disabled={matSaving || !matFile || matTitle.trim().length === 0}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] disabled:opacity-60"
+                >
+                  {matSaving ? 'Uploading...' : 'Upload & post'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">URL</label>
+              <input
+                type="url"
+                value={matUrl}
+                onChange={(e) => setMatUrl(e.target.value)}
+                maxLength={2000}
+                placeholder="https://..."
+                className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={postLink}
+                  disabled={matSaving || matTitle.trim().length === 0 || matUrl.trim().length === 0}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] disabled:opacity-60"
+                >
+                  {matSaving ? 'Posting...' : 'Post link'}
+                </button>
+              </div>
+            </div>
+          )}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Posted for {materialsSec.subjectCode}</p>
+            {matLoading || matList === null ? (
+              <p className="text-xs text-slate-500">Loading materials…</p>
+            ) : matList.length === 0 ? (
+              <p className="text-xs text-slate-500">Nothing posted yet.</p>
+            ) : (
+              <div className="max-h-[30vh] overflow-y-auto space-y-2 pr-1">
+                {matList.map((m) => (
+                  <div key={m._id} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border flex-shrink-0 ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                      {m.kind === 'file' ? 'File' : 'Link'}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-slate-900 truncate">{m.title}</p>
+                      <p className="text-[11px] text-slate-500">{new Date(m.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}{m.format ? ` • ${String(m.format).toUpperCase()}` : ''}</p>
+                    </div>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] font-medium hover:bg-slate-100 flex-shrink-0">Open</a>
+                    <button
+                      type="button"
+                      onClick={() => deleteMaterial(m._id)}
+                      disabled={deletingId === m._id}
+                      className="px-2.5 py-1.5 rounded-lg border border-red-200 bg-white text-[11px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 flex-shrink-0"
+                    >
+                      {deletingId === m._id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Modal>
       )}
 
