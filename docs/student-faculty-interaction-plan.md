@@ -23,13 +23,13 @@ So a student submits work that no teacher can score, and feedback cannot reach a
 
 ## Task list
 
-| Issue | Priority | Size | What | Key acceptance |
-|---|---|---|---|---|
-| #32 | high | ~1 day | Task grading flow: `PATCH /api/tasks/[taskId]/grade`, submissions drawer in FacultyTasksPage, feedback shown in student task detail | faculty grade shows on student side, counters flip, 403/400 guards hold |
-| #33 | medium | ~half day | Wire Attendance history button to existing `GET /api/attendance` | sessions list + records render, test session deleted after |
-| #34 | decision, then days or hours | scope first | Message section: in-app messaging, notification reuse, or remove | decided, no dead button |
-| #35 | decision, then days or ~1 day | scope first | Upload materials: Cloudinary, link-only, or remove | decided, students see materials if built |
-| #36 | low | ~1 hour | Announce quiz duplicates Tasks (type Quiz exists), In/Out log has no data source | no coming-soon toasts left in FacultyStudentsPage |
+| Issue | Priority | Size | What | Key acceptance | Status |
+|---|---|---|---|---|---|
+| #32 | high | ~1 day | Task grading flow: `PATCH /api/tasks/[taskId]/grade`, submissions drawer in FacultyTasksPage, feedback shown in student task detail | faculty grade shows on student side, counters flip, 403/400 guards hold | done 2026-09-12 |
+| #33 | medium | ~half day | Wire Attendance history button to existing `GET /api/attendance` | sessions list + records render, test session deleted after | open |
+| #34 | decision, then days or hours | scope first | Message section: in-app messaging, notification reuse, or remove | decided, no dead button | blocked on owner scope decision |
+| #35 | decision, then days or ~1 day | scope first | Upload materials: Cloudinary, link-only, or remove | decided, students see materials if built | blocked on owner scope decision |
+| #36 | low | ~1 hour | Announce quiz duplicates Tasks (type Quiz exists), In/Out log has no data source | no coming-soon toasts left in FacultyStudentsPage | open |
 
 Build order: #32 first (closes the core teaching loop), #33 second (backend exists, trivial), then decide #34 and #35 before building either. #36 any time.
 
@@ -50,3 +50,7 @@ Build order: #32 first (closes the core teaching loop), #33 second (backend exis
 ## Acceptance gates (every issue)
 
 `npm run lint` clean in touched files, `npm run build` passes, browser verification with both roles on the seed users, test documents deleted after verification, no secrets or `.env.local` in the diff.
+
+## Completed log
+
+- #32 (2026-09-12): task grading flow live. `PATCH /api/tasks/[taskId]/grade` (faculty-only session, branch match, teaching-load check via shared `requireTeachingFaculty`, BUG-010 guards, honest `{ok, ...}` envelope) plus `GET /api/faculty/tasks/submissions` group listing. Submissions drawer in FacultyTasksPage (shared `Modal`, per-row score + feedback save, counters stay honest); student task detail renders Feedback next to Score, GRADED flips via existing `computeStatus`. Decision recorded: task scores do NOT write `grade_audits` rows (tasks are not grades, per plan non-goals). Verified: `npx tsc --noEmit` clean, `npm run lint` clean in touched files, `npm run build` passes (new routes listed). API: posted test task to CS 208 (3 docs), student submitted, guards held (student 403, over-max 400, anon 401, spoof 403), graded 17/20, student GET showed score + feedback, group flipped to 1 submitted / 1 graded. Browser: faculty drawer listed 3 rows with prefilled drafts, UI save flipped maria.cruz to 15/20; student overview showed 5 graded, row pill 17/20, detail modal showed Graded + Score + Feedback. Test docs created and deleted: 3 `tasks` docs titled `VERIFY32-GRADE 20260912-085338` (0 remain).

@@ -243,6 +243,10 @@ export function FacultyTasksPage({
       if (data.ok) {
         toast.success(data.message || 'Graded.')
         setSubmissions((prev) => (prev || []).map((r) => r._id === row._id ? { ...r, score, feedback: draft.feedback.trim().slice(0, 2000) } : r))
+        // Keep the open drawer's counters honest when a first-time grade lands.
+        if (row.score === null) {
+          setGradingGroup((prev) => (prev ? { ...prev, graded: prev.graded + 1 } : prev))
+        }
         onFetchTaskGroups?.()
       } else {
         toast.error(data.error || 'Failed to save grade.')
