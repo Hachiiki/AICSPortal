@@ -556,6 +556,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
           {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
           <DetailRow label="Status" value={STATUS_LABELS[status]} />
           {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}
+          {task.feedback && <DetailRow label="Feedback" value={task.feedback} />}
           {task.description && <DetailRow label="Description" value={task.description} />}
         </div>
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
