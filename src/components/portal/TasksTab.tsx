@@ -58,11 +58,17 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
   const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
 
   // Bell deep-link: expand the course, scroll the row into view, flash it once.
+  // Waits for the task list to finish loading — rows do not exist before that.
   const focusTaskId = focusTask?.taskId || null
   const focusSubject = focusTask?.subjectCode || null
   useEffect(() => {
-    if (!focusTaskId) return
-    if (focusSubject) setExpandedCourses((prev) => new Set(prev).add(focusSubject))
+    if (!focusTaskId || loading) return
+    if (focusSubject) {
+      setExpandedCourses((prev) => {
+        if (prev.has(focusSubject)) return prev
+        return new Set(prev).add(focusSubject)
+      })
+    }
     const t = setTimeout(() => {
       const el = rowRefs.current[focusTaskId]
       if (!el) return
@@ -71,7 +77,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       setTimeout(() => setHighlightId((cur) => (cur === focusTaskId ? null : cur)), 2600)
     }, 250)
     return () => clearTimeout(t)
-  }, [focusTaskId, focusSubject])
+  }, [focusTaskId, focusSubject, loading, tasks.length])
 
   // Close subject dropdown on outside click or Esc
   useEffect(() => {
