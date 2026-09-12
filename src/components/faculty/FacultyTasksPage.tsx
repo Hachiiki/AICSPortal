@@ -96,6 +96,56 @@ function formatDue(iso: string): string {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+function groupKey(group: TaskGroup): string {
+  return `${group.subjectCode}|${group.title}|${group.dueDate}`
+}
+
+function isClosedGroup(group: TaskGroup): boolean {
+  return group.closed >= group.total && group.total > 0
+}
+
+// Shared per-group actions so the open list and the closed side
+// panel never diverge (owner request: closed tasks live in the
+// side panel using the page's empty side space).
+function GroupActions({ group, toggling, closed, onSubmissions, onToggle, vertical }: {
+  group: TaskGroup
+  toggling: boolean
+  closed: boolean
+  onSubmissions: (group: TaskGroup) => void
+  onToggle: (group: TaskGroup) => void
+  vertical?: boolean
+}) {
+  const wrap = vertical ? 'flex flex-col gap-2' : 'flex items-center gap-2 flex-shrink-0'
+  const stretch = vertical ? 'w-full justify-center' : ''
+  return (
+    <div className={wrap}>
+      <button
+        type="button"
+        onClick={() => onSubmissions(group)}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-medium text-blue-700 hover:bg-blue-100 ${stretch}`}
+      >
+        <UsersIcon className="w-3.5 h-3.5" />
+        Submissions
+      </button>
+      <button
+        type="button"
+        onClick={() => onToggle(group)}
+        disabled={toggling}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50 disabled:opacity-60 ${stretch}`}
+      >
+        {toggling ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : closed ? (
+          <LockOpen className="w-3.5 h-3.5" />
+        ) : (
+          <Lock className="w-3.5 h-3.5" />
+        )}
+        {toggling ? 'Saving...' : closed ? 'Reopen' : 'Close submissions'}
+      </button>
+    </div>
+  )
+}
+
 export function FacultyTasksPage({
   student, onNavigate, onLogout, events, professors, tasks,
   facultyData, facultyLoading, taskGroupsData, taskGroupsLoading, taskGroupsError, onFetchTaskGroups,
@@ -104,6 +154,8 @@ export function FacultyTasksPage({
   const faculty = facultyData?.faculty ?? null
   const loading = facultyLoading ?? true
   const groups = taskGroupsData?.groups ?? []
+  const openGroups = groups.filter((g) => !isClosedGroup(g))
+  const closedGroups = groups.filter(isClosedGroup)
   const groupsPending = taskGroupsLoading ?? false
 
   const codes = Array.from(
@@ -324,7 +376,7 @@ export function FacultyTasksPage({
       taskGroups={taskGroupsData?.groups}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-4xl">
+      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-6xl">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Tasks</h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -422,7 +474,7 @@ export function FacultyTasksPage({
           </div>
         </div>
 
-        {/* Posted groups */}
+        {/* Posted groups: open tasks lead, closed ones live in the side panel */}
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-slate-900">Posted ({groups.length})</h2>
           {groups.length === 0 ? (
@@ -430,10 +482,18 @@ export function FacultyTasksPage({
               <p className="text-sm text-slate-500">No tasks posted yet. Create the first one above.</p>
             </div>
           ) : (
-            groups.map((group) => {
-              const key = `${group.subjectCode}|${group.title}|${group.dueDate}`
-              const closed = group.closed >= group.total && group.total > 0
-              const toggling = togglingKey === key
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+              <div className="space-y-3 min-w-0">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Open ({openGroups.length})</h3>
+                {openGroups.length === 0 ? (
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+                    <p className="text-sm text-slate-500">Nothing open. Reopen a closed task from the side panel to collect work again.</p>
+                  </div>
+                ) : (
+                  openGroups.map((group) => {
+                    const key = groupKey(group)
+                    const closed = isClosedGroup(group)
+                    const toggling = togglingKey === key
               return (
                 <div key={key} className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -454,35 +514,59 @@ export function FacultyTasksPage({
                         Due {formatDue(group.dueDate)} • {group.submitted}/{group.total} submitted • {group.graded} graded • {group.maxScore} pts
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => openGrading(group)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-medium text-blue-700 hover:bg-blue-100"
-                      >
-                        <UsersIcon className="w-3.5 h-3.5" />
-                        Submissions
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleToggle(group)}
-                        disabled={toggling}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50 disabled:opacity-60"
-                      >
-                        {toggling ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : closed ? (
-                          <LockOpen className="w-3.5 h-3.5" />
-                        ) : (
-                          <Lock className="w-3.5 h-3.5" />
-                        )}
-                        {toggling ? 'Saving...' : closed ? 'Reopen' : 'Close submissions'}
-                      </button>
-                    </div>
+                    <GroupActions
+                      group={group}
+                      toggling={toggling}
+                      closed={closed}
+                      onSubmissions={openGrading}
+                      onToggle={handleToggle}
+                    />
                   </div>
                 </div>
               )
-            })
+                  })
+                )}
+              </div>
+          {closedGroups.length > 0 && (
+            <aside aria-label="Closed tasks" className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 lg:sticky lg:top-20">
+              <h3 className="text-sm font-semibold text-slate-900">Closed ({closedGroups.length})</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Done collecting. Reopen to accept work again.</p>
+              <div className="space-y-3 mt-3">
+                {closedGroups.map((group) => {
+                  const key = groupKey(group)
+                  const toggling = togglingKey === key
+                  return (
+                    <div key={key} className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-xs font-bold text-blue-700">{group.subjectCode}</span>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
+                          {group.type}
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border bg-slate-100 text-slate-600 border-slate-200">
+                          <Lock className="w-3 h-3" /> Closed
+                        </span>
+                      </div>
+                      <p className="text-sm font-semibold text-slate-900 mt-1">{group.title}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Due {formatDue(group.dueDate)} • {group.submitted}/{group.total} submitted • {group.graded} graded • {group.maxScore} pts
+                      </p>
+                      <div className="mt-2.5">
+                        <GroupActions
+                          group={group}
+                          toggling={toggling}
+                          closed
+                          onSubmissions={openGrading}
+                          onToggle={handleToggle}
+                          vertical
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </aside>
+          )}
+        </div>
           )}
         </div>
       </main>
