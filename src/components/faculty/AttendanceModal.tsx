@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { X, Check, Loader2 } from 'lucide-react'
+import { X, Check, ChevronDown, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export interface AttendanceStudent {
@@ -150,16 +150,19 @@ export function AttendanceModal({
           </div>
           <div className="mt-3">
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Class</label>
-            <select
-              value={sec?.key || ''}
-              onChange={(e) => switchSection(e.target.value)}
-              aria-label="Switch class"
-              className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500"
-            >
-              {sections.map((s) => (
-                <option key={s.key} value={s.key}>{s.code} — {s.title}{termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • {s.students.length} {s.students.length === 1 ? 'student' : 'students'}</option>
-              ))}
-            </select>
+            <div className="relative mt-1">
+              <select
+                value={sec?.key || ''}
+                onChange={(e) => switchSection(e.target.value)}
+                aria-label="Switch class"
+                className="w-full h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none"
+              >
+                {sections.map((s) => (
+                  <option key={s.key} value={s.key}>{s.code} — {s.title}{termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • {s.students.length} {s.students.length === 1 ? 'student' : 'students'}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date</label>
