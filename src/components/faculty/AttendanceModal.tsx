@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { X, Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -10,11 +10,16 @@ export interface AttendanceStudent {
   studentNumber: string
 }
 
-interface AttendanceModalProps {
-  sectionKey: string
+export interface AttendanceSection {
+  key: string
   code: string
   title: string
   students: AttendanceStudent[]
+}
+
+interface AttendanceModalProps {
+  sections: AttendanceSection[]
+  initialKey: string
   facultyUsername: string
   branch: string
   onClose: () => void
@@ -28,37 +33,62 @@ function todayLocal(): string {
   return `${d.getFullYear()}-${month}-${day}`
 }
 
+function formatLong(day: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day)
+  const dt = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(day)
+  if (isNaN(dt.getTime())) return day
+  return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+}
+
 export function AttendanceModal({
-  sectionKey, code, title, students, facultyUsername, branch, onClose, onSaved,
+  sections, initialKey, facultyUsername, branch, onClose, onSaved,
 }: AttendanceModalProps) {
+  // Class switcher: the roster, records, and save target all follow
+  // this key, so teachers move between classes without closing.
+  const [secKey, setSecKey] = useState(initialKey)
+  const sec = useMemo(
+    () => sections.find((s) => s.key === secKey) || sections[0] || null,
+    [sections, secKey]
+  )
+  const students = useMemo(() => sec?.students || [], [sec])
   const [date, setDate] = useState(todayLocal)
   const [records, setRecords] = useState<Record<string, 'present' | 'absent'>>({})
   const [loadingRecord, setLoadingRecord] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  const today = todayLocal()
+  const isToday = date === today
+
   // Load any existing session for this section + date so re-opening
-  // a day shows what was recorded instead of blank toggles.
-  const loadRecord = useCallback(async (day: string) => {
+  // a day (or switching classes) shows what was recorded instead of
+  // blank toggles.
+  const loadRecord = useCallback(async (day: string, key: string, list: AttendanceStudent[]) => {
     setLoadingRecord(true)
     try {
-      const params = new URLSearchParams({ username: facultyUsername, sectionKey, date: day })
+      const params = new URLSearchParams({ username: facultyUsername, sectionKey: key, date: day })
       const res = await fetch(`/api/attendance?${params.toString()}`)
       const data = await res.json()
       if (data.ok && data.records) {
         setRecords(data.records)
       } else {
-        setRecords(Object.fromEntries(students.map((s) => [s.username, 'present'])))
+        setRecords(Object.fromEntries(list.map((s) => [s.username, 'present'])))
       }
     } catch {
-      setRecords(Object.fromEntries(students.map((s) => [s.username, 'present'])))
+      setRecords(Object.fromEntries(list.map((s) => [s.username, 'present'])))
     } finally {
       setLoadingRecord(false)
     }
-  }, [facultyUsername, sectionKey, students])
+  }, [facultyUsername])
 
   useEffect(() => {
-    loadRecord(date)
-  }, [date, loadRecord])
+    if (sec) loadRecord(date, sec.key, students)
+  }, [date, sec, students, loadRecord])
+
+  const switchSection = (key: string) => {
+    if (key === secKey) return
+    setRecords({})
+    setSecKey(key)
+  }
 
   const setAll = (status: 'present' | 'absent') => {
     setRecords(Object.fromEntries(students.map((s) => [s.username, status])))
@@ -68,12 +98,13 @@ export function AttendanceModal({
   const absent = students.length - present
 
   const handleSave = async () => {
+    if (!sec) return
     setSaving(true)
     try {
       const res = await fetch('/api/attendance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branch, sectionKey, date, records, performedBy: facultyUsername }),
+        body: JSON.stringify({ branch, sectionKey: sec.key, date, records, performedBy: facultyUsername }),
       })
       const data = await res.json()
       if (data.ok) {
@@ -98,7 +129,7 @@ export function AttendanceModal({
             <div>
               <h3 className="font-bold">Take attendance</h3>
               <p className="text-xs text-slate-500 mt-1">
-                <span className="font-mono font-bold text-blue-700">{code}</span> {title}
+                {sec ? (<><span className="font-mono font-bold text-blue-700">{sec.code}</span> {sec.title}</>) : 'No classes found.'}
               </p>
             </div>
             <button
@@ -110,16 +141,37 @@ export function AttendanceModal({
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-3">
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Class</label>
+            <select
+              value={sec?.key || ''}
+              onChange={(e) => switchSection(e.target.value)}
+              aria-label="Switch class"
+              className="mt-1 w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500"
+            >
+              {sections.map((s) => (
+                <option key={s.key} value={s.key}>{s.code} — {s.title} • {s.students.length} students</option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date</label>
             <input
               type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => e.target.value && setDate(e.target.value)}
               className="h-9 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500"
             />
+            {isToday && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-700 text-white">
+                Today
+              </span>
+            )}
             <span className="text-xs text-slate-500 ml-auto">{present} present • {absent} absent</span>
           </div>
+          <p className="text-xs text-slate-500 mt-1.5">
+            {formatLong(date)} • {students.length} {students.length === 1 ? 'student' : 'students'}
+          </p>
           <div className="mt-2 flex gap-2">
             <button
               type="button"
@@ -190,7 +242,7 @@ export function AttendanceModal({
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || loadingRecord || students.length === 0}
+            disabled={saving || loadingRecord || students.length === 0 || !sec}
             className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] inline-flex items-center gap-2 disabled:opacity-60"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}

@@ -342,11 +342,13 @@ export function FacultyStudentsPage({
   // so the pager never points past the last page.
   const resetPage = () => { setPage(1) }
 
-  // Section the attendance modal is open for, resolved from its key
-  // so the modal always sees fresh roster data.
-  const attendanceSec = attendanceKey
-    ? filteredSections.find((sec) => sec.key === attendanceKey) || null
-    : null
+  // All classes for the attendance modal's in-modal switcher.
+  // Memoized so the modal only refetches on date/class change,
+  // not on every parent render.
+  const attendanceSections = useMemo(
+    () => sections.map((sec) => ({ key: sec.key, code: sec.subjectCode, title: sec.subjectTitle, students: sec.students })),
+    [sections]
+  )
 
   const openAttendance = (sec: { key: string } | null) => {
     if (!sec) {
@@ -1076,12 +1078,10 @@ export function FacultyStudentsPage({
         </Modal>
       )}
 
-      {attendanceSec && (
+      {attendanceKey && (
         <AttendanceModal
-          sectionKey={attendanceSec.key}
-          code={attendanceSec.subjectCode}
-          title={attendanceSec.subjectTitle}
-          students={attendanceSec.students}
+          sections={attendanceSections}
+          initialKey={attendanceKey}
           facultyUsername={student.username}
           branch={faculty.branch}
           onClose={() => setAttendanceKey(null)}
