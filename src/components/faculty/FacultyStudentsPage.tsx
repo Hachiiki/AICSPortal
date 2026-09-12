@@ -1000,6 +1000,7 @@ export function FacultyStudentsPage({
             <div className="space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">File (10 MB max: pdf, office docs, images, txt, csv, zip)</label>
               <input
+                key="mat-file-input"
                 type="file"
                 accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.webp,.gif,.zip"
                 onChange={(e) => setMatFile(e.target.files?.[0] || null)}
@@ -1021,6 +1022,7 @@ export function FacultyStudentsPage({
             <div className="space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">URL</label>
               <input
+                key="mat-url-input"
                 type="url"
                 value={matUrl}
                 onChange={(e) => setMatUrl(e.target.value)}
