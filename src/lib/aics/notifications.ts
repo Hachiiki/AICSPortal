@@ -8,6 +8,9 @@ export interface Notification {
   subjectCode: string
   createdAt: string // ISO string
   read: boolean
+  // Task announcement link (task posts only). Bell clicks carrying
+  // a taskId deep-link into Academics → Tasks for that doc.
+  taskId: string | null
 }
 
 // One prop bundle carrying the bell inbox through the shell so

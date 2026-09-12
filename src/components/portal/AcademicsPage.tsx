@@ -19,6 +19,22 @@ import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 
+// One-shot focus handoff for bell deep-links (refs #37-review): the
+// Topbar stores { tab:'tasks', subjectCode, taskId } when a task
+// announcement is clicked, the freshly mounted Academics page
+// consumes it once (tab preselected, row focused) and clears it.
+function readAcademicsFocus(): { tab?: string; subjectCode?: string; taskId?: string } {
+  try {
+    if (typeof window === 'undefined') return {}
+    const raw = window.sessionStorage.getItem('aics_academics_focus')
+    if (!raw) return {}
+    window.sessionStorage.removeItem('aics_academics_focus')
+    return JSON.parse(raw) as { tab?: string; subjectCode?: string; taskId?: string }
+  } catch {
+    return {}
+  }
+}
+
 interface AcademicsPageProps {
   student: Student
   onNavigate: (view: View) => void
@@ -178,7 +194,13 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 }
 
 export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
-  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks' | 'materials'>('grades')
+  const [academicsFocus] = useState(readAcademicsFocus)
+  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks' | 'materials'>(
+    academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades'
+  )
+  const focusTask = academicsFocus.tab === 'tasks' && academicsFocus.taskId
+    ? { subjectCode: academicsFocus.subjectCode || '', taskId: academicsFocus.taskId }
+    : null
 
   // Tasks state is now lifted to the parent (StudentDataWrapper) so
   // it persists across route switches. See the props comment above.
@@ -402,6 +424,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               loading={tasksLoading}
               error={tasksError}
               setTasks={setTasks}
+              focusTask={focusTask}
             />
           )}
 

@@ -3,7 +3,7 @@ import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongo
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
-import type { MongoTask, TaskType } from '@/lib/mongodb/types'
+import type { MongoNotification, MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
 
 // GET /api/tasks?username=juan.santos
@@ -164,6 +164,33 @@ export async function POST(request: NextRequest) {
     }))
     const col = await getCollection<MongoTask>('tasks')
     const result = await col.insertMany(docs as any)
+    // Bell fan-out (refs #37-review): one notification per student so
+    // the task announcement lands in their inbox and deep-links into
+    // Academics → Tasks. Best-effort — a notify failure must never
+    // fail the task post itself.
+    try {
+      const notifCol = await getCollection<MongoNotification>('notifications')
+      const sectionKey = `${subjectCode}|${performer.academicYear}|${performer.semester}`
+      const dueLabel = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      const trimmedDesc = typeof description === 'string' && description.trim() ? description.trim().slice(0, 140) : ''
+      const notifs: MongoNotification[] = usernames.map((studentUsername, i) => ({
+        branch,
+        studentUsername,
+        title: `New ${type}: ${title.trim()}`,
+        body: trimmedDesc ? `${subjectCode} — due ${dueLabel} — ${trimmedDesc}` : `${subjectCode} — due ${dueLabel}`,
+        fromName: performer.fullName,
+        fromUsername: session.username,
+        sectionKey,
+        subjectCode,
+        taskId: (result.insertedIds as any)?.[i]?.toString() || null,
+        createdAt: now,
+        read: false,
+        readAt: null,
+      }))
+      await notifCol.insertMany(notifs as any)
+    } catch (notifyErr) {
+      console.error('Task notification fan-out failed (non-fatal):', notifyErr)
+    }
     return NextResponse.json({ ok: true, message: `Task posted to ${result.insertedCount} students.`, created: result.insertedCount })
   } catch (err) {
     console.error('Task create error:', err)

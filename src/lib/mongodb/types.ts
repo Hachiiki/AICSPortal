@@ -310,6 +310,8 @@ export interface MongoMaterial {
 // Section notifications from faculty. One doc per targeted student
 // so unread counts and read state stay trivial. Never rendered in
 // the announcements deck — the bell inbox owns these.
+// `taskId` links task-announcement notifications to the task doc so
+// the bell can deep-link into Academics → Tasks (refs #37-review).
 export interface MongoNotification {
   _id?: string
   branch: Branch
@@ -321,6 +323,9 @@ export interface MongoNotification {
   // sectionKey is `code|academicYear|semester`, matching the roster hook
   sectionKey: string
   subjectCode: string
+  // Task announcement link (task posts only, refs #37-review).
+  // Bell clicks deep-link into Academics → Tasks for this doc.
+  taskId?: string | null
   createdAt: Date
   read: boolean
   readAt: Date | null
