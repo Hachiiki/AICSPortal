@@ -70,7 +70,8 @@ const VALID_TASK_TYPES: TaskType[] = ['Activity', 'Quiz', 'Test', 'Project']
 
 // Faculty must only create for codes they teach this term. Returns
 // the faculty doc plus the code list, or an error response.
-async function requireTeachingFaculty(performedBy: unknown, branch: unknown, subjectCode: unknown) {
+// Exported for reuse by the grade + submissions endpoints (refs #32).
+export async function requireTeachingFaculty(performedBy: unknown, branch: unknown, subjectCode: unknown) {
   // BUG-010: reject operator objects before they reach Mongo filters.
   if (typeof performedBy !== 'string' || !performedBy || typeof branch !== 'string' || !branch || typeof subjectCode !== 'string' || !subjectCode) {
     return { error: NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 }) }
