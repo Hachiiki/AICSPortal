@@ -474,7 +474,7 @@ export function FacultyTasksPage({
             </div>
           </div>
         </div>
-          <aside aria-label="Closed tasks" className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 lg:sticky lg:top-20">
+          <aside aria-label="Closed tasks" className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-1 lg:row-span-2">
             <h3 className="text-sm font-semibold text-slate-900">Closed ({closedGroups.length})</h3>
             <p className="text-xs text-slate-500 mt-0.5">Done collecting. Reopen to accept work again.</p>
             {closedGroups.length === 0 ? (
@@ -515,10 +515,11 @@ export function FacultyTasksPage({
               </div>
             )}
           </aside>
-        </div>
 
-        {/* Posted groups (open only — closed live beside the form) */}
-        <div className="space-y-3 max-w-4xl">
+        {/* Posted groups (open only — closed live beside the form).
+            Pinned to grid column 1 row 2 on desktop so the list is exactly
+            as wide as the creation form above it. */}
+        <div className="space-y-3 min-w-0 lg:col-start-1 lg:row-start-2">
           <h2 className="text-sm font-semibold text-slate-900">Open ({openGroups.length})</h2>
           {groups.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
@@ -567,6 +568,7 @@ export function FacultyTasksPage({
                   })}
               </div>
           )}
+        </div>
         </div>
       </main>
 
