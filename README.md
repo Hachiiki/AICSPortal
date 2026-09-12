@@ -8,7 +8,7 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-uploads-3448C5?logo=cloudinary)](https://cloudinary.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. Built as a capstone project to replace the school's paper-based processes with one digital system, and deployed live on Vercel.
+A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. The original design notes and project paper live in [`aics/`](./aics/). Deployed live on Vercel.
 
 ---
 
@@ -369,7 +369,7 @@ AICSPortal/
 │   ├── faculty-roadmap.md       # Faculty build phases (all complete)
 │   ├── student-faculty-interaction-plan.md   # Epic #31 campaign (all complete)
 │   └── UI_UX_IMPLEMENTATION_TRACKER.md       # Audit fixes (all complete)
-├── aics/                        # Design documents and original roadmap
+├── aics/                        # The author's source material: project paper, roadmap, pseudocode
 └── Caddyfile                    # Self-host reverse proxy config
 ```
 
@@ -408,8 +408,10 @@ caddy run
 
 ## Acknowledgments
 
-- **AICS IT Office** — project sponsor and institutional support
-- **AICS Commonwealth Campus** — pilot branch
+This is an independent project. AICS did not sponsor, fund, commission, or endorse it, and no school office was involved in building it. The author is a student who wrote it for a course covering system information applications, starting from the things the campus was missing: grade reports printed by hand, scores shuffled between spreadsheets, no single place for schedules, tasks, or documents.
+
+- **Wilard James Paluga** ([@Hachiiki](https://github.com/Hachiiki)): author and maintainer
+- The [`aics/`](./aics/) folder keeps the source material: the project paper, the first roadmap, and the core pseudocode
 - Built with [Next.js](https://nextjs.org/), [shadcn/ui](https://ui.shadcn.com/), [Tailwind CSS](https://tailwindcss.com/), [MongoDB](https://www.mongodb.com/), and [Cloudinary](https://cloudinary.com/)
 
 ---

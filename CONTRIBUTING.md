@@ -1,6 +1,6 @@
 # Contributing to AICS Student Portal
 
-Thank you for your interest in contributing! This project is a capstone initiative to digitize student information systems at the **Asian Institute of Computer Studies (AICS)**. Whether you're fixing a bug, adding a feature, or improving documentation, your help is welcome.
+Thank you for your interest in contributing! This is an independent, student-built portal for the **Asian Institute of Computer Studies (AICS)**, not a school initiative. Whether you're fixing a bug, adding a feature, or improving documentation, your help is welcome.
 
 ---
 
