@@ -241,12 +241,13 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             </p>
           </div>
 
-          {/* Mini-tab switcher */}
-          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100">
+          {/* Mini-tab switcher — scrolls horizontally when tabs exceed the
+              container width (phones), no visible scrollbar */}
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               type="button"
               onClick={() => setActiveTab('grades')}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'grades' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -255,7 +256,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('subjects')}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'subjects' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -264,7 +265,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('tasks')}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'tasks' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -273,7 +274,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('materials')}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'materials' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
