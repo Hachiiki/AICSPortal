@@ -48,6 +48,55 @@ export function extResourceType(format: string): 'image' | 'raw' | null {
   return null
 }
 
+// ============================================================
+//  Profile photos (refs TODO: profile photo upload)
+// ============================================================
+//
+//  Avatars reuse the materials pattern: the browser uploads
+//  directly to Cloudinary with a server-signed signature and
+//  only the URL lands in Mongo (`students.photoUrl`). Photos
+//  live in their own subtree next to materials:
+//
+//    <root>/photos/<branch>/<username>/
+//
+//  where <root> is the CLOUDINARY_FOLDER base minus its last
+//  segment (default: aics-portal), so a custom folder still
+//  groups everything under the portal root.
+// ============================================================
+
+export const PHOTO_MAX_BYTES = 5 * 1024 * 1024 // 5 MB
+
+export function photoRoot(baseFolder: string): string {
+  const root = String(baseFolder || '').split('/').filter(Boolean).slice(0, -1).join('/')
+  return `${root || 'aics-portal'}/photos`
+}
+
+export function photoFolder(baseFolder: string, branch: string, username: string): string {
+  // Same sanitization style as materialFolder, plus dots (allowed in
+  // Cloudinary public_ids) so folder names mirror usernames exactly.
+  const safeBranch = String(branch).replace(/[^a-zA-Z0-9-_.]/g, '').slice(0, 64) || 'branch'
+  const safeUser = String(username).replace(/[^a-zA-Z0-9-_.]/g, '').slice(0, 64) || 'user'
+  return `${photoRoot(baseFolder)}/${safeBranch}/${safeUser}`
+}
+
+// Derive the Cloudinary public_id from a photo delivery URL so a
+// replaced or removed avatar can be destroyed. Delivery URLs look
+// like res.cloudinary.com/<cloud>/image/upload/v<version>/<id>.<ext>.
+// External avatar URLs return null — nothing of ours to destroy.
+export function publicIdFromPhotoUrl(url: unknown, root: string): string | null {
+  if (typeof url !== 'string' || !url.startsWith('https://')) return null
+  try {
+    const u = new URL(url)
+    if (u.hostname !== 'res.cloudinary.com') return null
+    const m = u.pathname.match(/^\/[^/]+\/image\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/)
+    const publicId = m?.[1]
+    if (!publicId || !publicId.startsWith(`${root}/`)) return null
+    return publicId
+  } catch {
+    return null
+  }
+}
+
 // Sign upload params for a direct browser POST to Cloudinary.
 // Only timestamp+folder are signed because those are the only
 // params the browser sends besides file/cloud_name/api_key.
