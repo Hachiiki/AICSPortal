@@ -38,6 +38,10 @@ next-env.d.ts
 # Local artifacts
 local-*
 
+# Sandbox/dev-environment only scripts (never ship)
+scripts/init-fullstack.sh
+scripts/gh_inspect.sh
+
 # Removed from repo ??? do not track these folders
 .zscripts/
 db/
