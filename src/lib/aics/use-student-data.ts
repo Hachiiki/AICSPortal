@@ -26,6 +26,14 @@ export function useStudentData(username: string | null, retryKey = 0) {
     error: null,
   })
 
+  // Merge a partial update into the loaded student (e.g. photoUrl
+  // after an avatar upload). Deliberately NOT a refetch: a refetch
+  // flips `loading`, which unmounts the current page for a skeleton
+  // pass and would wipe any in-progress form state.
+  const patchStudent = useCallback((patch: Partial<Student>) => {
+    setState((s) => (s.student ? { ...s, student: { ...s.student, ...patch } } : s))
+  }, [])
+
   useEffect(() => {
     if (!username) {
       setState({ student: null, courses: [], sessions: [], loading: false, error: null })
@@ -69,7 +77,7 @@ export function useStudentData(username: string | null, retryKey = 0) {
     }
   }, [username, retryKey])
 
-  return state
+  return { ...state, patchStudent }
 }
 
 // ============================================================

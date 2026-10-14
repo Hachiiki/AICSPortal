@@ -194,7 +194,7 @@ function StudentDataWrapper({
 }) {
   // Bumping this re-runs the student-data fetch (error-state Retry).
   const [retryKey, setRetryKey] = useState(0)
-  const { student, courses, sessions, loading, error } = useStudentData(username, retryKey)
+  const { student, courses, sessions, loading, error, patchStudent } = useStudentData(username, retryKey)
 
   // ----------------------------------------------------------
   //  Centralized navigation handler.
@@ -733,6 +733,7 @@ function StudentDataWrapper({
         tasks={tasks}
         inbox={inbox}
         facultyData={facultyData}
+        onStudentPatch={patchStudent}
       />
     )
   }

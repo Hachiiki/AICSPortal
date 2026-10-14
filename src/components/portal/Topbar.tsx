@@ -175,13 +175,22 @@ export function Topbar({
                 className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 aria-label="Account menu"
               >
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                  style={{ background: '#1e293b' }}
-                  aria-hidden="true"
-                >
-                  {getInitials(student.fullName)}
-                </div>
+                {student.photoUrl ? (
+                  <img
+                    src={student.photoUrl}
+                    alt=""
+                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    draggable={false}
+                  />
+                ) : (
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                    style={{ background: '#1e293b' }}
+                    aria-hidden="true"
+                  >
+                    {getInitials(student.fullName)}
+                  </div>
+                )}
                 <div className="hidden sm:block text-left leading-tight">
                   <p className="text-sm font-semibold text-slate-900">{student.fullName}</p>
                   <p className="text-[11px] text-slate-500 font-mono">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ChevronLeft,
   User,
@@ -15,9 +15,11 @@ import {
   EyeOff,
   Check,
   Loader2,
+  Trash2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
+import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -34,11 +36,18 @@ interface SettingsPageProps {
   // Faculty teaching data, used only for the role-aware search index.
   facultyData?: { subjects: any[]; students: any[] } | null
   inbox?: NotificationInbox
+  // Merges a partial student update into the loaded record (photoUrl
+  // after an avatar upload) so every avatar on screen updates without
+  // a refetch/remount.
+  onStudentPatch?: (patch: Partial<Student>) => void
 }
 
 type Section = 'profile' | 'security' | 'notifications'
 
-export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox }: SettingsPageProps) {
+// Matches PHOTO_MAX_BYTES on the server (POST /api/student/photo).
+const PHOTO_MAX_BYTES = 5 * 1024 * 1024
+
+export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
 
   // Profile edit state
@@ -48,6 +57,103 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   const [emergencyName, setEmergencyName] = useState(student.emergencyContactName || '')
   const [emergencyNumber, setEmergencyNumber] = useState(student.emergencyContactNumber || '')
   const [savingProfile, setSavingProfile] = useState(false)
+
+  // Photo upload state: optimistic local preview while the signed
+  // direct browser→Cloudinary upload is in flight.
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+
+  // Never leak the optimistic object URL.
+  useEffect(() => {
+    return () => {
+      if (photoPreview) URL.revokeObjectURL(photoPreview)
+    }
+  }, [photoPreview])
+
+  const handlePickPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    // Allow picking the same file twice after a failure.
+    e.target.value = ''
+    if (!file) return
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      toast.error('Please choose a PNG, JPG, or WebP image.')
+      return
+    }
+    if (file.size > PHOTO_MAX_BYTES) {
+      toast.error('Image must be 5 MB or less.')
+      return
+    }
+
+    setPhotoBusy(true)
+    const localUrl = URL.createObjectURL(file)
+    setPhotoPreview(localUrl)
+    try {
+      // 1. Square-crop + downscale in the browser: a 4000px phone
+      //    photo becomes a 512px JPEG before it ever leaves the device.
+      const blob = await squareResize(file, 512)
+
+      // 2. Signed params for one direct upload into the user's own
+      //    server-assigned folder (identity comes from the session).
+      const signRes = await fetch('/api/student/photo', { method: 'POST' })
+      const sign = await signRes.json()
+      if (!sign.ok) throw new Error(sign.error || 'Photo upload is not available right now.')
+
+      // 3. The file goes straight to Cloudinary, never through the app server.
+      const form = new FormData()
+      form.append('file', new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
+      form.append('api_key', sign.apiKey)
+      form.append('timestamp', String(sign.timestamp))
+      form.append('folder', sign.folder)
+      form.append('signature', sign.signature)
+      const upRes = await fetch(sign.uploadUrl, { method: 'POST', body: form })
+      const up = await upRes.json()
+      if (!up.secure_url) throw new Error(up.error?.message || 'Cloudinary rejected the upload.')
+
+      // 4. Persist the URL on the profile record.
+      const saveRes = await fetch(`/api/student/update?username=${encodeURIComponent(student.username)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoUrl: up.secure_url }),
+      })
+      const saved = await saveRes.json()
+      if (!saved.ok) throw new Error(saved.error || 'Failed to save the photo to your profile.')
+
+      onStudentPatch?.({ photoUrl: up.secure_url as string })
+      toast.success('Profile photo updated.')
+
+      // 5. Fire-and-forget: destroy the replaced asset so it does not
+      //    orphan in Cloudinary. Server validates it is the user's own.
+      if (sign.oldPublicId) {
+        fetch('/api/student/photo/cleanup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ publicId: sign.oldPublicId }),
+        }).catch(() => {})
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed. Please try again.')
+    } finally {
+      setPhotoBusy(false)
+      URL.revokeObjectURL(localUrl)
+      setPhotoPreview(null)
+    }
+  }
+
+  const handleRemovePhoto = async () => {
+    setPhotoBusy(true)
+    try {
+      const res = await fetch(`/api/student/photo?username=${encodeURIComponent(student.username)}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!data.ok) throw new Error(data.error || 'Failed to remove the photo.')
+      onStudentPatch?.({ photoUrl: '' })
+      toast.success('Photo removed.')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to remove the photo.')
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('')
@@ -179,14 +285,59 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 <p className="text-xs text-slate-500 mt-0.5">Update your contact details. Changes apply immediately.</p>
               </div>
               <div className="px-6 py-5 space-y-5">
-                {/* Photo (read-only placeholder for now) */}
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0" style={{ background: '#1e293b' }}>
-                    {student.firstName[0]}{student.lastName[0]}
+                {/* Photo — direct browser→Cloudinary upload, signed server-side */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="relative w-20 h-20 flex-shrink-0">
+                    {photoPreview || student.photoUrl ? (
+                      <img
+                        src={photoPreview || student.photoUrl}
+                        alt={student.fullName}
+                        className="w-20 h-20 rounded-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-800 to-blue-600 text-white text-2xl font-bold grid place-items-center">
+                        {getInitials(student.fullName)}
+                      </div>
+                    )}
+                    {photoBusy && (
+                      <div className="absolute inset-0 rounded-full bg-slate-900/50 grid place-items-center">
+                        <Loader2 className="w-6 h-6 animate-spin text-white" />
+                      </div>
+                    )}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-900">{student.fullName}</p>
-                    <p className="text-xs text-slate-500">Photo upload coming soon</p>
+                    <p className="text-xs text-slate-500 mt-0.5">PNG, JPG, or WebP — square photos work best. Shown on your profile, ID, and top bar.</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={photoBusy}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        <Camera className="w-3.5 h-3.5" />
+                        {student.photoUrl ? 'Change photo' : 'Upload photo'}
+                      </button>
+                      {student.photoUrl && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          disabled={photoBusy}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Remove
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handlePickPhoto}
+                      aria-label="Choose a profile photo"
+                    />
                   </div>
                 </div>
 
@@ -392,4 +543,32 @@ function ToggleRow({ label, description, checked, onChange }: { label: string; d
       </button>
     </div>
   )
+}
+
+// Center-crop to a square and downscale to `max` px, encoded as JPEG —
+// avatars stay small and consistent no matter what the camera produced.
+async function squareResize(file: File, max: number): Promise<Blob> {
+  const bitmap = await createImageBitmap(file)
+  const side = Math.min(bitmap.width, bitmap.height)
+  const size = Math.max(1, Math.round(side * Math.min(1, max / side)))
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Your browser could not process the image.')
+  ctx.drawImage(
+    bitmap,
+    (bitmap.width - side) / 2,
+    (bitmap.height - side) / 2,
+    side,
+    side,
+    0,
+    0,
+    size,
+    size
+  )
+  bitmap.close()
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85))
+  if (!blob) throw new Error('Your browser could not process the image.')
+  return blob
 }
