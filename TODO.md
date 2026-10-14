@@ -17,7 +17,7 @@
 - [x] Centralized navigation (single `onNavigate` function, no per-page branching)
 
 ### Remaining
-- [ ] **Mobile responsive** — Remove the phone blocker. Make schedule grid, tasks table, enrollment tracker, and card deck work on phones. This is the last gap before the student portal is complete.
+- [x] **Mobile responsive** — Phone blocker was already removed (8a0caff, #17). Sidebar drawer, schedule grid horizontal scroll, tasks/grades table scroll containers, mobile vertical enrollment tracker, and the swipeable card deck were already in place. Remaining real gaps fixed: the Academics mini-tab switcher (382px) and Settings section tabs overflowed the 375px viewport — both now scroll horizontally inside a clipped container with no visible scrollbar (d9420a8, 9af5119). Every student page verified at 375px with zero page-level overflow: login, dashboard, academics all four tabs, events, enrollment, professors, profile, settings, help.
 - [x] **Help & Support page** — Shared HelpSupportPage with role-specific FAQs plus IT and registrar contact card. Enabled in nav for every role. Verified in browser as faculty and student.
 - [ ] **Dark mode** — The CSS infrastructure exists (`@custom-variant dark`). Wire the theme toggle in the topbar.
 - [ ] **Profile photo upload** — Settings page has a placeholder. Needs a file upload endpoint + image storage.
