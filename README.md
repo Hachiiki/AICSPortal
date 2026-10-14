@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-uploads-3448C5?logo=cloudinary)](https://cloudinary.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
 
 A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. The original design notes and project paper live in [`aics/`](./aics/). Deployed live on Vercel.
 
@@ -418,5 +418,16 @@ This is an independent project. AICS did not sponsor, fund, commission, or endor
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
+Copyright (c) 2026 Wilard James Paluga. All Rights Reserved.
+
+This project and its source code are proprietary.
+
+The repository is publicly available for viewing, educational reference,
+and portfolio purposes. No permission is granted to copy, modify,
+distribute, publish, sublicense, sell, or create derivative works from
+this project's source code without prior written permission from the
+copyright holder.
+
+Third-party libraries, frameworks, assets, and other components remain
+subject to their respective licenses.
 

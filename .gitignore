@@ -54,3 +54,13 @@ worklog.md
 # Agent config
 .z-ai-config
 package-lock.json
+
+# Clean main: code only — full dev content lives on main-full-dev
+.agents/
+.superdesign/
+aics/
+docs/
+graphify-out/
+AGENTS.md
+CLAUDE.md
+skills-lock.json
