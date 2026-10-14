@@ -27,7 +27,7 @@ Core flows:
 
 > Update this section on every phase change. Keep 3-5 lines max.
 
-- Student portal: functional, gaps are mobile-responsive, dark mode wiring, profile photo upload.
+- Student portal: functional. Mobile responsive + profile photo upload done (photo API: sign/remove/cleanup + Settings uploader, verified 30/30 via scripts/verify-photo-upload.sh). Dark mode wiring deferred by owner (2026-10-14) — do not start unprompted.
 - Faculty portal: core tabs live, previous-records live, attendance live. History drawer + release queue verified.
 - Admin portal: only release queue + seed admin (`admin/admin123`) live. Dashboard / CRUD not started.
 - Infra debt: password hashing, session tokens, rate limiting, Zod validation, error boundaries, CI/CD — all open, see `@TODO.md`.
