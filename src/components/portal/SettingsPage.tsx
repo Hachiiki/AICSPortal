@@ -151,8 +151,9 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             </p>
           </div>
 
-          {/* Section tabs */}
-          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 mb-6">
+          {/* Section tabs — scroll horizontally when they exceed the
+              container width (phones), no visible scrollbar */}
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {sections.map((s) => {
               const Icon = s.icon
               return (
@@ -160,7 +161,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   key={s.id}
                   type="button"
                   onClick={() => setActiveSection(s.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap ${
                     activeSection === s.id ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
