@@ -12,7 +12,11 @@ export function DevBanner() {
     <div
       role="alert"
       className={cn(
-        'fixed inset-x-0 top-0 z-[100]',
+        // z-40 per PortalShell z-scale: above Topbar (z-20), below the
+        // mobile drawer (z-50) so it never blocks the drawer's close
+        // button. Backdrop (also z-40, later in DOM) dims the banner
+        // while the drawer is open.
+        'fixed inset-x-0 top-0 z-40',
         'border-b-2 border-black bg-amber-400 text-black',
       )}
     >

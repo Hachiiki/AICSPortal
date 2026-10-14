@@ -35,6 +35,7 @@ interface PortalShellProps {
 //                             keep internal z single-digit
 //   Topbar (sticky) ......... z-20
 //   Sidebar (desktop) ....... z-30
+//   DevBanner (fixed top) ... z-40
 //   drawer backdrops ........ z-40
 //   drawers, modals,
 //   dropdowns, toasts ....... z-50
