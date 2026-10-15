@@ -60,16 +60,20 @@
 - [x] **Faculty identity cleanup** — Profile hides COE, documents, Digital ID, GPA stats, and Year plus Section for faculty, showing department facts instead. Topbar and profile hero read Faculty plus ID number. Dashboard subjects table filters to the current term. Verified in browser for both roles.
 - [x] **Prefetch plus instant tabs plus shared transition plus search RBAC** — History and task groups prefetch at portal load, so first tab visits render with zero new requests. One fade-up transition lives in the shell for every tab. GlobalSearch is role-aware: faculty see their pages, subjects, roster, and tasks only, students keep their index, admins get pages only.
 
-## Admin Portal (not started)
+## Admin Portal (core surfaces live)
 
-### Planned
+### Done
 - [x] Admin seed user (role: admin) — seeded as dmin / dmin123, release queue page live as the first admin screen.
-- [ ] Admin dashboard (school-wide stats: enrollment counts, GPA distribution, branch overview)
-- [ ] Manage events (CRUD for the events collection)
-- [ ] Manage announcements (CRUD for announcements)
-- [ ] Manage professors directory (CRUD for professors collection)
-- [ ] View all students/faculty across branches
-- [ ] Enrollment management (override step tracker, post payments)
+- [x] **Admin dashboard** — GET /api/admin/stats aggregates every collection across all branches (read-only): totals, enrollment counts by status/year/program, GPA distribution over released final grades (PH 1.00-best scale, dean's lister cutoff 1.75), fee collection status, per-branch overview, upcoming events, and recent announcements. Dashboard renders clickable stat cards, CSS bar charts, and the branch table. Admin routing is per-view now (dashboard / release-queue / shared settings-help-profile), URLs reuse the student words scoped by the role segment.
+- [x] **Manage events** — POST/PATCH/DELETE /api/events (admin-session-gated, branch-scoped). PATCH merges onto the existing doc so start/end ranges stay coherent; endDate null clears back to single-day. Manage page: category + upcoming/past filters, add/edit modal, two-click delete.
+- [x] **Manage announcements** — GET ?all=1 lists every post including expired (admin-only); PATCH edits mutable fields with author/postedDate frozen; DELETE removes the post plus its announcement_reads markers. Manage page with active/expired filters, urgent badges, dimmed expired rows.
+- [x] **Manage professors** — POST/PATCH/DELETE /api/professors with duplicate-name 409s and per-field validation. Edit modal warns when a rename would sever the subject.professor join; deletions only remove the directory card.
+- [x] **View all students/faculty across branches** — GET /api/admin/people lists every account school-wide with passwords/tokenVersion projected out. Directory page with role chips (77 accounts), branch dropdown, search, sortable columns, 25-per-page pager.
+- [x] **Enrollment management** — GET /api/admin/enrollment lists records joined with student identity plus a no-record count. PATCH overrides the step tracker (statuses recompute exactly as the student tracker renders). POST posts payments capped at the remaining balance, updates the assessment aggregate, and appends to a payments[] audit trail (typed in mongodb/types.ts). Manage page: summary strip, override modal with live preview, payment modal with full-balance shortcut, full-record view with payment history.
+- [x] **Verification** — scripts/verify-admin-portal.sh runs the whole surface in one invocation (57/57 passing): auth gates on every endpoint, CRUD cycles, override/payment semantics, browser flows for every page, and zero page-level overflow at 375px on all seven admin pages (evidence in docs/done/qa_evidence/ui-ux/admin-*.png).
+
+### Remaining
+- [ ] **Bulk actions** — e.g. select multiple announcements to delete, CSV export of the people directory.
 
 ## Infrastructure
 
