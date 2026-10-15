@@ -277,7 +277,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
             {/* Directory table */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[880px]">
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-slate-50 border-b border-slate-100">
                       <SortHeader label="Name" sort="name" />

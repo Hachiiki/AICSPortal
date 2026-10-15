@@ -232,7 +232,7 @@ export function FacultyDashboard({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[720px]">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-100">
                       <Th>Code</Th>
@@ -249,7 +249,7 @@ export function FacultyDashboard({
                         key={row.code}
                         className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
                       >
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <span className="font-mono text-xs font-bold text-blue-700">
                             {row.code}
                           </span>
@@ -257,13 +257,13 @@ export function FacultyDashboard({
                         <td className="px-4 py-3">
                           <span className="text-sm text-slate-700">{row.title}</span>
                         </td>
-                        <td className="px-4 py-3 text-center text-sm text-slate-700">
+                        <td className="px-4 py-3 text-center text-sm text-slate-700 whitespace-nowrap">
                           {row.units}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <span className="text-sm text-slate-700">{row.schedule}</span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <span className="text-sm text-slate-700">{row.room}</span>
                         </td>
                         <td className="px-4 py-3 text-center">
@@ -322,7 +322,7 @@ function Th({
 }) {
   return (
     <th
-      className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${
+      className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap ${
         center ? 'text-center' : 'text-left'
       }`}
     >

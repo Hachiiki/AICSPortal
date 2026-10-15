@@ -13,7 +13,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import { PortalShell } from './PortalShell'
 import { RemarksBadge } from './RemarksBadge'
-import { GradesHeader, GradesRow, GradesFooter } from './GradesRow'
+import { GradesHeader, GradesRow, GradesFooter, GradesCards } from './GradesRow'
 import { TasksTab } from './TasksTab'
 import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
@@ -329,9 +329,10 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                     </div>
                   </div>
 
-                  {/* Grades table */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                  {/* Grades — per-subject cards on mobile, scrollable table from md up */}
+                  <GradesCards subjects={term.subjects} totalUnits={term.totalUnits} />
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-sm min-w-[720px]">
                       <thead>
                         <GradesHeader />
                       </thead>
@@ -385,9 +386,10 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                   </div>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                {/* All subjects — cards on mobile, scrollable table from md up */}
+                <GradesCards subjects={student.subjects} showTerm />
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm min-w-[840px]">
                     <thead>
                       <tr className="bg-slate-50 border-b border-slate-100">
                         <Th>Term</Th><Th>Code</Th><Th>Subject</Th><Th center>Units</Th><Th>Professor</Th>
@@ -446,7 +448,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
 
 function Th({ children, center }: { children: React.ReactNode; center?: boolean }) {
   return (
-    <th className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${center ? 'text-center' : 'text-left'}`}>
+    <th className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap ${center ? 'text-center' : 'text-left'}`}>
       {children}
     </th>
   )
