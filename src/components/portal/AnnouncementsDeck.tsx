@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
 import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
 
 interface AnnouncementsDeckProps {
@@ -185,13 +186,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <span className="text-sm font-semibold text-slate-700">Announcements</span>
             </div>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center py-6">
-            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-3">
-              <Check className="w-6 h-6 text-green-500" />
-            </div>
-            <p className="text-sm font-medium text-slate-600">You're all caught up</p>
-            <p className="text-xs text-slate-500 mt-1">No new announcements to read.</p>
-          </div>
+          <EmptyState compact icon={Check} message="You're all caught up" hint="No new announcements to read." className="flex-1 flex flex-col items-center justify-center" />
         </div>
       </div>
     )

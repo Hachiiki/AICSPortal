@@ -143,7 +143,7 @@ export function AttendanceModal({
               type="button"
               onClick={onClose}
               aria-label="Close attendance"
-              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             >
               <X className="w-4 h-4" />
             </button>
@@ -222,7 +222,7 @@ export function AttendanceModal({
                         type="button"
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'present' }))}
                         aria-pressed={isPresent}
-                        className={`px-3 py-1.5 text-xs font-semibold ${isPresent ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                        className={`px-3 py-1.5 text-xs font-semibold ${isPresent ? 'bg-emerald-700 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                       >
                         Present
                       </button>

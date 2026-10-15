@@ -248,7 +248,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
               className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
               style={{ background: 'rgba(220,38,38,0.16)' }}
             >
-              <AlertTriangle className="w-7 h-7 text-red-400" />
+              <AlertTriangle className="w-7 h-7 text-red-600" />
             </div>
             <p className="text-white text-sm font-medium">Camera Unavailable</p>
             <p className="text-white/50 text-xs mt-1 max-w-[220px] leading-relaxed">

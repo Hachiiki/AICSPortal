@@ -9,6 +9,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 
 interface PendingGroup {
   subjectCode: string
@@ -132,12 +133,8 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
             </button>
           </div>
         ) : groups.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3">
-              <Inbox className="w-6 h-6 text-green-500" />
-            </div>
-            <p className="text-sm font-medium text-slate-600">Nothing waiting</p>
-            <p className="text-xs text-slate-500 mt-1">Submitted periods from faculty will appear here.</p>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <EmptyState icon={Inbox} message="Nothing waiting" hint="Submitted periods from faculty will appear here." />
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -183,7 +180,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
                             disabled={releasing}
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
                               confirming
-                                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                ? 'bg-emerald-700 text-white hover:bg-emerald-800'
                                 : 'bg-[#153357] text-white hover:bg-[#0f2744]'
                             }`}
                           >

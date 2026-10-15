@@ -36,7 +36,7 @@ export function StudentIdCard({ student, className }: StudentIdCardProps) {
 
       {/* Calibration note */}
       {CALIBRATE && (
-        <div className="absolute top-1 right-1 text-[8px] font-mono text-red-500 bg-white/80 px-1 rounded">
+        <div className="absolute top-1 right-1 text-[8px] font-mono text-red-600 bg-white/80 px-1 rounded">
           CALIBRATE MODE
         </div>
       )}

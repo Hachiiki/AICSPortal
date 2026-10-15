@@ -69,7 +69,7 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 function StatusPill({ status }: { status: string }) {
-  if (!status) return <span className="text-xs text-slate-400">—</span>
+  if (!status) return <span className="text-xs text-slate-500">—</span>
   const tone =
     status === 'Enrolled' || status === 'Active'
       ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -241,7 +241,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {label}
-                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200' : 'text-slate-400'}`}>{count}</span>
+                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200' : 'text-slate-500'}`}>{count}</span>
                 </button>
               ))}
             </div>
@@ -305,7 +305,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                               <PersonAvatar person={p} />
                               <div className="min-w-0">
                                 <p className="font-medium text-slate-800 truncate">{p.fullName}</p>
-                                {p.studentNumber ? <p className="text-[11px] text-slate-400 tabular-nums">{p.studentNumber}</p> : null}
+                                {p.studentNumber ? <p className="text-[11px] text-slate-500 tabular-nums">{p.studentNumber}</p> : null}
                               </div>
                             </div>
                           </td>

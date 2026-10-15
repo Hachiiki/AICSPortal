@@ -26,6 +26,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import { CATEGORY_LABELS } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
+import { EmptyState } from './EmptyState'
 
 interface GlobalSearchProps {
   student: Student
@@ -422,7 +423,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
               inputRef.current?.focus()
             }}
             aria-label="Clear search"
-            className="p-2 -m-1 rounded-md text-slate-400 hover:text-slate-700 flex-shrink-0"
+            className="p-2 -m-1 rounded-md text-slate-500 hover:text-slate-700 flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
@@ -441,11 +442,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           className="absolute left-0 right-0 mt-2 bg-white rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
         >
           {flat.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <Search className="w-6 h-6 text-slate-300 mx-auto mb-2" aria-hidden="true" />
-              <p className="text-sm text-slate-500">No matches for &ldquo;{query}&rdquo;</p>
-              <p className="text-xs text-slate-500 mt-1">Try a different keyword.</p>
-            </div>
+            <EmptyState compact icon={Search} message={`No matches for \u201C${query}\u201D`} hint="Try a different keyword." />
           ) : (
             <div className="py-2">
               {grouped.map(({ type, items }) => (

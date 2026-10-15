@@ -36,7 +36,7 @@ export default function PortalError({
           Your work is saved on the server. Retry the page, or sign out and back in if the problem repeats.
         </p>
         {error.digest ? (
-          <p className="mt-3 font-mono text-xs text-slate-400">Reference: {error.digest}</p>
+          <p className="mt-3 font-mono text-xs text-slate-500">Reference: {error.digest}</p>
         ) : null}
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <button

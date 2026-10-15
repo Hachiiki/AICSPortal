@@ -329,7 +329,7 @@ export function FacultyPreviousRecordsPage({
                 <button
                   type="button"
                   onClick={() => setSelectedSection(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+                  className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                 >
                   <X className="w-4 h-4" />
                 </button>

@@ -324,7 +324,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                           type="button"
                           onClick={handleRemovePhoto}
                           disabled={photoBusy}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           <Trash2 className="w-3.5 h-3.5" /> Remove
                         </button>
@@ -421,7 +421,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       className="w-full h-10 px-3 pr-10 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
-                    <button type="button" onClick={() => setShowCurrent(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowCurrent(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-600">
                       {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -435,7 +435,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full h-10 px-3 pr-10 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
-                    <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowNew(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-600">
                       {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -449,7 +449,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full h-10 px-3 pr-10 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
-                    <button type="button" onClick={() => setShowConfirm(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600">
+                    <button type="button" onClick={() => setShowConfirm(v => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-600">
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>

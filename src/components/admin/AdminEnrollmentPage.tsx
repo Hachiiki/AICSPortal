@@ -120,7 +120,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                     ? 'bg-emerald-100 text-emerald-700'
                     : current
                       ? 'bg-[#153357] text-white'
-                      : 'bg-slate-100 text-slate-400'
+                      : 'bg-slate-100 text-slate-600'
                 }`}
                 title={s.label}
               >
@@ -285,7 +285,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
 
         {loading ? (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
+            <Loader2 className="w-6 h-6 animate-spin text-slate-500 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading enrollment records...</p>
           </div>
         ) : error ? (
@@ -319,7 +319,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                   </span>
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Collected</p>
                 </div>
-                <p className="mt-3 text-2xl font-bold text-emerald-600 tabular-nums">{peso.format(totals.paid)}</p>
+                <p className="mt-3 text-2xl font-bold text-emerald-700 tabular-nums">{peso.format(totals.paid)}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{totals.paidCount} paid · {totals.partialCount} partial · {totals.unpaidCount} unpaid</p>
               </div>
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
@@ -370,7 +370,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                         <tr key={r._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                           <td className="px-4 py-3">
                             <p className="font-medium text-slate-800">{r.student?.fullName ?? r.studentUsername}</p>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-slate-500">
                               {r.student?.studentNumber ? <span className="tabular-nums">{r.student.studentNumber} · </span> : null}
                               <span className="font-mono">{r.studentUsername}</span>
                             </p>
@@ -382,11 +382,11 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-slate-600">
                             <p className="font-medium">{r.academicYear}</p>
-                            <p className="text-xs text-slate-400">{r.semester}</p>
+                            <p className="text-xs text-slate-500">{r.semester}</p>
                           </td>
                           <td className="px-4 py-3">
                             <StepTracker steps={r.steps} currentStep={r.currentStep} />
-                            <p className="text-xs text-slate-400 mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               Step {r.currentStep} of {r.steps.length || '—'}
                               {r.steps[r.currentStep - 1]?.status === 'current' ? ` · ${r.steps[r.currentStep - 1].label}` : ''}
                             </p>
@@ -396,7 +396,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                             <p className="text-xs text-slate-500 mt-1 tabular-nums">
                               Balance <span className="font-semibold text-slate-700">{peso.format(r.assessment.balance)}</span>
                             </p>
-                            <p className="text-[11px] text-slate-400 tabular-nums">
+                            <p className="text-[11px] text-slate-500 tabular-nums">
                               paid {peso.format(r.assessment.amountPaid)} of {peso.format(r.assessment.totalAssessment)}
                             </p>
                           </td>
@@ -480,7 +480,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                     <div className="flex items-center gap-2.5">
                       <span
                         className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                          before ? 'bg-emerald-100 text-emerald-700' : selected ? 'bg-[#153357] text-white' : 'bg-slate-100 text-slate-400'
+                          before ? 'bg-emerald-100 text-emerald-700' : selected ? 'bg-[#153357] text-white' : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {before ? <Check className="w-3 h-3" /> : s.step}
@@ -489,9 +489,9 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                       {selected ? (
                         <span className="ml-auto text-[11px] font-semibold text-[#153357]">current</span>
                       ) : before ? (
-                        <span className="ml-auto text-[11px] font-semibold text-emerald-600">completed</span>
+                        <span className="ml-auto text-[11px] font-semibold text-emerald-700">completed</span>
                       ) : (
-                        <span className="ml-auto text-[11px] text-slate-400">upcoming</span>
+                        <span className="ml-auto text-[11px] text-slate-500">upcoming</span>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-slate-500 pl-[30px]">{s.description}</p>
@@ -525,7 +525,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                 type="button"
                 onClick={handlePayment}
                 disabled={busy}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 text-white text-sm font-semibold hover:bg-emerald-800 disabled:opacity-60"
               >
                 {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
                 Post {peso.format(Number(payAmount) || 0)}
@@ -586,7 +586,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
           </div>
           <div>
             <label htmlFor="pay-note" className="block text-xs font-semibold text-slate-600 mb-1">
-              Note <span className="font-normal text-slate-400">(optional — e.g. receipt #, installment)</span>
+              Note <span className="font-normal text-slate-500">(optional — e.g. receipt #, installment)</span>
             </label>
             <input
               id="pay-note"
@@ -630,13 +630,13 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                           ? 'bg-emerald-100 text-emerald-700'
                           : s.status === 'current'
                             ? 'bg-[#153357] text-white'
-                            : 'bg-slate-100 text-slate-400'
+                            : 'bg-slate-100 text-slate-600'
                       }`}
                     >
                       {s.status === 'completed' ? <Check className="w-3 h-3" /> : s.step}
                     </span>
                     <span className={`text-sm font-medium ${s.status === 'current' ? 'text-slate-900' : 'text-slate-600'}`}>{s.label}</span>
-                    <span className="ml-auto text-xs text-slate-400 tabular-nums">{formatDate(s.date)}</span>
+                    <span className="ml-auto text-xs text-slate-500 tabular-nums">{formatDate(s.date)}</span>
                   </li>
                 ))}
               </ol>
@@ -678,9 +678,9 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                     <li key={i} className="flex items-center gap-3 px-3 py-2 text-sm">
                       <Wallet className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                       <span className="font-semibold text-slate-900 tabular-nums">{peso.format(p.amount)}</span>
-                      <span className="text-xs text-slate-400 tabular-nums">{formatDate(p.date)}</span>
+                      <span className="text-xs text-slate-500 tabular-nums">{formatDate(p.date)}</span>
                       {p.note ? <span className="text-xs text-slate-500 truncate">· {p.note}</span> : null}
-                      <span className="ml-auto text-[11px] text-slate-400 font-mono">{p.postedBy}</span>
+                      <span className="ml-auto text-[11px] text-slate-500 font-mono">{p.postedBy}</span>
                     </li>
                   ))}
                 </ul>

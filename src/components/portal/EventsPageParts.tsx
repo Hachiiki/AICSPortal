@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import type { Task } from '@/lib/aics/tasks'
 import { computeStatus, VARIANT_COLORS } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
@@ -11,6 +11,7 @@ import {
   CATEGORY_LABELS,
   TASK_DUE_COLOR,
 } from '@/lib/aics/events'
+import { EmptyState } from './EmptyState'
 
 // ============================================================
 //  Calendar sub-components for EventsPage.
@@ -203,9 +204,7 @@ export function CalendarGrid({
           })}
         </div>
       ) : (
-        <div className="py-16 text-center">
-          <p className="text-sm text-slate-500">No events this month.</p>
-        </div>
+        <EmptyState icon={CalendarDays} message="No events this month." hint="School-wide events and activities appear here once posted." />
       )}
     </div>
   )
@@ -236,9 +235,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDe
       </div>
       <div className="divide-y divide-slate-100">
         {events.length === 0 && tasks.length === 0 && (
-          <div className="px-6 py-8 text-center">
-            <p className="text-sm text-slate-500">No events on this day.</p>
-          </div>
+          <EmptyState compact icon={CalendarDays} message="No events on this day." />
         )}
         {events.map((ev) => (
           <div key={ev._id} className="px-6 py-3 flex items-start gap-3">
@@ -264,7 +261,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDe
         {showTasks && tasks.length > 0 && (
           <>
             <div className="px-6 pt-3 pb-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
                 Tasks due
               </p>
             </div>
