@@ -99,7 +99,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
   return (
     <PortalShell
       student={student}
-      active="dashboard"
+      active="release-queue"
       onNavigate={onNavigate}
       onLogout={onLogout}
       events={events}

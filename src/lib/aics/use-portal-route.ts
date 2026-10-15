@@ -40,6 +40,12 @@ export type PortalRoute =
   | { view: 'schedule'; branch: string; username: string; role: PortalRole }
   | { view: 'tasks'; branch: string; username: string; role: PortalRole }
   | { view: 'help'; branch: string; username: string; role: PortalRole }
+  | { view: 'release-queue'; branch: string; username: string; role: PortalRole }
+  | { view: 'admin-events'; branch: string; username: string; role: PortalRole }
+  | { view: 'admin-announcements'; branch: string; username: string; role: PortalRole }
+  | { view: 'admin-professors'; branch: string; username: string; role: PortalRole }
+  | { view: 'admin-people'; branch: string; username: string; role: PortalRole }
+  | { view: 'admin-enrollment'; branch: string; username: string; role: PortalRole }
 
 /** Parse a URL pathname into a PortalRoute. */
 function parsePath(path: string): PortalRoute {
@@ -53,6 +59,32 @@ function parsePath(path: string): PortalRoute {
     const branch = decodeURIComponent(parts[1])
     const username = decodeURIComponent(parts[3])
     const role = roleSegment as PortalRole
+
+    // Admin tabs map to admin-* view ids. Same URL words as the
+    // student portal (/events, /professors, /enrollment) but the
+    // role segment above scopes them, so no ambiguity. Shared pages
+    // (settings / help / profile) fall through to the mapping below.
+    if (role === 'admin') {
+      const seg = parts[4] ?? ''
+      if (seg === 'release-queue') {
+        return { view: 'release-queue', branch, username, role }
+      }
+      if (seg === 'events') {
+        return { view: 'admin-events', branch, username, role }
+      }
+      if (seg === 'announcements') {
+        return { view: 'admin-announcements', branch, username, role }
+      }
+      if (seg === 'professors') {
+        return { view: 'admin-professors', branch, username, role }
+      }
+      if (seg === 'people') {
+        return { view: 'admin-people', branch, username, role }
+      }
+      if (seg === 'enrollment') {
+        return { view: 'admin-enrollment', branch, username, role }
+      }
+    }
 
     if (parts[4] === 'profile') {
       return { view: 'profile', branch, username, role }
@@ -131,6 +163,18 @@ function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/tasks`
     case 'help':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/help`
+    case 'release-queue':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/release-queue`
+    case 'admin-events':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
+    case 'admin-announcements':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/announcements`
+    case 'admin-professors':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/professors`
+    case 'admin-people':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/people`
+    case 'admin-enrollment':
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/enrollment`
   }
 }
 

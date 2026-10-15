@@ -16,6 +16,7 @@ import { FacultyAnnouncementsPage } from '@/components/faculty/FacultyAnnounceme
 import { FacultySchedulePage } from '@/components/faculty/FacultySchedulePage'
 import { FacultyTasksPage } from '@/components/faculty/FacultyTasksPage'
 import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
+import { AdminDashboardPage } from '@/components/admin/AdminDashboardPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -481,24 +482,40 @@ function StudentDataWrapper({
   //  No individual navigation callbacks — just `onNavigate`.
   // ----------------------------------------------------------
 
-  // Faculty users get faculty pages for dashboard, my-students,
-  // grade-encoding, and previous-records. Profile and settings reuse
-  // the shared pages, which render inside PortalShell with role-aware
-  // nav so the sidebar and top bar never change between tabs.
-  // Admin users get the release queue. Any other admin view falls
-  // back to it since admin has no other screens yet.
-  if (route.view !== 'login' && route.role === 'admin' && route.view !== 'settings') {
-    return (
-      <AdminReleasePage
-        student={student}
-        onNavigate={handleNavigate}
-        onLogout={onLogout}
-        events={events}
-        professors={professors}
-        tasks={tasks}
-        inbox={inbox}
-      />
-    )
+  // Admin users get the admin portal: dashboard (school stats) and
+  // one screen per management surface. Shared pages (settings, help,
+  // profile) render through the common blocks below so the sidebar
+  // and top bar never change between tabs.
+  if (route.view !== 'login' && route.role === 'admin') {
+    if (route.view === 'release-queue') {
+      return (
+        <AdminReleasePage
+          student={student}
+          onNavigate={handleNavigate}
+          onLogout={onLogout}
+          events={events}
+          professors={professors}
+          tasks={tasks}
+          inbox={inbox}
+        />
+      )
+    }
+    // settings / help / profile fall through to the shared blocks
+    // below — every other admin view (dashboard + unknown) lands on
+    // the stats dashboard.
+    if (route.view !== 'settings' && route.view !== 'help' && route.view !== 'profile') {
+      return (
+        <AdminDashboardPage
+          student={student}
+          onNavigate={handleNavigate}
+          onLogout={onLogout}
+          events={events}
+          professors={professors}
+          tasks={tasks}
+          inbox={inbox}
+        />
+      )
+    }
   }
 
   if (route.view === 'dashboard' && route.role === 'faculty') {

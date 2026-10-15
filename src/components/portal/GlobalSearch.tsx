@@ -91,7 +91,8 @@ const FACULTY_QUICK_LINKS: SearchItem[] = [
 ]
 
 const ADMIN_QUICK_LINKS: SearchItem[] = [
-  { id: 'page-dashboard', type: 'Page', label: 'Release Queue', hint: 'Approve submitted grades', icon: Stamp, view: 'dashboard', keywords: 'release queue approve grades admin' },
+  { id: 'page-dashboard', type: 'Page', label: 'Dashboard', hint: 'School-wide stats & branch overview', icon: Home, view: 'dashboard', keywords: 'dashboard stats overview school enrollment gpa branches admin' },
+  { id: 'page-release-queue', type: 'Page', label: 'Release Queue', hint: 'Approve submitted grades', icon: Stamp, view: 'release-queue', keywords: 'release queue approve grades submitted admin' },
   { id: 'page-settings', type: 'Page', label: 'Settings', hint: 'Account & preferences', icon: Settings, view: 'settings', keywords: 'settings account preferences' },
   { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]

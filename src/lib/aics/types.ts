@@ -19,6 +19,16 @@ export type View =
   | 'announcements'
   | 'tasks'
   | 'help'
+  // Admin portal views. URL segments reuse the student names
+  // (/events, /professors, ...) because the role segment in the URL
+  // already scopes them; the view ids stay distinct so the nav
+  // config and dispatcher never mix admin and student screens.
+  | 'release-queue'
+  | 'admin-events'
+  | 'admin-announcements'
+  | 'admin-professors'
+  | 'admin-people'
+  | 'admin-enrollment'
 
 export type AuthMode = 'credentials' | 'face'
 
