@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import type { Professor } from '@/lib/aics/professors'
 import { Modal } from '../portal/Modal'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -217,12 +218,12 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-3">
-              <GraduationCap className="w-6 h-6 text-blue-500" />
-            </div>
-            <p className="text-sm font-medium text-slate-600">{query ? 'No professors match your search' : 'No professors listed yet'}</p>
-            <p className="text-xs text-slate-500 mt-1">{query ? 'Try a different search term.' : 'Add the first directory entry.'}</p>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <EmptyState
+              icon={GraduationCap}
+              message={query ? 'No professors match your search' : 'No professors listed yet'}
+              hint={query ? 'Try a different search term.' : 'Add the first directory entry.'}
+            />
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -260,7 +261,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
                             onClick={() => handleDelete(p)}
                             disabled={deleting}
                             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
-                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-600 hover:bg-red-50'
+                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-700 hover:bg-red-50'
                             }`}
                           >
                             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -318,7 +319,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
                 className={inputClass}
               />
               {renaming ? (
-                <p className="mt-1.5 text-[11px] text-amber-600 flex items-start gap-1.5">
+                <p className="mt-1.5 text-[11px] text-amber-700 flex items-start gap-1.5">
                   <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
                   Renaming severs the link to existing subject assignments — subjects keep the old name and will no longer match this entry.
                 </p>

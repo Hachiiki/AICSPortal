@@ -17,6 +17,8 @@ import {
   Printer,
   Info,
   Pencil,
+  Mail,
+  MapPin,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -170,6 +172,14 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                   </div>
                 </div>
 
+                {/* Contact quick facts — visible without scrolling
+                    (Superdesign draft profile-v1-contact, integrated) */}
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <QuickFact icon={Mail} label="Email" value={student.email} />
+                  <QuickFact icon={Phone} label="Contact" value={student.phone} />
+                  <QuickFact icon={MapPin} label="Address" value={student.address} />
+                </div>
+
                 {/* Divider */}
                 <div className="my-6 border-t border-slate-200" />
 
@@ -304,6 +314,22 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                     <FileText className="w-4 h-4 mr-1.5" /> View All Documents
                   </Button>
                 </div>
+                {/* Completion progress (Superdesign draft profile-v1, integrated) */}
+                <div className="px-6 pb-4">
+                  <div
+                    className="h-1.5 rounded-full bg-slate-100 overflow-hidden"
+                    role="progressbar"
+                    aria-label="Documents submitted"
+                    aria-valuemin={0}
+                    aria-valuemax={student.documents.length}
+                    aria-valuenow={submittedDocs}
+                  >
+                    <div
+                      className="h-full rounded-full bg-blue-600 transition-all"
+                      style={{ width: `${student.documents.length > 0 ? (submittedDocs / student.documents.length) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
                 <div className="border-t border-slate-200" />
                 <ul className="divide-y divide-slate-200">
                   {student.documents.map((doc, i) => (
@@ -437,6 +463,19 @@ function StatCell({ label, value }: { label: string; value: string }) {
     <div className="text-center py-3 px-2">
       <p className="text-[11px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
       <p className="text-lg font-bold text-blue-700 mt-1">{value}</p>
+    </div>
+  )
+}
+
+function QuickFact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+  if (!value) return null
+  return (
+    <div className="flex items-center gap-2.5 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+      <Icon className="w-4 h-4 text-blue-700 flex-shrink-0" aria-hidden="true" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="text-xs font-medium text-slate-700 truncate">{value}</p>
+      </div>
     </div>
   )
 }

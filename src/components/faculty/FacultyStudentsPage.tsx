@@ -23,6 +23,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 import { Modal } from '../portal/Modal'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
@@ -572,10 +573,16 @@ export function FacultyStudentsPage({
           </div>
 
           {filteredSections.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
-              <UsersIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">No classes found.</p>
-              {(searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (<button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all'); resetPage() }} className="mt-3 text-xs font-medium text-blue-600 hover:underline">Clear filters</button>)}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+              <EmptyState
+                icon={UsersIcon}
+                message="No classes found."
+                action={
+                  (searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (
+                    <button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all'); resetPage() }} className="text-xs font-medium text-blue-600 hover:underline">Clear filters</button>
+                  )
+                }
+              />
             </div>
           ) : (
             <div className="space-y-4">
@@ -704,7 +711,7 @@ export function FacultyStudentsPage({
             <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <h3 className="font-bold text-sm text-slate-900">Student file</h3>
-                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex items-center gap-3">
@@ -834,7 +841,7 @@ export function FacultyStudentsPage({
                         <h3 className="font-bold text-sm text-slate-900">Attendance history</h3>
                         <p className="text-xs text-slate-500 truncate">{sec ? `${sec.subjectCode} — ${sec.subjectTitle} • ${sec.room}` : historyKey}</p>
                       </div>
-                      <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                      <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-5">
                       <div>

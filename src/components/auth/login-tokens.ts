@@ -7,10 +7,10 @@ export const T = {
   bg: '#F7F9FB', // page / help-box background
   border: '#D9E0E6',
   text: '#17324D', // primary text / headings
-  muted: '#6B7785', // secondary text / icons
+  muted: '#5D6874', // secondary text / icons (AA: 5.38:1 on bg)
   primary: '#1769AA', // primary action blue
   primaryDark: '#124D7A', // hover / pressed
-  accent: '#2F9ED8', // small accents, focus ring, scan line
+  accent: '#2893CF', // small accents, focus ring, scan line (3:1+ on white)
 } as const
 
 // Whether to expose the demo / test-login shortcut (dev only).

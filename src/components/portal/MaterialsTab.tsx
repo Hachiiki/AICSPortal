@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { FolderOpen, FileText, Link2, ExternalLink } from 'lucide-react'
 import type { Student } from '@/lib/aics/types'
 import { TasksSkeleton } from './Skeleton'
+import { EmptyState } from './EmptyState'
 
 // ============================================================
 //  MaterialsTab — the "Materials" mini-tab inside Academics.
@@ -77,10 +78,8 @@ export function MaterialsTab({ student }: { student: Student }) {
       </div>
 
       {grouped.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
-          <FolderOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">No materials posted yet.</p>
-          <p className="text-xs text-slate-500 mt-1">When a teacher shares a file or link, it shows up here.</p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <EmptyState icon={FolderOpen} message="No materials posted yet." hint="When a teacher shares a file or link, it shows up here." />
         </div>
       ) : (
         <div className="space-y-4">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Clock, MapPin } from 'lucide-react'
+import { Clock, MapPin, BookOpen } from 'lucide-react'
 import {
   getSessionsForDay,
   getCourse,
@@ -12,6 +12,7 @@ import {
   type Session,
   type Course,
 } from '@/lib/schedule'
+import { EmptyState } from './EmptyState'
 
 interface TodaysClassesProps {
   courses: Course[]
@@ -51,9 +52,7 @@ export function TodaysClasses({ courses, sessions }: TodaysClassesProps) {
       {/* List */}
       <div className="flex-1 p-5 flex flex-col gap-3">
         {todaySessions.length === 0 ? (
-          <div className="py-8 text-center">
-            <p className="text-sm text-slate-500">No classes scheduled for today.</p>
-          </div>
+          <EmptyState compact icon={BookOpen} message="No classes scheduled for today." />
         ) : (
           todaySessions.map((s, i) => {
             const course = getCourse(s.code, courses)

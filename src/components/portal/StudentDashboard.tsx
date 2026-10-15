@@ -14,6 +14,7 @@ import { AcademicHeader } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
 import { TodaysClasses } from './TodaysClasses'
+import { TodayGlance } from './TodayGlance'
 
 interface StudentDashboardProps {
   student: Student
@@ -72,6 +73,16 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} announcementReadIds={announcementReadIds} />
+
+          {/* Today at a glance — next class, pending tasks, unread announcements */}
+          <TodayGlance
+            courses={courses}
+            sessions={sessions}
+            tasks={tasks}
+            announcements={announcements}
+            announcementReadIds={announcementReadIds}
+            onNavigate={onNavigate}
+          />
 
           <GradesTable student={dashboardStudent} />
 

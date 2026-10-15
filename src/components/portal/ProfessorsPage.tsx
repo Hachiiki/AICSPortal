@@ -10,6 +10,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import { getCourse, type Course, type CourseColor } from '@/lib/schedule'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
+import { EmptyState } from './EmptyState'
 
 // ============================================================
 //  ProfessorsPage — current-term professor directory.
@@ -151,9 +152,8 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
 
           {/* Empty state */}
           {professorCards.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
-              <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">No professors found for this term.</p>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+              <EmptyState icon={Users} message="No professors found for this term." hint="Once subjects with assigned professors are loaded, the directory appears here." />
             </div>
           ) : (
             <>
