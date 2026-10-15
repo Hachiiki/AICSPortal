@@ -12,6 +12,8 @@
 
 import { MongoClient } from 'mongodb'
 import { config } from 'dotenv'
+// @ts-expect-error: explicit .ts import required by node --experimental-strip-types at runtime
+import { hashPassword } from '../src/lib/password.ts'
 
 // Load .env.local into process.env (silent if file is missing)
 config({ path: '.env.local' })
@@ -61,6 +63,15 @@ async function seed() {
 
   console.log(`Connected to MongoDB: ${dbName}`)
   console.log(`Seeding branch: ${BRANCH}`)
+
+  // Passwords are hashed at seed time (scrypt, same as the app's
+  // verifyPassword) so a freshly seeded environment NEVER contains
+  // plaintext credentials. Demo passwords are unchanged — the login
+  // page's docs and QA harnesses keep working.
+  const STUDENT_PW = await hashPassword('student123')
+  const FACULTY_PW = await hashPassword('faculty123')
+  const ADMIN_PW = await hashPassword('admin123')
+
 
   // ----------------------------------------------------------
   //  0. Programs (new — 3 degree programs, easy to understand)
@@ -206,7 +217,7 @@ async function seed() {
       protoStudents.push({
         branch: BRANCH,
         username,
-        password: 'student123',
+        password: STUDENT_PW,
         tokenVersion: 0,
         role: 'student' as const,
         fullName,
@@ -303,7 +314,7 @@ async function seed() {
   const student2 = {
     branch: BRANCH,
     username: 'maria.cruz',
-    password: 'student123',
+    password: STUDENT_PW,
     role: 'student' as const,
     fullName: 'Maria Elena Cruz',
     firstName: 'Maria',
@@ -340,7 +351,7 @@ async function seed() {
   const student3 = {
     branch: BRANCH,
     username: 'jose.garcia',
-    password: 'student123',
+    password: STUDENT_PW,
     role: 'student' as const,
     fullName: 'Jose Rizal Garcia',
     firstName: 'Jose',
@@ -389,7 +400,7 @@ async function seed() {
   const student = {
     branch: BRANCH,
     username: 'juan.santos',
-    password: 'student123',
+    password: STUDENT_PW,
     role: 'student' as const,
     fullName: 'Juan Dela Cruz Santos',
     firstName: 'Juan',
@@ -439,7 +450,7 @@ async function seed() {
   const facultyUser = {
     branch: BRANCH,
     username: 'm.reyes',
-      password: 'faculty123',
+      password: FACULTY_PW,
       tokenVersion: 0,
     role: 'faculty' as const,
     fullName: 'Engr. Maria Cristina Reyes',
@@ -480,7 +491,7 @@ async function seed() {
   const adminUser = {
     branch: BRANCH,
     username: 'admin',
-      password: 'admin123',
+      password: ADMIN_PW,
       tokenVersion: 0,
     role: 'admin' as const,
     fullName: 'AICS Registrar Admin',
