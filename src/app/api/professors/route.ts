@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
+import { z } from 'zod'
 import { getStudentByUsername, getProfessors } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, errResponse, idQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoProfessor } from '@/lib/mongodb/types'
 
 // ADMIN CONTROL: Professor directory details (office
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const username = parseQuery(request, professorsGetQuerySchema).username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -44,6 +47,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, professors: clientProfessors })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Professors API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch professors.' }, { status: 500 })
   }
@@ -61,6 +65,42 @@ export async function GET(request: NextRequest) {
 // rewrite subject rows, so the manage UI warns before a rename.
 // ------------------------------------------------------------
 
+// ---- Zod input schemas (the only place professor input is shaped) ----
+
+const professorsGetQuerySchema = z.object({
+  username: z.string().optional(),
+})
+
+/** Each mutable field: optional string, trimmed, ≤120 chars (empty after trim = clear). */
+const professorField = (label: string) =>
+  z
+    .string({ error: `${label} must be at most 120 characters.` })
+    .max(120, { message: `${label} must be at most 120 characters.` })
+    .trim()
+    .optional()
+    .transform((v) => v ?? '')
+
+const professorCreateSchema = z.object({
+  name: professorField('Name'),
+  email: professorField('Email'),
+  officeHours: professorField('Office hours'),
+  room: professorField('Room'),
+})
+
+const professorPatchSchema = z.object({
+  id: z.string({ error: 'Professor id is required.' }).min(1),
+  name: professorField('Name').optional(),
+  email: z
+    .string({ error: 'Enter a valid email address.' })
+    .trim()
+    .max(120, { message: 'Enter a valid email address.' })
+    .refine((e) => e.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e), { message: 'Enter a valid email address.' })
+    .optional()
+    .transform((v) => v ?? ''),
+  officeHours: professorField('Office hours').optional(),
+  room: professorField('Room').optional(),
+})
+
 async function requireAdmin(request: NextRequest) {
   const session = await getSession(request)
   if (!session) {
@@ -73,34 +113,6 @@ async function requireAdmin(request: NextRequest) {
   return { performer }
 }
 
-interface ProfessorFields {
-  name?: string
-  email?: string
-  officeHours?: string
-  room?: string
-}
-
-/** Validate the mutable fields. Returns cleaned values or an error string. */
-function validateFields(fields: ProfessorFields): { ok: true; values: Required<ProfessorFields> } | { ok: false; error: string } {
-  const name = typeof fields.name === 'string' ? fields.name.trim() : undefined
-  if (name !== undefined && (name.length === 0 || name.length > 120)) {
-    return { ok: false, error: 'Name must be 1-120 characters.' }
-  }
-  const email = typeof fields.email === 'string' ? fields.email.trim() : undefined
-  if (email !== undefined && (email.length === 0 || email.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-    return { ok: false, error: 'Enter a valid email address.' }
-  }
-  const officeHours = typeof fields.officeHours === 'string' ? fields.officeHours.trim() : undefined
-  if (officeHours !== undefined && officeHours.length > 120) {
-    return { ok: false, error: 'Office hours must be at most 120 characters.' }
-  }
-  const room = typeof fields.room === 'string' ? fields.room.trim() : undefined
-  if (room !== undefined && room.length > 120) {
-    return { ok: false, error: 'Room must be at most 120 characters.' }
-  }
-  return { ok: true, values: { name: name ?? '', email: email ?? '', officeHours: officeHours ?? '', room: room ?? '' } }
-}
-
 // POST /api/professors (admin) — add a directory entry
 export async function POST(request: NextRequest) {
   try {
@@ -108,22 +120,21 @@ export async function POST(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const fields = await request.json()
-    const check = validateFields(fields)
-    if (!check.ok) {
-      return NextResponse.json({ ok: false, error: check.error }, { status: 400 })
-    }
-    if (!check.values.name || !check.values.email) {
+    const fields = await parseBody(request, professorCreateSchema)
+    if (!fields.name || !fields.email) {
       return NextResponse.json({ ok: false, error: 'Name and email are required.' }, { status: 400 })
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
+      return NextResponse.json({ ok: false, error: 'Enter a valid email address.' }, { status: 400 })
     }
 
     const col = await getCollection<MongoProfessor>('professors')
     const doc: MongoProfessor = {
       branch: performer.branch,
-      name: check.values.name,
-      email: check.values.email,
-      officeHours: check.values.officeHours || 'TBA',
-      room: check.values.room || 'TBA',
+      name: fields.name,
+      email: fields.email,
+      officeHours: fields.officeHours || 'TBA',
+      room: fields.room || 'TBA',
     }
     try {
       const result = await col.insertOne(doc as any)
@@ -135,6 +146,7 @@ export async function POST(request: NextRequest) {
       throw err
     }
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Professor create error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to add professor.' }, { status: 500 })
   }
@@ -147,7 +159,7 @@ export async function PATCH(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const { id, ...fields } = await request.json()
+    const { id, ...fields } = await parseBody(request, professorPatchSchema)
     let idFilter: ObjectId
     try {
       idFilter = new ObjectId(id)
@@ -155,15 +167,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Professor not found.' }, { status: 404 })
     }
 
-    const check = validateFields(fields)
-    if (!check.ok) {
-      return NextResponse.json({ ok: false, error: check.error }, { status: 400 })
-    }
     const update: Record<string, string> = {}
-    if (fields.name !== undefined) update.name = check.values.name
-    if (fields.email !== undefined) update.email = check.values.email
-    if (fields.officeHours !== undefined) update.officeHours = check.values.officeHours || 'TBA'
-    if (fields.room !== undefined) update.room = check.values.room || 'TBA'
+    if (fields.name !== undefined && fields.name !== '') update.name = fields.name
+    if (fields.email !== undefined && fields.email !== '') update.email = fields.email
+    if (fields.officeHours !== undefined) update.officeHours = fields.officeHours || 'TBA'
+    if (fields.room !== undefined) update.room = fields.room || 'TBA'
     if (Object.keys(update).length === 0) {
       return NextResponse.json({ ok: false, error: 'Nothing to update.' }, { status: 400 })
     }
@@ -183,6 +191,7 @@ export async function PATCH(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, message: 'Professor updated.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Professor update error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update professor.' }, { status: 500 })
   }
@@ -197,10 +206,10 @@ export async function DELETE(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const id = request.nextUrl.searchParams.get('id')
+    const query = parseQuery(request, idQuerySchema)
     let idFilter: ObjectId
     try {
-      idFilter = new ObjectId(id ?? '')
+      idFilter = new ObjectId(query.id)
     } catch {
       return NextResponse.json({ ok: false, error: 'Professor not found.' }, { status: 404 })
     }
@@ -211,6 +220,7 @@ export async function DELETE(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, message: 'Professor removed.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Professor delete error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to remove professor.' }, { status: 500 })
   }

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, trimmedString, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoNotification, MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
 
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const username = parseQuery(request, tasksGetQuerySchema).username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -61,12 +64,54 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, tasks: clientTasks })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Tasks API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch tasks.' }, { status: 500 })
   }
 }
 
 const VALID_TASK_TYPES: TaskType[] = ['Activity', 'Quiz', 'Test', 'Project']
+
+// ---- Zod input schemas (the only place task input is shaped) ----
+
+const tasksGetQuerySchema = z.object({
+  username: z.string().optional(),
+})
+
+const REQUIRED_MSG = 'Branch, subject, title, type, max score, and due date are required.'
+
+const taskPostSchema = z.object({
+  branch: z.string({ error: REQUIRED_MSG }).min(1, { message: REQUIRED_MSG }),
+  subjectCode: z.string({ error: REQUIRED_MSG }).min(1, { message: REQUIRED_MSG }),
+  title: trimmedString(120, 'Title'),
+  type: z.enum(VALID_TASK_TYPES, { error: 'Invalid task type.' }),
+  description: z.string().trim().max(2000, { message: 'Description must be at most 2000 characters.' }).optional(),
+  maxScore: z.coerce
+    .number({ error: 'Max score must be a positive number.' })
+    .finite({ message: 'Max score must be a positive number.' })
+    .positive({ message: 'Max score must be a positive number.' }),
+  dueDate: z.coerce.date({ error: 'Invalid due date.' }),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
+
+const taskPatchSchema = z.object({
+  branch: z.string({ error: 'Branch, subject, title, and submissionsClosed are required.' }).min(1, {
+    message: 'Branch, subject, title, and submissionsClosed are required.',
+  }),
+  subjectCode: z.string({ error: 'Branch, subject, title, and submissionsClosed are required.' }).min(1, {
+    message: 'Branch, subject, title, and submissionsClosed are required.',
+  }),
+  title: z.string({ error: 'Branch, subject, title, and submissionsClosed are required.' }).min(1, {
+    message: 'Branch, subject, title, and submissionsClosed are required.',
+  }),
+  dueDate: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.coerce.date({ error: 'Invalid due date.' }).optional()
+  ),
+  submissionsClosed: z.boolean({ error: 'Branch, subject, title, and submissionsClosed are required.' }),
+  performedBy: z.string().optional(),
+})
 
 // Faculty must only create for codes they teach this term. Returns
 // the faculty doc plus the code list, or an error response.
@@ -109,30 +154,16 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await request.json()
+    const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await parseBody(
+      request,
+      taskPostSchema
+    )
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (typeof branch !== 'string' || branch !== session.branch) {
+    if (branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    if (!branch || !subjectCode || !title || !type || maxScore === undefined || !dueDate) {
-      return NextResponse.json({ ok: false, error: 'Branch, subject, title, type, max score, and due date are required.' }, { status: 400 })
-    }
-    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 120) {
-      return NextResponse.json({ ok: false, error: 'Title must be 1-120 characters.' }, { status: 400 })
-    }
-    if (!VALID_TASK_TYPES.includes(type)) {
-      return NextResponse.json({ ok: false, error: 'Invalid task type.' }, { status: 400 })
-    }
-    const max = Number(maxScore)
-    if (!isFinite(max) || max <= 0) {
-      return NextResponse.json({ ok: false, error: 'Max score must be a positive number.' }, { status: 400 })
-    }
-    const due = new Date(dueDate)
-    if (isNaN(due.getTime())) {
-      return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
     }
     // Phase 6: teaching-load check runs as the session user, not a body field.
     // (Legacy performedBy already spoof-checked above; it is otherwise ignored.)
@@ -150,15 +181,15 @@ export async function POST(request: NextRequest) {
       studentUsername,
       subjectCode,
       term: { academicYear: performer.academicYear, semester: performer.semester, yearLevel },
-      title: title.trim(),
+      title,
       type,
-      description: typeof description === 'string' ? description.trim().slice(0, 2000) : undefined,
-      dueDate: due,
+      description: description || undefined,
+      dueDate,
       postedDate: now,
       submitted: false,
       submittedAt: null,
       score: null,
-      maxScore: max,
+      maxScore,
       feedback: null,
       submissionsClosed: false,
     }))
@@ -171,13 +202,13 @@ export async function POST(request: NextRequest) {
     try {
       const notifCol = await getCollection<MongoNotification>('notifications')
       const sectionKey = `${subjectCode}|${performer.academicYear}|${performer.semester}`
-      const dueLabel = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      const trimmedDesc = typeof description === 'string' && description.trim() ? description.trim().slice(0, 140) : ''
+      const dueLabel = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      const trimmedDesc = description || ''
       const notifs: MongoNotification[] = usernames.map((studentUsername, i) => ({
         branch,
         studentUsername,
-        title: `New ${type}: ${title.trim()}`,
-        body: trimmedDesc ? `${subjectCode} — due ${dueLabel} — ${trimmedDesc}` : `${subjectCode} — due ${dueLabel}`,
+        title: `New ${type}: ${title}`,
+        body: trimmedDesc ? `${subjectCode} — due ${dueLabel} — ${trimmedDesc.slice(0, 140)}` : `${subjectCode} — due ${dueLabel}`,
         fromName: performer.fullName,
         fromUsername: session.username,
         sectionKey,
@@ -193,6 +224,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, message: `Task posted to ${result.insertedCount} students.`, created: result.insertedCount })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Task create error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to create task.' }, { status: 500 })
   }
@@ -208,16 +240,16 @@ export async function PATCH(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await request.json()
+    const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await parseBody(
+      request,
+      taskPatchSchema
+    )
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (typeof branch !== 'string' || branch !== session.branch) {
+    if (branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    if (!branch || !subjectCode || !title || submissionsClosed === undefined) {
-      return NextResponse.json({ ok: false, error: 'Branch, subject, title, and submissionsClosed are required.' }, { status: 400 })
     }
     const check = await requireTeachingFaculty(session.username, branch, subjectCode)
     if (check.error) return check.error
@@ -230,24 +262,21 @@ export async function PATCH(request: NextRequest) {
       'term.semester': performer.semester,
     }
     if (dueDate) {
-      const due = new Date(dueDate)
-      if (isNaN(due.getTime())) {
-        return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
-      }
-      const start = new Date(due)
+      const start = new Date(dueDate)
       start.setHours(0, 0, 0, 0)
       const end = new Date(start)
       end.setDate(end.getDate() + 1)
       query.dueDate = { $gte: start, $lt: end }
     }
     const col = await getCollection<MongoTask>('tasks')
-    const result = await col.updateMany(query, { $set: { submissionsClosed: submissionsClosed === true } })
+    const result = await col.updateMany(query, { $set: { submissionsClosed } })
     return NextResponse.json({
       ok: true,
       message: submissionsClosed ? `Submissions closed for ${result.modifiedCount} students.` : `Submissions reopened for ${result.modifiedCount} students.`,
       modifiedCount: result.modifiedCount,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Task toggle error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update task.' }, { status: 500 })
   }

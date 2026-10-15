@@ -9,6 +9,7 @@ import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface PortalShellProps {
   student: Student
@@ -93,6 +94,9 @@ export function PortalShell({
             shell, so all of them fade up the same way instead of each
             page inventing its own. Page-level section animations nest
             inside and keep working. */}
+        {/* Error boundary per view: a render crash in one tab degrades
+            to an inline retry card while the sidebar/topbar stay alive;
+            resetKey makes navigating away remount the crashed view. */}
         <motion.div
           key={active}
           id="main-content"
@@ -101,7 +105,9 @@ export function PortalShell({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: 'easeOut' }}
         >
-          {children}
+          <ErrorBoundary resetKey={String(active)}>
+            {children}
+          </ErrorBoundary>
         </motion.div>
       </div>
     </div>

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { submitTask } from '@/lib/mongodb/queries'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseQuery, errResponse, objectIdSchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+
+const submitQuerySchema = z.object({
+  username: z.string().optional(),
+})
 
 // TEACHER CONTROL: Teachers can close submissions per task
 // (task.submissionsClosed = true). Once closed, students
@@ -27,7 +34,12 @@ export async function PATCH(
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    // Route params are always strings; reject non-ObjectId shapes before ObjectId().
+    const parsedId = objectIdSchema.safeParse(taskId)
+    if (!parsedId.success) {
+      return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
+    }
+    const username = parseQuery(request, submitQuerySchema).username || session.username
 
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
@@ -36,7 +48,7 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const result = await submitTask(taskId, username)
+    const result = await submitTask(parsedId.data, username)
 
     if (!result.ok) {
       if (result.reason === 'closed') {
@@ -53,6 +65,7 @@ export async function PATCH(
 
     return NextResponse.json({ ok: true, message: 'Task submitted successfully.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Submit task error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to submit task.' }, { status: 500 })
   }

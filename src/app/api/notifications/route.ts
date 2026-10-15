@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, trimmedString, errResponse, objectIdSchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoNotification } from '@/lib/mongodb/types'
 
 // ============================================================
@@ -39,6 +42,33 @@ function toClient(d: any) {
   }
 }
 
+// ---- Zod input schemas (the only place notification input is shaped) ----
+
+const notificationsGetQuerySchema = z.object({
+  username: z.string().optional(),
+  sentBy: z.string().optional(),
+})
+
+const notificationPostSchema = z.object({
+  branch: z.string({ error: 'Branch, title, body, and at least one section are required.' }).min(1, {
+    message: 'Branch, title, body, and at least one section are required.',
+  }),
+  title: trimmedString(120, 'Title'),
+  body: trimmedString(2000, 'Body'),
+  // BUG-010: sectionKeys must be strings; objects would pollute the fan-out.
+  sectionKeys: z
+    .array(z.string(), { error: 'Section keys must be strings.' })
+    .min(1, { message: 'Branch, title, body, and at least one section are required.' }),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
+
+const notificationPatchSchema = z.object({
+  username: z.string({ error: 'Username is required.' }).min(1),
+  id: objectIdSchema.optional(),
+  all: z.boolean().optional(),
+})
+
 export async function GET(request: NextRequest) {
   try {
     // Phase 6: inbox reads are self-or-staff; sent-mail reads are own only.
@@ -46,8 +76,9 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username')
-    const sentBy = request.nextUrl.searchParams.get('sentBy')
+    const query = parseQuery(request, notificationsGetQuerySchema)
+    const username = query.username
+    const sentBy = query.sentBy
     if (!username && !sentBy) {
       return NextResponse.json({ ok: false, error: 'Username or sentBy is required.' }, { status: 400 })
     }
@@ -89,6 +120,7 @@ export async function GET(request: NextRequest) {
       .toArray()
     return NextResponse.json({ ok: true, notifications: docs.map(toClient) })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Notifications read error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load notifications.' }, { status: 500 })
   }
@@ -101,22 +133,13 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, title, body, sectionKeys, performedBy } = await request.json()
+    const { branch, title, body, sectionKeys, performedBy } = await parseBody(request, notificationPostSchema)
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (typeof branch !== 'string' || branch !== session.branch) {
+    if (branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    if (!branch || !title || !body || !Array.isArray(sectionKeys) || sectionKeys.length === 0) {
-      return NextResponse.json({ ok: false, error: 'Branch, title, body, and at least one section are required.' }, { status: 400 })
-    }
-    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 120) {
-      return NextResponse.json({ ok: false, error: 'Title must be 1-120 characters.' }, { status: 400 })
-    }
-    if (typeof body !== 'string' || body.trim().length === 0 || body.length > 2000) {
-      return NextResponse.json({ ok: false, error: 'Body must be 1-2000 characters.' }, { status: 400 })
     }
     // Phase 6: sender is the session user (legacy performedBy already spoof-checked; ignored).
     const performer = await getStudentByUsername(session.username)
@@ -125,10 +148,6 @@ export async function POST(request: NextRequest) {
     }
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // BUG-010: sectionKeys must be strings; objects would pollute the fan-out.
-    if (!(sectionKeys as unknown[]).every((k) => typeof k === 'string')) {
-      return NextResponse.json({ ok: false, error: 'Section keys must be strings.' }, { status: 400 })
     }
 
     // Resolve the performer's own sections from their teaching load.
@@ -162,8 +181,8 @@ export async function POST(request: NextRequest) {
         docs.push({
           branch,
           studentUsername,
-          title: title.trim(),
-          body: body.trim(),
+          title,
+          body,
           fromName: performer.fullName,
           fromUsername: session.username,
           sectionKey: key,
@@ -188,6 +207,7 @@ export async function POST(request: NextRequest) {
       sections,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Notification send error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to send notification.' }, { status: 500 })
   }
@@ -200,10 +220,7 @@ export async function PATCH(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { username, id, all } = await request.json()
-    if (!username) {
-      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
+    const { username, id, all } = await parseBody(request, notificationPatchSchema)
     if (username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
@@ -222,15 +239,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Notification id or all is required.' }, { status: 400 })
     }
     const { ObjectId } = await import('mongodb')
-    let oid: any
-    try {
-      oid = new ObjectId(id)
-    } catch {
-      return NextResponse.json({ ok: false, error: 'Invalid notification id.' }, { status: 400 })
-    }
-    await col.updateOne({ ...base, _id: oid }, { $set: { read: true, readAt: new Date() } })
+    await col.updateOne({ ...base, _id: new ObjectId(id) }, { $set: { read: true, readAt: new Date() } })
     return NextResponse.json({ ok: true })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Notification read error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update notification.' }, { status: 500 })
   }

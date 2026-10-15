@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
+
+// ---- Zod input schemas (the only place read-marker input is shaped) ----
+// BUG-010: username must be a string pre-query; ids must be strings (no [object Object] rows).
+
+const readMarkBaseSchema = z.object({
+  username: z.string({ error: 'Username is required.' }).min(1),
+  announcementId: z.string().optional(),
+  ids: z.array(z.string(), { error: 'An announcement id is required.' }).optional(),
+})
+
+const readMarkPostSchema = readMarkBaseSchema.extend({
+  action: z.enum(['read', 'dismissed'], { error: 'Action must be read or dismissed.' }),
+})
+
+/** announcementId wins over ids[]; both may be absent (caller then 400s). */
+function toIdList(announcementId?: string, ids?: string[]): string[] {
+  return announcementId ? [announcementId] : Array.isArray(ids) ? ids : []
+}
 
 // POST /api/announcements/read
 // Body: { username, announcementId?, ids?, action }
@@ -13,27 +34,14 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { username, announcementId, ids, action } = await request.json()
-    // BUG-010: username must be a string pre-query; ids must be strings (no [object Object] rows).
+    const { username, announcementId, ids, action } = await parseBody(request, readMarkPostSchema)
     // Phase 6: username must be the session user.
-    if (typeof username !== 'string' || !username) {
-      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
     if (username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (announcementId !== undefined && typeof announcementId !== 'string') {
-      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
-    }
-    if (ids !== undefined && (!Array.isArray(ids) || !ids.every((x: unknown) => typeof x === 'string'))) {
-      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
-    }
-    const idList: string[] = announcementId ? [announcementId] : Array.isArray(ids) ? ids : []
+    const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
-    }
-    if (action !== 'read' && action !== 'dismissed') {
-      return NextResponse.json({ ok: false, error: 'Action must be read or dismissed.' }, { status: 400 })
     }
     const user = await getStudentByUsername(username)
     if (!user) {
@@ -52,6 +60,7 @@ export async function POST(request: NextRequest) {
     await col.bulkWrite(ops as any)
     return NextResponse.json({ ok: true, marked: idList.length })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Announcement read error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to record read.' }, { status: 500 })
   }
@@ -66,20 +75,11 @@ export async function DELETE(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { username, announcementId, ids } = await request.json()
-    if (typeof username !== 'string' || !username) {
-      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
+    const { username, announcementId, ids } = await parseBody(request, readMarkBaseSchema)
     if (username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (announcementId !== undefined && typeof announcementId !== 'string') {
-      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
-    }
-    if (ids !== undefined && (!Array.isArray(ids) || !ids.every((x: unknown) => typeof x === 'string'))) {
-      return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
-    }
-    const idList: string[] = announcementId ? [announcementId] : Array.isArray(ids) ? ids : []
+    const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
     }
@@ -91,6 +91,7 @@ export async function DELETE(request: NextRequest) {
     const res = await col.deleteMany({ branch: user.branch, username, announcementId: { $in: idList } })
     return NextResponse.json({ ok: true, unmarked: res.deletedCount })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Announcement unmark error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to undo dismissal.' }, { status: 500 })
   }

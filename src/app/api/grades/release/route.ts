@@ -1,7 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+
+// ---- Zod input schema (the only place release input is shaped) ----
+const gradeReleaseSchema = z.object({
+  branch: z.string({ error: 'Branch and subjectCode are required.' }).min(1, {
+    message: 'Branch and subjectCode are required.',
+  }),
+  subjectCode: z.string({ error: 'Branch and subjectCode are required.' }).min(1, {
+    message: 'Branch and subjectCode are required.',
+  }),
+  academicYear: z.string().optional(),
+  semester: z.string().optional(),
+  // Only real periods pass; garbage no longer falls through to the
+  // release-all-periods path (old lenient behavior).
+  period: z.enum(['prelim', 'midterm', 'finals'], { error: 'Invalid request shape.' }).optional(),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
 
 // POST /api/grades/release
 // Body: { branch, subjectCode, academicYear, semester, period?, performedBy }
@@ -18,7 +38,7 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const username = parseQuery(request, selfQuerySchema).username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -59,6 +79,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, groups: Array.from(groups.values()) })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Grade pending error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load pending releases.' }, { status: 500 })
   }
@@ -70,24 +91,15 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const body = await request.json()
-    const { branch, subjectCode, academicYear, semester, period, performedBy } = body
+    const { branch, subjectCode, academicYear, semester, period, performedBy } = await parseBody(
+      request,
+      gradeReleaseSchema
+    )
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const performedByUser = session.username
-
-    if (!branch || !subjectCode) {
-      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
-    }
-    // BUG-010: keys reaching Mongo filters must be strings.
-    if (typeof branch !== 'string' || typeof subjectCode !== 'string') {
-      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
-    }
-    if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string') || (period !== undefined && typeof period !== 'string') || (typeof performedBy !== 'string' && performedBy !== undefined)) {
-      return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
-    }
 
     // Auth: releaser is the session admin (legacy performedBy already spoof-checked; ignored).
     const studentsCol = await getCollection('students')
@@ -153,6 +165,7 @@ export async function POST(request: NextRequest) {
       modifiedCount: result.modifiedCount,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Grade release error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to release grades.' }, { status: 500 })
   }
