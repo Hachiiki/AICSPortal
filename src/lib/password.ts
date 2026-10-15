@@ -1,10 +1,9 @@
 // Password hashing without new deps (BUG-003 incremental).
 // Uses Node crypto.scrypt; stored format: `scrypt$<saltHex>$<hashHex>`.
 // Legacy plaintext passwords verify via fallback and upgrade on next login.
-// Bulk rehash: dev DB done (2026-10-15);
-// the production run is documented and gated in docs/password-rehash-runbook.md.
-// Seeds hash at seed time (scripts/seed-mongodb.ts), so new environments
-// are born without plaintext.
+// Bulk rehash: dev DB done (2026-10-15); the production run is documented
+// and gated in the password-rehash runbook, and the rehash/seed tooling
+// ships on the dev branch (main-full-dev).
 
 import { scrypt as _scrypt, randomBytes, timingSafeEqual } from 'crypto'
 import { promisify } from 'util'

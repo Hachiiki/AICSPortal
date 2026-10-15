@@ -61,6 +61,8 @@ MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?appN
 
 ### Seed the database
 
+The seeder is maintenance tooling that ships on the dev branch (`main-full-dev`), not on `main`. From a checkout of the dev branch:
+
 ```bash
 node --experimental-strip-types scripts/seed-mongodb.ts
 ```
@@ -174,7 +176,7 @@ Feature requests are welcome! Please [open an issue](https://github.com/Hachiiki
 - **Your proposed solution** (if you have one)
 - **Any alternatives** you've considered
 
-Check the [roadmap](./aics/AICS%20StudentFacultyAdmin%20Portal%20ROADMAP.txt) first — your idea may already be planned.
+Check the roadmap on the dev branch (`main-full-dev`) first — your idea may already be planned.
 
 ---
 
