@@ -102,3 +102,17 @@
 - [x] **Consistent empty states** — DONE (2026-10-15): shared `EmptyState` component (`src/components/portal/EmptyState.tsx`) adopted across 22 sites in portal, faculty, and admin surfaces. One icon treatment, one message treatment, optional hint + action, compact variant for widgets.
 - [x] **Table responsiveness** — DONE (2026-10-16): student grades/tasks tables render card lists below md (shared GradesCards + per-task cards; bell deep-link scroll preserved); the tables keep a min-width from md up so they scroll instead of crushing. Faculty subjects/roster, all 7 admin tables, and the COE subjects table got min-width scroll wrappers. Grade Encoding already scrolled (fixed widths + sticky columns). tsc clean, eslint 0 errors; ported to main via PR #43.
 - [x] **Color contrast audit** — DONE (2026-10-15): audit script `scripts/wcag-contrast-audit.py` over all 1,151 color-class usages; report at `docs/done/qa_reports/17_WCAG_AA_CONTRAST_AUDIT.md`; fixes applied via `scripts/apply-contrast-fixes.py` (slate-400 text raised, status icons darkened, login tokens adjusted, emerald buttons darkened).
+
+## Content Moderation
+
+New epic (added 2026-10-16, owner-requested). Scope: every user-authored string that reaches the database — announcements (admin), section notifications (faculty), task submissions, profile fields, and links in uploaded materials. Primary languages: English and Filipino. The engine runs server-side in the API layer; any client-side copy is for instant feedback only and is never the enforcement point.
+
+### Remaining
+- [ ] **Moderation engine with five independent rule sets** — one shared module (e.g. `src/lib/moderation/`) invoked from every write route, each rule separately toggleable and auditable on its own:
+  1. **Profanity and abusive language** — English and Filipino vocabulary.
+  2. **Harassment and discriminatory language** — slurs, threats, targeting of protected groups; kept distinct from generic profanity so the action can differ.
+  3. **Sexual-content classification** — its own category, not lumped into profanity.
+  4. **Website and URL restrictions** — detect external links and apply policy per audience (block vs flag for review), with a trusted-domain allowlist (school site, Cloudinary, LMS).
+  5. **Allowlisted words (false-positive guard)** — exact-match and word-boundary-safe exemptions evaluated before anything is flagged (English/Filipino substrings inside legitimate words, academic and medical terms).
+- [ ] **Library vetting gate before integration** — no third-party moderation dependency lands without a written four-point check in `docs/`: (a) license compatible with this project; (b) supported languages include both English and Filipino (English-only lists miss Tagalog profanity); (c) maintenance activity — recent releases and issue turnaround; (d) false-positive behavior tested against our own corpus (school terms, Filipino names and places, subject titles). If nothing passes, maintain in-repo word lists instead.
+- [ ] **Server-side enforcement** — moderation runs in the API routes alongside the existing Zod validation (`src/lib/validation.ts`): violations return 4xx naming the rule that fired, and every decision (allow / reject / flag-for-review) is logged with rule id and matched terms for admin audit. A crafted direct API call must never be able to persist flagged content.
