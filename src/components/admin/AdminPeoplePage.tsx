@@ -87,7 +87,6 @@ function PersonAvatar({ person }: { person: Person }) {
   return (
     <span className="w-8 h-8 rounded-full bg-[#153357] text-white flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden">
       {person.photoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={person.photoUrl} alt="" className="w-full h-full object-cover" />
       ) : (
         getInitials(person.fullName)

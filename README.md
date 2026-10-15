@@ -8,7 +8,7 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-uploads-3448C5?logo=cloudinary)](https://cloudinary.com/)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
 
-A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. The original design notes and project paper live in [`aics/`](./aics/). Deployed live on Vercel.
+A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. Deployed live on Vercel.
 
 ---
 
@@ -16,7 +16,7 @@ A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: 
 
 AICS ran on paper for enrollment records, grade reports, schedules, and document requests. This portal digitizes all of it. Students view released grades, submit tasks, read section notifications, and download their Certificate of Enrollment. Faculty encode and submit grades per period, post tasks, grade submissions, take attendance, and share course materials. Admins review submitted periods and release them to students.
 
-The app is branch-scoped and multi-tenant: one deployment serves every campus branch. Every document in every MongoDB collection carries a `branch` field and every query filters on it. There is one portal shell that switches navigation and permissions by role, not three separate apps. See [`CONTEXT.md`](./CONTEXT.md) for the data model and core flows, and [`docs/adr/`](./docs/adr/) for the decisions behind them.
+The app is branch-scoped and multi-tenant: one deployment serves every campus branch. Every document in every MongoDB collection carries a `branch` field and every query filters on it. There is one portal shell that switches navigation and permissions by role, not three separate apps.
 
 ### Current status (2026-09-12)
 
@@ -131,11 +131,13 @@ CLOUDINARY_API_SECRET=
 | `AUTH_SECRET` | in production | JWT signing secret, 16+ chars. Production login refuses to run without it; dev falls back with a warning |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | no | Cloudinary credentials for material file uploads |
 | `CLOUDINARY_FOLDER` | no | Base upload folder, default `aics-portal/materials`. Files land in `<folder>/<branch>/<SUBJECT-CODE>/` |
-| `BACKUP_KEY` | no | 64-hex-char key for the encrypted backup mode of `scripts/rehash-passwords.ts` maintenance runs |
+| `BACKUP_KEY` | no | 64-hex-char key for the encrypted backup mode of bulk-rehash maintenance runs (tooling ships on the dev branch) |
 
 Never commit `.env.local`. Values live only in your local file and your Vercel project settings.
 
 ### 4. Seed the database
+
+The database seeder is maintenance tooling and ships on the dev branch (`main-full-dev`), not on `main`. From a checkout of the dev branch:
 
 ```bash
 node --experimental-strip-types scripts/seed-mongodb.ts
@@ -336,10 +338,6 @@ All write routes enforce: valid session, role check, branch match, and (for facu
 
 ```
 AICSPortal/
-├── scripts/
-│   ├── seed-mongodb.ts          # Database seeder (reads .env.local)
-│   ├── rehash-passwords.ts      # Bulk scrypt rehash maintenance tool
-│   └── verify-tasks.ts          # Task data verification
 ├── src/
 │   ├── middleware.ts            # Session enforcement for /api and /portal
 │   ├── app/
@@ -363,13 +361,6 @@ AICSPortal/
 │       ├── aics/                # Domain: nav-config, hooks (use-faculty-rows,
 │       │                        #   use-student-data, use-portal-route), types
 │       └── mongodb/             # Connection singleton, document types, queries
-├── docs/
-│   ├── adr/                     # Architecture decision records
-│   ├── done/                    # QA campaign reports and evidence
-│   ├── faculty-roadmap.md       # Faculty build phases (all complete)
-│   ├── student-faculty-interaction-plan.md   # Epic #31 campaign (all complete)
-│   └── UI_UX_IMPLEMENTATION_TRACKER.md       # Audit fixes (all complete)
-├── aics/                        # The author's source material: project paper, roadmap, pseudocode
 └── Caddyfile                    # Self-host reverse proxy config
 ```
 
@@ -397,12 +388,12 @@ caddy run
 
 ## What's next
 
-- **Admin portal**: school-wide dashboard stats, events and announcements and professors CRUD, cross-branch student and faculty management, enrollment overrides (tracked in `TODO.md`)
+- **Admin portal**: school-wide dashboard stats, events and announcements and professors CRUD, cross-branch student and faculty management, enrollment overrides
 - **Dark mode toggle** (CSS infrastructure exists, the topbar switch is stubbed)
 - **Profile photo upload** (placeholder in Settings)
 - **Real face recognition** via face-api.js (the Face ID login is currently a mock convenience layer)
 - **In/Out log** stays a disabled placeholder until a campus entry/exit data source exists
-- **Operational**: rotate the MongoDB credential before real student data goes in (see `docs/done/qa_reports/16_GOLIVE_RUNBOOK.md`), and the rate limiter is in-memory per instance, fine at school scale, revisit before scaling out
+- **Operational**: rotate the MongoDB credential before real student data goes in, and the rate limiter is in-memory per instance, fine at school scale, revisit before scaling out
 
 ---
 
@@ -411,7 +402,7 @@ caddy run
 This is an independent project. AICS did not sponsor, fund, commission, or endorse it, and no school office was involved in building it. The author is a student who wrote it for a course covering system information applications, starting from the things the campus was missing: grade reports printed by hand, scores shuffled between spreadsheets, no single place for schedules, tasks, or documents.
 
 - **Wilard James Paluga** ([@Hachiiki](https://github.com/Hachiiki)): author and maintainer
-- The [`aics/`](./aics/) folder keeps the source material: the project paper, the first roadmap, and the core pseudocode
+- The original design notes and project paper (the author's source material) are preserved on the dev branch (`main-full-dev`) and in git history
 - Built with [Next.js](https://nextjs.org/), [shadcn/ui](https://ui.shadcn.com/), [Tailwind CSS](https://tailwindcss.com/), [MongoDB](https://www.mongodb.com/), and [Cloudinary](https://cloudinary.com/)
 
 ---

@@ -1,12 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+
+// ---- Zod input schema (the only place submit input is shaped) ----
+const gradeSubmitSchema = z.object({
+  branch: z.string({ error: 'Branch and subjectCode are required.' }).min(1, {
+    message: 'Branch and subjectCode are required.',
+  }),
+  subjectCode: z.string({ error: 'Branch and subjectCode are required.' }).min(1, {
+    message: 'Branch and subjectCode are required.',
+  }),
+  academicYear: z.string().optional(),
+  semester: z.string().optional(),
+  // Only real periods pass; garbage no longer falls through to the
+  // all-periods path (old lenient behavior).
+  period: z.enum(['prelim', 'midterm', 'finals'], { error: 'Invalid request shape.' }).optional(),
+  note: z.string().max(2000, { message: 'Invalid request shape.' }).optional(),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { branch, subjectCode, academicYear, semester, period, note, performedBy } = body
+    const { branch, subjectCode, academicYear, semester, period, note, performedBy } = await parseBody(
+      request,
+      gradeSubmitSchema
+    )
     // Phase 6: writer is the session user; mismatched performedBy is a spoof attempt.
     const session = await getSession(request)
     if (!session) {
@@ -17,17 +40,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const performedByUser = session.username
-
-    if (!branch || !subjectCode) {
-      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
-    }
-    // BUG-010: keys reaching Mongo filters must be strings.
-    if (typeof branch !== 'string' || typeof subjectCode !== 'string') {
-      return NextResponse.json({ ok: false, error: 'Branch and subjectCode are required.' }, { status: 400 })
-    }
-    if ((academicYear !== undefined && typeof academicYear !== 'string') || (semester !== undefined && typeof semester !== 'string') || (period !== undefined && typeof period !== 'string') || (note !== undefined && typeof note !== 'string')) {
-      return NextResponse.json({ ok: false, error: 'Invalid request shape.' }, { status: 400 })
-    }
 
     // Auth: writer must be the session faculty in the same branch.
     {
@@ -128,6 +140,7 @@ export async function POST(request: NextRequest) {
       modifiedCount: result.modifiedCount,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Grade submit error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to submit grades.' }, { status: 500 })
   }

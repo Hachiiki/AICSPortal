@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
+import { z } from 'zod'
 import { getStudentByUsername, getEvents } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, dateInput, trimmedString, errResponse, idQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoEvent, EventCategory } from '@/lib/mongodb/types'
 
 // ADMIN CONTROL: Events are created/edited/deleted by Admin only.
@@ -27,7 +30,8 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const query = parseQuery(request, eventsGetQuerySchema)
+    const username = query.username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -59,6 +63,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, events: clientEvents })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Events API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch events.' }, { status: 500 })
   }
@@ -69,6 +74,39 @@ export async function GET(request: NextRequest) {
 // ------------------------------------------------------------
 
 const VALID_EVENT_CATEGORIES: EventCategory[] = ['academic', 'deadline', 'campus', 'holiday']
+
+// ---- Zod input schemas (the only place event input is shaped) ----
+
+const eventsGetQuerySchema = z.object({
+  username: z.string().optional(),
+})
+
+const eventCategorySchema = z.enum(VALID_EVENT_CATEGORIES, { error: 'Invalid category.' })
+
+/** Optional description: 0-2000 chars, trimmed; null/'' mean "none". */
+const eventDescriptionSchema = z
+  .string({ error: 'Description must be at most 2000 characters.' })
+  .max(2000)
+  .trim()
+  .nullish()
+  .transform((v) => (v && v.length > 0 ? v : null))
+
+const eventCreateSchema = z.object({
+  title: trimmedString(120, 'Title'),
+  description: eventDescriptionSchema,
+  date: z.coerce.date({ error: 'A valid event date is required.' }),
+  endDate: dateInput('End date').optional(),
+  category: eventCategorySchema,
+})
+
+const eventPatchSchema = z.object({
+  id: z.string({ error: 'Event id is required.' }).min(1),
+  title: trimmedString(120, 'Title').optional(),
+  description: eventDescriptionSchema.optional(),
+  date: z.coerce.date({ error: 'A valid event date is required.' }).optional(),
+  endDate: dateInput('End date').optional(),
+  category: eventCategorySchema.optional(),
+})
 
 /** Session + admin-role gate for write operations. Returns the admin's doc or a 401/403 response. */
 async function requireAdmin(request: NextRequest) {
@@ -83,27 +121,6 @@ async function requireAdmin(request: NextRequest) {
   return { performer }
 }
 
-/** Validate + normalize a date field. undefined = not supplied; null = clear (.endDate); 'invalid' = bad input. */
-function parseDateField(value: unknown): Date | null | 'invalid' | undefined {
-  if (value === undefined) return undefined
-  if (value === null || value === '') return null
-  if (typeof value !== 'string') return 'invalid'
-  const parsed = new Date(value)
-  if (isNaN(parsed.getTime())) return 'invalid'
-  return parsed
-}
-
-function validateTitle(title: unknown): string | 'invalid' {
-  if (typeof title !== 'string' || title.trim().length === 0 || title.length > 120) return 'invalid'
-  return title.trim()
-}
-
-function validateDescription(description: unknown): string | null | 'invalid' {
-  if (description === undefined || description === null || description === '') return null
-  if (typeof description !== 'string' || description.length > 2000) return 'invalid'
-  return description.trim()
-}
-
 // ------------------------------------------------------------
 // POST /api/events (admin) — create
 // Body: { title, description?, date, endDate?, category }
@@ -114,42 +131,25 @@ export async function POST(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const { title, description, date, endDate, category } = await request.json()
-    const safeTitle = validateTitle(title)
-    if (safeTitle === 'invalid') {
-      return NextResponse.json({ ok: false, error: 'Title must be 1-120 characters.' }, { status: 400 })
-    }
-    const safeDescription = validateDescription(description)
-    if (safeDescription === 'invalid') {
-      return NextResponse.json({ ok: false, error: 'Description must be at most 2000 characters.' }, { status: 400 })
-    }
-    if (!VALID_EVENT_CATEGORIES.includes(category)) {
-      return NextResponse.json({ ok: false, error: 'Invalid category.' }, { status: 400 })
-    }
-    const safeDate = parseDateField(date)
-    if (safeDate === 'invalid' || safeDate === null || safeDate === undefined) {
-      return NextResponse.json({ ok: false, error: 'A valid event date is required.' }, { status: 400 })
-    }
-    const safeEndDate = parseDateField(endDate)
-    if (safeEndDate === 'invalid') {
-      return NextResponse.json({ ok: false, error: 'Invalid end date.' }, { status: 400 })
-    }
-    if (safeEndDate && safeEndDate.getTime() < safeDate.getTime()) {
+    const { title, description, date, endDate, category } = await parseBody(request, eventCreateSchema)
+    const safeEndDate = endDate ?? null
+    if (safeEndDate && safeEndDate.getTime() < date.getTime()) {
       return NextResponse.json({ ok: false, error: 'End date cannot be before the start date.' }, { status: 400 })
     }
 
     const col = await getCollection<MongoEvent>('events')
     const doc: MongoEvent = {
       branch: performer.branch,
-      title: safeTitle,
-      description: safeDescription ?? undefined,
-      date: safeDate,
-      endDate: safeEndDate ?? null,
+      title,
+      description: description ?? undefined,
+      date,
+      endDate: safeEndDate,
       category,
     }
     const result = await col.insertOne(doc as any)
     return NextResponse.json({ ok: true, message: 'Event created.', id: result.insertedId.toString() })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Event create error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to create event.' }, { status: 500 })
   }
@@ -166,7 +166,7 @@ export async function PATCH(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const { id, title, description, date, endDate, category } = await request.json()
+    const { id, title, description, date, endDate, category } = await parseBody(request, eventPatchSchema)
     let idFilter: ObjectId
     try {
       idFilter = new ObjectId(id)
@@ -182,40 +182,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const update: Partial<MongoEvent> = {}
-    if (title !== undefined) {
-      const safeTitle = validateTitle(title)
-      if (safeTitle === 'invalid') {
-        return NextResponse.json({ ok: false, error: 'Title must be 1-120 characters.' }, { status: 400 })
-      }
-      update.title = safeTitle
-    }
-    if (description !== undefined) {
-      const safeDescription = validateDescription(description)
-      if (safeDescription === 'invalid') {
-        return NextResponse.json({ ok: false, error: 'Description must be at most 2000 characters.' }, { status: 400 })
-      }
-      update.description = safeDescription ?? undefined
-    }
-    if (category !== undefined) {
-      if (!VALID_EVENT_CATEGORIES.includes(category)) {
-        return NextResponse.json({ ok: false, error: 'Invalid category.' }, { status: 400 })
-      }
-      update.category = category
-    }
-    if (date !== undefined) {
-      const safeDate = parseDateField(date)
-      if (safeDate === 'invalid' || safeDate === null || safeDate === undefined) {
-        return NextResponse.json({ ok: false, error: 'A valid event date is required.' }, { status: 400 })
-      }
-      update.date = safeDate
-    }
-    if (endDate !== undefined) {
-      const safeEndDate = parseDateField(endDate)
-      if (safeEndDate === 'invalid') {
-        return NextResponse.json({ ok: false, error: 'Invalid end date.' }, { status: 400 })
-      }
-      update.endDate = safeEndDate ?? null
-    }
+    if (title !== undefined) update.title = title
+    if (description !== undefined) update.description = description ?? undefined
+    if (category !== undefined) update.category = category
+    if (date !== undefined) update.date = date
+    if (endDate !== undefined) update.endDate = endDate ?? null
 
     const finalStart = update.date ?? existing.date
     const finalEnd = update.endDate ?? existing.endDate ?? null
@@ -229,6 +200,7 @@ export async function PATCH(request: NextRequest) {
     await col.updateOne({ _id: idFilter, branch: performer.branch }, { $set: update })
     return NextResponse.json({ ok: true, message: 'Event updated.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Event update error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update event.' }, { status: 500 })
   }
@@ -243,10 +215,10 @@ export async function DELETE(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const id = request.nextUrl.searchParams.get('id')
+    const query = parseQuery(request, idQuerySchema)
     let idFilter: ObjectId
     try {
-      idFilter = new ObjectId(id ?? '')
+      idFilter = new ObjectId(query.id)
     } catch {
       return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
     }
@@ -257,6 +229,7 @@ export async function DELETE(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, message: 'Event deleted.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Event delete error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to delete event.' }, { status: 500 })
   }

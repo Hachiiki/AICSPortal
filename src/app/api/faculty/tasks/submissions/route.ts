@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseQuery, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoTask } from '@/lib/mongodb/types'
+
+// ---- Zod input schema (the only place submission-filter input is shaped) ----
+const submissionsGetQuerySchema = z.object({
+  username: z.string().optional(),
+  subjectCode: z.string({ error: 'Subject, title, and due date are required.' }).min(1, {
+    message: 'Subject, title, and due date are required.',
+  }),
+  title: z.string({ error: 'Subject, title, and due date are required.' }).min(1, {
+    message: 'Subject, title, and due date are required.',
+  }),
+  dueDate: z.coerce.date({ error: 'Invalid due date.' }),
+})
 
 // ============================================================
 //  Faculty task submissions API
@@ -26,24 +41,18 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
-    const subjectCode = request.nextUrl.searchParams.get('subjectCode')
-    const title = request.nextUrl.searchParams.get('title')
-    const dueDate = request.nextUrl.searchParams.get('dueDate')
+    const { username: usernameParam, subjectCode, title, dueDate } = parseQuery(
+      request,
+      submissionsGetQuerySchema
+    )
+    const username = usernameParam || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
     if (username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    // BUG-010: group-key fields must be plain strings before they reach Mongo filters.
-    if (typeof subjectCode !== 'string' || !subjectCode || typeof title !== 'string' || !title || typeof dueDate !== 'string' || !dueDate) {
-      return NextResponse.json({ ok: false, error: 'Subject, title, and due date are required.' }, { status: 400 })
-    }
-    const due = new Date(dueDate)
-    if (isNaN(due.getTime())) {
-      return NextResponse.json({ ok: false, error: 'Invalid due date.' }, { status: 400 })
-    }
+    const due = dueDate
     const faculty = await getStudentByUsername(username)
     if (!faculty) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
@@ -102,6 +111,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, submissions })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Faculty task submissions error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load submissions.' }, { status: 500 })
   }

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoTask } from '@/lib/mongodb/types'
 
@@ -16,12 +19,30 @@ import type { MongoTask } from '@/lib/mongodb/types'
 //      omitted leaves existing feedback untouched)
 //  Faculty only (session). Branch match + teaching-load check via
 //  the shared requireTeachingFaculty helper. Honest {ok, ...}
-//  envelope, BUG-010 input guards.
+//  envelope, Zod input guards.
 //
 //  Decision (plan non-goal, refs #32): task scores do NOT write
 //  grade_audits rows. Tasks are not grades; if score history is
 //  wanted later, record that decision in #32 first.
 // ============================================================
+
+// ---- Zod input schemas (the only place grading input is shaped) ----
+
+const taskGradeSchema = z.object({
+  // BUG-010: score must be a real number before any range comparison.
+  score: z
+    .number({ error: 'Score must be a number.' })
+    .finite({ message: 'Score must be a number.' }),
+  // string ≤2000, or null to clear; omitted leaves existing feedback untouched.
+  feedback: z
+    .string({ error: 'Feedback must be text.' })
+    .max(2000, { message: 'Feedback must be at most 2000 characters.' })
+    .nullish(),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+  // BUG-010: branch, when supplied, must be a string and match the session.
+  branch: z.string().optional(),
+})
 
 export async function PATCH(
   request: NextRequest,
@@ -44,27 +65,14 @@ export async function PATCH(
     } catch {
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
-    let body: any
-    try {
-      body = await request.json()
-    } catch {
-      return NextResponse.json({ ok: false, error: 'Invalid request body.' }, { status: 400 })
-    }
-    const { score, feedback, performedBy, branch } = body ?? {}
+    const { score, feedback, performedBy, branch } = await parseBody(request, taskGradeSchema)
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    // BUG-010: branch, when supplied, must be a string and match the session.
-    if (branch !== undefined && (typeof branch !== 'string' || branch !== session.branch)) {
+    // BUG-010: branch, when supplied, must match the session.
+    if (branch !== undefined && branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // BUG-010: score must be a real number before any range comparison.
-    if (typeof score !== 'number' || !isFinite(score)) {
-      return NextResponse.json({ ok: false, error: 'Score must be a number.' }, { status: 400 })
-    }
-    if (typeof feedback !== 'undefined' && feedback !== null && typeof feedback !== 'string') {
-      return NextResponse.json({ ok: false, error: 'Feedback must be text.' }, { status: 400 })
     }
 
     const col = await getCollection<MongoTask>('tasks')
@@ -109,6 +117,7 @@ export async function PATCH(
       },
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Task grade error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to grade task.' }, { status: 500 })
   }

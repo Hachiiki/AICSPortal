@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { rateLimit } from '@/lib/rate-limit'
 import { hashPassword, verifyPassword } from '@/lib/password'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+
+// ---- Zod input schema (the only place password-change input is shaped) ----
+const changePasswordSchema = z.object({
+  currentPassword: z.string({ error: 'Current and new passwords are required.' }).min(1, {
+    message: 'Current and new passwords are required.',
+  }),
+  newPassword: z
+    .string({ error: 'Current and new passwords are required.' })
+    .min(6, { message: 'New password must be at least 6 characters.' }),
+})
 
 // POST /api/auth/change-password?username=juan.santos
 // Body: { currentPassword, newPassword }
@@ -16,23 +29,15 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
-    if (!username || typeof username !== 'string') {
+    const username = parseQuery(request, selfQuerySchema).username || session.username
+    if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
     if (username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const { currentPassword, newPassword } = await request.json()
-
-    if (typeof currentPassword !== 'string' || !currentPassword || typeof newPassword !== 'string' || !newPassword) {
-      return NextResponse.json({ ok: false, error: 'Current and new passwords are required.' }, { status: 400 })
-    }
-
-    if (newPassword.length < 6) {
-      return NextResponse.json({ ok: false, error: 'New password must be at least 6 characters.' }, { status: 400 })
-    }
+    const { currentPassword, newPassword } = await parseBody(request, changePasswordSchema)
 
     const col = await getCollection('students')
     const student = await col.findOne({ username })
@@ -67,6 +72,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, message: 'Password changed successfully.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Change password error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to change password.' }, { status: 500 })
   }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import {
   cloudinaryEnv,
   photoFolder,
@@ -77,6 +79,7 @@ export async function POST(request: NextRequest) {
       oldPublicId,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Photo sign error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to prepare upload.' }, { status: 500 })
   }
@@ -90,7 +93,7 @@ export async function DELETE(request: NextRequest) {
     }
     // Self-service only: admins manage profiles through other means;
     // photo identity stays in the owner's hands.
-    const username = request.nextUrl.searchParams.get('username')
+    const username = parseQuery(request, selfQuerySchema).username
     if (!username || username !== session.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
@@ -117,6 +120,7 @@ export async function DELETE(request: NextRequest) {
     )
     return NextResponse.json({ ok: true, message: 'Photo removed.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Photo remove error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to remove photo.' }, { status: 500 })
   }

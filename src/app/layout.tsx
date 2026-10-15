@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto_Condensed, Roboto } from "next/font/google";
 import "./globals.css";
 import { DevBanner } from "@/components/DevBanner";
+import { getAppEnv } from "@/lib/env";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -52,7 +53,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${robotoCondensed.variable} ${roboto.variable} font-sans antialiased bg-white text-slate-900 pt-9`}
         suppressHydrationWarning
       >
-        <DevBanner />
+        <DevBanner appEnv={getAppEnv()} />
         {children}
         <Toaster richColors position="bottom-right" />
         <Analytics />

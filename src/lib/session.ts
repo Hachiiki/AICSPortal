@@ -6,6 +6,9 @@
 
 import { jwtVerify, SignJWT } from 'jose'
 import type { NextRequest } from 'next/server'
+import { getAuthSecret } from '@/lib/env'
+
+export { getAuthSecret }
 
 export const SESSION_COOKIE = 'aics_session'
 export const SESSION_MAX_AGE_SECS = 8 * 60 * 60 // 8h
@@ -18,18 +21,6 @@ export interface SessionClaims {
   // tokenVersion in the DB (see session-auth.ts). Logout / password change
   // bumps the DB value, instantly killing all previously issued tokens.
   tv: number
-}
-
-const DEV_FALLBACK_SECRET = 'dev-only-insecure-secret-change-in-production'
-
-function getAuthSecret(): Uint8Array {
-  const configured = process.env.AUTH_SECRET
-  if (configured && configured.length >= 16) return new TextEncoder().encode(configured)
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('AUTH_SECRET is not set. Set a 16+ char secret in production.')
-  }
-  console.warn('[auth] AUTH_SECRET missing — using insecure dev fallback. Set AUTH_SECRET for any shared deploy.')
-  return new TextEncoder().encode(DEV_FALLBACK_SECRET)
 }
 
 export async function signSession(claims: SessionClaims): Promise<string> {

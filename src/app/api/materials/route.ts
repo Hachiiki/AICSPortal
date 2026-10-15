@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, trimmedString, errResponse, selfQuerySchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoMaterial } from '@/lib/mongodb/types'
 import { cloudinaryEnv, destroyAsset, extResourceType, spoofForbidden, MATERIALS_MAX_BYTES } from './cloudinary'
@@ -29,13 +32,29 @@ function toClient(d: any) {
   }
 }
 
+// ---- Zod input schema (the only place material input is shaped) ----
+const materialPostSchema = z.object({
+  branch: z.string().min(1),
+  subjectCode: z.string({ error: 'Subject and a 1-120 character title are required.' }).min(1),
+  title: trimmedString(120, 'Title'),
+  kind: z.enum(['link', 'file'], { error: 'Kind must be link or file.' }),
+  url: z.string().optional(),
+  publicId: z.string().optional(),
+  resourceType: z.enum(['image', 'raw'], { error: 'Resource type must be image or raw.' }).optional(),
+  bytes: z.coerce.number().optional(),
+  format: z.string().optional(),
+  filename: z.string().optional(),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession(request)
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const username = parseQuery(request, selfQuerySchema).username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -84,6 +103,7 @@ export async function GET(request: NextRequest) {
       .toArray()
     return NextResponse.json({ ok: true, materials: rows.map(toClient), uploadsConfigured: cloudinaryEnv() !== null })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Materials read error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load materials.' }, { status: 500 })
   }
@@ -103,18 +123,12 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, subjectCode, title, kind, url, publicId, resourceType, bytes, format, filename, performedBy } = await request.json()
+    const { branch, subjectCode, title, kind, url, publicId, resourceType, bytes, format, filename, performedBy } =
+      await parseBody(request, materialPostSchema)
     const forbidden = spoofForbidden(session, performedBy)
     if (forbidden) return forbidden
-    if (typeof branch !== 'string' || branch !== session.branch) {
+    if (branch !== session.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // BUG-010: subject/title/kind/url must be plain values pre-query.
-    if (typeof subjectCode !== 'string' || !subjectCode || typeof title !== 'string' || title.trim().length === 0 || title.length > 120) {
-      return NextResponse.json({ ok: false, error: 'Subject and a 1-120 character title are required.' }, { status: 400 })
-    }
-    if (kind !== 'link' && kind !== 'file') {
-      return NextResponse.json({ ok: false, error: 'Kind must be link or file.' }, { status: 400 })
     }
     // Teaching-load check runs as the session user.
     const check = await requireTeachingFaculty(session.username, session.branch, subjectCode)
@@ -130,14 +144,14 @@ export async function POST(request: NextRequest) {
     const col = await getCollection<MongoMaterial>('materials')
 
     if (kind === 'link') {
-      if (typeof url !== 'string' || !/^https?:\/\/.+\..+/.test(url.trim())) {
+      if (!url || !/^https?:\/\/.+\..+/.test(url.trim())) {
         return NextResponse.json({ ok: false, error: 'A valid http(s) URL is required.' }, { status: 400 })
       }
       const doc: MongoMaterial = {
         branch: session.branch,
         subjectCode,
         term,
-        title: title.trim(),
+        title,
         kind: 'link',
         url: url.trim().slice(0, 2000),
         publicId: null,
@@ -155,13 +169,13 @@ export async function POST(request: NextRequest) {
     if (!env) {
       return NextResponse.json({ ok: false, error: 'File uploads are not configured. Post a link instead.' }, { status: 400 })
     }
-    if (typeof publicId !== 'string' || !publicId || typeof url !== 'string' || !url.startsWith(`https://res.cloudinary.com/${env.cloudName}/`)) {
+    if (!publicId || !url || !url.startsWith(`https://res.cloudinary.com/${env.cloudName}/`)) {
       return NextResponse.json({ ok: false, error: 'A valid Cloudinary file reference is required.' }, { status: 400 })
     }
     if (resourceType !== 'image' && resourceType !== 'raw') {
       return NextResponse.json({ ok: false, error: 'Resource type must be image or raw.' }, { status: 400 })
     }
-    const size = Number(bytes)
+    const size = bytes ?? 0
     if (!isFinite(size) || size <= 0 || size > MATERIALS_MAX_BYTES) {
       // Refuse oversized orphans and clean the asset back up.
       await destroyAsset(publicId, resourceType)
@@ -169,10 +183,8 @@ export async function POST(request: NextRequest) {
     }
     // Cloudinary omits `format` for some raw assets (e.g. .txt), so
     // fall back to the original filename, then the public id.
-    const nameForExt = typeof filename === 'string' && filename
-      ? filename
-      : publicId;
-    const ext = (String(nameForExt).split('.').pop() || (typeof format === 'string' ? format : '')).toLowerCase();
+    const nameForExt = filename || publicId
+    const ext = (String(nameForExt).split('.').pop() || format || '').toLowerCase()
     if (extResourceType(ext) !== resourceType) {
       await destroyAsset(publicId, resourceType)
       return NextResponse.json({ ok: false, error: 'File type is not allowed.' }, { status: 400 })
@@ -181,19 +193,20 @@ export async function POST(request: NextRequest) {
       branch: session.branch,
       subjectCode,
       term,
-      title: title.trim(),
+      title,
       kind: 'file',
       url: url.slice(0, 2000),
       publicId,
       resourceType,
       bytes: Math.floor(size),
-      format: (typeof format === 'string' && format ? format : ext || null)?.slice(0, 16) || null,
+      format: (format || ext || null)?.slice(0, 16) || null,
       uploadedBy: session.username,
       uploadedAt: new Date(),
     }
     const result = await col.insertOne(doc as any)
     return NextResponse.json({ ok: true, message: 'File posted.', material: { _id: result.insertedId.toString(), title: doc.title, kind: 'file', url: doc.url } })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Material post error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to post material.' }, { status: 500 })
   }

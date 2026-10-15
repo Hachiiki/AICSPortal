@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { cloudinaryEnv, photoFolder, destroyAsset } from '@/app/api/materials/cloudinary'
+
+// ---- Zod input schema (the only place cleanup input is shaped) ----
+const photoCleanupSchema = z.object({
+  publicId: z.string({ error: 'publicId is required.' }).min(1),
+})
 
 // ============================================================
 //  Replaced-photo cleanup — POST /api/student/photo/cleanup
@@ -25,10 +33,7 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { publicId } = await request.json()
-    if (typeof publicId !== 'string' || !publicId) {
-      return NextResponse.json({ ok: false, error: 'publicId is required.' }, { status: 400 })
-    }
+    const { publicId } = await parseBody(request, photoCleanupSchema)
     const env = cloudinaryEnv()
     if (!env) {
       // Nothing was ever uploaded through us without Cloudinary env.
@@ -47,6 +52,7 @@ export async function POST(request: NextRequest) {
     await destroyAsset(publicId, 'image')
     return NextResponse.json({ ok: true })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Photo cleanup error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to clean up old photo.' }, { status: 500 })
   }

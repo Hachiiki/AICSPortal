@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, parseQuery, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 
 // ============================================================
 //  Attendance API
@@ -27,6 +30,31 @@ async function getPerformer(username: string | null) {
   return studentsCol.findOne({ username })
 }
 
+// ---- Zod input schemas (the only place attendance input is shaped) ----
+
+const attendanceGetQuerySchema = z.object({
+  username: z.string().optional(),
+  sectionKey: z.string({ error: 'Username and sectionKey are required.' }).min(1, {
+    message: 'Username and sectionKey are required.',
+  }),
+  date: z.string().optional(),
+})
+
+const ATTENDANCE_REQUIRED = 'Branch, sectionKey, date, and records are required.'
+
+const attendancePostSchema = z.object({
+  branch: z.string({ error: ATTENDANCE_REQUIRED }).min(1, { message: ATTENDANCE_REQUIRED }),
+  sectionKey: z.string({ error: ATTENDANCE_REQUIRED }).min(1, { message: ATTENDANCE_REQUIRED }),
+  date: z
+    .string({ error: ATTENDANCE_REQUIRED })
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Date must be YYYY-MM-DD.' }),
+  records: z.record(z.string(), z.enum(['present', 'absent'], { error: 'Records must map usernames to present or absent.' })),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+  // BUG-015: existing sessions require an explicit overwrite confirmation.
+  allowOverwrite: z.boolean().optional(),
+})
+
 export async function GET(request: NextRequest) {
   try {
     // Phase 6: reader is the session user; branch comes from the session.
@@ -34,9 +62,8 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
-    const sectionKey = request.nextUrl.searchParams.get('sectionKey')
-    const date = request.nextUrl.searchParams.get('date')
+    const { username: usernameParam, sectionKey, date } = parseQuery(request, attendanceGetQuerySchema)
+    const username = usernameParam || session.username
     if (!username || !sectionKey) {
       return NextResponse.json({ ok: false, error: 'Username and sectionKey are required.' }, { status: 400 })
     }
@@ -68,6 +95,7 @@ export async function GET(request: NextRequest) {
       records,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Attendance read error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load attendance.' }, { status: 500 })
   }
@@ -80,20 +108,16 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await request.json()
+    const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await parseBody(
+      request,
+      attendancePostSchema
+    )
     const spoof = spoofCheck(session, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    // BUG-010: branch/sectionKey/date must be strings pre-query; objects become operators.
-    if (typeof branch !== 'string' || branch !== session.branch || typeof sectionKey !== 'string' || !sectionKey || typeof date !== 'string' || !date) {
-      return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
-    }
-    if (!branch || !sectionKey || !date || !records || typeof records !== 'object') {
-      return NextResponse.json({ ok: false, error: 'Branch, sectionKey, date, and records are required.' }, { status: 400 })
-    }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return NextResponse.json({ ok: false, error: 'Date must be YYYY-MM-DD.' }, { status: 400 })
+    if (branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: ATTENDANCE_REQUIRED }, { status: 400 })
     }
     // Phase 6: taker is the session faculty (legacy performedBy already spoof-checked; ignored).
     const performer = await getPerformer(session.username)
@@ -102,11 +126,6 @@ export async function POST(request: NextRequest) {
     }
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    for (const [studentUsername, status] of Object.entries(records)) {
-      if (typeof studentUsername !== 'string' || (status !== 'present' && status !== 'absent')) {
-        return NextResponse.json({ ok: false, error: 'Records must map usernames to present or absent.' }, { status: 400 })
-      }
     }
     const col = await getCollection('attendance')
     // BUG-017: unique index is created by seed/migration tooling, not per request.
@@ -144,6 +163,7 @@ export async function POST(request: NextRequest) {
     const absent = Object.values(records).length - present
     return NextResponse.json({ ok: true, message: `Attendance saved: ${present} present, ${absent} absent.`, present, absent })
   } catch (err: any) {
+    if (err instanceof HttpError) return errResponse(err)
     if (err?.code === 11000) {
       return NextResponse.json({ ok: false, error: 'That session was just saved. Reload and try again.' }, { status: 409 })
     }
