@@ -5,7 +5,7 @@ the `students` collection to the app's scrypt format (`scrypt$salt$hash`).
 
 **Status (2026-10-15):**
 
-- Local dev DB: **done.** `scripts/run-rehash-local.sh` rehearsed the
+- Local dev DB: **done.** The local rehearsal (2026-10-15, dev branch) exercised the
   full procedure against the seeded dev database — dry-run, encrypted
   backup, apply with `--expect`, self-verify, login checks — 13/13
   passing, zero plaintext remaining, backup + key retained under
@@ -105,6 +105,6 @@ routine use.
 
 ## Local rehearsal
 
-`scripts/run-rehash-local.sh` runs the identical procedure against the
+The identical procedure can be rehearsed against the
 local dev database (boot mongod → dry-run → backup → apply → login
-checks) and is safe to re-run any time.
+checks); the rehearsal wrapper lives on the development branch.
