@@ -1,14 +1,15 @@
 import { MongoClient } from 'mongodb'
+import { getMongoEnv, envSummary } from '@/lib/env'
 
 // ============================================================
 //  MongoDB connection layer
 // ============================================================
 //
-//  Connection string and database name are read from environment
-//  variables (.env.local):
+//  Connection config comes from src/lib/env.ts (the shared
+//  environment layer — see docs/environments.md):
 //
 //    MONGODB_URI=mongodb+srv://...
-//    MONGODB_DB=aics_portal
+//    MONGODB_DB=aics_portal  (staging defaults to aics_portal_staging)
 //
 //  Branch-based organization:
 //  Every document (student, subject, session, document, etc.)
@@ -23,25 +24,25 @@ import { MongoClient } from 'mongodb'
 //  for admin views later.
 // ============================================================
 
-const uri = process.env.MONGODB_URI
-const dbName = process.env.MONGODB_DB || 'aics_portal'
-
 // NOTE: We do NOT throw at module load time — that would crash the
 // dev server on every hot reload if the env var is missing. Instead
-// we throw lazily when getDb() is actually called.
+// we resolve lazily when getCollection() is actually called.
 
 let client: MongoClient | null = null
+let dbName: string | null = null
 
 export async function getCollection<T = any>(name: string) {
   if (!client) {
-    if (!uri) {
-      throw new Error('MONGODB_URI is not set. Add it to .env.local')
-    }
+    const { uri, dbName: resolvedDb } = getMongoEnv()
+    dbName = resolvedDb
     client = new MongoClient(uri)
     await client.connect()
+    // Boot diagnostic: one line per process, so "which env and db am I
+    // actually on" is answerable from the logs at a glance.
+    console.log(`[mongo] connected — ${envSummary()}`)
   }
   // Our schema interfaces (MongoStudent, MongoTask, etc.) don't extend
   // mongodb's Document type, so we cast the collection to any and let
   // the caller's <T> generic drive the return type.
-  return client.db(dbName).collection(name) as any
+  return client.db(dbName!).collection(name) as any
 }
