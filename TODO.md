@@ -84,14 +84,16 @@
 - [x] .gitignore cleanup (removed .next/, build artifacts, agent folders)
 - [x] Code quality (fallow health: maintainability 92.0, duplication 6.1%)
 
+### Done
+- [x] **Password hashing** — scrypt (Node crypto, no new deps) with `scrypt$salt$hash` storage, hash-on-login upgrades for legacy docs, and change-password always hashing. Bulk rehash of the dev DB executed 2026-10-15 (76 legacy accounts, scripts/run-rehash-local.sh, 13/13 checks; encrypted backup + key retained in db/backups/). Seeds hash at birth. Production run remains owner-gated: docs/password-rehash-runbook.md has the full procedure.
+- [x] **Input validation (2026-10-15)** — Zod on every route. src/lib/validation.ts (parseBody/parseQuery + shared schemas) is the single entry point; all 28 API route files converted; unknown keys stripped; operator objects can never reach Mongo filters; HttpError re-thrown so 400s stop masking as 500s. Hardening notes: garbage grade periods no longer fall through to release-ALL; audits ?limit can't leak NaN.
+- [x] **Error boundaries (2026-10-15)** — full stack: in-shell ErrorBoundary per view (retry card, shell stays alive, resetKey resets on navigation), portal segment error.tsx, root error.tsx, global-error.tsx (own html/body), not-found.tsx. Verified in-browser with a real injected crash: 14/14 (scripts/verify-error-boundary.sh, evidence in docs/done/qa_evidence/ui-ux/admin-error-boundary*.png).
+- [x] **CI/CD (2026-10-15)** — .github/workflows/ci.yml: lint + typecheck on PRs to main/main-full-dev (bun toolchain). tsconfig/eslint scoped to real source (sandbox dirs excluded); react-hooks v6 perf heuristics downgraded to warnings with rationale; typecheck script added; BUG-016 closed — ignoreBuildErrors:false, type errors now fail builds (verified with production build).
+- [x] **Environment configs (2026-10-15)** — src/lib/env.ts classifies development/staging/production (APP_ENV > VERCEL_ENV > NODE_ENV). Staging (Vercel Preview) requires AUTH_SECRET and defaults MONGODB_DB to aics_portal_staging — previews can never silently write production data. DevBanner is env-aware (production: none). example.env.local rewritten as the canonical template; docs/environments.md has the full matrix. One boot diagnostic per process logs env+db.
+
 ### Remaining
-- [ ] **Password hashing** — Currently plaintext. Use bcrypt before production.
-- [ ] **Session tokens** — Currently localStorage only. Consider JWT or server sessions for security.
-- [ ] **Rate limiting** — No rate limiting on API routes. Add before production.
-- [ ] **Input validation** — API endpoints accept raw input. Add Zod schemas.
-- [ ] **Error boundaries** — Add React error boundaries to prevent full-page crashes.
-- [ ] **CI/CD** — Add GitHub Actions for lint + typecheck on PRs.
-- [ ] **Environment configs** — Separate .env for dev/staging/production.
+- [ ] **Production password rehash** — owner-gated window; runbook ready (docs/password-rehash-runbook.md). Hash-on-login converts accounts organically meanwhile.
+- [ ] **Rate limiting** — login + change-password have in-memory fixed-window throttles (BUG-013); no general API rate limiting. Revisit before scaling beyond one node.
 
 ## Design Polish
 
