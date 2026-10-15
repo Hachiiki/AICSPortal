@@ -235,6 +235,17 @@ export interface MongoRegistrar {
   phone: string
 }
 
+// Payment log entry — appended by admin/registrar when posting a
+// payment (POST /api/admin/enrollment). The assessment aggregate
+// (amountPaid/balance/paymentStatus) stays the source of truth for
+// balances; this array is the audit trail behind it.
+export interface MongoEnrollmentPayment {
+  amount: number
+  date: string // ISO date the payment was received
+  postedBy: string // admin username that posted it
+  note?: string
+}
+
 export interface MongoEnrollment {
   _id?: string
   branch: Branch
@@ -245,6 +256,9 @@ export interface MongoEnrollment {
   steps: MongoEnrollmentStep[]
   assessment: MongoAssessment
   registrar: MongoRegistrar
+  // Optional payment history (newer records carry it; older ones
+  // aggregate only — the manage page tolerates a missing array).
+  payments?: MongoEnrollmentPayment[]
 }
 
 
