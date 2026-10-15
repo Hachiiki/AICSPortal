@@ -54,7 +54,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
   const [detailTask, setDetailTask] = useState<Task | null>(null)
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
+  const rowRefs = useRef<Record<string, HTMLElement | null>>({})
   const [highlightId, setHighlightId] = useState<string | null>(null)
   const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -416,10 +416,58 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                     {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                   </div>
                 </div>
-                {/* Expanded table */}
+                {/* Expanded task list — cards on mobile, scrollable table from md up */}
                 {isExpanded && (
-                  <div className="border-t border-slate-100 overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <>
+                  <ul className="md:hidden divide-y divide-slate-100 border-t border-slate-100">
+                    {subjectTasks.map((task) => {
+                      const { variant, sub } = computeStatus(task)
+                      const dueDate = new Date(task.dueDate)
+                      const showSubmit = canSubmit(task)
+                      const showDetails = canViewDetails(task)
+                      const isClosed = variant === 'MISSING_CLOSED'
+                      const isOverdue = variant === 'MISSING_OPEN'
+                      return (
+                        <li key={task._id} ref={(el) => { rowRefs.current[task._id] = el }} className={`px-4 py-3.5 ${highlightId === task._id ? 'bg-blue-100/70' : ''}`}>
+                          <div className="flex items-center gap-2">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${TYPE_COLORS[task.type]}`}>{task.type}</span>
+                            <p className="text-sm font-medium text-slate-900 truncate">{task.title}</p>
+                          </div>
+                          <div className="mt-2.5 flex items-center justify-between gap-3">
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
+                              <span className="text-xs text-slate-500 whitespace-nowrap">Due {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
+                                {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
+                                {variant === 'PENDING' && <Clock className="w-3 h-3" />}
+                                {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
+                                {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
+                                {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                                {sub}
+                              </span>
+                            </div>
+                            <div className="flex-shrink-0">
+                              {showSubmit ? (
+                                <button type="button" onClick={() => setSubmitTask(task)}
+                                  className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                  {isOverdue ? 'Submit (Late)' : 'Submit'}
+                                </button>
+                              ) : isClosed ? (
+                                <span className="text-xs font-medium text-slate-500">Closed</span>
+                              ) : showDetails ? (
+                                <button type="button" onClick={() => setDetailTask(task)}
+                                  aria-label="View details"
+                                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                                  <Info className="w-4 h-4" />
+                                </button>
+                              ) : null}
+                            </div>
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                  <div className="hidden md:block border-t border-slate-100 overflow-x-auto">
+                    <table className="w-full text-sm min-w-[560px]">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-100">
                           <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Type</th>
@@ -482,6 +530,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                       </tbody>
                     </table>
                   </div>
+                  </>
                 )}
               </div>
             )

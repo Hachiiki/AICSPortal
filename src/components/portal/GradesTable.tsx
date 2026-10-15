@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import type { Student } from '@/lib/aics/types'
-import { GradesHeader, GradesRow, GradesFooter } from './GradesRow'
+import { GradesHeader, GradesRow, GradesFooter, GradesCards } from './GradesRow'
 
 interface GradesTableProps {
   student: Student
@@ -36,9 +36,10 @@ export function GradesTable({ student }: GradesTableProps) {
         </p>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      {/* Grades — per-subject cards on mobile, scrollable table from md up */}
+      <GradesCards subjects={student.subjects} totalUnits={totalUnits} />
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead>
             <GradesHeader />
           </thead>
