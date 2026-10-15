@@ -270,7 +270,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             </div>
 
             {/* GPA distribution + enrollment status */}
-            <div className="grid lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="text-sm font-bold text-slate-900">GPA distribution</h2>
@@ -308,7 +308,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             </div>
 
             {/* Year level + program + finances */}
-            <div className="grid lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <BreakdownList title="By year level" rows={stats.enrollment.byYearLevel} emptyLabel="No students yet." />
               <BreakdownList title="By program" rows={stats.enrollment.byProgram} emptyLabel="No students yet." />
               <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
@@ -411,7 +411,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             </section>
 
             {/* Upcoming events + recent announcements */}
-            <div className="grid lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-slate-900">Next 7 days</h2>
@@ -428,7 +428,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border flex-shrink-0 ${CATEGORY_PILL_STYLES[e.category]}`}>
                           {CATEGORY_LABELS[e.category]}
                         </span>
-                        <span className="text-sm text-slate-800 font-medium truncate">{e.title}</span>
+                        <span className="text-sm text-slate-800 font-medium truncate min-w-0">{e.title}</span>
                         <span className="ml-auto text-xs text-slate-500 flex-shrink-0 tabular-nums">{formatDate(e.date)}</span>
                       </li>
                     ))}
@@ -456,7 +456,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                           ) : (
                             <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border flex-shrink-0 ${style.pill}`}>{style.label}</span>
                           )}
-                          <span className="text-sm text-slate-800 font-medium truncate">{a.title}</span>
+                          <span className="text-sm text-slate-800 font-medium truncate min-w-0">{a.title}</span>
                           <span className="ml-auto text-xs text-slate-500 flex-shrink-0 tabular-nums">{formatDate(a.postedDate)}</span>
                         </li>
                       )
