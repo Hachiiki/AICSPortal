@@ -3,9 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
-    // BUG-016: keep true until `npx tsc --noEmit` is clean (FitText null-check open).
-    // TODO: set to false once type errors are fixed so type errors fail the build.
-    ignoreBuildErrors: true,
+    // BUG-016 closed (2026-10-15): `tsc --noEmit` is clean for all app
+    // code (skills/.agents/.superdesign/db are tsconfig-excluded sandbox
+    // dirs, not source). Type errors now fail the build in CI and Vercel.
+    ignoreBuildErrors: false,
   },
   reactStrictMode: true,
   poweredByHeader: false,
