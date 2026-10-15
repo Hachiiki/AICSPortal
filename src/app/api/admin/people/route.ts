@@ -28,10 +28,8 @@ export async function GET(request: NextRequest) {
     const users = await col
       .find({})
       .project({
-        projection: {
-          password: 0,
-          tokenVersion: 0,
-        },
+        password: 0,
+        tokenVersion: 0,
       })
       .toArray()
 
