@@ -355,7 +355,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
             ) : (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm min-w-[760px]">
                     <thead className="sticky top-0 z-10">
                       <tr className="bg-slate-50 border-b border-slate-100">
                         <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Student</th>

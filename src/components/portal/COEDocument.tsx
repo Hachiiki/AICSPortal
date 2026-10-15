@@ -71,13 +71,13 @@ export function COEDocument({ student }: COEDocumentProps) {
         </p>
       </div>
 
-      {/* Subjects table */}
-      <div className="mb-8">
-        <table className="w-full text-xs border-collapse" style={{ color: PALETTE.navy }}>
+      {/* Subjects table — scrolls horizontally on narrow screens; prints at full width */}
+      <div className="mb-8 overflow-x-auto">
+        <table className="w-full text-xs border-collapse min-w-[540px]" style={{ color: PALETTE.navy }}>
           <thead>
             <tr style={{ background: `${PALETTE.mist}55` }}>
               <th
-                className="border px-2 py-1.5 text-left font-semibold"
+                className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap"
                 style={{ borderColor: PALETTE.navy }}
               >
                 Code
@@ -89,19 +89,19 @@ export function COEDocument({ student }: COEDocumentProps) {
                 Subject Title
               </th>
               <th
-                className="border px-2 py-1.5 text-center font-semibold"
+                className="border px-2 py-1.5 text-center font-semibold whitespace-nowrap"
                 style={{ borderColor: PALETTE.navy }}
               >
                 Units
               </th>
               <th
-                className="border px-2 py-1.5 text-left font-semibold"
+                className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap"
                 style={{ borderColor: PALETTE.navy }}
               >
                 Schedule
               </th>
               <th
-                className="border px-2 py-1.5 text-left font-semibold"
+                className="border px-2 py-1.5 text-left font-semibold whitespace-nowrap"
                 style={{ borderColor: PALETTE.navy }}
               >
                 Room

@@ -613,7 +613,7 @@ export function FacultyStudentsPage({
                     {isExpanded && (
                       <div className="border-t border-slate-100">
                         <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
+                          <table className="w-full text-sm min-w-[980px]">
                             <thead className="sticky top-0 z-10">
                               <tr className="bg-slate-50 border-b border-slate-100">
                                 <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="px-6 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
