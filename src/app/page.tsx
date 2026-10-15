@@ -18,6 +18,7 @@ import { FacultyTasksPage } from '@/components/faculty/FacultyTasksPage'
 import { AdminReleasePage } from '@/components/admin/AdminReleasePage'
 import { AdminDashboardPage } from '@/components/admin/AdminDashboardPage'
 import { AdminEventsPage } from '@/components/admin/AdminEventsPage'
+import { AdminAnnouncementsPage } from '@/components/admin/AdminAnnouncementsPage'
 import { StudentProfile } from '@/components/portal/StudentProfile'
 import { AcademicsPage } from '@/components/portal/AcademicsPage'
 import { EventsPage } from '@/components/portal/EventsPage'
@@ -504,6 +505,19 @@ function StudentDataWrapper({
     if (route.view === 'admin-events') {
       return (
         <AdminEventsPage
+          student={student}
+          onNavigate={handleNavigate}
+          onLogout={onLogout}
+          events={events}
+          professors={professors}
+          tasks={tasks}
+          inbox={inbox}
+        />
+      )
+    }
+    if (route.view === 'admin-announcements') {
+      return (
+        <AdminAnnouncementsPage
           student={student}
           onNavigate={handleNavigate}
           onLogout={onLogout}

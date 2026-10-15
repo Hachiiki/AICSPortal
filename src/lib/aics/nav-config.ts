@@ -49,6 +49,7 @@ export const ADMIN_PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   { view: 'release-queue', label: 'Release Queue', icon: Stamp, enabled: true },
   { view: 'admin-events', label: 'Events', icon: CalendarDays, enabled: true },
+  { view: 'admin-announcements', label: 'Announcements', icon: Megaphone, enabled: true },
 ]
 
 export const SECONDARY_NAV: NavItem[] = [

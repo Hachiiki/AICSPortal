@@ -11,6 +11,8 @@ export interface Announcement {
   priority: AnnouncementPriority
   author: string
   postedDate: string // ISO string
+  /** Admin manage view only (all=1). null = no expiry; the student deck ignores it. */
+  expiryDate?: string | null
 }
 
 export const ANNOUNCEMENT_STYLES: Record<AnnouncementCategory, { dot: string; pill: string; label: string }> = {
