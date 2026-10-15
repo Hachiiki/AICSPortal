@@ -42,6 +42,22 @@ local-*
 scripts/init-fullstack.sh
 scripts/gh_inspect.sh
 
+# Dev-branch-only artifacts (live on main-full-dev, never on main).
+# Anchored to the repo root so they can never shadow source paths;
+# tracked files are unaffected by ignore rules, so the dev branch
+# keeps working until it untracks them.
+/.agents/
+/.superdesign/
+/aics/
+/docs/
+/graphify-out/
+/scripts/
+/AGENTS.md
+/CLAUDE.md
+/CONTEXT.md
+/TODO.md
+/skills-lock.json
+
 # Sandbox/dev-environment only folders (never ship, never track).
 # Anchored to the repo root so they can never shadow source paths
 # (the old unanchored `aics/` rule also matched src/lib/aics and
