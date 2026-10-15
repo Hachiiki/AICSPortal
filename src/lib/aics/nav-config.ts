@@ -51,6 +51,7 @@ export const ADMIN_PRIMARY_NAV: NavItem[] = [
   { view: 'admin-events', label: 'Events', icon: CalendarDays, enabled: true },
   { view: 'admin-announcements', label: 'Announcements', icon: Megaphone, enabled: true },
   { view: 'admin-professors', label: 'Professors', icon: GraduationCap, enabled: true },
+  { view: 'admin-people', label: 'Students & Faculty', icon: Users, enabled: true },
 ]
 
 export const SECONDARY_NAV: NavItem[] = [

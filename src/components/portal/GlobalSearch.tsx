@@ -96,6 +96,7 @@ const ADMIN_QUICK_LINKS: SearchItem[] = [
   { id: 'page-admin-events', type: 'Page', label: 'Events', hint: 'Manage the school calendar', icon: CalendarDays, view: 'admin-events', keywords: 'events calendar manage edit create delete holiday deadline campus academic' },
   { id: 'page-admin-announcements', type: 'Page', label: 'Announcements', hint: 'Post, edit & remove deck posts', icon: Megaphone, view: 'admin-announcements', keywords: 'announcements posts deck manage edit publish urgent expiry' },
   { id: 'page-admin-professors', type: 'Page', label: 'Professors', hint: 'Manage the faculty directory', icon: GraduationCap, view: 'admin-professors', keywords: 'professors faculty directory manage office hours room email' },
+  { id: 'page-admin-people', type: 'Page', label: 'Students & Faculty', hint: 'Everyone, across all branches', icon: Users, view: 'admin-people', keywords: 'people directory students faculty accounts everyone branches roster users' },
   { id: 'page-settings', type: 'Page', label: 'Settings', hint: 'Account & preferences', icon: Settings, view: 'settings', keywords: 'settings account preferences' },
   { id: 'page-help', type: 'Page', label: 'Help & Support', hint: 'FAQs & contact', icon: CircleHelp, view: 'help', keywords: 'help support faq contact it office' },
 ]
