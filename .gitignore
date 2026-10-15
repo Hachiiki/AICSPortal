@@ -42,29 +42,22 @@ local-*
 scripts/init-fullstack.sh
 scripts/gh_inspect.sh
 
-# Removed from repo ??? do not track these folders
-.zscripts/
-db/
-download/
-mini-services/
-prisma/
-tests/
-tool-results/
-upload/
-agent-ctx/
-skills/
-worklog.md
+# Sandbox/dev-environment only folders (never ship, never track).
+# Anchored to the repo root so they can never shadow source paths
+# (the old unanchored `aics/` rule also matched src/lib/aics and
+# made `git add` refuse tracked source files).
+/.zscripts/
+/db/
+/download/
+/mini-services/
+/prisma/
+/tests/
+/tool-results/
+/upload/
+/agent-ctx/
+/skills/
+/worklog.md
 
 # Agent config
 .z-ai-config
 package-lock.json
-
-# Clean main: code only — full dev content lives on main-full-dev
-.agents/
-.superdesign/
-aics/
-docs/
-graphify-out/
-AGENTS.md
-CLAUDE.md
-skills-lock.json
