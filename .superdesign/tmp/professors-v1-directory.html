@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V1 — Professors · Directory rows</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', sans-serif; }
+  .font-mono { font-family: 'Geist Mono', monospace; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- Lucide icon symbols -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-gradcap" viewBox="0 0 24 24"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></symbol>
+  <symbol id="i-caldays" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M5 22h14"/><path d="M19.27 13.73A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.66-.26-1.3-.73-1.77Z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-chevdown" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-chevleft" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-chevright" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-mappin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+</svg>
+
+<div class="min-h-screen">
+  <!-- Sidebar (Professors active) -->
+  <aside class="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 z-30">
+    <div class="px-4 py-5 flex items-center gap-3 border-b border-slate-100">
+      <img src="../../public/aics-logo.svg" alt="AICS" class="w-10 h-10 flex-shrink-0 rounded-lg">
+      <div class="leading-tight min-w-0">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">Student Portal</p>
+        <p class="text-sm font-bold text-slate-900 leading-snug">Asian Institute of Computer Studies</p>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Main navigation">
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100 hover:text-slate-900" style="color:#475569"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-home"/></svg><span>Dashboard</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100 hover:text-slate-900" style="color:#475569"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-gradcap"/></svg><span>Academics</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100 hover:text-slate-900" style="color:#475569"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-caldays"/></svg><span>Events</span></button>
+      <button class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium" style="background:#1e40af;color:#ffffff"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-users"/></svg><span>Professors</span></button>
+      <div class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none" style="color:#cbd5e1" title="Coming soon">
+        <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-stamp"/></svg><span class="truncate flex-1">Enrollment</span>
+        <span class="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded" style="background:#f1f5f9;color:#94a3b8">Soon</span>
+      </div>
+      <div class="my-4 border-t border-slate-100"></div>
+      <div class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none" style="color:#cbd5e1" title="Coming soon">
+        <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-settings"/></svg><span class="truncate flex-1">Settings</span>
+        <span class="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded" style="background:#f1f5f9;color:#94a3b8">Soon</span>
+      </div>
+      <div class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none" style="color:#cbd5e1" title="Coming soon">
+        <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-help"/></svg><span class="truncate flex-1">Help &amp; Support</span>
+        <span class="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded" style="background:#f1f5f9;color:#94a3b8">Soon</span>
+      </div>
+    </nav>
+    <div class="px-4 py-4 border-t border-slate-100">
+      <p class="text-[11px] text-slate-400 leading-relaxed">&copy; 2026 Asian Institute of Computer Studies<br>All rights reserved.</p>
+    </div>
+  </aside>
+
+  <div class="lg:pl-60">
+    <!-- Topbar -->
+    <header class="sticky top-0 z-20 h-16 bg-white border-b border-slate-200">
+      <div class="h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div></div>
+        <div class="flex items-center gap-3">
+          <button class="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900" aria-label="Notifications"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bell"/></svg></button>
+          <div class="w-px h-6 bg-slate-200" aria-hidden="true"></div>
+          <button class="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold" style="background:#1e293b">JS</div>
+            <div class="hidden sm:block text-left leading-tight">
+              <p class="text-sm font-semibold text-slate-900">Juan Dela Cruz Santos</p>
+              <p class="text-[11px] text-slate-500 font-mono">251438</p>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 hidden sm:block" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chevdown"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+      <!-- Page header -->
+      <div>
+        <button class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chevleft"/></svg> Back to Dashboard</button>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Professors</h1>
+        <p class="text-sm text-slate-500 mt-1">Your instructors for 1st Sem &bull; AY 2026-2027</p>
+      </div>
+
+      <!-- Toolbar: search + summary chips -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="relative w-full sm:w-80">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-search"/></svg>
+          <input id="prof-search" type="text" placeholder="Search name, subject, or room&hellip;" autocomplete="off"
+            class="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-slate-200 shadow-sm text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        </div>
+        <div class="flex gap-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-users"/></svg>
+            <span class="text-xs font-medium text-slate-500">Professors</span>
+            <span class="text-sm font-bold text-slate-900" id="prof-count">7</span>
+          </div>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-book"/></svg>
+            <span class="text-xs font-medium text-slate-500">Subjects</span>
+            <span class="text-sm font-bold text-slate-900">7</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Directory list -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Column headers -->
+        <div class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 px-6 py-2.5 bg-slate-50 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          <span>Professor</span>
+          <span class="hidden lg:block">Subject</span>
+          <span class="hidden lg:block">Office hours</span>
+          <span class="hidden lg:block">Room</span>
+          <span></span>
+        </div>
+
+        <!-- Rows -->
+        <div data-row data-search="prof. anna lim a.lim@aics.edu.ph cs 205 discrete structures mon & wed • 3:00-5:00 pm faculty office / room 210" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">PL</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Prof. Anna Lim</p>
+              <a href="mailto:a.lim@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">a.lim@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-amber-200 bg-amber-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="font-mono text-xs font-bold text-amber-700">CS 205</span></span>
+            <span class="text-xs text-slate-600 truncate">Discrete Structures</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Mon &amp; Wed &bull; 3:00-5:00 PM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 210</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:a.lim@aics.edu.ph" aria-label="Email Prof. Anna Lim" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="prof. patricia villanueva p.villanueva@aics.edu.ph cs 206 information management tue & thu • 1:00-3:00 pm faculty office / room 214" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">PV</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Prof. Patricia Villanueva</p>
+              <a href="mailto:p.villanueva@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">p.villanueva@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-violet-200 bg-violet-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-violet-600"></span><span class="font-mono text-xs font-bold text-violet-700">CS 206</span></span>
+            <span class="text-xs text-slate-600 truncate">Information Management</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Tue &amp; Thu &bull; 1:00-3:00 PM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 214</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:p.villanueva@aics.edu.ph" aria-label="Email Prof. Patricia Villanueva" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="engr. james villanueva j.villanueva@aics.edu.ph cs 207 platform technologies mon & wed • 9:00-11:00 am faculty office / room 216" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">EV</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Engr. James Villanueva</p>
+              <a href="mailto:j.villanueva@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">j.villanueva@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-blue-200 bg-blue-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span><span class="font-mono text-xs font-bold text-blue-700">CS 207</span></span>
+            <span class="text-xs text-slate-600 truncate">Platform Technologies</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Mon &amp; Wed &bull; 9:00-11:00 AM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 216</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:j.villanueva@aics.edu.ph" aria-label="Email Engr. James Villanueva" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="engr. carlos santos c.santos@aics.edu.ph cs 208 systems administration tue & thu • 9:00-11:00 am faculty office / room 208" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">ES</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Engr. Carlos Santos</p>
+              <a href="mailto:c.santos@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">c.santos@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-green-200 bg-green-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span><span class="font-mono text-xs font-bold text-green-700">CS 208</span></span>
+            <span class="text-xs text-slate-600 truncate">Systems Administration</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Tue &amp; Thu &bull; 9:00-11:00 AM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 208</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:c.santos@aics.edu.ph" aria-label="Email Engr. Carlos Santos" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="prof. denise ong d.ong@aics.edu.ph cs 209 human-computer interaction wed & fri • 2:00-4:00 pm faculty office / room 218" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">PO</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Prof. Denise Ong</p>
+              <a href="mailto:d.ong@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">d.ong@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-amber-200 bg-amber-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span><span class="font-mono text-xs font-bold text-amber-700">CS 209</span></span>
+            <span class="text-xs text-slate-600 truncate">Human-Computer Interaction</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Wed &amp; Fri &bull; 2:00-4:00 PM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 218</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:d.ong@aics.edu.ph" aria-label="Email Prof. Denise Ong" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="engr. roberto cruz r.cruz@aics.edu.ph cs 210 application development fri • 10:00 am-12:00 pm faculty office / room 212" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">EC</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Engr. Roberto Cruz</p>
+              <a href="mailto:r.cruz@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">r.cruz@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-violet-200 bg-violet-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-violet-600"></span><span class="font-mono text-xs font-bold text-violet-700">CS 210</span></span>
+            <span class="text-xs text-slate-600 truncate">Application Development</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Fri &bull; 10:00 AM-12:00 PM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Faculty Office / Room 212</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:r.cruz@aics.edu.ph" aria-label="Email Engr. Roberto Cruz" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div data-row data-search="coach felix guerrero f.guerrero@aics.edu.ph pe 2 team sports sat • 10:00 am-12:00 pm gymnasium office" class="grid grid-cols-[minmax(0,1fr)_3rem] lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_3rem] gap-4 items-center px-6 py-3.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style="background:#1e293b">CG</div>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-slate-900 truncate">Coach Felix Guerrero</p>
+              <a href="mailto:f.guerrero@aics.edu.ph" class="text-xs text-slate-500 hover:text-blue-600 truncate block">f.guerrero@aics.edu.ph</a>
+            </div>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-red-200 bg-red-50 flex-shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="font-mono text-xs font-bold text-red-700">PE 2</span></span>
+            <span class="text-xs text-slate-600 truncate">Team Sports</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-clock"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Sat &bull; 10:00 AM-12:00 PM</span>
+          </div>
+          <div class="hidden lg:flex items-center gap-2 min-w-0">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mappin"/></svg>
+            <span class="text-xs font-medium text-slate-600 truncate">Gymnasium Office</span>
+          </div>
+          <div class="flex justify-end">
+            <a href="mailto:f.guerrero@aics.edu.ph" aria-label="Email Coach Felix Guerrero" class="w-8 h-8 rounded-full border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-mail"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Empty search result -->
+        <div id="empty-row" class="hidden px-6 py-14 text-center">
+          <svg class="w-10 h-10 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-users"/></svg>
+          <p class="text-sm text-slate-500">No professors match your search.</p>
+        </div>
+      </div>
+
+      <!-- Shared hint -->
+      <p class="flex items-center gap-2 text-xs text-slate-400">
+        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-info"/></svg>
+        For paper submissions and consultations, please visit during office hours.
+      </p>
+    </main>
+  </div>
+</div>
+
+<script>
+  // Live search filter (mockup behavior demo)
+  const input = document.getElementById('prof-search');
+  const rows = Array.from(document.querySelectorAll('[data-row]'));
+  const countEl = document.getElementById('prof-count');
+  const emptyEl = document.getElementById('empty-row');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let visible = 0;
+    for (const row of rows) {
+      const match = !q || row.dataset.search.includes(q);
+      row.classList.toggle('hidden', !match);
+      if (match) visible++;
+    }
+    countEl.textContent = visible;
+    emptyEl.classList.toggle('hidden', visible !== 0);
+  });
+</script>
+
+</body>
+</html>

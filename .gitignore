@@ -42,10 +42,11 @@ local-*
 scripts/init-fullstack.sh
 scripts/gh_inspect.sh
 
-# Dev-branch-only artifacts (live on main-full-dev, never on main).
+# Dev-branch-only artifacts (tracked on main-full-dev, never on main).
 # Anchored to the repo root so they can never shadow source paths;
-# tracked files are unaffected by ignore rules, so the dev branch
-# keeps working until it untracks them.
+# On main and any branch cut from main these paths do not exist, so
+# a plain git-add-dot can never pick them up; on main-full-dev they are
+# tracked, and tracked files are unaffected by ignore rules.
 /.agents/
 /.superdesign/
 /aics/

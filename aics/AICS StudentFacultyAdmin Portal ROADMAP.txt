@@ -1,0 +1,70 @@
+AICS Student/Faculty/Admin Portal — Project Roadmap
+
+Stack: Next.js 16 (App Router) · React 19 · TypeScript 5 · Bun · Tailwind CSS 4 · shadcn/ui · Lucide React · Framer Motion · Sonner · MongoDB · Cloudinary
+
+Auth model: Password login (primary) + face-api.js login (convenience layer, embeddings only, never raw images)
+
+Core Track Phase:
+
+Phase 1 — Login Page Design ✅ DONE
+Visual design of the login screen: layout, color palette application, face-scan visual, buttons. (CANVA)
+
+Phase 2 — Login Page Static Implementation ✅ DONE
+Login UI coded with Framer Motion transitions and Sonner toasts wired to placeholder/fake triggers. No real auth yet.
+
+Phase 3 — User Schema & Password Auth (Backend)
+- Design MongoDB User collection: role (student/teacher/admin), branchId, email, passwordHash, faceEmbedding (nullable), status, timestamps.
+- Password hashing (bcrypt/argon2).
+- Session strategy: NextAuth/Auth.js or custom JWT + httpOnly cookie — pick one now, it gates everything downstream.
+- Wire the Phase 2 login form to a real /api/auth/login route.
+- Middleware for route protection by role.
+
+Phase 4 — Face Recognition Login (Real)
+- Face enrollment flow: capture face → generate embedding via face-api.js → store embedding (not the image) tied to User.
+- Face login flow: capture → generate embedding → compare against stored embedding (distance threshold) → issue session on match.
+- Fallback to password if face match fails or camera unavailable.
+- Document liveness-detection limitations honestly in your paper (photo-spoofing risk) — don't oversell this as secure, frame it as convenience auth.
+
+Exit criteria: A registered user can log in via face scan; failure gracefully falls back to password.
+
+Phase 5 — Branch Detection & Routing
+- branchId on User, used to scope every subsequent query.
+- Post-login redirect to the correct branch-scoped dashboard route (e.g. /portal/[branch]/student).
+
+Phase 6 — Student Dashboard (Core Views)
+- Grades table (current grading period).
+- Enrolled subjects + units + assigned professor.
+- Weekly schedule (calendar view).
+
+Phase 7 — Student Profile Panel
+- Personal info (name, contact, address, emergency contact).
+- Digital ID preview.
+- Enrollment status, dean's list flag.
+- COE view + print/download (generate as PDF).
+
+Phase 8 — Teacher Dashboard (Core Views)
+- Assigned rooms/classes list.
+- Per-class student roster.
+- Own schedule.
+- Own profile panel (mirrors Phase 7 pattern).
+
+Phase 9 — Teacher Grade Management
+- Input grades per student, per subject, per grading period (prelim/midterm/finals).
+- Submit → locks grade (edit requires admin unlock request).
+- Change reflected on student dashboard (Phase 6) + logged with timestamp/author.
+
+Exit criteria: Teacher submits a grade → it appears on the correct student's dashboard, locked, with a record of who/when.
+
+Phase 10 — Admin Dashboard (Core Views)
+- Branch overview stats: student count, teacher count, active classes.
+- Student management: view/search/create/edit within own branch.
+- Teacher management: view/search/create/edit within own branch.
+- Subject & section management: create/edit, assign teacher to subject/section.
+
+Exit criteria: Admin can create a student + teacher, assign a subject/section, and the resulting data is visible correctly on both the student's and teacher's dashboards.
+
+Phase 11 — Polish & Defense Prep
+- Error states, empty states, loading states across all dashboards.
+- Basic responsive pass (mobile breakpoints).
+- Seed script for demo data (multiple branches, students, teachers, grades).
+- Write up architecture diagram + known limitations honestly (this matters as much as the code for a panel defense).
