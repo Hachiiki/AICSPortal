@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getStudentByCredentials } from '@/lib/mongodb/queries'
-import { asString, HttpError } from '@/lib/http'
+import { HttpError } from '@/lib/http'
 import { rateLimit } from '@/lib/rate-limit'
 import { verifyPassword } from '@/lib/password'
 import { getCollection } from '@/lib/mongodb/connection'
 import { sessionCookie, signSession } from '@/lib/session'
+import { parseBody, errResponse } from '@/lib/validation'
+
+// ---- Zod input schema (the only place login input is shaped) ----
+// BUG-001: reject non-string credentials before they reach Mongo filters.
+// Operator objects (e.g. {"$ne":null}) are truthy but must never become query operators.
+const loginSchema = z.object({
+  username: z.string({ error: 'Username is required and must be a non-empty string.' }).min(1),
+  password: z.string({ error: 'Password is required and must be a non-empty string.' }).min(1),
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    // BUG-001: reject non-string credentials before they reach Mongo filters.
-    // Operator objects (e.g. {"$ne":null}) are truthy but must never become query operators.
-    const username = asString(body?.username, 'Username')
-    const password = asString(body?.password, 'Password')
+    const { username, password } = await parseBody(request, loginSchema)
     // BUG-003 incremental: lookup by username only, verify hash (or legacy plaintext + upgrade).
     // getStudentByCredentials kept for compat but no longer carries the password into the filter.
     const studentsCol = await getCollection('students')

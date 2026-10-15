@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseQuery, selfQuerySchema } from "@/lib/validation"
 
 // ============================================================
 //  Faculty tasks API — GET /api/faculty/tasks?username=...
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
+    const username = parseQuery(request, selfQuerySchema).username || session.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }

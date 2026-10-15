@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+
+// ---- Zod input schemas (the only place grade-sheet input is shaped) ----
+// Row-level outcomes (reasons per update) stay manual below — the schema
+// shapes and types the envelope, the per-row guards keep their honest
+// per-row results.
+const gradeUpdateItemSchema = z.object({
+  studentUsername: z.string().optional(),
+  subjectCode: z.string().optional(),
+  branch: z.string().optional(),
+  prelim: z.string().optional(),
+  midterm: z.string().optional(),
+  finals: z.string().optional(),
+  finalGrade: z.string().optional(),
+  remarks: z.string().optional(),
+  academicYear: z.string().optional(),
+  semester: z.string().optional(),
+})
+
+const gradeUpdateSchema = z.object({
+  updates: z.array(gradeUpdateItemSchema).min(1, { message: 'No updates provided.' }),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
 
 function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
   const norm = (v: string) => {
@@ -31,8 +57,7 @@ function remarksFor(final: string): string {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { updates, performedBy } = body
+    const { updates, performedBy } = await parseBody(request, gradeUpdateSchema)
     // Phase 6: writer is the session user. A mismatched performedBy is a
     // spoof attempt (403). The field is otherwise ignored — no dual-auth paths.
     const session = await getSession(request)
@@ -44,10 +69,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const performedByUser = session.username
-
-    if (!updates || !Array.isArray(updates) || updates.length === 0) {
-      return NextResponse.json({ ok: false, error: 'No updates provided.' }, { status: 400 })
-    }
 
     // Auth: writer must be the session faculty in the same branch.
     // (Session replaces the old optional-performer pattern — BUG-002.)
@@ -245,6 +266,7 @@ export async function PATCH(request: NextRequest) {
       { status }
     )
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Grade update error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to update grades.' }, { status: 500 })
   }

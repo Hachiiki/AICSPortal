@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
+import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoEnrollment, MongoStudent } from '@/lib/mongodb/types'
 
 // ============================================================
@@ -19,6 +22,32 @@ import type { MongoEnrollment, MongoStudent } from '@/lib/mongodb/types'
 //  are branch-scoped to the admin's OWN branch, same as every other
 //  admin write endpoint. Identity always comes from the session.
 // ============================================================
+
+// ---- Zod input schemas (the only place registrar input is shaped) ----
+
+const enrollmentOverrideSchema = z.object({
+  id: z.string({ error: 'Enrollment record id is required.' }).min(1),
+  currentStep: z
+    .number({ error: 'currentStep must be a whole number.' })
+    .int({ message: 'currentStep must be a whole number.' })
+    .positive({ message: 'currentStep must be a whole number.' }),
+})
+
+const paymentPostSchema = z.object({
+  id: z.string({ error: 'Enrollment record id is required.' }).min(1),
+  amount: z
+    .number({ error: 'Amount must be greater than zero.' })
+    .finite({ message: 'Amount must be greater than zero.' })
+    .positive({ message: 'Amount must be greater than zero.' }),
+  date: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z
+      .string()
+      .refine((v) => !isNaN(new Date(v).getTime()), { message: 'Invalid payment date.' })
+      .optional()
+  ),
+  note: z.string().trim().max(200, { message: 'Note must be at most 200 characters.' }).optional(),
+})
 
 async function requireAdmin(request: NextRequest) {
   const session = await getSession(request)
@@ -104,6 +133,7 @@ export async function GET(request: NextRequest) {
       withoutRecords,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Admin enrollment list error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load enrollment records.' }, { status: 500 })
   }
@@ -119,7 +149,7 @@ export async function PATCH(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const { id, currentStep } = await request.json()
+    const { id, currentStep } = await parseBody(request, enrollmentOverrideSchema)
     let idFilter: ObjectId
     try {
       idFilter = new ObjectId(id)
@@ -137,7 +167,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const stepCount = (existing.steps ?? []).length
-    if (typeof currentStep !== 'number' || !Number.isInteger(currentStep) || currentStep < 1 || currentStep > stepCount) {
+    if (currentStep > stepCount) {
       return NextResponse.json({ ok: false, error: `currentStep must be 1-${stepCount}.` }, { status: 400 })
     }
 
@@ -152,6 +182,7 @@ export async function PATCH(request: NextRequest) {
     await col.updateOne({ _id: idFilter }, { $set: { currentStep, steps } })
     return NextResponse.json({ ok: true, message: `Step tracker set to ${currentStep} of ${stepCount}.` })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Admin enrollment override error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to override step tracker.' }, { status: 500 })
   }
@@ -167,7 +198,7 @@ export async function POST(request: NextRequest) {
     if ('error' in gate) return gate.error
     const { performer } = gate
 
-    const { id, amount, date, note } = await request.json()
+    const { id, amount, date, note } = await parseBody(request, paymentPostSchema)
     let idFilter: ObjectId
     try {
       idFilter = new ObjectId(id)
@@ -184,9 +215,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'This record belongs to another branch.' }, { status: 403 })
     }
 
-    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
-      return NextResponse.json({ ok: false, error: 'Amount must be greater than zero.' }, { status: 400 })
-    }
     const totalAssessment = existing.assessment?.totalAssessment ?? 0
     const amountPaid = existing.assessment?.amountPaid ?? 0
     const balance = existing.assessment?.balance ?? totalAssessment - amountPaid
@@ -197,17 +225,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    let receivedAt: string
-    if (date) {
-      const parsed = new Date(date)
-      if (isNaN(parsed.getTime())) {
-        return NextResponse.json({ ok: false, error: 'Invalid payment date.' }, { status: 400 })
-      }
-      receivedAt = date
-    } else {
-      receivedAt = new Date().toISOString().slice(0, 10)
-    }
-    const safeNote = typeof note === 'string' ? note.trim().slice(0, 200) : undefined
+    const receivedAt = date ?? new Date().toISOString().slice(0, 10)
+    const safeNote = note || undefined
 
     const newPaid = amountPaid + amount
     const newBalance = Math.max(0, totalAssessment - newPaid)
@@ -235,6 +254,7 @@ export async function POST(request: NextRequest) {
       paymentStatus,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Admin payment post error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to post payment.' }, { status: 500 })
   }

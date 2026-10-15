@@ -1,7 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import { cloudinaryEnv, materialFolder, signUpload, spoofForbidden } from '../cloudinary'
+
+// ---- Zod input schema (the only place upload-signing input is shaped) ----
+const materialSignSchema = z.object({
+  subjectCode: z.string({ error: 'Subject is required.' }).min(1),
+  resourceType: z.enum(['image', 'raw'], { error: 'Resource type must be image or raw.' }),
+  // Legacy spoof-check field; identity always comes from the session.
+  performedBy: z.string().optional(),
+})
 
 // ============================================================
 //  Materials upload signing — POST /api/materials/sign
@@ -22,16 +33,9 @@ export async function POST(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const { subjectCode, resourceType, performedBy } = await request.json()
+    const { subjectCode, resourceType, performedBy } = await parseBody(request, materialSignSchema)
     const forbidden = spoofForbidden(session, performedBy)
     if (forbidden) return forbidden
-    // BUG-010: subject/resourceType must be plain strings pre-query.
-    if (typeof subjectCode !== 'string' || !subjectCode) {
-      return NextResponse.json({ ok: false, error: 'Subject is required.' }, { status: 400 })
-    }
-    if (resourceType !== 'image' && resourceType !== 'raw') {
-      return NextResponse.json({ ok: false, error: 'Resource type must be image or raw.' }, { status: 400 })
-    }
     const env = cloudinaryEnv()
     if (!env) {
       return NextResponse.json({ ok: false, error: 'File uploads are not configured. Post a link instead.' }, { status: 503 })
@@ -54,6 +58,7 @@ export async function POST(request: NextRequest) {
       maxBytes: 10 * 1024 * 1024,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Material sign error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to prepare upload.' }, { status: 500 })
   }

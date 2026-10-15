@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { parseQuery, errResponse, selfQuerySchema, objectIdSchema } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoMaterial } from '@/lib/mongodb/types'
 import { destroyAsset } from '../cloudinary'
@@ -26,9 +28,10 @@ export async function DELETE(
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
-    const username = request.nextUrl.searchParams.get('username') || session.username
-    // BUG-010: id/username must be plain strings before ObjectId()/filters.
-    if (typeof id !== 'string' || !id || typeof username !== 'string' || !username) {
+    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // Route params are always strings; reject non-ObjectId shapes before ObjectId().
+    const parsedId = objectIdSchema.safeParse(id)
+    if (!username || !parsedId.success) {
       return NextResponse.json({ ok: false, error: 'Material id and username are required.' }, { status: 400 })
     }
     if (username !== session.username) {
@@ -36,7 +39,7 @@ export async function DELETE(
     }
     let oid: ObjectId
     try {
-      oid = new ObjectId(id)
+      oid = new ObjectId(parsedId.data)
     } catch {
       return NextResponse.json({ ok: false, error: 'Material not found.' }, { status: 404 })
     }
@@ -58,6 +61,7 @@ export async function DELETE(
     await col.deleteOne({ _id: oid, branch: session.branch } as any)
     return NextResponse.json({ ok: true, message: 'Material deleted.' })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Material delete error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to delete material.' }, { status: 500 })
   }
