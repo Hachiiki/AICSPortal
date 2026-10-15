@@ -17,6 +17,7 @@ import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
 import type { EventCategory } from '@/lib/aics/events'
 import type { AnnouncementCategory } from '@/lib/aics/announcements'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -153,7 +154,7 @@ function BreakdownList({ title, rows, emptyLabel }: { title: string; rows: { lab
     <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
       <h2 className="text-sm font-bold text-slate-900">{title}</h2>
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">{emptyLabel}</p>
+        <EmptyState compact icon={Users} message={emptyLabel} className="mt-3" />
       ) : (
         <ul className="mt-3 space-y-2.5">
           {rows.map((r) => {
@@ -163,7 +164,7 @@ function BreakdownList({ title, rows, emptyLabel }: { title: string; rows: { lab
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-700 font-medium truncate">{r.label}</span>
                   <span className="text-slate-500 tabular-nums flex-shrink-0 ml-3">
-                    {r.count} <span className="text-slate-400">({pct}%)</span>
+                    {r.count} <span className="text-slate-500">({pct}%)</span>
                   </span>
                 </div>
                 <div className="mt-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -287,7 +288,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                         <span className="w-20 flex-shrink-0 text-xs font-medium text-slate-600 tabular-nums">{b.label}</span>
                         <div className="flex-1 h-5 rounded-md bg-slate-100 overflow-hidden">
                           <div
-                            className={`h-full rounded-md ${deans ? 'bg-emerald-500' : 'bg-blue-600'}`}
+                            className={`h-full rounded-md ${deans ? 'bg-emerald-600' : 'bg-blue-600'}`}
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -298,7 +299,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                 </ul>
                 <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500">
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-sm bg-emerald-500" /> Dean&apos;s lister range (≤ 1.75)
+                    <span className="w-2 h-2 rounded-sm bg-emerald-600" /> Dean&apos;s lister range (≤ 1.75)
                   </span>
                   <span>{stats.gpa.withoutGpa} students without released grades</span>
                 </div>
@@ -320,7 +321,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-slate-500">Collected</dt>
-                    <dd className="font-semibold text-emerald-600 tabular-nums">{peso.format(stats.finances.totalPaid)}</dd>
+                    <dd className="font-semibold text-emerald-700 tabular-nums">{peso.format(stats.finances.totalPaid)}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-slate-500">Outstanding</dt>
@@ -384,7 +385,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                       <tr key={b.branch} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                         <td className="px-4 py-3">
                           <p className="font-semibold text-slate-900">{b.branchName}</p>
-                          <p className="text-xs text-slate-400 font-mono">{b.branch}</p>
+                          <p className="text-xs text-slate-500 font-mono">{b.branch}</p>
                         </td>
                         <td className="px-4 py-3 text-center font-medium text-slate-700 tabular-nums">{b.students}</td>
                         <td className="px-4 py-3 text-center font-medium text-slate-700 tabular-nums">{b.faculty}</td>
@@ -398,7 +399,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                               {b.pendingReleases}
                             </span>
                           ) : (
-                            <span className="text-slate-400 text-xs">—</span>
+                            <span className="text-slate-500 text-xs">—</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-center font-medium text-emerald-700 tabular-nums">{b.deanListers}</td>
@@ -420,7 +421,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                   </button>
                 </div>
                 {stats.upcomingEvents.length === 0 ? (
-                  <p className="mt-3 text-sm text-slate-500">No events in the next seven days.</p>
+                  <EmptyState compact icon={CalendarDays} message="No events in the next seven days." className="mt-3" />
                 ) : (
                   <ul className="mt-3 divide-y divide-slate-100">
                     {stats.upcomingEvents.map((e) => (

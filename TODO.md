@@ -98,7 +98,7 @@
 ## Design Polish
 
 ### Remaining
-- [ ] **Superdesign integration** — Design system .md and replica HTML files exist in `.superdesign/`. Use the Superdesign CLI to generate improved UI drafts for the profile and dashboard pages.
-- [ ] **Consistent empty states** — Some pages show plain text, others use icon + message. Standardize.
+- [x] **Superdesign integration** — DONE (2026-10-15): six drafts generated for dashboard + profile (`.superdesign/tmp/dashboard-v1/v2/v3`, `profile-v1/v2/v3`, catalog at `tmp/index.html`). Winners integrated: dashboard v1 "Today at a glance" strip (`TodayGlance.tsx`) and profile v1 contact quick-facts + documents progress bar.
+- [x] **Consistent empty states** — DONE (2026-10-15): shared `EmptyState` component (`src/components/portal/EmptyState.tsx`) adopted across 22 sites in portal, faculty, and admin surfaces. One icon treatment, one message treatment, optional hint + action, compact variant for widgets.
 - [ ] **Table responsiveness** — Grade tables, task tables, and subject tables overflow on mobile. Need horizontal scroll or card layout.
-- [ ] **Color contrast audit** — Run WCAG AA check on all text/background combinations.
+- [x] **Color contrast audit** — DONE (2026-10-15): audit script `scripts/wcag-contrast-audit.py` over all 1,151 color-class usages; report at `docs/done/qa_reports/17_WCAG_AA_CONTRAST_AUDIT.md`; fixes applied via `scripts/apply-contrast-fixes.py` (slate-400 text raised, status icons darkened, login tokens adjusted, emerald buttons darkened).

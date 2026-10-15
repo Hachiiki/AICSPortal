@@ -21,6 +21,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from './PortalShell'
+import { EmptyState } from './EmptyState'
 
 // ============================================================
 //  EnrollmentPage — current-term enrollment tracker.
@@ -381,10 +382,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
       </div>
 
       {docs.length === 0 ? (
-        <div className="px-6 py-10 text-center">
-          <ListChecks className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">No requirements on file.</p>
-        </div>
+        <EmptyState compact icon={ListChecks} message="No requirements on file." hint="Enrollment requirements will appear here once processed." />
       ) : (
         <ul className="divide-y divide-slate-100">
           {docs.map((d) => (
@@ -591,7 +589,7 @@ export function EnrollmentPage({
           {/* Error state */}
           {enrollmentError ? (
             <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
-              <AlertCircle className="w-10 h-10 text-red-300 mx-auto mb-3" />
+              <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
               <p className="text-sm text-red-600 font-medium mb-1">
                 {enrollmentError}
               </p>
@@ -602,14 +600,12 @@ export function EnrollmentPage({
           ) : enrollmentLoading ? (
             <LoadingShell />
           ) : !enrollment ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-              <Stamp className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">
-                No enrollment record found for this term.
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                If you believe this is an error, please contact the Registrar&apos;s Office.
-              </p>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+              <EmptyState
+                icon={Stamp}
+                message="No enrollment record found for this term."
+                hint="If you believe this is an error, please contact the Registrar's Office."
+              />
             </div>
           ) : (
             <>

@@ -15,6 +15,7 @@ import { PortalShell } from '../portal/PortalShell'
 import { Modal } from '../portal/Modal'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
+import { EmptyState } from '../portal/EmptyState'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
 
 interface Props {
@@ -429,20 +430,20 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               </table>
             </div>
             {filtered.length === 0 && (
-              <div className="py-10 px-4 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
-                  <SearchX className="w-6 h-6 text-slate-400" />
-                </div>
-                <p className="text-sm font-medium text-slate-900">No records match your filters</p>
-                <p className="text-xs text-slate-500 mt-1">Try a different search, or clear the filters below.</p>
-                <button
-                  type="button"
-                  onClick={() => { setSearch(''); setStatusFilter('all'); setShowOnlyDirty(false) }}
-                  className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  <X className="w-4 h-4" /> Clear filters
-                </button>
-              </div>
+              <EmptyState
+                icon={SearchX}
+                message="No records match your filters"
+                hint="Try a different search, or clear the filters below."
+                action={
+                  <button
+                    type="button"
+                    onClick={() => { setSearch(''); setStatusFilter('all'); setShowOnlyDirty(false) }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <X className="w-4 h-4" /> Clear filters
+                  </button>
+                }
+              />
             )}
           </div>
         </main>
@@ -500,7 +501,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 if (need === 0) return null
                 return (
                   <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 flex gap-2">
-                    <span className="text-amber-600">⚠</span>
+                    <span className="text-amber-700">⚠</span>
                     <div className="text-xs">
                       <p className="font-semibold text-amber-800">Blanks will be set to INC on submit</p>
                       <p className="text-amber-700 mt-1">{need} student(s) still have blank {submitPeriod}. Fill with a grade (0-100) or INC, or they will become INC.</p>
@@ -538,17 +539,17 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                   <h3 className="font-bold text-sm text-slate-900">Grade history</h3>
                   <p className="text-xs text-slate-500">{historyRow.studentName} • {historyRow.subjectCode} • {historyRow.academicYear} {historyRow.semester}</p>
                 </div>
-                <button type="button" onClick={() => setHistoryRow(null)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                <button type="button" onClick={() => setHistoryRow(null)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6">
                 {historyLoading ? (
                   <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
                 ) : historyAudits.length === 0 ? (
-                  <div className="text-center py-10">
-                    <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm text-slate-500">No history yet</p>
-                    <p className="text-xs text-slate-500 mt-1">When you save or submit grades, a plain-English record appears here so anyone can follow what changed.</p>
-                  </div>
+                  <EmptyState
+                    icon={History}
+                    message="No history yet"
+                    hint="When you save or submit grades, a plain-English record appears here so anyone can follow what changed."
+                  />
                 ) : (
                   <div className="space-y-3">
                     {historyAudits.map((a: any, i: number) => {

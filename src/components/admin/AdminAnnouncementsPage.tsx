@@ -20,6 +20,7 @@ import {
 } from '@/lib/aics/announcements'
 import { Modal } from '../portal/Modal'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -271,12 +272,8 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-3">
-              <Megaphone className="w-6 h-6 text-blue-500" />
-            </div>
-            <p className="text-sm font-medium text-slate-600">No announcements match</p>
-            <p className="text-xs text-slate-500 mt-1">Adjust the filters or post a new announcement.</p>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <EmptyState icon={Megaphone} message="No announcements match" hint="Adjust the filters or post a new announcement." />
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -301,7 +298,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                       <tr key={a._id} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${expired ? 'opacity-60' : ''}`}>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <p className="font-medium text-slate-800 tabular-nums">{formatDate(a.postedDate)}</p>
-                          <p className="text-xs text-slate-400">{a.author}</p>
+                          <p className="text-xs text-slate-500">{a.author}</p>
                         </td>
                         <td className="px-4 py-3 min-w-[280px]">
                           <div className="flex items-center gap-2">
@@ -325,7 +322,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                           ) : a.expiryDate ? (
                             <span className="text-xs text-slate-600 tabular-nums">until {formatDate(a.expiryDate)}</span>
                           ) : (
-                            <span className="text-xs text-slate-400">No expiry</span>
+                            <span className="text-xs text-slate-500">No expiry</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -341,7 +338,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                             onClick={() => handleDelete(a)}
                             disabled={deleting}
                             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
-                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-600 hover:bg-red-50'
+                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-700 hover:bg-red-50'
                             }`}
                           >
                             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -449,7 +446,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
             </div>
             <div>
               <label htmlFor="ann-expiry" className="block text-xs font-semibold text-slate-600 mb-1">
-                Expiry date <span className="font-normal text-slate-400">(optional — hidden from the deck after this date)</span>
+                Expiry date <span className="font-normal text-slate-500">(optional — hidden from the deck after this date)</span>
               </label>
               <input
                 id="ann-expiry"

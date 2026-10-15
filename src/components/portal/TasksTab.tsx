@@ -21,6 +21,7 @@ import type { Student } from '@/lib/aics/types'
 import { TasksSkeleton } from './Skeleton'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
+import { EmptyState } from './EmptyState'
 
 // ============================================================
 //  TasksTab — the "Tasks" mini-tab inside the Academics page.
@@ -262,7 +263,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                       })()}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200 ${subjectDropdownOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform duration-200 ${subjectDropdownOpen ? 'rotate-180' : ''}`}
                 />
               </button>
               {subjectDropdownOpen && (
@@ -332,10 +333,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
           <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
         </div>
         {needsAttentionTasks.length === 0 ? (
-          <div className="py-12 text-center">
-            <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
-            <p className="text-sm font-medium text-green-600">All caught up.</p>
-          </div>
+          <EmptyState icon={CheckCircle} message="All caught up." hint="Nothing needs your action right now." />
         ) : (
           <div className="divide-y divide-slate-100">
             {needsAttentionTasks.map((task) => {
@@ -382,9 +380,8 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
 
       {/* COURSE ACCORDION CARDS */}
       {filteredTasks.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
-          <ClipboardList className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-sm text-slate-500">No tasks for this term.</p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <EmptyState icon={ClipboardList} message="No tasks for this term." hint="When a teacher posts a task, it shows up here." />
         </div>
       ) : (
         <div className="space-y-4">
@@ -536,10 +533,10 @@ function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: T
         className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
             <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
           </div>
-          <button type="button" onClick={onCancel} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onCancel} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" /></button>
         </div>
         <div className="px-6 py-5">
           <p className="text-sm text-slate-600 leading-relaxed">
@@ -574,7 +571,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
         className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <h3 className="font-bold text-sm text-slate-900">Task Details</h3>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" /></button>
         </div>
         <div className="px-6 py-5 space-y-3">
           <DetailRow label="Title" value={task.title} />

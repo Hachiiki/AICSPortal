@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { CATEGORY_LABELS, CATEGORY_PILL_STYLES, type EventCategory, type PortalEvent } from '@/lib/aics/events'
 import { Modal } from '../portal/Modal'
 import { PortalShell } from '../portal/PortalShell'
+import { EmptyState } from '../portal/EmptyState'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -262,12 +263,8 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-3">
-              <CalendarDays className="w-6 h-6 text-blue-500" />
-            </div>
-            <p className="text-sm font-medium text-slate-600">No events match</p>
-            <p className="text-xs text-slate-500 mt-1">Adjust the filters or add a new event.</p>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <EmptyState icon={CalendarDays} message="No events match" hint="Adjust the filters or add a new event." />
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -289,7 +286,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
                       <tr key={e._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                         <td className="px-4 py-3 whitespace-nowrap">
                           <p className="font-medium text-slate-800 tabular-nums">{formatDate(e.date)}</p>
-                          {e.endDate ? <p className="text-xs text-slate-400 tabular-nums">to {formatDate(e.endDate)}</p> : null}
+                          {e.endDate ? <p className="text-xs text-slate-500 tabular-nums">to {formatDate(e.endDate)}</p> : null}
                         </td>
                         <td className="px-4 py-3 min-w-[240px]">
                           <p className="font-medium text-slate-800">{e.title}</p>
@@ -315,7 +312,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
                             onClick={() => handleDelete(e)}
                             disabled={deleting}
                             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
-                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-600 hover:bg-red-50'
+                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-700 hover:bg-red-50'
                             }`}
                           >
                             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -405,7 +402,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
               </div>
               <div>
                 <label htmlFor="event-end-date" className="block text-xs font-semibold text-slate-600 mb-1">
-                  End date <span className="font-normal text-slate-400">(optional)</span>
+                  End date <span className="font-normal text-slate-500">(optional)</span>
                 </label>
                 <input
                   id="event-end-date"
@@ -418,7 +415,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
             </div>
             <div>
               <label htmlFor="event-description" className="block text-xs font-semibold text-slate-600 mb-1">
-                Description <span className="font-normal text-slate-400">(optional)</span>
+                Description <span className="font-normal text-slate-500">(optional)</span>
               </label>
               <textarea
                 id="event-description"

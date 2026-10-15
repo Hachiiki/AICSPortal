@@ -35,7 +35,7 @@ export default function RootError({
           The page failed to load. Retrying usually fixes it.
         </p>
         {error.digest ? (
-          <p className="mt-3 font-mono text-xs text-slate-400">Reference: {error.digest}</p>
+          <p className="mt-3 font-mono text-xs text-slate-500">Reference: {error.digest}</p>
         ) : null}
         <button
           type="button"

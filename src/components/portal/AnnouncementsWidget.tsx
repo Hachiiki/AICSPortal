@@ -92,7 +92,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
           <button
             type="button"
             onClick={() => setActiveIndex((i) => (i + 1) % visible.length)}
-            className="p-1 rounded text-slate-400 hover:bg-white/50 hover:text-slate-600"
+            className="p-1 rounded text-slate-500 hover:bg-white/50 hover:text-slate-600"
             aria-label="Next announcement"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -104,7 +104,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
       <button
         type="button"
         onClick={() => dismissItem(active._id)}
-        className="p-1 rounded text-slate-400 hover:bg-white/50 hover:text-slate-600 flex-shrink-0"
+        className="p-1 rounded text-slate-500 hover:bg-white/50 hover:text-slate-600 flex-shrink-0"
         aria-label="Dismiss announcement"
       >
         <X className="w-3.5 h-3.5" />

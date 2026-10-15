@@ -99,11 +99,11 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
 
 // Circular icon background colors for the Needs Attention list
 export const STATUS_ICON_COLORS: Record<TaskVariant, string> = {
-  GRADED: 'bg-green-100 text-green-600',
-  PENDING: 'bg-amber-100 text-amber-600',
+  GRADED: 'bg-green-100 text-green-700',
+  PENDING: 'bg-amber-100 text-amber-700',
   MISSING_CLOSED: 'bg-slate-100 text-slate-500',
-  MISSING_OPEN: 'bg-red-100 text-red-600',
-  NEEDS_ATTENTION: 'bg-blue-100 text-blue-600',
+  MISSING_OPEN: 'bg-red-100 text-red-700',
+  NEEDS_ATTENTION: 'bg-blue-100 text-blue-700',
 }
 
 // Helper: should this task show an action button (Submit / Submit Late)?
