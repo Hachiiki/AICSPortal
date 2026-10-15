@@ -115,6 +115,24 @@ Architecture rules:
 - Never: modify `.env.local`, rotate keys, edit `src/components/ui/` primitives by hand, create `*.md` docs unless asked, ` subjects.section` writes, unchecked `Select All` on faculty notify (default nothing checked).
 - Sensitive: passwords plaintext today — do not log them, do not expose in client bundle, do not add new plaintext flows. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
 
+### 6a. Branch topology — main is production, main-full-dev is dev (HARD RULE)
+
+`main` carries production files ONLY — the whitelist: `src/`, `public/`, `.vscode/`, `.github/` (CI) plus the 14 root files (`.gitignore`, `CONTRIBUTING.md`, `Caddyfile`, `LICENSE`, `README.md`, `components.json`, `eslint.config.mjs`, `example.env.local`, `next-env.d.ts`, `next.config.ts`, `package.json`, `postcss.config.mjs`, `tailwind.config.ts`, `tsconfig.json`). Everything else is a dev artifact and NEVER goes to main.
+
+`main-full-dev` carries the same code plus the tracked dev artifacts: `.agents/`, `.superdesign/`, `aics/`, `docs/`, `graphify-out/`, `scripts/`, `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`, `TODO.md`, `skills-lock.json` (this file is itself a dev artifact — it does not exist on main). `.gitignore` anchors all 11 dev paths at the repo root: on any main-based branch they do not exist and a stray `git add .` cannot pick them up; on main-full-dev they are tracked, and tracked files are unaffected by ignore rules. History: PR #39 leaked dev files into main via a branch cut from a pre-cleanup main; fixed by PR #41.
+
+**Golden rule — port dev work onto main, never merge dev into main:**
+
+1. `git checkout main && git pull`
+2. `git checkout -b feature/<short-name>` — cut FROM MAIN, so dev files do not exist on it
+3. Port ONLY the changed files: `git checkout main-full-dev -- <explicit paths>` — list every path, never bare `-- .`
+4. Review `git status` — the PR carries exactly the paths you list, nothing else
+5. Local gate (optional, runs from any branch): `git show main-full-dev:scripts/check-pr-whitelist.sh | bash`
+6. Push and open the PR into `main`. CI (`.github/workflows/ci.yml` on main) enforces lint + typecheck + a full-tree whitelist guard — the PR fails if ANY tracked file sits outside the whitelist, which catches even branches cut from an old main (how the PR #39 leak happened).
+7. After the PR merges, sync the safe direction only: `git checkout main-full-dev && git pull && git merge main && git push` — main -> dev merges never delete dev files.
+
+Forbidden moves: PR, merge, or rebase FROM `main-full-dev` INTO `main`. CI notes: GitHub only recognizes workflow files that sit DIRECTLY in `.github/workflows/` (a `docs/` subfolder there is dead weight); the source of truth is parked at `docs/ci-workflow.yml` on main-full-dev; API tokens without `workflow` scope cannot touch `.github/workflows/**` — that file is created or changed only through the GitHub web UI by the repo owner.
+
 ## 7. Behavioral Guardrails & Rules (hard constraints)
 
 1. Always filter Mongo reads by `branch`. Missing branch filter = bug.
