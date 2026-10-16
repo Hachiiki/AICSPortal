@@ -5,6 +5,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
 import { parseBody, parseQuery, trimmedString, errResponse } from '@/lib/validation'
+import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import type { MongoNotification, MongoTask, TaskType } from '@/lib/mongodb/types'
 import type { Task } from '@/lib/aics/tasks'
@@ -175,6 +176,14 @@ export async function POST(request: NextRequest) {
     if (usernames.length === 0) {
       return NextResponse.json({ ok: false, error: 'No enrolled students in this subject.' }, { status: 400 })
     }
+    // Content moderation: the task title/description fan out to every
+    // enrolled student — checked before the insert and its bell fan-out.
+    const verdict = await moderateContent({
+      surface: 'task',
+      fields: { title, description },
+      actor: { username: session.username, role: performer.role, branch: performer.branch },
+    })
+    if (!verdict.ok) return verdict.response
     const now = new Date()
     const docs: MongoTask[] = usernames.map((studentUsername) => ({
       branch,

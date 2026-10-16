@@ -6,6 +6,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
 import { parseBody, parseQuery, dateInput, trimmedString, errResponse, idQuerySchema } from '@/lib/validation'
+import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import type { MongoAnnouncement } from '@/lib/mongodb/types'
 
@@ -152,6 +153,14 @@ export async function POST(request: NextRequest) {
     if (performer.branch !== branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
+    // Content moderation (server-side, next to the Zod layer): a verdict
+    // that is not ok carries the 422 response naming the rule that fired.
+    const verdict = await moderateContent({
+      surface: 'announcement',
+      fields: { title, body },
+      actor: { username: session.username, role: performer.role, branch: performer.branch },
+    })
+    if (!verdict.ok) return verdict.response
     const col = await getCollection<MongoAnnouncement>('announcements')
     const doc: MongoAnnouncement = {
       branch,
@@ -200,6 +209,14 @@ export async function PATCH(request: NextRequest) {
     } catch {
       return NextResponse.json({ ok: false, error: 'Announcement not found.' }, { status: 404 })
     }
+
+    // Content moderation: edits pass through the same rules as posts.
+    const verdict = await moderateContent({
+      surface: 'announcement',
+      fields: { title, body },
+      actor: { username: session.username, role: performer.role, branch: performer.branch },
+    })
+    if (!verdict.ok) return verdict.response
 
     const col = await getCollection<MongoAnnouncement>('announcements')
     const result = await col.updateOne(

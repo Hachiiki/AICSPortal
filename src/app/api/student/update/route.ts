@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
+import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 
 // ---- Zod input schema (the only place profile-edit input is shaped) ----
@@ -53,6 +54,22 @@ export async function PATCH(request: NextRequest) {
     if (Object.keys(updateDoc).length === 0) {
       return NextResponse.json({ ok: false, error: 'No valid fields to update.' }, { status: 400 })
     }
+
+    // Content moderation: free-text profile fields plus the photo URL
+    // (rule 4 applies — untrusted image hosts flag for review).
+    const verdict = await moderateContent({
+      surface: 'profile',
+      fields: {
+        phone: body.phone,
+        email: body.email,
+        address: body.address,
+        emergencyContactName: body.emergencyContactName,
+        emergencyContactNumber: body.emergencyContactNumber,
+      },
+      urlFields: { photoUrl: body.photoUrl },
+      actor: { username: session.username, role: session.role, branch: session.branch },
+    })
+    if (!verdict.ok) return verdict.response
 
     const col = await getCollection('students')
     // Admins editing another profile must stay in-branch.

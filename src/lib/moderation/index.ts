@@ -114,7 +114,10 @@ export async function moderateContent(input: ModerateContentInput): Promise<Mode
     surface,
     actorUsername: actor.username,
     actorRole: actor.role,
-    ruleId: decision.ruleId,
+    // decide() pairs every reject/flag decision with a fired rule id;
+    // 'unknown' is the never-expected fallback that stays debuggable in
+    // the log if that invariant ever breaks.
+    ruleId: decision.ruleId ?? 'unknown',
     action: decision.action,
     matchedTerms,
     urls: decision.urlFindings.map((u) => ({ url: u.url, host: u.host })),

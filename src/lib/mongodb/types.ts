@@ -360,7 +360,9 @@ export interface MongoModerationLog {
   // announcement | section-notification | task | profile | material-link
   surface: string
   actorUsername: string
-  actorRole: Role
+  // Free-form on purpose: the log mirrors whatever the session carried
+  // (student/faculty/admin today) rather than gating on the Role union.
+  actorRole: string
   // profanity | harassment | sexual | url-restriction | allowlist
   ruleId: string
   action: ModerationLogAction

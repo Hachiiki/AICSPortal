@@ -26,4 +26,6 @@ export const GLOBAL_ALLOWLIST: string[] = [
   'scat singing',
   // French borrowing in formal announcements; "tete" alone is Filipino vulgar.
   'tete-a-tete',
+  // Chemistry / safety vocabulary; "retard" alone is the category-2 slur.
+  'retardant',
 ]

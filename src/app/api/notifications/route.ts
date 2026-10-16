@@ -5,6 +5,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
 import { parseBody, parseQuery, trimmedString, errResponse, objectIdSchema } from '@/lib/validation'
+import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import type { MongoNotification } from '@/lib/mongodb/types'
 
@@ -172,6 +173,15 @@ export async function POST(request: NextRequest) {
     if (targets.length === 0) {
       return NextResponse.json({ ok: false, error: 'None of the chosen sections are in your teaching load.' }, { status: 403 })
     }
+
+    // Content moderation: one verdict covers the message every targeted
+    // student would receive — checked before the fan-out insert.
+    const verdict = await moderateContent({
+      surface: 'section-notification',
+      fields: { title, body },
+      actor: { username: session.username, role: performer.role, branch: performer.branch },
+    })
+    if (!verdict.ok) return verdict.response
 
     const now = new Date()
     const docs: MongoNotification[] = []

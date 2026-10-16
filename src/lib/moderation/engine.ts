@@ -14,17 +14,22 @@
 // allowlisted phrase suppressed a would-be match, and that decision is
 // worth an audit row.
 //
-// Each category also gets a "glue" matcher: the same blacklisted terms,
-// but with a transformer chain that strips non-alphabetic characters
-// (spaces, dots, dashes) after leet-speak resolution. The two matchers
-// are complementary: with spaces preserved, "fuck you" matches the
-// word-boundary patterns; with spaces stripped, "f u c k" and "f.u.c.k"
-// collapse to "fuck" and match too. Word-boundary safety survives the
-// stripping, because a boundary still requires a non-word character on
-// each side of the term inside the glued run — "bass guitar" glued to
-// "bassguitar" still protects "ass". Multi-word allowlist entries are
-// self-protecting under glue: "cum laude" glued to "cumlaude" can no
-// longer match "cum" on a word boundary.
+// Each category also gets a "glue" matcher: the same vocabulary, but with
+// a transformer chain that strips non-alphabetic characters (spaces, dots,
+// dashes) after leet-speak resolution. The two matchers are complementary:
+// with spaces preserved, "fuck you" matches the word-boundary patterns;
+// with spaces stripped, "f u c k" and "f.u.c.k" collapse to "fuck" and
+// match too.
+//
+// The glue dataset is NOT a copy of the plain dataset: gluing removes every
+// separator, so built-in patterns designed for space-preserved text can
+// match across word junctions — "data analysis" glues to "datanalysis"
+// (contains "tanal"), "ang gatas" glues to "anggatas" (contains "ngga").
+// glueSafe() filters those junction-colliding patterns out of the glue
+// dataset; the plain matcher keeps them all, where they only fire on text
+// the user actually wrote that way. Our own entries additionally gain
+// "despaced" variants ("putang ina" also matches the glued "putangina")
+// so multi-word terms survive stripping.
 
 import {
   DataSet,
@@ -61,14 +66,27 @@ const CATEGORY_RULES: { cat: ModerationCategory; ruleId: RuleId }[] = [
  * Transformer chain for the glue matchers: separators are stripped only
  * AFTER confusable and leet-speak resolution (so "4" resolves to "a"
  * instead of being dropped), and BEFORE duplicate collapsing (so
- * "f u uck" collapses to "fuck").
+ * "f u uck" collapses to "fuck"). The collapse thresholds copy the
+ * library's recommended config (double letters like "ss" in "assess"
+ * survive) so built-in whitelists such as "assem"/"assess" stay aligned
+ * with the whitelisted text.
  */
 const GLUE_BLACKLIST_TRANSFORMERS = [
   resolveConfusablesTransformer(),
   resolveLeetSpeakTransformer(),
   toAsciiLowerCaseTransformer(),
   skipNonAlphabeticTransformer(),
-  collapseDuplicatesTransformer(),
+  collapseDuplicatesTransformer({
+    defaultThreshold: 1,
+    customThresholds: new Map([
+      ['b', 2], // a_bb_o
+      ['e', 2], // ab_ee_d
+      ['o', 2], // b_oo_nga
+      ['l', 2], // fe_ll_atio
+      ['s', 2], // a_ss_
+      ['g', 2], // ni_gg_er
+    ]),
+  }),
 ]
 
 /** Word-boundary pattern: the term only matches as a standalone word. */
@@ -83,11 +101,89 @@ function wordPattern(word: string): ParsedPattern | null {
   }
 }
 
+/** A built-in englishDataset phrase, flattened for reconstruction. */
+interface BuiltInPhrase {
+  word: string
+  patterns: ParsedPattern[]
+  whitelistedTerms: string[]
+}
+
+let builtInPhraseCache: BuiltInPhrase[] | null = null
+
+/** Enumerate the built-in English phrases once (patterns + whitelists + word). */
+function builtInPhrases(): BuiltInPhrase[] {
+  if (builtInPhraseCache) return builtInPhraseCache
+  const collected: BuiltInPhrase[] = []
+  new DataSet<PhraseMeta>()
+    // Cast: englishDataset's metadata is { originalWord }; ours widens it —
+    // runtime-compatible shapes.
+    .addAll(englishDataset as unknown as DataSet<PhraseMeta>)
+    .removePhrasesIf((phrase) => {
+      const word = phrase.metadata?.originalWord
+      if (typeof word === 'string') {
+        collected.push({
+          word,
+          patterns: [...phrase.patterns],
+          whitelistedTerms: [...phrase.whitelistedTerms],
+        })
+      }
+      return false // collect only; remove nothing
+    })
+  builtInPhraseCache = collected
+  return collected
+}
+
+/**
+ * Keep a pattern in the GLUE dataset? Gluing removes every separator, so the
+ * whole text becomes one run and patterns can match across word junctions
+ * ("ang gatas" -> "anggatas"). Whitelist suppression needs the match span
+ * inside a whitelisted term's span, so junction matches wider than any
+ * whitelist term are unsuppressible — those patterns must not run under glue:
+ *
+ * - start-anchored patterns only fire at the text start, where the known
+ *   clean-prefix collisions ("Analyst", "An alibi", "Assessment") are covered
+ *   by the built-in whitelists carried into the glue dataset;
+ * - single-literal base forms ("anus", "shit|") stay: their junction
+ *   collisions are exactly the ones the library whitelists anticipate
+ *   ("an us" saves "ran us", "sh it" saves "wash it", "fick" saves
+ *   "trafficker");
+ * - patterns with an optional WILDCARD ("f[?]ck") stay: no English or
+ *   Filipino word starts with their post-wildcard skeleton ("ck", "ndjob"),
+ *   so they cannot span a junction — and they are what catches mid-sentence
+ *   separator-hidden terms ("what the f u c k");
+ * - other multi-node patterns (optional literals like "n[i]gga", "s[s]lut",
+ *   "tanal") are dropped unless their mandatory skeleton is >= 6 letters:
+ *   short skeletons collide with junctions ("ng gatas" contains "ngga",
+ *   "mas lutong" contains "slut", "data analysis" contains "tanal").
+ *
+ * The plain matcher keeps every pattern — with spaces preserved they can
+ * only fire on text the user actually wrote that way.
+ */
+function glueSafe(pattern: ParsedPattern, base: string): boolean {
+  if (pattern.requireWordBoundaryAtStart) return true
+  const nodes = pattern.nodes as unknown as Array<Record<string, unknown>>
+  if (nodes.length === 1 && nodes[0].chars !== undefined) {
+    const literal = (nodes[0].chars as number[]).map((c) => String.fromCodePoint(c)).join('')
+    return literal === base
+  }
+  let skeleton = ''
+  let hasOptionalWildcard = false
+  for (const node of nodes) {
+    if (node.chars !== undefined) {
+      skeleton += (node.chars as number[]).map((c) => String.fromCodePoint(c)).join('')
+    } else if (node.childNode !== undefined) {
+      const inner = node.childNode as Record<string, unknown>
+      if (inner.chars === undefined) hasOptionalWildcard = true // optional wildcard [?]
+    }
+    // bare wildcards contribute nothing to the skeleton
+  }
+  if (hasOptionalWildcard) return true
+  return skeleton.length >= 6
+}
+
 function buildDataset(categories: ModerationCategory[]): DataSet<PhraseMeta> {
   const wanted = new Set(categories)
   const ds = new DataSet<PhraseMeta>()
-    // Cast: englishDataset's metadata is { originalWord }; ours widens it
-    // to { original?, originalWord? } — runtime-compatible shapes.
     .addAll(englishDataset as unknown as DataSet<PhraseMeta>)
     .removePhrasesIf((phrase) => {
       const word = phrase.metadata?.originalWord
@@ -99,6 +195,47 @@ function buildDataset(categories: ModerationCategory[]): DataSet<PhraseMeta> {
     if (!wanted.has(category)) return
     ds.addPhrase((phrase) => {
       for (const word of [term, ...(variants ?? [])]) {
+        const parsed = wordPattern(word)
+        if (parsed) phrase.addPattern(parsed)
+      }
+      return phrase.setMetadata({ original: term })
+    })
+  }
+  for (const entry of ENGLISH_ADDITIONS) addEntry(entry.term, entry.category, entry.variants)
+  for (const entry of FILIPINO_ENTRIES) addEntry(entry.term, entry.category, entry.variants)
+  return ds
+}
+
+/**
+ * Dataset for the glue matchers: built-in phrases rebuilt pattern-by-pattern
+ * with the left-extended evasion family filtered out, plus our entries with
+ * despaced variants so multi-word terms ("putang ina") still match when the
+ * separators hiding them are stripped ("p u t a n g i n a" -> "putangina").
+ */
+function buildGlueDataset(categories: ModerationCategory[]): DataSet<PhraseMeta> {
+  const wanted = new Set(categories)
+  const ds = new DataSet<PhraseMeta>()
+  for (const { word, patterns, whitelistedTerms } of builtInPhrases()) {
+    const category = classifyEnglish(word)
+    if (category === 0 || !wanted.has(category)) continue
+    const kept = patterns.filter((p) => glueSafe(p, word))
+    if (kept.length === 0) continue
+    ds.addPhrase((phrase) => {
+      for (const p of kept) phrase.addPattern(p)
+      for (const t of whitelistedTerms) phrase.addWhitelistedTerm(t)
+      return phrase.setMetadata({ originalWord: word })
+    })
+  }
+  const addEntry = (term: string, category: ModerationCategory, variants?: string[]) => {
+    if (!wanted.has(category)) return
+    const forms = new Set<string>()
+    for (const word of [term, ...(variants ?? [])]) {
+      forms.add(word)
+      const despaced = word.replace(/[^a-zA-Z]/g, '')
+      if (despaced && despaced !== word) forms.add(despaced)
+    }
+    ds.addPhrase((phrase) => {
+      for (const word of forms) {
         const parsed = wordPattern(word)
         if (parsed) phrase.addPattern(parsed)
       }
@@ -135,9 +272,10 @@ function getEngine(): Engine {
       whitelistedTerms,
       ...englishRecommendedTransformers,
     })
+    const glueBuilt = buildGlueDataset([cat]).build()
     const glueMatcher = new RegExpMatcher({
-      blacklistedTerms: built.blacklistedTerms,
-      whitelistedTerms,
+      blacklistedTerms: glueBuilt.blacklistedTerms,
+      whitelistedTerms: [...(glueBuilt.whitelistedTerms ?? []), ...GLOBAL_ALLOWLIST],
       blacklistMatcherTransformers: GLUE_BLACKLIST_TRANSFORMERS,
       whitelistMatcherTransformers: englishRecommendedWhitelistMatcherTransformers,
     })

@@ -105,9 +105,9 @@ export const REMOVED_ENGLISH = new Set(['abo'])
 /**
  * Classify a built-in englishDataset word. Anything not mapped defaults
  * to category 1 (the least severe action), so future upstream additions
- * fail safe rather than silently over-blocking.
+ * fail safe rather than silently over-blocking. 0 means removed.
  */
-export function classifyEnglish(word: string): ModerationCategory {
+export function classifyEnglish(word: string): ModerationCategory | 0 {
   if (REMOVED_ENGLISH.has(word)) return 0
   return ENGLISH_CLASSIFICATION[word] ?? 1
 }
@@ -123,7 +123,12 @@ export interface EnglishAddition {
  * Additions beyond the built-in dataset:
  * - compounds the built-in word-boundary patterns miss (motherfucker,
  *   asshole, bullshit — "fuck"/"ass" alone never fire inside them);
- * - harassment terms the built-in list does not carry.
+ * - harassment terms the built-in list does not carry;
+ * - whole-word base forms (fuck, nigger, nigga, slut) whose full-boundary
+ *   patterns are what catch separator-hidden single-word vandalism under
+ *   the glue matcher (a bare "f u c k" or "n i g g e r" title) — in the
+ *   plain matcher they merely duplicate the built-ins, deduplicated by
+ *   the engine's ruleId:canonical key.
  * Deliberately NOT added, to avoid school-corpus false positives:
  *   jap (abbreviation of Japanese in ordinary use), paki (Tagalog
  *   "paki-" prefix: paki-print, paki-abot), hoe (garden tool).
@@ -132,6 +137,7 @@ export const ENGLISH_ADDITIONS: EnglishAddition[] = [
   // Category 1 — compounds of built-in profanity. "fuckyou" is the
   // glued form of "f u c k you": the skip-non-alphabetic transformer
   // strips the spaces, so the word boundary lands after "fuckyou".
+  { term: 'fuck', category: 1 },
   { term: 'motherfucker', category: 1, variants: ['motherfucking'] },
   { term: 'fucker', category: 1, variants: ['fucking', 'fucked', 'fuckyou'] },
   { term: 'bullshit', category: 1 },
@@ -145,4 +151,6 @@ export const ENGLISH_ADDITIONS: EnglishAddition[] = [
   { term: 'wetback', category: 2 },
   { term: 'spic', category: 2 },
   { term: 'towelhead', category: 2 },
+  { term: 'nigger', category: 2, variants: ['nigga'] },
+  { term: 'slut', category: 2 },
 ]
