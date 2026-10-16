@@ -7,7 +7,7 @@
 // corpus can exercise the exact decision logic without booting Next.js.
 
 import { MESSAGES, RULE_PRECEDENCE, SURFACE_POLICY, type RuleAction, type RuleId, type Surface } from './config'
-import type { TextFinding } from './engine'
+import { isContextualTerm, type TextFinding } from './engine'
 
 export interface UrlFinding {
   field: string
@@ -56,24 +56,35 @@ export function decide(
     return { action: 'allow', ruleId: null, message: null, findings: [], urlFindings: [], allowlistSaves: [] }
   }
 
-  // Most severe action across every fired rule.
-  let action: RuleAction = 'flag'
+  // Contextual review path (reviewer verdict 2026-10-16): a finding whose
+  // canonical term is contextual (clinical anatomy, folk-tale / literary
+  // registers) never rejects on its own — it contributes flag-for-review, so
+  // a biology lesson or a Nognog storybook post is held for an admin instead
+  // of refused. Any clear-case finding on the same rule still rejects, and a
+  // clear case on ANY rejecting rule rejects the whole write.
+  const rejecting = new Set<RuleId>()
   for (const finding of active) {
-    if (policy.rules[finding.ruleId] === 'reject') {
-      action = 'reject'
-      break
+    if (policy.rules[finding.ruleId] === 'reject' && !isContextualTerm(finding.canonical)) {
+      rejecting.add(finding.ruleId)
     }
   }
   if (untrustedUrls.length > 0 && policy.rules['url-restriction'] === 'reject') {
-    action = 'reject'
+    rejecting.add('url-restriction')
   }
 
-  // Primary rule by content-severity precedence.
+  const action: RuleAction = rejecting.size > 0 ? 'reject' : 'flag'
+
+  // Primary rule: when something rejects, name the highest-precedence rule
+  // that is actually rejecting (so a mixed contextual-sexual + clear-
+  // harassment text is refused as harassment, not mislabeled sexual).
+  // When nothing rejects, the highest-precedence fired rule carries the
+  // hedged "held for review" message.
   const fired = new Set<RuleId>(active.map((f) => f.ruleId))
   if (untrustedUrls.length > 0) fired.add('url-restriction')
+  const pool: Set<RuleId> = rejecting.size > 0 ? rejecting : fired
   let ruleId: RuleId = 'profanity'
   for (const candidate of RULE_PRECEDENCE) {
-    if (fired.has(candidate)) {
+    if (pool.has(candidate)) {
       ruleId = candidate
       break
     }
