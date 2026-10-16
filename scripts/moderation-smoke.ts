@@ -1,4 +1,12 @@
-// Sandbox smoke test for the moderation engine (not committed).
+// Moderation engine corpus gate — revision 2 (reviewer verdict 2026-10-16).
+// Dev-branch gate run by scripts/verify-moderation.sh; extends the original
+// corpus with the reviewer's required school-content tests:
+//   - a REVIEW class: contextual terms (clinical anatomy, folk-tale /
+//     literary registers) must FLAG for review, not reject;
+//   - kayat (Ilocano homograph) removed — an ordinary Ilocano sentence is clean;
+//   - allowlist-concealment probes (abusive term elsewhere still fires);
+//   - deceptive-URL hosts (trusted-prefix and lookalike);
+//   - normalization probes (zero-width injection, fullwidth homoglyphs).
 import { scanText } from '../src/lib/moderation/engine'
 import { decide } from '../src/lib/moderation/policy'
 import { classifyUrl, extractUrlFindings } from '../src/lib/moderation/url-policy'
@@ -43,6 +51,14 @@ const DIRTY: { text: string; rule: string }[] = [
   { text: 'The answer is f u c k you teacher', rule: 'profanity' },
   { text: 'n i g g e r', rule: 'harassment' },
   { text: 'g a g o', rule: 'profanity' },
+  // normalization probes (reviewer technical checks: zero-width + homoglyphs)
+  { text: 'fu​ck this place', rule: 'profanity' },
+  { text: 'ｆｕｃｋ ｙｏｕ', rule: 'profanity' },
+  // allowlist-concealment probes: an abusive term elsewhere in a longer
+  // input must still fire even though an allowlisted phrase is present
+  { text: 'Leche flan fundraiser and gago ka rin naman', rule: 'profanity' },
+  { text: 'cum laude list but n1gger in the comments', rule: 'harassment' },
+  { text: 'habal-habal rates and putang ina mo', rule: 'profanity' },
 ]
 
 const CLEAN: { text: string; save?: string }[] = [
@@ -81,6 +97,23 @@ const CLEAN: { text: string; save?: string }[] = [
   { text: 'Assessment and assignment deadlines for the fourth quarter' },
   { text: 'Please wash it before returning the equipment' },
   { text: 'Mas lutong ang pansit ngayong Sabado' },
+  // reviewer verdict additions: biology (anal fin) + Ilocano (kayat removed)
+  { text: 'Biology: the anal fin and dorsal fin of Tilapia', save: 'anal fin' },
+  { text: 'Kayat ko ti mangan iti bigat' },
+]
+
+// Contextual terms (reviewer verdict recommendations B and D): matches must
+// hold for admin review (flag), never reject outright. Educational and
+// literary registers belong here; a clear-case term in the same text still
+// rejects (asserted in the policy section below).
+const REVIEW: { text: string; rule: string }[] = [
+  { text: 'Biology worksheet: label the penis and vagina on the reproductive system diagram', rule: 'sexual' },
+  { text: 'Health class: the digestive system ends at the anus', rule: 'sexual' },
+  { text: 'Philippine Literature: the tale of Nognog and the seven-headed dragon', rule: 'harassment' },
+  { text: 'Storybook corner: Unano at Higante retold for Grade 2 pupils', rule: 'harassment' },
+  { text: 'Music module: the pokpok rhythm pattern on the gangsa drum', rule: 'harassment' },
+  { text: 'ESP class: discuss what walang hiya means in Filipino values', rule: 'profanity' },
+  { text: 'Leche: the Spanish word for milk in our vocabulary list', rule: 'profanity' },
 ]
 
 console.log('== dirty corpus ==')
@@ -111,6 +144,21 @@ for (const { text, save } of CLEAN) {
   }
 }
 
+console.log('== review-path corpus (contextual terms flag, never reject) ==')
+for (const { text, rule } of REVIEW) {
+  const scan = scanText('body', text)
+  const decision = decide('announcement', scan.findings, [], [])
+  check(
+    `review [${rule}]: ${text.slice(0, 40)}`,
+    decision.action === 'flag' && decision.ruleId === rule,
+    JSON.stringify({
+      findings: scan.findings.map((f) => [f.ruleId, f.canonical]),
+      action: decision.action,
+      ruleId: decision.ruleId,
+    })
+  )
+}
+
 console.log('== url policy ==')
 const u1 = classifyUrl('https://res.cloudinary.com/demo/image/upload/x.png')
 check('cloudinary trusted', u1?.trusted === true)
@@ -130,6 +178,13 @@ const u8 = extractUrlFindings('body', 'Share via www.bit.ly/abc123 please')
 check('www. extracted from prose', u8.length === 1 && u8[0].trusted === false)
 const u9 = extractUrlFindings('body', 'no urls here, just 3.14 and i.e. examples')
 check('no false URL extraction', u9.length === 0)
+// deceptive hosts (reviewer technical check): a trusted domain as an infix
+// or a lookalike prefix must NOT inherit trust — suffix matching is
+// dot-boundary anchored
+const u10 = classifyUrl('https://drive.google.com.evil.io/file/d/abc')
+check('trusted-domain-infix host untrusted', u10 !== null && u10.trusted === false)
+const u11 = classifyUrl('https://fakedrive.google.com/file/d/abc')
+check('lookalike-prefix host untrusted', u11 !== null && u11.trusted === false)
 
 console.log('== policy decisions ==')
 const d1 = decide('announcement', [], [], [])
@@ -149,6 +204,20 @@ check('mixed: sexual outranks profanity', d5.action === 'reject' && d5.ruleId ==
 const urlFinding = classifyUrl('https://bit.ly/xyz')
 const d6 = decide('material-link', [], urlFinding ? [{ field: 'url', ...urlFinding }] : [], [])
 check('untrusted link flags on material-link', d6.action === 'flag' && d6.ruleId === 'url-restriction')
+
+// contextual review path (reviewer verdict recommendations B + D)
+const fBio = scanText('title', 'Biology: the penis and vagina diagram')
+const d7 = decide('announcement', fBio.findings, [], [])
+check('contextual anatomy flags (not reject)', d7.action === 'flag' && d7.ruleId === 'sexual')
+const fMixedSexual = scanText('title', 'blowjob next to the penis diagram')
+const d8 = decide('announcement', fMixedSexual.findings, [], [])
+check('contextual + clear sexual still rejects as sexual', d8.action === 'reject' && d8.ruleId === 'sexual')
+const fCrossHarass = [...scanText('t', 'Tsekwa ka ba').findings, ...scanText('t', 'Nognog tale').findings]
+const d9 = decide('announcement', fCrossHarass, [], [])
+check('clear harassment + contextual harassment rejects as harassment', d9.action === 'reject' && d9.ruleId === 'harassment')
+const fCrossSexual = [...scanText('t', 'hentai link').findings, ...scanText('t', 'Unano at Higante storybook').findings]
+const d10 = decide('announcement', fCrossSexual, [], [])
+check('clear sexual + contextual harassment rejects as sexual', d10.action === 'reject' && d10.ruleId === 'sexual')
 
 console.log(`\n${pass} passed, ${fail} failed`)
 process.exit(fail === 0 ? 0 : 1)

@@ -134,6 +134,10 @@ expect422 "announcement: harassment slur" "$AC" POST /api/announcements \
   '{"branch":"commonwealth","title":"Warning","body":"Chinks are not welcome at the event.","category":"campus"}' harassment reject
 expect422 "announcement: sexual content" "$AC" POST /api/announcements \
   '{"branch":"commonwealth","title":"Share","body":"hentai links in the group chat only.","category":"campus"}' sexual reject
+expect422 "announcement: contextual anatomy flags (not reject)" "$AC" POST /api/announcements \
+  '{"branch":"commonwealth","title":"Biology","body":"Biology worksheet: label the penis and vagina on the reproductive system diagram.","category":"academic"}' sexual flag
+expect422 "announcement: contextual folk-tale flags (not reject)" "$AC" POST /api/announcements \
+  '{"branch":"commonwealth","title":"Reading","body":"Philippine Literature: the tale of Nognog and the seven-headed dragon.","category":"academic"}' harassment flag
 expect422 "announcement: separator-hidden evasion" "$AC" POST /api/announcements \
   '{"branch":"commonwealth","title":"Deadline","body":"what the f u c k is this deadline change.","category":"deadline"}' profanity flag
 expect422 "announcement: leet Filipino" "$AC" POST /api/announcements \
@@ -182,9 +186,9 @@ expectOK "profile: clean address" "$SC" PATCH "/api/student/update?username=juan
 
 # ------------------------------------------------------------
 echo "== 10. moderation_logs audit rows =="
-LOGS=$(node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();const col=c.db('aics_portal').collection('moderation_logs');const all=await col.find({}).toArray();await c.close();const has=all.some(x=>x.ruleId==='profanity'&&x.action==='flag'&&x.reviewPending===true);const rej=all.some(x=>x.ruleId==='harassment'&&x.action==='reject');const sex=all.some(x=>x.ruleId==='sexual'&&x.action==='reject');const url=all.some(x=>x.ruleId==='url-restriction'&&Array.isArray(x.urls)&&x.urls.length>0);const actor=all.some(x=>x.actorUsername==='m.reyes'||x.actorUsername==='juan.santos');const excerpt=all.every(x=>typeof x.textExcerpt==='string'&&x.textExcerpt.length>0);const surfs=new Set(all.map(x=>x.surface));console.log(JSON.stringify({n:all.length,has,rej,sex,url,actor,excerpt,surfs:[...surfs]}))})()")
-res=$(node -e "const d=JSON.parse(process.argv[1]);const c=[d.n>0,d.has,d.rej,d.sex,d.url,d.actor,d.excerpt,d.surfs.includes('announcement'),d.surfs.includes('section-notification'),d.surfs.includes('task'),d.surfs.includes('material-link'),d.surfs.includes('profile')];console.log(c.every(Boolean)?'OK':'BAD '+process.argv[1])" "$LOGS")
-[ "$res" = "OK" ] && ok "moderation_logs: rule ids, actions, reviewPending, urls, actors, excerpts, all 5 surfaces" || bad "moderation_logs: $res"
+LOGS=$(node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();const col=c.db('aics_portal').collection('moderation_logs');const all=await col.find({}).toArray();await c.close();const has=all.some(x=>x.ruleId==='profanity'&&x.action==='flag'&&x.reviewPending===true);const rej=all.some(x=>x.ruleId==='harassment'&&x.action==='reject');const sex=all.some(x=>x.ruleId==='sexual'&&x.action==='reject');const ctx=all.some(x=>x.ruleId==='sexual'&&x.action==='flag'&&x.reviewPending===true);const url=all.some(x=>x.ruleId==='url-restriction'&&Array.isArray(x.urls)&&x.urls.length>0);const actor=all.some(x=>x.actorUsername==='m.reyes'||x.actorUsername==='juan.santos');const excerpt=all.every(x=>typeof x.textExcerpt==='string'&&x.textExcerpt.length>0);const surfs=new Set(all.map(x=>x.surface));console.log(JSON.stringify({n:all.length,has,rej,sex,ctx,url,actor,excerpt,surfs:[...surfs]}))})()")
+res=$(node -e "const d=JSON.parse(process.argv[1]);const c=[d.n>0,d.has,d.rej,d.sex,d.ctx,d.url,d.actor,d.excerpt,d.surfs.includes('announcement'),d.surfs.includes('section-notification'),d.surfs.includes('task'),d.surfs.includes('material-link'),d.surfs.includes('profile')];console.log(c.every(Boolean)?'OK':'BAD '+process.argv[1])" "$LOGS")
+[ "$res" = "OK" ] && ok "moderation_logs: rule ids, actions, reviewPending (incl. contextual sexual flag), urls, actors, excerpts, all 5 surfaces" || bad "moderation_logs: $res"
 
 # ------------------------------------------------------------
 echo ""

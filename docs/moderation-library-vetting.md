@@ -257,6 +257,10 @@ follow-up; the library's own plain-matcher quirks survive: "Dick" as a name,
 romanization (K-pop club announcements). These are queued behind reviewer sign-off,
 not behind further engineering.
 
+## 10. Reviewer verdict revision (2026-10-16, PR #45)
+
+The owner-side review of the Filipino sign-off package returned "return for revisions" (summary in docs/moderation-filipino-review.md section 10). Applied: a contextual review path in decide() — entries tagged contextual (Filipino: nognog, pokpok, unano; English clinical anatomy: anal, anus, ejaculate, masturbate, orgasm, penis, semen, vagina) flag for admin review instead of rejecting, with any clear-case finding still rejecting the write and the 422 naming the actually-rejecting rule; kayat removed from the dataset (Ilocano homograph — "kayat ko" = "I want"); nimal keep-out recorded; gagi gloss neutralized; "anal fin" allowlisted. Corpus revision 2: 105 assertions (new review-path class, allowlist-concealment probes, deceptive-URL hosts, zero-width and fullwidth normalization) — all passing; route-level 24/24 including two contextual route cases. Native-speaker items remain open and tracked in TODO.md.
+
 ## Sources verified on 2026-10-16
 
 - npm registry download API — weekly download figures for all seven packages
