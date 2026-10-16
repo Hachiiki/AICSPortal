@@ -103,6 +103,34 @@ export const ENGLISH_CLASSIFICATION: Record<string, ModerationCategory> = {
 export const REMOVED_ENGLISH = new Set(['abo'])
 
 /**
+ * Clinical anatomy / physiology vocabulary in the category-3 set, downgraded
+ * to the review path (flag for admin follow-up) instead of outright rejection
+ * — reviewer verdict 2026-10-16, recommendation D: "separate explicit sexual
+ * expressions from neutral anatomical terminology", because biology and
+ * health-education lessons legitimately use these words ("the penis and
+ * vagina in human reproduction"). "anal" belongs here too: its built-in
+ * phrase also matches the text "anus" (verified in the corpus — one match
+ * reports both canonicals), so the anatomy reading requires both to downgrade
+ * together, and its legitimate registers are real ("anal fin" is allowlisted;
+ * Freud's anal stage appears in psychology electives). Explicit slang
+ * ("blowjob", "handjob", "dildo", ...) and abuse vocabulary ("rape",
+ * "incest") keep the hard reject; mixed text with BOTH a contextual and a
+ * clear-case term still rejects — see policy.ts decide(). Word-boundary +
+ * allowlist protection ("anal fin", "sex education") still applies ahead of
+ * any match.
+ */
+export const CONTEXTUAL_ENGLISH: ReadonlySet<string> = new Set([
+  'anal',
+  'anus',
+  'ejaculate',
+  'masturbate',
+  'orgasm',
+  'penis',
+  'semen',
+  'vagina',
+])
+
+/**
  * Classify a built-in englishDataset word. Anything not mapped defaults
  * to category 1 (the least severe action), so future upstream additions
  * fail safe rather than silently over-blocking. 0 means removed.

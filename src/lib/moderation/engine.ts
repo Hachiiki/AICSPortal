@@ -45,7 +45,7 @@ import {
   toAsciiLowerCaseTransformer,
 } from 'obscenity'
 import type { ParsedPattern } from 'obscenity'
-import { ENGLISH_ADDITIONS, classifyEnglish } from './datasets/english'
+import { CONTEXTUAL_ENGLISH, ENGLISH_ADDITIONS, classifyEnglish } from './datasets/english'
 import { FILIPINO_ENTRIES, type ModerationCategory } from './datasets/filipino'
 import { GLOBAL_ALLOWLIST } from './allowlist'
 import type { RuleId } from './config'
@@ -347,4 +347,21 @@ export function scanText(field: string, text: string): FieldScan {
 /** Exposed for tests and diagnostics: the allowlist in effect. */
 export function activeAllowlist(): string[] {
   return GLOBAL_ALLOWLIST
+}
+
+/**
+ * Canonical terms whose matches flag for review instead of rejecting —
+ * the contextual review path (reviewer verdict 2026-10-16, recommendations
+ * B and D). Union of the Filipino contextual entries (folk-tale / music /
+ * literary registers) and the English clinical-anatomy set. The canonical
+ * term is stable across the plain and glue matchers, so one lookup covers
+ * both. See policy.ts decide() for how this downgrades the action.
+ */
+const CONTEXTUAL_TERMS = new Set<string>([
+  ...FILIPINO_ENTRIES.filter((e) => e.contextual).map((e) => e.term),
+  ...CONTEXTUAL_ENGLISH,
+])
+
+export function isContextualTerm(canonical: string): boolean {
+  return CONTEXTUAL_TERMS.has(canonical)
 }

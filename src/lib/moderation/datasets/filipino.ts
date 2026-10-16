@@ -36,9 +36,25 @@
 //   markets / nutrition), hinampak (ordinary verb "was hit"), bogo (Bogo
 //   City), inutel, kagang, kaululan, ratbu, tinil, tungaw (meanings
 //   unverified — kept out rather than guessed).
+//   nimal (jromest seed entry; meaning unverified, plausibly an evasion
+//   truncation of "animal" — KEEP-OUT recorded 2026-10-16 per reviewer
+//   verdict; revisit only if a native speaker provides a reading).
+//   kayat (REMOVED 2026-10-16 per reviewer verdict, high-priority item A:
+//   "kayat" = "want" in Ilocano, so ordinary Ilocano sentences would be
+//   unconditionally rejected as sexual content. The vulgar Ilocano verb
+//   can return — behind the contextual review path or with a verified
+//   reading — once an Ilocano-speaking reviewer signs off; see
+//   docs/moderation-filipino-review.md revision 2.)
 // Habal is kept (vulgar) WITH the allowlist carrying "habal-habal" (the
 // legitimate provincial motorcycle transport). Leche is kept WITH the
 // allowlist carrying "leche flan" (cafeteria / fundraiser vocabulary).
+//
+// CONTEXTUAL ENTRIES (reviewer verdict 2026-10-16, recommendation B):
+//   nognog, pokpok, unano are tagged contextual — matches flag for admin
+//   review instead of rejecting outright, because each collides with
+//   legitimate school registers (folk-tale character, drum onomatopoeia
+//   in music materials, "Unano at Higante"-style storybooks). A clear
+//   case in the same text still rejects; see policy.ts decide().
 
 export type ModerationCategory = 1 | 2 | 3
 
@@ -48,6 +64,13 @@ export interface FilipinoEntry {
   category: ModerationCategory
   /** Inflected / ligature / spelling variants, each matched on word boundaries too. */
   variants?: string[]
+  /**
+   * Contextual (reviewer verdict 2026-10-16): the term collides with a
+   * legitimate school register (folk tales, music, literature), so its
+   * matches are held for admin review (flag) instead of rejected. A
+   * clear-case term in the same text still rejects — see policy.ts.
+   */
+  contextual?: boolean
 }
 
 export const FILIPINO_ENTRIES: FilipinoEntry[] = [
@@ -99,16 +122,15 @@ export const FILIPINO_ENTRIES: FilipinoEntry[] = [
   { term: 'hayop ka', category: 2, variants: ['hayup'] },
   { term: 'demonyo ka', category: 2 },
   { term: 'hinayupak', category: 2 },
-  { term: 'nognog', category: 2 },
-  { term: 'pokpok', category: 2 },
+  { term: 'nognog', category: 2, contextual: true },
+  { term: 'pokpok', category: 2, contextual: true },
   { term: 'tsekwa', category: 2, variants: ['chekwa'] },
-  { term: 'unano', category: 2 },
+  { term: 'unano', category: 2, contextual: true },
 
   // ---- Category 3: sexual content ----
   { term: 'kantot', category: 3, variants: ['kinantot', 'kantotan', 'kantut', 'kantutan', 'nagkantutan'] },
   { term: 'hindot', category: 3, variants: ['hinindot', 'hindutan'] },
   { term: 'iyot', category: 3, variants: ['iniyot'] },
-  { term: 'kayat', category: 3 },
   { term: 'jakol', category: 3, variants: ['nagjakol', 'nagjajakol'] },
   { term: 'burat', category: 3 },
   { term: 'bilat', category: 3 },
