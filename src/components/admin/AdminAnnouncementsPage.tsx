@@ -10,6 +10,7 @@ import {
   Plus,
   RotateCcw,
   Trash2,
+  X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -27,9 +28,10 @@ import type { AdminPageProps } from './admin-props'
 //  Admin Announcements — post, edit, remove deck announcements
 //
 //  GET /api/announcements?all=1 (admin) lists every post in the
-//  branch including expired ones; PATCH edits, DELETE removes the
-//  post and its read markers. Faculty keep using section
-//  notifications instead — they never land in this deck.
+//  branch including expired ones; PATCH edits, DELETE removes one
+//  post and its read markers, POST /api/announcements/bulk-delete
+//  removes the checkbox selection the same way. Faculty keep using
+//  section notifications instead — they never land in this deck.
 // ============================================================
 
 const CATEGORIES: AnnouncementCategory[] = ['academic', 'deadline', 'campus', 'holiday', 'general']
@@ -84,6 +86,18 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  // Bulk selection (checkbox column). `selected` is the raw checkbox
+  // state; everything downstream uses `effectiveSelected`, which is
+  // intersected with the filtered view during render — so the bulk
+  // bar can never target rows the admin cannot currently see (after
+  // deletes, refetches, or filter changes) without an effect.
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  // The armed "Confirm delete" click: remembers which selection it
+  // was armed against. Derived `bulkConfirming` goes false the moment
+  // the selection changes, so the armed state is never stale.
+  const [armedSelection, setArmedSelection] = useState<Set<string> | null>(null)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
+
   const fetchList = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -113,6 +127,75 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
         }),
     [list, categoryFilter, expiryFilter]
   )
+
+  // Derived selection (see state comment above): only ids still
+  // visible in the current filtered view count as selected.
+  const visibleIds = useMemo(() => new Set(filtered.map((a) => a._id)), [filtered])
+  const effectiveSelected = useMemo(() => {
+    if (selected.size === 0) return selected
+    const next = new Set([...selected].filter((id) => visibleIds.has(id)))
+    return next
+  }, [selected, visibleIds])
+
+  const selectionEquals = (a: Set<string>, b: Set<string>) => a.size === b.size && [...a].every((id) => b.has(id))
+  const bulkConfirming = armedSelection !== null && selectionEquals(armedSelection, effectiveSelected)
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((a) => effectiveSelected.has(a._id))
+  const someVisibleSelected = filtered.some((a) => effectiveSelected.has(a._id)) && !allVisibleSelected
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      if (filtered.length > 0 && filtered.every((a) => prev.has(a._id))) return new Set()
+      return new Set(filtered.map((a) => a._id))
+    })
+  }
+
+  // Header checkbox needs the DOM-only `indeterminate` flag, which
+  // React does not control — set it through a ref callback.
+  const headerCheckboxRef = useCallback(
+    (el: HTMLInputElement | null) => {
+      if (el) el.indeterminate = someVisibleSelected
+    },
+    [someVisibleSelected]
+  )
+
+  const handleBulkDelete = async () => {
+    if (effectiveSelected.size === 0) return
+    if (!bulkConfirming) {
+      setArmedSelection(new Set(effectiveSelected))
+      return
+    }
+    setArmedSelection(null)
+    setBulkDeleting(true)
+    try {
+      const res = await fetch('/api/announcements/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [...effectiveSelected] }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        toast.success(data.message || 'Announcements deleted.')
+        setSelected(new Set())
+        fetchList()
+      } else {
+        toast.error(data.error || 'Failed to delete announcements.')
+      }
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
 
   const openCreate = () => {
     setEditing(null)
@@ -256,6 +339,44 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
           </select>
         </div>
 
+        {/* Bulk-selection bar — only appears once rows are checked.
+            Two-click confirm, same shape as the per-row delete. */}
+        {!loading && !error && effectiveSelected.size > 0 ? (
+          <div
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5"
+            role="toolbar"
+            aria-label="Bulk actions"
+          >
+            <p className="text-sm font-semibold text-slate-800">
+              {effectiveSelected.size} selected
+              {allVisibleSelected && filtered.length > 0 ? <span className="font-normal text-slate-500"> (all shown)</span> : null}
+            </p>
+            <div className="ml-auto flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelected(new Set())}
+                disabled={bulkDeleting}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+              >
+                <X className="w-3.5 h-3.5" /> Clear
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={bulkDeleting}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
+                  bulkConfirming
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'border border-red-200 bg-white text-red-700 hover:bg-red-50'
+                }`}
+              >
+                {bulkDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : bulkConfirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
+                {bulkDeleting ? 'Deleting...' : bulkConfirming ? 'Confirm delete' : 'Delete selected'}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {loading ? (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
@@ -276,11 +397,22 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
             <EmptyState icon={Megaphone} message="No announcements match" hint="Adjust the filters or post a new announcement." />
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden ${bulkDeleting ? 'pointer-events-none opacity-60' : ''}`}>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[720px]">
+              <table className="w-full text-sm min-w-[760px]">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="bg-slate-50 px-4 py-2.5 w-10">
+                      <input
+                        ref={headerCheckboxRef}
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleSelectAll}
+                        disabled={filtered.length === 0}
+                        aria-label="Select all listed announcements"
+                        className="w-4 h-4 accent-[#153357] cursor-pointer"
+                      />
+                    </th>
                     <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Posted</th>
                     <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcement</th>
                     <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
@@ -295,7 +427,16 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                     const deleting = deletingId === a._id
                     const expired = isExpired(a)
                     return (
-                      <tr key={a._id} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${expired ? 'opacity-60' : ''}`}>
+                      <tr key={a._id} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${expired ? 'opacity-60' : ''} ${effectiveSelected.has(a._id) ? 'bg-blue-50/50' : ''}`}>
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={effectiveSelected.has(a._id)}
+                            onChange={() => toggleSelected(a._id)}
+                            aria-label={`Select "${a.title}"`}
+                            className="w-4 h-4 accent-[#153357] cursor-pointer"
+                          />
+                        </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <p className="font-medium text-slate-800 tabular-nums">{formatDate(a.postedDate)}</p>
                           <p className="text-xs text-slate-500">{a.author}</p>

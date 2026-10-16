@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Download,
   GraduationCap,
   Loader2,
   RotateCcw,
@@ -12,6 +13,7 @@ import {
   Stamp,
   Users,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from '../portal/PortalShell'
 import type { AdminPageProps } from './admin-props'
@@ -22,6 +24,9 @@ import type { AdminPageProps } from './admin-props'
 //
 //  GET /api/admin/people. Search, role/branch filters, sortable
 //  name/username columns, 25-per-page pager (My Students pattern).
+//  Export CSV downloads the current filtered roster (all pages) as
+//  a spreadsheet — same client-side Blob pattern as the faculty
+//  Previous Records export.
 // ============================================================
 
 interface Person {
@@ -166,6 +171,53 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
     }
   }
 
+  // CSV export of everything the current filters show (all pages,
+  // not just the visible one). Every cell is quoted and escaped so
+  // commas/quotes/newlines in names or emails can never break a row;
+  // the BOM makes Excel sniff the file as UTF-8 (Filipino names can
+  // carry ñ). Passwords never reach this page — the API projects them
+  // out — so they can never reach the export either.
+  const handleExportCsv = () => {
+    if (filtered.length === 0) {
+      toast.info('No accounts match your filters.')
+      return
+    }
+    const cell = (v: string) =>
+      `"${String(v ?? '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`
+    const header = ['Name', 'Username', 'Role', 'Branch', 'Student #', 'Program', 'Year Level', 'Section', 'Status', 'Email', 'GPA', "Dean's Lister"]
+    const rows: string[] = [header.map(cell).join(',')]
+    for (const p of filtered) {
+      const isStudent = p.role === 'student'
+      const status = isStudent ? p.enrollmentStatus : p.role === 'faculty' ? 'Active' : ''
+      rows.push(
+        [
+          cell(p.fullName),
+          cell(p.username),
+          cell(p.role),
+          cell(p.branchName),
+          cell(p.studentNumber),
+          cell(isStudent ? p.program : ''),
+          cell(isStudent ? p.yearLevel : ''),
+          cell(isStudent ? p.section : ''),
+          cell(status),
+          cell(p.email),
+          cell(isStudent ? p.gpa : ''),
+          cell(p.deanLister ? 'Yes' : 'No'),
+        ].join(',')
+      )
+    }
+    const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `people-directory-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${filtered.length} rows.`)
+  }
+
   const SortHeader = ({ label, sort, className = '' }: { label: string; sort: SortKey; className?: string }) => (
     <th className={`bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${className}`}>
       <button
@@ -194,11 +246,21 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
       inbox={inbox}
     >
       <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Students &amp; Faculty</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Every account across every branch — read-only directory for lookups and audits.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Students &amp; Faculty</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Every account across every branch — read-only directory for lookups and audits.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExportCsv}
+            title="Downloads every account matching the current filters as a CSV spreadsheet"
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
         </div>
 
         {loading ? (
