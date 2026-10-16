@@ -28,4 +28,7 @@ export const GLOBAL_ALLOWLIST: string[] = [
   'tete-a-tete',
   // Chemistry / safety vocabulary; "retard" alone is the category-2 slur.
   'retardant',
+  // Biology (fish anatomy); "anal" alone is category 3 — added with the
+  // contextual review path (reviewer verdict 2026-10-16, recommendation D).
+  'anal fin',
 ]
