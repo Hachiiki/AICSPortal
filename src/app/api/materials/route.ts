@@ -4,6 +4,7 @@ import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { getAuthedSession as getSession } from '@/lib/session-auth'
 import { parseBody, parseQuery, trimmedString, errResponse, selfQuerySchema } from '@/lib/validation'
+import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoMaterial } from '@/lib/mongodb/types'
@@ -139,6 +140,18 @@ export async function POST(request: NextRequest) {
       semester: performer.semester,
       yearLevel: current[0]?.yearLevel || '',
     }
+
+    // Content moderation: title text plus the URL field. Link posts carry
+    // an arbitrary external URL (rule 4, untrusted hosts flag for review);
+    // file posts are Cloudinary-hosted by construction, so their URL is
+    // trusted and only the title is effectively scanned.
+    const verdict = await moderateContent({
+      surface: 'material-link',
+      fields: { title },
+      urlFields: { url: typeof url === 'string' ? url.trim() : url },
+      actor: { username: session.username, role: performer.role, branch: performer.branch },
+    })
+    if (!verdict.ok) return verdict.response
 
     const env = cloudinaryEnv()
     const col = await getCollection<MongoMaterial>('materials')

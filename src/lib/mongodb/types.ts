@@ -344,3 +344,35 @@ export interface MongoNotification {
   read: boolean
   readAt: Date | null
 }
+
+// Content-moderation decisions, one row per decision that changed an
+// outcome: reject, flag (reviewPending until an admin resolves it), and
+// allowlist saves (rule 5 suppressing a would-be match). Clean passes
+// are not logged — there is no rule id or matched term to record.
+// Mirrors the grade_audits convention: branch-scoped, actor-stamped,
+// append-only. An admin review view over this collection is a later
+// epic item.
+export type ModerationLogAction = 'allow' | 'reject' | 'flag'
+
+export interface MongoModerationLog {
+  _id?: string
+  branch: Branch
+  // announcement | section-notification | task | profile | material-link
+  surface: string
+  actorUsername: string
+  // Free-form on purpose: the log mirrors whatever the session carried
+  // (student/faculty/admin today) rather than gating on the Role union.
+  actorRole: string
+  // profanity | harassment | sexual | url-restriction | allowlist
+  ruleId: string
+  action: ModerationLogAction
+  matchedTerms: string[]
+  urls?: { url: string; host: string }[]
+  // First 240 characters of the moderated text, for admin context.
+  textExcerpt: string
+  createdAt: Date
+  // flag decisions stay pending until an admin follows up.
+  reviewPending: boolean
+  reviewedAt?: Date | null
+  reviewedBy?: string | null
+}
