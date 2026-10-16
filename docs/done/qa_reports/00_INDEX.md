@@ -49,6 +49,8 @@ Positive results worth noting: admin-only and faculty-only role checks work on a
 - [14 Phase 7 window report (prod)](./14_PHASE7_WINDOW_REPORT.md): 77/77 rehashed, 0 plaintext, BUG-003 Fixed-Verified
 - [15 Campaign closeout draft (Task 8 — do NOT execute)](./15_CAMPAIGN_CLOSEOUT.md): merge/deploy plan, registry table
 - [16 Go-live runbook (owner executes)](./16_GOLIVE_RUNBOOK.md): corrections, merge record, Vercel steps, smoke table
+- [17 WCAG AA contrast audit](./17_WCAG_AA_CONTRAST_AUDIT.md): 1,151 color-class usages audited by scripts/wcag-contrast-audit.py; fixes applied via scripts/apply-contrast-fixes.py (index entry backfilled 2026-10-16)
+- [18 Rehash production reconciliation + fresh-env proof](./18_REHASH_PROD_RECONCILIATION.md): production rehash already executed 2026-09-10 (reports 14-16) - stale TODO/runbook claim corrected; toolchain re-proven 33/33 post-#47
 
 ## Top priorities
 

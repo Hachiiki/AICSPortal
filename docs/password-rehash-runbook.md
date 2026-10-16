@@ -3,7 +3,7 @@
 The one-time migration that converts every legacy plaintext password in
 the `students` collection to the app's scrypt format (`scrypt$salt$hash`).
 
-**Status (2026-10-15):**
+**Status (corrected 2026-10-16):**
 
 - Local dev DB: **done.** The local rehearsal (2026-10-15, dev branch) exercised the
   full procedure against the seeded dev database — dry-run, encrypted
@@ -12,10 +12,17 @@ the `students` collection to the app's scrypt format (`scrypt$salt$hash`).
   `db/backups/` (gitignored).
 - Fresh seeds: **safe by construction.** `scripts/seed-mongodb.ts` now
   hashes at seed time, so new environments are born without plaintext.
-- Production (Atlas): **STILL GATED on owner approval.** Everything
-  below is ready to execute; nothing has touched Atlas. Login-time
-  hash upgrades continue to convert accounts organically in the
-  meantime (single-doc, concurrency-safe).
+- Production (Atlas): **already rehashed - 2026-09-10, before go-live.** Window
+  report 14 records the run on the owner's machine (encrypted backup of 77 docs ->
+  `--apply --expect 77 --bump-tv --bump-all` -> verified 77/77,
+  remaining-plaintext=0); closeout 15's direct DB count showed 0 non-scrypt,
+  min tv 2; go-live smoke (report 16) passed the same day against
+  https://aics-portal.vercel.app. The previous "STILL GATED / nothing has
+  touched Atlas" line here was a stale claim written 2026-10-15 (6eee07d)
+  without that campaign context - reconciled and corrected 2026-10-16
+  (QA report 18). This runbook remains the standing procedure if a rehash
+  is ever needed again (fresh-environment proof: scripts/verify-rehash-rehearsal.sh,
+  33/33, 2026-10-16).
 
 ## Why approval is required
 
@@ -107,4 +114,4 @@ routine use.
 
 The identical procedure can be rehearsed against the
 local dev database (boot mongod → dry-run → backup → apply → login
-checks); the rehearsal wrapper lives on the development branch.
+checks); the rehearsal wrapper is scripts/verify-rehash-rehearsal.sh on this branch (33/33, 2026-10-16).
