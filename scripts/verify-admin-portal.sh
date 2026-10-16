@@ -2,7 +2,8 @@
 # ============================================================
 #  verify-admin-portal.sh — end-to-end verification for the
 #  admin portal epic (dashboard stats, events CRUD, announcements
-#  CRUD, professors CRUD, people directory, enrollment management)
+#  CRUD, announcements bulk delete, professors CRUD, people
+#  directory + CSV export, enrollment management)
 #
 #  Runs in ONE invocation because background processes do not
 #  survive between shell sessions in this environment:
@@ -159,6 +160,41 @@ st=$(curl -s -X DELETE -H "$AC" "$BASE/api/announcements?id=$QA_AID" | node -e "
 [ "$st" = "OK" ] && ok "announcement deleted (+reads cleanup)" || bad "announcement delete: $st"
 
 # ------------------------------------------------------------
+echo "== 10b. announcements bulk delete =="
+BULK_A=""; BULK_B=""; BULK_C=""
+for t in "QA bulk alpha" "QA bulk beta" "QA bulk gamma"; do
+  id=$(curl -s -X POST -H "$AC" -H 'Content-Type: application/json' -d "{\"branch\":\"commonwealth\",\"title\":\"$t\",\"body\":\"Bulk-delete harness post.\",\"category\":\"general\",\"performedBy\":\"admin\"}" "$BASE/api/announcements" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const d=JSON.parse(s);console.log(d.ok===true?d.id:s)})")
+  case "$t" in *alpha) BULK_A="$id" ;; *beta) BULK_B="$id" ;; *) BULK_C="$id" ;; esac
+done
+[ -n "$BULK_A" ] && [ -n "$BULK_B" ] && [ -n "$BULK_C" ] && ok "3 bulk-target announcements posted" || bad "bulk targets: $BULK_A $BULK_B $BULK_C"
+
+# a read marker on the first target — bulk delete must drop it too
+node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();await c.db('aics_portal').collection('announcement_reads').insertOne({branch:'commonwealth',username:'juan.santos',announcementId:process.argv[1],action:'read',at:new Date()});await c.close()})()" "$BULK_A" && ok "read marker planted on QA bulk alpha" || bad "read marker plant failed"
+
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "{\"ids\":[\"$BULK_A\"]}" "$BASE/api/announcements/bulk-delete")
+[ "$st" = "401" ] && ok "bulk-delete without session -> 401" || bad "bulk-delete no session -> $st"
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "$SC" -H 'Content-Type: application/json' -d "{\"ids\":[\"$BULK_A\"]}" "$BASE/api/announcements/bulk-delete")
+[ "$st" = "403" ] && ok "student bulk-delete -> 403" || bad "student bulk-delete -> $st"
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "$AC" -H 'Content-Type: application/json' -d '{"ids":[]}' "$BASE/api/announcements/bulk-delete")
+[ "$st" = "400" ] && ok "empty ids array -> 400" || bad "empty ids -> $st"
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "$AC" -H 'Content-Type: application/json' -d '{"ids":["not-an-id"]}' "$BASE/api/announcements/bulk-delete")
+[ "$st" = "400" ] && ok "garbage id -> 400" || bad "garbage id -> $st"
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "$AC" -H 'Content-Type: application/json' -d "{\"ids\":[$(node -e "console.log(Array(201).fill('\"000000000000000000000000\"').join(','))")]}" "$BASE/api/announcements/bulk-delete")
+[ "$st" = "400" ] && ok "201-id payload over the 200 cap -> 400" || bad "201 ids -> $st"
+st=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "$AC" -H 'Content-Type: application/json' -d '{"ids":["000000000000000000000000"]}' "$BASE/api/announcements/bulk-delete")
+[ "$st" = "404" ] && ok "well-formed but nonexistent id -> 404" || bad "nonexistent id -> $st"
+
+st=$(curl -s -X POST -H "$AC" -H 'Content-Type: application/json' -d "{\"ids\":[\"$BULK_A\",\"$BULK_B\",\"$BULK_C\"]}" "$BASE/api/announcements/bulk-delete" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const d=JSON.parse(s);console.log(d.ok===true&&d.deleted===3?'OK':s)})")
+[ "$st" = "OK" ] && ok "bulk delete removed all 3 (deleted: 3)" || bad "bulk delete: $st"
+
+anns=$(curl -s -H "$AC" "$BASE/api/announcements?username=admin&all=1")
+res=$(node -e "const d=JSON.parse(process.argv[1]);const gone=['alpha','beta','gamma'].every(w=>!d.announcements.some(x=>x.title.includes(w)));console.log(gone?'OK':'BAD')" "$anns")
+[ "$res" = "OK" ] && ok "bulk-deleted posts gone from all=1 list" || bad "bulk-deleted posts still listed"
+
+res=$(node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();const n=await c.db('aics_portal').collection('announcement_reads').countDocuments({announcementId:process.argv[1]});console.log(n===0?'OK':'BAD '+n);await c.close()})()" "$BULK_A")
+[ "$res" = "OK" ] && ok "read marker for bulk-deleted post removed" || bad "read marker survived: $res"
+
+# ------------------------------------------------------------
 echo "== 11. professors CRUD cycle =="
 st=$(curl -s -X POST -H "$AC" -H 'Content-Type: application/json' -d '{"name":"QA Test Professor","email":"qa.test@aics.edu.ph","officeHours":"Fri • 1:00-3:00 PM","room":"Room 999"}' "$BASE/api/professors" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const d=JSON.parse(s);console.log(d.ok===true?d.id:s)})")
 [ -n "$st" ] && ok "professor added" || bad "professor add: $st"
@@ -202,6 +238,7 @@ if reset_seed; then ok "re-seeded"; else bad "re-seed failed"; fi
 # ------------------------------------------------------------
 echo "== 14. browser flow (agent-browser) =="
 EVID="docs/done/qa_evidence/ui-ux"
+mkdir -p "$EVID"
 AB="agent-browser"
 NAV="$BASE/portal/commonwealth/admin/admin"
 ev() { $AB eval "$1" 2>/dev/null | tr -d '"'; }
@@ -260,6 +297,35 @@ res=$(ev "(function(){const t=document.body.textContent;return t.includes('Enrol
 [ "$res" = "true" ] && ok "announcements table lists posts with priority + expiry filters" || bad "announcements table incomplete"
 $AB screenshot "$EVID/admin-06-announcements.png" > /dev/null
 
+# UI: bulk selection — header select-all, clear, then delete two rows
+res=$(ev "(function(){return document.querySelectorAll('input[type=checkbox]').length})()")
+[ "$res" = "6" ] && ok "checkbox column renders (header + 5 seeded rows)" || bad "checkbox count: $res (want 6)"
+ev "(function(){const c=document.querySelector('thead input[type=checkbox]');if(c){c.click();return 'clicked'}return 'missing'})()" > /dev/null
+for _ in $(seq 1 10); do $AB wait --text "5 selected" --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
+res=$(ev "(function(){return document.body.textContent.includes('5 selected (all shown)')})()")
+[ "$res" = "true" ] && ok "select-all checks every row (5 selected, all shown)" || bad "select-all toolbar text missing"
+$AB screenshot "$EVID/admin-06b-bulk-select-all.png" > /dev/null
+ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Clear'));if(b){b.click();return 'clicked'}return 'missing'})()" > /dev/null
+sleep 1
+res=$(ev "(function(){const b=[...document.querySelectorAll('button')].some(x=>(x.textContent||'').includes('Delete selected'));return b?'BAD':'OK'})()")
+[ "$res" = "OK" ] && ok "clear drops the selection and the bulk bar" || bad "bulk bar survived clear"
+ev "(function(){const c=document.querySelectorAll('tbody input[type=checkbox]');c[0].click();c[1].click();return 'clicked'})()" > /dev/null
+for _ in $(seq 1 10); do $AB wait --text "2 selected" --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
+res=$(ev "(function(){const checked=document.querySelectorAll('tbody input[type=checkbox]:checked').length;return checked===2?'OK':'BAD '+checked})()")
+[ "$res" = "OK" ] && ok "two row checkboxes selected individually" || bad "row selection: $res"
+$AB screenshot "$EVID/admin-06c-bulk-two-selected.png" > /dev/null
+ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Delete selected'));if(b){b.click();return 'clicked'}return 'missing'})()" > /dev/null
+for _ in $(seq 1 10); do $AB wait --text "Confirm delete" --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
+res=$(ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Confirm delete'));return b?'OK':'BAD'})()")
+[ "$res" = "OK" ] && ok "delete selected arms two-click confirm" || bad "confirm state missing"
+$AB screenshot "$EVID/admin-06d-bulk-confirm.png" > /dev/null
+ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Confirm delete'));if(b){b.click();return 'clicked'}return 'missing'})()" > /dev/null
+for _ in $(seq 1 15); do $AB wait --text "Deleted 2 announcements." --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
+sleep 2
+res=$(ev "(function(){const rows=document.querySelectorAll('tbody tr').length;return rows===3?'OK':'BAD '+rows})()")
+[ "$res" = "OK" ] && ok "bulk delete removed 2 rows (5 -> 3)" || bad "row count after bulk delete: $res"
+$AB screenshot "$EVID/admin-06e-bulk-deleted.png" > /dev/null
+
 # professors page
 $AB open "$NAV/professors" > /dev/null
 for _ in $(seq 1 30); do $AB wait --text "Add professor" --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
@@ -274,6 +340,14 @@ for _ in $(seq 1 30); do $AB wait --text "m.reyes" --timeout 1000 > /dev/null 2>
 sleep 2
 res=$(ev "(function(){const t=document.body.textContent;return t.includes('Everyone')&&t.includes('75')&&t.includes('m.reyes')})()")
 [ "$res" = "true" ] && ok "people directory: chips (75 students), faculty + admin rows on page 1" || bad "people content incomplete"
+# UI: CSV export button downloads the filtered roster
+res=$(ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Export CSV'));return b?'OK':'BAD'})()")
+[ "$res" = "OK" ] && ok "people directory: Export CSV button renders" || bad "Export CSV button missing"
+ev "(function(){const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').includes('Export CSV'));if(b){b.click();return 'clicked'}return 'missing'})()" > /dev/null
+for _ in $(seq 1 10); do $AB wait --text "Exported 77 rows." --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
+res=$(ev "(function(){return document.body.textContent.includes('Exported 77 rows.')})()")
+[ "$res" = "true" ] && ok "CSV export fires for the whole directory (77 rows)" || bad "CSV export toast missing"
+$AB screenshot "$EVID/admin-08b-people-export-csv.png" > /dev/null
 # search narrows to juan (who lives on page 2 without a query)
 ev "(function(){const i=document.querySelector('input[type=search]');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(i,'juan.santos');i.dispatchEvent(new Event('input',{bubbles:true}));return 'typed'})()" > /dev/null
 for _ in $(seq 1 15); do $AB wait --text "juan.santos" --timeout 1000 > /dev/null 2>&1 && break; sleep 1; done
