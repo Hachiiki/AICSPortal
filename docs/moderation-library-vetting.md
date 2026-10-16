@@ -1,8 +1,9 @@
 # Content Moderation — Library Vetting (Decision Record)
 
 - Date: 2026-10-16
-- Status: gate satisfied for the shortlist below; decision made, pending owner sign-off
-- Satisfies: the library-vetting-gate item of the Content Moderation epic in TODO.md
+- Status: DECIDED and IMPLEMENTED — owner decisions recorded in section 7;
+  implementation record in section 9; Filipino-list reviewer sign-off remains open
+- Satisfies: the Content Moderation epic in TODO.md (engine, enforcement, verification)
 - Method: every fact below was verified against a live source on 2026-10-16 — the npm
   registry download API, GitHub repos and raw license files, vendor documentation pages,
   or a headless-browser render of the one JS-only docs page. Nothing is quoted from
@@ -178,21 +179,26 @@ content.
 - The jromest list is MIT: attribution comment in the dataset file.
 - No student content leaves our server to any third party in the decided architecture.
 
-## 7. Open questions for the owner
+## 7. Owner decisions (recorded 2026-10-16 — all four questions answered)
 
-1. URL policy per audience: hard-block external links in student task submissions, or
-   flag for review? Which trusted domains beyond the school site, Cloudinary, and
-   Google Drive?
-2. Who curates and signs off the Filipino list? A Filipino-speaking reviewer is
-   required for the category tags and the inflected forms — this is the single
-   highest-leverage owner contribution to the whole epic.
-3. Is the optional OpenAI flag-only layer wanted at all? It needs an API key, an egress
-   decision, and a Filipino evaluation pass first.
-4. Action per rule: reject with a named-rule 4xx immediately, or a flag-for-review
-   queue first with outright rejection reserved for the sexual and harassment
-   categories?
+1. **URL policy per audience**: hard-block external links in student task submissions;
+   flag for review everywhere else. Trusted domains for v1: the school site (env-bound,
+   set via MODERATION_TRUSTED_DOMAINS in production), res.cloudinary.com,
+   drive.google.com, docs.google.com.
+2. **Filipino list curation**: a Filipino-speaking reviewer signs off the final list
+   (category tags + inflected forms). This stays an owner-side contribution and does
+   NOT block the build — the engine ships with the curated seed, and reviewer sign-off
+   is tracked as the open item in section 9.
+3. **Optional OpenAI flag-only layer**: skipped for now. No API key, no egress. Revisit
+   only after a Filipino evaluation pass.
+4. **Action per rule**: sexual and harassment content — reject outright with a named-
+   rule 4xx. Profanity and untrusted-domain links — flag for review (the write is still
+   refused pending admin follow-up, logged with reviewPending=true).
 
-## 8. Next steps — implementation order
+The action semantics live in src/lib/moderation/config.ts (SURFACE_POLICY); relaxing
+'flag' to allow-and-mark later is a per-surface config change, not a rearchitecture.
+
+## 8. Next steps — implementation order (all four done, see section 9)
 
 1. Add obscenity; build src/lib/moderation/ with the three category matchers plus the
    URL and allowlist rules; wire into the parseBody pipeline of the write routes.
@@ -206,6 +212,50 @@ content.
    use.
 4. A moderation_logs collection and an admin view later, if the flag-for-review path
    is chosen.
+
+## 9. Implementation record (2026-10-16)
+
+**Shipped**: src/lib/moderation/ (engine, three category datasets, allowlist, URL
+policy, decision policy, moderation_logs writer) wired into every persisting write
+route — announcements POST/PATCH (admin), section notifications POST (faculty), tasks
+POST (faculty), materials POST (faculty), profile PATCH (student). Task submissions
+carry no text today, so the future student-submission surface will set
+url-restriction to 'reject' per decision 1.
+
+**A real bug the corpus caught before it could ship**: the glue matcher (the second
+matcher per category that strips separators to catch "f u c k"-style masking)
+initially reused obscenity's built-in pattern set verbatim. Those patterns assume
+spaces are preserved; under stripping they match across word junctions — "data
+analysis" glued to "datanalysis" contains "tanal" (a built-in evasion pattern for
+"anal"), and Filipino "ang gatas" glued to "anggatas" contains "ngga" (the
+"n[i]gga" pattern). Whitelist suppression cannot rescue these: suppression requires
+the match span to sit INSIDE a whitelisted term's span, and a junction match is wider
+than any whitelist term. The fix (engine.ts, glueSafe): the glue dataset keeps only
+start-anchored patterns, base-form single literals, and optional-wildcard patterns
+("f[?]ck" — no word starts with "ck", so it cannot span a junction and it is what
+catches mid-sentence "what the f u c k"); everything else is dropped from glue but
+kept in the plain matcher. Our own entries are fully word-bounded and gain despaced
+variants ("putang ina" also matches glued "putangina").
+
+**Verification** (scripts/verify-moderation.sh, the verify-admin-portal.sh
+convention): engine corpus gate 84/84 — clean corpus (school announcements, honors
+lists, cafeteria menus, Filipino food and transport words, the section 3.1 traps,
+Uranus/tetanus, Bob Ong, fire retardant, "ran us", "wash it", "an alibi", "mas
+lutong") flags ZERO; dirty corpus (bilingual profanity, inflected Tagalog, leet,
+separator-hidden, glued compounds, URLs) ALL caught. Route-level end-to-end 22/22 —
+every surface returns 422 naming rule + action on dirty writes, persists clean
+writes, and moderation_logs carries the audit rows (rule ids, actions, matched terms,
+reviewPending, actor stamps, all five surfaces).
+
+**Known limitations (for the Filipino-reviewer pass, decision 2)**: mid-sentence
+separator-hidden slurs escape the glue matcher by design (the safe pattern classes
+cannot catch them without re-opening junction false positives); plain anatomy
+vocabulary ("penis", "vagina") in biology-class text is indistinguishable from
+sexual content by word list and will be rejected — biology teachers need admin
+follow-up; the library's own plain-matcher quirks survive: "Dick" as a name,
+"pentanal"/"butanal" chemistry strings, "Fukushima". Tae collides with the Korean
+romanization (K-pop club announcements). These are queued behind reviewer sign-off,
+not behind further engineering.
 
 ## Sources verified on 2026-10-16
 
