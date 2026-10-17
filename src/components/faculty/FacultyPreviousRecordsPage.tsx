@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Archive, Search, MapPin, Clock, Eye, ChevronDown, X } from 'lucide-react'
+import { Archive, Search, MapPin, Clock, Eye, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -12,6 +12,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { DashboardSkeleton } from '../portal/Skeleton'
+import { SelectMenu } from '../ui/select-menu'
 
 interface Props {
   student: Student
@@ -199,26 +200,32 @@ export function FacultyPreviousRecordsPage({
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Academic Year</label>
-              <div className="relative mt-1">
-                <select value={year} onChange={(e) => setYear(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option value="all">All years</option>
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>AY {y}</option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
+              <SelectMenu
+                className="mt-1"
+                aria-label="Filter by academic year"
+                buttonClassName="w-auto"
+                value={year}
+                onChange={setYear}
+                options={[
+                  { value: 'all', label: 'All years' },
+                  ...yearOptions.map((y) => ({ value: y, label: `AY ${y}` })),
+                ]}
+              />
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Assignment</label>
-              <div className="relative mt-1">
-                <select value={assignment} onChange={(e) => setAssignment(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option value="all">All</option>
-                  <option value="current">Currently teaching</option>
-                  <option value="former">Formerly taught (switched)</option>
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
+              <SelectMenu
+                className="mt-1"
+                aria-label="Filter by assignment"
+                buttonClassName="w-auto"
+                value={assignment}
+                onChange={setAssignment}
+                options={[
+                  { value: 'all', label: 'All' },
+                  { value: 'current', label: 'Currently teaching' },
+                  { value: 'former', label: 'Formerly taught (switched)' },
+                ]}
+              />
             </div>
           </div>
 
