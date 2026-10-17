@@ -23,7 +23,7 @@ export default function PortalError({
   }, [error])
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 pt-9 font-sans">
+    <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 font-sans">
       <div
         role="alert"
         className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm"
