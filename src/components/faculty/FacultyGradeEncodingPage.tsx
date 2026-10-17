@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { ChevronLeft, ChevronDown, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
+import { ChevronLeft, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -9,6 +9,7 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
+import { SelectMenu } from '../ui/select-menu'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
@@ -147,7 +148,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const [showFillModal, setShowFillModal] = useState(false)
   const [fillValue, setFillValue] = useState('')
   const fillInputRef = useRef<HTMLInputElement>(null)
-  const submitPeriodRef = useRef<HTMLSelectElement>(null)
+  const submitPeriodRef = useRef<HTMLButtonElement>(null)
   // Stable closers: Modal's mount-only focus effect depends on onClose identity.
   const closeFillModal = useCallback(() => setShowFillModal(false), [])
   const closeSubmitModal = useCallback(() => setShowSubmitModal(false), [])
@@ -381,12 +382,20 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search student…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white shadow-sm text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
-              <div className="relative">
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option value="all">All statuses</option><option value="">No status</option><option value="draft">Draft</option><option value="submitted">Submitted</option><option value="released">Released</option>
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
+              <SelectMenu
+                aria-label="Filter by status"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                buttonClassName="w-auto"
+                panelClassName="z-30"
+                options={[
+                  { value: 'all', label: 'All statuses' },
+                  { value: '', label: 'No status' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'submitted', label: 'Submitted' },
+                  { value: 'released', label: 'Released' },
+                ]}
+              />
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
               <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
@@ -521,9 +530,18 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           }
         >
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Which period?</label>
-          <select ref={submitPeriodRef} value={submitPeriod} onChange={(e) => setSubmitPeriod(e.target.value as any)} className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white">
-            <option value="prelim">Prelim only</option><option value="midterm">Midterm only</option><option value="finals">Finals only</option><option value="all">All periods (Final Grade)</option>
-          </select>
+          <SelectMenu
+            ref={submitPeriodRef}
+            aria-label="Which period?"
+            value={submitPeriod}
+            onChange={setSubmitPeriod}
+            options={[
+              { value: 'prelim', label: 'Prelim only' },
+              { value: 'midterm', label: 'Midterm only' },
+              { value: 'finals', label: 'Finals only' },
+              { value: 'all', label: 'All periods (Final Grade)' },
+            ]}
+          />
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
           <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
         </Modal>

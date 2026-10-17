@@ -13,6 +13,7 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
 import { Modal } from '../portal/Modal'
 import { DashboardSkeleton } from '../portal/Skeleton'
+import { SelectMenu } from '../ui/select-menu'
 
 export interface TaskGroup {
   subjectCode: string
@@ -395,27 +396,21 @@ export function FacultyTasksPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">Subject</label>
-                <select
+                <SelectMenu
+                  aria-label="Subject"
                   value={subjectCode}
-                  onChange={(e) => setSubjectCode(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
-                  {codes.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                  onChange={setSubjectCode}
+                  options={codes.map((c) => ({ value: c, label: c }))}
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1.5">Type</label>
-                <select
+                <SelectMenu
+                  aria-label="Type"
                   value={type}
-                  onChange={(e) => setType(e.target.value as TaskType)}
-                  className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
-                  {TASK_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+                  onChange={setType}
+                  options={TASK_TYPES.map((t) => ({ value: t, label: t }))}
+                />
               </div>
             </div>
             <div>

@@ -16,6 +16,7 @@ import { CATEGORY_LABELS, CATEGORY_PILL_STYLES, type EventCategory, type PortalE
 import { Modal } from '../portal/Modal'
 import { PortalShell } from '../portal/PortalShell'
 import { EmptyState } from '../portal/EmptyState'
+import { SelectMenu } from '../ui/select-menu'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -28,6 +29,17 @@ import type { AdminPageProps } from './admin-props'
 
 const CATEGORIES: EventCategory[] = ['academic', 'deadline', 'campus', 'holiday']
 type Timeframe = 'upcoming' | 'past' | 'all'
+
+const CATEGORY_FILTER_OPTIONS = [
+  { value: 'all' as const, label: 'All categories' },
+  ...CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] })),
+]
+
+const TIMEFRAME_OPTIONS: { value: Timeframe; label: string }[] = [
+  { value: 'all', label: 'All dates' },
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'past', label: 'Past' },
+]
 
 interface EventForm {
   title: string
@@ -222,29 +234,20 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value as 'all' | EventCategory)}
+          <SelectMenu
             aria-label="Filter by category"
-            className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">All categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {CATEGORY_LABELS[c]}
-              </option>
-            ))}
-          </select>
-          <select
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value as Timeframe)}
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            buttonClassName="w-auto"
+            options={CATEGORY_FILTER_OPTIONS}
+          />
+          <SelectMenu
             aria-label="Filter by timeframe"
-            className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">All dates</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="past">Past</option>
-          </select>
+            value={timeframe}
+            onChange={setTimeframe}
+            buttonClassName="w-auto"
+            options={TIMEFRAME_OPTIONS}
+          />
         </div>
 
         {loading ? (
@@ -374,18 +377,13 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
               <label htmlFor="event-category" className="block text-xs font-semibold text-slate-600 mb-1">
                 Category
               </label>
-              <select
+              <SelectMenu
                 id="event-category"
+                aria-label="Category"
                 value={form.category}
-                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as EventCategory }))}
-                className={inputClass}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {CATEGORY_LABELS[c]}
-                  </option>
-                ))}
-              </select>
+                onChange={(v) => setForm((f) => ({ ...f, category: v }))}
+                options={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }))}
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
