@@ -20,7 +20,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, backgroundColor: '#f8fafc', paddingTop: '2.25rem' }}>
+      <body style={{ margin: 0, backgroundColor: '#f8fafc' }}>
         <div
           role="alert"
           style={{
