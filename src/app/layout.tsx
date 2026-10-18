@@ -32,7 +32,10 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "AICS Portal — Login",
+  // SSR default — what logged-out users and pre-hydration tabs show.
+  // Authenticated titles are managed client-side by
+  // src/lib/aics/page-titles.ts ("Dashboard | AICS Portal", ...).
+  title: "Login | AICS Portal",
   description:
     "Secure student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS).",
   keywords: ["AICS", "Asian Institute of Computer Studies", "portal", "login", "student portal"],

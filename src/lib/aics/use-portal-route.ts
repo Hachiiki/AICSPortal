@@ -47,8 +47,10 @@ export type PortalRoute =
   | { view: 'admin-people'; branch: string; username: string; role: PortalRole }
   | { view: 'admin-enrollment'; branch: string; username: string; role: PortalRole }
 
-/** Parse a URL pathname into a PortalRoute. */
-function parsePath(path: string): PortalRoute {
+/** Parse a URL pathname into a PortalRoute. Exported for the shared
+ *  page-title system (and any future path-derived concern) so URL
+ *  parsing stays defined in exactly one place. */
+export function parsePath(path: string): PortalRoute {
   const parts = path.replace(/^\/+|\/+$/g, '').split('/')
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
