@@ -21,12 +21,17 @@ import { POST_LOGIN_CHOICES, readStoredVariant, writeStoredVariant } from './var
  * - The selection persists to localStorage and applies to the next
  *   real sign-in (dev only).
  * - With prefers-reduced-motion the alternatives are skipped at
- *   sign-in, so the preview is disabled with an explanatory note.
+ *   sign-in, so the preview is disabled by default. A preview-only
+ *   override checkbox lets the owner review the candidates even when
+ *   the OS (or a browser whose DevTools emulation does not take)
+ *   keeps reporting reduced motion — real sign-in is never affected.
  */
 export function AnimationLab() {
   const [selected, setSelected] = useState<'default' | 'bloom' | 'sweep' | 'assemble'>('default')
   const [previewing, setPreviewing] = useState(false)
-  const reduced = useReducedMotion()
+  const [overrideReduced, setOverrideReduced] = useState(false)
+  const reducedMotion = useReducedMotion()
+  const reduced = !!reducedMotion && !overrideReduced
 
   useEffect(() => {
     // One-time, hydration-safe read of the persisted selection. Reading
@@ -41,6 +46,12 @@ export function AnimationLab() {
     setSelected(variant)
     writeStoredVariant(variant)
   }
+
+  const note = reducedMotion
+    ? overrideReduced
+      ? 'Preview override is on. Sign-in still skips the alternatives under reduced motion.'
+      : 'Reduced motion is detected — sign-in skips the alternatives. Check the override above to preview them anyway.'
+    : 'Preview plays without signing in. Your selection applies to the next sign-in on this device (dev only).'
 
   return (
     <div className="mt-6 rounded-[10px] p-4" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
@@ -93,7 +104,7 @@ export function AnimationLab() {
 
       <button
         type="button"
-        disabled={!!reduced}
+        disabled={reduced}
         onClick={() => setPreviewing(true)}
         className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-[8px] py-2 text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ background: T.primary, color: T.white }}
@@ -102,10 +113,23 @@ export function AnimationLab() {
         Preview selected
       </button>
 
+      {reducedMotion ? (
+        <label className="mt-2 flex items-start gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={overrideReduced}
+            onChange={(e) => setOverrideReduced(e.target.checked)}
+            className="mt-0.5"
+            style={{ accentColor: T.accent }}
+          />
+          <span className="text-[11px] leading-relaxed" style={{ color: T.muted }}>
+            Play preview anyway (preview only — sign-in still honors reduced motion)
+          </span>
+        </label>
+      ) : null}
+
       <p className="mt-2 text-[11px] leading-relaxed" style={{ color: T.muted }}>
-        {reduced
-          ? 'Reduced motion is on — the alternatives are skipped at sign-in, so preview is disabled.'
-          : 'Preview plays without signing in. Your selection applies to the next sign-in on this device (dev only).'}
+        {note}
       </p>
 
       {previewing && (
