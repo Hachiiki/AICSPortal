@@ -7,6 +7,15 @@ import { Loader2, MapPin, CheckCircle2 } from 'lucide-react'
 interface BranchRedirectProps {
   branch: string
   onComplete: () => void
+  /**
+   * Two-stage mode (the assemble candidate): hold the final step —
+   * and completion — until the portal's initial data has actually
+   * landed (ready) or failed (error). Undefined keeps the legacy
+   * timer-paced completion used by the production default path. The
+   * visual presentation is identical in both modes; only completion
+   * and the final checkmark are gated on real readiness.
+   */
+  readiness?: { ready: boolean; error: boolean }
 }
 
 const STEPS = [
@@ -15,30 +24,75 @@ const STEPS = [
   'Loading your portal…',
 ]
 
+// Legacy pacing (production default): steps at 600/1300 ms, completion
+// at 2400 ms — byte-identical to the original animation.
+const STEP_MS = [600, 1300]
+const LEGACY_TOTAL_MS = 2400
+// Two-stage pacing: identical step rhythm, but the sequence may
+// complete only after this natural-length floor AND real readiness —
+// a fast login finishes exactly when the production animation would,
+// while a slow one holds the final step's spinner for as long as the
+// load really takes. The final checkmark appears the moment the data
+// lands, never on a timer.
+const GATED_FLOOR_MS = 2200
+const READY_SETTLE_MS = 200
+const ERROR_EXIT_MS = 400
+
 /**
  * Full-screen redirect animation shown after a successful login.
- * Displays a sequence of steps that culminate in "Redirecting to
+ * Displays a sequence of steps that culminates in "Redirecting to
  * your branch: {branch}" before navigating to the dashboard.
+ *
+ * The step rhythm is readability pacing for facts that are already
+ * true at mount — the login API verified the credentials and resolved
+ * the branch before this overlay appears. In two-stage mode the final
+ * step's completion reflects the real initial-data load: it never
+ * checks off or completes on a timer alone, and a failed load exits
+ * promptly so the existing error card takes over.
  */
-export function BranchRedirect({ branch, onComplete }: BranchRedirectProps) {
+export function BranchRedirect({ branch, onComplete, readiness }: BranchRedirectProps) {
   const [step, setStep] = useState(0)
+  const [floorDone, setFloorDone] = useState(false)
+  const gated = readiness !== undefined
   // Capitalize the branch name for display
   const branchDisplay = branch.charAt(0).toUpperCase() + branch.slice(1)
 
+  // Step pacing (identical in both modes) plus the natural-length
+  // floor flag used by gated completion. These timers only advance
+  // internal state, so callback identity is deliberately not a
+  // dependency.
   useEffect(() => {
-    // Step 0: "Authenticating credentials…"
-    const t1 = setTimeout(() => setStep(1), 600)
-    // Step 1: "Detecting branch…"
-    const t2 = setTimeout(() => setStep(2), 1300)
-    // Step 2: "Loading your portal…" → then complete
-    const t3 = setTimeout(() => onComplete(), 2400)
-
+    const timers = STEP_MS.map((ms, i) => setTimeout(() => setStep(i + 1), ms))
+    const floor = gated ? setTimeout(() => setFloorDone(true), GATED_FLOOR_MS) : undefined
     return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-      clearTimeout(t3)
+      timers.forEach(clearTimeout)
+      if (floor) clearTimeout(floor)
     }
-  }, [onComplete])
+  }, [gated])
+
+  // Completion. Legacy: the original fixed total. Gated: only once
+  // the sequence has played out at least at its natural length AND
+  // the initial data truly landed — or promptly when it failed, so
+  // the existing error card (never a fake workspace) takes over.
+  useEffect(() => {
+    if (!gated) {
+      const t3 = setTimeout(onComplete, LEGACY_TOTAL_MS)
+      return () => clearTimeout(t3)
+    }
+    if (readiness?.error) {
+      const t = setTimeout(onComplete, ERROR_EXIT_MS)
+      return () => clearTimeout(t)
+    }
+    if (readiness?.ready && floorDone) {
+      const t = setTimeout(onComplete, READY_SETTLE_MS)
+      return () => clearTimeout(t)
+    }
+  }, [gated, readiness?.ready, readiness?.error, floorDone, onComplete])
+
+  // Two-stage mode: the final step's checkmark appears only on real
+  // readiness, and only once the step itself is active (rows still
+  // check in order).
+  const finalChecked = gated && step >= STEPS.length - 1 && !!readiness?.ready
 
   return (
     <motion.div
@@ -84,29 +138,32 @@ export function BranchRedirect({ branch, onComplete }: BranchRedirectProps) {
 
         {/* Steps */}
         <div className="space-y-2.5 mb-6 w-64">
-          {STEPS.map((label, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{
-                opacity: i <= step ? 1 : 0.3,
-                x: 0,
-              }}
-              transition={{ duration: 0.3, delay: i * 0.1 }}
-              className="flex items-center gap-2.5 text-sm"
-            >
-              {i < step ? (
-                <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-              ) : i === step ? (
-                <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />
-              ) : (
-                <div className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0" />
-              )}
-              <span className={i <= step ? 'text-slate-700 font-medium' : 'text-slate-500'}>
-                {label}
-              </span>
-            </motion.div>
-          ))}
+          {STEPS.map((label, i) => {
+            const done = i < step || (finalChecked && i === STEPS.length - 1)
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{
+                  opacity: i <= step ? 1 : 0.3,
+                  x: 0,
+                }}
+                transition={{ duration: 0.3, delay: i * 0.1 }}
+                className="flex items-center gap-2.5 text-sm"
+              >
+                {done ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                ) : i === step ? (
+                  <Loader2 className="w-4 h-4 text-blue-600 animate-spin flex-shrink-0" />
+                ) : (
+                  <div className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0" />
+                )}
+                <span className={i <= step ? 'text-slate-700 font-medium' : 'text-slate-500'}>
+                  {label}
+                </span>
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* Branch detection message */}

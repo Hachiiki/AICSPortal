@@ -1,7 +1,9 @@
 // Post-login animation candidates — dev-branch experiment pending owner
-// review (refined Option C, two new alternatives, rejected Options A/B
-// removed). The production default remains the original BranchRedirect;
-// candidates activate only through the dev-only AnimationLab selection.
+// review (Option C refined into a two-stage flow — the preserved
+// redirect gated on real readiness, then the workspace assembly;
+// Options D/E single-stage; rejected A/B removed). The production
+// default remains the original BranchRedirect; candidates activate
+// only through the dev-only AnimationLab selection.
 import { SHOW_POST_LOGIN_PREVIEW } from '../login-tokens'
 
 export type PostLoginVariant = 'default' | 'assemble' | 'aperture' | 'framedraw'
@@ -24,8 +26,8 @@ export interface PostLoginChoice {
 export const POST_LOGIN_CHOICES: PostLoginChoice[] = [
   {
     id: 'assemble',
-    label: 'Option C — Workspace Assemble',
-    blurb: 'Ghost shell assembles straight into the live loading state',
+    label: 'Option C — Workspace Assemble (two-stage)',
+    blurb: 'Existing redirect holds for real data, then the workspace assembles',
   },
   {
     id: 'aperture',

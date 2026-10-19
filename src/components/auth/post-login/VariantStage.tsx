@@ -1,7 +1,6 @@
 'use client'
 
 import { BranchRedirect } from '../BranchRedirect'
-import { WorkspaceAssemble } from './WorkspaceAssemble'
 import { Aperture } from './Aperture'
 import { FrameDraw } from './FrameDraw'
 import type { PostLoginVariant } from './variants'
@@ -16,13 +15,14 @@ interface VariantStageProps {
 /**
  * Dumb mapper: variant id → overlay component. 'default' renders the
  * original BranchRedirect, so the production behavior is byte-identical
- * to today. Used by both PostLoginTransition (real sign-in) and the
- * AnimationLab preview harness.
+ * to today. Used by PostLoginTransition for the default and the
+ * single-stage candidates, and by the AnimationLab preview harness for
+ * those candidates. The assemble candidate is NOT mapped here — it is
+ * orchestrated as a two-stage sequence inside PostLoginTransition
+ * (redirect stage gated on real readiness, then the assembly).
  */
 export function VariantStage({ variant, branch, username, onComplete }: VariantStageProps) {
   switch (variant) {
-    case 'assemble':
-      return <WorkspaceAssemble branch={branch} username={username} onComplete={onComplete} />
     case 'aperture':
       return <Aperture branch={branch} username={username} onComplete={onComplete} />
     case 'framedraw':

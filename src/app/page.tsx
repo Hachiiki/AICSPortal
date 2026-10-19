@@ -33,7 +33,8 @@ import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { SettingsPage } from '@/components/portal/SettingsPage'
 import { HelpSupportPage } from '@/components/portal/HelpSupportPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
-import type { View } from '@/lib/aics/types'
+import type { Student, View } from '@/lib/aics/types'
+import type { Course, Session } from '@/lib/schedule'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -82,6 +83,53 @@ export default function AICSLoginPage() {
   const [redirecting, setRedirecting] = useState(false)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
+
+  // Post-login transition — two render paths.
+  //
+  // Default (production behavior, unchanged): an exclusive full-screen
+  // overlay; the portal and its initial data fetch start only when the
+  // overlay completes, exactly like the original BranchRedirect flow.
+  //
+  // Candidate (dev review only): the portal mounts underneath while
+  // the overlay plays, so data fetching starts immediately, and
+  // AnimatePresence crossfades the overlay out over the real state
+  // underneath. The assemble candidate additionally receives the
+  // fetch's real readiness and runs as TWO stages: the preserved
+  // redirect sequence holds its final step until the initial data
+  // actually lands, then the workspace assembly plays and crossfades
+  // into the real, already-rendered portal. In production the gate
+  // compiles to 'default', so this path disappears entirely.
+  const postLoginVariant = activePostLoginVariant()
+
+  // Portal initial data — owned here (lifted out of StudentDataWrapper)
+  // so the post-login transition can gate its stages on the fetch's
+  // real readiness, while every path renders the wrapper from the same
+  // single fetch (no duplicates). While the default overlay plays, the
+  // fetch is held off (null username), preserving the default path's
+  // exact load timing; candidate paths pass the username through so
+  // the workspace prepares underneath the overlay instead.
+  // Bumping retryKey re-runs the fetch (error-state Retry).
+  const [retryKey, setRetryKey] = useState(0)
+  const effectiveUsername = redirecting && postLoginVariant === 'default' ? null : username
+  const {
+    student,
+    courses,
+    sessions,
+    loading: studentLoading,
+    error: studentError,
+    patchStudent,
+  } = useStudentData(effectiveUsername, retryKey)
+
+  // Coherent-loading guard: the frame where `username` just flipped
+  // but the fetch effect has not run yet still carries stale
+  // loading:false/student:null, which would flash the error card for
+  // one paint. While authenticated with neither data nor error, the
+  // honest interim state is loading — what the wrapper's skeleton
+  // renders.
+  const portalLoading = studentLoading || (!!username && !student && !studentError)
+  // Real readiness of the initial data — the assemble candidate's
+  // stage gate. True only once the fetch has landed a student record.
+  const portalReady = !studentLoading && !studentError && !!student
 
   // --- Route guards ---
   useEffect(() => {
@@ -146,23 +194,10 @@ export default function AICSLoginPage() {
   // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
 
-  // Post-login transition — two render paths.
-  //
-  // Default (production behavior, unchanged): an exclusive full-screen
-  // overlay. Nothing mounts underneath until it completes, exactly like
-  // the original BranchRedirect flow.
-  //
-  // Candidate (dev review only): the portal mounts underneath while the
-  // overlay plays — the route guard above has already navigated to the
-  // dashboard by then, so data fetching starts immediately — and
-  // AnimatePresence crossfades the overlay out over whatever real state
-  // is underneath: the dashboard skeleton while data loads, the page
-  // itself if it landed in time, or the error card. The candidates
-  // thereby coordinate with the actual loading lifecycle instead of
-  // pretending readiness on top of a blank screen. In production the
-  // gate compiles to 'default', so this path disappears entirely.
-  const postLoginVariant = activePostLoginVariant()
-
+  // Production-default post-login path: the exclusive overlay, with
+  // the portal and its initial fetch held off underneath — the fetch
+  // starts when the overlay completes, byte-identical to the original
+  // BranchRedirect flow.
   if (redirecting && postLoginVariant === 'default') {
     return (
       <PostLoginTransition
@@ -183,8 +218,12 @@ export default function AICSLoginPage() {
   // Authenticated: portal content with the candidate overlay layered
   // on top during the post-login transition. The wrapper keeps a stable
   // tree position whether the overlay is playing or not, so completing
-  // the transition never remounts (or refetches) the portal. While
-  // still on the login view — the guard redirects within a frame —
+  // the transition never remounts (or refetches) the portal; it renders
+  // from the single lifted fetch above. The assemble candidate receives
+  // that fetch's real readiness: slow loads extend its redirect stage's
+  // spinner honestly, failures skip the assembly and reveal the existing
+  // error card, and fast loads finish at the sequence's natural length.
+  // While still on the login view — the guard redirects within a frame —
   // nothing renders underneath the opaque overlay, so the login form
   // never flashes.
   return (
@@ -195,6 +234,13 @@ export default function AICSLoginPage() {
           route={route}
           navigate={navigate}
           onLogout={handleLogout}
+          student={student}
+          courses={courses}
+          sessions={sessions}
+          studentLoading={portalLoading}
+          studentError={studentError}
+          patchStudent={patchStudent}
+          onRetryStudent={() => setRetryKey((k) => k + 1)}
         />
       )}
       <AnimatePresence>
@@ -204,6 +250,11 @@ export default function AICSLoginPage() {
             branch={redirectBranch}
             username={username ?? ''}
             onComplete={handleRedirectComplete}
+            readiness={
+              postLoginVariant === 'assemble'
+                ? { ready: portalReady, error: !!studentError }
+                : undefined
+            }
           />
         ) : null}
       </AnimatePresence>
@@ -235,15 +286,32 @@ function StudentDataWrapper({
   route,
   navigate,
   onLogout,
+  student,
+  courses,
+  sessions,
+  studentLoading,
+  studentError,
+  patchStudent,
+  onRetryStudent,
 }: {
   username: string
   route: PortalRoute
   navigate: (r: PortalRoute) => void
   onLogout: () => void
+  // Portal initial data, lifted to the page component so the
+  // post-login transition can gate on its real readiness. The wrapper
+  // renders from these props exactly as it rendered from its own
+  // useStudentData call before — one fetch, no duplicates.
+  student: Student | null
+  courses: Course[]
+  sessions: Session[]
+  studentLoading: boolean
+  studentError: string | null
+  patchStudent: (patch: Partial<Student>) => void
+  onRetryStudent: () => void
 }) {
-  // Bumping this re-runs the student-data fetch (error-state Retry).
-  const [retryKey, setRetryKey] = useState(0)
-  const { student, courses, sessions, loading, error, patchStudent } = useStudentData(username, retryKey)
+  const loading = studentLoading
+  const error = studentError
 
   // ----------------------------------------------------------
   //  Centralized navigation handler.
@@ -519,7 +587,7 @@ function StudentDataWrapper({
           <div className="mt-4 flex items-center justify-center gap-2">
             <button
               type="button"
-              onClick={() => setRetryKey((k) => k + 1)}
+              onClick={onRetryStudent}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744]"
             >
               <RotateCcw className="w-4 h-4" /> Try again

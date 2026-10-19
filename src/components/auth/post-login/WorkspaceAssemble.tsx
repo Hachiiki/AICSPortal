@@ -16,28 +16,32 @@ interface WorkspaceAssembleProps {
   onComplete: () => void
 }
 
-// Option C — "Workspace Assemble" (refined).
+// Option C — "Workspace Assemble" (refined, stage two).
 //
 // The retained concept: ghost blocks of the actual portal layout fly
 // into place — sidebar from the left, topbar from the top, content
 // wells cascading up — like a blueprint assembling into the workspace
 // the user is about to land in.
 //
+// Stage two of the assemble candidate: PostLoginTransition mounts this
+// only after its gated redirect stage confirmed the portal's initial
+// data has actually landed, so underneath the overlay is the REAL,
+// already-rendered dashboard (never a blank screen or a fake ready
+// state). The exit crossfade reveals that real interface.
+//
 // What the refinement changed (and why):
-// - The ghost now mirrors the REAL DashboardSkeleton geometry exactly
-//   (w-60 rail, h-16 topbar below the DevBanner strip, skeleton-padded
-//   main, .aics-skeleton shimmer wells) and the canvas is bg-slate-50,
-//   the skeleton page's own background. The overlay's final frame is
-//   pixel-equivalent to the skeleton's first frame, so the exit
-//   crossfade (handled by AnimatePresence in page.tsx, over the portal
-//   that mounts underneath) reads as one continuous surface.
+// - The ghost mirrors the REAL skeleton geometry exactly (w-60 rail,
+//   h-16 topbar below the DevBanner strip, skeleton-padded main,
+//   .aics-skeleton shimmer wells) on the skeleton page's own
+//   bg-slate-50 canvas, so the overlay reads as the same surface
+//   continuing to load.
 // - The "Your portal is ready" toast is gone. It claimed readiness
-//   before any data had loaded. The hero now carries only verified
-//   facts (branch, username — both returned by the login API before
-//   this overlay mounts) plus an honest "preparing your workspace…".
-// - Timing is cut from 1.8 s to 1.25 s: nothing real is being waited
-//   for underneath the old length, and the live skeleton continues the
-//   honest loading story immediately after.
+//   before any data had loaded. The hero carries only verified facts
+//   (branch, username — both returned by the login API before the
+//   overlay mounts) plus an honest "preparing your workspace…".
+// - Timing is 1.25 s of pure choreography: readiness was already
+//   established by the gated first stage, so nothing real is being
+//   waited for underneath this length.
 //
 // Timeline: sidebar (0-0.45 s) → topbar (0.08-0.48 s) → hero + wells
 // cascade (0.28-0.92 s) → settle → onComplete → exit crossfade.
