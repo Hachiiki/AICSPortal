@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
+import { usePortalPageTitle } from '@/lib/aics/page-titles'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
@@ -36,7 +37,7 @@ import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Enrollment } from '@/lib/aics/enrollment'
 import type { Announcement } from '@/lib/aics/announcements'
-import type { Notification as NotificationItem, NotificationInbox } from '@/lib/aics/notifications'
+import type { Notification as NotificationItem, NotificationInbox, SentHistoryPage } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 
 /**
@@ -70,6 +71,12 @@ import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 export default function AICSLoginPage() {
   const { route, navigate } = usePortalRoute()
   const { username, branch, role, loading: authLoading, login, loginDemo, logout } = useAuth()
+
+  // Browser tab title follows the current route (client-side nav,
+  // refreshes, direct URLs, logout). Enabled once auth resolves so
+  // logged-out users keep the SSR "Login | AICS Portal" default.
+  usePortalPageTitle(!authLoading && !!username)
+
   const [redirecting, setRedirecting] = useState(false)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
@@ -347,19 +354,32 @@ function StudentDataWrapper({
     }
   }, [username])
 
-  // Notifications this faculty member sent. Same once-per-session rule.
-  const [sentData, setSentData] = useState<{ notifications: NotificationItem[] } | null>(null)
+  // Sent history for the faculty Announcements tab (grouped +
+  // paginated server-side, newest first, 30-day expiry). Same
+  // once-per-session rule: the wrapper prefetches page 1 after the
+  // roster lands; page flips call fetchSent(page) which only swaps
+  // the panel's data, never the whole route.
+  const [sentData, setSentData] = useState<SentHistoryPage | null>(null)
   const [sentLoading, setSentLoading] = useState(false)
   const [sentError, setSentError] = useState<string | null>(null)
 
-  const fetchSent = useCallback(async () => {
+  const fetchSent = useCallback(async (page = 1) => {
     setSentLoading(true)
     setSentError(null)
     try {
-      const res = await fetch(`/api/notifications?sentBy=${encodeURIComponent(username)}`)
+      const res = await fetch(`/api/notifications/sent?sentBy=${encodeURIComponent(username)}&page=${page}`)
       const data = await res.json()
-      if (data.ok) setSentData({ notifications: data.notifications || [] })
-      else setSentError(data.error || 'Failed to load sent messages.')
+      if (data.ok) {
+        setSentData({
+          groups: data.groups || [],
+          page: data.page || 1,
+          pageSize: data.pageSize || 5,
+          total: data.total || 0,
+          totalPages: data.totalPages || 1,
+        })
+      } else {
+        setSentError(data.error || 'Failed to load sent history.')
+      }
     } catch {
       setSentError('Network error. Please try again.')
     } finally {

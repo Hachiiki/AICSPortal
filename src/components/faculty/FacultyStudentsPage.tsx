@@ -28,6 +28,7 @@ import { Modal } from '../portal/Modal'
 import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { AttendanceModal } from './AttendanceModal'
+import { SelectMenu } from '../ui/select-menu'
 import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
 
 interface FacultyStudentsPageProps {
@@ -549,26 +550,34 @@ export function FacultyStudentsPage({
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section / Room</label>
-              <div className="relative mt-1">
-                <select value={sectionFilter} onChange={(e) => { setSectionFilter(e.target.value); resetPage() }} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option value="all">All sections ({sections.length})</option>
-                  {sections.map((s) => (<option key={s.key} value={s.key}>{s.subjectCode} — {s.room} • {s.schedule}</option>))}
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
+              <SelectMenu
+                className="mt-1"
+                aria-label="Filter by section"
+                buttonClassName="w-auto"
+                value={sectionFilter}
+                onChange={(v) => { setSectionFilter(v); resetPage() }}
+                options={[
+                  { value: 'all', label: `All sections (${sections.length})` },
+                  ...sections.map((s) => ({ value: s.key, label: `${s.subjectCode} — ${s.room} • ${s.schedule}` })),
+                ]}
+              />
             </div>
             <div>
               <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</label>
-              <div className="relative mt-1">
-                <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); resetPage() }} className="h-10 px-3 pr-8 rounded-xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none appearance-none">
-                  <option value="all">All statuses</option>
-                  <option value="Enrolled">Enrolled</option>
-                  <option value="Active">Active</option>
-                  <option value="Dropped">Dropped</option>
-                  <option value="Transferred">Transferred</option>
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-              </div>
+              <SelectMenu
+                className="mt-1"
+                aria-label="Filter by status"
+                buttonClassName="w-auto"
+                value={statusFilter}
+                onChange={(v) => { setStatusFilter(v); resetPage() }}
+                options={[
+                  { value: 'all', label: 'All statuses' },
+                  { value: 'Enrolled', label: 'Enrolled' },
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Dropped', label: 'Dropped' },
+                  { value: 'Transferred', label: 'Transferred' },
+                ]}
+              />
             </div>
           </div>
 

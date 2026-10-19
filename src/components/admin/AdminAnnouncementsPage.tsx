@@ -22,6 +22,7 @@ import {
 import { Modal } from '../portal/Modal'
 import { PortalShell } from '../portal/PortalShell'
 import { EmptyState } from '../portal/EmptyState'
+import { SelectMenu } from '../ui/select-menu'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -36,6 +37,22 @@ import type { AdminPageProps } from './admin-props'
 
 const CATEGORIES: AnnouncementCategory[] = ['academic', 'deadline', 'campus', 'holiday', 'general']
 type ExpiryFilter = 'all' | 'active' | 'expired'
+
+const CATEGORY_FILTER_OPTIONS = [
+  { value: 'all' as const, label: 'All categories' },
+  ...CATEGORIES.map((c) => ({ value: c, label: ANNOUNCEMENT_STYLES[c].label })),
+]
+
+const EXPIRY_FILTER_OPTIONS: { value: ExpiryFilter; label: string }[] = [
+  { value: 'all', label: 'Active + expired' },
+  { value: 'active', label: 'Active only' },
+  { value: 'expired', label: 'Expired only' },
+]
+
+const PRIORITY_OPTIONS = [
+  { value: 'normal' as AnnouncementPriority, label: 'Normal' },
+  { value: 'urgent' as AnnouncementPriority, label: 'Urgent' },
+]
 
 interface AnnouncementForm {
   title: string
@@ -314,29 +331,20 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2">
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value as 'all' | AnnouncementCategory)}
+          <SelectMenu
             aria-label="Filter by category"
-            className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">All categories</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {ANNOUNCEMENT_STYLES[c].label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={expiryFilter}
-            onChange={(e) => setExpiryFilter(e.target.value as ExpiryFilter)}
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            buttonClassName="w-auto"
+            options={CATEGORY_FILTER_OPTIONS}
+          />
+          <SelectMenu
             aria-label="Filter by expiry"
-            className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="all">Active + expired</option>
-            <option value="active">Active only</option>
-            <option value="expired">Expired only</option>
-          </select>
+            value={expiryFilter}
+            onChange={setExpiryFilter}
+            buttonClassName="w-auto"
+            options={EXPIRY_FILTER_OPTIONS}
+          />
         </div>
 
         {/* Bulk-selection bar — only appears once rows are checked.
@@ -557,32 +565,25 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                 <label htmlFor="ann-category" className="block text-xs font-semibold text-slate-600 mb-1">
                   Category
                 </label>
-                <select
+                <SelectMenu
                   id="ann-category"
+                  aria-label="Category"
                   value={form.category}
-                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as AnnouncementCategory }))}
-                  className={inputClass}
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {ANNOUNCEMENT_STYLES[c].label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setForm((f) => ({ ...f, category: v }))}
+                  options={CATEGORIES.map((c) => ({ value: c, label: ANNOUNCEMENT_STYLES[c].label }))}
+                />
               </div>
               <div>
                 <label htmlFor="ann-priority" className="block text-xs font-semibold text-slate-600 mb-1">
                   Priority
                 </label>
-                <select
+                <SelectMenu
                   id="ann-priority"
+                  aria-label="Priority"
                   value={form.priority}
-                  onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value as AnnouncementPriority }))}
-                  className={inputClass}
-                >
-                  <option value="normal">Normal</option>
-                  <option value="urgent">Urgent</option>
-                </select>
+                  onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
+                  options={PRIORITY_OPTIONS}
+                />
               </div>
             </div>
             <div>

@@ -20,8 +20,9 @@ import type { MongoNotification } from '@/lib/mongodb/types'
 //
 //  GET /api/notifications?username=
 //    The student's own docs, newest first. Students only.
-//  GET /api/notifications?sentBy=
-//    Docs a faculty member sent, newest first. Faculty or admin.
+//    (Faculty SENT history moved to /api/notifications/sent —
+//    grouped, paginated, 30-day expiry. Do not reintroduce a flat
+//    sentBy query here; it would bypass the expiry filter.)
 //  POST /api/notifications
 //    Body: { branch, title, body, sectionKeys[], performedBy }
 //    Faculty only. sectionKeys must come from the performer's
@@ -47,7 +48,6 @@ function toClient(d: any) {
 
 const notificationsGetQuerySchema = z.object({
   username: z.string().optional(),
-  sentBy: z.string().optional(),
 })
 
 const notificationPostSchema = z.object({
@@ -72,50 +72,33 @@ const notificationPatchSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: inbox reads are self-or-staff; sent-mail reads are own only.
+    // Phase 6: inbox reads are self-or-staff. (Faculty sent history
+    // lives in /api/notifications/sent with grouping + expiry.)
     const session = await getSession(request)
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }
     const query = parseQuery(request, notificationsGetQuerySchema)
     const username = query.username
-    const sentBy = query.sentBy
-    if (!username && !sentBy) {
-      return NextResponse.json({ ok: false, error: 'Username or sentBy is required.' }, { status: 400 })
+    if (!username) {
+      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username) {
-      if (username !== session.username) {
-        const isStaff = session.role === 'faculty' || session.role === 'admin'
-        if (!isStaff) {
-          return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-        }
+    if (username !== session.username) {
+      const isStaff = session.role === 'faculty' || session.role === 'admin'
+      if (!isStaff) {
+        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
       }
-      const student = await getStudentByUsername(username)
-      if (!student) {
-        return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-      }
-      if (student.branch !== session.branch) {
-        return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-      }
-      const col = await getCollection<MongoNotification>('notifications')
-      const docs = await col
-        .find({ branch: student.branch, studentUsername: username })
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .toArray()
-      return NextResponse.json({ ok: true, notifications: docs.map(toClient) })
     }
-    const performer = await getStudentByUsername(sentBy as string)
-    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
+    const student = await getStudentByUsername(username)
+    if (!student) {
+      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
-    // Phase 6: sent-mail belongs to the session user; staff cannot read each other's outbox.
-    if (sentBy !== session.username || performer.branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    if (student.branch !== session.branch) {
+      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
     const col = await getCollection<MongoNotification>('notifications')
     const docs = await col
-      .find({ branch: performer.branch, fromUsername: sentBy })
+      .find({ branch: student.branch, studentUsername: username })
       .sort({ createdAt: -1 })
       .limit(50)
       .toArray()

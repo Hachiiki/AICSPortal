@@ -16,6 +16,7 @@ import {
 import { toast } from 'sonner'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from '../portal/PortalShell'
+import { SelectMenu } from '../ui/select-menu'
 import type { AdminPageProps } from './admin-props'
 
 // ============================================================
@@ -321,19 +322,16 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                   className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
-              <select
-                value={branchFilter}
-                onChange={(e) => setBranchFilter(e.target.value)}
+              <SelectMenu
                 aria-label="Filter by branch"
-                className="h-10 px-3 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              >
-                <option value="all">All branches</option>
-                {data.branches.map((b) => (
-                  <option key={b.branch} value={b.branch}>
-                    {b.branchName}
-                  </option>
-                ))}
-              </select>
+                value={branchFilter}
+                onChange={setBranchFilter}
+                buttonClassName="w-auto"
+                options={[
+                  { value: 'all', label: 'All branches' },
+                  ...data.branches.map((b) => ({ value: b.branch, label: b.branchName })),
+                ]}
+              />
             </div>
 
             {/* Directory table */}

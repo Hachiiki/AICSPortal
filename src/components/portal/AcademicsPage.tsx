@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   Download,
@@ -18,6 +18,7 @@ import { TasksTab } from './TasksTab'
 import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
+import { ACADEMICS_TAB_TITLES, setPageTitle } from '@/lib/aics/page-titles'
 
 // One-shot focus handoff for bell deep-links (refs #37-review): the
 // Topbar stores { tab:'tasks', subjectCode, taskId } when a task
@@ -201,6 +202,13 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
   const focusTask = academicsFocus.tab === 'tasks' && academicsFocus.taskId
     ? { subjectCode: academicsFocus.subjectCode || '', taskId: academicsFocus.taskId }
     : null
+
+  // Browser tab title names the active sub-screen ("Student Academic
+  // Tasks | AICS Portal"), not just the generic Academics route. A
+  // route change clears this via the shared page-title manager.
+  useEffect(() => {
+    setPageTitle(ACADEMICS_TAB_TITLES[activeTab])
+  }, [activeTab])
 
   // Tasks state is now lifted to the parent (StudentDataWrapper) so
   // it persists across route switches. See the props comment above.

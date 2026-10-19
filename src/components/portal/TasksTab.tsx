@@ -13,11 +13,11 @@ import {
   Calendar,
   Info,
   Lock,
-  Check,
   CheckCircle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student } from '@/lib/aics/types'
+import { SelectMenu } from '../ui/select-menu'
 import { TasksSkeleton } from './Skeleton'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
@@ -52,11 +52,9 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
   const [submitting, setSubmitting] = useState(false)
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set())
   const [detailTask, setDetailTask] = useState<Task | null>(null)
-  const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false)
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const rowRefs = useRef<Record<string, HTMLElement | null>>({})
   const [highlightId, setHighlightId] = useState<string | null>(null)
-  const subjectDropdownRef = useRef<HTMLDivElement | null>(null)
 
   // Bell deep-link: expand the course, scroll the row into view, flash it once.
   // Waits for the task list to finish loading — rows do not exist before that.
@@ -79,25 +77,6 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
     }, 250)
     return () => clearTimeout(t)
   }, [focusTaskId, focusSubject, loading, tasks.length])
-
-  // Close subject dropdown on outside click or Esc
-  useEffect(() => {
-    if (!subjectDropdownOpen) return
-    const onPointerDown = (e: MouseEvent) => {
-      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(e.target as Node)) {
-        setSubjectDropdownOpen(false)
-      }
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSubjectDropdownOpen(false)
-    }
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [subjectDropdownOpen])
 
   const currentSubjects = useMemo(() =>
     student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),
@@ -243,60 +222,17 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       {/* FILTER CARD */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-4">
         <div className="flex flex-wrap gap-6 items-center">
-          {/* Subject (custom dropdown) */}
-          <div className="flex flex-col gap-1" ref={subjectDropdownRef}>
-            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Subject</label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setSubjectDropdownOpen((v) => !v)}
-                aria-haspopup="listbox"
-                aria-expanded={subjectDropdownOpen}
-                className="min-w-56 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-left text-slate-700 flex items-center justify-between gap-2 hover:border-slate-300 transition-colors"
-              >
-                <span className="truncate">
-                  {subjectFilter === 'all'
-                    ? 'All Subjects'
-                    : (() => {
-                        const s = currentSubjects.find((x) => x.code === subjectFilter)
-                        return s ? `${s.code} * ${s.title}` : 'All Subjects'
-                      })()}
-                </span>
-                <ChevronDown
-                  className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform duration-200 ${subjectDropdownOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {subjectDropdownOpen && (
-                <div
-                  role="listbox"
-                  className="absolute mt-2 w-full min-w-56 rounded-lg border border-slate-200 bg-white shadow-lg z-20 max-h-64 overflow-auto"
-                >
-                  <button
-                    type="button"
-                    onClick={() => { setSubjectFilter('all'); setSubjectDropdownOpen(false) }}
-                    className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between gap-2 hover:bg-slate-50 ${subjectFilter === 'all' ? 'text-blue-700 font-medium' : 'text-slate-700'}`}
-                  >
-                    <span>All Subjects</span>
-                    {subjectFilter === 'all' && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
-                  </button>
-                  {currentSubjects.map((s) => {
-                    const selected = subjectFilter === s.code
-                    return (
-                      <button
-                        key={s.code}
-                        type="button"
-                        onClick={() => { setSubjectFilter(s.code); setSubjectDropdownOpen(false) }}
-                        className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between gap-2 hover:bg-slate-50 ${selected ? 'text-blue-700 font-medium' : 'text-slate-700'}`}
-                      >
-                        <span className="truncate">{s.code} * {s.title}</span>
-                        {selected && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Subject (custom dropdown — shared SelectMenu) */}
+          <SelectMenu
+            label="Subject"
+            value={subjectFilter}
+            onChange={setSubjectFilter}
+            placeholder="All Subjects"
+            options={[
+              { value: 'all', label: 'All Subjects' },
+              ...currentSubjects.map((s) => ({ value: s.code, label: `${s.code} * ${s.title}` })),
+            ]}
+          />
           <div className="w-px h-10 bg-slate-100" />
           {/* Type */}
           <div className="flex flex-col gap-1">

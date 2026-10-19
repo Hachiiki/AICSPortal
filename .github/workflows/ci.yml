@@ -68,7 +68,7 @@ jobs:
 
       - name: Fail if any tracked file is outside the production whitelist
         run: |
-          pattern='^(\.github/.*|\.vscode/.*|public/.*|src/.*|\.gitignore|CONTRIBUTING\.md|Caddyfile|LICENSE|README\.md|components\.json|eslint\.config\.mjs|example\.env\.local|next-env\.d\.ts|next\.config\.ts|package\.json|postcss\.config\.mjs|tailwind\.config\.ts|tsconfig\.json)$'
+          pattern='^(\.github/.*|\.vscode/.*|public/.*|src/.*|\.gitignore|CONTRIBUTING\.md|Caddyfile|LICENSE|README\.md|components\.json|eslint\.config\.mjs|example\.env\.local|next-env\.d\.ts|next\.config\.ts|package\.json|postcss\.config\.mjs|tailwind\.config\.ts|tsconfig\.json|vercel\.json)$'
           bad=$(git ls-tree -r --name-only HEAD | grep -Ev "$pattern" || true)
           if [ -n "$bad" ]; then
             echo "FAIL: files outside the production whitelist:"
