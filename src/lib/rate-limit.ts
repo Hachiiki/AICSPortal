@@ -4,9 +4,9 @@
 //   1. Route-level failure throttles — login and change-password count
 //      FAILED verifications only, keyed `login:`/`cpw:` + ip + username.
 //      The precision anti-brute-force instrument (unchanged behavior).
-//   2. Middleware-level request tiers — src/middleware.ts counts every
+//   2. Proxy-level request tiers — src/proxy.ts counts every
 //      /api request against a per-identity budget keyed `mw:` + tier +
-//      identity. The flood ceiling: hammering dies in middleware before
+//      identity. The flood ceiling: hammering dies in the proxy before
 //      any route work or Mongo round-trip happens.
 //
 // Identity for tier buckets: the session username when the token
@@ -58,7 +58,7 @@ export function __clearRateLimitStore() {
 }
 
 // ---------------------------------------------------------------------------
-// General API request tiers (enforced in src/middleware.ts).
+// General API request tiers (enforced in src/proxy.ts).
 //
 // Budgets are 5-minute fixed windows sized with >=10x headroom over
 // observed legitimate traffic: a portal load bursts ~15 GETs (prefetch
@@ -92,7 +92,7 @@ export function clientIp(request: NextRequest): string {
 // Tier selection for a /api request. Login and demo are the
 // unauthenticated entry points -> strict auth tier. Everything else
 // keys off the HTTP method: reads get the generous budget, mutations
-// the tighter one. The /api health stub never reaches this (middleware
+// the tighter one. The /api health stub never reaches this (the proxy
 // returns early); /api/auth/session is a plain read.
 export function apiTier(pathname: string, method: string): TierName {
   if (pathname === '/api/auth/login' || pathname === '/api/auth/demo') return 'auth'
@@ -101,9 +101,9 @@ export function apiTier(pathname: string, method: string): TierName {
   return 'write'
 }
 
-// One-call tier check for middleware. `identity` is the verified session
+// One-call tier check for the proxy. `identity` is the verified session
 // username when present, else the client IP (resolved by the caller —
-// middleware holds the token claims).
+// the proxy holds the token claims).
 export function checkApiRateLimit(
   pathname: string,
   method: string,

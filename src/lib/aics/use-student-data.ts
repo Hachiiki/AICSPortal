@@ -87,7 +87,7 @@ export function useStudentData(username: string | null, retryKey = 0) {
 //  On mount the hook calls GET /api/auth/session: a 401 means
 //  signed-out. Editing any client-side flag grants nothing —
 //  every API route and /portal page re-verifies the cookie
-//  server-side (middleware + getSession). URLs stay display-only.
+//  server-side (proxy + getSession). URLs stay display-only.
 // ============================================================
 
 interface AuthState {

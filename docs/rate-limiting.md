@@ -132,6 +132,6 @@ buckets collide only where the test wants them to:
 ## 10. Change record
 
 - 2026-10-16 — PR #47: `src/lib/rate-limit.ts` (RATE_TIERS, clientIp,
-  apiTier, checkApiRateLimit, sweep) + `src/middleware.ts` (tier budget
+  apiTier, checkApiRateLimit, sweep) + `src/proxy.ts` (tier budget
   ahead of the session gate). Verified 21/21 by
   `scripts/verify-rate-limit.sh`.

@@ -1,7 +1,7 @@
 // Environment layer — the single module that decides what
 // "development / staging / production" means and which variables each
 // requires. Edge-safe by construction (zod + TextEncoder only, no
-// node: imports): imported by the middleware session path as well as
+// node: imports): imported by the proxy session path as well as
 // node-only Mongo code.
 //
 // Environment derivation (first match wins):

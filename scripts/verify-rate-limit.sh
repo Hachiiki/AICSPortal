@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  verify-rate-limit.sh — end-to-end verification for general
-#  API rate limiting (src/lib/rate-limit.ts + src/middleware.ts,
+#  API rate limiting (src/lib/rate-limit.ts + src/proxy.ts,
 #  docs/rate-limiting.md)
 #
 #  Runs in ONE invocation because background processes do not
@@ -19,8 +19,8 @@
 #         write tier (120/5min per username):  121st authed POST -> 429
 #         unauthed reads (300/5min per IP):    301st cookieless  -> 429
 #    4. route-level login failure throttle still fires UNDER the
-#       middleware tier (11th failed login for one username -> 429
-#       with the route message, not the middleware message)
+#       proxy tier (11th failed login for one username -> 429
+#       with the route message, not the proxy message)
 #    5. 429 shape: JSON {ok:false,error} + numeric Retry-After
 #    6. identity isolation — exhausted buckets never leak to
 #       another user; /portal pages are not rate-limited
@@ -144,7 +144,7 @@ c=$(curl -s -o /dev/null -w '%{http_code}' -H "$FC" -H 'content-type: applicatio
 # ------------------------------------------------------------
 echo "== 4. auth tier: 100 login POSTs / 5 min per IP =="
 # Rotating usernames keep the route-level per-username throttle out of the
-# picture, so the boundary observed here is purely the middleware auth tier.
+# picture, so the boundary observed here is purely the proxy auth tier.
 F200=0; F400=0; F401=0; F403=0; F429=0; FOTH=0
 for i in $(seq 1 105); do
   c=$(login 10.2.0.1 "rl-spray-$i" wrong)
@@ -167,7 +167,7 @@ echo "$OUT" | grep -qE '^HTTP/[0-9.]+ 429' && echo "$OUT" | grep -q 'Too many re
   || bad "429 shape wrong (retry-after='$RA')"
 
 # ------------------------------------------------------------
-echo "== 5. route-level failure throttle fires under the middleware =="
+echo "== 5. route-level failure throttle fires under the proxy =="
 ROUTE429=0
 for i in $(seq 1 10); do
   c=$(login 10.3.0.1 juan.santos definitely-wrong)
@@ -177,7 +177,7 @@ done
 OUT11=$(curl -si -H 'content-type: application/json' -H 'x-forwarded-for: 10.3.0.1' \
   -d '{"username":"juan.santos","password":"definitely-wrong"}' "$BASE/api/auth/login")
 [ "$ROUTE429" -eq 0 ] && echo "$OUT11" | grep -qE '^HTTP/[0-9.]+ 429' && echo "$OUT11" | grep -q 'Too many login attempts' \
-  && ok "route throttle under middleware: 10 fails pass, 11th -> 429 'Too many login attempts' (defense in depth)" \
+  && ok "route throttle under proxy: 10 fails pass, 11th -> 429 'Too many login attempts' (defense in depth)" \
   || bad "route-level login throttle broken (429 seen during first 10: $ROUTE429)"
 
 # ------------------------------------------------------------
