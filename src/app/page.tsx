@@ -7,7 +7,7 @@ import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/us
 import { usePortalPageTitle } from '@/lib/aics/page-titles'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
-import { BranchRedirect } from '@/components/auth/BranchRedirect'
+import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -144,10 +144,16 @@ export default function AICSLoginPage() {
   // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
 
-  // Show the branch redirect animation overlay
+  // Show the post-login transition overlay. Default behavior is the
+  // original BranchRedirect; in development the animation-lab selection
+  // can swap in one of the three alternatives under review.
   if (redirecting) {
     return (
-      <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
+      <PostLoginTransition
+        branch={redirectBranch}
+        username={username ?? ''}
+        onComplete={handleRedirectComplete}
+      />
     )
   }
 

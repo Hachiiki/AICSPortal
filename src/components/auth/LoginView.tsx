@@ -9,9 +9,10 @@ import {
   CircleAlert,
 } from 'lucide-react'
 import type { AuthMode } from '@/lib/aics/types'
-import { T, PORTAL_TEXT_GRADIENT } from './login-tokens'
+import { T, PORTAL_TEXT_GRADIENT, SHOW_POST_LOGIN_PREVIEW } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
 import { FaceIdPanel } from './FaceIdPanel'
+import { AnimationLab } from './post-login/AnimationLab'
 
 // ============================================================
 //  LoginView — the AICS login page.
@@ -187,6 +188,11 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               </div>
             </div>
           </div>
+
+          {/* Dev-only preview picker for the post-login animation
+              alternatives (three candidates + current default). Compiles
+              away entirely in production builds. */}
+          {SHOW_POST_LOGIN_PREVIEW && <AnimationLab />}
 
           {/* Footer */}
           <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>

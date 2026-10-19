@@ -16,6 +16,13 @@ export const T = {
 // Whether to expose the demo / test-login shortcut (dev only).
 export const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
 
+// Whether to expose the post-login animation lab (dev only). The three
+// alternative animations are a dev-branch experiment pending owner
+// review; production compiles this to false, which also lets the bundler
+// dead-code-eliminate the variant components from the client bundle —
+// production always keeps the current BranchRedirect.
+export const SHOW_POST_LOGIN_PREVIEW = process.env.NODE_ENV === 'development'
+
 // Phase 6 (BUG-012 full fix): demo credentials were deleted from the client
 // bundle. Dev one-click login calls POST /api/auth/demo, which issues a real
 // session server-side (404 in production). Never put passwords here again.
