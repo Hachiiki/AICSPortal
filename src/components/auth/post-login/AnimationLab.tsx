@@ -2,33 +2,44 @@
 
 import { useEffect, useState } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { FlaskConical, Play } from 'lucide-react'
+import { FlaskConical, Play, Undo2 } from 'lucide-react'
 import { T } from '../login-tokens'
-import { VariantStage } from './VariantStage'
-import { POST_LOGIN_CHOICES, readStoredVariant, writeStoredVariant } from './variants'
+import {
+  POST_LOGIN_CHOICES,
+  clearStoredVariant,
+  readStoredVariant,
+  writeStoredVariant,
+  type PostLoginVariant,
+} from './variants'
+import { PostLoginPreview, type PreviewLoadSim } from './PostLoginPreview'
 
 /**
- * Development-only preview picker for the post-login animation
- * alternatives (three candidates + the current default). Rendered by
- * LoginView exclusively when NODE_ENV === 'development' — the same
- * gating as SHOW_DEMO_LOGIN. Production builds compile the gate to
- * false, which drops this card and dead-code-eliminates the variant
- * components from the client bundle; production always keeps the
- * original BranchRedirect.
+ * Development-only comparison lab for the post-login animation
+ * candidates (C / D / E). Rendered by LoginView exclusively when
+ * NODE_ENV === 'development' — the same gating as SHOW_DEMO_LOGIN.
+ * Production builds compile the gate to false, which drops this card
+ * and the whole candidate subtree from the client bundle; production
+ * always keeps the original BranchRedirect.
  *
- * - "Preview selected" plays the chosen overlay immediately, without
- *   signing in, so all four can be compared side by side.
+ * - "Preview full sign-in" plays the entire chain without signing in:
+ *   the candidate overlay, then the REAL dashboard skeleton, then a
+ *   clearly-labeled mock ready surface — so the handoff into skeleton
+ *   loading is evaluated, not just the overlay in isolation.
+ * - The simulated load (fast / typical / slow) controls how long the
+ *   preview holds the skeleton phase, covering quick connections and
+ *   slow ones alike. Failed requests land in the portal's existing
+ *   error card underneath the exit crossfade — same real flow.
  * - The selection persists to localStorage and applies to the next
- *   real sign-in (dev only).
- * - With prefers-reduced-motion the alternatives are skipped at
- *   sign-in, so the preview is disabled by default. A preview-only
- *   override checkbox lets the owner review the candidates even when
- *   the OS (or a browser whose DevTools emulation does not take)
- *   keeps reporting reduced motion — real sign-in is never affected.
+ *   real sign-in (dev only). A reset link restores the production
+ *   default; no winner is pre-selected.
+ * - With prefers-reduced-motion the candidates are skipped at sign-in,
+ *   so the preview is disabled by default; a preview-only override
+ *   lets the owner review them anyway (sign-in is never affected).
  */
 export function AnimationLab() {
-  const [selected, setSelected] = useState<'default' | 'bloom' | 'sweep' | 'assemble'>('default')
+  const [selected, setSelected] = useState<PostLoginVariant>('default')
   const [previewing, setPreviewing] = useState(false)
+  const [sim, setSim] = useState<PreviewLoadSim>('typical')
   const [overrideReduced, setOverrideReduced] = useState(false)
   const reducedMotion = useReducedMotion()
   const reduced = !!reducedMotion && !overrideReduced
@@ -42,20 +53,29 @@ export function AnimationLab() {
     setSelected(readStoredVariant())
   }, [])
 
-  const choose = (variant: 'default' | 'bloom' | 'sweep' | 'assemble') => {
+  const choose = (variant: PostLoginVariant) => {
     setSelected(variant)
     writeStoredVariant(variant)
   }
 
-  const note = reducedMotion
-    ? overrideReduced
-      ? 'Preview override is on. Sign-in still skips the alternatives under reduced motion.'
-      : 'Reduced motion is detected — sign-in skips the alternatives. Check the override above to preview them anyway.'
-    : 'Preview plays without signing in. Your selection applies to the next sign-in on this device (dev only).'
+  const reset = () => {
+    setSelected('default')
+    clearStoredVariant()
+  }
+
+  const canPreview = selected !== 'default'
+
+  const note = !canPreview
+    ? 'No candidate selected — real sign-ins keep the production default redirect.'
+    : reducedMotion
+      ? overrideReduced
+        ? 'Preview override is on. Sign-in still skips the candidate under reduced motion.'
+        : 'Reduced motion is detected — sign-in skips the candidate. Check the override above to preview it anyway.'
+      : 'Preview plays the full chain without signing in. Your selection applies to the next sign-in on this device (dev only).'
 
   return (
     <div className="mt-6 rounded-[10px] p-4" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-1">
         <FlaskConical className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
         <p className="text-xs font-bold tracking-wide uppercase" style={{ color: T.muted }}>
           Post-login animation lab
@@ -67,6 +87,9 @@ export function AnimationLab() {
           DEV
         </span>
       </div>
+      <p className="text-[11px] leading-relaxed mb-3" style={{ color: T.muted }}>
+        Three candidates under review — the production default stays active until you pick a winner.
+      </p>
 
       <div className="space-y-1">
         {POST_LOGIN_CHOICES.map((choice) => {
@@ -102,15 +125,52 @@ export function AnimationLab() {
         })}
       </div>
 
+      {selected !== 'default' ? (
+        <button
+          type="button"
+          onClick={reset}
+          className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold"
+          style={{ color: T.muted }}
+        >
+          <Undo2 className="w-3 h-3" />
+          Reset to production default
+        </button>
+      ) : null}
+
+      {/* Simulated content-load speed for the preview's skeleton phase */}
+      <div className="mt-3 flex items-center gap-2">
+        <span className="text-[11px] font-medium" style={{ color: T.muted }}>
+          Simulated load:
+        </span>
+        <div className="flex gap-1">
+          {(['fast', 'typical', 'slow'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={sim === id}
+              onClick={() => setSim(id)}
+              className="text-[11px] font-semibold px-2 py-0.5 rounded-[6px] capitalize transition-all"
+              style={
+                sim === id
+                  ? { background: T.white, color: T.primary, border: `1px solid ${T.accent}` }
+                  : { color: T.muted, border: '1px solid transparent' }
+              }
+            >
+              {id}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <button
         type="button"
-        disabled={reduced}
+        disabled={!canPreview || reduced}
         onClick={() => setPreviewing(true)}
         className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-[8px] py-2 text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ background: T.primary, color: T.white }}
       >
         <Play className="w-3.5 h-3.5" />
-        Preview selected
+        Preview full sign-in
       </button>
 
       {reducedMotion ? (
@@ -132,13 +192,8 @@ export function AnimationLab() {
         {note}
       </p>
 
-      {previewing && (
-        <VariantStage
-          variant={selected}
-          branch="commonwealth"
-          username="juan.santos"
-          onComplete={() => setPreviewing(false)}
-        />
+      {previewing && canPreview && (
+        <PostLoginPreview variant={selected} sim={sim} onExit={() => setPreviewing(false)} />
       )}
     </div>
   )

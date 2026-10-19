@@ -1,15 +1,16 @@
-// Post-login animation alternatives — dev-branch experiment pending owner
-// review (task: implement three alternatives, do not pick a winner).
-// The production default remains the original BranchRedirect; variants
-// activate only through the dev-only AnimationLab selection.
+// Post-login animation candidates — dev-branch experiment pending owner
+// review (refined Option C, two new alternatives, rejected Options A/B
+// removed). The production default remains the original BranchRedirect;
+// candidates activate only through the dev-only AnimationLab selection.
+import { SHOW_POST_LOGIN_PREVIEW } from '../login-tokens'
 
-export type PostLoginVariant = 'default' | 'bloom' | 'sweep' | 'assemble'
+export type PostLoginVariant = 'default' | 'assemble' | 'aperture' | 'framedraw'
 
 /**
  * localStorage key for the dev-only selection. Absent or invalid values
- * resolve to 'default' (the current production animation). The key is
- * only ever written by the AnimationLab, which never renders outside
- * development builds.
+ * (including the retired 'bloom'/'sweep' ids) resolve to 'default' — the
+ * current production animation. The key is only ever written by the
+ * AnimationLab, which never renders outside development builds.
  */
 export const POST_LOGIN_VARIANT_KEY = 'aics.postLoginVariant'
 
@@ -19,39 +20,53 @@ export interface PostLoginChoice {
   blurb: string
 }
 
-/** Ordered choices shown in the dev-only AnimationLab. */
+/** Ordered candidates shown in the dev-only AnimationLab. */
 export const POST_LOGIN_CHOICES: PostLoginChoice[] = [
-  {
-    id: 'default',
-    label: 'Default — current redirect',
-    blurb: 'Step checklist used in production today',
-  },
-  {
-    id: 'bloom',
-    label: 'Option A — Brand Bloom',
-    blurb: 'Logo bloom, welcome line, branch chip on white',
-  },
-  {
-    id: 'sweep',
-    label: 'Option B — Portal Sweep',
-    blurb: 'Navy panels close over the screen, then sweep off',
-  },
   {
     id: 'assemble',
     label: 'Option C — Workspace Assemble',
-    blurb: 'Sidebar, topbar and cards fly into place',
+    blurb: 'Ghost shell assembles straight into the live loading state',
+  },
+  {
+    id: 'aperture',
+    label: 'Option D — Aperture',
+    blurb: 'The navy login canvas opens into the workspace like a lens',
+  },
+  {
+    id: 'framedraw',
+    label: 'Option E — Frame Draw',
+    blurb: 'Drafting lines draw the frame, then the content wells fill in',
   },
 ]
+
+const CANDIDATES: PostLoginVariant[] = ['assemble', 'aperture', 'framedraw']
 
 /** Read the dev-only selection. SSR-safe; invalid values fall back. */
 export function readStoredVariant(): PostLoginVariant {
   if (typeof window === 'undefined') return 'default'
   const raw = window.localStorage.getItem(POST_LOGIN_VARIANT_KEY)
-  return raw === 'bloom' || raw === 'sweep' || raw === 'assemble' ? raw : 'default'
+  return CANDIDATES.includes(raw as PostLoginVariant) ? (raw as PostLoginVariant) : 'default'
 }
 
 /** Persist the dev-only selection (client only). */
 export function writeStoredVariant(variant: PostLoginVariant): void {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(POST_LOGIN_VARIANT_KEY, variant)
+}
+
+/** Clear the dev-only selection — subsequent sign-ins use the default. */
+export function clearStoredVariant(): void {
+  if (typeof window === 'undefined') return
+  window.localStorage.removeItem(POST_LOGIN_VARIANT_KEY)
+}
+
+/**
+ * The variant that should drive the CURRENT render's post-login path.
+ * Compiles to a constant 'default' in production builds, so the page's
+ * variant render path (portal mounting underneath the overlay) can be
+ * dead-code-eliminated there — production keeps the exclusive
+ * BranchRedirect overlay, byte-identical to today.
+ */
+export function activePostLoginVariant(): PostLoginVariant {
+  return SHOW_POST_LOGIN_PREVIEW ? readStoredVariant() : 'default'
 }

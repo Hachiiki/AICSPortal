@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
@@ -8,6 +9,7 @@ import { usePortalPageTitle } from '@/lib/aics/page-titles'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
+import { activePostLoginVariant } from '@/components/auth/post-login/variants'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -144,10 +146,24 @@ export default function AICSLoginPage() {
   // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
 
-  // Show the post-login transition overlay. Default behavior is the
-  // original BranchRedirect; in development the animation-lab selection
-  // can swap in one of the three alternatives under review.
-  if (redirecting) {
+  // Post-login transition — two render paths.
+  //
+  // Default (production behavior, unchanged): an exclusive full-screen
+  // overlay. Nothing mounts underneath until it completes, exactly like
+  // the original BranchRedirect flow.
+  //
+  // Candidate (dev review only): the portal mounts underneath while the
+  // overlay plays — the route guard above has already navigated to the
+  // dashboard by then, so data fetching starts immediately — and
+  // AnimatePresence crossfades the overlay out over whatever real state
+  // is underneath: the dashboard skeleton while data loads, the page
+  // itself if it landed in time, or the error card. The candidates
+  // thereby coordinate with the actual loading lifecycle instead of
+  // pretending readiness on top of a blank screen. In production the
+  // gate compiles to 'default', so this path disappears entirely.
+  const postLoginVariant = activePostLoginVariant()
+
+  if (redirecting && postLoginVariant === 'default') {
     return (
       <PostLoginTransition
         branch={redirectBranch}
@@ -164,20 +180,34 @@ export default function AICSLoginPage() {
     )
   }
 
-  // Authenticated but on login route → the useEffect guard will redirect.
-  // Show nothing in the meantime to avoid flashing the login form.
-  if (route.view === 'login') {
-    return null
-  }
-
-  // Authenticated + protected route → render the right view
+  // Authenticated: portal content with the candidate overlay layered
+  // on top during the post-login transition. The wrapper keeps a stable
+  // tree position whether the overlay is playing or not, so completing
+  // the transition never remounts (or refetches) the portal. While
+  // still on the login view — the guard redirects within a frame —
+  // nothing renders underneath the opaque overlay, so the login form
+  // never flashes.
   return (
-    <StudentDataWrapper
-      username={username}
-      route={route}
-      navigate={navigate}
-      onLogout={handleLogout}
-    />
+    <>
+      {route.view === 'login' ? null : (
+        <StudentDataWrapper
+          username={username}
+          route={route}
+          navigate={navigate}
+          onLogout={handleLogout}
+        />
+      )}
+      <AnimatePresence>
+        {redirecting && postLoginVariant !== 'default' ? (
+          <PostLoginTransition
+            key="post-login-candidate"
+            branch={redirectBranch}
+            username={username ?? ''}
+            onComplete={handleRedirectComplete}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   )
 }
 
