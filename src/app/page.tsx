@@ -43,6 +43,15 @@ import type { Announcement } from '@/lib/aics/announcements'
 import type { Notification as NotificationItem, NotificationInbox, SentHistoryPage } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 
+// Faculty roster payload (/api/faculty) — owned by the page component
+// so the post-login readiness gate can include it for faculty logins
+// (the faculty landing view renders a full-page skeleton until it lands).
+type FacultyRoster = {
+  faculty: FacultyMember
+  subjects: any[]
+  students: FacultyStudent[]
+} | null
+
 /**
  * AICS Portal — root page (also rendered by the catch-all route
  * at src/app/portal/[...slug]/page.tsx).
@@ -117,6 +126,61 @@ export default function AICSLoginPage() {
     patchStudent,
   } = useStudentData(username, retryKey)
 
+  // Faculty roster — lifted for the same reason as the student data.
+  // The faculty landing view gates on it (FacultyDashboard renders a
+  // full-page skeleton until the roster lands), so the overlay's
+  // readiness must include it for faculty logins; without this the
+  // overlay could exit while the landing surface was still a skeleton
+  // and the real chrome only mounted afterwards — the first-login
+  // skeleton flash (cold /api/faculty lagging /api/student; warm
+  // re-logins landed both long before the overlay floor and hid it).
+  // Same single request as before — it moved here out of the wrapper's
+  // fetchAll bundle, nothing is fetched twice.
+  const [facultyData, setFacultyData] = useState<FacultyRoster>(null)
+  const [facultyLoading, setFacultyLoading] = useState(true)
+
+  useEffect(() => {
+    if (!username) return
+    let cancelled = false
+    async function fetchFaculty() {
+      try {
+        setFacultyLoading(true)
+        const res = await fetch(`/api/faculty?username=${encodeURIComponent(username!)}`)
+        const data = await res.json()
+        // Non-fatal by design (a 404 answers for student sessions and
+        // missing records alike): a failed load leaves the roster null
+        // and the faculty views' own empty handling covers it — the
+        // same behavior a refresh shows today.
+        if (!cancelled && data.ok) {
+          setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
+        }
+      } catch {
+        // Network failure reads as "no roster" — non-fatal, matching
+        // how the wrapper's bundle treated it.
+      } finally {
+        if (!cancelled) setFacultyLoading(false)
+      }
+    }
+    fetchFaculty()
+    return () => {
+      cancelled = true
+    }
+  }, [username])
+
+  // Silent roster refresh for views that mutate it (grade encoding).
+  // Deliberately does not touch facultyLoading — flipping it would
+  // swap the live page for a skeleton mid-action.
+  const refreshFacultyData = useCallback(async () => {
+    if (!username) return
+    try {
+      const res = await fetch(`/api/faculty?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) {
+        setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
+      }
+    } catch {}
+  }, [username])
+
   // Coherent-loading guard: the frame where `username` just flipped
   // but the fetch effect has not run yet still carries stale
   // loading:false/student:null, which would flash the error card for
@@ -125,8 +189,15 @@ export default function AICSLoginPage() {
   // renders.
   const portalLoading = studentLoading || (!!username && !student && !studentError)
   // Real readiness of the initial data — the post-login overlay's
-  // stage gate. True only once the fetch has landed a student record.
-  const portalReady = !studentLoading && !studentError && !!student
+  // stage gate. True only once the fetch has landed a student record
+  // and, for faculty logins, the roster the faculty landing view
+  // renders from has settled — so the assembly always animates the
+  // real chrome, never the landing view's skeleton.
+  const portalReady =
+    !studentLoading &&
+    !studentError &&
+    !!student &&
+    (role !== 'faculty' || !facultyLoading)
 
   // --- Route guards ---
   useEffect(() => {
@@ -186,6 +257,11 @@ export default function AICSLoginPage() {
 
   const handleLogout = useCallback(() => {
     logout()
+    // Clear the lifted roster with the session, in the same commit —
+    // a later sign-in (same or different user) re-arms the readiness
+    // gate on its own fresh fetch and can never render a stale roster.
+    setFacultyData(null)
+    setFacultyLoading(false)
     navigate({ view: 'login' })
     toast.info('You have been signed out.')
   }, [logout, navigate])
@@ -235,6 +311,9 @@ export default function AICSLoginPage() {
             studentError={studentError}
             patchStudent={patchStudent}
             onRetryStudent={() => setRetryKey((k) => k + 1)}
+            facultyData={facultyData}
+            facultyLoading={facultyLoading}
+            onRefreshFaculty={refreshFacultyData}
           />
         </AssembleRevealProvider>
       )}
@@ -284,6 +363,9 @@ function StudentDataWrapper({
   studentError,
   patchStudent,
   onRetryStudent,
+  facultyData,
+  facultyLoading,
+  onRefreshFaculty,
 }: {
   username: string
   route: PortalRoute
@@ -300,6 +382,12 @@ function StudentDataWrapper({
   studentError: string | null
   patchStudent: (patch: Partial<Student>) => void
   onRetryStudent: () => void
+  // Faculty roster — also lifted to the page (same reason: the
+  // post-login readiness gate includes it for faculty logins, since
+  // the faculty landing view renders a skeleton until it lands).
+  facultyData: FacultyRoster
+  facultyLoading: boolean
+  onRefreshFaculty: () => Promise<void>
 }) {
   const loading = studentLoading
   const error = studentError
@@ -386,18 +474,10 @@ function StudentDataWrapper({
     onMark: markNotificationRead,
   }), [notifications, notificationsLoading, refreshNotifications, markNotificationRead])
 
-  // Faculty-specific data (only fetched for faculty users, but lifted
-  // here so it persists across route switches — same pattern as tasks/events)
-  const [facultyData, setFacultyData] = useState<{ faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null>(null)
-  const [facultyLoading, setFacultyLoading] = useState(true)
-
-  const refreshFacultyData = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/faculty?username=${encodeURIComponent(username)}`)
-      const data = await res.json()
-      if (data.ok) setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
-    } catch {}
-  }, [username])
+  // Faculty roster state lives in the page component (lifted like
+  // the student data) so the post-login readiness gate can include
+  // it; this wrapper consumes facultyData/facultyLoading from props,
+  // and the grade-encoding refresh flows through onRefreshFaculty.
 
   // Released teaching history for the Previous Records tab. Lifted
   // here for the same reason as facultyData: tab switches unmount
@@ -494,21 +574,22 @@ function StudentDataWrapper({
     let cancelled = false
     async function fetchAll() {
       try {
-        const [tkRes, evRes, profRes, enrRes, annRes, facRes] = await Promise.all([
+        // Faculty roster intentionally absent — the page component
+        // owns that fetch (the post-login readiness gate includes it).
+        // Same request count as before, no duplicates.
+        const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
           fetch(`/api/professors?username=${encodeURIComponent(username)}`),
           fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
           fetch(`/api/announcements?username=${encodeURIComponent(username)}`),
-          fetch(`/api/faculty?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData, profData, enrData, annData, facData] = await Promise.all([
+        const [tkData, evData, profData, enrData, annData] = await Promise.all([
           tkRes.json(),
           evRes.json(),
           profRes.json(),
           enrRes.json(),
           annRes.json(),
-          facRes.json(),
         ])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
@@ -526,8 +607,6 @@ function StudentDataWrapper({
           setAnnouncementReadIds(annData.readIds || [])
         }
         // Announcements failure is non-fatal — dashboard shows empty state
-        // Faculty data (non-fatal for student users — the API returns 404)
-        if (facData.ok) setFacultyData({ faculty: facData.faculty, subjects: facData.subjects, students: facData.students })
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
@@ -542,7 +621,6 @@ function StudentDataWrapper({
           setProfessorsLoading(false)
           setEnrollmentLoading(false)
           setAnnouncementsLoading(false)
-          setFacultyLoading(false)
         }
       }
     }
@@ -757,7 +835,7 @@ function StudentDataWrapper({
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
-        onRefresh={refreshFacultyData}
+        onRefresh={onRefreshFaculty}
       />
     )
   }
