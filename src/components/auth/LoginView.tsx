@@ -194,9 +194,10 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               away entirely in production builds. */}
           {SHOW_POST_LOGIN_PREVIEW && <AnimationLab />}
 
-          {/* Footer */}
+          {/* Footer — matches the repository's documented licensing
+              (LICENSE / README: All Rights Reserved, proprietary). */}
           <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>
-            &copy; {new Date().getFullYear()} Wilard James Paluga · MIT License
+            &copy; {new Date().getFullYear()} Wilard James Paluga · All Rights Reserved
           </p>
         </div>
       </section>

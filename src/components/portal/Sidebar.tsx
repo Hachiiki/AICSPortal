@@ -116,12 +116,13 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — matches the repository's documented licensing
+          (LICENSE / README: All Rights Reserved, proprietary). */}
       <div className="px-4 py-4 border-t border-slate-100">
         <p className="text-[11px] text-slate-500 leading-relaxed">
           &copy; 2026 Wilard James Paluga
           <br />
-          MIT License.
+          All Rights Reserved.
         </p>
       </div>
     </div>
