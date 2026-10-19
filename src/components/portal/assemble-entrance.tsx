@@ -8,7 +8,7 @@ import type { MotionProps } from 'framer-motion'
 //  post-login transition (auth/post-login) and the real portal
 //  chrome (PortalShell / Sidebar / Topbar).
 //
-//  The assemble candidate's stage two paints no surface of its own:
+//  The post-login assembly stage paints no surface of its own:
 //  the REAL dashboard — mounted underneath the redirect overlay
 //  since login succeeded, its initial data confirmed landed by the
 //  gated stage one — animates its actual chrome into place. This
@@ -19,8 +19,8 @@ import type { MotionProps } from 'framer-motion'
 //    portal wrapper for the whole session — never conditionally,
 //    because a wrapper remount would refetch everything. A `null`
 //    value deactivates the entrance: every consumer renders exactly
-//    as it did before this module existed (production default,
-//    normal navigation, the other candidates).
+//    as it did before this module existed (normal navigation,
+//    refreshes, every non-post-login mount).
 //  - An active value stages the chrome at its entrance offsets.
 //    The held state animates to the offset itself, so the component
 //    stays invisible under the still-opaque redirect overlay and
@@ -28,8 +28,8 @@ import type { MotionProps } from 'framer-motion'
 //    `revealing` to true is a plain animate-target change, and the
 //    entrance plays precisely then — no timers, no remounts, no
 //    flash. Framer's MotionConfig reducedMotion="user" (PortalShell)
-//  - The lab preview (PreviewReadySurface) consumes the same
-//    constants, so the dev harness matches sign-in behavior.
+//    degrades the entrance to opacity fades when the user prefers
+//    reduced motion.
 // ============================================================
 
 export interface AssembleRevealState {

@@ -9,7 +9,6 @@ import { usePortalPageTitle } from '@/lib/aics/page-titles'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
-import { activePostLoginVariant } from '@/components/auth/post-login/variants'
 import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
@@ -85,44 +84,30 @@ export default function AICSLoginPage() {
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
 
-  // Post-login transition — two render paths.
-  //
-  // Default (production behavior, unchanged): an exclusive full-screen
-  // overlay; the portal and its initial data fetch start only when the
-  // overlay completes, exactly like the original BranchRedirect flow.
-  //
-  // Candidate (dev review only): the portal mounts underneath while
-  // the overlay plays, so data fetching starts immediately, and
-  // AnimatePresence crossfades the overlay out over the real state
-  // underneath. The assemble candidate additionally receives the
-  // fetch's real readiness and runs as TWO stages: the preserved
-  // redirect sequence holds its final step until the initial data
-  // actually lands, then the REAL portal chrome itself assembles
-  // into place (see portal/assemble-entrance.tsx) while the redirect
-  // overlay exits — no mock surface, no second skeleton phase, the
-  // components the user lands on are the ones that animated in. In
-  // production the gate compiles to 'default', so this path
-  // disappears entirely.
-  const postLoginVariant = activePostLoginVariant()
+  // Post-login transition — the production two-stage flow. The
+  // portal mounts underneath the overlay, so its initial data fetch
+  // starts the moment login succeeds; the overlay's redirect stage
+  // holds its final step until that data actually lands, then the
+  // REAL portal chrome itself assembles into place (see portal/
+  // assemble-entrance.tsx) while the redirect overlay exits — no
+  // mock surface, no second skeleton phase, and the components the
+  // user lands on are the ones that animated in.
 
-  // Workspace-assembly reveal (assemble candidate only). Flips true
-  // the moment the two-stage transition starts its assembly stage —
-  // the same commit the redirect overlay begins its exit fade — so
-  // the real portal's chrome animates into place underneath (see
-  // portal/assemble-entrance.tsx). Reset on every sign-in attempt.
+  // Workspace-assembly reveal. Flips true the moment the two-stage
+  // transition starts its assembly stage — the same commit the
+  // redirect overlay begins its exit fade — so the real portal's
+  // chrome animates into place underneath (see portal/
+  // assemble-entrance.tsx). Reset on every sign-in attempt.
   const [assembleReveal, setAssembleReveal] = useState(false)
   const handleAssembleStart = useCallback(() => setAssembleReveal(true), [])
 
   // Portal initial data — owned here (lifted out of StudentDataWrapper)
   // so the post-login transition can gate its stages on the fetch's
   // real readiness, while every path renders the wrapper from the same
-  // single fetch (no duplicates). While the default overlay plays, the
-  // fetch is held off (null username), preserving the default path's
-  // exact load timing; candidate paths pass the username through so
-  // the workspace prepares underneath the overlay instead.
+  // single fetch (no duplicates). The fetch starts as soon as login
+  // succeeds, so the workspace prepares underneath the overlay.
   // Bumping retryKey re-runs the fetch (error-state Retry).
   const [retryKey, setRetryKey] = useState(0)
-  const effectiveUsername = redirecting && postLoginVariant === 'default' ? null : username
   const {
     student,
     courses,
@@ -130,7 +115,7 @@ export default function AICSLoginPage() {
     loading: studentLoading,
     error: studentError,
     patchStudent,
-  } = useStudentData(effectiveUsername, retryKey)
+  } = useStudentData(username, retryKey)
 
   // Coherent-loading guard: the frame where `username` just flipped
   // but the fetch effect has not run yet still carries stale
@@ -139,7 +124,7 @@ export default function AICSLoginPage() {
   // honest interim state is loading — what the wrapper's skeleton
   // renders.
   const portalLoading = studentLoading || (!!username && !student && !studentError)
-  // Real readiness of the initial data — the assemble candidate's
+  // Real readiness of the initial data — the post-login overlay's
   // stage gate. True only once the fetch has landed a student record.
   const portalReady = !studentLoading && !studentError && !!student
 
@@ -208,20 +193,6 @@ export default function AICSLoginPage() {
   // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
 
-  // Production-default post-login path: the exclusive overlay, with
-  // the portal and its initial fetch held off underneath — the fetch
-  // starts when the overlay completes, byte-identical to the original
-  // BranchRedirect flow.
-  if (redirecting && postLoginVariant === 'default') {
-    return (
-      <PostLoginTransition
-        branch={redirectBranch}
-        username={username ?? ''}
-        onComplete={handleRedirectComplete}
-      />
-    )
-  }
-
   // Not authenticated → show login (regardless of URL)
   if (!username) {
     return (
@@ -229,29 +200,28 @@ export default function AICSLoginPage() {
     )
   }
 
-  // Authenticated: portal content with the candidate overlay layered
-  // on top during the post-login transition. The wrapper keeps a stable
-  // tree position whether the overlay is playing or not, so completing
-  // the transition never remounts (or refetches) the portal; it renders
-  // from the single lifted fetch above. The assemble candidate receives
-  // that fetch's real readiness: slow loads extend its redirect stage's
-  // spinner honestly, failures skip the assembly and reveal the existing
-  // error card, and fast loads finish at the sequence's natural length.
-  // While still on the login view — the guard redirects within a frame —
-  // nothing renders underneath the opaque overlay, so the login form
-  // never flashes.
+  // Authenticated: portal content with the post-login overlay layered
+  // on top during the transition. The wrapper keeps a stable tree
+  // position whether the overlay is playing or not, so completing the
+  // transition never remounts (or refetches) the portal; it renders
+  // from the single lifted fetch above. The overlay receives that
+  // fetch's real readiness: slow loads extend its redirect stage's
+  // spinner honestly, failures skip the assembly and reveal the
+  // existing error card, and fast loads finish at the sequence's
+  // natural length. While still on the login view — the guard
+  // redirects within a frame — nothing renders underneath the opaque
+  // overlay, so the login form never flashes.
   //
   // The AssembleRevealProvider is ALWAYS mounted around the wrapper —
   // mounting it conditionally would remount the wrapper and refetch
-  // everything. Its value activates only while the assemble candidate's
-  // post-login window is open, and deactivation returns the chrome to
-  // the standard entrance without re-animating (identical resting
-  // targets). In production the value is permanently null.
+  // everything. Its value activates only while the post-login window
+  // is open, and deactivation returns the chrome to the standard
+  // entrance without re-animating (identical resting targets).
   return (
     <>
       {route.view === 'login' ? null : (
         <AssembleRevealProvider
-          revealing={redirecting && postLoginVariant === 'assemble' ? assembleReveal : null}
+          revealing={redirecting ? assembleReveal : null}
         >
           <StudentDataWrapper
             username={username}
@@ -269,17 +239,12 @@ export default function AICSLoginPage() {
         </AssembleRevealProvider>
       )}
       <AnimatePresence>
-        {redirecting && postLoginVariant !== 'default' ? (
+        {redirecting ? (
           <PostLoginTransition
-            key="post-login-candidate"
+            key="post-login-overlay"
             branch={redirectBranch}
-            username={username ?? ''}
             onComplete={handleRedirectComplete}
-            readiness={
-              postLoginVariant === 'assemble'
-                ? { ready: portalReady, error: !!studentError }
-                : undefined
-            }
+            readiness={{ ready: portalReady, error: !!studentError }}
             onAssembleStart={handleAssembleStart}
           />
         ) : null}

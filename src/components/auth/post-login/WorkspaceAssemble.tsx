@@ -7,7 +7,7 @@ interface WorkspaceAssembleProps {
   onComplete: () => void
 }
 
-// Option C — "Workspace Assemble" (stage two, refined).
+// Workspace assembly — stage two of the post-login transition.
 //
 // Stage two paints no surface of its own: it is the moment the REAL
 // portal assembles. PostLoginTransition mounts this coordinator
@@ -34,7 +34,7 @@ interface WorkspaceAssembleProps {
 // moment the redirect overlay's exit fade ends.
 //
 // Reduced motion is handled upstream (PostLoginTransition skips the
-// alternatives entirely, and MotionConfig reducedMotion="user" in
+// choreography entirely, and MotionConfig reducedMotion="user" in
 // the shell degrades any residual transform to opacity).
 export function WorkspaceAssemble({ onComplete }: WorkspaceAssembleProps) {
   useEffect(() => {

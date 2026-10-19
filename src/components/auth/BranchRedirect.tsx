@@ -8,14 +8,13 @@ interface BranchRedirectProps {
   branch: string
   onComplete: () => void
   /**
-   * Two-stage mode (the assemble candidate): hold the final step —
-   * and completion — until the portal's initial data has actually
-   * landed (ready) or failed (error). Undefined keeps the legacy
-   * timer-paced completion used by the production default path. The
-   * visual presentation is identical in both modes; only completion
-   * and the final checkmark are gated on real readiness.
+   * Real readiness of the portal's initial data: the final step —
+   * and completion — holds until the data has actually landed
+   * (ready) or failed (error). The visual presentation is the
+   * original sequence; only completion and the final checkmark are
+   * gated on real readiness.
    */
-  readiness?: { ready: boolean; error: boolean }
+  readiness: { ready: boolean; error: boolean }
 }
 
 const STEPS = [
@@ -24,17 +23,15 @@ const STEPS = [
   'Loading your portal…',
 ]
 
-// Legacy pacing (production default): steps at 600/1300 ms, completion
-// at 2400 ms — byte-identical to the original animation.
+// Step rhythm — the original animation's pacing: steps at
+// 600/1300 ms.
 const STEP_MS = [600, 1300]
-const LEGACY_TOTAL_MS = 2400
-// Two-stage pacing: identical step rhythm, but the sequence may
-// complete only after this natural-length floor AND real readiness —
-// a fast login finishes exactly when the production animation would,
-// while a slow one holds the final step's spinner for as long as the
-// load really takes. The final checkmark appears the moment the data
-// lands, never on a timer.
-const GATED_FLOOR_MS = 2200
+// The sequence may complete only after this natural-length floor AND
+// real readiness — a fast login finishes exactly when the original
+// animation would, while a slow one holds the final step's spinner
+// for as long as the load really takes. The final checkmark appears
+// the moment the data lands, never on a timer.
+const SEQUENCE_FLOOR_MS = 2200
 const READY_SETTLE_MS = 200
 const ERROR_EXIT_MS = 400
 
@@ -45,54 +42,47 @@ const ERROR_EXIT_MS = 400
  *
  * The step rhythm is readability pacing for facts that are already
  * true at mount — the login API verified the credentials and resolved
- * the branch before this overlay appears. In two-stage mode the final
- * step's completion reflects the real initial-data load: it never
- * checks off or completes on a timer alone, and a failed load exits
- * promptly so the existing error card takes over.
+ * the branch before this overlay appears. The final step's completion
+ * reflects the real initial-data load: it never checks off or
+ * completes on a timer alone, and a failed load exits promptly so the
+ * existing error card takes over.
  */
 export function BranchRedirect({ branch, onComplete, readiness }: BranchRedirectProps) {
   const [step, setStep] = useState(0)
   const [floorDone, setFloorDone] = useState(false)
-  const gated = readiness !== undefined
   // Capitalize the branch name for display
   const branchDisplay = branch.charAt(0).toUpperCase() + branch.slice(1)
 
-  // Step pacing (identical in both modes) plus the natural-length
-  // floor flag used by gated completion. These timers only advance
-  // internal state, so callback identity is deliberately not a
-  // dependency.
+  // Step pacing plus the natural-length floor flag used by gated
+  // completion. These timers only advance internal state, so callback
+  // identity is deliberately not a dependency.
   useEffect(() => {
     const timers = STEP_MS.map((ms, i) => setTimeout(() => setStep(i + 1), ms))
-    const floor = gated ? setTimeout(() => setFloorDone(true), GATED_FLOOR_MS) : undefined
+    const floor = setTimeout(() => setFloorDone(true), SEQUENCE_FLOOR_MS)
     return () => {
       timers.forEach(clearTimeout)
-      if (floor) clearTimeout(floor)
+      clearTimeout(floor)
     }
-  }, [gated])
+  }, [])
 
-  // Completion. Legacy: the original fixed total. Gated: only once
-  // the sequence has played out at least at its natural length AND
-  // the initial data truly landed — or promptly when it failed, so
-  // the existing error card (never a fake workspace) takes over.
+  // Completion: only once the sequence has played out at least at its
+  // natural length AND the initial data truly landed — or promptly
+  // when it failed, so the existing error card (never a fake
+  // workspace) takes over.
   useEffect(() => {
-    if (!gated) {
-      const t3 = setTimeout(onComplete, LEGACY_TOTAL_MS)
-      return () => clearTimeout(t3)
-    }
-    if (readiness?.error) {
+    if (readiness.error) {
       const t = setTimeout(onComplete, ERROR_EXIT_MS)
       return () => clearTimeout(t)
     }
-    if (readiness?.ready && floorDone) {
+    if (readiness.ready && floorDone) {
       const t = setTimeout(onComplete, READY_SETTLE_MS)
       return () => clearTimeout(t)
     }
-  }, [gated, readiness?.ready, readiness?.error, floorDone, onComplete])
+  }, [readiness.ready, readiness.error, floorDone, onComplete])
 
-  // Two-stage mode: the final step's checkmark appears only on real
-  // readiness, and only once the step itself is active (rows still
-  // check in order).
-  const finalChecked = gated && step >= STEPS.length - 1 && !!readiness?.ready
+  // The final step's checkmark appears only on real readiness, and
+  // only once the step itself is active (rows still check in order).
+  const finalChecked = step >= STEPS.length - 1 && readiness.ready
 
   return (
     <motion.div

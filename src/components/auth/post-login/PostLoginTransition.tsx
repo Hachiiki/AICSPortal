@@ -2,75 +2,51 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, useReducedMotion } from 'framer-motion'
-import { SHOW_POST_LOGIN_PREVIEW } from '../login-tokens'
 import { BranchRedirect } from '../BranchRedirect'
 import { WorkspaceAssemble } from './WorkspaceAssemble'
-import { VariantStage } from './VariantStage'
-import { readStoredVariant, type PostLoginVariant } from './variants'
 
 interface PostLoginTransitionProps {
   branch: string
-  username: string
   onComplete: () => void
-  /** Dev-lab override: force a candidate instead of reading the
-      persisted selection (the preview harness uses this). */
-  forcedVariant?: PostLoginVariant
-  /** Real readiness of the portal's initial data. Only the assemble
-      candidate consumes it: its first stage holds the redirect
-      sequence's final step until the data lands, and a failed load
-      skips the assembly entirely. The other candidates complete on
-      their own choreography and crossfade out over whatever the real
-      state underneath is. */
-  readiness?: { ready: boolean; error: boolean }
-  /** Preview-only: play the candidates even under reduced motion (the
-      lab's override checkbox). Real sign-ins never pass this. */
-  ignoreReducedMotion?: boolean
-  /** Assemble candidate only: fired the moment stage two begins, in
-      the same commit the redirect overlay starts its exit fade. The
-      page flips the workspace-assembly reveal so the REAL portal
-      chrome animates into place underneath (portal/
-      assemble-entrance.tsx). The preview harness uses the same hook
-      to drive its mock surface. */
+  /** Real readiness of the portal's initial data. Stage one holds
+      the redirect sequence's final step until the data has actually
+      landed, and a failed load skips the assembly entirely — the
+      overlay exits over the existing error card. */
+  readiness: { ready: boolean; error: boolean }
+  /** Fired the moment stage two begins, in the same commit the
+      redirect overlay starts its exit fade. The page flips the
+      workspace-assembly reveal so the REAL portal chrome animates
+      into place underneath (portal/assemble-entrance.tsx). */
   onAssembleStart?: () => void
 }
 
 /**
- * The post-login redirect overlay — a drop-in replacement for the old
- * direct <BranchRedirect> render in page.tsx.
+ * The post-login redirect overlay — the production two-stage flow.
  *
- * Production always renders the original BranchRedirect: the dev gate
- * (SHOW_POST_LOGIN_PREVIEW) compiles to a constant false there. In
- * development the animation-lab selection picks a candidate.
+ * Stage one is the preserved BranchRedirect sequence, gated on real
+ * readiness: its final step holds until the portal's initial data
+ * has actually landed (the overlay never claims completion on a bare
+ * timer), and a failed load exits promptly so the existing error
+ * card takes over. Stage two is the workspace assembly of the REAL
+ * portal: onAssembleStart flips the reveal so the actual dashboard
+ * chrome animates into its final positions while the redirect
+ * overlay exits over it — nothing is replaced at the end; the
+ * components the user lands on are the ones that animated in.
  *
- * The assemble candidate runs as TWO stages, gated on real readiness:
- * stage one is the preserved BranchRedirect sequence (its final step
- * holds until the portal's initial data has actually landed — the
- * overlay never claims completion on a bare timer), and stage two is
- * the workspace assembly of the REAL portal: onAssembleStart flips
- * the reveal so the actual dashboard chrome animates into its final
- * positions while the redirect overlay exits over it. A failed load
- * skips the assembly and exits over the existing error card. The
- * other candidates remain single-stage overlays; the owner has not
- * chosen a winner yet, so 'default' remains the behavior unless a
- * candidate is selected.
- *
- * Reduced motion: the alternatives are skipped entirely — the user
+ * Reduced motion: the choreography is skipped entirely — the user
  * goes straight to the portal, whose own skeleton handles loading
- * honestly. (The default BranchRedirect keeps its existing behavior.)
+ * honestly. (The shell's MotionConfig reducedMotion="user" would
+ * degrade the entrance to opacity fades anyway; skipping it outright
+ * is the conservative choice for the overlay's step choreography,
+ * which lives outside that config.)
  */
 export function PostLoginTransition({
   branch,
-  username,
   onComplete,
-  forcedVariant,
   readiness,
-  ignoreReducedMotion,
   onAssembleStart,
 }: PostLoginTransitionProps) {
-  const reduced = !!useReducedMotion() && !ignoreReducedMotion
-  const [variant] = useState<PostLoginVariant>(
-    () => forcedVariant ?? (SHOW_POST_LOGIN_PREVIEW ? readStoredVariant() : 'default')
-  )
+  const reduced = !!useReducedMotion()
   const [stage, setStage] = useState<'auth' | 'assemble'>('auth')
   const doneRef = useRef(false)
   // Latest readiness for stable callbacks — timers can fire after a
@@ -95,17 +71,17 @@ export function PostLoginTransition({
     onComplete()
   }, [onComplete])
 
-  // Reduced motion: skip the alternatives entirely — straight to the
+  // Reduced motion: skip the choreography entirely — straight to the
   // portal, whose own skeleton handles loading honestly.
   useEffect(() => {
-    if (variant !== 'default' && reduced) finish()
-  }, [variant, reduced, finish])
+    if (reduced) finish()
+  }, [reduced, finish])
 
   // A failed initial load never plays the assembly — exit over the
   // existing error card, from either stage.
   useEffect(() => {
-    if (variant === 'assemble' && readiness?.error) finish()
-  }, [variant, readiness?.error, finish])
+    if (readiness.error) finish()
+  }, [readiness.error, finish])
 
   // Stage handoff: the gated redirect sequence completed. On a failed
   // load exit immediately; otherwise trigger the reveal in the same
@@ -114,7 +90,7 @@ export function PostLoginTransition({
   // the assembly coordinator hold the transition open.
   const handleStageDone = useCallback(() => {
     if (doneRef.current) return
-    if (readinessRef.current?.error) {
+    if (readinessRef.current.error) {
       finish()
       return
     }
@@ -122,17 +98,11 @@ export function PostLoginTransition({
     setStage('assemble')
   }, [finish])
 
-  if (variant !== 'default' && reduced) return null
+  if (reduced) return null
 
-  if (variant !== 'assemble') {
-    return (
-      <VariantStage variant={variant} branch={branch} username={username} onComplete={finish} />
-    )
-  }
-
-  // Two-stage assemble candidate: the preserved redirect sequence,
-  // gated on real readiness, handing off to the assembly of the
-  // real portal underneath.
+  // Two-stage flow: the preserved redirect sequence, gated on real
+  // readiness, handing off to the assembly of the real portal
+  // underneath.
   return (
     <AnimatePresence>
       {stage === 'auth' ? (
