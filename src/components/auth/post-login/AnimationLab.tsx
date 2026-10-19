@@ -21,14 +21,17 @@ import { PostLoginPreview, type PreviewLoadSim } from './PostLoginPreview'
  * and the whole candidate subtree from the client bundle; production
  * always keeps the original BranchRedirect.
  *
- * - "Preview full sign-in" plays the entire chain without signing in:
- *   the candidate overlay, then the REAL dashboard skeleton, then a
- *   clearly-labeled mock ready surface — so the handoff into skeleton
- *   loading is evaluated, not just the overlay in isolation.
+ * - "Preview full sign-in" plays the entire chain without signing in.
+ *   For the assemble candidate that is the real two-stage flow: the
+ *   redirect stage holds for the simulated load, then the mock
+ *   surface assembles with the same entrance choreography the real
+ *   portal's chrome uses (no skeleton phase after the data lands).
+ *   The other candidates hand off into the REAL dashboard skeleton,
+ *   then a clearly-labeled mock ready surface.
  * - The simulated load (fast / typical / slow) controls how long the
- *   preview holds the skeleton phase, covering quick connections and
- *   slow ones alike. Failed requests land in the portal's existing
- *   error card underneath the exit crossfade — same real flow.
+ *   load takes, covering quick connections and slow ones alike.
+ *   Failed requests land in the portal's existing error card
+ *   underneath the exit crossfade — same real flow.
  * - The selection persists to localStorage and applies to the next
  *   real sign-in (dev only). A reset link restores the production
  *   default; no winner is pre-selected.

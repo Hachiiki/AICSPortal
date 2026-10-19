@@ -1,5 +1,6 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import {
   BookOpen,
   CalendarDays,
@@ -9,16 +10,23 @@ import {
   Settings,
   Users,
 } from 'lucide-react'
+import { assembleEntrance, useAssembleReveal } from '@/components/portal/assemble-entrance'
 
 // ============================================================
 //  PreviewReadySurface — dev-only mock of the assembled dashboard.
 //
-//  The third phase of the Animation Lab preview: what the workspace
+//  The final phase of the Animation Lab preview: what the workspace
 //  looks like once content has actually landed. It mirrors the
 //  DashboardSkeleton's layout (same rail, topbar, hero, grades and
 //  schedule wells) but filled with static mock content, and it is
 //  labeled as a preview surface in the hero itself — the lab must
 //  never misrepresent mock data as live portal data.
+//
+//  Its three regions consume the SAME entrance staging as the real
+//  shell (portal/assemble-entrance.tsx): under the two-stage preview
+//  the surface assembles exactly the way the real portal's chrome
+//  does at sign-in, from the same source of truth — the mock never
+//  invents its own choreography.
 //
 //  Dev-only: imported exclusively by PostLoginPreview, which only
 //  renders behind the SHOW_POST_LOGIN_PREVIEW gate.
@@ -46,10 +54,21 @@ const TODAY_CLASSES = [
 ]
 
 export function PreviewReadySurface() {
+  // Same staging the real shell consumes — see the header comment.
+  const assembleReveal = useAssembleReveal()
+  const sidebarEntrance = assembleEntrance('sidebar', assembleReveal)
+  const topbarEntrance = assembleEntrance('topbar', assembleReveal)
+  const contentEntrance = assembleEntrance('content', assembleReveal)
+
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
       {/* Sidebar — mirror of the real shell's fixed rail */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 p-4">
+      <motion.aside
+        className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 p-4"
+        initial={sidebarEntrance.initial}
+        animate={sidebarEntrance.animate}
+        transition={sidebarEntrance.transition}
+      >
         <div className="flex items-center gap-2.5 mb-8 px-2">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-800 to-blue-600 grid place-items-center">
             <img src="/aics-logo.svg" alt="" className="w-5 h-5" />
@@ -72,11 +91,16 @@ export function PreviewReadySurface() {
             </span>
           ))}
         </nav>
-      </aside>
+      </motion.aside>
 
       <div className="lg:pl-60">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+        <motion.header
+          className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6"
+          initial={topbarEntrance.initial}
+          animate={topbarEntrance.animate}
+          transition={topbarEntrance.transition}
+        >
           <p className="text-sm font-semibold text-slate-900">Dashboard</p>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 grid place-items-center text-xs font-bold text-blue-700">
@@ -86,9 +110,14 @@ export function PreviewReadySurface() {
               juan.santos
             </div>
           </div>
-        </header>
+        </motion.header>
 
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
+        <motion.main
+          className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8"
+          initial={contentEntrance.initial}
+          animate={contentEntrance.animate}
+          transition={contentEntrance.transition}
+        >
           {/* Hero — the surface the sign-in animation's hero crossfades into */}
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
@@ -189,7 +218,7 @@ export function PreviewReadySurface() {
               </div>
             </div>
           </div>
-        </main>
+        </motion.main>
       </div>
     </div>
   )

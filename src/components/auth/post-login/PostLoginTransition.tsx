@@ -25,6 +25,13 @@ interface PostLoginTransitionProps {
   /** Preview-only: play the candidates even under reduced motion (the
       lab's override checkbox). Real sign-ins never pass this. */
   ignoreReducedMotion?: boolean
+  /** Assemble candidate only: fired the moment stage two begins, in
+      the same commit the redirect overlay starts its exit fade. The
+      page flips the workspace-assembly reveal so the REAL portal
+      chrome animates into place underneath (portal/
+      assemble-entrance.tsx). The preview harness uses the same hook
+      to drive its mock surface. */
+  onAssembleStart?: () => void
 }
 
 /**
@@ -39,11 +46,13 @@ interface PostLoginTransitionProps {
  * stage one is the preserved BranchRedirect sequence (its final step
  * holds until the portal's initial data has actually landed — the
  * overlay never claims completion on a bare timer), and stage two is
- * the WorkspaceAssemble overlay, which crossfades out over the real,
- * already-rendered portal. A failed load skips the assembly and exits
- * over the existing error card. The other candidates remain
- * single-stage overlays; the owner has not chosen a winner yet, so
- * 'default' remains the behavior unless a candidate is selected.
+ * the workspace assembly of the REAL portal: onAssembleStart flips
+ * the reveal so the actual dashboard chrome animates into its final
+ * positions while the redirect overlay exits over it. A failed load
+ * skips the assembly and exits over the existing error card. The
+ * other candidates remain single-stage overlays; the owner has not
+ * chosen a winner yet, so 'default' remains the behavior unless a
+ * candidate is selected.
  *
  * Reduced motion: the alternatives are skipped entirely — the user
  * goes straight to the portal, whose own skeleton handles loading
@@ -56,6 +65,7 @@ export function PostLoginTransition({
   forcedVariant,
   readiness,
   ignoreReducedMotion,
+  onAssembleStart,
 }: PostLoginTransitionProps) {
   const reduced = !!useReducedMotion() && !ignoreReducedMotion
   const [variant] = useState<PostLoginVariant>(
@@ -66,10 +76,18 @@ export function PostLoginTransition({
   // Latest readiness for stable callbacks — timers can fire after a
   // prop change, and the readiness object's identity is not stable.
   const readinessRef = useRef(readiness)
+  // Same pattern for the reveal hook: handleStageDone stays identity-
+  // stable (BranchRedirect's completion effect re-arms on onComplete
+  // changes), so the callback is read through a ref.
+  const onAssembleStartRef = useRef(onAssembleStart)
 
   useEffect(() => {
     readinessRef.current = readiness
   }, [readiness])
+
+  useEffect(() => {
+    onAssembleStartRef.current = onAssembleStart
+  }, [onAssembleStart])
 
   const finish = useCallback(() => {
     if (doneRef.current) return
@@ -90,13 +108,17 @@ export function PostLoginTransition({
   }, [variant, readiness?.error, finish])
 
   // Stage handoff: the gated redirect sequence completed. On a failed
-  // load exit immediately; otherwise assemble the workspace.
+  // load exit immediately; otherwise trigger the reveal in the same
+  // commit as the stage flip — the real portal's entrance starts
+  // exactly as the redirect overlay begins its exit fade — and let
+  // the assembly coordinator hold the transition open.
   const handleStageDone = useCallback(() => {
     if (doneRef.current) return
     if (readinessRef.current?.error) {
       finish()
       return
     }
+    onAssembleStartRef.current?.()
     setStage('assemble')
   }, [finish])
 
@@ -109,7 +131,8 @@ export function PostLoginTransition({
   }
 
   // Two-stage assemble candidate: the preserved redirect sequence,
-  // gated on real readiness, crossfading into the workspace assembly.
+  // gated on real readiness, handing off to the assembly of the
+  // real portal underneath.
   return (
     <AnimatePresence>
       {stage === 'auth' ? (
@@ -120,12 +143,7 @@ export function PostLoginTransition({
           readiness={readiness}
         />
       ) : (
-        <WorkspaceAssemble
-          key="stage-assemble"
-          branch={branch}
-          username={username}
-          onComplete={finish}
-        />
+        <WorkspaceAssemble key="stage-assemble" onComplete={finish} />
       )}
     </AnimatePresence>
   )

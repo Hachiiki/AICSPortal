@@ -10,6 +10,7 @@ import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
 import { activePostLoginVariant } from '@/components/auth/post-login/variants'
+import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -96,10 +97,21 @@ export default function AICSLoginPage() {
   // underneath. The assemble candidate additionally receives the
   // fetch's real readiness and runs as TWO stages: the preserved
   // redirect sequence holds its final step until the initial data
-  // actually lands, then the workspace assembly plays and crossfades
-  // into the real, already-rendered portal. In production the gate
-  // compiles to 'default', so this path disappears entirely.
+  // actually lands, then the REAL portal chrome itself assembles
+  // into place (see portal/assemble-entrance.tsx) while the redirect
+  // overlay exits — no mock surface, no second skeleton phase, the
+  // components the user lands on are the ones that animated in. In
+  // production the gate compiles to 'default', so this path
+  // disappears entirely.
   const postLoginVariant = activePostLoginVariant()
+
+  // Workspace-assembly reveal (assemble candidate only). Flips true
+  // the moment the two-stage transition starts its assembly stage —
+  // the same commit the redirect overlay begins its exit fade — so
+  // the real portal's chrome animates into place underneath (see
+  // portal/assemble-entrance.tsx). Reset on every sign-in attempt.
+  const [assembleReveal, setAssembleReveal] = useState(false)
+  const handleAssembleStart = useCallback(() => setAssembleReveal(true), [])
 
   // Portal initial data — owned here (lifted out of StudentDataWrapper)
   // so the post-login transition can gate its stages on the fetch's
@@ -157,6 +169,7 @@ export default function AICSLoginPage() {
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
         setRedirectRole(result.role || 'student')
+        setAssembleReveal(false)
         setRedirecting(true)
       }
       return result
@@ -171,6 +184,7 @@ export default function AICSLoginPage() {
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
         setRedirectRole(result.role || 'student')
+        setAssembleReveal(false)
         setRedirecting(true)
       }
       return result
@@ -226,22 +240,33 @@ export default function AICSLoginPage() {
   // While still on the login view — the guard redirects within a frame —
   // nothing renders underneath the opaque overlay, so the login form
   // never flashes.
+  //
+  // The AssembleRevealProvider is ALWAYS mounted around the wrapper —
+  // mounting it conditionally would remount the wrapper and refetch
+  // everything. Its value activates only while the assemble candidate's
+  // post-login window is open, and deactivation returns the chrome to
+  // the standard entrance without re-animating (identical resting
+  // targets). In production the value is permanently null.
   return (
     <>
       {route.view === 'login' ? null : (
-        <StudentDataWrapper
-          username={username}
-          route={route}
-          navigate={navigate}
-          onLogout={handleLogout}
-          student={student}
-          courses={courses}
-          sessions={sessions}
-          studentLoading={portalLoading}
-          studentError={studentError}
-          patchStudent={patchStudent}
-          onRetryStudent={() => setRetryKey((k) => k + 1)}
-        />
+        <AssembleRevealProvider
+          revealing={redirecting && postLoginVariant === 'assemble' ? assembleReveal : null}
+        >
+          <StudentDataWrapper
+            username={username}
+            route={route}
+            navigate={navigate}
+            onLogout={handleLogout}
+            student={student}
+            courses={courses}
+            sessions={sessions}
+            studentLoading={portalLoading}
+            studentError={studentError}
+            patchStudent={patchStudent}
+            onRetryStudent={() => setRetryKey((k) => k + 1)}
+          />
+        </AssembleRevealProvider>
       )}
       <AnimatePresence>
         {redirecting && postLoginVariant !== 'default' ? (
@@ -255,6 +280,7 @@ export default function AICSLoginPage() {
                 ? { ready: portalReady, error: !!studentError }
                 : undefined
             }
+            onAssembleStart={handleAssembleStart}
           />
         ) : null}
       </AnimatePresence>
