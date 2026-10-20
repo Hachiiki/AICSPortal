@@ -21,6 +21,7 @@ import { SelectMenu } from '../ui/select-menu'
 import { TasksSkeleton } from './Skeleton'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
+import { DialogPanel } from './DialogPanel'
 import { EmptyState } from './EmptyState'
 
 // ============================================================
@@ -236,10 +237,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
           <div className="w-px h-10 bg-slate-100" />
           {/* Type */}
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</label>
-            <div className="flex gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</span>
+            <div role="group" aria-label="Filter by task type" className="flex gap-1">
               {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
-                <button key={t} type="button" onClick={() => setTypeFilter(t)}
+                <button key={t} type="button" onClick={() => setTypeFilter(t)} aria-pressed={typeFilter === t}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
                   {t === 'all' ? 'All' : t}
                 </button>
@@ -249,10 +250,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
           <div className="w-px h-10 bg-slate-100" />
           {/* Status */}
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</label>
-            <div className="flex gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</span>
+            <div role="group" aria-label="Filter by task status" className="flex gap-1">
               {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
-                <button key={s} type="button" onClick={() => setStatusFilter(s)}
+                <button key={s} type="button" onClick={() => setStatusFilter(s)} aria-pressed={statusFilter === s}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-500 hover:text-slate-700'}`}>
                   {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
                 </button>
@@ -276,11 +277,12 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
               const { variant, sub } = computeStatus(task)
               const subject = currentSubjects.find((s) => s.code === task.subjectCode)
               return (
-                <div key={task._id}
+                <button key={task._id}
+                  type="button"
                   onClick={() => handleAttentionRowClick(task)}
-                  className="px-6 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors">
+                  className="w-full text-left px-6 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
                   {/* Circular status icon */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
                     {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
                     {variant === 'MISSING_CLOSED' && <Lock className="w-4 h-4" />}
                     {variant === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
@@ -290,14 +292,14 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                     <p className="text-sm font-medium text-slate-900 truncate">{task.title}</p>
                   </div>
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${VARIANT_COLORS[variant]}`}>
-                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
-                    {variant === 'PENDING' && <Clock className="w-3 h-3" />}
-                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
-                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
-                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
+                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" aria-hidden />}
+                    {variant === 'PENDING' && <Clock className="w-3 h-3" aria-hidden />}
+                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" aria-hidden />}
+                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" aria-hidden />}
+                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" aria-hidden />}
                     {sub}
                   </span>
-                </div>
+                </button>
               )
             })}
           </div>
@@ -333,12 +335,12 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
               <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
                 className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Accordion header */}
-                <div onClick={() => toggleCourse(subjectCode)}
-                  className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+                <button type="button" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
+                  className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs font-bold text-blue-700">{subjectCode}</span>
-                      <h3 className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</h3>
+                      <span className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</span>
                     </div>
                     {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                   </div>
@@ -346,12 +348,12 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                     <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{taskCountLabel}</span>
                     {hasMissing && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
-                        <AlertTriangle className="w-3 h-3" /> Needs attention
+                        <AlertTriangle className="w-3 h-3" aria-hidden /> Needs attention
                       </span>
                     )}
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" aria-hidden /> : <ChevronDown className="w-4 h-4 text-slate-500" aria-hidden />}
                   </div>
-                </div>
+                </button>
                 {/* Expanded task list — cards on mobile, scrollable table from md up */}
                 {isExpanded && (
                   <>
@@ -406,11 +408,11 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
                     <table className="w-full text-sm min-w-[560px]">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-100">
-                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Type</th>
-                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
-                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
-                          <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
-                          <th className="px-4 py-2.5 pr-6 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-32">Action</th>
+                          <th scope="col" className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Type</th>
+                          <th scope="col" className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Task</th>
+                          <th scope="col" className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Due Date</th>
+                          <th scope="col" className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Status / Score</th>
+                          <th scope="col" className="px-4 py-2.5 pr-6 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center w-32">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -505,23 +507,24 @@ function OverviewStat({ label, value, color }: { label: string; value: number; c
 }
 
 function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: Task; onCancel: () => void; onConfirm: () => void; submitting: boolean }) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onCancel])
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onCancel}>
-      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <DialogPanel
+        onClose={onCancel}
+        aria-label="Confirm task submission"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <AlertTriangle className="w-5 h-5 text-amber-600" aria-hidden />
             <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
           </div>
-          <button type="button" onClick={onCancel} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onCancel} aria-label="Close submission warning" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" aria-hidden /></button>
         </div>
         <div className="px-6 py-5">
           <p className="text-sm text-slate-600 leading-relaxed">
@@ -535,28 +538,29 @@ function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: T
             {submitting ? 'Submitting…' : 'I passed the paper — Submit'}
           </button>
         </div>
-      </motion.div>
+      </DialogPanel>
     </motion.div>
   )
 }
 
 function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectName: string; onClose: () => void }) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
-
   const { status, sub } = computeStatus(task)
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
-      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <DialogPanel
+        onClose={onClose}
+        aria-label="Task details"
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <h3 className="font-bold text-sm text-slate-900">Task Details</h3>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={onClose} aria-label="Close task details" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" aria-hidden /></button>
         </div>
         <div className="px-6 py-5 space-y-3">
           <DetailRow label="Title" value={task.title} />
@@ -572,7 +576,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end">
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Close</button>
         </div>
-      </motion.div>
+      </DialogPanel>
     </motion.div>
   )
 }

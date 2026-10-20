@@ -220,8 +220,12 @@ export default function AICSLoginPage() {
   }, [authLoading, username, branch, role, route.view, navigate])
 
   const handleLogin = useCallback(
-    async (user: string, pass: string): Promise<{ ok: boolean; error?: string }> => {
-      const result = await login(user, pass)
+    async (
+      user: string,
+      pass: string,
+      remember: boolean
+    ): Promise<{ ok: boolean; error?: string }> => {
+      const result = await login(user, pass, remember)
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
         setRedirectRole(result.role || 'student')

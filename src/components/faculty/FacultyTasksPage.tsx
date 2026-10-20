@@ -418,8 +418,9 @@ export function FacultyTasksPage({
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Title</label>
+              <label htmlFor="task-title" className="block text-xs font-medium text-slate-700 mb-1.5">Title</label>
               <input
+                id="task-title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -429,8 +430,9 @@ export function FacultyTasksPage({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Instructions (optional)</label>
+              <label htmlFor="task-instructions" className="block text-xs font-medium text-slate-700 mb-1.5">Instructions (optional)</label>
               <textarea
+                id="task-instructions"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 maxLength={2000}
@@ -441,8 +443,9 @@ export function FacultyTasksPage({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Max score</label>
+                <label htmlFor="task-max-score" className="block text-xs font-medium text-slate-700 mb-1.5">Max score</label>
                 <input
+                  id="task-max-score"
                   type="number"
                   min={1}
                   value={maxScore}
@@ -451,8 +454,9 @@ export function FacultyTasksPage({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">Due date</label>
+                <label htmlFor="task-due-date" className="block text-xs font-medium text-slate-700 mb-1.5">Due date</label>
                 <input
+                  id="task-due-date"
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}

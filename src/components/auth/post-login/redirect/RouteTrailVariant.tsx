@@ -284,7 +284,7 @@ export function RouteTrailVariant({ branch, onComplete, readiness }: AuthStagePr
           transition={{ duration: 0.4, ease: 'easeOut' }}
           className="mb-12 sm:mb-14 flex items-center justify-center gap-2.5"
         >
-          <img src="/aics-logo.svg" alt="AICS" className="w-9 h-9 object-contain" />
+          <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-9 h-9 object-contain" />
           <span className="text-[15px] font-semibold" style={{ color: T.text }}>
             AICS Portal
           </span>

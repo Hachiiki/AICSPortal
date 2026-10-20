@@ -208,8 +208,9 @@ export function FacultyAnnouncementsPage({
           </div>
           <div className="px-6 py-5 space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Title</label>
+              <label htmlFor="announce-title" className="block text-xs font-medium text-slate-700 mb-1.5">Title</label>
               <input
+                id="announce-title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -219,8 +220,9 @@ export function FacultyAnnouncementsPage({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1.5">Message</label>
+              <label htmlFor="announce-body" className="block text-xs font-medium text-slate-700 mb-1.5">Message</label>
               <textarea
+                id="announce-body"
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 maxLength={2000}
@@ -228,7 +230,7 @@ export function FacultyAnnouncementsPage({
                 placeholder="Write what your students need to know..."
                 className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
               />
-              <p className="text-[11px] text-slate-500 mt-1 text-right">{body.length}/2000</p>
+              <p className="text-[11px] text-slate-500 mt-1 text-right" aria-live="polite">{body.length}/2000</p>
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -323,7 +325,7 @@ export function FacultyAnnouncementsPage({
                             <span key={code} className="font-mono text-xs font-bold text-blue-700">{code}</span>
                           ))}
                           {subjectCodes.length > 2 && (
-                            <span className="text-[10px] text-slate-400">+{subjectCodes.length - 2}</span>
+                            <span className="text-[10px] text-slate-500">+{subjectCodes.length - 2} more</span>
                           )}
                         </div>
                       </div>
@@ -359,7 +361,7 @@ export function FacultyAnnouncementsPage({
                         <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50/60 max-h-64 overflow-y-auto">
                           {g.sections.map((sec) => (
                             <div key={sec.sectionKey} className="px-3 py-2 border-b border-slate-100 last:border-b-0">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                                 {sec.subjectCode}
                                 {sec.sectionNames.length > 0 && ` — ${sec.sectionNames.join(', ')}`} · {sec.count}{' '}
                                 {sec.count === 1 ? 'student' : 'students'}
@@ -377,9 +379,15 @@ export function FacultyAnnouncementsPage({
                                         <span className="text-[10px] text-slate-500 flex-shrink-0">{r.section}</span>
                                       )}
                                       {r.read ? (
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-auto flex-shrink-0" aria-label="Read" />
+                                        <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700">
+                                          <CheckCircle2 className="w-3.5 h-3.5" aria-hidden />
+                                          <span className="sr-only">Read</span>
+                                        </span>
                                       ) : (
-                                        <Clock className="w-3.5 h-3.5 text-slate-300 ml-auto flex-shrink-0" aria-label="Unread" />
+                                        <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                                          <Clock className="w-3.5 h-3.5" aria-hidden />
+                                          <span className="sr-only">Unread</span>
+                                        </span>
                                       )}
                                     </li>
                                   ))}

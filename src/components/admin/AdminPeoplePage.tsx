@@ -183,6 +183,16 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
       toast.info('No accounts match your filters.')
       return
     }
+    // PII disclosure gate: the CSV carries personal data (names, student
+    // numbers, emails, GPA, dean's-lister status). Confirm intent before
+    // the file ever leaves the browser, per the privacy policy's staff
+    // access rules.
+    const confirmed = window.confirm(
+      `Export ${filtered.length} account(s) as CSV?\n\n` +
+        'The file includes personal data: names, usernames, student numbers, emails, GPA, and dean\'s-lister status.\n\n' +
+        'Export only what you need for a legitimate school purpose, and store or share the file confidentially.'
+    )
+    if (!confirmed) return
     const cell = (v: string) =>
       `"${String(v ?? '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`
     const header = ['Name', 'Username', 'Role', 'Branch', 'Student #', 'Program', 'Year Level', 'Section', 'Status', 'Email', 'GPA', "Dean's Lister"]
@@ -220,7 +230,11 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
   }
 
   const SortHeader = ({ label, sort, className = '' }: { label: string; sort: SortKey; className?: string }) => (
-    <th className={`bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${className}`}>
+    <th
+      scope="col"
+      aria-sort={sortKey === sort ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={`bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${className}`}
+    >
       <button
         type="button"
         onClick={() => toggleSort(sort)}
@@ -229,7 +243,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
       >
         {label}
         {sortKey === sort ? (
-          sortDir === 'asc' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+          sortDir === 'asc' ? <ChevronUp className="w-3 h-3" aria-hidden /> : <ChevronDown className="w-3 h-3" aria-hidden />
         ) : null}
       </button>
     </th>
@@ -342,12 +356,12 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                     <tr className="bg-slate-50 border-b border-slate-100">
                       <SortHeader label="Name" sort="name" />
                       <SortHeader label="Username" sort="username" />
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Role</th>
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Branch</th>
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Program</th>
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Year &amp; Section</th>
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                      <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Role</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Branch</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Program</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Year &amp; Section</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
                     </tr>
                   </thead>
                   <tbody>

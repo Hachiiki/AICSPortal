@@ -20,7 +20,8 @@ export function StudentIdCard({ student, className }: StudentIdCardProps) {
     <div
       className={`relative w-full overflow-hidden ${CARD_RADIUS} @container ${className ?? ''}`}
       style={{ aspectRatio: ASPECT }}
-      aria-label={`Student ID card of ${student.fullName}`}
+      role="img"
+      aria-label={`Student ID card of ${student.fullName} — unofficial portal-generated preview`}
     >
       {/* Template background */}
       <img

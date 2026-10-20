@@ -256,18 +256,18 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             <button
               type="button"
               onClick={() => removeTop('left')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               aria-label="Snooze (swipe left)"
             >
-              <Clock className="w-3.5 h-3.5" />
+              <Clock className="w-3.5 h-3.5" aria-hidden />
             </button>
             <button
               type="button"
               onClick={() => removeTop('right')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               aria-label="Mark as read (swipe right)"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-3.5 h-3.5" aria-hidden />
             </button>
           </div>
         </div>
@@ -287,10 +287,10 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <button
           type="button"
           onClick={dismissAll}
-          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-600"
+          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-700"
           aria-label="Dismiss all announcements"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-3.5 h-3.5" aria-hidden />
         </button>
 
         {/* Stacked cards */}

@@ -30,7 +30,7 @@ export function DevBanner({ appEnv }: { appEnv: AppEnv }) {
         <p className="text-xs font-bold tracking-wide sm:text-sm">
           {isStaging
             ? 'STAGING PREVIEW — test data only. Changes here do not affect production.'
-            : 'UNDER DEVELOPMENT — Built by Willard. Expect bugs and future changes.'}
+            : 'UNDER DEVELOPMENT — Independent student project by Willard. Not affiliated with or endorsed by AICS. Expect bugs and future changes.'}
         </p>
         {isStaging ? (
           <FlaskConical className="h-4 w-4 shrink-0" aria-hidden />

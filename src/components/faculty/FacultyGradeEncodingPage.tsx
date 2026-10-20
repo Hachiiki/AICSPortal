@@ -18,6 +18,7 @@ import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { EmptyState } from '../portal/EmptyState'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
+import { DialogPanel } from '../portal/DialogPanel'
 
 interface Props {
   student: Student
@@ -353,7 +354,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setActiveSection('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === 'all' ? 'bg-[#153357] text-white border-[#153357]' : 'bg-white text-slate-700 border-slate-200'}`}>All sections ({sections.length} • {rows.length} rows)</button>
-              {sections.map((s) => (<button key={s.key} onClick={() => setActiveSection(s.subjectCode)} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === s.subjectCode ? 'bg-[#287CBB] text-white border-[#287CBB]' : 'bg-white text-slate-700 border-slate-200'}`}>{s.subjectCode} — {s.room}</button>))}
+              {sections.map((s) => (<button key={s.key} onClick={() => setActiveSection(s.subjectCode)} aria-pressed={activeSection === s.subjectCode} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === s.subjectCode ? 'bg-[#1D6FB8] text-white border-[#1D6FB8]' : 'bg-white text-slate-700 border-slate-200'}`}>{s.subjectCode} — {s.room}</button>))}
             </div>
           </div>
 
@@ -379,8 +380,9 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             )}
             <div className="px-4 py-3 flex flex-wrap gap-3 items-center border-b border-slate-100">
               <div className="relative flex-1 min-w-[200px] max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search student…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white shadow-sm text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
+                <label htmlFor="grade-encoding-search" className="sr-only">Search student</label>
+                <input id="grade-encoding-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search student…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white shadow-sm text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
               <SelectMenu
                 aria-label="Filter by status"
@@ -480,8 +482,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             </>
           }
         >
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
-          <input ref={fillInputRef} value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+          <label htmlFor="fill-value" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
+          <input id="fill-value" ref={fillInputRef} value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
           <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
         </Modal>
       )}
@@ -542,8 +544,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               { value: 'all', label: 'All periods (Final Grade)' },
             ]}
           />
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
-          <textarea value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
+          <label htmlFor="submit-note" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Note (audit log)</label>
+          <textarea id="submit-note" value={submitNote} onChange={(e) => setSubmitNote(e.target.value)} rows={2} placeholder="e.g., Validated against class record…" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500" />
         </Modal>
       )}
 
@@ -551,13 +553,13 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         {historyRow && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setHistoryRow(null)} aria-hidden="true" />
-            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Grade history" onClick={(e) => e.stopPropagation()}>
+            <DialogPanel onClose={() => setHistoryRow(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-50 flex flex-col" aria-label="Grade history" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">Grade history</h3>
                   <p className="text-xs text-slate-500">{historyRow.studentName} • {historyRow.subjectCode} • {historyRow.academicYear} {historyRow.semester}</p>
                 </div>
-                <button type="button" onClick={() => setHistoryRow(null)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                <button type="button" onClick={() => setHistoryRow(null)} aria-label="Close grade history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6">
                 {historyLoading ? (
@@ -595,7 +597,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <div className="p-4 border-t border-slate-200 shrink-0">
                 <button onClick={() => setHistoryRow(null)} className="w-full h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
               </div>
-            </motion.div>
+            </DialogPanel>
           </>
         )}
       </AnimatePresence>

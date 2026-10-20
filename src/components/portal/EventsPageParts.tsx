@@ -165,6 +165,14 @@ export function CalendarGrid({
                 key={i}
                 type="button"
                 onClick={() => onSelectDay(dayMid)}
+                aria-label={(() => {
+                  const dateLabel = dayMid.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                  const n = dayEvents.length + dayTasks.length
+                  return n > 0
+                    ? `${dateLabel}, ${n} ${n === 1 ? 'item' : 'items'} scheduled`
+                    : `${dateLabel}, nothing scheduled`
+                })()}
+                aria-current={isSelected ? 'date' : undefined}
                 className={`relative min-h-[88px] sm:min-h-[96px] p-1.5 border-b border-r border-slate-100 text-left transition-colors ${
                   isOtherMonth ? 'bg-slate-50/40' : 'bg-white'
                 } hover:bg-blue-50/40 ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
@@ -182,9 +190,10 @@ export function CalendarGrid({
                     {day.getDate()}
                   </span>
                 </div>
-                {/* Dots */}
+                {/* Dots — decorative; the button's accessible name
+                    carries the day's item count. */}
                 {visibleDots.length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1">
+                  <div className="mt-1 flex flex-wrap gap-1" aria-hidden="true">
                     {visibleDots.map((dot, di) => (
                       <span
                         key={di}
@@ -392,13 +401,14 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 key={cat}
                 type="button"
                 onClick={() => onToggleCat(cat)}
+                aria-pressed={on}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
                     : 'bg-white text-slate-500 border-slate-200'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${on ? CATEGORY_COLORS[cat] : 'bg-slate-300'}`} />
+                <span className={`w-2 h-2 rounded-full ${on ? CATEGORY_COLORS[cat] : 'bg-slate-300'}`} aria-hidden="true" />
                 {CATEGORY_LABELS[cat]}
               </button>
             )
@@ -413,10 +423,12 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
         <button
           type="button"
           onClick={onToggleTasks}
+          role="switch"
+          aria-checked={showTasks}
+          aria-label="Show task due dates on the calendar"
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
             showTasks ? 'bg-blue-600' : 'bg-slate-300'
           }`}
-          aria-label="Toggle task due dates"
         >
           <span
             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
