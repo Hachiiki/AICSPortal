@@ -211,7 +211,7 @@ export async function signSession(claims: SessionClaims): Promise<string> {
 
 The `tv` claim is the revocation counter. It is compared against the user's current `tokenVersion` in the database on every authed request. Logout and password change bump the database value, instantly killing all previously issued tokens.
 
-### Route protection — `src/middleware.ts`
+### Route protection — `src/proxy.ts`
 
 Every `/api` route except the three auth entry points requires a valid session cookie. `/portal` pages bounce anonymous visitors to the login view.
 
@@ -339,7 +339,7 @@ All write routes enforce: valid session, role check, branch match, and (for facu
 ```
 AICSPortal/
 ├── src/
-│   ├── middleware.ts            # Session enforcement for /api and /portal
+│   ├── proxy.ts                 # Session enforcement for /api and /portal
 │   ├── app/
 │   │   ├── page.tsx             # SPA entry: login view + portal shell
 │   │   ├── layout.tsx           # Root layout (fonts, Toaster, Analytics)

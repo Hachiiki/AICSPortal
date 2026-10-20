@@ -10,6 +10,7 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 
 interface PortalShellProps {
   student: Student
@@ -58,6 +59,12 @@ export function PortalShell({
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const role = student.role ?? 'student'
+  // Workspace-assembly entrance (assemble candidate only): staged
+  // while the redirect overlay still covers the portal, animated
+  // into place when the reveal flips. Null everywhere else — the
+  // standard fade-up below is today's behavior, untouched.
+  const assembleReveal = useAssembleReveal()
+  const entrance = assembleEntrance('content', assembleReveal)
 
   return (
     <MotionConfig reducedMotion="user">
@@ -94,7 +101,10 @@ export function PortalShell({
         {/* Shared entrance transition. Every tab mounts through this
             shell, so all of them fade up the same way instead of each
             page inventing its own. Page-level section animations nest
-            inside and keep working. */}
+            inside and keep working. During the post-login assembly the
+            entrance comes from assemble-entrance.tsx instead: the real
+            chrome (this sidebar, this topbar, this column) animates into
+            place as the redirect overlay exits. */}
         {/* Error boundary per view: a render crash in one tab degrades
             to an inline retry card while the sidebar/topbar stay alive;
             resetKey makes navigating away remount the crashed view. */}
@@ -102,9 +112,13 @@ export function PortalShell({
           key={active}
           id="main-content"
           tabIndex={-1}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
+          initial={assembleReveal ? entrance.initial : { opacity: 0, y: 8 }}
+          animate={assembleReveal ? entrance.animate : { opacity: 1, y: 0 }}
+          transition={
+            assembleReveal
+              ? entrance.transition
+              : { duration: 0.35, ease: 'easeOut' as const }
+          }
         >
           <ErrorBoundary resetKey={String(active)}>
             {children}

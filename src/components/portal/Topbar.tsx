@@ -1,6 +1,7 @@
 'use client'
 
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import {
   DropdownMenu,
@@ -12,6 +13,7 @@ import {
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { GlobalSearch } from './GlobalSearch'
+import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
@@ -71,8 +73,19 @@ export function Topbar({
     toast.info('Theme switching is coming soon.')
   }
 
+  // Workspace-assembly entrance (assemble candidate only): the real
+  // topbar drops in from above when the reveal flips; otherwise it
+  // mounts at rest, exactly the element it was before.
+  const assembleReveal = useAssembleReveal()
+  const entrance = assembleEntrance('topbar', assembleReveal)
+
   return (
-    <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200">
+    <motion.header
+      className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200"
+      initial={entrance.initial}
+      animate={entrance.animate}
+      transition={entrance.transition}
+    >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
       <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
@@ -234,6 +247,6 @@ export function Topbar({
           </DropdownMenu>
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }
