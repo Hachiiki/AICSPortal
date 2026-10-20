@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, MapPin, CheckCircle2 } from 'lucide-react'
+import { useAuthSequence } from './post-login/redirect/use-auth-sequence'
+import type { AuthReadiness } from './post-login/redirect/types'
 
 interface BranchRedirectProps {
   branch: string
@@ -14,7 +15,7 @@ interface BranchRedirectProps {
    * original sequence; only completion and the final checkmark are
    * gated on real readiness.
    */
-  readiness: { ready: boolean; error: boolean }
+  readiness: AuthReadiness
 }
 
 const STEPS = [
@@ -22,18 +23,6 @@ const STEPS = [
   'Detecting branch…',
   'Loading your portal…',
 ]
-
-// Step rhythm — the original animation's pacing: steps at
-// 600/1300 ms.
-const STEP_MS = [600, 1300]
-// The sequence may complete only after this natural-length floor AND
-// real readiness — a fast login finishes exactly when the original
-// animation would, while a slow one holds the final step's spinner
-// for as long as the load really takes. The final checkmark appears
-// the moment the data lands, never on a timer.
-const SEQUENCE_FLOOR_MS = 2200
-const READY_SETTLE_MS = 200
-const ERROR_EXIT_MS = 400
 
 /**
  * Full-screen redirect animation shown after a successful login.
@@ -46,43 +35,17 @@ const ERROR_EXIT_MS = 400
  * reflects the real initial-data load: it never checks off or
  * completes on a timer alone, and a failed load exits promptly so the
  * existing error card takes over.
+ *
+ * The sequence itself — timers, natural-length floor, readiness-gated
+ * completion — lives in the shared useAuthSequence hook so every
+ * presentation of this stage (this one and the review variants) runs
+ * identical logic; this component owns only the look.
  */
 export function BranchRedirect({ branch, onComplete, readiness }: BranchRedirectProps) {
-  const [step, setStep] = useState(0)
-  const [floorDone, setFloorDone] = useState(false)
+  const { step, finalChecked } = useAuthSequence({ readiness, onComplete })
+
   // Capitalize the branch name for display
   const branchDisplay = branch.charAt(0).toUpperCase() + branch.slice(1)
-
-  // Step pacing plus the natural-length floor flag used by gated
-  // completion. These timers only advance internal state, so callback
-  // identity is deliberately not a dependency.
-  useEffect(() => {
-    const timers = STEP_MS.map((ms, i) => setTimeout(() => setStep(i + 1), ms))
-    const floor = setTimeout(() => setFloorDone(true), SEQUENCE_FLOOR_MS)
-    return () => {
-      timers.forEach(clearTimeout)
-      clearTimeout(floor)
-    }
-  }, [])
-
-  // Completion: only once the sequence has played out at least at its
-  // natural length AND the initial data truly landed — or promptly
-  // when it failed, so the existing error card (never a fake
-  // workspace) takes over.
-  useEffect(() => {
-    if (readiness.error) {
-      const t = setTimeout(onComplete, ERROR_EXIT_MS)
-      return () => clearTimeout(t)
-    }
-    if (readiness.ready && floorDone) {
-      const t = setTimeout(onComplete, READY_SETTLE_MS)
-      return () => clearTimeout(t)
-    }
-  }, [readiness.ready, readiness.error, floorDone, onComplete])
-
-  // The final step's checkmark appears only on real readiness, and
-  // only once the step itself is active (rows still check in order).
-  const finalChecked = step >= STEPS.length - 1 && readiness.ready
 
   return (
     <motion.div
