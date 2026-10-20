@@ -39,6 +39,28 @@ export function readDevAuthVariant(): AuthVariant {
   }
 }
 
+/** Store the preview selection for the next real sign-in (dev only —
+ *  a no-op everywhere else). Used by the /dev/auth-preview page. */
+export function writeDevAuthVariant(variant: AuthVariant): void {
+  if (process.env.NODE_ENV !== 'development') return
+  try {
+    window.localStorage.setItem(STORAGE_KEY, variant)
+  } catch {
+    // Storage unavailable — the next sign-in keeps the default.
+  }
+}
+
+/** Clear the preview selection; the next real sign-in uses the
+ *  production default (dev only). */
+export function clearDevAuthVariant(): void {
+  if (process.env.NODE_ENV !== 'development') return
+  try {
+    window.localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Storage unavailable — nothing to clear.
+  }
+}
+
 /** Stage one of the post-login transition in whichever presentation
  *  applies: the production classic sequence for every real sign-in,
  *  or the development review variant while one is selected. All
