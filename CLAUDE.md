@@ -19,7 +19,7 @@ Key domain (single-context, see `@CONTEXT.md`):
 - `grade audit` in `grade_audits` per save/submit/release with `branch/studentUsername/subjectCode/academicYear/semester/period/oldValue/newValue/action/performedBy/performedAt/note`.
 
 Core flows:
-- Auth `POST /api/auth/login` → client `localStorage aics_username/branch/role`, `useAuth` hydrates via `useSyncExternalStore`. No session token yet (plaintext passwords — see guardrails).
+- Auth `POST /api/auth/login` → scrypt verify (legacy plaintext upgrades on login), issues a signed session JWT (jose HS256, httpOnly cookie, 8 h, `tv` revocation counter). `src/proxy.ts` enforces it on every `/api` + `/portal` route; each route re-verifies `tokenVersion` via `getAuthedSession`. Client localStorage (`aics_username`/`branch`/`role`, `useAuth` via `useSyncExternalStore`) is display state only — never a source of authority.
 - Faculty roster `GET /api/faculty?username=` → subjects where `professor===fullName` + branch → unique students.
 - Grade workflow per period: `PATCH /api/grades/update` (draft) → `POST /api/grades/submit` (draft→submitted) → `POST /api/grades/release` (submitted→released). Student API only shows `released` periods.
 
@@ -27,12 +27,12 @@ Core flows:
 
 > Update this section on every phase change. Keep 3-5 lines max.
 
-- Student portal: functional. Mobile responsive + profile photo upload done (photo API: sign/remove/cleanup + Settings uploader, verified 30/30 via scripts/verify-photo-upload.sh). Dark mode wiring deferred by owner (2026-10-14) — do not start unprompted.
-- Faculty portal: core tabs live, previous-records live, attendance live. History drawer + release queue verified.
-- Admin portal: only release queue + seed admin (`admin/admin123`) live. Dashboard / CRUD not started.
-- Infra debt: password hashing, session tokens, rate limiting, Zod validation, error boundaries, CI/CD — all open, see `@TODO.md`.
+- All three portals feature-complete: student (incl. profile photo upload), faculty (teaching loop closed, epic #31), admin (dashboard stats, release queue, students & faculty directory, professors/events/announcements/enrollment management). Details in `@TODO.md`.
+- Infra hardening done: session auth + revocation, scrypt hashing, tiered rate limits, Zod on every route, error boundaries, CI (lint + typecheck + whitelist guard). Remaining: in-memory rate limiter → Redis at scale.
+- Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PRs #53/#54, 2026-10-20); `/dev/auth-preview` retired — no dev-only auth surfaces remain.
+- Content moderation live (English + Filipino) on every persisting write; Filipino reviewer sign-off still open (owner action, `@TODO.md`).
 - QA: Sep-2026 audit closed — 18 bugs (3 Critical) fixed or accepted, archived in `docs/done/qa_reports/`.
-- Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PR #53, 2026-10-20); `/dev/auth-preview` retired — no dev-only auth surfaces remain.
+- Deferred by owner: dark mode toggle (2026-10-14), real Face ID, In/Out log — do not start unprompted.
 
 ## 3. Build and Test Commands / Common Terminal Commands
 
@@ -42,6 +42,7 @@ npm run dev          # next dev -p 3000 → http://localhost:3000
 npm run build        # next build (must pass before PR)
 npm start            # next start (prod preview)
 npm run lint         # eslint . (eslint-config-next core-web-vitals + typescript)
+npm run typecheck    # tsc --noEmit (CI runs lint + typecheck on every PR/push)
 
 # DB (Prisma scripts exist but runtime uses native mongodb driver v7 via src/lib/mongodb/connection.ts)
 npm run db:push
@@ -66,27 +67,41 @@ No unit test runner configured. Verification = `npm run build` + `npm run lint` 
 ## 4. Project Structure
 
 ```
-loginAICSPortal/
+AICSPortal/
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx, page.tsx, globals.css
 │   │   ├── portal/[...slug]/   # SPA catch-all for refresh support
-│   │   └── api/                # auth, student, faculty, faculty/tasks, faculty/history,
-│   │                           # tasks, tasks/[taskId]/submit, events, professors,
-│   │                           # enrollment, announcements, announcements/read,
-│   │                           # notifications, attendance, grades/update|submit|release|audits
+│   │   └── api/                # auth (+session/logout/change-password/demo), student
+│   │                           #   (+update, photo, photo/cleanup), tasks (+submit,
+│   │                           #   grade), faculty (+tasks/submissions, history),
+│   │                           #   grades (update/submit/release/audits), attendance,
+│   │                           #   events, professors, enrollment, announcements
+│   │                           #   (+read, bulk-delete), notifications (+sent,
+│   │                           #   cleanup), materials (+sign, [id]),
+│   │                           #   admin (stats/people/enrollment)
 │   ├── components/
-│   │   ├── auth/    # Login, credentials form, FaceId panel, branch redirect
-│   │   ├── portal/  # Dashboard, profile, academics, events, sidebar, topbar, PortalShell
+│   │   ├── auth/    # LoginView, CredentialsForm, FaceIdPanel, post-login/
+│   │   │            #   (PostLoginTransition: Route Trail + WorkspaceAssemble)
+│   │   ├── portal/  # Dashboard, profile, academics, events, sidebar, topbar,
+│   │   │            #   PortalShell, assemble-entrance, announcements deck
 │   │   ├── faculty/ # FacultyDashboard, FacultyStudentsPage, FacultyGradeEncodingPage, etc.
-│   │   ├── admin/   # AdminReleasePage
+│   │   ├── admin/   # AdminDashboardPage, AdminReleasePage, AdminPeoplePage,
+│   │   │            #   AdminProfessorsPage, AdminEventsPage,
+│   │   │            #   AdminAnnouncementsPage, AdminEnrollmentPage
 │   │   └── ui/      # shadcn/ui primitives (button, dialog, dropdown, sonner) — do not hand-edit
 │   └── lib/
 │       ├── utils.ts              # cn() — use everywhere for classes
-│       ├── schedule.ts
-│       ├── aics/                 # types, nav-config.ts, use-faculty-rows.ts, formatting, palette
+│       ├── session.ts            # JWT sign/verify, cookie helpers, spoofCheck
+│       ├── session-auth.ts       # getAuthedSession + tokenVersion revocation
+│       ├── password.ts           # scrypt hash/verify, legacy upgrade-on-login
+│       ├── rate-limit.ts         # tiered limiter (auth/read/write) + route throttles
+│       ├── env.ts, http.ts, validation.ts   # env matrix, HttpError, Zod schemas
+│       ├── moderation/           # EN + Filipino engine, url-policy, allowlist, log
+│       ├── aics/                 # types, nav-config.ts, use-faculty-rows.ts,
+│       │                         #   use-student-data.ts, use-portal-route.ts
 │       └── mongodb/              # connection.ts (lazy singleton), queries.ts, types.ts
-├── scripts/seed-mongodb.ts, verify-tasks.ts
+├── scripts/seed-mongodb.ts + verify-* runbooks (dev branch only)
 ├── public/, aics/ (roadmap), docs/, .superdesign/, graphify-out/
 ├── Caddyfile (port 81 reverse proxy), components.json, tailwind.config.ts, next.config.ts
 ```
@@ -100,7 +115,7 @@ Architecture rules:
 ## 5. Code Style and Conventions / Coding Conventions & Style
 
 - TypeScript 5, React 19, App Router server/client boundary respected. `'use client'` only where needed (portal shell, interactive pages).
-- Styling: Tailwind 4 + `cn()` from `src/lib/utils.ts`. shadcn New York style, Radix primitives. Icons Lucide only. Animations Framer Motion (single fade-up in shell, `AnimatePresence` for drawers). Dark variant exists (`@custom-variant dark`) but toggle not wired — do not half-wire.
+- Styling: Tailwind 4 + `cn()` from `src/lib/utils.ts`. shadcn New York style, Radix primitives. Icons Lucide only. Animations Framer Motion: single fade-up in shell, `AnimatePresence` for drawers, and the sanctioned post-login pair — Route Trail sign-in journey (`src/components/auth/post-login/`) + workspace-assemble entrance (`src/components/portal/assemble-entrance.tsx`). Dark variant exists (`@custom-variant dark`) but toggle not wired — do not half-wire.
 - Naming: `PascalCase` components (`FacultyGradeEncodingPage`), `camelCase` hooks/utils (`useFacultyRows`, `computedFinalINCasZero`), API routes `route.ts` with exported `GET/POST/PATCH`. Types in `src/lib/mongodb/types.ts` + `src/lib/aics/`.
 - Grades: `INC` string, badge amber, sorts last. `remarksFor()` / `badgeForRemarks()` helpers — reuse, don't reinvent.
 - No `any` drift beyond existing lint relaxations. `eslint.config.mjs` currently off for many rules — do not rely on that, write clean typed code.
@@ -114,11 +129,11 @@ Architecture rules:
 - Orchestration: on complex tasks use `project-orchestrator` — analyze, map to best skill(s), announce `To accomplish this, I will use: [...]`, always include `unslop`.
 - Commits: ALWAYS commit every change made (standing user instruction). Before commit inspect `git status/diff/log --oneline -10`, stage only intended files, never commit secrets/`.env.local`/`.next/`. Never `--force`, `--no-verify`, or config changes unless asked. PRs/pushes only when explicitly requested.
 - Never: modify `.env.local`, rotate keys, edit `src/components/ui/` primitives by hand, create `*.md` docs unless asked, ` subjects.section` writes, unchecked `Select All` on faculty notify (default nothing checked).
-- Sensitive: passwords plaintext today — do not log them, do not expose in client bundle, do not add new plaintext flows. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
+- Sensitive: credentials are never logged or exposed to the client; passwords are scrypt-hashed with legacy upgrade-on-login. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
 
 ### 6a. Branch topology — main is production, main-full-dev is dev (HARD RULE)
 
-`main` carries production files ONLY — the whitelist: `src/`, `public/`, `.vscode/`, `.github/` (CI) plus the 14 root files (`.gitignore`, `CONTRIBUTING.md`, `Caddyfile`, `LICENSE`, `README.md`, `components.json`, `eslint.config.mjs`, `example.env.local`, `next-env.d.ts`, `next.config.ts`, `package.json`, `postcss.config.mjs`, `tailwind.config.ts`, `tsconfig.json`). Everything else is a dev artifact and NEVER goes to main.
+`main` carries production files ONLY — the whitelist: `src/`, `public/`, `.vscode/`, `.github/` (CI) plus the 15 root files (`.gitignore`, `CONTRIBUTING.md`, `Caddyfile`, `LICENSE`, `README.md`, `components.json`, `eslint.config.mjs`, `example.env.local`, `next-env.d.ts`, `next.config.ts`, `package.json`, `postcss.config.mjs`, `tailwind.config.ts`, `tsconfig.json`, `vercel.json`). Everything else is a dev artifact and NEVER goes to main.
 
 `main-full-dev` carries the same code plus the tracked dev artifacts: `.agents/`, `.superdesign/`, `aics/`, `docs/`, `graphify-out/`, `scripts/`, `AGENTS.md`, `CLAUDE.md`, `CONTEXT.md`, `TODO.md`, `skills-lock.json` (this file is itself a dev artifact — it does not exist on main). `.gitignore` anchors all 11 dev paths at the repo root: on any main-based branch they do not exist and a stray `git add .` cannot pick them up; on main-full-dev they are tracked, and tracked files are unaffected by ignore rules. History: PR #39 leaked dev files into main via a branch cut from a pre-cleanup main; fixed by PR #41.
 

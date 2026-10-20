@@ -15,7 +15,7 @@ Single-context app. One branch field on every doc. One portal shell that switche
 
 ## Core flows
 
-- Auth — `POST /api/auth/login` checks `students` by `username`/`password`. Client stores `aics_username`/`branch`/`role` in localStorage. `useAuth` hydrates via `useSyncExternalStore`. No session token yet.
+- Auth — `POST /api/auth/login` verifies the scrypt hash (legacy plaintext docs upgrade on login) and issues a signed session JWT (jose HS256, httpOnly cookie, 8 h) carrying `role`/`branch`/`tv`. `src/proxy.ts` enforces the cookie on every `/api` + `/portal` route; authed routes re-verify `tokenVersion` via `getAuthedSession` — logout and password change bump it, revoking every prior token. Client localStorage (`aics_username`/`branch`/`role`, `useAuth`) is display state only.
 - Faculty roster — `GET /api/faculty?username=` finds faculty, then `subjects` where `professor===fullName` and `branch`, then unique `students` for those usernames. Used by My Students and Grade Encoding.
 - Grade workflow — per period. Teacher edits a period → `PATCH /api/grades/update` sets that period's `*Status='draft'` and writes audit. Teacher submits period → `POST /api/grades/submit` with `period` flips `draft→submitted` per subject+term and writes audit. Admin releases → `POST /api/grades/release` `submitted→released`. Student API only shows a period when its status is `released`, else `-` / `Pending`.
 
