@@ -135,7 +135,7 @@ function fmtGrade(v: string | number | null | undefined) {
 
 function Th({ children, center }: { children: React.ReactNode; center?: boolean }) {
   return (
-    <th className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap ${center ? 'text-center' : 'text-left'}`}>
+    <th scope="col" className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap ${center ? 'text-center' : 'text-left'}`}>
       {children}
     </th>
   )

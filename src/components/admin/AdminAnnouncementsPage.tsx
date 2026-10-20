@@ -410,7 +410,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
               <table className="w-full text-sm min-w-[760px]">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="bg-slate-50 px-4 py-2.5 w-10">
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 w-10">
                       <input
                         ref={headerCheckboxRef}
                         type="checkbox"
@@ -421,11 +421,11 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                         className="w-4 h-4 accent-[#153357] cursor-pointer"
                       />
                     </th>
-                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Posted</th>
-                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcement</th>
-                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
-                    <th className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Expiry</th>
-                    <th className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Posted</th>
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcement</th>
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Expiry</th>
+                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

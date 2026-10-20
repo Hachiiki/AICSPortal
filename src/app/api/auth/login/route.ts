@@ -5,7 +5,7 @@ import { HttpError } from '@/lib/http'
 import { rateLimit } from '@/lib/rate-limit'
 import { verifyPassword } from '@/lib/password'
 import { getCollection } from '@/lib/mongodb/connection'
-import { sessionCookie, signSession } from '@/lib/session'
+import { sessionCookie, signSession, SESSION_MAX_AGE_SECS, REMEMBER_MAX_AGE_SECS } from '@/lib/session'
 import { parseBody, errResponse } from '@/lib/validation'
 
 // ---- Zod input schema (the only place login input is shaped) ----
@@ -14,11 +14,14 @@ import { parseBody, errResponse } from '@/lib/validation'
 const loginSchema = z.object({
   username: z.string({ error: 'Username is required and must be a non-empty string.' }).min(1),
   password: z.string({ error: 'Password is required and must be a non-empty string.' }).min(1),
+  // "Remember me" — extends the session from 8h to 7 days. Opt-in only;
+  // revocation via tokenVersion is unchanged.
+  rememberMe: z.boolean().optional().default(false),
 })
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await parseBody(request, loginSchema)
+    const { username, password, rememberMe } = await parseBody(request, loginSchema)
     // BUG-003 incremental: lookup by username only, verify hash (or legacy plaintext + upgrade).
     // getStudentByCredentials kept for compat but no longer carries the password into the filter.
     const studentsCol = await getCollection('students')
@@ -60,14 +63,15 @@ export async function POST(request: NextRequest) {
     // logout / password changes revoke previously issued tokens.
     const role = student.role || 'student'
     const tv = typeof student.tokenVersion === 'number' ? student.tokenVersion : 0
-    const token = await signSession({ username: student.username, role, branch: student.branch, tv })
+    const maxAgeSecs = rememberMe ? REMEMBER_MAX_AGE_SECS : SESSION_MAX_AGE_SECS
+    const token = await signSession({ username: student.username, role, branch: student.branch, tv }, maxAgeSecs)
     const res = NextResponse.json({
       ok: true,
       username: student.username,
       branch: student.branch,
       role,
     })
-    res.cookies.set(sessionCookie(token))
+    res.cookies.set(sessionCookie(token, maxAgeSecs))
     return res
   } catch (err) {
     if (err instanceof HttpError) {

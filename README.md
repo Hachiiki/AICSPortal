@@ -75,6 +75,8 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - **Branch scoping** on every query, IDOR guards on every read and write
 - **Grade audit log**: every encode, submit, and release writes a `grade_audits` row
 - **Cloudinary signed uploads** for avatars and course materials (secret never leaves the server; link-only mode works without Cloudinary configured)
+- **Legal & compliance surface**: public Privacy / Terms / Cookie / Refund policy pages (`/legal/*`, pre-auth), a consent banner gating the cookieless Vercel analytics beacons behind an explicit opt-in, an in-app data export (Settings → Privacy & Data, `GET /api/student/export`), and clear "unofficial, system-generated" disclaimers on the digital ID and Certificate of Enrollment
+- **Accessibility**: skip link, keyboard-operable accordions and sortable tables, focus-trapped dialogs, labelled icon-only controls, `role="switch"` toggles, `scope="col"` tables, and a ≥3:1 global focus indicator
 
 ---
 
@@ -157,13 +159,7 @@ node --experimental-strip-types scripts/seed-mongodb.ts
 
 The script auto-loads `.env.local` and populates the **commonwealth** branch: 77 scrypt-hashed accounts (students, faculty, admin), subjects with per-period grade statuses, courses, schedule sessions, tasks, events, announcements, notifications, and one released prior term so Previous Records is not empty.
 
-**Seed logins:**
-
-| Role | Username | Password |
-| --- | --- | --- |
-| Student | `juan.santos` | `student123` |
-| Faculty | `m.reyes` | `faculty123` |
-| Admin | `admin` | `admin123` |
+**Seed logins:** the dev branch's `CLAUDE.md` documents the demo usernames/passwords for local testing. They are intentionally kept out of this public README — if the seed script ever ran against a shared or production database, published plaintext credentials would make every seeded account trivially compromisable. Never reuse seed credentials outside a throwaway local database.
 
 ### 5. Run the development server
 

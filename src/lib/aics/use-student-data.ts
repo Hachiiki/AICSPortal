@@ -128,13 +128,14 @@ export function useAuth() {
   const login = useCallback(
     async (
       user: string,
-      pass: string
+      pass: string,
+      remember = false
     ): Promise<{ ok: boolean; error?: string; branch?: string; username?: string; role?: string }> => {
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass }),
+          body: JSON.stringify({ username: user, password: pass, rememberMe: remember }),
         })
         const data = await res.json()
         if (!data.ok) {

@@ -12,6 +12,8 @@ export { getAuthSecret }
 
 export const SESSION_COOKIE = 'aics_session'
 export const SESSION_MAX_AGE_SECS = 8 * 60 * 60 // 8h
+// "Remember me" sessions (login route opt-in) — see /legal/cookies.
+export const REMEMBER_MAX_AGE_SECS = 7 * 24 * 60 * 60 // 7 days
 
 export interface SessionClaims {
   username: string
@@ -23,12 +25,12 @@ export interface SessionClaims {
   tv: number
 }
 
-export async function signSession(claims: SessionClaims): Promise<string> {
+export async function signSession(claims: SessionClaims, maxAgeSecs = SESSION_MAX_AGE_SECS): Promise<string> {
   return new SignJWT({ role: claims.role, branch: claims.branch, tv: claims.tv ?? 0 })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(claims.username)
     .setIssuedAt()
-    .setExpirationTime(`${SESSION_MAX_AGE_SECS}s`)
+    .setExpirationTime(`${maxAgeSecs}s`)
     .sign(getAuthSecret())
 }
 
@@ -52,7 +54,7 @@ export async function getSession(request: NextRequest): Promise<SessionClaims | 
   return verifySessionToken(token)
 }
 
-export function sessionCookie(token: string) {
+export function sessionCookie(token: string, maxAgeSecs = SESSION_MAX_AGE_SECS) {
   return {
     name: SESSION_COOKIE,
     value: token,
@@ -60,7 +62,7 @@ export function sessionCookie(token: string) {
     sameSite: 'lax' as const,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: SESSION_MAX_AGE_SECS,
+    maxAge: maxAgeSecs,
   }
 }
 

@@ -139,7 +139,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-foreground/70;
   }
   body {
     @apply bg-background text-foreground;
@@ -192,4 +192,14 @@
   background-size: 200% 100%;
   animation: aics-shimmer 1.6s ease-in-out infinite;
   border-radius: 0.5rem;
+}
+
+/* WCAG 2.3.3 / vestibular safety: kill the infinite shimmer sweep
+   for users who ask for reduced motion. A static slate-200 block
+   still reads as "loading" without the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .aics-skeleton {
+    animation: none;
+    background: rgb(226 232 240);
+  }
 }

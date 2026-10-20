@@ -14,14 +14,17 @@ import type { FaceState } from '@/lib/aics/types'
 import { T } from './login-tokens'
 
 // ============================================================
-//  FaceIdPanel — the Face ID webcam-based auth panel.
+//  FaceIdPanel — the Face ID webcam panel (DEVELOPMENT ONLY).
 //  Extracted from LoginView.tsx to reduce its size and complexity
 //  (was 670 lines / CRAP 812).
 //
-//  This is a MOCK face recognition (dev only): it starts the webcam,
-//  shows a scanning animation, then "verifies" and calls onDemoLogin,
-//  which issues a real server session for the demo student.
-//  No biometric matching happens. Disabled outside development.
+//  This is a MOCK face recognition: it starts the webcam, shows a
+//  scanning animation, then "verifies" and calls onDemoLogin, which
+//  issues a real server session for the demo student. No biometric
+//  matching happens and no image or video ever leaves the browser —
+//  the tab itself only renders in development builds
+//  (SHOW_DEMO_LOGIN gate in LoginView), and startFaceScan refuses to
+//  touch the camera outside development as defense in depth.
 // ============================================================
 
 interface FaceIdPanelProps {
@@ -54,6 +57,13 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
   useEffect(() => () => stopStream(), [stopStream])
 
   const startFaceScan = useCallback(async () => {
+    // Defense in depth: even if this panel is ever rendered outside a
+    // development build, never request the camera there.
+    if (process.env.NODE_ENV !== 'development') {
+      setStreamError('The Face ID demo is disabled in this build. Use your credentials instead.')
+      setFaceState('error')
+      return
+    }
     setStreamError(null)
     setFaceProgress(0)
     setFaceState('starting')
@@ -78,7 +88,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
           setFaceState('verifying')
           setTimeout(() => {
             setFaceState('success')
-            toast.success('Face verified. Welcome back to AICS Portal.')
+            toast.success('Demo login starting — no face data was collected or stored.')
             // Face ID is a MOCK (no biometric matching) — dev-only demo login.
             // Phase 6: the server issues the demo session; no creds in the bundle.
             if (process.env.NODE_ENV !== 'development') {
@@ -152,11 +162,12 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
               className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-3"
               style={{ background: 'rgba(255,255,255,0.08)' }}
             >
-              <ScanFace className="w-8 h-8" style={{ color: T.accent }} />
+              <ScanFace className="w-8 h-8" style={{ color: T.accent }} aria-hidden />
             </div>
-            <p className="text-white text-sm font-medium">Face Recognition</p>
-            <p className="text-white/50 text-xs mt-1 max-w-[220px] mx-auto leading-relaxed">
-              Click start and look directly at the camera. Your face is your password.
+            <p className="text-white text-sm font-medium">Face Recognition (demo)</p>
+            <p className="text-white/70 text-xs mt-1 max-w-[240px] mx-auto leading-relaxed">
+              Development demo — the camera stream stays on this device and nothing is
+              recorded or uploaded. No biometric verification takes place.
             </p>
           </div>
         )}
@@ -197,12 +208,17 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
             <div className="absolute bottom-3 left-3 right-3">
               <div className="flex items-center justify-between text-[10px] text-white/75 mb-1.5">
                 <span className="inline-flex items-center gap-1">
-                  <Camera className="w-3 h-3" />
-                  {faceState === 'verifying' ? 'Verifying identity...' : 'Scanning face...'}
+                  <Camera className="w-3 h-3" aria-hidden />
+                  {faceState === 'verifying' ? 'Simulating verification...' : 'Scanning (demo)...'}
                 </span>
                 <span>{Math.round(faceProgress)}%</span>
               </div>
               <div
+                role="progressbar"
+                aria-label="Face scan progress"
+                aria-valuenow={Math.round(faceProgress)}
+                aria-valuemin={0}
+                aria-valuemax={100}
                 className="h-1.5 rounded-full overflow-hidden"
                 style={{ background: 'rgba(255,255,255,0.15)' }}
               >
@@ -234,8 +250,8 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
             >
               <ShieldCheck className="w-8 h-8 text-white" />
             </motion.div>
-            <p className="text-white font-semibold text-sm">Identity Verified</p>
-            <p className="text-white/55 text-xs mt-1">Redirecting to portal...</p>
+            <p className="text-white font-semibold text-sm">Scan complete</p>
+            <p className="text-white/70 text-xs mt-1">Signing in to the demo session…</p>
           </motion.div>
         )}
 
@@ -251,7 +267,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
               <AlertTriangle className="w-7 h-7 text-red-600" />
             </div>
             <p className="text-white text-sm font-medium">Camera Unavailable</p>
-            <p className="text-white/50 text-xs mt-1 max-w-[220px] leading-relaxed">
+            <p className="text-white/70 text-xs mt-1 max-w-[240px] mx-auto leading-relaxed">
               {streamError || 'Please check your camera and try again.'}
             </p>
           </div>

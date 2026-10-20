@@ -30,6 +30,7 @@ import { DashboardSkeleton } from '../portal/Skeleton'
 import { AttendanceModal } from './AttendanceModal'
 import { SelectMenu } from '../ui/select-menu'
 import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
+import { DialogPanel } from '../portal/DialogPanel'
 
 interface FacultyStudentsPageProps {
   student: Student
@@ -542,10 +543,10 @@ export function FacultyStudentsPage({
 
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
+              <label htmlFor="faculty-students-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
+                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
@@ -602,39 +603,50 @@ export function FacultyStudentsPage({
                 const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
                   <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }} className="px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }}
+                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+                    >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-blue-700">{sec.subjectCode}</span>
-                          <h3 className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</h3>
+                          <span className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" /> {sec.room}</span>
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" /> {sec.schedule}</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
                           <span className="text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" aria-hidden /> : <ChevronDown className="w-4 h-4 text-slate-500" aria-hidden />}
                       </div>
-                    </div>
+                    </button>
                     {isExpanded && (
                       <div className="border-t border-slate-100">
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm min-w-[980px]">
                             <thead className="sticky top-0 z-10">
                               <tr className="bg-slate-50 border-b border-slate-100">
-                                <th onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="px-6 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left cursor-pointer hover:text-slate-700 select-none">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
-                                <th onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } resetPage(); }} className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center cursor-pointer hover:text-slate-700 select-none">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
-                                <th className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Status</th>
-                                <th className="px-6 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
+                                <th scope="col" aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} className="px-6 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">
+                                  <button type="button" onClick={() => { if (sortBy === 'name') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('name'); setSortDir('asc') } resetPage(); }} className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-slate-700">Student {sortBy === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</button>
+                                </th>
+                                <th scope="col" aria-sort={sortBy === 'number' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">
+                                  <button type="button" onClick={() => { if (sortBy === 'number') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('number'); setSortDir('asc') } resetPage(); }} className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-slate-700">Student # {sortBy === 'number' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</button>
+                                </th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-left">Section</th>
+                                <th scope="col" aria-sort={sortBy === 'prelim' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">
+                                  <button type="button" onClick={() => { if (sortBy === 'prelim') setSortDir((d) => d === 'asc' ? 'desc' : 'asc'); else { setSortBy('prelim'); setSortDir('asc') } resetPage(); }} className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-slate-700">Prelim {sortBy === 'prelim' ? (sortDir === 'asc' ? '↑' : '↓') : ''}</button>
+                                </th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Midterm</th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Finals</th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">FG</th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Remarks</th>
+                                <th scope="col" className="px-4 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-center">Status</th>
+                                <th scope="col" className="px-6 py-2.5 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 text-right">Action</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -717,10 +729,10 @@ export function FacultyStudentsPage({
         {selectedStudent && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedStudent(null)} aria-hidden="true" />
-            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
+            <DialogPanel onClose={() => setSelectedStudent(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <h3 className="font-bold text-sm text-slate-900">Student file</h3>
-                <button type="button" onClick={() => setSelectedStudent(null)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                <button type="button" onClick={() => setSelectedStudent(null)} aria-label="Close student file" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex items-center gap-3">
@@ -823,7 +835,7 @@ export function FacultyStudentsPage({
                 <button type="button" onClick={() => { setSelectedStudent(null); setSelectedSectionKey(null) }} className="flex-1 h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
                 <button type="button" onClick={() => onNavigate('grade-encoding')} className="flex-1 h-10 rounded-lg bg-[#153357] text-white font-semibold text-sm inline-flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg> Encode grades</button>
               </div>
-            </motion.div>
+            </DialogPanel>
           </>
         )}
       </AnimatePresence>
@@ -832,7 +844,7 @@ export function FacultyStudentsPage({
         {historyKey && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setHistoryKey(null)} aria-hidden="true" />
-            <motion.div initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" role="dialog" aria-modal="true" aria-label="Attendance history" onClick={(e) => e.stopPropagation()}>
+            <DialogPanel onClose={() => setHistoryKey(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" aria-label="Attendance history" onClick={(e) => e.stopPropagation()}>
               {(() => {
                 const sec = filteredSections.find((s) => s.key === historyKey)
                 const roster = new Map((sec?.students || []).map((s) => [s.username, s]))
@@ -850,7 +862,7 @@ export function FacultyStudentsPage({
                         <h3 className="font-bold text-sm text-slate-900">Attendance history</h3>
                         <p className="text-xs text-slate-500 truncate">{sec ? `${sec.subjectCode} — ${sec.subjectTitle} • ${sec.room}` : historyKey}</p>
                       </div>
-                      <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" /></button>
+                      <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-5">
                       <div>
@@ -928,7 +940,7 @@ export function FacultyStudentsPage({
                   </>
                 )
               })()}
-            </motion.div>
+            </DialogPanel>
           </>
         )}
       </AnimatePresence>
@@ -952,8 +964,9 @@ export function FacultyStudentsPage({
             </>
           }
         >
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <label htmlFor="msg-section-title" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
           <input
+            id="msg-section-title"
             type="text"
             value={msgTitle}
             onChange={(e) => setMsgTitle(e.target.value)}
@@ -961,8 +974,9 @@ export function FacultyStudentsPage({
             placeholder="e.g., Quiz moved to Friday"
             className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Message</label>
+          <label htmlFor="msg-section-body" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Message</label>
           <textarea
+            id="msg-section-body"
             value={msgBody}
             onChange={(e) => setMsgBody(e.target.value)}
             maxLength={2000}
@@ -1005,8 +1019,9 @@ export function FacultyStudentsPage({
               Paste link
             </button>
           </div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <label htmlFor="mat-title" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Title</label>
           <input
+            id="mat-title"
             type="text"
             value={matTitle}
             onChange={(e) => setMatTitle(e.target.value)}
@@ -1038,8 +1053,9 @@ export function FacultyStudentsPage({
             </div>
           ) : (
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">URL</label>
+              <label htmlFor="mat-url" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">URL</label>
               <input
+                id="mat-url"
                 key="mat-url-input"
                 type="url"
                 value={matUrl}

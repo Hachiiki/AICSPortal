@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import {
   Loader2,
   Eye,
@@ -20,7 +21,11 @@ import { T, SHOW_DEMO_LOGIN } from './login-tokens'
 // ============================================================
 
 interface CredentialsFormProps {
-  onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  onLogin: (
+    username: string,
+    password: string,
+    remember: boolean
+  ) => Promise<{ ok: boolean; error?: string }>
   onDemoLogin: () => Promise<{ ok: boolean; error?: string }>
 }
 
@@ -40,7 +45,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       }
       setSubmitting(true)
       try {
-        const result = await onLogin(username.trim(), password)
+        const result = await onLogin(username.trim(), password, remember)
         if (!result.ok) {
           setSubmitting(false)
           toast.error(result.error || 'Invalid username or password.')
@@ -52,7 +57,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
         toast.error('Network error. Please try again.')
       }
     },
-    [username, password, onLogin]
+    [username, password, remember, onLogin]
   )
 
   // Dev-only demo login. No credentials in the bundle — the server
@@ -139,12 +144,15 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       {/* Remember me + Forgot password */}
       <div className="flex items-center justify-between pt-1">
         <label className="inline-flex items-center gap-2 py-1 cursor-pointer select-none">
-          <button
-            type="button"
-            role="checkbox"
-            aria-checked={remember}
-            onClick={() => setRemember((r) => !r)}
-            className="w-5 h-5 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors"
+          <input
+            type="checkbox"
+            className="sr-only"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          <span
+            aria-hidden
+            className="w-5 h-5 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors pointer-events-none"
             style={
               remember
                 ? { background: T.primary, border: `1.5px solid ${T.primary}` }
@@ -152,9 +160,9 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             }
           >
             {remember && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-          </button>
+          </span>
           <span className="text-xs" style={{ color: T.muted }}>
-            Remember me
+            Remember me for 7 days
           </span>
         </label>
         {/* No self-service reset and no IT desk; branch admins reset passwords. */}
@@ -177,6 +185,19 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           'Sign In'
         )}
       </button>
+
+      {/* Sign-in disclaimer — the legal entry point of the service. */}
+      <p className="text-center text-[11px] leading-relaxed pt-1" style={{ color: T.muted }}>
+        By signing in, you agree to our{' '}
+        <Link href="/legal/terms" className="underline underline-offset-2 hover:text-slate-700">
+          Terms &amp; Conditions
+        </Link>{' '}
+        and{' '}
+        <Link href="/legal/privacy" className="underline underline-offset-2 hover:text-slate-700">
+          Privacy Policy
+        </Link>
+        .
+      </p>
 
       {/* Demo / test login — development only, visually unobtrusive */}
       {SHOW_DEMO_LOGIN && (

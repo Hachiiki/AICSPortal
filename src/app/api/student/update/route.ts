@@ -10,7 +10,16 @@ import { HttpError } from '@/lib/http'
 // Whitelist of editable fields; everything else is stripped.
 const profileUpdateSchema = z.object({
   phone: z.string().trim().max(500, { message: 'Invalid phone.' }).optional(),
-  email: z.string().trim().max(500, { message: 'Invalid email.' }).optional(),
+  // Data quality: empty clears the field; anything else must be a
+  // plausible email (same shape the login/help surfaces rely on).
+  email: z
+    .string()
+    .trim()
+    .max(500, { message: 'Invalid email.' })
+    .refine((v) => v.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), {
+      message: 'Invalid email — use a format like name@example.com.',
+    })
+    .optional(),
   address: z.string().trim().max(500, { message: 'Invalid address.' }).optional(),
   emergencyContactName: z.string().trim().max(500, { message: 'Invalid emergencyContactName.' }).optional(),
   emergencyContactNumber: z.string().trim().max(500, { message: 'Invalid emergencyContactNumber.' }).optional(),

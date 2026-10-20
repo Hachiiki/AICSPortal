@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   async headers() {
     // BUG-016 baseline headers. CSP stays report-only / deferred until script
     // sources (Next inline bootstrap) are enumerated; start with these.
+    // HSTS added with the compliance pass (2026-10-20): production runs
+    // HTTPS on Vercel; 2-year max-age with preload opt-in is safe for a
+    // single-domain deployment.
     return [
       {
         source: "/:path*",
@@ -22,6 +25,7 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(self)" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
       },
     ]
