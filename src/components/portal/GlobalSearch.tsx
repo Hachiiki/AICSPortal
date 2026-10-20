@@ -434,13 +434,19 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
         )}
       </div>
 
-      {/* Results dropdown */}
+      {/* Results dropdown — the live status line announces match counts
+          so screen readers hear result changes without hunting the list. */}
       {open && (
         <div
           id="global-search-results"
           role="listbox"
           className="absolute left-0 right-0 mt-2 bg-white rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
         >
+          <p className="sr-only" role="status" aria-live="polite">
+            {flat.length === 0
+              ? `No matches for ${query}`
+              : `${flat.length} ${flat.length === 1 ? 'result' : 'results'} for ${query}`}
+          </p>
           {flat.length === 0 ? (
             <EmptyState compact icon={Search} message={`No matches for \u201C${query}\u201D`} hint="Try a different keyword." />
           ) : (

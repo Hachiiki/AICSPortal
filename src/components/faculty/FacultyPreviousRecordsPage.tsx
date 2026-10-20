@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { Archive, Search, MapPin, Clock, Eye, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
+import { DialogPanel } from '../portal/DialogPanel'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -192,10 +193,10 @@ export function FacultyPreviousRecordsPage({
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
+              <label htmlFor="prev-records-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Subject, section, AY..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden />
+                <input id="prev-records-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Subject, section, AY..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none" />
               </div>
             </div>
             <div>
@@ -317,14 +318,13 @@ export function FacultyPreviousRecordsPage({
               onClick={() => setSelectedSection(null)}
               aria-hidden="true"
             />
-            <motion.div
+            <DialogPanel
+              onClose={() => setSelectedSection(null)}
               initial={{ x: 520 }}
               animate={{ x: 0 }}
               exit={{ x: 520 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
               className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-white shadow-2xl z-50 flex flex-col"
-              role="dialog"
-              aria-modal="true"
               aria-label="Section record"
               onClick={(e) => e.stopPropagation()}
             >
@@ -336,9 +336,10 @@ export function FacultyPreviousRecordsPage({
                 <button
                   type="button"
                   onClick={() => setSelectedSection(null)}
+                  aria-label="Close section record"
                   className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4" aria-hidden />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -377,7 +378,7 @@ export function FacultyPreviousRecordsPage({
                   Close
                 </button>
               </div>
-            </motion.div>
+            </DialogPanel>
           </>
         )}
       </AnimatePresence>

@@ -1,17 +1,20 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import {
   ScanFace,
   ShieldCheck,
   Lock,
   CircleAlert,
 } from 'lucide-react'
+import Link from 'next/link'
 import type { AuthMode } from '@/lib/aics/types'
-import { T, PORTAL_TEXT_GRADIENT } from './login-tokens'
+import { T, PORTAL_TEXT_GRADIENT, SHOW_DEMO_LOGIN } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
 import { FaceIdPanel } from './FaceIdPanel'
+import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
+import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 
 // ============================================================
 //  LoginView — the AICS login page.
@@ -26,7 +29,11 @@ import { FaceIdPanel } from './FaceIdPanel'
 // ============================================================
 
 interface LoginViewProps {
-  onLogin: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  onLogin: (
+    username: string,
+    password: string,
+    remember: boolean
+  ) => Promise<{ ok: boolean; error?: string }>
   onDemoLogin: () => Promise<{ ok: boolean; error?: string }>
 }
 
@@ -34,6 +41,9 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const [authMode, setAuthMode] = useState<AuthMode>('credentials')
 
   return (
+    // reducedMotion="user" mirrors PortalShell's contract for the login
+    // surface (slides, scanner sweep, mode transitions).
+    <MotionConfig reducedMotion="user">
     <main
       className="w-full min-h-dvh flex flex-col lg:flex-row font-sans"
       style={{ background: T.white, color: T.text }}
@@ -65,7 +75,8 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         <div className="absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 flex items-center gap-4 text-white">
           <img
             src="/aics-logo.svg"
-            alt="AICS logo"
+            alt=""
+            aria-hidden="true"
             className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 object-contain"
           />
           <div className="leading-tight">
@@ -103,10 +114,14 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </motion.div>
         </div>
 
-        {/* Footer notice */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 flex items-center gap-2 text-[11px] text-white/45">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Protected by AICS Information Technology Services</span>
+        {/* Footer notice — honest project status. The portal is an
+            independent student project; it must never imply an official
+            AICS IT department operates it. */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 flex items-center gap-2 text-[11px] text-white/70">
+          <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden />
+          <span>
+            An independent student project — not affiliated with or endorsed by AICS.
+          </span>
         </div>
       </section>
 
@@ -126,13 +141,20 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
             </p>
           </div>
 
-          {/* Auth method switcher (Credentials / Face ID) */}
+          {/* Auth method switcher — credentials always; the mock Face ID
+              tab is a development-only demo (camera + fake verification
+              must never appear in production builds). */}
+          {SHOW_DEMO_LOGIN && (
           <div
             className="grid grid-cols-2 gap-1 p-1 rounded-[10px] mb-6"
             style={{ background: T.bg, border: `1px solid ${T.border}` }}
+            role="tablist"
+            aria-label="Sign-in method"
           >
             <button
               type="button"
+              role="tab"
+              aria-selected={authMode === 'credentials'}
               onClick={() => setAuthMode('credentials')}
               className="rounded-[8px] py-2 text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5"
               style={
@@ -141,10 +163,12 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                   : { color: T.muted }
               }
             >
-              <Lock className="w-3.5 h-3.5" /> Credentials
+              <Lock className="w-3.5 h-3.5" aria-hidden /> Credentials
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={authMode === 'face'}
               onClick={() => setAuthMode('face')}
               className="rounded-[8px] py-2 text-xs font-medium transition-all inline-flex items-center justify-center gap-1.5"
               style={
@@ -153,16 +177,17 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                   : { color: T.muted }
               }
             >
-              <ScanFace className="w-3.5 h-3.5" /> Face ID
+              <ScanFace className="w-3.5 h-3.5" aria-hidden /> Face ID
             </button>
           </div>
+          )}
 
           <AnimatePresence mode="wait">
             {authMode === 'credentials' ? (
               <CredentialsForm key="cred" onLogin={onLogin} onDemoLogin={onDemoLogin} />
-            ) : (
+            ) : SHOW_DEMO_LOGIN ? (
               <FaceIdPanel key="face" onDemoLogin={onDemoLogin} />
-            )}
+            ) : null}
           </AnimatePresence>
 
           {/* Sign-in help notice. No in-house IT desk exists for this portal,
@@ -189,12 +214,32 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
 
           {/* Footer — matches the repository's documented licensing
-              (LICENSE / README: All Rights Reserved, proprietary). */}
-          <p className="mt-6 text-center text-[11px]" style={{ color: '#64748B' }}>
-            &copy; {new Date().getFullYear()} Wilard James Paluga · All Rights Reserved
-          </p>
+              (LICENSE / README: All Rights Reserved, proprietary), plus the
+              legal links required for the pre-auth surfaces. */}
+          <div className="mt-6 text-center">
+            <p className="text-[11px]" style={{ color: '#64748B' }}>
+              &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved
+            </p>
+            <nav aria-label="Legal" className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+              {POLICY_PAGES.map((p) => (
+                <Link
+                  key={p.href}
+                  href={p.href}
+                  className="underline underline-offset-2 hover:text-slate-700"
+                  style={{ color: T.muted }}
+                >
+                  {p.label}
+                </Link>
+              ))}
+              <CookieSettingsButton
+                label="Cookie settings"
+                className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700"
+              />
+            </nav>
+          </div>
         </div>
       </section>
     </main>
+    </MotionConfig>
   )
 }

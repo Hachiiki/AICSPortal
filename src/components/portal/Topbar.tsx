@@ -126,12 +126,14 @@ export function Topbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label="Notifications"
+                aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
                 className="relative p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5" aria-hidden />
                 {unread > 0 && (
-                  <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold grid place-items-center">
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold grid place-items-center">
                     {unread > 9 ? '9+' : unread}
                   </span>
                 )}

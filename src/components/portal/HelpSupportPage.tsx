@@ -103,7 +103,7 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
                     className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left hover:bg-slate-50"
                   >
                     <span className="text-sm font-medium text-slate-900">{f.q}</span>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
                   </button>
                   {open && (
                     <p className="px-6 pb-4 text-sm text-slate-600 leading-relaxed">{f.a}</p>

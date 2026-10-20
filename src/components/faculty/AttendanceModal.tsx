@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useId } from 'react'
 import { X, Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { SelectMenu } from '../ui/select-menu'
+import { DialogPanel } from '../portal/DialogPanel'
 
 export interface AttendanceStudent {
   username: string
@@ -51,6 +52,7 @@ function termOf(key: string): string {
 export function AttendanceModal({
   sections, initialKey, facultyUsername, branch, onClose, onSaved,
 }: AttendanceModalProps) {
+  const titleId = useId()
   // Class switcher: the roster, records, and save target all follow
   // this key, so teachers move between classes without closing.
   const [secKey, setSecKey] = useState(initialKey)
@@ -130,12 +132,16 @@ export function AttendanceModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col">
+      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} aria-hidden="true" />
+      <DialogPanel
+        onClose={onClose}
+        aria-labelledby={titleId}
+        className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
+      >
         <div className="px-6 py-4 border-b border-slate-100">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-bold">Take attendance</h3>
+              <h3 id={titleId} className="font-bold">Take attendance</h3>
               <p className="text-xs text-slate-500 mt-1">
                 {sec ? (<><span className="font-mono font-bold text-blue-700">{sec.code}</span> {sec.title} • {termOf(sec.key)}</>) : 'No classes found.'}
               </p>
@@ -146,11 +152,12 @@ export function AttendanceModal({
               aria-label="Close attendance"
               className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden />
             </button>
           </div>
           <div className="mt-3">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Class</label>
+            {/* Visual label; the control itself is named via aria-label. */}
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Class</span>
             <SelectMenu
               className="mt-1"
               aria-label="Switch class"
@@ -163,8 +170,9 @@ export function AttendanceModal({
             />
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500" htmlFor="attendance-date">Date</label>
             <input
+              id="attendance-date"
               type="date"
               value={date}
               onChange={(e) => e.target.value && setDate(e.target.value)}
@@ -253,11 +261,11 @@ export function AttendanceModal({
             disabled={saving || loadingRecord || students.length === 0 || !sec}
             className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] inline-flex items-center gap-2 disabled:opacity-60"
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Check className="w-4 h-4" aria-hidden />}
             {saving ? 'Saving...' : 'Save attendance'}
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   )
 }

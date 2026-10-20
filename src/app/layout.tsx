@@ -6,6 +6,8 @@ import { getAppEnv } from "@/lib/env";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { CookieConsent } from "@/components/legal/CookieConsent";
+import { ConsentGate } from "@/components/legal/ConsentGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
   // src/lib/aics/page-titles.ts ("Dashboard | AICS Portal", ...).
   title: "Login | AICS Portal",
   description:
-    "Secure student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS).",
+    "Student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS) — an independent, student-built project.",
   keywords: ["AICS", "Asian Institute of Computer Studies", "portal", "login", "student portal"],
   authors: [{ name: "Wilard James Paluga" }],
   icons: {
@@ -59,8 +61,14 @@ export default function RootLayout({
         <DevBanner appEnv={getAppEnv()} />
         {children}
         <Toaster richColors position="bottom-right" />
-        <Analytics />
-        <SpeedInsights />
+        {/* Analytics beacons are cookieless but still send usage events
+            to Vercel (US) — consent-gated, off until opt-in. See
+            /legal/cookies. */}
+        <ConsentGate>
+          <Analytics />
+          <SpeedInsights />
+        </ConsentGate>
+        <CookieConsent />
       </body>
     </html>
   );

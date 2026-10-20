@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -14,6 +14,8 @@ import {
   type NavItem,
 } from '@/lib/aics/nav-config'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
+import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
+import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 
 interface SidebarProps {
   active: View
@@ -82,7 +84,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="px-4 py-5 flex items-center gap-3 border-b border-slate-100">
-        <img src="/aics-logo.svg" alt="AICS" className="w-10 h-10 flex-shrink-0" />
+        <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">
             {portalLabel}
@@ -117,14 +119,28 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       </nav>
 
       {/* Footer — matches the repository's documented licensing
-          (LICENSE / README: All Rights Reserved, proprietary). */}
-      <div className="px-4 py-4 border-t border-slate-100">
+          (LICENSE / README: All Rights Reserved, proprietary) and links
+          the legal pages required in-app. Opens in a new tab so the SPA
+          session is not unmounted. */}
+      <footer className="px-4 py-4 border-t border-slate-100">
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          &copy; 2026 Wilard James Paluga
-          <br />
-          All Rights Reserved.
+          &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved.
         </p>
-      </div>
+        <nav aria-label="Legal" className="mt-2 flex flex-wrap gap-x-2.5 gap-y-1">
+          {POLICY_PAGES.map((p) => (
+            <a
+              key={p.href}
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700"
+            >
+              {p.label}
+            </a>
+          ))}
+          <CookieSettingsButton className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700" />
+        </nav>
+      </footer>
     </div>
   )
 }
@@ -136,6 +152,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
   // the element it was before (initial: false renders no entrance).
   const assembleReveal = useAssembleReveal()
   const entrance = assembleEntrance('sidebar', assembleReveal)
+  const drawerRef = useRef<HTMLElement | null>(null)
 
   // Close the mobile drawer on Escape key
   useEffect(() => {
@@ -146,6 +163,15 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
   }, [mobileOpen, onMobileClose])
+
+  // Move focus into the drawer when it opens so keyboard users land
+  // inside the dialog instead of behind the backdrop.
+  useEffect(() => {
+    if (!mobileOpen) return
+    const drawer = drawerRef.current
+    if (!drawer) return
+    drawer.focus()
+  }, [mobileOpen])
 
   return (
     <>
@@ -179,11 +205,13 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
             />
             {/* Drawer */}
             <motion.aside
+              ref={drawerRef}
+              tabIndex={-1}
               initial={{ x: -264 }}
               animate={{ x: 0 }}
               exit={{ x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 z-50 lg:hidden flex flex-col"
+              className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 z-50 lg:hidden flex flex-col outline-none"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"

@@ -33,6 +33,7 @@ export function Modal({
   initialFocusRef,
 }: ModalProps) {
   const titleId = useId()
+  const descId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
 
   // Mount-only: parents conditionally render (open = mounted) and must pass
@@ -79,19 +80,24 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative bg-white rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden`}
+        aria-describedby={description ? descId : undefined}
+        className={`relative bg-white rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden outline-none`}
       >
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 id={titleId} className="font-bold">
             {title}
           </h3>
-          {description ? <div className="text-xs text-slate-500 mt-1">{description}</div> : null}
+          {description ? (
+            <div id={descId} className="text-xs text-slate-500 mt-1">
+              {description}
+            </div>
+          ) : null}
           {headerExtra}
         </div>
         <div className="px-6 py-4 space-y-3">{children}</div>
