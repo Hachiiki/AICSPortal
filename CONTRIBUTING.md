@@ -28,12 +28,12 @@ Be respectful and constructive. This project is built by and for the AICS commun
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/loginAICSPortal.git
-   cd loginAICSPortal
+   git clone https://github.com/<your-username>/AICSPortal.git
+   cd AICSPortal
    ```
 3. **Add the upstream remote** so you can sync with the main repo:
    ```bash
-   git remote add upstream https://github.com/Hachiiki/loginAICSPortal.git
+   git remote add upstream https://github.com/Hachiiki/AICSPortal.git
    ```
 
 ---
@@ -75,15 +75,22 @@ npm run dev
 
 The app runs at [http://localhost:3000](http://localhost:3000).
 
-**Demo credentials** (development mode only):
-- Username: `juan.santos`
-- Password: `student123`
+**Demo credentials** (development mode only, after seeding the dev branch):
 
-### Run the linter
+| Role | Username | Password |
+| --- | --- | --- |
+| Student | `juan.santos` | `student123` |
+| Faculty | `m.reyes` | `faculty123` |
+| Admin | `admin` | `admin123` |
+
+### Run the linter and type checker
 
 ```bash
 npm run lint
+npm run typecheck
 ```
+
+CI runs both on every pull request, plus a production whitelist guard — PRs into `main` must only touch source and root config files (dev tooling lives on the dev branch).
 
 ---
 
@@ -98,9 +105,10 @@ npm run lint
 
 2. **Make your changes.** Keep commits focused and atomic.
 
-3. **Test your changes** — verify the dev server still runs and the linter passes:
+3. **Test your changes** — verify the dev server still runs, the linter passes, and types check:
    ```bash
    npm run lint
+   npm run typecheck
    ```
 
 4. **Sync with upstream** before opening a PR:
@@ -159,7 +167,7 @@ refactor(schedule): extract grid constants to lib/schedule.ts
 
 ## Reporting Bugs
 
-If you find a bug, please [open an issue](https://github.com/Hachiiki/loginAICSPortal/issues/new) with the following information:
+If you find a bug, please [open an issue](https://github.com/Hachiiki/AICSPortal/issues/new) with the following information:
 
 - **Description** — what happened and what you expected to happen
 - **Steps to reproduce** — how to trigger the bug
@@ -170,7 +178,7 @@ If you find a bug, please [open an issue](https://github.com/Hachiiki/loginAICSP
 
 ## Requesting Features
 
-Feature requests are welcome! Please [open an issue](https://github.com/Hachiiki/loginAICSPortal/issues/new) and describe:
+Feature requests are welcome! Please [open an issue](https://github.com/Hachiiki/AICSPortal/issues/new) and describe:
 
 - **The problem** you're trying to solve
 - **Your proposed solution** (if you have one)
