@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-WHITELIST='^(\.github/.*|\.vscode/.*|public/.*|src/.*|\.gitignore|CONTRIBUTING\.md|Caddyfile|LICENSE|README\.md|components\.json|eslint\.config\.mjs|example\.env\.local|next-env\.d\.ts|next\.config\.ts|package\.json|postcss\.config\.mjs|tailwind\.config\.ts|tsconfig\.json)$'
+WHITELIST='^(\.github/.*|\.vscode/.*|public/.*|src/.*|\.gitignore|CONTRIBUTING\.md|Caddyfile|LICENSE|README\.md|components\.json|eslint\.config\.mjs|example\.env\.local|next-env\.d\.ts|next\.config\.ts|package\.json|postcss\.config\.mjs|tailwind\.config\.ts|tsconfig\.json|vercel\.json)$'
 
 branch=$(git branch --show-current)
 echo "Whitelist guard on ${branch:-detached HEAD} @ $(git rev-parse --short HEAD)"
