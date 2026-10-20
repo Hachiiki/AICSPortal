@@ -8,7 +8,7 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-uploads-3448C5?logo=cloudinary)](https://cloudinary.com/)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved-red.svg)](./LICENSE)
 
-A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a grade-release queue for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. Deployed live on Vercel.
+A multi-role web portal for the **Asian Institute of Computer Studies (AICS)**: a full student portal, a full faculty portal, and a full management surface for administrators. The author, a student at the school, built it independently as a project for a course covering system information applications, motivated by how much of the campus still ran on paper. AICS did not sponsor, commission, or endorse it. Deployed live on Vercel.
 
 ---
 
@@ -18,15 +18,15 @@ AICS ran on paper for enrollment records, grade reports, schedules, and document
 
 The app is branch-scoped and multi-tenant: one deployment serves every campus branch. Every document in every MongoDB collection carries a `branch` field and every query filters on it. There is one portal shell that switches navigation and permissions by role, not three separate apps.
 
-### Current status (2026-09-12)
+### Current status (2026-10-20)
 
 | Area | State | Notes |
 | --- | --- | --- |
-| Student portal | Feature complete | All pages live and QA-verified. Remaining polish: dark mode toggle, profile photo upload |
-| Faculty portal | Feature complete | Full teaching loop shipped: encode, submit, release, task grading, attendance + history, materials, messaging |
-| Admin portal | Release queue only | Grade release queue and announcements are live; dashboard stats and CRUD management are the next build |
-| Security | QA campaign closed | 18 findings, 17 fixed and verified: injection, IDOR, plaintext passwords, client-only auth, rate limiting |
-| Interaction loop | Epic #31 closed | Task grading, attendance history, message section, materials, stub cleanup all done |
+| Student portal | Feature complete | All pages live and QA-verified, including profile photo upload. Remaining polish: dark mode toggle (deferred by owner) |
+| Faculty portal | Feature complete | Full teaching loop: encoding, submission, release, task grading, attendance + history, materials, messaging, grouped sent history |
+| Admin portal | Feature complete | Dashboard stats, release queue, cross-branch people directory, professors/events/announcements management, enrollment overrides + payments |
+| Security | Hardened | Session auth + revocation, scrypt hashing, tiered rate limits, Zod on every route, English + Filipino content moderation, grade audit logs |
+| Sign-in experience | Shipped | Route Trail progress animation + workspace-assemble entrance (2026-10-20) |
 | Deployment | Live on Vercel | Production smoke tests passed 10/10 on 2026-09-10 |
 
 ---
@@ -41,7 +41,7 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - **Professors**: directory cards with office hours, room, and email
 - **Enrollment**: step tracker, fee assessment, requirements, registrar contacts
 - **Profile**: personal info, digital ID card, Certificate of Enrollment PDF download
-- **Settings**: profile editing, password change, notification toggles
+- **Settings**: profile editing with photo upload, password change, notification toggles
 - **Notifications**: section-targeted bell inbox with persistent read state
 
 ### Faculty
@@ -54,16 +54,27 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - **Previous Records**: released grades from past terms with search, filters, and CSV export
 
 ### Admin
+- **Dashboard**: school-wide stats across every branch — enrollment counts by status/year/program, GPA distribution over released final grades, fee collection status, per-branch overview, upcoming events, recent announcements
 - **Release Queue**: every submitted period per subject and term with student counts, one-click release
-- **Announcements**: post to the card deck every role sees
+- **Students & Faculty**: cross-branch people directory with role chips, branch filter, search, sortable columns, CSV export
+- **Professors**: directory CRUD with duplicate-name guards and rename warnings
+- **Events**: branch calendar CRUD (add/edit/delete, category + upcoming/past filters)
+- **Announcements**: manage every post — active and expired — with edit, single and bulk delete
+- **Enrollment**: step-tracker overrides with live preview, payment recording capped at the remaining balance, full-record view with payment history
+
+### Sign-in experience
+- **Route Trail progress animation**: after login, a traveling dot traces the credential → branch → portal route with checkpoint fills paced by each stage's real progress, then the workspace assembles around the loaded dashboard. Reduced-motion users skip straight in
 
 ### Platform and security
-- Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, middleware enforcement on every `/api` and `/portal` route
+- Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, proxy enforcement (`src/proxy.ts`) on every `/api` and `/portal` route
 - **scrypt password hashing** with automatic upgrade of legacy plaintext accounts on next login
-- **Rate limiting** on the login and auth routes
+- **Tiered rate limiting** on every `/api` request, enforced ahead of the session gate: 100/5 min per IP on the auth routes, 300/5 min reads and 120/5 min writes per session, plus failure-based throttles on login and password change
+- **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist — violations return 422 and every decision is logged
+- **Zod validation** on every route; unknown keys are stripped, operator objects can never reach Mongo filters
+- **Error boundaries** at every level — per-view retry card, segment, root, global — the shell survives a crashing view
 - **Branch scoping** on every query, IDOR guards on every read and write
 - **Grade audit log**: every encode, submit, and release writes a `grade_audits` row
-- **Cloudinary signed uploads** for course materials (secret never leaves the server; link-only mode works without Cloudinary configured)
+- **Cloudinary signed uploads** for avatars and course materials (secret never leaves the server; link-only mode works without Cloudinary configured)
 
 ---
 
@@ -131,6 +142,7 @@ CLOUDINARY_API_SECRET=
 | `AUTH_SECRET` | in production | JWT signing secret, 16+ chars. Production login refuses to run without it; dev falls back with a warning |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | no | Cloudinary credentials for material file uploads |
 | `CLOUDINARY_FOLDER` | no | Base upload folder, default `aics-portal/materials`. Files land in `<folder>/<branch>/<SUBJECT-CODE>/` |
+| `MODERATION_TRUSTED_DOMAINS` | no | Comma-separated extra trusted domains for the URL moderation policy (the school site, Cloudinary, and the LMS are always trusted) |
 | `BACKUP_KEY` | no | 64-hex-char key for the encrypted backup mode of bulk-rehash maintenance runs (tooling ships on the dev branch) |
 
 Never commit `.env.local`. Values live only in your local file and your Vercel project settings.
@@ -167,7 +179,7 @@ Other useful commands: `npm run build` (production build), `npm run lint` (ESLin
 
 ### Logging in
 
-Enter a username and password. The login route verifies the scrypt hash, issues a signed session cookie, and the app routes by role: students land on the student dashboard, faculty on the faculty workspace, admin on the release queue. Logout revokes the session instantly (it bumps `tokenVersion` in the database, killing every previously issued token for that account).
+Enter a username and password. The login route verifies the scrypt hash, issues a signed session cookie, and the app routes by role: students land on the student dashboard, faculty on the faculty workspace, admin on the admin dashboard. Between login and the portal you'll see the Route Trail — a progress animation that follows the real state of each sign-in stage (credentials, branch detection, portal data) before the workspace assembles around the loaded dashboard. Logout revokes the session instantly (it bumps `tokenVersion` in the database, killing every previously issued token for that account).
 
 ### As a student (`juan.santos`)
 
@@ -185,8 +197,10 @@ Enter a username and password. The login route verifies the scrypt hash, issues 
 
 ### As admin (`admin`)
 
-1. **Release Queue** lists every submitted period per subject and term with student counts. Releasing a period makes it visible to every student in that subject.
-2. Post announcements from the Announcements page, they appear on every role's card deck.
+1. **Dashboard** shows school-wide stats: enrollment counts, GPA distribution, fee collection status, and the per-branch overview.
+2. **Release Queue** lists every submitted period per subject and term with student counts. Releasing a period makes it visible to every student in that subject.
+3. **Students & Faculty** is the cross-branch directory with search, filters, and CSV export. **Professors**, **Events**, and **Announcements** manage their respective records (bulk delete included on announcements).
+4. **Enrollment** overrides a student's step tracker with a live preview and records payments against the assessed balance.
 
 ---
 
@@ -294,6 +308,17 @@ and the link-only flow remains available.
 
 Files are capped at 10 MB with a type allowlist, and deletes destroy the Cloudinary asset with CDN invalidation.
 
+### Content moderation — `src/lib/moderation/`
+
+Every persisting write route calls `moderateContent()` next to the Zod layer — announcements, section notifications, tasks, materials, and profile fields:
+
+```ts
+const verdict = await moderateContent({ surface: 'announcement', fields: { title, body }, actor })
+if (!verdict.ok) return verdict.response  // 422 naming the rule that fired
+```
+
+Three category matchers (profanity, harassment, sexual content) run against English + Filipino datasets, URLs are classified against a trusted-domain policy, and an allowlist guards legitimate substrings. The per-surface policy decides reject vs flag-for-review, and every decision lands in `moderation_logs`. The check runs before every insert — a crafted direct API call can never persist flagged content.
+
 ---
 
 ## API routes
@@ -308,6 +333,8 @@ Files are capped at 10 MB with a type allowlist, and deletes destroy the Cloudin
 | `/api/auth/change-password` | POST | Change own password |
 | `/api/student` | GET | Student profile, subjects (released periods only), courses, sessions |
 | `/api/student/update` | PATCH | Edit own profile |
+| `/api/student/photo` | POST / DELETE | Signed avatar upload / remove |
+| `/api/student/photo/cleanup` | POST | Destroy the replaced Cloudinary photo asset |
 | `/api/tasks` | GET / POST / PATCH | List own tasks, post (fan-out), close/reopen submissions |
 | `/api/tasks/[taskId]/submit` | PATCH | Student submits a task |
 | `/api/tasks/[taskId]/grade` | PATCH | Faculty grades one submission (score + feedback) |
@@ -319,12 +346,18 @@ Files are capped at 10 MB with a type allowlist, and deletes destroy the Cloudin
 | `/api/grades/submit` | POST | Teacher submits a period (draft → submitted) |
 | `/api/grades/release` | GET / POST | Admin: list pending releases / release a period |
 | `/api/grades/audits` | GET | Audit trail for grade writes |
+| `/api/admin/stats` | GET | School-wide aggregate stats (admin dashboard) |
+| `/api/admin/people` | GET | Cross-branch account directory |
+| `/api/admin/enrollment` | GET / PATCH / POST | Enrollment records / step override / record payment |
 | `/api/attendance` | GET / POST | Session history / record attendance per section and date |
 | `/api/notifications` | GET / POST / PATCH | Bell inbox / faculty send to sections / mark read |
-| `/api/announcements` | GET / POST | Deck announcements, admin posts |
+| `/api/notifications/sent` | GET | Faculty sent history (grouped, server-paginated, 30-day retention) |
+| `/api/notifications/cleanup` | GET / POST | Retention report / delete expired notifications |
+| `/api/announcements` | GET / POST / PATCH / DELETE | Deck announcements; admin manages posts |
 | `/api/announcements/read` | POST / DELETE | Mark deck cards read / undo dismissal |
-| `/api/events` | GET | Branch calendar events |
-| `/api/professors` | GET | Professor directory |
+| `/api/announcements/bulk-delete` | POST | Admin: delete 1–200 posts and their read markers |
+| `/api/events` | GET / POST / PATCH / DELETE | Branch calendar events; admin CRUD |
+| `/api/professors` | GET / POST / PATCH / DELETE | Professor directory; admin CRUD |
 | `/api/enrollment` | GET | Enrollment steps, fees, requirements |
 | `/api/materials` | GET / POST | Role-aware material list / post file record or link |
 | `/api/materials/sign` | POST | Cloudinary upload signature (faculty only) |
@@ -339,25 +372,30 @@ All write routes enforce: valid session, role check, branch match, and (for facu
 ```
 AICSPortal/
 ├── src/
-│   ├── proxy.ts                 # Session enforcement for /api and /portal
+│   ├── proxy.ts                 # Session enforcement + rate-limit tiers for /api and /portal
 │   ├── app/
 │   │   ├── page.tsx             # SPA entry: login view + portal shell
 │   │   ├── layout.tsx           # Root layout (fonts, Toaster, Analytics)
 │   │   ├── portal/[...slug]/    # Catch-all route for refresh support
 │   │   └── api/                 # All routes from the table above
 │   ├── components/
-│   │   ├── auth/                # Login, credentials form, Face ID panel, branch redirect
+│   │   ├── auth/                # LoginView, credentials form, Face ID panel,
+│   │   │                        #   post-login/ — Route Trail journey + workspace assemble
 │   │   ├── portal/              # Shared shell + student pages (dashboard, academics,
 │   │   │                        #   tasks, materials, events, profile, settings...)
 │   │   ├── faculty/             # Faculty pages (students, grade encoding, tasks,
 │   │   │                        #   previous records, announcements, schedule)
-│   │   ├── admin/               # Admin release queue page
+│   │   ├── admin/               # Admin pages (dashboard, release queue, people,
+│   │   │                        #   professors, events, announcements, enrollment)
 │   │   └── ui/                  # shadcn/ui primitives
 │   └── lib/
 │       ├── session.ts           # JWT sign/verify, cookie helpers, spoofCheck
 │       ├── session-auth.ts      # Authed session + tokenVersion revocation check
 │       ├── password.ts          # scrypt hash/verify with legacy upgrade
-│       ├── rate-limit.ts        # In-memory fixed-window limiter for auth routes
+│       ├── rate-limit.ts        # Tiered fixed-window limiter (auth/read/write)
+│       ├── validation.ts        # Zod parseBody/parseQuery for every route
+│       ├── env.ts               # Environment classification (dev/staging/production)
+│       ├── moderation/          # English + Filipino content moderation engine
 │       ├── aics/                # Domain: nav-config, hooks (use-faculty-rows,
 │       │                        #   use-student-data, use-portal-route), types
 │       └── mongodb/             # Connection singleton, document types, queries
@@ -388,12 +426,11 @@ caddy run
 
 ## What's next
 
-- **Admin portal**: school-wide dashboard stats, events and announcements and professors CRUD, cross-branch student and faculty management, enrollment overrides
-- **Dark mode toggle** (CSS infrastructure exists, the topbar switch is stubbed)
-- **Profile photo upload** (placeholder in Settings)
+- **Dark mode toggle** — CSS infrastructure exists, deferred by the owner
 - **Real face recognition** via face-api.js (the Face ID login is currently a mock convenience layer)
 - **In/Out log** stays a disabled placeholder until a campus entry/exit data source exists
-- **Operational**: rotate the MongoDB credential before real student data goes in, and the rate limiter is in-memory per instance, fine at school scale, revisit before scaling out
+- **Filipino moderation reviewer sign-off** — a native-speaker pass over the category tags and regional homographs (decision records on the dev branch)
+- **Operational**: the rate limiter is in-memory per instance, fine at school scale — swap in Redis/Upstash before scaling out
 
 ---
 
