@@ -5,16 +5,6 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { FlaskConical, RotateCcw, CircleAlert, LayoutDashboard } from 'lucide-react'
 import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { RouteTrailVariant } from '@/components/auth/post-login/redirect/RouteTrailVariant'
-import { SignalLedgerVariant } from '@/components/auth/post-login/redirect/SignalLedgerVariant'
-import { FocusStagesVariant } from '@/components/auth/post-login/redirect/FocusStagesVariant'
-import { OrbitVariant } from '@/components/auth/post-login/redirect/OrbitVariant'
-import { BootConsoleVariant } from '@/components/auth/post-login/redirect/BootConsoleVariant'
-import { IdPassVariant } from '@/components/auth/post-login/redirect/IdPassVariant'
-import { ThresholdVariant } from '@/components/auth/post-login/redirect/ThresholdVariant'
-import { WireframeVariant } from '@/components/auth/post-login/redirect/WireframeVariant'
-import { HairlineVariant } from '@/components/auth/post-login/redirect/HairlineVariant'
-import { WordmarkVariant } from '@/components/auth/post-login/redirect/WordmarkVariant'
-import { InlineButtonVariant } from '@/components/auth/post-login/redirect/InlineButtonVariant'
 import {
   readDevAuthVariant,
   writeDevAuthVariant,
@@ -31,20 +21,21 @@ import { T } from '@/components/auth/login-tokens'
 
 // ============================================================
 //  AuthPreview — dev-only comparison surface for the sign-in
-//  progress animation variants (/dev/auth-preview).
+//  progress animation (/dev/auth-preview).
 //
 //  Plays each presentation against a simulated initial-data load so
-//  the candidates can be reviewed without signing in: the readiness
+//  the candidate can be reviewed without signing in: the readiness
 //  fed to the stage is simulated HERE ONLY — the real sign-in flow
 //  keeps gating on the real fetch, untouched. Fast / typical / slow
-//  cover the honest-hold behavior (the sequence floor at 2.2 s, the
-//  final spinner holding for a slow load); "failed load" shows the
-//  error exit over the portal's existing error card.
+//  cover the honest-hold behavior (the sequence floor at 2.2 s, and
+//  Route Trail's karaoke fill pacing itself to the load — crawling
+//  while the data is pending, pouring the moment it lands); "failed
+//  load" shows the error exit over the portal's existing error card.
 //
 //  When a run completes, the viewport swaps to the handoff note that
 //  marks exactly where the existing workspace-assembly reveal takes
 //  over in the real flow — that choreography is unchanged and best
-//  judged with a real sign-in (apply a variant below, then use the
+//  judged with a real sign-in (apply the variant below, then use the
 //  dev demo login). Never rendered outside development builds.
 // ============================================================
 
@@ -57,25 +48,15 @@ const SIM_MS: Record<Exclude<SimMode, 'fail'>, number> = {
 }
 
 const SIM_CHOICES: { id: SimMode; label: string; note: string }[] = [
-  { id: 'fast', label: 'Fast', note: 'data lands in 0.3s — the 2.2s floor holds the final step' },
+  { id: 'fast', label: 'Fast', note: 'data lands in 0.3s — the 2.2s floor holds; the final fill pours quickly' },
   { id: 'typical', label: 'Typical', note: 'data lands in 1.6s' },
-  { id: 'slow', label: 'Slow', note: 'data lands in 4.5s — the final spinner honestly holds' },
+  { id: 'slow', label: 'Slow', note: 'data lands in 4.5s — the fill crawls honestly, then pours on landing' },
   { id: 'fail', label: 'Failed load', note: 'error at 1.5s — exits over the error card, no assembly' },
 ]
 
 const STAGE_COMPONENTS: Record<AuthVariant, ComponentType<AuthStageProps>> = {
   classic: BranchRedirect,
   'route-trail': RouteTrailVariant,
-  'signal-ledger': SignalLedgerVariant,
-  'focus-stages': FocusStagesVariant,
-  orbit: OrbitVariant,
-  'boot-console': BootConsoleVariant,
-  'id-pass': IdPassVariant,
-  threshold: ThresholdVariant,
-  wireframe: WireframeVariant,
-  hairline: HairlineVariant,
-  wordmark: WordmarkVariant,
-  'inline-button': InlineButtonVariant,
 }
 
 // A real branch for the preview — the repo's own tenant.
@@ -117,10 +98,12 @@ export function AuthPreview() {
           </span>
         </div>
         <p className="mt-2 text-sm leading-relaxed max-w-2xl" style={{ color: T.muted }}>
-          Eleven review variants of the authentication progress animation beside the production
-          default — thematic concepts plus a clean, minimal family suited to the app&apos;s own
-          surfaces. Each runs the exact same sequence logic — timers, the 2.2s floor, and the
-          readiness gate — so only the presentation differs. The readiness below is simulated for
+          The Route Trail review variant beside the production default. Both run the exact same
+          sequence logic — timers, the 2.2s floor, and the readiness gate — so only the
+          presentation differs. Route Trail&apos;s refinement under review: the traveling dot
+          kisses each checkpoint&apos;s outline instead of overlapping its symbol, and the blue
+          check fills through karaoke-style, scrubbed by the stage&apos;s real progress — slow
+          when the load is slow, quick when it lands. The readiness below is simulated for
           preview only; real sign-ins keep gating on the real data fetch.
         </p>
       </div>
@@ -196,7 +179,7 @@ export function AuthPreview() {
         <p className="text-xs leading-relaxed mb-3" style={{ color: T.muted }}>
           Applies to this browser only (dev). Sign in with the dev demo account to watch the full
           chain — this stage into the existing workspace-assembly reveal. Production keeps the
-          Classic default until a variant is chosen.
+          Classic default until the refinement is kept.
         </p>
         <div className="flex flex-wrap gap-1 p-1 rounded-[10px]" style={{ background: T.bg, border: `1px solid ${T.border}` }}>
           {AUTH_VARIANT_IDS.map((variant) => (

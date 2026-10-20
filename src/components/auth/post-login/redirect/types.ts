@@ -1,6 +1,6 @@
 // Shared contract for the sign-in progress overlay (stage one of the
 // post-login transition). Every presentation — the production
-// BranchRedirect and the review variants — receives the same props and
+// BranchRedirect and the review variant — receives the same props and
 // runs the same sequence hook, so candidates can only differ in looks.
 
 /** Real readiness of the portal's initial data (see page.tsx). */
@@ -17,36 +17,11 @@ export interface AuthStageProps {
 }
 
 /** Presentations of the sign-in progress animation. 'classic' is the
- *  production default; the others render only while a development
- *  preview selection asks for them. */
-export type AuthVariant =
-  | 'classic'
-  | 'route-trail'
-  | 'signal-ledger'
-  | 'focus-stages'
-  | 'orbit'
-  | 'boot-console'
-  | 'id-pass'
-  | 'threshold'
-  | 'wireframe'
-  | 'hairline'
-  | 'wordmark'
-  | 'inline-button'
+ *  production default; 'route-trail' renders only while a development
+ *  preview selection asks for it. */
+export type AuthVariant = 'classic' | 'route-trail'
 
-export const AUTH_VARIANT_IDS: AuthVariant[] = [
-  'classic',
-  'route-trail',
-  'signal-ledger',
-  'focus-stages',
-  'orbit',
-  'boot-console',
-  'id-pass',
-  'threshold',
-  'wireframe',
-  'hairline',
-  'wordmark',
-  'inline-button',
-]
+export const AUTH_VARIANT_IDS: AuthVariant[] = ['classic', 'route-trail']
 
 export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }> = {
   classic: {
@@ -55,46 +30,7 @@ export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }>
   },
   'route-trail': {
     label: 'Route Trail',
-    blurb: 'Sign-in as a journey: an accent line travels the waypoints toward your branch.',
-  },
-  'signal-ledger': {
-    label: 'Signal Ledger',
-    blurb: 'An operator-style manifest — a progress dial beside rows that check off as stages land.',
-  },
-  'focus-stages': {
-    label: 'Focus Stages',
-    blurb: 'One stage at a time in bold type on the school navy, with a segmented progress bar.',
-  },
-  orbit: {
-    label: 'Orbit',
-    blurb: 'A campus roundel with the stages as stations on a ring — a sweep passes each as it ignites.',
-  },
-  'boot-console': {
-    label: 'Boot Console',
-    blurb: 'A quiet terminal session — the sign-in prints as a boot log that checks off line by line.',
-  },
-  'id-pass': {
-    label: 'ID Pass',
-    blurb: 'Your portal pass issues itself — the ID card personalizes as each stage lands.',
-  },
-  threshold: {
-    label: 'Threshold',
-    blurb: 'The portal as a doorway — panels part and light widens through the gap as stages land.',
-  },
-  wireframe: {
-    label: 'Wireframe',
-    blurb: 'The portal sketches itself in — sidebar, topbar, content blocks settling as stages land.',
-  },
-  hairline: {
-    label: 'Hairline',
-    blurb: 'One word, one hairline, one counter — the quietest possible wait.',
-  },
-  wordmark: {
-    label: 'Wordmark',
-    blurb: 'The school wordmark is the progress — letters settle into navy as each stage lands.',
-  },
-  'inline-button': {
-    label: 'Inline Button',
-    blurb: 'The sign-in button you pressed stays on stage and fills as the portal readies.',
+    blurb:
+      'Sign-in as a journey — the dot kisses each waypoint\u2019s outline and the blue check fills through in step with the stage\u2019s real progress.',
   },
 }
