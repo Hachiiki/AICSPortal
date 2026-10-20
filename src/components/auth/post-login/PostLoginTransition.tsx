@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, useReducedMotion } from 'framer-motion'
-import { BranchRedirect } from '../BranchRedirect'
+import { AuthStage } from './redirect/redirect-stage'
 import { WorkspaceAssemble } from './WorkspaceAssemble'
 
 interface PostLoginTransitionProps {
@@ -27,11 +27,15 @@ interface PostLoginTransitionProps {
  * readiness: its final step holds until the portal's initial data
  * has actually landed (the overlay never claims completion on a bare
  * timer), and a failed load exits promptly so the existing error
- * card takes over. Stage two is the workspace assembly of the REAL
- * portal: onAssembleStart flips the reveal so the actual dashboard
- * chrome animates into its final positions while the redirect
- * overlay exits over it — nothing is replaced at the end; the
- * components the user lands on are the ones that animated in.
+ * card takes over. While the variant review is open, a development
+ * preview selection may render one of the review presentations
+ * instead (redirect/redirect-stage.tsx) — same shared sequence
+ * logic, production builds always keep the classic default. Stage
+ * two is the workspace assembly of the REAL portal: onAssembleStart
+ * flips the reveal so the actual dashboard chrome animates into its
+ * final positions while the redirect overlay exits over it — nothing
+ * is replaced at the end; the components the user lands on are the
+ * ones that animated in.
  *
  * Reduced motion: the choreography is skipped entirely — the user
  * goes straight to the portal, whose own skeleton handles loading
@@ -106,7 +110,7 @@ export function PostLoginTransition({
   return (
     <AnimatePresence>
       {stage === 'auth' ? (
-        <BranchRedirect
+        <AuthStage
           key="stage-auth"
           branch={branch}
           onComplete={handleStageDone}
