@@ -13,6 +13,7 @@ import {
   getPrimaryNav,
   type NavItem,
 } from '@/lib/aics/nav-config'
+import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 
 interface SidebarProps {
   active: View
@@ -115,12 +116,13 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
         ))}
       </nav>
 
-      {/* Footer */}
+      {/* Footer — matches the repository's documented licensing
+          (LICENSE / README: All Rights Reserved, proprietary). */}
       <div className="px-4 py-4 border-t border-slate-100">
         <p className="text-[11px] text-slate-500 leading-relaxed">
           &copy; 2026 Wilard James Paluga
           <br />
-          MIT License.
+          All Rights Reserved.
         </p>
       </div>
     </div>
@@ -128,6 +130,13 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
 }
 
 export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
+  // Workspace-assembly entrance (assemble candidate only): the real
+  // rail slides in from the left when the reveal flips. Inactive —
+  // including normal navigation — the aside mounts at rest, exactly
+  // the element it was before (initial: false renders no entrance).
+  const assembleReveal = useAssembleReveal()
+  const entrance = assembleEntrance('sidebar', assembleReveal)
+
   // Close the mobile drawer on Escape key
   useEffect(() => {
     if (!mobileOpen) return
@@ -140,13 +149,19 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
 
   return (
     <>
-      {/* Desktop sidebar — fixed, 240px */}
-      <aside
+      {/* Desktop sidebar — fixed, 240px. Always a motion element so
+          the assembly entrance never remounts the rail: the reveal
+          flips animate targets in place. The mobile drawer below is
+          untouched by the entrance. */}
+      <motion.aside
         className="hidden lg:flex flex-col fixed top-0 left-0 h-screen w-60 bg-white border-r border-slate-200 z-30"
         aria-label="Primary"
+        initial={entrance.initial}
+        animate={entrance.animate}
+        transition={entrance.transition}
       >
         <SidebarContent active={active} onNavigate={onNavigate} role={role} />
-      </aside>
+      </motion.aside>
 
       {/* Mobile drawer — slide-in below lg */}
       <AnimatePresence>

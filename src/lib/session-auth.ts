@@ -5,9 +5,9 @@
 // Logout and password changes bump the DB value, so replayed pre-logout
 // tokens 401 even though their signature is still valid.
 //
-// MUST NOT be imported by middleware.ts (Edge runtime cannot load the
-// mongodb driver). All /api routes use getAuthedSession; middleware keeps
-// the signature-only check as a fast path (stale tokens pass middleware
+// MUST NOT be imported by proxy.ts (Edge runtime cannot load the
+// mongodb driver). All /api routes use getAuthedSession; the proxy keeps
+// the signature-only check as a fast path (stale tokens pass the proxy
 // but die at the route, and the client bounces to login on 401).
 
 import type { NextRequest } from 'next/server'

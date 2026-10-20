@@ -1,13 +1,15 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { usePortalRoute, type PortalRoute, type PortalRole } from '@/lib/aics/use-portal-route'
 import { usePortalPageTitle } from '@/lib/aics/page-titles'
 import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
-import { BranchRedirect } from '@/components/auth/BranchRedirect'
+import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
+import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -31,7 +33,8 @@ import { EnrollmentPage } from '@/components/portal/EnrollmentPage'
 import { SettingsPage } from '@/components/portal/SettingsPage'
 import { HelpSupportPage } from '@/components/portal/HelpSupportPage'
 import { DashboardSkeleton, AcademicsSkeleton, ProfileSkeleton, EventsSkeleton, ProfessorsSkeleton } from '@/components/portal/Skeleton'
-import type { View } from '@/lib/aics/types'
+import type { Student, View } from '@/lib/aics/types'
+import type { Course, Session } from '@/lib/schedule'
 import type { Task } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -39,6 +42,15 @@ import type { Enrollment } from '@/lib/aics/enrollment'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { Notification as NotificationItem, NotificationInbox, SentHistoryPage } from '@/lib/aics/notifications'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
+
+// Faculty roster payload (/api/faculty) — owned by the page component
+// so the post-login readiness gate can include it for faculty logins
+// (the faculty landing view renders a full-page skeleton until it lands).
+type FacultyRoster = {
+  faculty: FacultyMember
+  subjects: any[]
+  students: FacultyStudent[]
+} | null
 
 /**
  * AICS Portal — root page (also rendered by the catch-all route
@@ -81,6 +93,112 @@ export default function AICSLoginPage() {
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
 
+  // Post-login transition — the production two-stage flow. The
+  // portal mounts underneath the overlay, so its initial data fetch
+  // starts the moment login succeeds; the overlay's redirect stage
+  // holds its final step until that data actually lands, then the
+  // REAL portal chrome itself assembles into place (see portal/
+  // assemble-entrance.tsx) while the redirect overlay exits — no
+  // mock surface, no second skeleton phase, and the components the
+  // user lands on are the ones that animated in.
+
+  // Workspace-assembly reveal. Flips true the moment the two-stage
+  // transition starts its assembly stage — the same commit the
+  // redirect overlay begins its exit fade — so the real portal's
+  // chrome animates into place underneath (see portal/
+  // assemble-entrance.tsx). Reset on every sign-in attempt.
+  const [assembleReveal, setAssembleReveal] = useState(false)
+  const handleAssembleStart = useCallback(() => setAssembleReveal(true), [])
+
+  // Portal initial data — owned here (lifted out of StudentDataWrapper)
+  // so the post-login transition can gate its stages on the fetch's
+  // real readiness, while every path renders the wrapper from the same
+  // single fetch (no duplicates). The fetch starts as soon as login
+  // succeeds, so the workspace prepares underneath the overlay.
+  // Bumping retryKey re-runs the fetch (error-state Retry).
+  const [retryKey, setRetryKey] = useState(0)
+  const {
+    student,
+    courses,
+    sessions,
+    loading: studentLoading,
+    error: studentError,
+    patchStudent,
+  } = useStudentData(username, retryKey)
+
+  // Faculty roster — lifted for the same reason as the student data.
+  // The faculty landing view gates on it (FacultyDashboard renders a
+  // full-page skeleton until the roster lands), so the overlay's
+  // readiness must include it for faculty logins; without this the
+  // overlay could exit while the landing surface was still a skeleton
+  // and the real chrome only mounted afterwards — the first-login
+  // skeleton flash (cold /api/faculty lagging /api/student; warm
+  // re-logins landed both long before the overlay floor and hid it).
+  // Same single request as before — it moved here out of the wrapper's
+  // fetchAll bundle, nothing is fetched twice.
+  const [facultyData, setFacultyData] = useState<FacultyRoster>(null)
+  const [facultyLoading, setFacultyLoading] = useState(true)
+
+  useEffect(() => {
+    if (!username) return
+    let cancelled = false
+    async function fetchFaculty() {
+      try {
+        setFacultyLoading(true)
+        const res = await fetch(`/api/faculty?username=${encodeURIComponent(username!)}`)
+        const data = await res.json()
+        // Non-fatal by design (a 404 answers for student sessions and
+        // missing records alike): a failed load leaves the roster null
+        // and the faculty views' own empty handling covers it — the
+        // same behavior a refresh shows today.
+        if (!cancelled && data.ok) {
+          setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
+        }
+      } catch {
+        // Network failure reads as "no roster" — non-fatal, matching
+        // how the wrapper's bundle treated it.
+      } finally {
+        if (!cancelled) setFacultyLoading(false)
+      }
+    }
+    fetchFaculty()
+    return () => {
+      cancelled = true
+    }
+  }, [username])
+
+  // Silent roster refresh for views that mutate it (grade encoding).
+  // Deliberately does not touch facultyLoading — flipping it would
+  // swap the live page for a skeleton mid-action.
+  const refreshFacultyData = useCallback(async () => {
+    if (!username) return
+    try {
+      const res = await fetch(`/api/faculty?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (data.ok) {
+        setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
+      }
+    } catch {}
+  }, [username])
+
+  // Coherent-loading guard: the frame where `username` just flipped
+  // but the fetch effect has not run yet still carries stale
+  // loading:false/student:null, which would flash the error card for
+  // one paint. While authenticated with neither data nor error, the
+  // honest interim state is loading — what the wrapper's skeleton
+  // renders.
+  const portalLoading = studentLoading || (!!username && !student && !studentError)
+  // Real readiness of the initial data — the post-login overlay's
+  // stage gate. True only once the fetch has landed a student record
+  // and, for faculty logins, the roster the faculty landing view
+  // renders from has settled — so the assembly always animates the
+  // real chrome, never the landing view's skeleton.
+  const portalReady =
+    !studentLoading &&
+    !studentError &&
+    !!student &&
+    (role !== 'faculty' || !facultyLoading)
+
   // --- Route guards ---
   useEffect(() => {
     if (authLoading) return
@@ -107,6 +225,7 @@ export default function AICSLoginPage() {
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
         setRedirectRole(result.role || 'student')
+        setAssembleReveal(false)
         setRedirecting(true)
       }
       return result
@@ -121,6 +240,7 @@ export default function AICSLoginPage() {
       if (result.ok && result.branch) {
         setRedirectBranch(result.branch)
         setRedirectRole(result.role || 'student')
+        setAssembleReveal(false)
         setRedirecting(true)
       }
       return result
@@ -137,19 +257,17 @@ export default function AICSLoginPage() {
 
   const handleLogout = useCallback(() => {
     logout()
+    // Clear the lifted roster with the session, in the same commit —
+    // a later sign-in (same or different user) re-arms the readiness
+    // gate on its own fresh fetch and can never render a stale roster.
+    setFacultyData(null)
+    setFacultyLoading(false)
     navigate({ view: 'login' })
     toast.info('You have been signed out.')
   }, [logout, navigate])
 
   // Still resolving auth state (SSR → client hydration)
   if (authLoading) return null
-
-  // Show the branch redirect animation overlay
-  if (redirecting) {
-    return (
-      <BranchRedirect branch={redirectBranch} onComplete={handleRedirectComplete} />
-    )
-  }
 
   // Not authenticated → show login (regardless of URL)
   if (!username) {
@@ -158,20 +276,59 @@ export default function AICSLoginPage() {
     )
   }
 
-  // Authenticated but on login route → the useEffect guard will redirect.
-  // Show nothing in the meantime to avoid flashing the login form.
-  if (route.view === 'login') {
-    return null
-  }
-
-  // Authenticated + protected route → render the right view
+  // Authenticated: portal content with the post-login overlay layered
+  // on top during the transition. The wrapper keeps a stable tree
+  // position whether the overlay is playing or not, so completing the
+  // transition never remounts (or refetches) the portal; it renders
+  // from the single lifted fetch above. The overlay receives that
+  // fetch's real readiness: slow loads extend its redirect stage's
+  // spinner honestly, failures skip the assembly and reveal the
+  // existing error card, and fast loads finish at the sequence's
+  // natural length. While still on the login view — the guard
+  // redirects within a frame — nothing renders underneath the opaque
+  // overlay, so the login form never flashes.
+  //
+  // The AssembleRevealProvider is ALWAYS mounted around the wrapper —
+  // mounting it conditionally would remount the wrapper and refetch
+  // everything. Its value activates only while the post-login window
+  // is open, and deactivation returns the chrome to the standard
+  // entrance without re-animating (identical resting targets).
   return (
-    <StudentDataWrapper
-      username={username}
-      route={route}
-      navigate={navigate}
-      onLogout={handleLogout}
-    />
+    <>
+      {route.view === 'login' ? null : (
+        <AssembleRevealProvider
+          revealing={redirecting ? assembleReveal : null}
+        >
+          <StudentDataWrapper
+            username={username}
+            route={route}
+            navigate={navigate}
+            onLogout={handleLogout}
+            student={student}
+            courses={courses}
+            sessions={sessions}
+            studentLoading={portalLoading}
+            studentError={studentError}
+            patchStudent={patchStudent}
+            onRetryStudent={() => setRetryKey((k) => k + 1)}
+            facultyData={facultyData}
+            facultyLoading={facultyLoading}
+            onRefreshFaculty={refreshFacultyData}
+          />
+        </AssembleRevealProvider>
+      )}
+      <AnimatePresence>
+        {redirecting ? (
+          <PostLoginTransition
+            key="post-login-overlay"
+            branch={redirectBranch}
+            onComplete={handleRedirectComplete}
+            readiness={{ ready: portalReady, error: !!studentError }}
+            onAssembleStart={handleAssembleStart}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   )
 }
 
@@ -199,15 +356,41 @@ function StudentDataWrapper({
   route,
   navigate,
   onLogout,
+  student,
+  courses,
+  sessions,
+  studentLoading,
+  studentError,
+  patchStudent,
+  onRetryStudent,
+  facultyData,
+  facultyLoading,
+  onRefreshFaculty,
 }: {
   username: string
   route: PortalRoute
   navigate: (r: PortalRoute) => void
   onLogout: () => void
+  // Portal initial data, lifted to the page component so the
+  // post-login transition can gate on its real readiness. The wrapper
+  // renders from these props exactly as it rendered from its own
+  // useStudentData call before — one fetch, no duplicates.
+  student: Student | null
+  courses: Course[]
+  sessions: Session[]
+  studentLoading: boolean
+  studentError: string | null
+  patchStudent: (patch: Partial<Student>) => void
+  onRetryStudent: () => void
+  // Faculty roster — also lifted to the page (same reason: the
+  // post-login readiness gate includes it for faculty logins, since
+  // the faculty landing view renders a skeleton until it lands).
+  facultyData: FacultyRoster
+  facultyLoading: boolean
+  onRefreshFaculty: () => Promise<void>
 }) {
-  // Bumping this re-runs the student-data fetch (error-state Retry).
-  const [retryKey, setRetryKey] = useState(0)
-  const { student, courses, sessions, loading, error, patchStudent } = useStudentData(username, retryKey)
+  const loading = studentLoading
+  const error = studentError
 
   // ----------------------------------------------------------
   //  Centralized navigation handler.
@@ -291,18 +474,10 @@ function StudentDataWrapper({
     onMark: markNotificationRead,
   }), [notifications, notificationsLoading, refreshNotifications, markNotificationRead])
 
-  // Faculty-specific data (only fetched for faculty users, but lifted
-  // here so it persists across route switches — same pattern as tasks/events)
-  const [facultyData, setFacultyData] = useState<{ faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null>(null)
-  const [facultyLoading, setFacultyLoading] = useState(true)
-
-  const refreshFacultyData = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/faculty?username=${encodeURIComponent(username)}`)
-      const data = await res.json()
-      if (data.ok) setFacultyData({ faculty: data.faculty, subjects: data.subjects, students: data.students })
-    } catch {}
-  }, [username])
+  // Faculty roster state lives in the page component (lifted like
+  // the student data) so the post-login readiness gate can include
+  // it; this wrapper consumes facultyData/facultyLoading from props,
+  // and the grade-encoding refresh flows through onRefreshFaculty.
 
   // Released teaching history for the Previous Records tab. Lifted
   // here for the same reason as facultyData: tab switches unmount
@@ -399,21 +574,22 @@ function StudentDataWrapper({
     let cancelled = false
     async function fetchAll() {
       try {
-        const [tkRes, evRes, profRes, enrRes, annRes, facRes] = await Promise.all([
+        // Faculty roster intentionally absent — the page component
+        // owns that fetch (the post-login readiness gate includes it).
+        // Same request count as before, no duplicates.
+        const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
           fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
           fetch(`/api/events?username=${encodeURIComponent(username)}`),
           fetch(`/api/professors?username=${encodeURIComponent(username)}`),
           fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
           fetch(`/api/announcements?username=${encodeURIComponent(username)}`),
-          fetch(`/api/faculty?username=${encodeURIComponent(username)}`),
         ])
-        const [tkData, evData, profData, enrData, annData, facData] = await Promise.all([
+        const [tkData, evData, profData, enrData, annData] = await Promise.all([
           tkRes.json(),
           evRes.json(),
           profRes.json(),
           enrRes.json(),
           annRes.json(),
-          facRes.json(),
         ])
         if (cancelled) return
         if (tkData.ok) setTasks(tkData.tasks)
@@ -431,8 +607,6 @@ function StudentDataWrapper({
           setAnnouncementReadIds(annData.readIds || [])
         }
         // Announcements failure is non-fatal — dashboard shows empty state
-        // Faculty data (non-fatal for student users — the API returns 404)
-        if (facData.ok) setFacultyData({ faculty: facData.faculty, subjects: facData.subjects, students: facData.students })
       } catch {
         if (!cancelled) {
           setTasksError('Network error')
@@ -447,7 +621,6 @@ function StudentDataWrapper({
           setProfessorsLoading(false)
           setEnrollmentLoading(false)
           setAnnouncementsLoading(false)
-          setFacultyLoading(false)
         }
       }
     }
@@ -483,7 +656,7 @@ function StudentDataWrapper({
           <div className="mt-4 flex items-center justify-center gap-2">
             <button
               type="button"
-              onClick={() => setRetryKey((k) => k + 1)}
+              onClick={onRetryStudent}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744]"
             >
               <RotateCcw className="w-4 h-4" /> Try again
@@ -662,7 +835,7 @@ function StudentDataWrapper({
         announcements={announcements}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
-        onRefresh={refreshFacultyData}
+        onRefresh={onRefreshFaculty}
       />
     )
   }
