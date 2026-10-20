@@ -19,13 +19,25 @@ export interface AuthStageProps {
 /** Presentations of the sign-in progress animation. 'classic' is the
  *  production default; the others render only while a development
  *  preview selection asks for them. */
-export type AuthVariant = 'classic' | 'route-trail' | 'signal-ledger' | 'focus-stages'
+export type AuthVariant =
+  | 'classic'
+  | 'route-trail'
+  | 'signal-ledger'
+  | 'focus-stages'
+  | 'orbit'
+  | 'boot-console'
+  | 'id-pass'
+  | 'threshold'
 
 export const AUTH_VARIANT_IDS: AuthVariant[] = [
   'classic',
   'route-trail',
   'signal-ledger',
   'focus-stages',
+  'orbit',
+  'boot-console',
+  'id-pass',
+  'threshold',
 ]
 
 export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }> = {
@@ -44,5 +56,21 @@ export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }>
   'focus-stages': {
     label: 'Focus Stages',
     blurb: 'One stage at a time in bold type on the school navy, with a segmented progress bar.',
+  },
+  orbit: {
+    label: 'Orbit',
+    blurb: 'A campus roundel with the stages as stations on a ring — a sweep passes each as it ignites.',
+  },
+  'boot-console': {
+    label: 'Boot Console',
+    blurb: 'A quiet terminal session — the sign-in prints as a boot log that checks off line by line.',
+  },
+  'id-pass': {
+    label: 'ID Pass',
+    blurb: 'Your portal pass issues itself — the ID card personalizes as each stage lands.',
+  },
+  threshold: {
+    label: 'Threshold',
+    blurb: 'The portal as a doorway — panels part and light widens through the gap as stages land.',
   },
 }

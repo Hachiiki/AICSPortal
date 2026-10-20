@@ -7,6 +7,10 @@ import { BranchRedirect } from '@/components/auth/BranchRedirect'
 import { RouteTrailVariant } from '@/components/auth/post-login/redirect/RouteTrailVariant'
 import { SignalLedgerVariant } from '@/components/auth/post-login/redirect/SignalLedgerVariant'
 import { FocusStagesVariant } from '@/components/auth/post-login/redirect/FocusStagesVariant'
+import { OrbitVariant } from '@/components/auth/post-login/redirect/OrbitVariant'
+import { BootConsoleVariant } from '@/components/auth/post-login/redirect/BootConsoleVariant'
+import { IdPassVariant } from '@/components/auth/post-login/redirect/IdPassVariant'
+import { ThresholdVariant } from '@/components/auth/post-login/redirect/ThresholdVariant'
 import {
   readDevAuthVariant,
   writeDevAuthVariant,
@@ -60,6 +64,10 @@ const STAGE_COMPONENTS: Record<AuthVariant, ComponentType<AuthStageProps>> = {
   'route-trail': RouteTrailVariant,
   'signal-ledger': SignalLedgerVariant,
   'focus-stages': FocusStagesVariant,
+  orbit: OrbitVariant,
+  'boot-console': BootConsoleVariant,
+  'id-pass': IdPassVariant,
+  threshold: ThresholdVariant,
 }
 
 // A real branch for the preview — the repo's own tenant.
@@ -101,7 +109,7 @@ export function AuthPreview() {
           </span>
         </div>
         <p className="mt-2 text-sm leading-relaxed max-w-2xl" style={{ color: T.muted }}>
-          Three review variants of the authentication progress animation beside the production
+          Seven review variants of the authentication progress animation beside the production
           default. Each runs the exact same sequence logic — timers, the 2.2s floor, and the
           readiness gate — so only the presentation differs. The readiness below is simulated for
           preview only; real sign-ins keep gating on the real data fetch.
