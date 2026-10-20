@@ -31,7 +31,8 @@ Core flows:
 - Faculty portal: core tabs live, previous-records live, attendance live. History drawer + release queue verified.
 - Admin portal: only release queue + seed admin (`admin/admin123`) live. Dashboard / CRUD not started.
 - Infra debt: password hashing, session tokens, rate limiting, Zod validation, error boundaries, CI/CD — all open, see `@TODO.md`.
-- QA: 18 confirmed bugs (3 Critical) in `docs/done/qa_reports/` (all fixed or accepted, archived Sep-2026), top was NoSQL injection on login + plaintext passwords + grade role-check gap. Fix order was: sessions+middleware → hashing → grade guards.
+- QA: Sep-2026 audit closed — 18 bugs (3 Critical) fixed or accepted, archived in `docs/done/qa_reports/`.
+- Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PR #53, 2026-10-20); `/dev/auth-preview` retired — no dev-only auth surfaces remain.
 
 ## 3. Build and Test Commands / Common Terminal Commands
 
