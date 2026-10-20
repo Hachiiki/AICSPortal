@@ -1,28 +1,32 @@
 import { useEffect, useState } from 'react'
 import type { AuthReadiness } from './types'
 
-// Step rhythm — the pacing the reviewed animation established: steps
-// advance at 600/1300 ms. The sequence may complete only after its
-// natural-length floor AND real readiness — a fast login finishes
-// exactly when the animation would at its natural length, while a slow
-// one holds the final step's spinner for as long as the load really
-// takes. A failed load exits promptly so the portal's existing error
-// card takes over.
-const STEP_MS = [600, 1300]
-const SEQUENCE_FLOOR_MS = 2200
-const READY_SETTLE_MS = 200
+// Step rhythm — the pacing the sign-in animation rides: steps advance
+// at 600/1300 ms. The sequence may complete only after its natural-length
+// floor AND real readiness — a fast login finishes exactly when the
+// animation would at its natural length, while a slow one holds the final
+// step for as long as the load really takes. A failed load exits promptly
+// so the portal's existing error card takes over.
+//
+// Exported so the presentation schedules against the sequence itself and
+// can never drift from it.
+export const STEP_MS = [600, 1300]
+export const SEQUENCE_FLOOR_MS = 2200
+// After readiness, the settle holds the sequence open for the closing
+// beat of the presentation (the trail's pour, final glide, and arrival
+// at the destination) so completion fires with the arrival already on
+// screen rather than cutting it off mid-motion.
+export const READY_SETTLE_MS = 650
 const ERROR_EXIT_MS = 400
 
 const STEP_COUNT = 3
 
 /**
- * The sign-in progress sequence every presentation shares — the
- * production BranchRedirect and the review variants alike. Owns the
- * step timers, the natural-length floor, and the readiness-gated
- * completion; presentations own only how it looks. Extracted verbatim
- * from BranchRedirect, whose behavior it reproduces exactly: rows
- * check in order, the final check appears only when the initial data
- * truly lands, and completion fires on readiness — never a bare timer.
+ * The sign-in progress sequence the presentation shares. Owns the step
+ * timers, the natural-length floor, and the readiness-gated completion;
+ * the presentation owns only how it looks. Rows check in order, the
+ * final check appears only when the initial data truly lands, and
+ * completion fires on readiness — never a bare timer.
  */
 export function useAuthSequence({
   readiness,
