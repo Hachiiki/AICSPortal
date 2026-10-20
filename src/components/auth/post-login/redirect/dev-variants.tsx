@@ -9,6 +9,10 @@ import { OrbitVariant } from './OrbitVariant'
 import { BootConsoleVariant } from './BootConsoleVariant'
 import { IdPassVariant } from './IdPassVariant'
 import { ThresholdVariant } from './ThresholdVariant'
+import { WireframeVariant } from './WireframeVariant'
+import { HairlineVariant } from './HairlineVariant'
+import { WordmarkVariant } from './WordmarkVariant'
+import { InlineButtonVariant } from './InlineButtonVariant'
 import type { AuthStageProps, AuthVariant } from './types'
 
 // ============================================================
@@ -27,6 +31,10 @@ const VARIANTS: Partial<Record<AuthVariant, ComponentType<AuthStageProps>>> = {
   'boot-console': BootConsoleVariant,
   'id-pass': IdPassVariant,
   threshold: ThresholdVariant,
+  wireframe: WireframeVariant,
+  hairline: HairlineVariant,
+  wordmark: WordmarkVariant,
+  'inline-button': InlineButtonVariant,
 }
 
 export default function DevVariantStage({

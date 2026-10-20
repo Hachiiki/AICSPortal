@@ -11,6 +11,10 @@ import { OrbitVariant } from '@/components/auth/post-login/redirect/OrbitVariant
 import { BootConsoleVariant } from '@/components/auth/post-login/redirect/BootConsoleVariant'
 import { IdPassVariant } from '@/components/auth/post-login/redirect/IdPassVariant'
 import { ThresholdVariant } from '@/components/auth/post-login/redirect/ThresholdVariant'
+import { WireframeVariant } from '@/components/auth/post-login/redirect/WireframeVariant'
+import { HairlineVariant } from '@/components/auth/post-login/redirect/HairlineVariant'
+import { WordmarkVariant } from '@/components/auth/post-login/redirect/WordmarkVariant'
+import { InlineButtonVariant } from '@/components/auth/post-login/redirect/InlineButtonVariant'
 import {
   readDevAuthVariant,
   writeDevAuthVariant,
@@ -68,6 +72,10 @@ const STAGE_COMPONENTS: Record<AuthVariant, ComponentType<AuthStageProps>> = {
   'boot-console': BootConsoleVariant,
   'id-pass': IdPassVariant,
   threshold: ThresholdVariant,
+  wireframe: WireframeVariant,
+  hairline: HairlineVariant,
+  wordmark: WordmarkVariant,
+  'inline-button': InlineButtonVariant,
 }
 
 // A real branch for the preview — the repo's own tenant.
@@ -109,8 +117,9 @@ export function AuthPreview() {
           </span>
         </div>
         <p className="mt-2 text-sm leading-relaxed max-w-2xl" style={{ color: T.muted }}>
-          Seven review variants of the authentication progress animation beside the production
-          default. Each runs the exact same sequence logic — timers, the 2.2s floor, and the
+          Eleven review variants of the authentication progress animation beside the production
+          default — thematic concepts plus a clean, minimal family suited to the app&apos;s own
+          surfaces. Each runs the exact same sequence logic — timers, the 2.2s floor, and the
           readiness gate — so only the presentation differs. The readiness below is simulated for
           preview only; real sign-ins keep gating on the real data fetch.
         </p>

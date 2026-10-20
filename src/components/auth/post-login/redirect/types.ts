@@ -28,6 +28,10 @@ export type AuthVariant =
   | 'boot-console'
   | 'id-pass'
   | 'threshold'
+  | 'wireframe'
+  | 'hairline'
+  | 'wordmark'
+  | 'inline-button'
 
 export const AUTH_VARIANT_IDS: AuthVariant[] = [
   'classic',
@@ -38,6 +42,10 @@ export const AUTH_VARIANT_IDS: AuthVariant[] = [
   'boot-console',
   'id-pass',
   'threshold',
+  'wireframe',
+  'hairline',
+  'wordmark',
+  'inline-button',
 ]
 
 export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }> = {
@@ -72,5 +80,21 @@ export const VARIANT_META: Record<AuthVariant, { label: string; blurb: string }>
   threshold: {
     label: 'Threshold',
     blurb: 'The portal as a doorway — panels part and light widens through the gap as stages land.',
+  },
+  wireframe: {
+    label: 'Wireframe',
+    blurb: 'The portal sketches itself in — sidebar, topbar, content blocks settling as stages land.',
+  },
+  hairline: {
+    label: 'Hairline',
+    blurb: 'One word, one hairline, one counter — the quietest possible wait.',
+  },
+  wordmark: {
+    label: 'Wordmark',
+    blurb: 'The school wordmark is the progress — letters settle into navy as each stage lands.',
+  },
+  'inline-button': {
+    label: 'Inline Button',
+    blurb: 'The sign-in button you pressed stays on stage and fills as the portal readies.',
   },
 }
