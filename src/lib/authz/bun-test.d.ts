@@ -30,6 +30,7 @@ declare module 'bun:test' {
     toMatch(pattern: string | RegExp): void
     toMatchObject(expected: Record<string, unknown>): void
     toHaveProperty(prop: string, value?: unknown): void
+    toBeInstanceOf(constructor: unknown): void
     toHaveBeenCalled(): void
     toHaveBeenCalledTimes(n: number): void
     toHaveBeenCalledWith(...args: unknown[]): void

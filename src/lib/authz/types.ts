@@ -21,6 +21,8 @@
 // - The design sketch's grade.row is folded into grade.period: no route in
 //   scope guards a grade row without a period in play.
 
+import { HttpError } from '@/lib/http'
+
 export type TermKey = { academicYear: string; semester: string }
 
 export type Period = 'prelim' | 'midterm' | 'finals'
@@ -185,4 +187,14 @@ export function allow(): AuthzDecision {
 // can never claim a status that contradicts its taxonomy entry.
 export function deny(code: DenyCode, error: string): AuthzDecision {
   return { ok: false, code, status: DENY_STATUS[code], error }
+}
+
+/**
+ * Map a deny decision to the HttpError a route throws; null when allowed.
+ * Lives here (not guards.ts) so the mapping is unit-testable without the
+ * mongodb import chain guards.ts carries; guards.ts re-exports it.
+ */
+export function decisionToHttpError(decision: AuthzDecision): HttpError | null {
+  if (decision.ok) return null
+  return new HttpError(decision.status, decision.error)
 }
