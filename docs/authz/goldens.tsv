@@ -45,7 +45,7 @@ NOTIF-SEND-UNOWNED	facultyY	POST	/api/notifications	seeded	200	-	preserved behav
 NOTIF-PATCH-SELF	studentA	PATCH	/api/notifications	seeded	200	-	self read-state
 NOTIF-PATCH-OTHER	studentB	PATCH	/api/notifications	seeded	403	-	write filter carries username
 ANN-READ-STUDENT	studentA	POST	/api/announcements/read	seeded	200	-	self mark-read
-ANN-READ-OVERCAP	studentA	POST	/api/announcements/read	seeded	200	-	L4: unbounded ids; flips 400 at C3.11 (issue #68)
+ANN-READ-OVERCAP	studentA	POST	/api/announcements/read	seeded	400	contains:capped at 200	L4 fixed at C3.11: ids capped at 200 like bulk-delete (issue #68)
 ANN-BULK-DELETE-STUDENT	studentA	POST	/api/announcements/bulk-delete	seeded	403	-	admin-only write
 EV-WRITE-ADMIN	admin	POST	/api/events	seeded	200	-	admin write
 EV-WRITE-FACULTY	facultyX	POST	/api/events	seeded	403	-	admin-only write
@@ -58,8 +58,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91dbd3774ab1e0d85f4a0/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91dbd3774ab1e0d85f4a0/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91edb3763629cead74029/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91edb3763629cead74029/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

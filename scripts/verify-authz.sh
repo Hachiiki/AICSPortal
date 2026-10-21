@@ -258,7 +258,7 @@ sc NOTIF-PATCH-OTHER studentB PATCH /api/notifications seeded '{"username":"juan
 
 # --- announcements ---
 sc ANN-READ-STUDENT studentA POST /api/announcements/read seeded "{\"username\":\"juan.santos\",\"announcementId\":\"$ANN_ID\",\"action\":\"read\"}" - - "self mark-read"
-sc ANN-READ-OVERCAP studentA POST /api/announcements/read seeded "{\"username\":\"juan.santos\",\"ids\":[$(node -e "console.log(Array(201).fill('\"000000000000000000000000\"').join(','))")],\"action\":\"read\"}" - - "L4: unbounded ids; flips 400 at C3.11 (issue #68)"
+sc ANN-READ-OVERCAP studentA POST /api/announcements/read seeded "{\"username\":\"juan.santos\",\"ids\":[$(node -e "console.log(Array(201).fill('\"000000000000000000000000\"').join(','))")],\"action\":\"read\"}" - 'contains:capped at 200' "L4 fixed at C3.11: ids capped at 200 like bulk-delete (issue #68)"
 sc ANN-BULK-DELETE-STUDENT studentA POST /api/announcements/bulk-delete seeded "{\"ids\":[\"$ANN_ID\"]}" - - "admin-only write"
 
 # --- events (admin write pattern) ---

@@ -13,7 +13,12 @@ import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
 const readMarkBaseSchema = z.object({
   username: z.string({ error: 'Username is required.' }).min(1),
   announcementId: z.string().optional(),
-  ids: z.array(z.string(), { error: 'An announcement id is required.' }).optional(),
+  // FIX-L4 (C3.11, issue #68): ids are capped at 200 like bulk-delete —
+  // an unbounded array fed a bulkWrite of upserts per request.
+  ids: z
+    .array(z.string(), { error: 'An announcement id is required.' })
+    .max(200, { message: 'Marking is capped at 200 announcements per request.' })
+    .optional(),
 })
 
 const readMarkPostSchema = readMarkBaseSchema.extend({
@@ -35,8 +40,8 @@ export async function POST(request: NextRequest) {
     // markRead; the policy self-scopes via the session-stamped filter
     // keys, and the legacy username field rides the guard's spoof
     // check: a mismatched value is a 403 exactly where the old inline
-    // comparison fired). The L4 ids cap is validation and stays in the
-    // route until FIX-L4 (C3.11).
+    // comparison fired). FIX-L4 (C3.11): the ids cap rides the schema
+    // above, like bulk-delete.
     await requireCan(request, { kind: 'announcement.reads' }, 'markRead', {
       claimedIdentity: username,
     })
