@@ -390,34 +390,57 @@ LEGACY branch becomes permanent policy, the finding stays open, and the
 rationale is recorded. Every question is answerable without reading code: each
 row restates the current behavior in product terms.
 
+### 9.1 Recorded owner decisions (2026-10-21, sign-off received)
+
+All 14 behavior fixes are approved, with two recorded conditions:
+
+- FIX-H1a: the explicit, audited correction workflow for released grades is
+  part of the deliverable. The admin-mediated unrelease action must be
+  properly authorized (admin role, same branch) and carries its own golden
+  rows: success, faculty denied, cross-branch admin denied, audit row written
+  for both withdrawal and unrelease.
+- FIX-M3: the proxy exception stays narrowly scoped to the cleanup request
+  carrying the correct Bearer secret (timing-safe compare). If CRON_SECRET is
+  missing or the secret is invalid, the operation remains inaccessible; every
+  other path through the proxy is unchanged.
+
+Confirmations: D1 intended, D3 intended, D6 keep, A6/A7 stay backlog items. D2
+is recorded as UNRESOLVED: current staff-read breadth is unchanged in this
+pass and remains an open privacy and product-policy question, not a closed
+finding. Checklist item C is OUT: the professorUsername migration is a
+documented follow-up and no existing subject record is modified during this
+implementation. Tooling (D) and branch and port discipline (E) are acknowledged.
+Phase 4 entry conditions (section 10) are met; stage 3 is authorized for
+exactly the 14 approved rows and nothing else.
+
 **A. Behavior changes (design section 10 registry)**
 
 | Row | Today | After the fix | Answer |
 | --- | --- | --- | --- |
-| FIX-C1 | Any same-branch faculty can submit any subject's grades | Only the subject's teaching faculty can | yes / no |
-| FIX-H1a | Faculty edits reset submitted or released grades to draft, hiding them from students and the release queue | Forward-only: draft to submitted to released; withdrawal is audited; released rows are corrected only by an admin unrelease action, also audited | yes / no |
-| FIX-H1b | The professor-of-record check is skipped when a faculty record lacks a full name | Check is unconditional, fails closed | yes / no |
-| FIX-H2 | Any same-branch faculty can read and write any section's attendance, and record keys are not roster-validated | Only the section's teaching faculty; keys validated against the roster; faculty GET scoped to their load | yes / no |
-| FIX-M1 | Any same-branch faculty can read the whole branch's grade-change audit history | Faculty see audits for their own subjects only; admin keeps the branch view | yes / no |
-| FIX-M2 | Four routes trust the session token's role claim for up to 7 days after a role change | Role always re-read from the DB; demotion takes effect on the next request | yes / no |
-| FIX-M3 | The scheduled cleanup job's secret path is dead code; retention silently no-ops | The proxy admits the Bearer-secret path; retention works when the secret is set | yes / no |
-| FIX-M4 | Material records can attach any asset under the Cloudinary prefix | Records must sit under the signed subject folder tree; a report lists any legacy outliers first | yes / no |
-| FIX-L1 | A 404 leaks which usernames exist before the permission gate | Permission gate first; non-staff see a uniform deny | yes / no |
-| FIX-L2 | Attendance branch mismatch returns 400 | 403 like every sibling | yes / no |
-| FIX-L3 | Login signs whatever role string the DB holds | Unknown role values fail closed at login | yes / no |
-| FIX-L4 | Announcement read-markers accept an unbounded id array | Capped at 200 like bulk delete | yes / no |
-| FIX-L5 | Demo login gates on NODE_ENV only | Gates on the env.ts classification, development only | yes / no |
-| FIX-A5 | Releasing one period prematurely exposes the final grade and remarks on the legacy field | Final grade and remarks need all three periods released | yes / no |
+| FIX-C1 | Any same-branch faculty can submit any subject's grades | Only the subject's teaching faculty can | **YES** |
+| FIX-H1a | Faculty edits reset submitted or released grades to draft, hiding them from students and the release queue | Forward-only: draft to submitted to released; withdrawal is audited; released rows are corrected only by an admin unrelease action, also audited | **YES** (condition in 9.1) |
+| FIX-H1b | The professor-of-record check is skipped when a faculty record lacks a full name | Check is unconditional, fails closed | **YES** |
+| FIX-H2 | Any same-branch faculty can read and write any section's attendance, and record keys are not roster-validated | Only the section's teaching faculty; keys validated against the roster; faculty GET scoped to their load | **YES** |
+| FIX-M1 | Any same-branch faculty can read the whole branch's grade-change audit history | Faculty see audits for their own subjects only; admin keeps the branch view | **YES** |
+| FIX-M2 | Four routes trust the session token's role claim for up to 7 days after a role change | Role always re-read from the DB; demotion takes effect on the next request | **YES** |
+| FIX-M3 | The scheduled cleanup job's secret path is dead code; retention silently no-ops | The proxy admits the Bearer-secret path; retention works when the secret is set | **YES** (condition in 9.1) |
+| FIX-M4 | Material records can attach any asset under the Cloudinary prefix | Records must sit under the signed subject folder tree; a report lists any legacy outliers first | **YES** |
+| FIX-L1 | A 404 leaks which usernames exist before the permission gate | Permission gate first; non-staff see a uniform deny | **YES** |
+| FIX-L2 | Attendance branch mismatch returns 400 | 403 like every sibling | **YES** |
+| FIX-L3 | Login signs whatever role string the DB holds | Unknown role values fail closed at login | **YES** |
+| FIX-L4 | Announcement read-markers accept an unbounded id array | Capped at 200 like bulk delete | **YES** |
+| FIX-L5 | Demo login gates on NODE_ENV only | Gates on the env.ts classification, development only | **YES** |
+| FIX-A5 | Releasing one period prematurely exposes the final grade and remarks on the legacy field | Final grade and remarks need all three periods released | **YES** |
 
 **B. Current behaviors to confirm as intended (no diff either way)**
 
 | Row | Current behavior | Confirm | Answer |
 | --- | --- | --- | --- |
-| D1 | Admin reads are school-wide across branches (people, stats, enrollment); admin writes are branch-scoped | intended? | yes / no |
-| D2 | Same-branch faculty and admin can read any student's full profile and inbox, including contacts and GPA | intended? | yes / no |
-| D3 | Material deletion is by teaching load, not uploader; no admin path; past-term materials are stranded | intended? | yes / no |
-| D6 | Task scores write no audit rows (decision #32) | keep? | yes / no |
-| A6/A7 | Score tamper trail absent; in-memory rate limiter (documented BUG-013) | accept as backlog? | yes / no |
+| D1 | Admin reads are school-wide across branches (people, stats, enrollment); admin writes are branch-scoped | intended? | **YES** (intended; finding closed) |
+| D2 | Same-branch faculty and admin can read any student's full profile and inbox, including contacts and GPA | intended? | **NO** (unresolved: behavior unchanged this pass, stays an open privacy and product-policy question) |
+| D3 | Material deletion is by teaching load, not uploader; no admin path; past-term materials are stranded | intended? | **YES** (intended for this pass; finding closed) |
+| D6 | Task scores write no audit rows (decision #32) | keep? | **YES** (keep; finding closed) |
+| A6/A7 | Score tamper trail absent; in-memory rate limiter (documented BUG-013) | accept as backlog? | **YES** (backlog items) |
 
 **C. Faculty identity migration (design section 8, hazard A1)**
 
@@ -426,11 +449,17 @@ subjects gain a `professorUsername` key, a report-first backfill runs under the
 owner's hand, and the name-string match retires. Out means relations keep the
 name match and A1 stays an open hazard on the backlog.
 
+Recorded: **OUT**. Deferred as a documented follow-up; stage 8 commits do not
+run in this pass and no existing subject record is modified during this
+implementation.
+
 **D. Tooling confirmations**
 
 - Runner `bun test`, no `npm test` script on any branch (P1, P2): acknowledged?
 - CI unit job applied by the owner through the web UI at C4.4: acknowledged?
 - Shadow mode skipped in favor of goldens (P4): acknowledged?
+
+Acknowledged 2026-10-21.
 
 **E. Branch and port discipline**
 
@@ -438,11 +467,16 @@ All Phase 4 work lands as commits on `main-full-dev`, no pushes, no merges.
 Porting to `main` is a separate, explicitly authorized step after Phase 5,
 following the CLAUDE.md 6a procedure (section 11 below). Acknowledged?
 
+Acknowledged 2026-10-21.
+
 ## 10. Phase 4 entry conditions and Phase 5 preview
 
 Phase 4 starts when the checklist comes back answered (any mix of yes and no is
 a valid answer; unanswered rows default to No, meaning behavior stays as today
 and the finding stays open). Entry conditions:
+
+Status 2026-10-21: sign-off received, all conditions met, Phase 4 authorized
+with exactly the scope recorded in section 9.1.
 
 1. Every A and B row carries an answer, or is explicitly left to default No.
 2. C has an in or out.
