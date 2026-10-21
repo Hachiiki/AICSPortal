@@ -43,21 +43,21 @@ export type AuthzResource =
       period: Period
       branch?: string
     }
-  | { kind: 'grade.releaseQueue' }
+  | { kind: 'grade.releaseQueue'; branch?: string }
   | { kind: 'grade.audits'; subjectCode?: string; studentUsername?: string }
   // tasks
   | { kind: 'task.list'; studentUsername: string }
   | { kind: 'task.board' }
   | { kind: 'task.section'; subjectCode: string; term: TermKey; branch?: string }
-  | { kind: 'task'; taskId: string }
+  | { kind: 'task'; taskId: string; subjectCode?: string }
   // attendance
   | { kind: 'attendance'; sectionKey: string; branch?: string }
   // materials
   | { kind: 'material.list' }
   | { kind: 'material.upload'; subjectCode: string; term: TermKey; branch?: string }
-  | { kind: 'material'; id: string }
+  | { kind: 'material'; id: string; subjectCode?: string }
   // announcements
-  | { kind: 'announcement'; id?: string }
+  | { kind: 'announcement'; id?: string; branch?: string }
   | { kind: 'announcement.reads' }
   // notifications
   | { kind: 'notification.inbox'; username: string }
@@ -67,7 +67,7 @@ export type AuthzResource =
   // admin and shared branch surfaces
   | { kind: 'admin.directory' }
   | { kind: 'admin.stats' }
-  | { kind: 'admin.enrollment'; id?: string }
+  | { kind: 'admin.enrollment'; id?: string; branch?: string }
   | { kind: 'branch.calendar' }
   | { kind: 'branch.directory' }
   // faculty reads over the actor's own teaching load
