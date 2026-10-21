@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getSubjectsForStudent, getCourses, getSessions } from '@/lib/mongodb/queries'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { HttpError } from '@/lib/http'
+import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 import type { Student } from '@/lib/aics/types'
-import { parseQuery, selfQuerySchema } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: identity comes from the session. Staff (faculty/admin) may
-    // read same-branch users (roster drawers); everyone else reads self.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // C2.2: canonical actor off the DB doc (role and branch never come
+    // from the JWT claim; the FIX-M2 flip rides here, issue #62). The
+    // route keeps its lookup-first ordering (L1): the 404 fires before
+    // the policy gate, which runs only for an existing student.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const rel = createRelations(ctx)
+
+    const username = parseQuery(request, selfQuerySchema).username || ctx.actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -21,12 +24,14 @@ export async function GET(request: NextRequest) {
     if (!mongoStudent) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
-    if (mongoStudent.username !== session.username) {
-      const isStaff = session.role === 'faculty' || session.role === 'admin'
-      if (!isStaff || mongoStudent.branch !== session.branch) {
-        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-      }
-    }
+
+    // C2.2: staff-read gate centralized (student.profile read: self, or
+    // same-branch faculty/admin with the DB role). FIX-L1 (C3.8) later
+    // moves this gate ahead of the lookup and masks the oracle.
+    const gate = decisionToHttpError(
+      await can(ctx, rel, { kind: 'student.profile', username }, 'read')
+    )
+    if (gate) throw gate
 
     const [subjects, courses, sessions] = await Promise.all([
       getSubjectsForStudent(mongoStudent.username, mongoStudent.branch),
@@ -75,6 +80,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, student, courses, sessions })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Student data error:', err)
     return NextResponse.json({ ok: false, error: 'An error occurred while fetching student data.' }, { status: 500 })
   }

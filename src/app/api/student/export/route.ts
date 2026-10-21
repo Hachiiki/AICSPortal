@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { HttpError } from '@/lib/http'
+import { errResponse } from '@/lib/validation'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 
 // ============================================================
@@ -51,12 +53,19 @@ function profileView(doc: any) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.2: auth + self-only export gate centralized (student.export
+    // read). The export is keyed strictly off the session account (no
+    // username input), so the policy resource is the actor's own
+    // username and the context is resolved first to state it.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'student.export', username: ctx.actor.username }, 'read')
+    )
+    if (gate) throw gate
+    const actor = ctx.actor
 
-    const me = await getStudentByUsername(session.username)
+    const me = await getStudentByUsername(actor.username)
     if (!me) {
       return NextResponse.json({ ok: false, error: 'Account not found.' }, { status: 404 })
     }
@@ -67,7 +76,7 @@ export async function GET(request: NextRequest) {
       account: profileView(me),
     }
 
-    if (session.role === 'student') {
+    if (actor.role === 'student') {
       const [subjectsCol, tasksCol, attendanceCol, notificationsCol] = await Promise.all([
         getCollection('subjects'),
         getCollection('tasks'),
@@ -77,7 +86,7 @@ export async function GET(request: NextRequest) {
 
       const [enrollments, tasks, attendanceDocs, notifications] = await Promise.all([
         subjectsCol
-          .find({ branch: session.branch, studentUsername: session.username })
+          .find({ branch: actor.branch, studentUsername: actor.username })
           .project({
             code: 1, title: 1, units: 1, professor: 1, professorEmail: 1, schedule: 1, room: 1,
             academicYear: 1, semester: 1, yearLevel: 1, status: 1,
@@ -86,7 +95,7 @@ export async function GET(request: NextRequest) {
           })
           .toArray(),
         tasksCol
-          .find({ branch: session.branch, studentUsername: session.username })
+          .find({ branch: actor.branch, studentUsername: actor.username })
           .project({
             subjectCode: 1, title: 1, type: 1, description: 1, dueDate: 1, postedDate: 1,
             submitted: 1, submittedAt: 1, score: 1, maxScore: 1, feedback: 1,
@@ -94,11 +103,11 @@ export async function GET(request: NextRequest) {
           })
           .toArray(),
         attendanceCol
-          .find({ branch: session.branch, [`records.${session.username}`]: { $exists: true } })
-          .project({ sectionKey: 1, date: 1, takenAt: 1, [`records.${session.username}`]: 1 })
+          .find({ branch: actor.branch, [`records.${actor.username}`]: { $exists: true } })
+          .project({ sectionKey: 1, date: 1, takenAt: 1, [`records.${actor.username}`]: 1 })
           .toArray(),
         notificationsCol
-          .find({ branch: session.branch, studentUsername: session.username })
+          .find({ branch: actor.branch, studentUsername: actor.username })
           .project({ title: 1, body: 1, fromName: 1, sectionKey: 1, subjectCode: 1, createdAt: 1, read: 1, readAt: 1 })
           .toArray(),
       ])
@@ -131,7 +140,7 @@ export async function GET(request: NextRequest) {
       exportPayload.attendance = attendanceDocs.map((d: any) => ({
         sectionKey: d.sectionKey,
         date: d.date,
-        status: d.records?.[session.username],
+        status: d.records?.[actor.username],
         takenAt: d.takenAt,
       }))
       exportPayload.notifications = notifications
@@ -140,13 +149,13 @@ export async function GET(request: NextRequest) {
       // they are the professor), no student data of others.
       const subjectsCol = await getCollection('subjects')
       const teaching = await subjectsCol
-        .find({ branch: session.branch, professor: me.fullName })
+        .find({ branch: actor.branch, professor: me.fullName })
         .project({ code: 1, title: 1, units: 1, schedule: 1, room: 1, academicYear: 1, semester: 1, status: 1 })
         .toArray()
       exportPayload.teachingAssignments = teaching
     }
 
-    const filename = `aics-portal-my-data-${session.username}.json`
+    const filename = `aics-portal-my-data-${actor.username}.json`
     return new NextResponse(JSON.stringify(exportPayload, null, 2), {
       status: 200,
       headers: {
@@ -156,6 +165,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Data export error:', err)
     return NextResponse.json({ ok: false, error: 'An error occurred while preparing your export.' }, { status: 500 })
   }

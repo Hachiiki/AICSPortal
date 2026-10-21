@@ -207,7 +207,7 @@ sc STU-READ-SELF studentA GET "/api/student?username=juan.santos" seeded 200 - '
 sc STU-READ-OTHER-STU studentB GET "/api/student?username=juan.santos" seeded 403 - - "student vs student"
 sc STU-READ-ABSENT studentA GET "/api/student?username=ghost.user" absent 404 - - "L1 oracle: 404 before authz gate; flips at C3.8"
 sc STU-READ-STAFF facultyX GET "/api/student?username=juan.santos" seeded 200 - 'contains:juan.santos@aics.edu.ph' "D2 pin: staff PII breadth (unresolved policy, issue #79)"
-sc STU-READ-STALE-ROLE staleFac GET "/api/student?username=juan.santos" seeded 200 - - "M2: JWT role trusted; flips 403 at C2.2 (issue #62)"
+sc STU-READ-STALE-ROLE staleFac GET "/api/student?username=juan.santos" seeded 200 - - "M2 fixed at C2.2: role read from the DB, stale faculty claim denied (issue #62)"
 sc STU-READ-XBRANCH-STAFF facultyX GET "/api/student?username=pedro.vasquez" novaliches student 403 - - "cross-branch staff read denied"
 sc STU-GRADES-ALL-RELEASED studentC GET "/api/student?username=a.castillo" seeded 200 - 'contains:"finalGrade":"87.60"' "released periods visible + finalGrade via legacy field"
 sc STU-GRADES-PARTIAL studentD GET "/api/student?username=b.mendoza" seeded 200 - 'contains:"finalGrade":"80.00"' "A5: legacy gradeStatus exposes finalGrade early; flips to - at C3.13 (issue #70)"
@@ -219,7 +219,7 @@ sc STU-ENROLL-SELF studentA GET /api/enrollment seeded 200 - - "own finances"
 sc STU-ENROLL-OTHER studentB GET "/api/enrollment?username=juan.santos" seeded 403 - - "staff denied by design too"
 sc STU-UPDATE-SELF studentA PATCH "/api/student/update?username=juan.santos" seeded '{"phone":"+63 917 123 9999"}' - - "self profile update (username via query)"
 sc STU-UPDATE-OTHER studentB PATCH "/api/student/update?username=juan.santos" seeded '{"phone":"+63 917 123 9999"}' - - "non-admin editing another profile"
-sc STU-UPDATE-STALE-ADMIN staleAdm PATCH "/api/student/update?username=juan.santos" seeded '{"phone":"+63 917 123 9998"}' - - "M2-class: JWT admin role trusted on update; flips 403 at C2.2 (issue #62)"
+sc STU-UPDATE-STALE-ADMIN staleAdm PATCH "/api/student/update?username=juan.santos" seeded '{"phone":"+63 917 123 9998"}' - - "M2 fixed at C2.2: role read from the DB, stale admin claim denied (issue #62)"
 
 # --- faculty reads ---
 sc FAC-ROSTER-SELF facultyX GET "/api/faculty?username=m.reyes" seeded 200 - 'contains:CS 101' "teaching-load roster"

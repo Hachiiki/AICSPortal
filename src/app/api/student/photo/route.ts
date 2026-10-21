@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError, requireCan } from '@/lib/authz'
 import { parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import {
@@ -40,16 +40,24 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.2: auth + self-only sign gate centralized (account.photo
+    // update). The upload signs for the session account only (no
+    // username input), so the policy resource is the actor's own
+    // username and the context is resolved first to state it.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'account.photo', username: ctx.actor.username }, 'update')
+    )
+    if (gate) throw gate
+    const { branch, username } = ctx.actor
+
     const env = cloudinaryEnv()
     if (!env) {
       return NextResponse.json({ ok: false, error: 'Photo upload is not configured on this server.' }, { status: 503 })
     }
 
-    const folder = photoFolder(env.baseFolder, session.branch, session.username)
+    const folder = photoFolder(env.baseFolder, branch, username)
     const timestamp = Math.floor(Date.now() / 1000)
     const signature = signUpload({ folder, timestamp, apiSecret: env.apiSecret })
 
@@ -59,7 +67,7 @@ export async function POST(request: NextRequest) {
     try {
       const col = await getCollection('students')
       const me = await col.findOne(
-        { username: session.username, branch: session.branch },
+        { username, branch },
         { projection: { photoUrl: 1 } }
       )
       oldPublicId = publicIdFromPhotoUrl(me?.photoUrl, photoRoot(env.baseFolder))
@@ -87,20 +95,17 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    // Self-service only: admins manage profiles through other means;
-    // photo identity stays in the owner's hands.
     const username = parseQuery(request, selfQuerySchema).username
-    if (!username || username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.2: auth + self gate centralized (account.photo delete: the
+    // query username must be the actor's own; a missing or foreign
+    // username denies here exactly where the old inline check did).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'account.photo', username: username ?? '' }, 'delete')
 
     const col = await getCollection('students')
     const me = await col.findOne(
-      { username: session.username, branch: session.branch },
+      { username: actor.username, branch: actor.branch },
       { projection: { photoUrl: 1 } }
     )
     if (!me) {
@@ -115,7 +120,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await col.updateOne(
-      { username: session.username, branch: session.branch },
+      { username: actor.username, branch: actor.branch },
       { $set: { photoUrl: '' } }
     )
     return NextResponse.json({ ok: true, message: 'Photo removed.' })
