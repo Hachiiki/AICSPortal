@@ -7,7 +7,7 @@ import { parseBody, parseQuery, trimmedString, errResponse, selfQuerySchema } fr
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import type { MongoMaterial } from '@/lib/mongodb/types'
-import { cloudinaryEnv, destroyAsset, extResourceType, spoofForbidden, MATERIALS_MAX_BYTES } from './cloudinary'
+import { cloudinaryEnv, destroyAsset, extResourceType, materialFolder, spoofForbidden, MATERIALS_MAX_BYTES } from './cloudinary'
 
 // ============================================================
 //  Materials API — GET /api/materials?username=
@@ -180,6 +180,30 @@ export async function POST(request: NextRequest) {
     const env = cloudinaryEnv()
     const col = await getCollection<MongoMaterial>('materials')
 
+    // FIX-M4 (C3.7, issue #64): any URL inside the portal's own
+    // Cloudinary cloud must sit under the signed subject folder tree
+    // (materialFolder(base, branch, subjectCode) — exactly what the sign
+    // route signs). This covers file records by url AND link records
+    // masquerading as internal assets; a rogue asset anywhere else in the
+    // cloud can no longer be attached to a material. External links are
+    // untouched (moderation handles them) and bytes stay advisory. No
+    // destroy here: an out-of-tree asset may legitimately belong to
+    // another subject, so rejecting the record is the only safe move.
+    // Reads keep serving legacy out-of-tree records — outliers are
+    // surfaced by scripts/report-legacy-materials.ts, not broken.
+    const folder = env ? materialFolder(env.baseFolder, ctx.claims.branch, subjectCode) : null
+    if (
+      env &&
+      typeof url === 'string' &&
+      url.startsWith(`https://res.cloudinary.com/${env.cloudName}/`) &&
+      !(folder && url.includes(`/${folder}/`))
+    ) {
+      return NextResponse.json(
+        { ok: false, error: `Cloud assets must live in this subject's upload folder (${folder}).` },
+        { status: 400 }
+      )
+    }
+
     if (kind === 'link') {
       if (!url || !/^https?:\/\/.+\..+/.test(url.trim())) {
         return NextResponse.json({ ok: false, error: 'A valid http(s) URL is required.' }, { status: 400 })
@@ -208,6 +232,20 @@ export async function POST(request: NextRequest) {
     }
     if (!publicId || !url || !url.startsWith(`https://res.cloudinary.com/${env.cloudName}/`)) {
       return NextResponse.json({ ok: false, error: 'A valid Cloudinary file reference is required.' }, { status: 400 })
+    }
+    // FIX-M4 (C3.7, issue #64): the publicId must sit under the signed
+    // folder tree as well, with no traversal segments — a contained url
+    // with a foreign publicId is still a foreign asset. No destroy: the
+    // asset may legitimately belong to another subject's folder.
+    if (
+      !folder ||
+      !publicId.startsWith(`${folder}/`) ||
+      publicId.split('/').includes('..')
+    ) {
+      return NextResponse.json(
+        { ok: false, error: `Cloud assets must live in this subject's upload folder (${folder}).` },
+        { status: 400 }
+      )
     }
     if (resourceType !== 'image' && resourceType !== 'raw') {
       return NextResponse.json({ ok: false, error: 'Resource type must be image or raw.' }, { status: 400 })

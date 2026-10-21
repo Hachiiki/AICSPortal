@@ -29,7 +29,7 @@ NOTIF-INBOX-STALE-ROLE	staleFac	GET	/api/notifications?username=juan.santos	seed
 NOTIF-SENT-SELF	facultyX	GET	/api/notifications/sent?sentBy=m.reyes	seeded	200	-	own outbox
 MAT-LIST-STUDENT	studentA	GET	/api/materials	seeded	200	-	enrolled student list
 MAT-LIST-FACULTY	facultyX	GET	/api/materials	seeded	200	-	load-scoped faculty list
-MAT-FOREIGN-URL	facultyX	POST	/api/materials	seeded	200	-	M4: prefix-only URL check; flips 4xx at C3.7 (issue #64)
+MAT-FOREIGN-URL	facultyX	POST	/api/materials	seeded	400	contains:upload folder	M4 fixed at C3.7: own-cloud URLs must sit under the signed subject folder (issue #64)
 ATT-READ-OWN	facultyX	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	200	-	own section read
 ATT-READ-OTHER	facultyY	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	403	-	H2 fixed at C3.4: teachesSection required, faculty reads load-scoped (issue #60)
 ATT-WRITE-OWN	facultyX	POST	/api/attendance	seeded	200	-	own section write (roster member key)
@@ -55,8 +55,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad918316cefabcd4cfaef32/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad918316cefabcd4cfaef32/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad919cb2e094dacacd72755/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad919cb2e094dacacd72755/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

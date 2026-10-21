@@ -236,7 +236,7 @@ sc NOTIF-SENT-SELF facultyX GET "/api/notifications/sent?sentBy=m.reyes" seeded 
 # --- materials ---
 sc MAT-LIST-STUDENT studentA GET /api/materials seeded 200 - - "enrolled student list"
 sc MAT-LIST-FACULTY facultyX GET /api/materials seeded 200 - - "load-scoped faculty list"
-sc MAT-FOREIGN-URL facultyX POST /api/materials seeded '{"branch":"commonwealth","subjectCode":"CS 208","title":"Authz rogue link","kind":"link","url":"https://res.cloudinary.com/verify-fake-cloud/image/upload/rogue/asset.png"}' - - "M4: prefix-only URL check; flips 4xx at C3.7 (issue #64)"
+sc MAT-FOREIGN-URL facultyX POST /api/materials seeded '{"branch":"commonwealth","subjectCode":"CS 208","title":"Authz rogue link","kind":"link","url":"https://res.cloudinary.com/verify-fake-cloud/image/upload/rogue/asset.png"}' - 'contains:upload folder' "M4 fixed at C3.7: own-cloud URLs must sit under the signed subject folder (issue #64)"
 
 # --- attendance ---
 sc ATT-READ-OWN facultyX GET "/api/attendance?sectionKey=$SK_CS101" seeded 200 - - "own section read"
