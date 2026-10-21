@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan, resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -17,18 +17,16 @@ import { HttpError } from '@/lib/http'
 //  'present' or 'absent'.
 //
 //  GET /api/attendance?username=&sectionKey=[&date=]
-//    Faculty or admin of the same branch. Without date, returns
-//    every session for the section plus the latest record map.
+//    Faculty or admin of the same branch. LEGACY(H2): no section
+//    ownership — any same-branch faculty reads any section until
+//    FIX-H2 (C3.4, issue #60).
 //  POST /api/attendance
 //    Body: { branch, sectionKey, date, records, performedBy }
-//    Faculty only, same branch. Upserts the session.
+//    Faculty only, same branch. Upserts the session. LEGACY(H2):
+//    no ownership or roster validation until C3.4. The L2 quirk
+//    (claimed branch vs the JWT branch claim answers 400, not the
+//    taxonomy's 403) stays route-kept until FIX-L2 (C3.9).
 // ============================================================
-
-async function getPerformer(username: string | null) {
-  if (!username || typeof username !== 'string') return null
-  const studentsCol = await getCollection('students')
-  return studentsCol.findOne({ username })
-}
 
 // ---- Zod input schemas (the only place attendance input is shaped) ----
 
@@ -57,25 +55,23 @@ const attendancePostSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: reader is the session user; branch comes from the session.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { username: usernameParam, sectionKey, date } = parseQuery(request, attendanceGetQuerySchema)
-    const username = usernameParam || session.username
+    // C2.5: auth + username-self + role gates centralized
+    // (attendance read: faculty or admin, DB role; LEGACY(H2) no
+    // section ownership). The username query field rides the guard's
+    // spoof check; the branch-scoped query below stays route-kept
+    // (branch from the session claim, as today).
+    const {
+      ctx: { actor, claims },
+    } = await requireCan(request, { kind: 'attendance', sectionKey }, 'read', {
+      claimedIdentity: usernameParam,
+    })
+    const username = usernameParam || actor.username
     if (!username || !sectionKey) {
       return NextResponse.json({ ok: false, error: 'Username and sectionKey are required.' }, { status: 400 })
     }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    const performer = await getPerformer(session.username)
-    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
-    }
     const col = await getCollection('attendance')
-    const query: Record<string, string> = { branch: session.branch, sectionKey }
+    const query: Record<string, string> = { branch: claims.branch, sectionKey }
     const sessionList = await col
       .find(query)
       .project({ date: 1, takenBy: 1, takenAt: 1 })
@@ -103,30 +99,32 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: taker is the session faculty; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.5: canonical actor first (the L2 quirk must fire before the
+    // policy's branch parity, preserving today's exact denial order).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
     const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await parseBody(
       request,
       attendancePostSchema
     )
-    const spoof = spoofCheck(session, performedBy)
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (branch !== session.branch) {
+    // L2 quirk, route-kept until FIX-L2 (C3.9): the claimed branch vs
+    // the JWT branch claim answers 400 with the required-fields
+    // message, not the taxonomy's 403.
+    if (branch !== ctx.claims.branch) {
       return NextResponse.json({ ok: false, error: ATTENDANCE_REQUIRED }, { status: 400 })
     }
-    // Phase 6: taker is the session faculty (legacy performedBy already spoof-checked; ignored).
-    const performer = await getPerformer(session.username)
-    if (!performer || performer.role !== 'faculty') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-    }
-    if (performer.branch !== branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
+    // C2.5: faculty role + the DB-side branch parity twin centralized
+    // (attendance update; LEGACY(H2): no ownership or roster
+    // validation until C3.4).
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'attendance', sectionKey, branch }, 'update')
+    )
+    if (gate) throw gate
     const col = await getCollection('attendance')
     // BUG-017: unique index is created by seed/migration tooling, not per request.
     // BUG-015: silent overwrite guard — existing session requires explicit allowOverwrite.
@@ -147,15 +145,15 @@ export async function POST(request: NextRequest) {
       await col.updateOne(
         { branch, sectionKey, date },
         {
-          $set: { records, takenBy: session.username, takenAt: new Date() },
-          $push: { history: { updatedAt: new Date(), updatedBy: session.username, changedFields } as any },
+          $set: { records, takenBy: ctx.actor.username, takenAt: new Date() },
+          $push: { history: { updatedAt: new Date(), updatedBy: ctx.actor.username, changedFields } as any },
         },
         { upsert: true }
       )
     } else {
       await col.updateOne(
         { branch, sectionKey, date },
-        { $set: { records, takenBy: session.username, takenAt: new Date() } },
+        { $set: { records, takenBy: ctx.actor.username, takenAt: new Date() } },
         { upsert: true }
       )
     }

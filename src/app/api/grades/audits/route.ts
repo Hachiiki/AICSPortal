@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseQuery, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -21,28 +21,30 @@ const auditsGetQuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: audit trail belongs to the session faculty/admin, branch-forced.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    if (session.role !== 'faculty' && session.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
-    }
     const { username, branch, subjectCode, studentUsername, limit } = parseQuery(
       request,
       auditsGetQuerySchema
     )
-    // Legacy username param must match the session when supplied.
-    if (username && username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.5: auth + username-self + role gates centralized
+    // (grade.audits read: faculty or admin, DB role). LEGACY(M1): no
+    // teaching-load scoping — any same-branch faculty reads the whole
+    // branch's audit history until FIX-M1 (C3.5, issue #61). The
+    // legacy username param rides the guard's spoof check; the branch
+    // forcing and cross-branch rejection stay route-kept.
+    const {
+      ctx: { claims },
+    } = await requireCan(
+      request,
+      { kind: 'grade.audits', subjectCode, studentUsername },
+      'read',
+      { claimedIdentity: username }
+    )
     // Branch is forced to the session branch; cross-branch reads rejected.
-    if (branch && branch !== session.branch) {
+    if (branch && branch !== claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
-    const query: any = { branch: session.branch }
+    const query: any = { branch: claims.branch }
     if (subjectCode) query.subjectCode = subjectCode
     if (studentUsername) query.studentUsername = studentUsername
 

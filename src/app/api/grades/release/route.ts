@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -33,27 +32,23 @@ const gradeReleaseSchema = z.object({
 // [{ subjectCode, title, academicYear, semester, period, count }]
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: release queue belongs to the session admin.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    const claimed = parseQuery(request, selfQuerySchema).username
+    // C2.5: auth + username-self + admin-role gates centralized
+    // (grade.releaseQueue read: the queue belongs to the session
+    // admin; the username query field rides the guard's spoof check).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'grade.releaseQueue' }, 'read', {
+      claimedIdentity: claimed,
+    })
+    const username = claimed || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: session.username })
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
     }
     const col = await getCollection('subjects')
     const rows = await col
       .find({
-        branch: performer.branch,
+        branch: actor.branch,
         $or: [{ prelimStatus: 'submitted' }, { midtermStatus: 'submitted' }, { finalsStatus: 'submitted' }],
       })
       .project({ code: 1, title: 1, academicYear: 1, semester: 1, prelimStatus: 1, midtermStatus: 1, finalsStatus: 1 })
@@ -86,31 +81,19 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: releaser is the session admin; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { branch, subjectCode, academicYear, semester, period, performedBy } = await parseBody(
       request,
       gradeReleaseSchema
     )
-    const spoof = spoofCheck(session, performedBy)
-    if (spoof) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    const performedByUser = session.username
-
-    // Auth: releaser is the session admin (legacy performedBy already spoof-checked; ignored).
-    const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: performedByUser })
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
-    // BUG-008 context: enforce branch parity like tasks/announcements (cross-branch gap was code-confirmed).
-    if (performer.branch !== branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
+    // C2.5: session, spoof (performedBy), admin role, and claimed
+    // branch parity centralized (grade.releaseQueue release).
+    const { ctx } = await requireCan(
+      request,
+      { kind: 'grade.releaseQueue', branch },
+      'release',
+      { claimedIdentity: performedBy }
+    )
+    const performedByUser = ctx.actor.username
 
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')

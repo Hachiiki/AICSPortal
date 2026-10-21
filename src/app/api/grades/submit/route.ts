@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -30,34 +29,32 @@ export async function POST(request: NextRequest) {
       request,
       gradeSubmitSchema
     )
-    // Phase 6: writer is the session user; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const spoof = spoofCheck(session, performedBy)
-    if (spoof) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    const performedByUser = session.username
-
-    // Auth: writer must be the session faculty in the same branch.
-    {
-      const studentsCol = await getCollection('students')
-      const performer = await studentsCol.findOne({ username: performedByUser })
-      if (!performer || performer.role !== 'faculty') {
-        return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-      }
-      if (performer.branch !== branch) {
-        return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-      }
-    }
+    // C2.5: session, spoof (performedBy), faculty role, and claimed
+    // branch parity centralized (grade.submit submit). LEGACY(C1):
+    // the policy has no teaching-load check and the write scope below
+    // carries no professor key — any same-branch faculty can submit
+    // any subject's grades until FIX-C1 (C3.1, issue #57).
+    const { ctx, scope } = await requireCan(
+      request,
+      {
+        kind: 'grade.submit',
+        subjectCode,
+        term: { academicYear: academicYear ?? '', semester: semester ?? '' },
+        branch,
+      },
+      'submit',
+      { claimedIdentity: performedBy }
+    )
+    const performedByUser = ctx.actor.username
 
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
-    const query: Record<string, string> = { branch, code: subjectCode }
-    if (academicYear) query.academicYear = academicYear
-    if (semester) query.semester = semester
+    // LEGACY(C1) write scope (scopes.ts): branch + code + conditional
+    // term keys, no professor-of-record key. C3.1 adds the key.
+    const query = scope.subjectRows(subjectCode, {
+      academicYear: academicYear ?? '',
+      semester: semester ?? '',
+    })
 
     const periodKey = period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : period === 'finals' ? 'finalsStatus' : null
 

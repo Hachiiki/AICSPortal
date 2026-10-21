@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, type Period } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -58,31 +58,23 @@ function remarksFor(final: string): string {
 export async function PATCH(request: NextRequest) {
   try {
     const { updates, performedBy } = await parseBody(request, gradeUpdateSchema)
-    // Phase 6: writer is the session user. A mismatched performedBy is a
-    // spoof attempt (403). The field is otherwise ignored — no dual-auth paths.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const spoof = spoofCheck(session, performedBy)
+    // C2.5: canonical actor first; the spoof check is preserved.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    const performedByUser = session.username
+    const rel = createRelations(ctx)
+    const performedByUser = ctx.actor.username
 
-    // Auth: writer must be the session faculty in the same branch.
-    // (Session replaces the old optional-performer pattern — BUG-002.)
-    const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: performedByUser })
-    if (!performer || performer.role !== 'faculty') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-    }
-    const performerBranch: string | null = performer.branch
-    const performerName: string | null = performer.fullName
-    if (performerBranch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-
+    // C2.5: the faculty-role, claims-vs-DB branch parity, per-row
+    // claimed-branch parity, row existence, and professor-of-record
+    // decisions run per row in the grade.period update policy case
+    // (policies.ts; H1a/H1b ride LEGACY branches there until C3.2 and
+    // C3.3). Per-row deny errors map to the envelope reasons, so the
+    // 207 partial-success shape is preserved; the row fetch below
+    // stays for the audit trail and the finalGrade compute.
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
     const results: { ok: boolean; studentUsername: string; subjectCode: string; reason?: string }[] = []
@@ -108,9 +100,20 @@ export async function PATCH(request: NextRequest) {
         continue
       }
 
-      // Branch guard: performer must match branch if provided
-      if (performerBranch && performerBranch !== branch) {
-        results.push({ ok: false, studentUsername, subjectCode, reason: 'Branch mismatch' })
+      // C2.5: per-row decision (grade.period update). The period field
+      // is structural — the update decision is row-level, so it carries
+      // the first period this row touches.
+      const period: Period = prelim !== undefined ? 'prelim' : midterm !== undefined ? 'midterm' : 'finals'
+      const decision = await can(ctx, rel, {
+        kind: 'grade.period',
+        studentUsername,
+        subjectCode,
+        term: { academicYear: academicYear ?? '', semester: semester ?? '' },
+        period,
+        branch,
+      }, 'update')
+      if (!decision.ok) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: decision.error })
         continue
       }
 
@@ -118,12 +121,6 @@ export async function PATCH(request: NextRequest) {
       const existing = await col.findOne({ studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) })
       if (!existing) {
         results.push({ ok: false, studentUsername, subjectCode, reason: 'Not found' })
-        continue
-      }
-
-      // BUG-008: enforce professor-of-record. Faculty may only edit their own sections.
-      if (performerName && existing.professor !== performerName) {
-        results.push({ ok: false, studentUsername, subjectCode, reason: 'Not your section' })
         continue
       }
 
