@@ -32,6 +32,7 @@ Core flows:
 - Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PRs #53/#54, 2026-10-20); `/dev/auth-preview` retired, no dev-only auth surfaces remain.
 - Content moderation live (English + Filipino) on every persisting write; Filipino reviewer sign-off still open (owner action, `@TODO.md`).
 - QA: Sep-2026 audit closed. 18 bugs (3 Critical) fixed or accepted, archived in `docs/done/qa_reports/`.
+- Authorization review (2026-10-21): 5-phase RBAC/ABAC centralization under way. Phase 1 audit and Phase 2 design live in `docs/authz/` (enforcement map, findings C1..L6, target `src/lib/authz/` module, staged migration). Phase 3 plan next; no route code touched yet, all work on `main-full-dev` only.
 - Unslop content pass (2026-10-21): em dashes and curly quotes removed from every user-visible string and all living docs per `.agents/skills/unslop`; legal pages, README, CLAUDE/CONTEXT/TODO, docs/ tree. Owner follow-ups: legal name spelling (Willard vs Wilard), lawyer review of policy pages.
 - Deferred by owner: dark mode toggle (2026-10-14), real Face ID, In/Out log. Do not start unprompted.
 
