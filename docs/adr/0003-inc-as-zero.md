@@ -1,4 +1,4 @@
-# ADR 0003 — INC counts as 0 in final grade math
+# ADR 0003. INC counts as 0 in final grade math
 
 Date: 2026-08-30
 

@@ -1,4 +1,4 @@
-# Password rehash runbook — production (Atlas, aics_portal)
+# Password rehash runbook: production (Atlas, aics_portal)
 
 The one-time migration that converts every legacy plaintext password in
 the `students` collection to the app's scrypt format (`scrypt$salt$hash`).
@@ -6,8 +6,8 @@ the `students` collection to the app's scrypt format (`scrypt$salt$hash`).
 **Status (corrected 2026-10-16):**
 
 - Local dev DB: **done.** The local rehearsal (2026-10-15, dev branch) exercised the
-  full procedure against the seeded dev database — dry-run, encrypted
-  backup, apply with `--expect`, self-verify, login checks — 13/13
+  full procedure against the seeded dev database, dry-run, encrypted
+  backup, apply with `--expect`, self-verify, login checks. 13/13
   passing, zero plaintext remaining, backup + key retained under
   `db/backups/` (gitignored).
 - Fresh seeds: **safe by construction.** `scripts/seed-mongodb.ts` now
@@ -35,7 +35,7 @@ announce the forced re-login, before running.
 
 1. Owner has approved the window and the logout impact.
 2. You have the Atlas production `MONGODB_URI` (from Vercel env or the
-   operator's vault — it is not in the repo).
+   operator's vault. It is not in the repo).
 3. A quiet window: no registrar posting payments, no faculty encoding
    grades (the run takes minutes, but avoid mid-write races).
 4. `node` ≥ 24 on your machine (type stripping for the script).
@@ -80,7 +80,7 @@ node scripts/rehash-passwords.ts --apply --expect 0 --bump-all \
 - `--apply` aborts unless the live to-rehash count equals `--expect N`
   (state changed under you → investigate, don't proceed).
 - Every doc is rehashed with a per-doc round-trip check through the
-  app's own `verifyPassword` — a mismatch aborts the run.
+  app's own `verifyPassword`, a mismatch aborts the run.
 - The write filter matches the read-time plaintext (concurrency guard),
   so a simultaneous hash-on-login upgrade can never be clobbered.
 - Post-apply self-verify re-reads every updated doc and verifies it
@@ -92,7 +92,7 @@ node scripts/rehash-passwords.ts --apply --expect 0 --bump-all \
 
 1. Script output ends with `verified N/N` and `remaining-plaintext=0`.
 2. Log in through the real app as one known account per role
-   (student / faculty / admin) — expect success.
+   (student / faculty / admin), expect success.
 3. A wrong-password attempt returns 401.
 4. Spot-check the collection: every `password` starts with `scrypt$`.
 
@@ -107,7 +107,7 @@ node scripts/rehash-passwords.ts --rollback --backup /secure/vault/students-<dat
 
 Restores password + tokenVersion per `_id` from the encrypted backup.
 Ask before using; never improvise. Note that rollback returns the DB to
-plaintext passwords — it exists for a failed-run investigation, not for
+plaintext passwords. It exists for a failed-run investigation, not for
 routine use.
 
 ## Local rehearsal

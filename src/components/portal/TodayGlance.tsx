@@ -81,7 +81,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
     else if (days === 0) label = 'due today'
     else if (days === 1) label = 'due tomorrow'
     else label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    return { count: open.length, nextDue: `${next.title} — ${label}` }
+    return { count: open.length, nextDue: `${next.title} · ${label}` }
   }, [tasks])
 
   // ---- Unread announcements

@@ -39,7 +39,7 @@ export async function getCollection<T = any>(name: string) {
     await client.connect()
     // Boot diagnostic: one line per process, so "which env and db am I
     // actually on" is answerable from the logs at a glance.
-    console.log(`[mongo] connected — ${envSummary()}`)
+    console.log(`[mongo] connected, ${envSummary()}`)
   }
   // Our schema interfaces (MongoStudent, MongoTask, etc.) don't extend
   // mongodb's Document type, so we cast the collection to any and let

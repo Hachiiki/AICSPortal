@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 
     const exportPayload: Record<string, unknown> = {
       exportedAt: new Date().toISOString(),
-      exportedBy: 'AICS Portal — Settings → Privacy & Data',
+      exportedBy: 'AICS Portal · Settings → Privacy & Data',
       account: profileView(me),
     }
 

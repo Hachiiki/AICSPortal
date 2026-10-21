@@ -13,15 +13,15 @@ export default function PrivacyPage() {
     <LegalShell
       current="/legal/privacy"
       title="Privacy Policy"
-      summary="This portal stores your school records so you can sign in and use it: your name, student number, grades, tasks, attendance, and the contact details your branch gave us. We do not sell data, run ads, or add trackers — the only cookie is the one that keeps you signed in, and optional analytics stay off unless you switch them on."
+      summary="This portal stores your school records so you can sign in and use it: your name, student number, grades, tasks, attendance, and the contact details your branch gave us. We do not sell data, run ads, or add trackers. The only cookie is the one that keeps you signed in, and optional analytics stay off unless you switch them on."
     >
       <p>
-        This Privacy Policy explains what personal data the AICS Portal (&ldquo;the portal&rdquo;,
-        &ldquo;we&rdquo;) processes, why it is processed, who can access it, where it is stored, and
+        This Privacy Policy explains what personal data the AICS Portal ("the portal",
+        "we") processes, why it is processed, who can access it, where it is stored, and
         the choices and rights available to you. It is written to comply with the Data Privacy Act
         of 2012 (Republic Act No. 10173) of the Philippines and its Implementing Rules and
         Regulations. If anything here is unclear, contact the operator directly using the details in
-        the last section — questions are answered, not filtered.
+        the last section. Questions are answered, not filtered.
       </p>
 
       <h2 id="who-we-are">1. Who we are</h2>
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
       </p>
       <p>
         Accounts are not created through this website. Usernames and initial passwords are issued
-        by your branch&rsquo;s administrative staff when they enroll or encode your record into the
+        by your branch's administrative staff when they enroll or encode your record into the
         portal database. If you never received credentials, you do not have an account and no
         interactive data about you is collected beyond what is described in the server logs and
         optional analytics sections below.
@@ -43,20 +43,20 @@ export default function PrivacyPage() {
       <h2 id="what-we-collect">2. What personal data we process</h2>
       <p>
         The portal only stores what its features actually need. Each item below maps to a real
-        screen or function — there are no hidden profile fields, no advertising identifiers, and no
+        screen or function. There are no hidden profile fields, no advertising identifiers, and no
         third-party tracking pixels anywhere in the code.
       </p>
       <ul>
         <li>
           <strong>Account and credentials:</strong> your username, a scrypt-hashed password (we
-          cannot read it — plaintext is never stored after first login), your role (student,
+          cannot read it, and plaintext is never stored after first login), your role (student,
           faculty, admin), your campus branch, and a revocation counter used to sign out old
           sessions when you change your password.
         </li>
         <li>
           <strong>Identity and enrollment record:</strong> full name, student number, program, year
-          level, section, semester, academic year, enrollment status, dean&rsquo;s-lister flag, and
-          your branch&rsquo;s name and address as provided by your school.
+          level, section, semester, academic year, enrollment status, dean's-lister flag, and
+          your branch's name and address as provided by your school.
         </li>
         <li>
           <strong>Contact details (optional and editable by you):</strong> email address, phone
@@ -96,8 +96,8 @@ export default function PrivacyPage() {
       </ul>
       <p>
         We do not process political opinions, religious beliefs, health data, or other categories
-        beyond what is listed. The mock &ldquo;Face ID&rdquo; tab shown in development builds never
-        photographs or transmits your face — the camera stream stays in your browser and is
+        beyond what is listed. The mock "Face ID" tab shown in development builds never
+        photographs or transmits your face. The camera stream stays in your browser and is
         discarded when you leave the screen.
       </p>
 
@@ -122,7 +122,7 @@ export default function PrivacyPage() {
         <li>
           <strong>With your consent, where required:</strong> optional analytics (off by default),
           and optional features like your profile photo. You can withdraw these choices at any
-          time — see the Cookie Policy for the analytics switch.
+          time. See the Cookie Policy for the analytics switch.
         </li>
       </ul>
 
@@ -135,8 +135,8 @@ export default function PrivacyPage() {
       </p>
       <ul>
         <li>
-          <strong>Vercel, Inc. (United States):</strong> hosts the website itself and — only if you
-          allow analytics — receives cookieless usage events (pages viewed, referrer, device type).
+          <strong>Vercel, Inc. (United States):</strong> hosts the website itself and, only if you
+          allow analytics, receives cookieless usage events (pages viewed, referrer, device type).
         </li>
         <li>
           <strong>MongoDB Atlas (cloud region selected by the operator):</strong> the database
@@ -157,23 +157,23 @@ export default function PrivacyPage() {
       <p>
         The portal sets a single cookie, <code>{SESSION_FACTS.cookieName}</code>, which keeps you
         signed in. It is strictly necessary, marked HttpOnly (scripts cannot read it), and expires
-        after {SESSION_FACTS.defaultHours} hours — or {SESSION_FACTS.rememberMeDays} days if you
-        tick &ldquo;Remember me&rdquo;. Optional usage analytics are cookieless and load only after
-        you click &ldquo;Allow analytics&rdquo;. Full details, including how to change your choice
+        after {SESSION_FACTS.defaultHours} hours, or {SESSION_FACTS.rememberMeDays} days if you
+        tick "Remember me". Optional usage analytics are cookieless and load only after
+        you click "Allow analytics". Full details, including how to change your choice
         later, are in the <a href="/legal/cookies">Cookie Policy</a>.
       </p>
 
       <h2 id="access">6. Who inside the portal can see your data</h2>
       <ul>
         <li>
-          <strong>You:</strong> your own record. Everyone&rsquo;s data is filtered by branch and
-          role on every request — one deployment serves every branch, and no query crosses
+          <strong>You:</strong> your own record. Everyone's data is filtered by branch and
+          role on every request. One deployment serves every branch, and no query crosses
           branches.
         </li>
         <li>
           <strong>Faculty:</strong> for students enrolled in the subjects they teach, faculty can
           see the roster with names, student numbers, program, year and section, contact details,
-          and GPA — the information a teacher needs to encode grades, take attendance, and message
+          and GPA: the information a teacher needs to encode grades, take attendance, and message
           their class. They cannot see your address, emergency contacts, or financial assessment.
         </li>
         <li>
@@ -191,7 +191,7 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Session data:</strong> the sign-in cookie lives {SESSION_FACTS.defaultHours} hours
-          ({SESSION_FACTS.rememberMeDays} days with &ldquo;Remember me&rdquo;) and is revoked
+          ({SESSION_FACTS.rememberMeDays} days with "Remember me") and is revoked
           immediately when you change your password or sign out.
         </li>
         <li>
@@ -200,8 +200,8 @@ export default function PrivacyPage() {
         <li>
           <strong>Academic records and audit logs:</strong> retained while your account exists,
           because grades, submissions, and their change history are the record the portal exists to
-          keep. Closing your school account triggers a deletion request for your personal data —
-          contact the operator (Section 11) to start one sooner.
+          keep. Closing your school account triggers a deletion request for your personal data.
+          Contact the operator (Section 11) to start one sooner.
         </li>
         <li>
           <strong>Moderation and read-state logs:</strong> kept for abuse investigation and then
@@ -218,12 +218,12 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Access and portability:</strong> Settings → Privacy &amp; Data has a
-          &ldquo;Download my data&rdquo; button that exports your profile and academic records as a
+          "Download my data" button that exports your profile and academic records as a
           machine-readable file, generated on demand with no human in the loop.
         </li>
         <li>
           <strong>Rectification:</strong> contact fields are editable in Settings. Name, program,
-          and enrollment facts come from your school record — ask your branch admin or the
+          and enrollment facts come from your school record. Ask your branch admin or the
           registrar to correct those at the source, and the portal reflects the fix.
         </li>
         <li>
@@ -243,7 +243,7 @@ export default function PrivacyPage() {
         The portal serves school students, some of whom may be under eighteen. Accounts are created
         only through branch staff for enrolled students, and the data processed is limited to the
         school-function categories in Section 2. Parents or guardians who want access to, or
-        removal of, a minor&rsquo;s data can email the operator; verification is done through the
+        removal of, a minor's data can email the operator; verification is done through the
         branch that enrolled the student before any change is made.
       </p>
 
@@ -254,21 +254,21 @@ export default function PrivacyPage() {
         can be revoked instantly; every API request re-verifies your identity and branch
         server-side (the browser is never trusted); login and write endpoints are rate-limited;
         grade changes are append-only audited; and all inputs are schema-validated before touching
-        the database. Reported vulnerabilities are triaged and fixed — see the Terms for how to
+        the database. Reported vulnerabilities are triaged and fixed. See the Terms for how to
         report one responsibly.
       </p>
 
       <h2 id="contact">11. Contact and changes</h2>
       <p>
-        The operator for all privacy matters is {LEGAL.operatorName} —{' '}
-        <a href={`mailto:${LEGAL.operatorEmail}?subject=AICS%20Portal%20privacy%20request`}>
+        The operator for all privacy matters is {LEGAL.operatorName}. Write to
+        {' '}<a href={`mailto:${LEGAL.operatorEmail}?subject=AICS%20Portal%20privacy%20request`}>
           {LEGAL.operatorEmail}
-        </a>
-        . Write for exports, corrections, deletions, or questions; identity is verified against the
+        </a>{' '}
+        for exports, corrections, deletions, or questions. Identity is verified against the
         account record before changes are applied.
       </p>
       <p>
-        This policy may be updated as features change; the &ldquo;last updated&rdquo; date at the
+        This policy may be updated as features change. The "last updated" date at the
         top always reflects the current version, and material changes are announced on the login
         page. Continued use after an update means the revised policy applies to your use of the
         portal.

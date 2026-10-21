@@ -202,7 +202,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         })
       )
       if (onRefresh) await onRefresh()
-      toast.success(`Saved ${targets.length} ${period} draft(s) — ${activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} (${filtered.length})`}`)
+      toast.success(`Saved ${targets.length} ${period} draft(s) · ${activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} (${filtered.length})`}`)
     } catch (e: any) {
       toast.error(e.message || 'Save failed')
     } finally {
@@ -270,7 +270,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           })
         )
         if (onRefresh) await onRefresh()
-        toast.success(`Submitted ${totalSubmitted || vis.filter((r: any) => !(r as any)[sKey] || (r as any)[sKey] === 'draft').length} records (${submitPeriod}) — draft → submitted`)
+        toast.success(`Submitted ${totalSubmitted || vis.filter((r: any) => !(r as any)[sKey] || (r as any)[sKey] === 'draft').length} records (${submitPeriod}) · draft → submitted`)
         setShowSubmitModal(false)
       } else {
         const patchedRows = rows.map((r: any) => {
@@ -340,7 +340,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
               <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
-              <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} — Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
+              <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} • Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
             </div>
             <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-slate-50 border border-slate-200 shadow-sm self-center">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium">No status</span>
@@ -354,7 +354,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setActiveSection('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === 'all' ? 'bg-[#153357] text-white border-[#153357]' : 'bg-white text-slate-700 border-slate-200'}`}>All sections ({sections.length} • {rows.length} rows)</button>
-              {sections.map((s) => (<button key={s.key} onClick={() => setActiveSection(s.subjectCode)} aria-pressed={activeSection === s.subjectCode} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === s.subjectCode ? 'bg-[#1D6FB8] text-white border-[#1D6FB8]' : 'bg-white text-slate-700 border-slate-200'}`}>{s.subjectCode} — {s.room}</button>))}
+              {sections.map((s) => (<button key={s.key} onClick={() => setActiveSection(s.subjectCode)} aria-pressed={activeSection === s.subjectCode} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === s.subjectCode ? 'bg-[#1D6FB8] text-white border-[#1D6FB8]' : 'bg-white text-slate-700 border-slate-200'}`}>{s.subjectCode} · {s.room}</button>))}
             </div>
           </div>
 
@@ -371,7 +371,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             </div>
             {period !== 'all' && (
               <div className="px-4 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'} — {activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} • per-period save</span></p>
+                <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'} · {activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} · per-period save</span></p>
                 <div className="flex items-center gap-2">
                   <button onClick={handleSavePeriod} disabled={saving} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : `Save ${period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}`}</button>
                   <button onClick={() => openSubmit(period)} disabled={submitting} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> Submit {period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}</button>
@@ -461,7 +461,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
 
       {showFillModal && (
         <Modal
-          title={<>Fill down — <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></>}
+          title={<>Fill down · <span className="text-[#287CBB]">{period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'}</span></>}
           description={<>Fill this value for all visible students in <span className="font-medium text-slate-700">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`}</span> • {period === 'prelim' ? 'Prelim' : period === 'midterm' ? 'Midterm' : 'Finals'} only. Then <b>Save</b> to persist.</>}
           onClose={closeFillModal}
           maxWidthClass="max-w-sm"
@@ -477,14 +477,14 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 if (period === 'all') { toast.info('Select a specific period (Prelim/Midterm/Finals) to use Fill down'); return }
                 if (activeSection === 'all') { toast.info('Select a specific section to use Fill down'); return }
                 setRows((prev) => prev.map((r: any) => (r.subjectCode === activeSection && (r as any)[statusKey] !== 'submitted' && (r as any)[statusKey] !== 'released' ? { ...r, [field]: val, dirty: true, [statusKey]: 'draft', gradeStatus: 'draft' } : r)))
-                setShowFillModal(false); setFillValue(''); toast.success(`Filled ${val} for ${activeSection} • ${field} — click Save to persist`)
+                setShowFillModal(false); setFillValue(''); toast.success(`Filled ${val} for ${activeSection} • ${field}. Click Save to persist.`)
               }} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2"><ArrowDown className="w-4 h-4" /> Fill</button>
             </>
           }
         >
           <label htmlFor="fill-value" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Value (0-100 or INC)</label>
           <input id="fill-value" ref={fillInputRef} value={fillValue} onChange={(e) => setFillValue(e.target.value)} placeholder="e.g., 85 or INC" className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
-          <p className="text-xs text-slate-500">Per-period — only fills the current tab’s column for the filtered section. Dirty rows need Save.</p>
+          <p className="text-xs text-slate-500">Per-period: only fills the current tab's column for the filtered section. Dirty rows need Save.</p>
         </Modal>
       )}
 
@@ -495,13 +495,13 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           headerExtra={
             <>
               <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <p className="text-xs font-semibold">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} — {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}</p>
+                <p className="text-xs font-semibold">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} · {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}</p>
                 <p className="text-xs text-slate-500 mt-1">
                   {(() => {
                     const vis = activeSection === 'all' ? filtered : filtered.filter((r: any) => r.subjectCode === activeSection)
                     const need = submitPeriod === 'prelim' ? vis.filter((r: any) => !r.prelim).length : submitPeriod === 'midterm' ? vis.filter((r: any) => !r.midterm).length : submitPeriod === 'finals' ? vis.filter((r: any) => !r.finals && !r.finalGrade).length : 0
                     const drafts = vis.filter((r: any) => { const k = submitPeriod === 'prelim' ? 'prelimStatus' : submitPeriod === 'midterm' ? 'midtermStatus' : submitPeriod === 'finals' ? 'finalsStatus' : 'gradeStatus'; const st = (r as any)[k] ?? ''; return (!st || st === 'draft') && !r.locked && (submitPeriod === 'prelim' ? r.prelim : submitPeriod === 'midterm' ? r.midterm : r.finals || r.finalGrade) }).length
-                    if (need > 0) return `${need} blank(s) will be set to INC on submit — ${drafts} graded + ${need} INC total.`
+                    if (need > 0) return `${need} blank(s) will be set to INC on submit. ${drafts} graded + ${need} INC total.`
                     return `This will submit ${drafts} draft grades in this scope.`
                   })()}
                 </p>
@@ -577,7 +577,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                       const actionLabel = a.action === 'save' ? 'saved' : a.action === 'submit' ? 'submitted' : a.action === 'release' ? 'released' : a.action === 'fill' ? 'filled' : a.action
                       const when = a.performedAt ? new Date(a.performedAt).toLocaleString() : ''
                       const studentLabel = a.studentUsername === historyRow?.studentUsername ? historyRow?.studentName || a.studentUsername : a.studentUsername
-                      const subjectLabel = a.subjectCode === historyRow?.subjectCode ? `${a.subjectCode} — ${historyRow?.subjectTitle || ''}`.trim() : a.subjectCode
+                      const subjectLabel = a.subjectCode === historyRow?.subjectCode ? `${a.subjectCode} · ${historyRow?.subjectTitle || ''}`.trim() : a.subjectCode
                       return (
                         <div key={a._id || i} className="p-3 rounded-xl border border-slate-200 bg-slate-50">
                           <div className="flex items-center justify-between gap-2">

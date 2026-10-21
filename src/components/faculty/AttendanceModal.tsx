@@ -165,7 +165,7 @@ export function AttendanceModal({
               onChange={switchSection}
               options={sections.map((s) => ({
                 value: s.key,
-                label: `${s.code} — ${s.title}${termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • ${s.students.length} ${s.students.length === 1 ? 'student' : 'students'}`,
+                label: `${s.code} · ${s.title}${termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • ${s.students.length} ${s.students.length === 1 ? 'student' : 'students'}`,
               }))}
             />
           </div>

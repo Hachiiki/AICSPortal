@@ -1,4 +1,4 @@
-# ADR 0002 — Per-period grade status
+# ADR 0002. Per-period grade status
 
 Date: 2026-08-30
 

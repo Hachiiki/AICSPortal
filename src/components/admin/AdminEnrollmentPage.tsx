@@ -440,7 +440,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       {overrideFor && (
         <Modal
           title="Override step tracker"
-          description={`${overrideFor.student?.fullName ?? overrideFor.studentUsername} · ${overrideFor.academicYear} ${overrideFor.semester} — set where the tracker stands now.`}
+          description={`${overrideFor.student?.fullName ?? overrideFor.studentUsername} · ${overrideFor.academicYear} ${overrideFor.semester}. Set where the tracker stands now.`}
           onClose={() => setOverrideFor(null)}
           footer={
             <>
@@ -586,7 +586,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
           </div>
           <div>
             <label htmlFor="pay-note" className="block text-xs font-semibold text-slate-600 mb-1">
-              Note <span className="font-normal text-slate-500">(optional — e.g. receipt #, installment)</span>
+              Note <span className="font-normal text-slate-500">(optional, e.g. receipt #, installment)</span>
             </label>
             <input
               id="pay-note"
@@ -605,7 +605,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       {viewFor && (
         <Modal
           title={viewFor.student?.fullName ?? viewFor.studentUsername}
-          description={`${viewFor.academicYear} ${viewFor.semester} · ${viewFor.branch} branch — full enrollment record.`}
+          description={`${viewFor.academicYear} ${viewFor.semester} · ${viewFor.branch} branch · full enrollment record.`}
           onClose={() => setViewFor(null)}
           maxWidthClass="max-w-2xl"
           footer={

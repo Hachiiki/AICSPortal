@@ -32,13 +32,13 @@ Quick wins (report section 4):
 
 Most affected files:
 - `src/components/faculty/FacultyGradeEncodingPage.tsx`
-- `src/components/MobileWarning.tsx`, `src/app/page.tsx` (4 mount points)
-- `src/components/portal/PortalShell.tsx`, `src/app/layout.tsx`
-- `src/components/auth/CredentialsForm.tsx`, `src/components/auth/LoginView.tsx`
-- `src/components/portal/Sidebar.tsx`, `src/components/portal/Topbar.tsx`
-- `src/components/portal/RemarksBadge.tsx`, `src/components/portal/AnnouncementsDeck.tsx`
-- `src/components/admin/AdminReleasePage.tsx`, `src/components/portal/GlobalSearch.tsx`
-- `src/components/portal/ScheduleGrid.tsx`, `.superdesign/design-system.md`
+- `src/components/MobileWarning.tsx`: `src/app/page.tsx` (4 mount points)
+- `src/components/portal/PortalShell.tsx`: `src/app/layout.tsx`
+- `src/components/auth/CredentialsForm.tsx`: `src/components/auth/LoginView.tsx`
+- `src/components/portal/Sidebar.tsx`: `src/components/portal/Topbar.tsx`
+- `src/components/portal/RemarksBadge.tsx`: `src/components/portal/AnnouncementsDeck.tsx`
+- `src/components/admin/AdminReleasePage.tsx`: `src/components/portal/GlobalSearch.tsx`
+- `src/components/portal/ScheduleGrid.tsx`: `.superdesign/design-system.md`
 
 Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run build` passes, keyboard-only pass (Tab/Shift+Tab/Enter/Escape), contrast AA 4.5:1 spot-check for text, screenshots student+faculty (+admin if touched), no secrets/`.env.local`/`.next/` in diff.
 
@@ -56,14 +56,14 @@ Acceptance gates (every fix): `npm run lint` clean in touched files, `npm run bu
 | Done | #23 | Medium | design-system | JS hover to Tailwind hover | `Sidebar.tsx` NavButton, `CredentialsForm.tsx` Sign In, `FaceIdPanel.tsx` Face ID buttons | Fixed 2026-09-11: pure Tailwind hover/active (`hover:bg-slate-100`, `hover:bg-[#124D7A]`, `active:scale`), same colors; Face ID buttons had the same defect and were converted too. GlobalSearch combobox hover-index kept (behavior, not styling). Lint clean in touched files, build passes. |
 | Done | #21 | Medium | a11y / touch | Touch targets below 24px | `FacultyGradeEncodingPage.tsx:423`, `CredentialsForm.tsx:160-177`, `GlobalSearch.tsx:411-421` | Fixed 2026-09-11: History `h-6 min-w-6` (24px) + `aria-label`; checkbox visual `w-5 h-5` with `py-1` label (28px hit area); clear-X `p-2 -m-1` (32px hit area). Bell verified 36px, untouched. Lint clean in touched files, build passes. |
 | Done | #27 | Medium | typography | Lock H1 + `tabular-nums` | 16 page H1s + Stat values (AcademicHeader, FacultyDashboard) + release count | Fixed 2026-09-11: one H1 recipe (`font-bold tracking-tight text-balance text-slate-900`; heroes keep `blue-950` + `sm:text-3xl`); `tabular-nums` on Stat values + release count (mono cells already stable). Login gradient hero, COEDocument print heading, RoleGate message assessed as out of scope. Lint clean in touched files, build passes. |
-| Done | #25 | Medium | feedback | Toast position + actions | `src/app/layout.tsx:55`, `AnnouncementsDeck.tsx` dismiss-all, new DELETE `announcements/read` | Fixed 2026-09-11: Toaster `bottom-right` (Sonner stretches bottom toasts near-full-width on mobile, effectively bottom-center); Dismiss-all fires a toast with working Undo (local restore + DELETE un-mark, POST-mirrored guards, branch-scoped). Submit toast deliberately actionless: no live faculty queue view exists (table reflects submitted status; previous-records covers prior released terms) — an action would be a dead end. Lint clean in touched files, build passes. |
+| Done | #25 | Medium | feedback | Toast position + actions | `src/app/layout.tsx:55`, `AnnouncementsDeck.tsx` dismiss-all, new DELETE `announcements/read` | Fixed 2026-09-11: Toaster `bottom-right` (Sonner stretches bottom toasts near-full-width on mobile, effectively bottom-center); Dismiss-all fires a toast with working Undo (local restore + DELETE un-mark, POST-mirrored guards, branch-scoped). Submit toast deliberately actionless: no live faculty queue view exists (table reflects submitted status; previous-records covers prior released terms), an action would be a dead end. Lint clean in touched files, build passes. |
 | Done | #28 | Medium | states | Standard empty/error patterns | `FacultyGradeEncodingPage.tsx` empty, `src/app/page.tsx:445+` error, `use-student-data.ts` retryKey | Fixed 2026-09-11: filtered-empty gets icon + title + why + Clear-filters (resets search/status/dirty); data-load error gets Retry (real refetch via `useStudentData` retryKey, single consumer) + secondary sign-out. Lint clean in touched files, build passes. |
-| Done | #26 | Low | polish | Login radius, forgot-pw toast, back icon, dot hack, icon sizes | `LoginView.tsx:115`, `CredentialsForm.tsx` forgot, 7 back links, `AnnouncementsDeck.tsx:215` | Fixed 2026-09-11: panel `rounded-t-[28px] lg:rounded-l-[40px]`; forgot-password is now a `mailto:it-support@aics.edu.ph` link (address confirmed in HelpSupportPage); all 7 rotated back chevrons → `ChevronLeft` (accordion rotations kept — correct usage); dot fallback branch deleted. L5 assessed: two-tier system already consistent (w-4 chrome / w-3 meta, default strokeWidth 2) — no library swap, no churn. Verified no `rotate-180`-as-back or `.replace('bg-'` remains. Lint clean in touched files, build passes. |
+| Done | #26 | Low | polish | Login radius, forgot-pw toast, back icon, dot hack, icon sizes | `LoginView.tsx:115`, `CredentialsForm.tsx` forgot, 7 back links, `AnnouncementsDeck.tsx:215` | Fixed 2026-09-11: panel `rounded-t-[28px] lg:rounded-l-[40px]`; forgot-password is now a `mailto:it-support@aics.edu.ph` link (address confirmed in HelpSupportPage); all 7 rotated back chevrons → `ChevronLeft` (accordion rotations kept, correct usage); dot fallback branch deleted. L5 assessed: two-tier system already consistent (w-4 chrome / w-3 meta, default strokeWidth 2), no library swap, no churn. Verified no `rotate-180`-as-back or `.replace('bg-'` remains. Lint clean in touched files, build passes. |
 | Done | #29 | High | bug / tables | Sticky `thead` vs `th` + scroll region | Grade table `thead` sticky + `max-h-[70vh]` region; roster/queue `thead` sticky; evidence `docs/done/qa_evidence/ui-ux/grade-header-fixed-29.png` | Fixed 2026-09-11, owner confirmed: `top-16` resolved against the `overflow-x-auto` wrapper scrollport → 64px displacement. Live experiments showed `th`-level vertical sticky doesn't clamp but `thead`-level does. Verified live + screenshot: flush header, pinned thead/first-col/frozen-Final. No `top-16` in `src/`. Lint clean in touched files, build passes. |
 
 ## Current phase
 
-Phase 3 — regression fix: #29 sticky-header offset in progress; all audit items otherwise done.
+Phase 3 regression fix: #29 sticky-header offset in progress; all audit items otherwise done.
 
 ## Completed fixes
 
@@ -91,10 +91,10 @@ Phase 3 — regression fix: #29 sticky-header offset in progress; all audit item
 - Browser smoke check (2026-09-11, dev server + headless Chromium, student demo session) verified live: skip link first Tab stop and activates to `#main-content`; login `focus-visible` border `#1769AA` + 3px ring; sidebar footer computes to `slate-500`; bottom-right error toast fires on failed login; DELETE un-mark API returns 200; login panel radius 28px top at 390px; L2 mailto href correct. Not verifiable without a faculty session: grade-encoding inputs/table, Fill/Submit modals, Undo toast click-through, announcement dismissal flow.
 - No unit test runner (`npm test` does not exist). Verification = `npm run lint` + `npm run build` + deferred manual check.
 - #17 + M2 overlap on sticky table work; implement sticky once to satisfy both.
-- M2-M8/L1-L5 now have child issues (#21-#28, created 2026-09-11 with verified line refs; M5 corrected — Topbar bell already 36px and out of scope).
+- M2-M8/L1-L5 now have child issues (#21-#28, created 2026-09-11 with verified line refs; M5 corrected: Topbar bell already 36px and out of scope).
 
 ## Next recommended issue
 
-None pending — finish #29, then push + owner batch verification.
+None pending. Finish #29, then push + owner batch verification.
 
-None — every audit item (H1–H4, M1–M8, L1–L5) is implemented and its child issue closed (#16–#28, epic checklist fully ticked). Remaining: owner batch verification (browser pass + screenshots) and push.
+None. Every audit item (H1–H4, M1–M8, L1–L5) is implemented and its child issue closed (#16–#28, epic checklist fully ticked). Remaining: owner batch verification (browser pass + screenshots) and push.

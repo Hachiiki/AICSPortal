@@ -1,4 +1,4 @@
-# ADR 0004 — Real grade audit log
+# ADR 0004. Real grade audit log
 
 Date: 2026-08-30
 

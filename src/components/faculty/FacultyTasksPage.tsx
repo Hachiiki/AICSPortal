@@ -535,7 +535,7 @@ export function FacultyTasksPage({
             <h3 className="text-sm font-semibold text-slate-900">Closed ({closedGroups.length})</h3>
             <p className="text-xs text-slate-500 mt-0.5">Done collecting. Reopen to accept work again.</p>
             {closedGroups.length === 0 ? (
-              <p className="text-xs text-slate-500 mt-3">Nothing closed yet — closed assignments will appear here.</p>
+              <p className="text-xs text-slate-500 mt-3">Nothing closed yet. Closed assignments will appear here.</p>
             ) : (
               <div className="space-y-3 mt-3">
                 {closedGroups.map((group) => {
@@ -577,7 +577,7 @@ export function FacultyTasksPage({
 
       {gradingGroup && (
         <Modal
-          title={<>Submissions — <span className="font-mono text-blue-700">{gradingGroup.subjectCode}</span> {gradingGroup.title}</>}
+          title={<>Submissions · <span className="font-mono text-blue-700">{gradingGroup.subjectCode}</span> {gradingGroup.title}</>}
           description={<>Due {formatDue(gradingGroup.dueDate)} • {gradingGroup.submitted}/{gradingGroup.total} submitted • {gradingGroup.graded} graded • {gradingGroup.maxScore} pts max. Scores show on the student side as soon as you save.</>}
           onClose={closeGrading}
           maxWidthClass="max-w-2xl"

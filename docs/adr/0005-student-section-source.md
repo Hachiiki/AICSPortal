@@ -1,4 +1,4 @@
-# ADR 0005 — Student section is source of truth
+# ADR 0005. Student section is source of truth
 
 Date: 2026-08-30
 

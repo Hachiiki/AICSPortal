@@ -1,4 +1,4 @@
-# ADR 0001 — Branch as field, not separate database
+# ADR 0001. Branch as field, not separate database
 
 Date: 2026-08-30
 

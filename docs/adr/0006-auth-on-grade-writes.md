@@ -1,4 +1,4 @@
-# ADR 0006 — Auth check on grade writes
+# ADR 0006. Auth check on grade writes
 
 Date: 2026-08-30
 
