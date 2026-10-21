@@ -82,9 +82,10 @@ describe('authz scopes', () => {
     })
   })
 
-  it('attendanceRows carries branch + sectionKey, LEGACY(H2): no ownership keys', () => {
-    // LEGACY(H2): client-supplied sectionKey, no ownership/roster keys.
-    // C3.4 adds the teachesSection requirement (issue #60).
+  it('attendanceRows carries branch + sectionKey (ownership gated by the policy)', () => {
+    // FIX-H2 (C3.4): the fragment shape is unchanged — ownership lives in
+    // the policy's teachesSection gate and roster validation lives in the
+    // route (issue #60).
     const frag = createScopes(facultyCtx).attendanceRows('CS 101|2026-2027|1st Sem')
     expect(frag).toEqual({ branch: 'commonwealth', sectionKey: 'CS 101|2026-2027|1st Sem' })
     expect(Object.keys(frag).sort()).toEqual(['branch', 'sectionKey'])

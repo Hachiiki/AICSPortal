@@ -31,10 +31,10 @@ MAT-LIST-STUDENT	studentA	GET	/api/materials	seeded	200	-	enrolled student list
 MAT-LIST-FACULTY	facultyX	GET	/api/materials	seeded	200	-	load-scoped faculty list
 MAT-FOREIGN-URL	facultyX	POST	/api/materials	seeded	200	-	M4: prefix-only URL check; flips 4xx at C3.7 (issue #64)
 ATT-READ-OWN	facultyX	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	200	-	own section read
-ATT-READ-OTHER	facultyY	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	200	-	H2: any faculty reads any section; flips at C3.4 (issue #60)
+ATT-READ-OTHER	facultyY	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	403	-	H2 fixed at C3.4: teachesSection required, faculty reads load-scoped (issue #60)
 ATT-WRITE-OWN	facultyX	POST	/api/attendance	seeded	200	-	own section write (roster member key)
-ATT-WRITE-OTHER	facultyY	POST	/api/attendance	seeded	200	-	H2: any faculty overwrites any section; flips 403 at C3.4 (issue #60)
-ATT-WRITE-ROGUE-KEY	facultyX	POST	/api/attendance	seeded	200	-	H2: records keys unvalidated; flips 4xx at C3.4 (issue #60)
+ATT-WRITE-OTHER	facultyY	POST	/api/attendance	seeded	403	-	H2 fixed at C3.4: teachesSection required, cross-faculty write denied (issue #60)
+ATT-WRITE-ROGUE-KEY	facultyX	POST	/api/attendance	seeded	400	contains:Records must only include students enrolled in this section	H2 fixed at C3.4: records keys roster-validated (issue #60)
 ATT-BRANCH-MISMATCH	facultyX	POST	/api/attendance	seeded	400	-	L2: 400 not 403; flips at C3.9 (issue #66)
 ATT-SPOOF	facultyX	POST	/api/attendance	seeded	403	-	spoof check
 NOTIF-SEND-OWN	facultyX	POST	/api/notifications	seeded	200	-	owned section fan-out
@@ -55,8 +55,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad9130cfa333ca20987a286/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad9130cfa333ca20987a286/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91513605b3dc841809234/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91513605b3dc841809234/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

@@ -215,8 +215,13 @@ export async function can(
       if (action === 'read') {
         if (ctx.actor.role !== 'faculty' && ctx.actor.role !== 'admin')
           return deny('role', 'Unauthorized: faculty or admin only')
-        // LEGACY(H2): no section ownership — any same-branch faculty reads
-        // any section. C3.4 adds teachesSection (issue #60).
+        // FIX-H2 (C3.4, issue #60): faculty reads are load-scoped — the
+        // section must be in the caller's teaching load (co-taught sections
+        // pass: the load query is the name match over professor-of-record
+        // rows). Admin keeps the branch-wide read, and the read path stays
+        // tolerant of historical off-roster usernames in stored records.
+        if (ctx.actor.role === 'faculty' && !(await rel.teachesSection(resource.sectionKey)))
+          return deny('notAssigned', 'You do not teach this section.')
         return allow()
       }
       if (action === 'update') {
@@ -226,8 +231,12 @@ export async function can(
         // This parity check is the DB-side twin the route runs after.
         if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
           return deny('branch', 'Branch mismatch')
-        // LEGACY(H2): no ownership or roster validation. C3.4 requires
-        // teachesSection and roster-validates records keys (issue #60).
+        // FIX-H2 (C3.4, issue #60): the section must be in the caller's
+        // teaching load — any same-branch faculty can no longer read or
+        // overwrite another faculty's sections. Record keys are
+        // roster-validated in the route.
+        if (!(await rel.teachesSection(resource.sectionKey)))
+          return deny('notAssigned', 'You do not teach this section.')
         return allow()
       }
       return deny('role', 'Not supported.')

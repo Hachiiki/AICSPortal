@@ -341,12 +341,20 @@ describe('task policies', () => {
 })
 
 describe('attendance policies', () => {
-  it('LEGACY(H2): any faculty/admin reads or writes any section (flips at C3.4)', async () => {
-    const rel = fakeRel()
-    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', facultyX, rel)
-    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', facultyY, rel)
-    await expectDeny({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', studentA, rel, 'role', 403)
-    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem', branch: 'commonwealth' }, 'update', facultyY, rel)
+  it('FIX-H2: reads and writes require the section in the teaching load (C3.4)', async () => {
+    // facultyX teaches CS 101; facultyY teaches CS 103 only (relY denies
+    // every section).
+    const relX = fakeRel({ teachesSection: async (key: string) => key === 'CS 101|2026-2027|1st Sem' })
+    const relY = fakeRel({ teachesSection: async () => false })
+    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', facultyX, relX)
+    // cross-faculty read denied — the C3.4 flip (was allowed pre-fix)
+    await expectDeny({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', facultyY, relY, 'notAssigned', 403)
+    await expectDeny({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', studentA, relX, 'role', 403)
+    // admin keeps the branch-wide read (not load-scoped)
+    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem' }, 'read', admin, relY)
+    await expectAllow({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem', branch: 'commonwealth' }, 'update', facultyX, relX)
+    // cross-faculty write denied — the core H2 flip (was allowed pre-fix)
+    await expectDeny({ kind: 'attendance', sectionKey: 'CS 101|2026-2027|1st Sem', branch: 'commonwealth' }, 'update', facultyY, relY, 'notAssigned', 403)
   })
 
   it('attendance update: role and branch parity denials', async () => {

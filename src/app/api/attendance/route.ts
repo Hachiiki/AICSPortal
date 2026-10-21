@@ -17,15 +17,17 @@ import { HttpError } from '@/lib/http'
 //  'present' or 'absent'.
 //
 //  GET /api/attendance?username=&sectionKey=[&date=]
-//    Faculty or admin of the same branch. LEGACY(H2): no section
-//    ownership — any same-branch faculty reads any section until
-//    FIX-H2 (C3.4, issue #60).
+//    Faculty or admin of the same branch. FIX-H2 (C3.4): faculty reads
+//    are load-scoped — the policy requires the section in the caller's
+//    teaching load; admin keeps the branch-wide read, and stored records
+//    with historical off-roster usernames still read (issue #60).
 //  POST /api/attendance
 //    Body: { branch, sectionKey, date, records, performedBy }
-//    Faculty only, same branch. Upserts the session. LEGACY(H2):
-//    no ownership or roster validation until C3.4. The L2 quirk
-//    (claimed branch vs the JWT branch claim answers 400, not the
-//    taxonomy's 403) stays route-kept until FIX-L2 (C3.9).
+//    Faculty only, same branch. FIX-H2 (C3.4): the section must be in
+//    the caller's teaching load (policy) and every records key must be
+//    an enrolled student of the section (roster validation below). The
+//    L2 quirk (claimed branch vs the JWT branch claim answers 400, not
+//    the taxonomy's 403) stays route-kept until FIX-L2 (C3.9).
 // ============================================================
 
 // ---- Zod input schemas (the only place attendance input is shaped) ----
@@ -57,10 +59,11 @@ export async function GET(request: NextRequest) {
   try {
     const { username: usernameParam, sectionKey, date } = parseQuery(request, attendanceGetQuerySchema)
     // C2.5: auth + username-self + role gates centralized
-    // (attendance read: faculty or admin, DB role; LEGACY(H2) no
-    // section ownership). The username query field rides the guard's
-    // spoof check; the branch-scoped query below stays route-kept
-    // (branch from the session claim, as today).
+    // (attendance read). FIX-H2 (C3.4): the policy also requires the
+    // section in a faculty caller's teaching load; admin reads stay
+    // branch-wide. The username query field rides the guard's spoof
+    // check; the branch-scoped query below stays route-kept (branch
+    // from the session claim, as today).
     const {
       ctx: { actor, claims },
     } = await requireCan(request, { kind: 'attendance', sectionKey }, 'read', {
@@ -119,13 +122,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: ATTENDANCE_REQUIRED }, { status: 400 })
     }
     // C2.5: faculty role + the DB-side branch parity twin centralized
-    // (attendance update; LEGACY(H2): no ownership or roster
-    // validation until C3.4).
+    // (attendance update). FIX-H2 (C3.4): the policy also requires the
+    // section in the caller's teaching load (issue #60).
     const gate = decisionToHttpError(
       await can(ctx, createRelations(ctx), { kind: 'attendance', sectionKey, branch }, 'update')
     )
     if (gate) throw gate
     const col = await getCollection('attendance')
+    // FIX-H2 (C3.4, issue #60): records keys must be enrolled students
+    // of the section. The roster is the subjects rows for the section
+    // key (same (field || '') term matching the relations use); the
+    // read path stays tolerant of historical off-roster usernames.
+    const [code, ay, sem] = sectionKey.split('|')
+    const subjectsCol = await getCollection('subjects')
+    const rosterRows = await subjectsCol
+      .find({ branch, code })
+      .project({ studentUsername: 1, academicYear: 1, semester: 1 })
+      .toArray()
+    const roster = new Set(
+      rosterRows
+        .filter((r: any) => (r.academicYear || '') === ay && (r.semester || '') === sem)
+        .map((r: any) => r.studentUsername)
+    )
+    const invalidKeys = Object.keys(records).filter((k) => !roster.has(k))
+    if (invalidKeys.length > 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Records must only include students enrolled in this section.',
+          invalidKeys,
+        },
+        { status: 400 }
+      )
+    }
     // BUG-017: unique index is created by seed/migration tooling, not per request.
     // BUG-015: silent overwrite guard — existing session requires explicit allowOverwrite.
     const existing = await col.findOne({ branch, sectionKey, date })

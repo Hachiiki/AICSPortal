@@ -52,11 +52,10 @@ export interface AuthzScopes {
    */
   subjectRows(code: string, term?: TermKey): SubjectRowsScope
   /**
-   * Write scope for attendance upserts.
-   * LEGACY(H2): client-supplied sectionKey with no ownership or
-   * roster-validated record keys — any same-branch faculty can currently
-   * overwrite any section. C3.4 requires teachesSection and roster validation
-   * (issue #60).
+   * Write scope for attendance upserts. FIX-H2 (C3.4): the sectionKey is
+   * ownership-gated by the policy (teachesSection) and record keys are
+   * roster-validated in the route; the fragment stays branch + sectionKey
+   * because the gate owns the ownership decision (issue #60).
    */
   attendanceRows(sectionKey: string): AttendanceRowsScope
   /** Plain branch tenancy for branch-scoped collections. */
