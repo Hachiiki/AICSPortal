@@ -57,18 +57,19 @@ describe('authz scopes', () => {
     })
   })
 
-  it('subjectRows carries branch + code, LEGACY(C1): no professor key', () => {
-    // LEGACY(C1): no professor key — same-branch faculty can touch any
-    // subject's rows. C3.1 adds professor: actor.fullName (issue #57).
+  it('subjectRows carries branch + code + the professor-of-record key (FIX-C1)', () => {
+    // FIX-C1 (C3.1): the professor key scopes the write filter to rows the
+    // actor teaches; falsy fullName fails closed (empty name matches no
+    // row) instead of reopening the branch-wide hole (issue #57).
     const frag = createScopes(facultyCtx).subjectRows('CS 101')
-    expect(frag).toEqual({ branch: 'commonwealth', code: 'CS 101' })
-    expect(frag).not.toHaveProperty('professor')
+    expect(frag).toEqual({ branch: 'commonwealth', code: 'CS 101', professor: 'Maria Reyes' })
   })
 
   it('subjectRows adds term keys only for non-empty term values', () => {
     expect(createScopes(facultyCtx).subjectRows('CS 101', T)).toEqual({
       branch: 'commonwealth',
       code: 'CS 101',
+      professor: 'Maria Reyes',
       academicYear: '2026-2027',
       semester: '1st Sem',
     })
@@ -76,6 +77,7 @@ describe('authz scopes', () => {
     expect(createScopes(facultyCtx).subjectRows('CS 101', { academicYear: '', semester: '1st Sem' })).toEqual({
       branch: 'commonwealth',
       code: 'CS 101',
+      professor: 'Maria Reyes',
       semester: '1st Sem',
     })
   })

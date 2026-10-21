@@ -77,9 +77,14 @@ export async function can(
       if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
-      // LEGACY(C1): no teaching-load check — any same-branch faculty can
-      // submit any subject's grades. C3.1 adds the teachesSubject gate and
-      // the professor key to the write scope (issue #57).
+      // FIX-C1 (C3.1, issue #57): only the subject's teaching faculty may
+      // submit its grades. The load query is requireTeachingFaculty's: a
+      // name match over professor-of-record rows under the actor's current
+      // term, so a co-teacher enumerated on any row passes. The write scope
+      // (subjectRows) carries the same professor key, so the filter is
+      // professor-scoped even if this gate is bypassed.
+      if (!(await rel.teachesSubject(resource.subjectCode)))
+        return deny('notAssigned', 'Subject is not in your current teaching load.')
       return allow()
     }
 

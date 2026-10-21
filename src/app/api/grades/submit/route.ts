@@ -30,10 +30,10 @@ export async function POST(request: NextRequest) {
       gradeSubmitSchema
     )
     // C2.5: session, spoof (performedBy), faculty role, and claimed
-    // branch parity centralized (grade.submit submit). LEGACY(C1):
-    // the policy has no teaching-load check and the write scope below
-    // carries no professor key — any same-branch faculty can submit
-    // any subject's grades until FIX-C1 (C3.1, issue #57).
+    // branch parity centralized (grade.submit submit). FIX-C1 (C3.1):
+    // the policy requires the subject in the caller's teaching load and
+    // the write scope below carries the professor-of-record key, so only
+    // the subject's teaching faculty can submit its grades (issue #57).
     const { ctx, scope } = await requireCan(
       request,
       {
@@ -49,8 +49,9 @@ export async function POST(request: NextRequest) {
 
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
-    // LEGACY(C1) write scope (scopes.ts): branch + code + conditional
-    // term keys, no professor-of-record key. C3.1 adds the key.
+    // Write scope (scopes.ts): branch + code + professor-of-record key
+    // (FIX-C1, C3.1) + conditional term keys — the filter only touches
+    // rows the actor teaches (issue #57).
     const query = scope.subjectRows(subjectCode, {
       academicYear: academicYear ?? '',
       semester: semester ?? '',

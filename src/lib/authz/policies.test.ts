@@ -128,17 +128,28 @@ describe('student surface policies', () => {
 })
 
 describe('grade policies', () => {
-  it('LEGACY(C1): submit has no teaching-load check (flips at C3.1)', async () => {
-    // facultyX submitting CS 103 (facultyY's subject) is ALLOWED today.
-    const rel = ownRel('other')
+  it('FIX-C1: submit requires the subject in the teaching load (C3.1)', async () => {
+    // facultyY (teaches CS 103) submits own subject: allowed.
+    const relY = fakeRel({ teachesSubject: async (code: string) => code === 'CS 103' })
     await expectAllow(
       { kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'commonwealth' },
       'submit',
-      facultyX,
-      rel
+      facultyY,
+      relY
     )
-    await expectDeny({ kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'commonwealth' }, 'submit', studentA, rel, 'role', 403)
-    await expectDeny({ kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'novaliches' }, 'submit', facultyX, rel, 'branch', 403)
+    // facultyX (teaches CS 101 only) cross-faculty submit: denied — the
+    // C1 flip (this was allowed before C3.1, the finding's core row).
+    const relX = fakeRel({ teachesSubject: async (code: string) => code === 'CS 101' })
+    await expectDeny(
+      { kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'commonwealth' },
+      'submit',
+      facultyX,
+      relX,
+      'notAssigned',
+      403
+    )
+    await expectDeny({ kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'commonwealth' }, 'submit', studentA, relY, 'role', 403)
+    await expectDeny({ kind: 'grade.submit', subjectCode: 'CS 103', term: T, branch: 'novaliches' }, 'submit', facultyX, relX, 'branch', 403)
   })
 
   it('grade.period update: own draft row allowed', async () => {

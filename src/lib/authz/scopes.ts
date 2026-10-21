@@ -29,6 +29,7 @@ export interface TeachingLoadScope {
 export interface SubjectRowsScope {
   branch: Branch
   code: string
+  professor: string
   academicYear?: string
   semester?: string
 }
@@ -44,10 +45,10 @@ export interface AuthzScopes {
   /** The actor's teaching load; term keys only when a term is passed (faculty roster vs term-scoped reads). */
   teachingLoad(term?: TermKey): TeachingLoadScope
   /**
-   * Write scope for one subject's rows (grades/submit).
-   * LEGACY(C1): no professor key — any same-branch faculty can currently
-   * submit any subject's grades. C3.1 adds the professor-of-record key
-   * (issue #57).
+   * Write scope for one subject's rows (grades/submit). FIX-C1 (C3.1):
+   * carries the professor-of-record key (issue #57) — the write filter
+   * touches only rows the actor teaches, fail-closed on a falsy fullName
+   * (an empty name matches no row).
    */
   subjectRows(code: string, term?: TermKey): SubjectRowsScope
   /**
@@ -84,6 +85,11 @@ export function createScopes(ctx: AuthzContext): AuthzScopes {
     subjectRows: (code, term) => ({
       branch: actor.branch,
       code,
+      // FIX-C1 (C3.1): unconditional professor-of-record key. Unconditional
+      // on purpose: omitting it on a falsy fullName would reopen the C1
+      // hole; an empty name matches no subject row, so the scope fails
+      // closed (issue #57).
+      professor: actor.fullName,
       ...termKeys(term),
     }),
 
