@@ -88,7 +88,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
           setFaceState('verifying')
           setTimeout(() => {
             setFaceState('success')
-            toast.success('Demo login starting — no face data was collected or stored.')
+            toast.success('Demo login starting. No face data was collected or stored.')
             // Face ID is a MOCK (no biometric matching) — dev-only demo login.
             // Phase 6: the server issues the demo session; no creds in the bundle.
             if (process.env.NODE_ENV !== 'development') {

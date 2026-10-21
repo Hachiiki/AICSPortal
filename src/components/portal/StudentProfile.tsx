@@ -166,7 +166,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                     </span>
                     {student.deanLister && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
-                        <Star className="w-3.5 h-3.5" /> Dean&rsquo;s Lister
+                        <Star className="w-3.5 h-3.5" /> Dean's Lister
                       </span>
                     )}
                   </div>

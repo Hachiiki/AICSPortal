@@ -120,7 +120,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         <div className="absolute bottom-0 left-0 right-0 px-6 sm:px-10 lg:px-14 pb-10 lg:pb-14 flex items-center gap-2 text-[11px] text-white/70">
           <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden />
           <span>
-            An independent student project — not affiliated with or endorsed by AICS.
+            An independent student project. Not affiliated with or endorsed by AICS.
           </span>
         </div>
       </section>

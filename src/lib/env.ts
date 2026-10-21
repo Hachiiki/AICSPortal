@@ -49,7 +49,7 @@ export function getAuthSecret(): Uint8Array {
     )
   }
   console.warn(
-    '[env] AUTH_SECRET missing — using insecure dev fallback. Set AUTH_SECRET for any shared deploy.'
+    '[env] AUTH_SECRET missing, using insecure dev fallback. Set AUTH_SECRET for any shared deploy.'
   )
   return new TextEncoder().encode(DEV_FALLBACK_SECRET)
 }
@@ -72,7 +72,7 @@ export function getMongoEnv(): MongoEnv {
   // Staging must never land on the production database by accident.
   const dbName = appEnv === 'staging' ? 'aics_portal_staging' : 'aics_portal'
   if (appEnv !== 'development') {
-    console.warn(`[env] MONGODB_DB not set — defaulting to "${dbName}" for ${appEnv}. Set it explicitly.`)
+    console.warn(`[env] MONGODB_DB not set, defaulting to "${dbName}" for ${appEnv}. Set it explicitly.`)
   }
   return { uri, dbName }
 }

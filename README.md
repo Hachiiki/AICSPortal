@@ -54,12 +54,12 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - **Previous Records**: released grades from past terms with search, filters, and CSV export
 
 ### Admin
-- **Dashboard**: school-wide stats across every branch — enrollment counts by status/year/program, GPA distribution over released final grades, fee collection status, per-branch overview, upcoming events, recent announcements
+- **Dashboard**: school-wide stats across every branch: enrollment counts by status/year/program, GPA distribution over released final grades, fee collection status, per-branch overview, upcoming events, recent announcements
 - **Release Queue**: every submitted period per subject and term with student counts, one-click release
 - **Students & Faculty**: cross-branch people directory with role chips, branch filter, search, sortable columns, CSV export
 - **Professors**: directory CRUD with duplicate-name guards and rename warnings
 - **Events**: branch calendar CRUD (add/edit/delete, category + upcoming/past filters)
-- **Announcements**: manage every post — active and expired — with edit, single and bulk delete
+- **Announcements**: manage every post, active and expired, with edit, single and bulk delete
 - **Enrollment**: step-tracker overrides with live preview, payment recording capped at the remaining balance, full-record view with payment history
 
 ### Sign-in experience
@@ -69,9 +69,9 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, proxy enforcement (`src/proxy.ts`) on every `/api` and `/portal` route
 - **scrypt password hashing** with automatic upgrade of legacy plaintext accounts on next login
 - **Tiered rate limiting** on every `/api` request, enforced ahead of the session gate: 100/5 min per IP on the auth routes, 300/5 min reads and 120/5 min writes per session, plus failure-based throttles on login and password change
-- **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist — violations return 422 and every decision is logged
+- **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist, violations return 422 and every decision is logged
 - **Zod validation** on every route; unknown keys are stripped, operator objects can never reach Mongo filters
-- **Error boundaries** at every level — per-view retry card, segment, root, global — the shell survives a crashing view
+- **Error boundaries** at every level: per-view retry card, segment, root, global. The shell survives a crashing view
 - **Branch scoping** on every query, IDOR guards on every read and write
 - **Grade audit log**: every encode, submit, and release writes a `grade_audits` row
 - **Cloudinary signed uploads** for avatars and course materials (secret never leaves the server; link-only mode works without Cloudinary configured)
@@ -159,7 +159,7 @@ node --experimental-strip-types scripts/seed-mongodb.ts
 
 The script auto-loads `.env.local` and populates the **commonwealth** branch: 77 scrypt-hashed accounts (students, faculty, admin), subjects with per-period grade statuses, courses, schedule sessions, tasks, events, announcements, notifications, and one released prior term so Previous Records is not empty.
 
-**Seed logins:** the dev branch's `CLAUDE.md` documents the demo usernames/passwords for local testing. They are intentionally kept out of this public README — if the seed script ever ran against a shared or production database, published plaintext credentials would make every seeded account trivially compromisable. Never reuse seed credentials outside a throwaway local database.
+**Seed logins:** the dev branch's `CLAUDE.md` documents the demo usernames/passwords for local testing. They are intentionally kept out of this public README, if the seed script ever ran against a shared or production database, published plaintext credentials would make every seeded account trivially compromisable. Never reuse seed credentials outside a throwaway local database.
 
 ### 5. Run the development server
 
@@ -175,7 +175,7 @@ Other useful commands: `npm run build` (production build), `npm run lint` (ESLin
 
 ### Logging in
 
-Enter a username and password. The login route verifies the scrypt hash, issues a signed session cookie, and the app routes by role: students land on the student dashboard, faculty on the faculty workspace, admin on the admin dashboard. Between login and the portal you'll see the Route Trail — a progress animation that follows the real state of each sign-in stage (credentials, branch detection, portal data) before the workspace assembles around the loaded dashboard. Logout revokes the session instantly (it bumps `tokenVersion` in the database, killing every previously issued token for that account).
+Enter a username and password. The login route verifies the scrypt hash, issues a signed session cookie, and the app routes by role: students land on the student dashboard, faculty on the faculty workspace, admin on the admin dashboard. Between login and the portal you'll see the Route Trail, a progress animation that follows the real state of each sign-in stage (credentials, branch detection, portal data) before the workspace assembles around the loaded dashboard. Logout revokes the session instantly (it bumps `tokenVersion` in the database, killing every previously issued token for that account).
 
 ### As a student (`juan.santos`)
 
@@ -204,7 +204,7 @@ Enter a username and password. The login route verifies the scrypt hash, issues 
 
 The source files carry these explanations as comments in place. These are the actual excerpts.
 
-### Sessions — `src/lib/session.ts`
+### Sessions: `src/lib/session.ts`
 
 Login issues a signed JWT in an httpOnly cookie. Every API route derives identity from the session, never from caller-supplied strings.
 
@@ -221,7 +221,7 @@ export async function signSession(claims: SessionClaims): Promise<string> {
 
 The `tv` claim is the revocation counter. It is compared against the user's current `tokenVersion` in the database on every authed request. Logout and password change bump the database value, instantly killing all previously issued tokens.
 
-### Route protection — `src/proxy.ts`
+### Route protection: `src/proxy.ts`
 
 Every `/api` route except the three auth entry points requires a valid session cookie. `/portal` pages bounce anonymous visitors to the login view.
 
@@ -234,7 +234,7 @@ if (!session) {
 
 When a caller also supplies a legacy identity string (`username` / `performedBy`), `spoofCheck` requires it to match the session or the request is rejected as a spoof attempt.
 
-### Password verification — `src/lib/password.ts`
+### Password verification: `src/lib/password.ts`
 
 Hashes use Node's `scrypt` in the format `scrypt$<saltHex>$<hashHex>` with a timing-safe compare. Legacy plaintext accounts still verify, and get upgraded to a hash on that same login.
 
@@ -245,7 +245,7 @@ if (stored === plain) {
 }
 ```
 
-### Grade workflow and the release gate — `src/app/api/student/route.ts`
+### Grade workflow and the release gate: `src/app/api/student/route.ts`
 
 Grades move through per-period statuses: teacher saves a period as `draft`, submits it as `submitted`, admin releases it as `released`. Students only ever see released periods, from the student API:
 
@@ -258,7 +258,7 @@ midterm: midtermStatus === 'released' ? x.midterm : '-',
 
 Every encode, submit, and release appends a row to the `grade_audits` collection (who, what, old value, new value, when) which feeds the History drawer in Grade Encoding.
 
-### Task fan-out — `src/app/api/tasks/route.ts`
+### Task fan-out: `src/app/api/tasks/route.ts`
 
 One task document is inserted per enrolled student, so each student's submission, score, and feedback stay independent, and closing submissions flips every copy at once:
 
@@ -274,7 +274,7 @@ const docs: MongoTask[] = usernames.map((studentUsername) => ({
 
 Teaching-load is enforced server-side: the `requireTeachingFaculty` helper checks that the session user is faculty, in the same branch, and actually teaches that subject this term.
 
-### Task grading — `src/app/api/tasks/[taskId]/grade/route.ts`
+### Task grading: `src/app/api/tasks/[taskId]/grade/route.ts`
 
 Faculty grade a single student's task with a score (validated against `maxScore`) and optional feedback. From the route header:
 
@@ -289,7 +289,7 @@ Decision (plan non-goal, refs #32): task scores do NOT write
 grade_audits rows. Tasks are not grades.
 ```
 
-### Materials uploads — `src/app/api/materials/sign/route.ts`
+### Materials uploads: `src/app/api/materials/sign/route.ts`
 
 Files upload straight from the browser to Cloudinary using a server-signed signature, so the API secret never reaches the client. From the route header:
 
@@ -304,16 +304,16 @@ and the link-only flow remains available.
 
 Files are capped at 10 MB with a type allowlist, and deletes destroy the Cloudinary asset with CDN invalidation.
 
-### Content moderation — `src/lib/moderation/`
+### Content moderation: `src/lib/moderation/`
 
-Every persisting write route calls `moderateContent()` next to the Zod layer — announcements, section notifications, tasks, materials, and profile fields:
+Every persisting write route calls `moderateContent()` next to the Zod layer: announcements, section notifications, tasks, materials, and profile fields:
 
 ```ts
 const verdict = await moderateContent({ surface: 'announcement', fields: { title, body }, actor })
 if (!verdict.ok) return verdict.response  // 422 naming the rule that fired
 ```
 
-Three category matchers (profanity, harassment, sexual content) run against English + Filipino datasets, URLs are classified against a trusted-domain policy, and an allowlist guards legitimate substrings. The per-surface policy decides reject vs flag-for-review, and every decision lands in `moderation_logs`. The check runs before every insert — a crafted direct API call can never persist flagged content.
+Three category matchers (profanity, harassment, sexual content) run against English + Filipino datasets, URLs are classified against a trusted-domain policy, and an allowlist guards legitimate substrings. The per-surface policy decides reject vs flag-for-review, and every decision lands in `moderation_logs`. The check runs before every insert, a crafted direct API call can never persist flagged content.
 
 ---
 
@@ -422,11 +422,11 @@ caddy run
 
 ## What's next
 
-- **Dark mode toggle** — CSS infrastructure exists, deferred by the owner
+- **Dark mode toggle**: CSS infrastructure exists, deferred by the owner
 - **Real face recognition** via face-api.js (the Face ID login is currently a mock convenience layer)
 - **In/Out log** stays a disabled placeholder until a campus entry/exit data source exists
-- **Filipino moderation reviewer sign-off** — a native-speaker pass over the category tags and regional homographs (decision records on the dev branch)
-- **Operational**: the rate limiter is in-memory per instance, fine at school scale — swap in Redis/Upstash before scaling out
+- **Filipino moderation reviewer sign-off**: a native-speaker pass over the category tags and regional homographs (decision records on the dev branch)
+- **Operational**: the rate limiter is in-memory per instance, fine at school scale, swap in Redis/Upstash before scaling out
 
 ---
 
@@ -434,7 +434,7 @@ caddy run
 
 This is an independent project. AICS did not sponsor, fund, commission, or endorse it, and no school office was involved in building it. The author is a student who wrote it for a course covering system information applications, starting from the things the campus was missing: grade reports printed by hand, scores shuffled between spreadsheets, no single place for schedules, tasks, or documents.
 
-- **Wilard James Paluga** ([@Hachiiki](https://github.com/Hachiiki)): author and maintainer
+- **Willard James Paluga** ([@Hachiiki](https://github.com/Hachiiki)): author and maintainer
 - The original design notes and project paper (the author's source material) are preserved on the dev branch (`main-full-dev`) and in git history
 - Built with [Next.js](https://nextjs.org/), [shadcn/ui](https://ui.shadcn.com/), [Tailwind CSS](https://tailwindcss.com/), [MongoDB](https://www.mongodb.com/), and [Cloudinary](https://cloudinary.com/)
 
@@ -442,7 +442,7 @@ This is an independent project. AICS did not sponsor, fund, commission, or endor
 
 ## License
 
-Copyright (c) 2026 Wilard James Paluga. All Rights Reserved.
+Copyright (c) 2026 Willard James Paluga. All Rights Reserved.
 
 This project and its source code are proprietary.
 

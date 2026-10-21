@@ -268,7 +268,7 @@ export function FacultyPreviousRecordsPage({
                             {s.assignment === 'current' ? (
                               <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Currently teaching</span>
                             ) : (
-                              <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Former — not currently assigned</span>
+                              <span className="text-[11px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Former · not currently assigned</span>
                             )}
                           </div>
                           <div className="flex items-center gap-3 mt-1.5 flex-wrap text-[11px] text-slate-500">
@@ -330,7 +330,7 @@ export function FacultyPreviousRecordsPage({
             >
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div>
-                  <h3 className="font-bold text-sm text-slate-900">{selectedSection.code} — {selectedSection.title}</h3>
+                  <h3 className="font-bold text-sm text-slate-900">{selectedSection.code} · {selectedSection.title}</h3>
                   <p className="text-xs text-slate-500">{selectedSection.ay} {selectedSection.sem} • read-only</p>
                 </div>
                 <button
