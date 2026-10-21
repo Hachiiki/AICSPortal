@@ -588,7 +588,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
             </div>
             <div>
               <label htmlFor="ann-expiry" className="block text-xs font-semibold text-slate-600 mb-1">
-                Expiry date <span className="font-normal text-slate-500">(optional — hidden from the deck after this date)</span>
+                Expiry date <span className="font-normal text-slate-500">(optional, hidden from the deck after this date)</span>
               </label>
               <input
                 id="ann-expiry"

@@ -1,9 +1,12 @@
 // Single source of truth for legal-surface facts shared by the policy
 // pages, the cookie banner, and in-app footers. Every date and contact
-// here is operator-maintained — update this file, not the pages.
+// here is operator-maintained. Update this file, not the pages.
 
 export const LEGAL = {
-  operatorName: 'Wilard James Paluga',
+  // Spelled to match the owner's git/GitHub identity ("Willard", as in
+  // DevBanner and the git author name). The README previously carried
+  // "Wilard"; verify against a government ID and align if wrong.
+  operatorName: 'Willard James Paluga',
   operatorEmail: 'ninonakano408@gmail.com',
   operatorRole: 'independent developer and site operator',
   // Keep in sync with the commit that ships a policy change.

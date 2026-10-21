@@ -522,7 +522,7 @@ function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: T
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-600" aria-hidden />
-            <h3 className="font-bold text-sm text-slate-900">Wait — read this first</h3>
+            <h3 className="font-bold text-sm text-slate-900">Read this first</h3>
           </div>
           <button type="button" onClick={onCancel} aria-label="Close submission warning" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"><X className="w-4 h-4" aria-hidden /></button>
         </div>
@@ -535,7 +535,7 @@ function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: T
         <div className="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end">
           <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-sm font-medium border border-slate-200 text-slate-600 hover:bg-slate-50">Cancel</button>
           <button type="button" onClick={onConfirm} disabled={submitting} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60">
-            {submitting ? 'Submitting…' : 'I passed the paper — Submit'}
+            {submitting ? 'Submitting…' : 'I passed the paper · Submit'}
           </button>
         </div>
       </DialogPanel>
@@ -565,7 +565,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
         <div className="px-6 py-5 space-y-3">
           <DetailRow label="Title" value={task.title} />
           <DetailRow label="Type" value={task.type} />
-          <DetailRow label="Subject" value={`${task.subjectCode} — ${subjectName}`} />
+          <DetailRow label="Subject" value={`${task.subjectCode} · ${subjectName}`} />
           <DetailRow label="Due Date" value={new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
           {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
           <DetailRow label="Status" value={STATUS_LABELS[status]} />

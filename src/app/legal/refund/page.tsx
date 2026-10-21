@@ -5,7 +5,7 @@ import { LEGAL } from '@/lib/legal/site'
 export const metadata: Metadata = {
   title: 'Refund Policy | AICS Portal',
   description:
-    'AICS Portal charges nothing and collects no payments — how school fees and refunds actually work.',
+    'AICS Portal charges nothing and collects no payments. Here is how school fees and refunds actually work.',
 }
 
 export default function RefundPage() {
@@ -26,11 +26,11 @@ export default function RefundPage() {
       <p>
         The enrollment screen displays tuition assessments, posted payments, and balances that
         branch staff have encoded, so you can check your own standing. These figures are
-        informational copies of the school&rsquo;s records — the school, not the portal, decides
-        what you owe. All actual payments happen through the school&rsquo;s official cashier or
-        collection channels. The portal never asks for, sees, or stores card numbers, bank details,
-        or receipts&rsquo; payment credentials; a payment note may reference an official receipt
-        number, which is display text only.
+        informational copies of the school's records. The school, not the portal, decides
+        what you owe. All actual payments happen through the school's official cashier or
+        collection channels. The portal never asks for, sees, or stores card numbers, bank
+        details, or payment credentials of any kind; a payment note may reference an official
+        receipt number, which is display text only.
       </p>
 
       <h2 id="refunds">2. Requesting a refund of school fees</h2>
@@ -40,21 +40,21 @@ export default function RefundPage() {
         education regulations. To pursue one:
       </p>
       <ul>
-        <li>contact your branch&rsquo;s cashier or business office with your official receipts; and</li>
+        <li>contact your branch's cashier or business office with your official receipts; and</li>
         <li>
-          escalate to the registrar&rsquo;s office if the dispute concerns assessment amounts,
+          escalate to the registrar's office if the dispute concerns assessment amounts,
           enrollment withdrawal, or the refund timeline.
         </li>
       </ul>
       <p>
-        The portal&rsquo;s operator cannot reverse, guarantee, or expedite any school-side refund,
+        The portal's operator cannot reverse, guarantee, or expedite any school-side refund,
         and no balance displayed in the portal binds the school.
       </p>
 
       <h2 id="changes">3. If this ever changes</h2>
       <p>
         If the portal ever introduces an optional paid feature, this policy will be updated with
-        pricing, cancellation, and refund terms before any payment can be made — the payment page
+        pricing, cancellation, and refund terms before any payment can be made. The payment page
         itself would carry those terms, and nothing would be charged without an explicit action
         from you. For anything else, the <a href="/legal/terms">Terms &amp; Conditions</a> and{' '}
         <a href="/legal/privacy">Privacy Policy</a> apply. Questions can be sent to{' '}

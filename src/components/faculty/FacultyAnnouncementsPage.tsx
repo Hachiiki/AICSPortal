@@ -363,7 +363,7 @@ export function FacultyAnnouncementsPage({
                             <div key={sec.sectionKey} className="px-3 py-2 border-b border-slate-100 last:border-b-0">
                               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                                 {sec.subjectCode}
-                                {sec.sectionNames.length > 0 && ` — ${sec.sectionNames.join(', ')}`} · {sec.count}{' '}
+                                {sec.sectionNames.length > 0 && ` · ${sec.sectionNames.join(', ')}`} · {sec.count}{' '}
                                 {sec.count === 1 ? 'student' : 'students'}
                               </p>
                               <ul className="space-y-1">
@@ -432,7 +432,7 @@ export function FacultyAnnouncementsPage({
             </>
           )}
           {sentError && sent && (
-            <p className="text-xs text-red-600 text-center">{sentError} — the list above may be stale.</p>
+            <p className="text-xs text-red-600 text-center">{sentError}. The list above may be stale.</p>
           )}
         </div>
         </div>

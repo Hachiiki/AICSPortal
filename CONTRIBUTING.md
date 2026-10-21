@@ -90,7 +90,7 @@ npm run lint
 npm run typecheck
 ```
 
-CI runs both on every pull request, plus a production whitelist guard — PRs into `main` must only touch source and root config files (dev tooling lives on the dev branch).
+CI runs both on every pull request, plus a production whitelist guard. PRs into `main` must only touch source and root config files (dev tooling lives on the dev branch).
 
 ---
 
@@ -105,7 +105,7 @@ CI runs both on every pull request, plus a production whitelist guard — PRs in
 
 2. **Make your changes.** Keep commits focused and atomic.
 
-3. **Test your changes** — verify the dev server still runs, the linter passes, and types check:
+3. **Test your changes**: verify the dev server still runs, the linter passes, and types check:
    ```bash
    npm run lint
    npm run typecheck
@@ -160,7 +160,7 @@ refactor(schedule): extract grid constants to lib/schedule.ts
    - **Why** the change is needed
    - **How** to test it
 4. Link any related issues with `Fixes #<issue>` or `Closes #<issue>`.
-5. Keep PRs small and focused — one logical change per PR is ideal.
+5. Keep PRs small and focused. One logical change per PR is ideal.
 6. A maintainer will review your PR and may request changes before merging.
 
 ---
@@ -169,10 +169,10 @@ refactor(schedule): extract grid constants to lib/schedule.ts
 
 If you find a bug, please [open an issue](https://github.com/Hachiiki/AICSPortal/issues/new) with the following information:
 
-- **Description** — what happened and what you expected to happen
-- **Steps to reproduce** — how to trigger the bug
-- **Environment** — OS, browser, Node.js version
-- **Screenshots** — if applicable, include a screenshot or screen recording
+- **Description**: what happened and what you expected to happen
+- **Steps to reproduce**: how to trigger the bug
+- **Environment**: OS, browser, Node.js version
+- **Screenshots**: if applicable, include a screenshot or screen recording
 
 ---
 
@@ -184,7 +184,7 @@ Feature requests are welcome! Please [open an issue](https://github.com/Hachiiki
 - **Your proposed solution** (if you have one)
 - **Any alternatives** you've considered
 
-Check the roadmap on the dev branch (`main-full-dev`) first — your idea may already be planned.
+Check the roadmap on the dev branch (`main-full-dev`) first. Your idea may already be planned.
 
 ---
 

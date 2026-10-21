@@ -39,9 +39,9 @@ export const metadata: Metadata = {
   // src/lib/aics/page-titles.ts ("Dashboard | AICS Portal", ...).
   title: "Login | AICS Portal",
   description:
-    "Student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS) — an independent, student-built project.",
+    "Student, faculty, and staff portal for the Asian Institute of Computer Studies (AICS). An independent, student-built project.",
   keywords: ["AICS", "Asian Institute of Computer Studies", "portal", "login", "student portal"],
-  authors: [{ name: "Wilard James Paluga" }],
+  authors: [{ name: "Willard James Paluga" }],
   icons: {
     icon: "/aics-logo.svg",
   },
@@ -62,8 +62,8 @@ export default function RootLayout({
         {children}
         <Toaster richColors position="bottom-right" />
         {/* Analytics beacons are cookieless but still send usage events
-            to Vercel (US) — consent-gated, off until opt-in. See
-            /legal/cookies. */}
+            to Vercel (US), so they are consent-gated and off until
+            opt-in. See /legal/cookies. */}
         <ConsentGate>
           <Analytics />
           <SpeedInsights />

@@ -362,7 +362,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-900">{student.fullName}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">PNG, JPG, or WebP — square photos work best. Shown on your profile, ID, and top bar.</p>
+                    <p className="text-xs text-slate-500 mt-0.5">PNG, JPG, or WebP. Square photos work best. Shown on your profile, ID, and top bar.</p>
                     <label className="flex items-start gap-2 mt-2.5 cursor-pointer select-none">
                       <input
                         type="checkbox"
@@ -667,7 +667,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                     JSON file, generated on demand.
                   </p>
                   <a
-                    href={`mailto:${LEGAL.operatorEmail}?subject=${encodeURIComponent('AICS Portal — data deletion request')}&body=${encodeURIComponent(`Please delete or deactivate my account data.\n\nUsername: ${student.username}\nBranch: ${student.branch}\n\n(You may be asked to verify your identity before the request is processed.)`)}`}
+                    href={`mailto:${LEGAL.operatorEmail}?subject=${encodeURIComponent('AICS Portal data deletion request')}&body=${encodeURIComponent(`Please delete or deactivate my account data.\n\nUsername: ${student.username}\nBranch: ${student.branch}\n\n(You may be asked to verify your identity before the request is processed.)`)}`}
                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     <Trash2 className="w-4 h-4" aria-hidden />

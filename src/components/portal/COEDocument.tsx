@@ -182,7 +182,7 @@ export function COEDocument({ student }: COEDocumentProps) {
 
       <p className="mb-8 pl-8 text-sm text-justify" style={{ color: PALETTE.navy }}>
         This document was generated at the request of the above-named student and reflects the
-        portal&rsquo;s records at the time of generation. It is not a certified school document and
+        portal's records at the time of generation. It is not a certified school document and
         must not be presented as one; official certificates are issued only by the Office of the
         Registrar.
       </p>

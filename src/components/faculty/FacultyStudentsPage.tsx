@@ -559,7 +559,7 @@ export function FacultyStudentsPage({
                 onChange={(v) => { setSectionFilter(v); resetPage() }}
                 options={[
                   { value: 'all', label: `All sections (${sections.length})` },
-                  ...sections.map((s) => ({ value: s.key, label: `${s.subjectCode} — ${s.room} • ${s.schedule}` })),
+                  ...sections.map((s) => ({ value: s.key, label: `${s.subjectCode} · ${s.room} • ${s.schedule}` })),
                 ]}
               />
             </div>
@@ -817,7 +817,7 @@ export function FacultyStudentsPage({
                     <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
                     <div
                       aria-disabled="true"
-                      title="Coming soon — needs a campus entry/exit data source"
+                      title="Coming soon. Needs a campus entry/exit data source"
                       className="h-9 rounded-lg border border-slate-200 bg-slate-50 font-medium inline-flex items-center justify-center gap-1.5 cursor-not-allowed select-none text-slate-500"
                     >
                       In/Out log
@@ -860,7 +860,7 @@ export function FacultyStudentsPage({
                     <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                       <div className="min-w-0">
                         <h3 className="font-bold text-sm text-slate-900">Attendance history</h3>
-                        <p className="text-xs text-slate-500 truncate">{sec ? `${sec.subjectCode} — ${sec.subjectTitle} • ${sec.room}` : historyKey}</p>
+                        <p className="text-xs text-slate-500 truncate">{sec ? `${sec.subjectCode} · ${sec.subjectTitle} • ${sec.room}` : historyKey}</p>
                       </div>
                       <button type="button" onClick={() => setHistoryKey(null)} aria-label="Close attendance history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
                     </div>
@@ -947,7 +947,7 @@ export function FacultyStudentsPage({
 
       {messageSec && (
         <Modal
-          title={<>Message section — <span className="font-mono text-blue-700">{messageSec.subjectCode}</span></>}
+          title={<>Message section · <span className="font-mono text-blue-700">{messageSec.subjectCode}</span></>}
           description={<>To every enrolled student in <span className="font-medium text-slate-700">{messageSec.subjectTitle} • {messageSec.room}</span>. Lands in their bell inbox; read state persists there.</>}
           onClose={closeMessage}
           footer={
@@ -989,7 +989,7 @@ export function FacultyStudentsPage({
 
       {materialsSec && (
         <Modal
-          title={<>Materials — <span className="font-mono text-blue-700">{materialsSec.subjectCode}</span></>}
+          title={<>Materials · <span className="font-mono text-blue-700">{materialsSec.subjectCode}</span></>}
           description={<>Files upload to the portal's Cloudinary folder; links post as-is. Enrolled students see both under Academics → Materials.</>}
           onClose={closeMaterials}
           maxWidthClass="max-w-2xl"

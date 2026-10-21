@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
         branch,
         studentUsername,
         title: `New ${type}: ${title}`,
-        body: trimmedDesc ? `${subjectCode} — due ${dueLabel} — ${trimmedDesc.slice(0, 140)}` : `${subjectCode} — due ${dueLabel}`,
+        body: trimmedDesc ? `${subjectCode} · due ${dueLabel} · ${trimmedDesc.slice(0, 140)}` : `${subjectCode} · due ${dueLabel}`,
         fromName: performer.fullName,
         fromUsername: session.username,
         sectionKey,
