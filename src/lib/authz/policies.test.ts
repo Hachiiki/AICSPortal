@@ -104,6 +104,9 @@ describe('student surface policies', () => {
     await expectAllow({ kind: 'student.profile', username: 'juan.santos' }, 'read', studentA, rel)
     await expectAllow({ kind: 'student.profile', username: 'juan.santos' }, 'read', facultyX, rel)
     await expectDeny({ kind: 'student.profile', username: 'pedro.vasquez' }, 'read', facultyX, rel, 'notOwner', 403)
+    // FIX-L1 (C3.8): absent usernames deny identically to cross-branch
+    // ones — the oracle is masked at the policy layer.
+    await expectDeny({ kind: 'student.profile', username: 'ghost.user' }, 'read', facultyX, rel, 'notOwner', 403)
     await expectDeny({ kind: 'student.profile', username: 'juan.santos' }, 'read', ctxFor({ username: 'studentB', role: 'student' }), rel, 'notOwner', 403)
   })
 

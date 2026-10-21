@@ -16,8 +16,12 @@ import type { Task } from '@/lib/aics/tasks'
 export async function GET(request: NextRequest) {
   try {
     // C2.4: canonical actor off the DB doc (the FIX-M2 flip rides on
-    // the staff gate, issue #62). The route keeps its lookup-first
-    // ordering (404 before the staff gate, L1 pattern).
+    // the staff gate, issue #62). FIX-L1 (C3.8, issue #65): the policy
+    // gate now runs BEFORE the student lookup — the 404 oracle is
+    // closed. Non-staff callers get the uniform notOwner 403 whether
+    // the username exists or not; the 404 below fires post-gate for
+    // authorized staff only (task.list's staff path is role-based, so
+    // existence is learned only after authorization).
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
@@ -26,16 +30,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
 
-    const student = await getStudentByUsername(username)
-    if (!student) {
-      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-    }
-
     // C2.4: self-or-staff gate centralized (task.list read; DB role).
     const gate = decisionToHttpError(
       await can(ctx, createRelations(ctx), { kind: 'task.list', studentUsername: username }, 'read')
     )
     if (gate) throw gate
+
+    const student = await getStudentByUsername(username)
+    if (!student) {
+      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
+    }
     // Route-kept: staff reads of another student's tasks stay
     // same-branch (student.branch vs the JWT branch claim, as today).
     if (student.username !== ctx.actor.username && student.branch !== ctx.claims.branch) {

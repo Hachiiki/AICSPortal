@@ -207,7 +207,8 @@ sc DEMO-LOGIN none POST /api/auth/demo seeded - - - "demo login gated off in pro
 # --- student surface ---
 sc STU-READ-SELF studentA GET "/api/student?username=juan.santos" seeded 200 - 'contains:Juan Dela Cruz Santos' "positive control"
 sc STU-READ-OTHER-STU studentB GET "/api/student?username=juan.santos" seeded 403 - - "student vs student"
-sc STU-READ-ABSENT studentA GET "/api/student?username=ghost.user" absent 404 - - "L1 oracle: 404 before authz gate; flips at C3.8"
+sc STU-READ-ABSENT studentA GET "/api/student?username=ghost.user" absent 403 - - "L1 fixed at C3.8: authz precedes existence, uniform deny (issue #65)"
+sc STU-READ-ABSENT-STAFF facultyX GET "/api/student?username=ghost.user" absent 403 - - "L1 fixed at C3.8: staff absent-name read denies like cross-branch, no oracle (issue #65)"
 sc STU-READ-STAFF facultyX GET "/api/student?username=juan.santos" seeded 200 - 'contains:juan.santos@aics.edu.ph' "D2 pin: staff PII breadth (unresolved policy, issue #79)"
 sc STU-READ-STALE-ROLE staleFac GET "/api/student?username=juan.santos" seeded 200 - - "M2 fixed at C2.2: role read from the DB, stale faculty claim denied (issue #62)"
 sc STU-READ-XBRANCH-STAFF facultyX GET "/api/student?username=pedro.vasquez" novaliches student 403 - - "cross-branch staff read denied"
@@ -216,6 +217,8 @@ sc STU-GRADES-PARTIAL studentD GET "/api/student?username=b.mendoza" seeded 200 
 sc STU-EXPORT-SELF studentA GET /api/student/export seeded 200 - - "self export"
 sc STU-TASKS-SELF studentA GET /api/tasks seeded 200 - - "own tasks"
 sc STU-TASKS-OTHER studentB GET "/api/tasks?username=juan.santos" seeded 403 - - "student vs student tasks"
+sc STU-TASKS-ABSENT studentB GET "/api/tasks?username=ghost.user" absent 403 - - "L1 fixed at C3.8: uniform deny, absent or not (issue #65)"
+sc STU-TASKS-ABSENT-STAFF facultyX GET "/api/tasks?username=ghost.user" absent 404 - - "L1 fixed at C3.8: 404 only post-gate for authorized staff (issue #65)"
 sc STU-TASKS-STALE-ROLE staleFac GET "/api/tasks?username=juan.santos" seeded 200 - - "M2 fixed at C2.4: role read from the DB, stale faculty claim denied (issue #62)"
 sc STU-ENROLL-SELF studentA GET /api/enrollment seeded 200 - - "own finances"
 sc STU-ENROLL-OTHER studentB GET "/api/enrollment?username=juan.santos" seeded 403 - - "staff denied by design too"

@@ -8,9 +8,14 @@ import type { Student } from '@/lib/aics/types'
 export async function GET(request: NextRequest) {
   try {
     // C2.2: canonical actor off the DB doc (role and branch never come
-    // from the JWT claim; the FIX-M2 flip rides here, issue #62). The
-    // route keeps its lookup-first ordering (L1): the 404 fires before
-    // the policy gate, which runs only for an existing student.
+    // from the JWT claim; the FIX-M2 flip rides here, issue #62).
+    // FIX-L1 (C3.8, issue #65): the policy gate now runs BEFORE the
+    // student lookup — the 404 oracle is closed. Absent usernames deny
+    // identically to cross-branch ones (notOwner 403 via
+    // sameBranchUsername), so an unauthorized caller cannot distinguish
+    // exists-elsewhere from never-existed. The 404 below is post-gate
+    // defense in depth; an allowed reader has already verified existence
+    // (self is the session actor; staff passed sameBranchUsername).
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
     const rel = createRelations(ctx)
@@ -20,18 +25,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
 
-    const mongoStudent = await getStudentByUsername(username)
-    if (!mongoStudent) {
-      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-    }
-
     // C2.2: staff-read gate centralized (student.profile read: self, or
-    // same-branch faculty/admin with the DB role). FIX-L1 (C3.8) later
-    // moves this gate ahead of the lookup and masks the oracle.
+    // same-branch faculty/admin with the DB role).
     const gate = decisionToHttpError(
       await can(ctx, rel, { kind: 'student.profile', username }, 'read')
     )
     if (gate) throw gate
+
+    const mongoStudent = await getStudentByUsername(username)
+    if (!mongoStudent) {
+      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
+    }
 
     const [subjects, courses, sessions] = await Promise.all([
       getSubjectsForStudent(mongoStudent.username, mongoStudent.branch),

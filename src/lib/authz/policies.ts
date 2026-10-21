@@ -34,10 +34,10 @@ export async function can(
     // -----------------------------------------------------------------
     case 'student.profile': {
       if (action === 'read') {
-        // Stage 2 (C2.2) keeps the route's lookup-first ordering: the 404
-        // fires before this gate (L1 oracle), so can() runs only for an
-        // existing student. Cross-branch staff is 403 'Forbidden' today.
-        // FIX-L1 (C3.8) reorders authz-before-existence and masks.
+        // FIX-L1 (C3.8, issue #65): the gate runs BEFORE the route's
+        // student lookup. Cross-branch staff is 403 'Forbidden', and an
+        // ABSENT username denies identically (sameBranchUsername false
+        // either way), so the 404 no longer leaks which names exist.
         if (resource.username === ctx.actor.username) return allow()
         if (ctx.actor.role !== 'faculty' && ctx.actor.role !== 'admin')
           return deny('notOwner', 'Forbidden.')
@@ -158,9 +158,11 @@ export async function can(
     // -----------------------------------------------------------------
     case 'task.list': {
       if (action !== 'read') return deny('role', 'Not supported.')
-      // tasks GET: self or same-branch staff. The route keeps its
-      // lookup-first ordering (404 before the staff gate, L1 pattern) and
-      // its student.branch vs claims.branch comparison inline.
+      // tasks GET: self or same-branch staff. FIX-L1 (C3.8, issue #65):
+      // the gate runs BEFORE the route's student lookup; non-staff get
+      // the uniform notOwner 403 for absent and existing names alike.
+      // The route keeps its student.branch vs claims.branch comparison
+      // inline (post-lookup, authorized readers only).
       if (resource.studentUsername === ctx.actor.username) return allow()
       if (ctx.actor.role === 'faculty' || ctx.actor.role === 'admin') return allow()
       return deny('notOwner', 'Forbidden.')
