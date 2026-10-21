@@ -757,6 +757,115 @@ async function seed() {
   await db.collection('announcements').createIndex({ branch: 1, postedDate: -1 })
 
   // ----------------------------------------------------------
+  //  9b. Authorization review cast (docs/authz/, phase 4 stage 0).
+  //  ADDITIVE ONLY: new documents, zero edits to the documents above,
+  //  so every sibling runbook's expectations stay valid.
+  //
+  //  Cast: facultyY l.bautista (teaches CS 103, current term) to
+  //  contrast with facultyX m.reyes (CS 101/102/201/208/209);
+  //  admin2 + pedro.vasquez on the novaliches branch for cross-branch
+  //  rows; a.castillo and b.mendoza give CS 103 grade rows with
+  //  released/partial-release state; rogue.role carries a corrupt role
+  //  string for the L3 login characterization.
+  // ----------------------------------------------------------
+  const BRANCH2 = 'novaliches'
+  const BRANCH2_NAME = 'AICS Novaliches'
+  const BRANCH2_ADDRESS = 'AICS Novaliches Campus, Quirino Highway, Novaliches, Quezon City'
+
+  const facultyY = {
+    branch: BRANCH, username: 'l.bautista', password: FACULTY_PW, tokenVersion: 0,
+    role: 'faculty' as const, fullName: 'Engr. Lorenzo Bautista',
+    firstName: 'Lorenzo', lastName: 'Bautista', middleName: '',
+    studentNumber: 'FAC-002', program: 'Faculty - Computer Science Department', programShort: 'Faculty',
+    yearLevel: '', section: '', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Active', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'l.bautista@aics.edu.ph', phone: '+63 917 555 0202',
+    address: 'AICS Faculty Housing, Commonwealth Ave., Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH_NAME, branchAddress: BRANCH_ADDRESS, documents: [],
+  }
+  const admin2 = {
+    branch: BRANCH2, username: 'admin2', password: ADMIN_PW, tokenVersion: 0,
+    role: 'admin' as const, fullName: 'AICS Novaliches Admin',
+    firstName: 'Registrar', lastName: 'Admin', middleName: '',
+    studentNumber: 'ADM-002', program: 'Registrar Office', programShort: 'Admin',
+    yearLevel: '', section: '', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Active', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'registrar.novaliches@aics.edu.ph', phone: '+63 917 555 0300',
+    address: 'AICS Novaliches Campus, Quirino Highway, Novaliches, Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH2_NAME, branchAddress: BRANCH2_ADDRESS, documents: [],
+  }
+  const nlStudent = {
+    branch: BRANCH2, username: 'pedro.vasquez', password: STUDENT_PW, tokenVersion: 0,
+    role: 'student' as const, fullName: 'Pedro Vasquez',
+    firstName: 'Pedro', lastName: 'Vasquez', middleName: '',
+    studentNumber: '251900', program: 'Bachelor of Science in Computer Science', programShort: 'BSCS',
+    yearLevel: '1st Year', section: 'BSCS 1-A', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Enrolled', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'pedro.vasquez@aics.edu.ph', phone: '+63 917 555 0400',
+    address: 'Novaliches, Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH2_NAME, branchAddress: BRANCH2_ADDRESS, documents: [],
+  }
+  const castillo = {
+    branch: BRANCH, username: 'a.castillo', password: STUDENT_PW, tokenVersion: 0,
+    role: 'student' as const, fullName: 'Ana Castillo',
+    firstName: 'Ana', lastName: 'Castillo', middleName: '',
+    studentNumber: '251901', program: 'Bachelor of Science in Computer Science', programShort: 'BSCS',
+    yearLevel: '1st Year', section: 'BSCS 1-B', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Enrolled', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'a.castillo@aics.edu.ph', phone: '+63 917 555 0500',
+    address: 'Commonwealth, Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH_NAME, branchAddress: BRANCH_ADDRESS, documents: [],
+  }
+  const mendoza = {
+    branch: BRANCH, username: 'b.mendoza', password: STUDENT_PW, tokenVersion: 0,
+    role: 'student' as const, fullName: 'Ben Mendoza',
+    firstName: 'Ben', lastName: 'Mendoza', middleName: '',
+    studentNumber: '251902', program: 'Bachelor of Science in Computer Science', programShort: 'BSCS',
+    yearLevel: '1st Year', section: 'BSCS 1-B', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Enrolled', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'b.mendoza@aics.edu.ph', phone: '+63 917 555 0600',
+    address: 'Commonwealth, Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH_NAME, branchAddress: BRANCH_ADDRESS, documents: [],
+  }
+  const rogueRoleUser = {
+    branch: BRANCH, username: 'rogue.role', password: STUDENT_PW, tokenVersion: 0,
+    role: 'teacherr' as unknown as 'student', fullName: 'Rogue Role',
+    firstName: 'Rogue', lastName: 'Role', middleName: '',
+    studentNumber: '251903', program: 'Bachelor of Science in Computer Science', programShort: 'BSCS',
+    yearLevel: '1st Year', section: 'BSCS 1-B', semester: '1st Sem', academicYear: '2026-2027',
+    enrollmentStatus: 'Enrolled', deanLister: false, deanListerSemester: '', gpa: '',
+    email: 'rogue.role@aics.edu.ph', phone: '+63 917 555 0700',
+    address: 'Commonwealth, Quezon City',
+    emergencyContactName: '', emergencyContactNumber: '',
+    branch_name: BRANCH_NAME, branchAddress: BRANCH_ADDRESS, documents: [],
+  }
+
+  await db.collection('students').deleteMany({ username: { $in: ['l.bautista', 'admin2', 'pedro.vasquez', 'a.castillo', 'b.mendoza', 'rogue.role'] } })
+  await db.collection('students').insertMany([facultyY, admin2, nlStudent, castillo, mendoza, rogueRoleUser])
+  console.log(`  ✓ Inserted authorization cast: l.bautista (facultyY), admin2 + pedro.vasquez (novaliches), a.castillo + b.mendoza + rogue.role`)
+
+  // CS 103 - facultyY's own section, current term, mixed grade states
+  // for the characterization matrix:
+  //   maria.cruz  prelim draft      (encode + submit positive path)
+  //   jose.garcia prelim submitted  (edit-submitted: H1a)
+  //   a.castillo  all released      (edit-released: H1a; student visibility)
+  //   b.mendoza   prelim released only + legacy gradeStatus released (A5)
+  const cs103 = [
+    { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '85', midterm: '', finals: '', finalGrade: '', remarks: '', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: 'draft', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '88', midterm: '', finals: '', finalGrade: '', remarks: '', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: 'submitted', midtermStatus: '', finalsStatus: '' },
+    { branch: BRANCH, studentUsername: 'a.castillo', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '90', midterm: '86', finals: '88', finalGrade: '87.60', remarks: 'Very Good', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '1st Year', status: 'in-progress', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
+    { branch: BRANCH, studentUsername: 'b.mendoza', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '82', midterm: '', finals: '', finalGrade: '80.00', remarks: 'Good', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '1st Year', status: 'in-progress', prelimStatus: 'released', midtermStatus: '', finalsStatus: '', gradeStatus: 'released' },
+  ]
+  await db.collection('subjects').deleteMany({ branch: BRANCH, code: 'CS 103' })
+  await db.collection('subjects').insertMany(cs103)
+  console.log(`  ✓ Inserted CS 103 subject rows (4 grade states: draft, submitted, released, partial-release-legacy)`)
+
+  // ----------------------------------------------------------
   //  10. Indexes (BUG-018: progress + timeout per index; run `npm run db:indexes`
   //  separately if data seeding must complete while index builds stall)
   // ----------------------------------------------------------
