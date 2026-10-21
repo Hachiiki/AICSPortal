@@ -55,8 +55,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad9167f6f1e98c4b9322bad/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad9167f6f1e98c4b9322bad/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad918316cefabcd4cfaef32/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad918316cefabcd4cfaef32/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
@@ -78,8 +78,8 @@ GRD-AUDITS-WITHDRAW	facultyY	GET	/api/grades/audits	after withdraw	200	contains:
 GRD-AUDITS-UNRELEASE	admin	GET	/api/grades/audits	after unrelease	200	contains:unrelease	H1a: unrelease writes a visible audit row (issue #58)
 GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate
 CRON-ADMIN-SESSION	admin	POST	/api/notifications/cleanup	seeded	200	-	admin session path works today
-CRON-NO-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	proxy 401 before route
-CRON-WRONG-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	proxy 401; CRON_SECRET unset
-CRON-RIGHT-BEARER-UNSET	none	POST	/api/notifications/cleanup	seeded	401	-	M3 dead path; flips 200 at C3.6 rerun with CRON_SECRET set (issue #63)
+CRON-NO-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	no credential: proxy 401 before route
+CRON-WRONG-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	wrong secret: proxy 401 (timing-safe compare fails)
+CRON-RIGHT-BEARER	none	POST	/api/notifications/cleanup	seeded	200	contains:retentionDays	M3 fixed at C3.6: valid bearer admitted, cleanup runs (issue #63)
 LOGIN-ROGUE-ROLE	none	POST	/api/auth/login	seeded	200	-	L3 CURRENTLY PERMITS: corrupt role signed; flips 4xx at C3.10 (issue #67)
 SESSION-REVOKED	studentA	GET	/api/student	tv bumped via logout	401	-	revocation control, never flips

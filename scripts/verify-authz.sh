@@ -22,9 +22,10 @@
 #    bash scripts/verify-authz.sh --update     # regenerate goldens.tsv
 #    SKIP_BUILD=1 bash scripts/verify-authz.sh # reuse an existing .next
 #
-#  CRON_SECRET is deliberately NOT set at baseline (the M3 dead
-#  path). Post-C3.6 reruns export CRON_SECRET=authz-cron-test-secret
-#  to flip CRON-RIGHT-BEARER-UNSET to 200.
+#  CRON_SECRET is set from C3.6 on (FIX-M3): the proxy admits the
+#  cleanup path when the Bearer secret matches, so CRON-RIGHT-BEARER
+#  runs the cleanup (200). The wrong-secret and no-bearer rows stay
+#  401; the unset-secret world was pinned at baseline (all 401).
 # ============================================================
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -40,6 +41,7 @@ export AUTH_SECRET=local-dev-secret-aics-portal-authz-2026
 export CLOUDINARY_CLOUD_NAME=verify-fake-cloud
 export CLOUDINARY_API_KEY=123456789012345
 export CLOUDINARY_API_SECRET=local-verification-fake-secret
+export CRON_SECRET=authz-cron-test-secret
 
 # mongod lives outside the worktree when run from .dev-wt
 MONGO_BIN="${MONGO_BIN:-}"
@@ -303,9 +305,9 @@ sc GRD-AUDITS-STUDENT studentA GET /api/grades/audits seeded 403 - - "role gate"
 
 # --- cron cleanup path (M3) ---
 sc CRON-ADMIN-SESSION admin POST /api/notifications/cleanup seeded - - - "admin session path works today"
-sc CRON-NO-BEARER none POST /api/notifications/cleanup seeded - - - "proxy 401 before route"
-sc CRON-WRONG-BEARER none POST /api/notifications/cleanup seeded - 'Authorization: Bearer wrong-secret' - "proxy 401; CRON_SECRET unset"
-sc CRON-RIGHT-BEARER-UNSET none POST /api/notifications/cleanup seeded - 'Authorization: Bearer authz-cron-test-secret' - "M3 dead path; flips 200 at C3.6 rerun with CRON_SECRET set (issue #63)"
+sc CRON-NO-BEARER none POST /api/notifications/cleanup seeded - - - "no credential: proxy 401 before route"
+sc CRON-WRONG-BEARER none POST /api/notifications/cleanup seeded - 'Authorization: Bearer wrong-secret' - "wrong secret: proxy 401 (timing-safe compare fails)"
+sc CRON-RIGHT-BEARER none POST /api/notifications/cleanup seeded - 'Authorization: Bearer authz-cron-test-secret' 'contains:retentionDays' "M3 fixed at C3.6: valid bearer admitted, cleanup runs (issue #63)"
 
 # --- login characterization (L3) ---
 sc LOGIN-ROGUE-ROLE none POST /api/auth/login seeded '{"username":"rogue.role","password":"student123"}' - - "L3 CURRENTLY PERMITS: corrupt role signed; flips 4xx at C3.10 (issue #67)"

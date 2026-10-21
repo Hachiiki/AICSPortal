@@ -40,7 +40,10 @@ import type { MongoNotification } from '@/lib/mongodb/types'
 //  handler accepts exactly that header, or an authenticated admin
 //  session (manual verification/ops). Until CRON_SECRET is
 //  configured in the deployment environment, the cron invocation
-//  will be rejected — set it before relying on scheduled runs.
+//  will be rejected — set it before relying on scheduled runs. The
+//  proxy (src/proxy.ts) reads the same env var to admit the Bearer
+//  path past the session gate (FIX-M3, C3.6); both compares are
+//  timing-safe.
 //
 //  Authorization note (requirement #3): a teacher cannot trigger
 //  another teacher's deletions through this route — there is no
@@ -51,10 +54,21 @@ import type { MongoNotification } from '@/lib/mongodb/types'
 //  C2.1: the admin-session half of the gate is the notification.cleanup
 //  policy case (src/lib/authz), which reads the role from the DB, not
 //  the JWT claim (FIX-M2 rider, issue #62: a demoted admin loses this
-//  route on the next request). The Bearer CRON_SECRET half stays in the
-//  route until FIX-M3 (C3.6) admits the path in the proxy with a
-//  timing-safe compare.
+//  route on the next request). The Bearer CRON_SECRET half is the
+//  route's own authorization, timing-safe since FIX-M3 (C3.6, issue
+//  #63); the proxy runs the identical compare before admitting the
+//  sessionless path.
 // ============================================================
+
+// Pure-JS constant-time compare (no early exit) — the byte-identical
+// twin of the one in src/proxy.ts, inlined in both whitelisted files
+// so no new module joins the port manifest.
+function constantTimeEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
 
 async function runCleanup() {
   // Pure timestamp comparison — no formatted date strings anywhere.
@@ -66,9 +80,12 @@ async function runCleanup() {
 
 async function handle(request: NextRequest) {
   try {
-    // Bearer-secret path: route territory until FIX-M3 (C3.6).
+    // Bearer-secret path: the route's own authorization, timing-safe
+    // since FIX-M3 (C3.6, issue #63) — the proxy runs the identical
+    // compare before admitting the sessionless request.
     const secret = process.env.CRON_SECRET
-    const bearerOk = !!secret && request.headers.get('authorization') === `Bearer ${secret}`
+    const bearerOk =
+      !!secret && constantTimeEquals(request.headers.get('authorization') || '', `Bearer ${secret}`)
     if (!bearerOk) {
       await requireCan(request, { kind: 'notification.cleanup' }, 'cleanup')
     }
