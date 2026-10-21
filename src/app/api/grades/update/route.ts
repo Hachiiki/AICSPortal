@@ -21,6 +21,10 @@ const gradeUpdateItemSchema = z.object({
   remarks: z.string().optional(),
   academicYear: z.string().optional(),
   semester: z.string().optional(),
+  // FIX-H1a (C3.3): withdraw a submitted period back to draft (audited).
+  // A withdrawal item carries no grade values; mixed items are rejected
+  // per row (issue #58).
+  withdraw: z.enum(['prelim', 'midterm', 'finals'], { error: 'Invalid request shape.' }).optional(),
 })
 
 const gradeUpdateSchema = z.object({
@@ -69,12 +73,11 @@ export async function PATCH(request: NextRequest) {
     const performedByUser = ctx.actor.username
 
     // C2.5: the faculty-role, claims-vs-DB branch parity, per-row
-    // claimed-branch parity, row existence, and professor-of-record
-    // decisions run per row in the grade.period update policy case
-    // (policies.ts; H1a/H1b ride LEGACY branches there until C3.2 and
-    // C3.3). Per-row deny errors map to the envelope reasons, so the
-    // 207 partial-success shape is preserved; the row fetch below
-    // stays for the audit trail and the finalGrade compute.
+    // claimed-branch parity, row existence, professor-of-record, and
+    // (C3.3) grade-status state decisions run per row in the grade.period
+    // policy case (policies.ts). Per-row deny errors map to the envelope
+    // reasons, so the 207 partial-success shape is preserved; the row
+    // fetch below stays for the audit trail and the finalGrade compute.
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
     const results: { ok: boolean; studentUsername: string; subjectCode: string; reason?: string }[] = []
@@ -88,7 +91,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     for (const update of updates) {
-      const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester } = update
+      const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester, withdraw } = update
 
       // BUG-010: keys reaching Mongo filters must be strings; objects become operators.
       if (typeof studentUsername !== 'string' || !studentUsername || typeof subjectCode !== 'string' || !subjectCode || typeof branch !== 'string' || !branch) {
@@ -100,20 +103,95 @@ export async function PATCH(request: NextRequest) {
         continue
       }
 
-      // C2.5: per-row decision (grade.period update). The period field
-      // is structural — the update decision is row-level, so it carries
-      // the first period this row touches.
-      const period: Period = prelim !== undefined ? 'prelim' : midterm !== undefined ? 'midterm' : 'finals'
-      const decision = await can(ctx, rel, {
-        kind: 'grade.period',
-        studentUsername,
-        subjectCode,
-        term: { academicYear: academicYear ?? '', semester: semester ?? '' },
-        period,
-        branch,
-      }, 'update')
-      if (!decision.ok) {
-        results.push({ ok: false, studentUsername, subjectCode, reason: decision.error })
+      const term = { academicYear: academicYear ?? '', semester: semester ?? '' }
+
+      // FIX-H1a (C3.3): withdrawal items — submitted -> draft for the
+      // named period, audited as action 'withdraw'. Mixed items (values
+      // alongside withdraw) are rejected per row (issue #58).
+      if (withdraw !== undefined) {
+        if (prelim !== undefined || midterm !== undefined || finals !== undefined || finalGrade !== undefined || remarks !== undefined) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Invalid request' })
+          continue
+        }
+        const decision = await can(ctx, rel, {
+          kind: 'grade.period',
+          studentUsername,
+          subjectCode,
+          term,
+          period: withdraw,
+          branch,
+        }, 'withdraw')
+        if (!decision.ok) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: decision.error })
+          continue
+        }
+        const existing = await col.findOne({ studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) })
+        if (!existing) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Not found' })
+          continue
+        }
+        const periodKey = `${withdraw}Status`
+        // The submitted guard rides the write filter itself (atomic), so a
+        // raced resubmit cannot be clobbered by the withdrawal.
+        const result = await col.updateOne(
+          { studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}), [periodKey]: 'submitted' },
+          { $set: { [periodKey]: 'draft', gradeStatus: 'draft' } }
+        )
+        if (result.modifiedCount > 0) {
+          try {
+            await auditCol.insertMany([{
+              branch,
+              studentUsername,
+              subjectCode,
+              academicYear: existing.academicYear || academicYear || '',
+              semester: existing.semester || semester || '',
+              period: withdraw,
+              oldValue: 'submitted',
+              newValue: 'draft',
+              action: 'withdraw',
+              performedBy: performedByUser,
+              performedAt: new Date(),
+            }])
+          } catch (auditErr) {
+            console.error('Grade withdraw audit insert failed:', auditErr)
+            auditOk = false
+          }
+          results.push({ ok: true, studentUsername, subjectCode })
+        } else {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Not submitted' })
+        }
+        continue
+      }
+
+      // C2.5/C3.3: per-row decision (grade.period update). The state
+      // machine runs per touched period — a row touching several periods
+      // must find every one of them '' or 'draft'; the structural default
+      // stays 'finals' for finalGrade/remarks-only rows. gradeRowState is
+      // memoized per Relations instance, so the extra decisions cost no
+      // extra queries.
+      const touched: Period[] = [
+        ...(prelim !== undefined ? (['prelim'] as Period[]) : []),
+        ...(midterm !== undefined ? (['midterm'] as Period[]) : []),
+        ...(finals !== undefined ? (['finals'] as Period[]) : []),
+      ]
+      const periodsToCheck: Period[] = touched.length > 0 ? touched : ['finals']
+      let rowReason: string | null = null
+      for (const p of periodsToCheck) {
+        const decision = await can(ctx, rel, {
+          kind: 'grade.period',
+          studentUsername,
+          subjectCode,
+          term,
+          period: p,
+          branch,
+        }, 'update')
+        if (!decision.ok) {
+          rowReason = decision.error
+          break
+        }
+      }
+      if (rowReason) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: rowReason })
         continue
       }
 

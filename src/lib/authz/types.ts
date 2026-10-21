@@ -87,7 +87,9 @@ export type Action =
   | 'update'
   | 'delete'
   | 'submit'
+  | 'withdraw' // FIX-H1a (C3.3): faculty pulls a submitted period back to draft, audited
   | 'release'
+  | 'unrelease' // FIX-H1a (C3.3): admin pulls a released period back to submitted, audited
   | 'grade'
   | 'send'
   | 'markRead'
@@ -134,7 +136,9 @@ export const ACTIONS: readonly Action[] = [
   'update',
   'delete',
   'submit',
+  'withdraw',
   'release',
+  'unrelease',
   'grade',
   'send',
   'markRead',

@@ -18,14 +18,21 @@ const gradeReleaseSchema = z.object({
   // Only real periods pass; garbage no longer falls through to the
   // release-all-periods path (old lenient behavior).
   period: z.enum(['prelim', 'midterm', 'finals'], { error: 'Invalid request shape.' }).optional(),
+  // FIX-H1a (C3.3): 'unrelease' is the admin correction path — released
+  // -> submitted, audited. Omitted or 'release' keeps the default
+  // forward transition; existing callers are unchanged (issue #58).
+  action: z.enum(['release', 'unrelease'], { error: 'Invalid request shape.' }).optional(),
   // Legacy spoof-check field; identity always comes from the session.
   performedBy: z.string().optional(),
 })
 
 // POST /api/grades/release
-// Body: { branch, subjectCode, academicYear, semester, period?, performedBy }
-// ADMIN ONLY: Changes per-period status from 'submitted' to 'released'.
-// Once released, that period's grades are visible to students.
+// Body: { branch, subjectCode, academicYear, semester, period?, action?, performedBy }
+// ADMIN ONLY: action 'release' (default) moves per-period status
+// 'submitted' -> 'released'; once released, that period's grades are
+// visible to students. action 'unrelease' (FIX-H1a, C3.3) is the audited
+// correction path: 'released' -> 'submitted', same admin role and
+// same-branch parity (issue #58).
 //
 // GET /api/grades/release?username=
 // Returns submitted groups awaiting release for the performer's branch:
@@ -81,16 +88,18 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
   try {
-    const { branch, subjectCode, academicYear, semester, period, performedBy } = await parseBody(
+    const { branch, subjectCode, academicYear, semester, period, action, performedBy } = await parseBody(
       request,
       gradeReleaseSchema
     )
+    const releaseAction = action === 'unrelease' ? 'unrelease' : 'release'
     // C2.5: session, spoof (performedBy), admin role, and claimed
-    // branch parity centralized (grade.releaseQueue release).
+    // branch parity centralized (grade.releaseQueue release/unrelease —
+    // both actions share the admin role and same-branch parity gate).
     const { ctx } = await requireCan(
       request,
       { kind: 'grade.releaseQueue', branch },
-      'release',
+      releaseAction,
       { claimedIdentity: performedBy }
     )
     const performedByUser = ctx.actor.username
@@ -104,6 +113,49 @@ export async function POST(request: NextRequest) {
     const periodKey = period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : period === 'finals' ? 'finalsStatus' : null
     let result
     const now = new Date()
+    if (releaseAction === 'unrelease') {
+      // FIX-H1a (C3.3): released -> submitted, audited as 'unrelease'.
+      // The released guard rides the write filter itself, so only rows
+      // actually released move (issue #58).
+      if (periodKey) {
+        const docs = await col.find({ ...query, [periodKey]: 'released' }).toArray()
+        result = await col.updateMany(
+          { ...query, [periodKey]: 'released' },
+          { $set: { [periodKey]: 'submitted', gradeStatus: 'submitted' } }
+        )
+        if (docs.length) {
+          const audits = docs.map((d: any) => ({
+            branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: 'released', newValue: 'submitted', action: 'unrelease', performedBy: performedByUser, performedAt: now,
+          }))
+          try {
+            await auditCol.insertMany(audits)
+          } catch (auditErr) {
+            console.error('Grade unrelease audit insert failed:', auditErr)
+          }
+        }
+      } else {
+        const docs = await col.find({ ...query, $or: [{ prelimStatus: 'released' }, { midtermStatus: 'released' }, { finalsStatus: 'released' }] }).toArray()
+        result = await col.updateMany(
+          { ...query, $or: [{ prelimStatus: 'released' }, { midtermStatus: 'released' }, { finalsStatus: 'released' }] },
+          { $set: { prelimStatus: 'submitted', midtermStatus: 'submitted', finalsStatus: 'submitted', gradeStatus: 'submitted' } }
+        )
+        if (docs.length) {
+          const audits = docs.map((d: any) => ({
+            branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: 'released', newValue: 'submitted', action: 'unrelease', performedBy: performedByUser, performedAt: now,
+          }))
+          try {
+            await auditCol.insertMany(audits)
+          } catch (auditErr) {
+            console.error('Grade unrelease audit insert failed:', auditErr)
+          }
+        }
+      }
+      return NextResponse.json({
+        ok: true,
+        message: `${result.modifiedCount} grade(s) unreleased for correction.`,
+        modifiedCount: result.modifiedCount,
+      })
+    }
     if (periodKey) {
       const docs = await col.find({ ...query, [periodKey]: 'submitted' }).toArray()
       result = await col.updateMany(

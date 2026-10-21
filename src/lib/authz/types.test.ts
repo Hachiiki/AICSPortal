@@ -70,7 +70,8 @@ describe('authz types', () => {
 
   it('ACTIONS is unique, non-empty, and every member is an Action', () => {
     expect(new Set(ACTIONS).size).toBe(ACTIONS.length)
-    expect(ACTIONS.length).toBe(12)
+    // 12 through C3.2; C3.3 adds withdraw and unrelease (FIX-H1a).
+    expect(ACTIONS.length).toBe(14)
     const first: Action = 'read'
     expect(ACTIONS).toContain(first)
   })

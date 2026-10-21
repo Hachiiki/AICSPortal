@@ -162,20 +162,76 @@ describe('grade policies', () => {
     )
   })
 
-  it('LEGACY(H1a): submitted and released periods stay editable (flips at C3.3)', async () => {
+  it('FIX-H1a: submitted and released periods are state-locked (C3.3)', async () => {
+    // ownRel's CS 103 row: prelim draft, midterm submitted, finals released.
     const rel = ownRel('owner')
-    await expectAllow(
+    await expectDeny(
       { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'midterm', branch: 'commonwealth' },
       'update',
       facultyY,
-      rel
+      rel,
+      'state',
+      403
     )
-    await expectAllow(
+    await expectDeny(
       { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'finals', branch: 'commonwealth' },
       'update',
       facultyY,
+      rel,
+      'state',
+      403
+    )
+  })
+
+  it('FIX-H1a: withdraw pulls a submitted period back to draft (C3.3)', async () => {
+    const rel = ownRel('owner')
+    await expectAllow(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'midterm', branch: 'commonwealth' },
+      'withdraw',
+      facultyY,
       rel
     )
+    // draft and released periods are not withdrawable
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'prelim', branch: 'commonwealth' },
+      'withdraw',
+      facultyY,
+      rel,
+      'state',
+      403
+    )
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'finals', branch: 'commonwealth' },
+      'withdraw',
+      facultyY,
+      rel,
+      'state',
+      403
+    )
+    // the role, branch, and professor-of-record gates apply to withdrawal too
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'midterm', branch: 'commonwealth' },
+      'withdraw',
+      facultyX,
+      rel,
+      'notAssigned',
+      403
+    )
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'midterm', branch: 'commonwealth' },
+      'withdraw',
+      studentA,
+      rel,
+      'role',
+      403
+    )
+  })
+
+  it('FIX-H1a: unrelease is admin-only with branch parity (C3.3)', async () => {
+    const rel = fakeRel()
+    await expectAllow({ kind: 'grade.releaseQueue', branch: 'commonwealth' }, 'unrelease', admin, rel)
+    await expectDeny({ kind: 'grade.releaseQueue', branch: 'commonwealth' }, 'unrelease', facultyY, rel, 'role', 403)
+    await expectDeny({ kind: 'grade.releaseQueue', branch: 'novaliches' }, 'unrelease', admin, rel, 'branch', 403)
   })
 
   it('grade.period update: row-level denials', async () => {

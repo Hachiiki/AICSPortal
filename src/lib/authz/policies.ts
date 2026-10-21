@@ -89,7 +89,7 @@ export async function can(
     }
 
     case 'grade.period': {
-      if (action !== 'update') return deny('role', 'Not supported.')
+      if (action !== 'update' && action !== 'withdraw') return deny('role', 'Not supported.')
       if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
       // Route-level parity from grades/update: the DB performer branch must
       // equal the session's JWT branch claim. Encoded per row here; a stale
@@ -110,17 +110,35 @@ export async function can(
       // skipping the check entirely.
       if (!ctx.actor.fullName || st.professor !== ctx.actor.fullName)
         return deny('notAssigned', 'Not your section')
-      // LEGACY(H1a): no status guard — editing a submitted or released
-      // period silently resets it to draft. C3.3 installs the forward-only
-      // state machine plus the audited withdrawal path (issue #58).
+      // FIX-H1a (C3.3, issue #58): the grade write state machine is
+      // forward-only: '' / draft -> submitted -> released. Encoding
+      // (update) is allowed while the touched period is '' or 'draft'; a
+      // submitted period is withdrawable by the teaching faculty (audited
+      // as action 'withdraw'); a released period is immutable to faculty —
+      // correction is the admin unrelease path (grades/release, action
+      // 'unrelease'), also audited.
+      const periodStatus = st.statuses[resource.period]
+      if (action === 'withdraw') {
+        if (periodStatus !== 'submitted')
+          return deny('state', 'Only submitted grades can be withdrawn.')
+        return allow()
+      }
+      if (periodStatus === 'released')
+        return deny('state', 'Released grades are locked. Contact an admin to unrelease.')
+      if (periodStatus === 'submitted')
+        return deny('state', 'Submitted grades are locked. Withdraw to edit.')
       return allow()
     }
 
     case 'grade.releaseQueue': {
       if (ctx.actor.role !== 'admin') return deny('role', 'Unauthorized: admin only')
-      if (action !== 'read' && action !== 'release') return deny('role', 'Not supported.')
+      if (action !== 'read' && action !== 'release' && action !== 'unrelease')
+        return deny('role', 'Not supported.')
       // POST branch parity: claimed body branch vs the DB admin branch.
-      if (action === 'release' && resource.branch !== undefined && resource.branch !== ctx.actor.branch)
+      // FIX-H1a (C3.3): 'unrelease' is the admin correction path for
+      // released periods (released -> submitted, audited) — same admin
+      // role and same-branch parity as 'release' (issue #58).
+      if (action !== 'read' && resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
       return allow()
     }

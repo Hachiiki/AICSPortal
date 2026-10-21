@@ -55,20 +55,27 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad90f2686977938068e44a8/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad90f2686977938068e44a8/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad9130cfa333ca20987a286/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad9130cfa333ca20987a286/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
-GRD-UPD-SUBMITTED	facultyY	PATCH	/api/grades/update	seeded	200	-	H1a: edit submitted resets to draft; flips 403 state at C3.3 (issue #58)
-GRD-UPD-RELEASED	facultyY	PATCH	/api/grades/update	seeded	200	-	H1a: edit released resets to draft; flips 403 state at C3.3 (issue #58)
+GRD-UPD-SUBMITTED	facultyY	PATCH	/api/grades/update	seeded	400	contains:Submitted grades are locked	H1a fixed at C3.3: submitted periods state-locked, envelope reason in body (issue #58)
+GRD-UPD-RELEASED	facultyY	PATCH	/api/grades/update	seeded	400	contains:Released grades are locked	H1a fixed at C3.3: released periods state-locked, correction is the admin unrelease path (issue #58)
 GRD-SUBMIT-OWN	facultyY	POST	/api/grades/submit	seeded	200	-	own subject submit
 GRD-SUBMIT-OTHER	facultyX	POST	/api/grades/submit	seeded	403	-	C1 fixed at C3.1: teaching-load gate + professor key in the write scope, cross-faculty submit denied (issue #57)
 GRD-SUBMIT-SPOOF	facultyX	POST	/api/grades/submit	seeded	403	-	spoof check
+GRD-WITHDRAW-OWN	facultyY	PATCH	/api/grades/update	seeded	200	-	H1a fixed at C3.3: submitted period withdrawn to draft, audited (issue #58)
+GRD-WITHDRAW-DRAFT	facultyY	PATCH	/api/grades/update	seeded	400	contains:Only submitted grades can be withdrawn	H1a state guard: draft periods are not withdrawable (issue #58)
 GRD-RELEASE-FACULTY	facultyY	POST	/api/grades/release	seeded	403	-	admin-only release
 GRD-RELEASE-ADMIN	admin	POST	/api/grades/release	seeded	200	-	admin release positive
+GRD-UNRELEASE-ADMIN	admin	POST	/api/grades/release	seeded	200	-	H1a fixed at C3.3: admin unrelease, released to submitted, audited (issue #58)
+GRD-UNRELEASE-FACULTY	facultyY	POST	/api/grades/release	seeded	403	-	H1a: unrelease is admin-only (issue #58)
+GRD-UNRELEASE-XBRANCH	admin2	POST	/api/grades/release	seeded	403	-	H1a: cross-branch admin unrelease denied (issue #58)
 GRD-AUDITS-BRANCHWIDE	facultyX	GET	/api/grades/audits	after	200	-	contains:CS 103
 GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after	200	-	contains:CS 103
+GRD-AUDITS-WITHDRAW	facultyY	GET	/api/grades/audits	after withdraw	200	contains:withdraw	H1a: withdrawal writes a visible audit row (issue #58)
+GRD-AUDITS-UNRELEASE	admin	GET	/api/grades/audits	after unrelease	200	contains:unrelease	H1a: unrelease writes a visible audit row (issue #58)
 GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate
 CRON-ADMIN-SESSION	admin	POST	/api/notifications/cleanup	seeded	200	-	admin session path works today
 CRON-NO-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	proxy 401 before route
