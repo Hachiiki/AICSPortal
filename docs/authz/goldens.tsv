@@ -38,7 +38,7 @@ ATT-READ-OTHER	facultyY	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1s
 ATT-WRITE-OWN	facultyX	POST	/api/attendance	seeded	200	-	own section write (roster member key)
 ATT-WRITE-OTHER	facultyY	POST	/api/attendance	seeded	403	-	H2 fixed at C3.4: teachesSection required, cross-faculty write denied (issue #60)
 ATT-WRITE-ROGUE-KEY	facultyX	POST	/api/attendance	seeded	400	contains:Records must only include students enrolled in this section	H2 fixed at C3.4: records keys roster-validated (issue #60)
-ATT-BRANCH-MISMATCH	facultyX	POST	/api/attendance	seeded	400	-	L2: 400 not 403; flips at C3.9 (issue #66)
+ATT-BRANCH-MISMATCH	facultyX	POST	/api/attendance	seeded	403	contains:Branch mismatch	L2 fixed at C3.9: branch mismatch answers 403 like siblings (issue #66)
 ATT-SPOOF	facultyX	POST	/api/attendance	seeded	403	-	spoof check
 NOTIF-SEND-OWN	facultyX	POST	/api/notifications	seeded	200	-	owned section fan-out
 NOTIF-SEND-UNOWNED	facultyY	POST	/api/notifications	seeded	200	-	preserved behavior: unowned keys dropped, owned fan out
@@ -58,8 +58,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91b63914afbe63a74a46f/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91b63914afbe63a74a46f/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91c945c473da9126c7a7d/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91c945c473da9126c7a7d/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

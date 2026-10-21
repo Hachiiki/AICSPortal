@@ -228,9 +228,11 @@ export async function can(
       }
       if (action === 'update') {
         if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
-        // The route keeps the L2 quirk inline: claimed branch vs the JWT
-        // branch returns 400 (not this 403) until FIX-L2 (C3.9) deletes it.
-        // This parity check is the DB-side twin the route runs after.
+        // FIX-L2 (C3.9, issue #66): the route's 400 quirk (claimed branch
+        // vs the JWT branch claim answering the required-fields message)
+        // is deleted; this parity check — claimed branch vs the DB actor
+        // branch — is the single branch gate, answering 403 'Branch
+        // mismatch' like every sibling surface.
         if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
           return deny('branch', 'Branch mismatch')
         // FIX-H2 (C3.4, issue #60): the section must be in the caller's

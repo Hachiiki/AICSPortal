@@ -25,9 +25,10 @@ import { HttpError } from '@/lib/http'
 //    Body: { branch, sectionKey, date, records, performedBy }
 //    Faculty only, same branch. FIX-H2 (C3.4): the section must be in
 //    the caller's teaching load (policy) and every records key must be
-//    an enrolled student of the section (roster validation below). The
-//    L2 quirk (claimed branch vs the JWT branch claim answers 400, not
-//    the taxonomy's 403) stays route-kept until FIX-L2 (C3.9).
+//    an enrolled student of the section (roster validation below).
+//    FIX-L2 (C3.9): a claimed-branch mismatch now answers the policy's
+//    403 'Branch mismatch' like every sibling surface (the old 400
+//    required-fields quirk is deleted).
 // ============================================================
 
 // ---- Zod input schemas (the only place attendance input is shaped) ----
@@ -102,8 +103,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // C2.5: canonical actor first (the L2 quirk must fire before the
-    // policy's branch parity, preserving today's exact denial order).
+    // C2.5: canonical actor first; the spoof check is preserved.
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
@@ -115,13 +115,11 @@ export async function POST(request: NextRequest) {
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    // L2 quirk, route-kept until FIX-L2 (C3.9): the claimed branch vs
-    // the JWT branch claim answers 400 with the required-fields
-    // message, not the taxonomy's 403.
-    if (branch !== ctx.claims.branch) {
-      return NextResponse.json({ ok: false, error: ATTENDANCE_REQUIRED }, { status: 400 })
-    }
-    // C2.5: faculty role + the DB-side branch parity twin centralized
+    // FIX-L2 (C3.9, issue #66): the route-kept 400 branch-mismatch quirk
+    // is deleted — the policy's branch parity (claimed branch vs the DB
+    // actor branch) answers 403 'Branch mismatch' below, matching every
+    // sibling surface.
+    // C2.5: faculty role + branch parity centralized
     // (attendance update). FIX-H2 (C3.4): the policy also requires the
     // section in the caller's teaching load (issue #60).
     const gate = decisionToHttpError(

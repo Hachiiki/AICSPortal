@@ -247,7 +247,7 @@ sc ATT-READ-OTHER facultyY GET "/api/attendance?sectionKey=$SK_CS101" seeded 403
 sc ATT-WRITE-OWN facultyX POST /api/attendance seeded '{"branch":"commonwealth","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-15","records":{"a.santos100":"present"}}' - - "own section write (roster member key)"
 sc ATT-WRITE-OTHER facultyY POST /api/attendance seeded '{"branch":"commonwealth","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-16","records":{"a.santos100":"present"}}' - - "H2 fixed at C3.4: teachesSection required, cross-faculty write denied (issue #60)"
 sc ATT-WRITE-ROGUE-KEY facultyX POST /api/attendance seeded '{"branch":"commonwealth","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-17","records":{"ghost.user":"present"}}' - 'contains:Records must only include students enrolled in this section' "H2 fixed at C3.4: records keys roster-validated (issue #60)"
-sc ATT-BRANCH-MISMATCH facultyX POST /api/attendance seeded '{"branch":"novaliches","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-18","records":{"a.santos100":"present"}}' - - "L2: 400 not 403; flips at C3.9 (issue #66)"
+sc ATT-BRANCH-MISMATCH facultyX POST /api/attendance seeded '{"branch":"novaliches","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-18","records":{"a.santos100":"present"}}' - 'contains:Branch mismatch' "L2 fixed at C3.9: branch mismatch answers 403 like siblings (issue #66)"
 sc ATT-SPOOF facultyX POST /api/attendance seeded '{"branch":"commonwealth","sectionKey":"CS 101|2026-2027|1st Sem","date":"2026-10-19","records":{"a.santos100":"present"},"performedBy":"l.bautista"}' - - "spoof check"
 
 # --- notifications writes ---
