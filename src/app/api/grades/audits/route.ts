@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
       auditsGetQuerySchema
     )
     // C2.5: auth + username-self + role gates centralized
-    // (grade.audits read: faculty or admin, DB role). LEGACY(M1): no
-    // teaching-load scoping — any same-branch faculty reads the whole
-    // branch's audit history until FIX-M1 (C3.5, issue #61). The
+    // (grade.audits read: faculty or admin, DB role). FIX-M1 (C3.5):
+    // faculty reads are scoped below to the caller's professor-of-record
+    // subjects (any term); admin keeps the branch view (issue #61). The
     // legacy username param rides the guard's spoof check; the branch
     // forcing and cross-branch rejection stay route-kept.
     const {
-      ctx: { claims },
+      ctx: { actor, claims },
     } = await requireCan(
       request,
       { kind: 'grade.audits', subjectCode, studentUsername },
@@ -47,6 +47,26 @@ export async function GET(request: NextRequest) {
     const query: any = { branch: claims.branch }
     if (subjectCode) query.subjectCode = subjectCode
     if (studentUsername) query.studentUsername = studentUsername
+
+    // FIX-M1 (C3.5, issue #61): faculty see audits for their own
+    // professor-of-record subjects only (any term — the codes set is the
+    // name match over subjects rows, no term filter). An explicit
+    // subjectCode filter is intersected with the load: a subject the
+    // caller does not teach returns nothing, fail-closed on a falsy
+    // fullName. Admin keeps the unscoped branch view.
+    if (actor.role === 'faculty') {
+      const subjectsCol = await getCollection('subjects')
+      const rows = await subjectsCol
+        .find({ branch: claims.branch, professor: actor.fullName })
+        .project({ code: 1 })
+        .toArray()
+      const codes = [...new Set(rows.map((r: any) => r.code))]
+      if (subjectCode) {
+        if (!codes.includes(subjectCode)) query.subjectCode = { $in: [] as string[] }
+      } else {
+        query.subjectCode = { $in: codes }
+      }
+    }
 
     const col = await getCollection('grade_audits')
     const audits = await col.find(query).sort({ performedAt: -1 }).limit(limit).toArray()

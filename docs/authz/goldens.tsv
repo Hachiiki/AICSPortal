@@ -55,8 +55,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91513605b3dc841809234/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91513605b3dc841809234/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad9167f6f1e98c4b9322bad/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad9167f6f1e98c4b9322bad/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
@@ -72,8 +72,8 @@ GRD-RELEASE-ADMIN	admin	POST	/api/grades/release	seeded	200	-	admin release posi
 GRD-UNRELEASE-ADMIN	admin	POST	/api/grades/release	seeded	200	-	H1a fixed at C3.3: admin unrelease, released to submitted, audited (issue #58)
 GRD-UNRELEASE-FACULTY	facultyY	POST	/api/grades/release	seeded	403	-	H1a: unrelease is admin-only (issue #58)
 GRD-UNRELEASE-XBRANCH	admin2	POST	/api/grades/release	seeded	403	-	H1a: cross-branch admin unrelease denied (issue #58)
-GRD-AUDITS-BRANCHWIDE	facultyX	GET	/api/grades/audits	after	200	-	contains:CS 103
-GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after	200	-	contains:CS 103
+GRD-AUDITS-BRANCHWIDE	facultyX	GET	/api/grades/audits	after submit+release	200	!contains:CS 103	M1 fixed at C3.5: faculty read their own subjects only; facultyX does not teach CS 103 (issue #61)
+GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after submit+release	200	contains:CS 103	own-subject audits stay visible post C3.5
 GRD-AUDITS-WITHDRAW	facultyY	GET	/api/grades/audits	after withdraw	200	contains:withdraw	H1a: withdrawal writes a visible audit row (issue #58)
 GRD-AUDITS-UNRELEASE	admin	GET	/api/grades/audits	after unrelease	200	contains:unrelease	H1a: unrelease writes a visible audit row (issue #58)
 GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate

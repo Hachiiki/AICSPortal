@@ -294,7 +294,11 @@ describe('grade policies', () => {
     await expectDeny({ kind: 'grade.releaseQueue', branch: 'novaliches' }, 'release', admin, rel, 'branch', 403)
   })
 
-  it('LEGACY(M1): audits read has no load scoping (flips at C3.5)', async () => {
+  it('FIX-M1: audits read keeps the faculty/admin roles; scoping is route-side (C3.5)', async () => {
+    // The policy's role gates are unchanged — the C3.5 scoping (faculty
+    // read their own professor-of-record subjects, admin keeps the
+    // branch) shapes the query in the route and is pinned by the
+    // GRD-AUDITS golden rows.
     const rel = fakeRel()
     await expectAllow({ kind: 'grade.audits' }, 'read', facultyX, rel)
     await expectAllow({ kind: 'grade.audits', subjectCode: 'CS 103' }, 'read', admin, rel)

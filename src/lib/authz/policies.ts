@@ -147,9 +147,9 @@ export async function can(
       if (action !== 'read') return deny('role', 'Not supported.')
       if (ctx.actor.role !== 'faculty' && ctx.actor.role !== 'admin')
         return deny('role', 'Unauthorized: faculty or admin only')
-      // LEGACY(M1): no teaching-load scoping — any same-branch faculty reads
-      // the whole branch's grade-change history. C3.5 scopes faculty reads
-      // to professor-of-record subjects; admin keeps the branch (issue #61).
+      // FIX-M1 (C3.5, issue #61): the route scopes faculty reads to the
+      // caller's professor-of-record subjects (any term); admin keeps the
+      // branch view. Audits for abandoned subjects become admin-only.
       return allow()
     }
 
