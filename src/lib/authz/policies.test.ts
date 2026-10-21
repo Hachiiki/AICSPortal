@@ -217,13 +217,15 @@ describe('grade policies', () => {
     )
   })
 
-  it('LEGACY(H1b): falsy fullName skips the professor check (flips at C3.2)', async () => {
+  it('FIX-H1b: falsy fullName fails closed on the professor check (C3.2)', async () => {
     const noName = ctxFor({ username: 'l.bautista', fullName: '' })
-    await expectAllow(
+    await expectDeny(
       { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 101', term: T, period: 'prelim', branch: 'commonwealth' },
       'update',
       noName,
-      ownRel('owner')
+      ownRel('owner'),
+      'notAssigned',
+      403
     )
   })
 

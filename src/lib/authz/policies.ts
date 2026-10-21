@@ -105,9 +105,10 @@ export async function can(
         term: resource.term,
       })
       if (!st) return deny('notFound', 'Not found')
-      // LEGACY(H1b): the professor-of-record check is skipped when the
-      // actor's fullName is falsy. C3.2 makes it unconditional (issue #59).
-      if (ctx.actor.fullName && st.professor !== ctx.actor.fullName)
+      // FIX-H1b (C3.2, issue #59): the professor-of-record check is
+      // unconditional — a missing fullName fails closed instead of
+      // skipping the check entirely.
+      if (!ctx.actor.fullName || st.professor !== ctx.actor.fullName)
         return deny('notAssigned', 'Not your section')
       // LEGACY(H1a): no status guard — editing a submitted or released
       // period silently resets it to draft. C3.3 installs the forward-only
