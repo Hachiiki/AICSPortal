@@ -29,6 +29,10 @@ declare module 'bun:test' {
     toThrowError(message?: string | RegExp): void
     toMatch(pattern: string | RegExp): void
     toMatchObject(expected: Record<string, unknown>): void
+    toHaveProperty(prop: string, value?: unknown): void
+    toHaveBeenCalled(): void
+    toHaveBeenCalledTimes(n: number): void
+    toHaveBeenCalledWith(...args: unknown[]): void
     resolves: ExpectStatic<T>
     rejects: ExpectStatic<T>
     not: ExpectStatic<T>

@@ -31,26 +31,30 @@ export type AuthzResource =
   | { kind: 'student.export'; username: string }
   | { kind: 'student.finances'; username: string }
   // grades
-  | { kind: 'grade.submit'; subjectCode: string; term: TermKey }
+  // branch on write resources is the CLIENT-CLAIMED branch from the request
+  // body (parity data the policy compares against the actor's DB branch),
+  // never a trusted value.
+  | { kind: 'grade.submit'; subjectCode: string; term: TermKey; branch?: string }
   | {
       kind: 'grade.period'
       studentUsername: string
       subjectCode: string
       term: TermKey
       period: Period
+      branch?: string
     }
   | { kind: 'grade.releaseQueue' }
   | { kind: 'grade.audits'; subjectCode?: string; studentUsername?: string }
   // tasks
   | { kind: 'task.list'; studentUsername: string }
   | { kind: 'task.board' }
-  | { kind: 'task.section'; subjectCode: string; term: TermKey }
+  | { kind: 'task.section'; subjectCode: string; term: TermKey; branch?: string }
   | { kind: 'task'; taskId: string }
   // attendance
-  | { kind: 'attendance'; sectionKey: string }
+  | { kind: 'attendance'; sectionKey: string; branch?: string }
   // materials
   | { kind: 'material.list' }
-  | { kind: 'material.upload'; subjectCode: string; term: TermKey }
+  | { kind: 'material.upload'; subjectCode: string; term: TermKey; branch?: string }
   | { kind: 'material'; id: string }
   // announcements
   | { kind: 'announcement'; id?: string }
@@ -58,7 +62,7 @@ export type AuthzResource =
   // notifications
   | { kind: 'notification.inbox'; username: string }
   | { kind: 'notification.outbox' }
-  | { kind: 'notification.send'; sectionKeys: string[] }
+  | { kind: 'notification.send'; sectionKeys: string[]; branch?: string }
   | { kind: 'notification.cleanup' }
   // admin and shared branch surfaces
   | { kind: 'admin.directory' }
