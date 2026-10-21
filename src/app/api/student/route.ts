@@ -65,14 +65,20 @@ export async function GET(request: NextRequest) {
         const finalsStatus = (x as any).finalsStatus ?? x.gradeStatus
         // Per-period workflow: each period visible only when its status is 'released'.
         // '' / draft / submitted → hidden as '-' / Pending.
+        // FIX-A5 (C3.13, issue #70): finalGrade and remarks need ALL THREE
+        // periods released — the legacy gradeStatus field alone no longer
+        // exposes them after a single-period release. The legacy field
+        // itself stays on the documents for backward compatibility.
+        const allReleased =
+          prelimStatus === 'released' && midtermStatus === 'released' && finalsStatus === 'released'
         return {
           code: x.code, title: x.title, units: x.units, professor: x.professor,
           professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,
           prelim: prelimStatus === 'released' ? (x.prelim ?? '-') : '-',
           midterm: midtermStatus === 'released' ? x.midterm : '-',
           finals: finalsStatus === 'released' ? x.finals : '-',
-          finalGrade: x.gradeStatus === 'released' ? x.finalGrade : '-',
-          remarks: x.gradeStatus === 'released' ? x.remarks : 'Pending',
+          finalGrade: allReleased ? x.finalGrade : '-',
+          remarks: allReleased ? x.remarks : 'Pending',
           academicYear: x.academicYear, semester: x.semester, yearLevel: x.yearLevel, status: x.status,
         }
       }),

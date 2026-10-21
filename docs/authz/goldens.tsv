@@ -10,8 +10,9 @@ STU-READ-STAFF	facultyX	GET	/api/student?username=juan.santos	seeded	200	contain
 STU-READ-STALE-ROLE	staleFac	GET	/api/student?username=juan.santos	seeded	403	-	M2 fixed at C2.2: role read from the DB, stale faculty claim denied (issue #62)
 STU-READ-XBRANCH-STAFF	facultyX	GET	/api/student?username=pedro.vasquez	novaliches	403	-	-
 STU-GRADES-ALL-RELEASED	studentC	GET	/api/student?username=a.castillo	seeded	200	contains:"finalGrade":"87.60"	released periods visible + finalGrade via legacy field
-STU-GRADES-PARTIAL	studentD	GET	/api/student?username=b.mendoza	seeded	200	contains:"finalGrade":"80.00"	A5: legacy gradeStatus exposes finalGrade early; flips to - at C3.13 (issue #70)
+STU-GRADES-PARTIAL	studentD	GET	/api/student?username=b.mendoza	seeded	200	contains:"finalGrade":"-"	A5 fixed at C3.13: finalGrade and remarks need all three periods released (issue #70)
 STU-EXPORT-SELF	studentA	GET	/api/student/export	seeded	200	-	self export
+STU-EXPORT-PARTIAL	studentD	GET	/api/student/export	seeded	200	contains:(not yet released)	A5 fixed at C3.13: export masks finalGrade and remarks until all periods released (issue #70)
 STU-TASKS-SELF	studentA	GET	/api/tasks	seeded	200	-	own tasks
 STU-TASKS-OTHER	studentB	GET	/api/tasks?username=juan.santos	seeded	403	-	student vs student tasks
 STU-TASKS-ABSENT	studentB	GET	/api/tasks?username=ghost.user	absent	403	-	L1 fixed at C3.8: uniform deny, absent or not (issue #65)
@@ -58,8 +59,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91ff5adeeee840de449a1/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91ff5adeeee840de449a1/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad921637355d4e21a0a001d/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad921637355d4e21a0a001d/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

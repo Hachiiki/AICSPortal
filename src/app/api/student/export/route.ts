@@ -115,6 +115,16 @@ export async function GET(request: NextRequest) {
       exportPayload.subjectEnrollments = enrollments.map((x: any) => {
         const released = (period: string, status: string | undefined) =>
           status === 'released' ? (x[period] ?? '-') : '(not yet released)'
+        // FIX-A5 (C3.13, issue #70): finalGrade and remarks need ALL THREE
+        // periods released — the same all-three rule as the student
+        // route's projection, so the data export never leaks the final
+        // verdict after a single-period release (the legacy gradeStatus
+        // field stays on the documents for backward compatibility).
+        const prelimStatus = x.prelimStatus ?? x.gradeStatus
+        const midtermStatus = x.midtermStatus ?? x.gradeStatus
+        const finalsStatus = x.finalsStatus ?? x.gradeStatus
+        const allReleased =
+          prelimStatus === 'released' && midtermStatus === 'released' && finalsStatus === 'released'
         return {
           code: x.code,
           title: x.title,
@@ -128,11 +138,11 @@ export async function GET(request: NextRequest) {
           // Values only for released periods — unreleased periods are
           // listed by status so the export stays truthful without
           // leaking grades ahead of the release queue.
-          prelim: released('prelim', x.prelimStatus ?? x.gradeStatus),
-          midterm: released('midterm', x.midtermStatus ?? x.gradeStatus),
-          finals: released('finals', x.finalsStatus ?? x.gradeStatus),
-          finalGrade: x.gradeStatus === 'released' ? x.finalGrade : '(not yet released)',
-          remarks: x.remarks,
+          prelim: released('prelim', prelimStatus),
+          midterm: released('midterm', midtermStatus),
+          finals: released('finals', finalsStatus),
+          finalGrade: allReleased ? x.finalGrade : '(not yet released)',
+          remarks: allReleased ? x.remarks : '(not yet released)',
         }
       })
 
