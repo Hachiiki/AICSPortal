@@ -1,0 +1,78 @@
+id	actor	method	target	precondition	expect_status	expect_body	notes
+AUTH-NO-SESSION	none	GET	/api/student	seeded	401	-	unauthenticated gate (proxy)
+AUTH-SESSION-SELF	studentA	GET	/api/auth/session	seeded	200	-	public passthrough, revocation-aware
+DEMO-LOGIN	none	POST	/api/auth/demo	seeded	404	-	demo login gated off in production builds (L5 pin; both worlds 404)
+STU-READ-SELF	studentA	GET	/api/student?username=juan.santos	seeded	200	contains:Juan Dela Cruz Santos	positive control
+STU-READ-OTHER-STU	studentB	GET	/api/student?username=juan.santos	seeded	403	-	student vs student
+STU-READ-ABSENT	studentA	GET	/api/student?username=ghost.user	absent	404	-	L1 oracle: 404 before authz gate; flips at C3.8
+STU-READ-STAFF	facultyX	GET	/api/student?username=juan.santos	seeded	200	contains:juan.santos@aics.edu.ph	D2 pin: staff PII breadth (unresolved policy, issue #79)
+STU-READ-STALE-ROLE	staleFac	GET	/api/student?username=juan.santos	seeded	200	-	M2: JWT role trusted; flips 403 at C2.2 (issue #62)
+STU-READ-XBRANCH-STAFF	facultyX	GET	/api/student?username=pedro.vasquez	novaliches	403	-	-
+STU-GRADES-ALL-RELEASED	studentC	GET	/api/student?username=a.castillo	seeded	200	contains:"finalGrade":"87.60"	released periods visible + finalGrade via legacy field
+STU-GRADES-PARTIAL	studentD	GET	/api/student?username=b.mendoza	seeded	200	contains:"finalGrade":"80.00"	A5: legacy gradeStatus exposes finalGrade early; flips to - at C3.13 (issue #70)
+STU-EXPORT-SELF	studentA	GET	/api/student/export	seeded	200	-	self export
+STU-TASKS-SELF	studentA	GET	/api/tasks	seeded	200	-	own tasks
+STU-TASKS-OTHER	studentB	GET	/api/tasks?username=juan.santos	seeded	403	-	student vs student tasks
+STU-TASKS-STALE-ROLE	staleFac	GET	/api/tasks?username=juan.santos	seeded	200	-	M2 site; flips 403 at C2.4 (issue #62)
+STU-ENROLL-SELF	studentA	GET	/api/enrollment	seeded	200	-	own finances
+STU-ENROLL-OTHER	studentB	GET	/api/enrollment?username=juan.santos	seeded	403	-	staff denied by design too
+STU-UPDATE-SELF	studentA	PATCH	/api/student/update?username=juan.santos	seeded	200	-	self profile update (username via query)
+STU-UPDATE-OTHER	studentB	PATCH	/api/student/update?username=juan.santos	seeded	403	-	non-admin editing another profile
+STU-UPDATE-STALE-ADMIN	staleAdm	PATCH	/api/student/update?username=juan.santos	seeded	200	-	M2-class: JWT admin role trusted on update; flips 403 at C2.2 (issue #62)
+FAC-ROSTER-SELF	facultyX	GET	/api/faculty?username=m.reyes	seeded	200	contains:CS 101	teaching-load roster
+FAC-ROSTER-STUDENT	studentA	GET	/api/faculty?username=m.reyes	seeded	403	-	role gate
+FAC-TASKS-SELF	facultyX	GET	/api/faculty/tasks	seeded	200	-	server-derived load + term
+FAC-HISTORY-SELF	facultyX	GET	/api/faculty/history	seeded	200	-	released-only rows
+NOTIF-INBOX-SELF	studentA	GET	/api/notifications?username=juan.santos	seeded	200	-	own inbox
+NOTIF-INBOX-STAFF	facultyX	GET	/api/notifications?username=juan.santos	seeded	200	-	D2 pin: staff inbox breadth (issue #79)
+NOTIF-INBOX-STALE-ROLE	staleFac	GET	/api/notifications?username=juan.santos	seeded	200	-	M2 site; flips 403 at C2.4 (issue #62)
+NOTIF-SENT-SELF	facultyX	GET	/api/notifications/sent?sentBy=m.reyes	seeded	200	-	own outbox
+MAT-LIST-STUDENT	studentA	GET	/api/materials	seeded	200	-	enrolled student list
+MAT-LIST-FACULTY	facultyX	GET	/api/materials	seeded	200	-	load-scoped faculty list
+MAT-FOREIGN-URL	facultyX	POST	/api/materials	seeded	200	-	M4: prefix-only URL check; flips 4xx at C3.7 (issue #64)
+ATT-READ-OWN	facultyX	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	200	-	own section read
+ATT-READ-OTHER	facultyY	GET	/api/attendance?sectionKey=CS%20101%7C2026-2027%7C1st%20Sem	seeded	200	-	H2: any faculty reads any section; flips at C3.4 (issue #60)
+ATT-WRITE-OWN	facultyX	POST	/api/attendance	seeded	200	-	own section write (roster member key)
+ATT-WRITE-OTHER	facultyY	POST	/api/attendance	seeded	200	-	H2: any faculty overwrites any section; flips 403 at C3.4 (issue #60)
+ATT-WRITE-ROGUE-KEY	facultyX	POST	/api/attendance	seeded	200	-	H2: records keys unvalidated; flips 4xx at C3.4 (issue #60)
+ATT-BRANCH-MISMATCH	facultyX	POST	/api/attendance	seeded	400	-	L2: 400 not 403; flips at C3.9 (issue #66)
+ATT-SPOOF	facultyX	POST	/api/attendance	seeded	403	-	spoof check
+NOTIF-SEND-OWN	facultyX	POST	/api/notifications	seeded	200	-	owned section fan-out
+NOTIF-SEND-UNOWNED	facultyY	POST	/api/notifications	seeded	200	-	preserved behavior: unowned keys dropped, owned fan out
+NOTIF-PATCH-SELF	studentA	PATCH	/api/notifications	seeded	200	-	self read-state
+NOTIF-PATCH-OTHER	studentB	PATCH	/api/notifications	seeded	403	-	write filter carries username
+ANN-READ-STUDENT	studentA	POST	/api/announcements/read	seeded	200	-	self mark-read
+ANN-READ-OVERCAP	studentA	POST	/api/announcements/read	seeded	200	-	L4: unbounded ids; flips 400 at C3.11 (issue #68)
+ANN-BULK-DELETE-STUDENT	studentA	POST	/api/announcements/bulk-delete	seeded	403	-	admin-only write
+EV-WRITE-ADMIN	admin	POST	/api/events	seeded	200	-	admin write
+EV-WRITE-FACULTY	facultyX	POST	/api/events	seeded	403	-	admin-only write
+ANN-WRITE-XBRANCH	admin2	POST	/api/announcements	seeded	403	-	cross-branch admin write denied
+ADM-STATS-ADMIN	admin	GET	/api/admin/stats	seeded	200	-	admin stats
+ADM-STATS-FACULTY	facultyX	GET	/api/admin/stats	seeded	403	-	role gate
+ADM-STATS-STUDENT	studentA	GET	/api/admin/stats	seeded	403	-	role gate
+ADM-PEOPLE-XBRANCH	admin2	GET	/api/admin/people	seeded	200	-	D1 pin: school-wide admin reads (issue #78)
+ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
+TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
+TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
+TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad8d19739bd029335bead62/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad8d19739bd029335bead62/grade	seeded	403	-	load-checked grade, other faculty
+GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
+GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
+GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
+GRD-UPD-SUBMITTED	facultyY	PATCH	/api/grades/update	seeded	200	-	H1a: edit submitted resets to draft; flips 403 state at C3.3 (issue #58)
+GRD-UPD-RELEASED	facultyY	PATCH	/api/grades/update	seeded	200	-	H1a: edit released resets to draft; flips 403 state at C3.3 (issue #58)
+GRD-SUBMIT-OWN	facultyY	POST	/api/grades/submit	seeded	200	-	own subject submit
+GRD-SUBMIT-OTHER	facultyX	POST	/api/grades/submit	seeded	200	-	C1 CURRENTLY PERMITS: no teaching-load key; flips 403 at C3.1 (issue #57)
+GRD-SUBMIT-SPOOF	facultyX	POST	/api/grades/submit	seeded	403	-	spoof check
+GRD-RELEASE-FACULTY	facultyY	POST	/api/grades/release	seeded	403	-	admin-only release
+GRD-RELEASE-ADMIN	admin	POST	/api/grades/release	seeded	200	-	admin release positive
+GRD-AUDITS-BRANCHWIDE	facultyX	GET	/api/grades/audits	after	200	-	contains:CS 103
+GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after	200	-	contains:CS 103
+GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate
+CRON-ADMIN-SESSION	admin	POST	/api/notifications/cleanup	seeded	200	-	admin session path works today
+CRON-NO-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	proxy 401 before route
+CRON-WRONG-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	proxy 401; CRON_SECRET unset
+CRON-RIGHT-BEARER-UNSET	none	POST	/api/notifications/cleanup	seeded	401	-	M3 dead path; flips 200 at C3.6 rerun with CRON_SECRET set (issue #63)
+LOGIN-ROGUE-ROLE	none	POST	/api/auth/login	seeded	200	-	L3 CURRENTLY PERMITS: corrupt role signed; flips 4xx at C3.10 (issue #67)
+SESSION-REVOKED	studentA	GET	/api/student	tv bumped via logout	401	-	revocation control, never flips
