@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseQuery, errResponse, usernameSchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import { NOTIFICATION_RETENTION_DAYS } from '@/lib/aics/notifications'
@@ -70,18 +70,25 @@ interface GroupAcc {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { sentBy, page, pageSize } = parseQuery(request, sentQuerySchema)
+    // C2.3: auth + role + sentBy-self gates centralized
+    // (notification.outbox read: faculty or admin, DB role). The
+    // sentBy query field rides the guard's spoof check (a foreign
+    // outbox is a 403 exactly where the old inline comparison fired);
+    // the performer lookup and the branch-vs-session check stay
+    // route-kept below.
+    const {
+      ctx: { claims },
+    } = await requireCan(request, { kind: 'notification.outbox' }, 'read', {
+      claimedIdentity: sentBy,
+    })
 
     // Own outbox only — same boundary the old flat query enforced.
     const performer = await getStudentByUsername(sentBy)
-    if (!performer || (performer.role !== 'faculty' && performer.role !== 'admin')) {
+    if (!performer) {
       return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
     }
-    if (sentBy !== session.username || performer.branch !== session.branch) {
+    if (performer.branch !== claims.branch) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
