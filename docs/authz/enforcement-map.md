@@ -163,3 +163,40 @@ Architectural hazards (structural risks, not confirmed exploits):
 | D4 | Attendance is writable by any same-branch faculty for any section | Confirm the intended scope (see H2) |
 | D5 | Faculty can edit grades after submit/release (resets to draft) | Confirm the intended workflow rule (see H1a) |
 | D6 | Task scores write no `grade_audits` rows (decision #32) | Revisit only if the owner wants score history |
+
+## 7. GitHub issue map (2026-10-21)
+
+Every finding is filed as one GitHub issue (title prefix `authz <ID>:`), each
+with a local `issue/<number>-<id>` branch on this worktree. Dispositions carry
+the owner sign-off from `phase-3-plan.md` section 9.1 (commit ff37873).
+
+| Finding | Issue | Branch | Disposition |
+| --- | --- | --- | --- |
+| C1 | #57 | issue/57-c1 | fix approved (C3.1) |
+| H1a (+D5) | #58 | issue/58-h1a | fix approved with condition (C3.3) |
+| H1b | #59 | issue/59-h1b | fix approved (C3.2) |
+| H2 (+D4) | #60 | issue/60-h2 | fix approved (C3.4) |
+| M1 | #61 | issue/61-m1 | fix approved (C3.5) |
+| M2 | #62 | issue/62-m2 | fix approved (rides C2.1/C2.2/C2.4) |
+| M3 | #63 | issue/63-m3 | fix approved with condition (C3.6) |
+| M4 | #64 | issue/64-m4 | fix approved (C3.7) |
+| L1 | #65 | issue/65-l1 | fix approved (C3.8) |
+| L2 | #66 | issue/66-l2 | fix approved (C3.9) |
+| L3 | #67 | issue/67-l3 | fix approved (C3.10) |
+| L4 | #68 | issue/68-l4 | fix approved (C3.11) |
+| L5 | #69 | issue/69-l5 | fix approved (C3.12) |
+| A5 | #70 | issue/70-a5 | fix approved (C3.13) |
+| L6 | #71 | issue/71-l6 | backlog (accepted) |
+| A1 | #72 | issue/72-a1 | deferred (migration OUT this pass) |
+| A2 | #73 | issue/73-a2 | resolved by centralization (C4.1) |
+| A3 | #74 | issue/74-a3 | resolved by centralization (stage 1) |
+| A4 | #75 | issue/75-a4 | resolved by centralization (stage 2) |
+| A6 (+D6) | #76 | issue/76-a6 | confirmed keep (closed) |
+| A7 | #77 | issue/77-a7 | backlog (accepted) |
+| D1 | #78 | issue/78-d1 | confirmed intended (closed) |
+| D2 | #79 | issue/79-d2 | UNRESOLVED policy question (open) |
+| D3 | #80 | issue/80-d3 | confirmed intended (closed) |
+
+D4 and D5 are folded into the H2 and H1a issues (same product question); D6 is
+folded into A6. Issue branches start at the sign-off commit and are fast
+forwarded to the commit that closes each finding as fixes land.
