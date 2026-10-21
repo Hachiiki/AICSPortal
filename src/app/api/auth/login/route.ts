@@ -19,6 +19,13 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional().default(false),
 })
 
+// FIX-L3 (C3.10, issue #67): the DB role must be a member of the Role
+// union (src/lib/mongodb/types.ts) before it is signed. Runtime twin of
+// the type — corrupt role data blocks login loudly here instead of
+// minting a token every policy equality would fail closed on anyway.
+// A missing/empty role keeps the long-standing 'student' default.
+const ROLE_UNION: readonly string[] = ['student', 'faculty', 'admin']
+
 export async function POST(request: NextRequest) {
   try {
     const { username, password, rememberMe } = await parseBody(request, loginSchema)
@@ -61,7 +68,16 @@ export async function POST(request: NextRequest) {
     // never trusts it — every route reads getAuthedSession(request).
     // Phase 6.5: the token carries the user's current tokenVersion so
     // logout / password changes revoke previously issued tokens.
+    // FIX-L3 (C3.10, issue #67): validate the role against the union and
+    // fail closed — a corrupt role string is a 403 with a registrar
+    // message, never a signed odd token.
     const role = student.role || 'student'
+    if (!ROLE_UNION.includes(role)) {
+      return NextResponse.json(
+        { ok: false, error: 'Your account has an invalid role. Contact the registrar.' },
+        { status: 403 }
+      )
+    }
     const tv = typeof student.tokenVersion === 'number' ? student.tokenVersion : 0
     const maxAgeSecs = rememberMe ? REMEMBER_MAX_AGE_SECS : SESSION_MAX_AGE_SECS
     const token = await signSession({ username: student.username, role, branch: student.branch, tv }, maxAgeSecs)

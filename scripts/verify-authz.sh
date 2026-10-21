@@ -313,7 +313,7 @@ sc CRON-WRONG-BEARER none POST /api/notifications/cleanup seeded - 'Authorizatio
 sc CRON-RIGHT-BEARER none POST /api/notifications/cleanup seeded - 'Authorization: Bearer authz-cron-test-secret' 'contains:retentionDays' "M3 fixed at C3.6: valid bearer admitted, cleanup runs (issue #63)"
 
 # --- login characterization (L3) ---
-sc LOGIN-ROGUE-ROLE none POST /api/auth/login seeded '{"username":"rogue.role","password":"student123"}' - - "L3 CURRENTLY PERMITS: corrupt role signed; flips 4xx at C3.10 (issue #67)"
+sc LOGIN-ROGUE-ROLE none POST /api/auth/login seeded '{"username":"rogue.role","password":"student123"}' - 'contains:invalid role' "L3 fixed at C3.10: corrupt role fails closed at login (issue #67)"
 
 # --- revocation (two-step, runs LAST: bumps juan tv) ---
 if [ "$UPDATE" = 1 ]; then
