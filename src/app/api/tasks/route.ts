@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -15,11 +15,13 @@ import type { Task } from '@/lib/aics/tasks'
 // Phase 6: self or same-branch staff (faculty/admin) only.
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, tasksGetQuerySchema).username || session.username
+    // C2.4: canonical actor off the DB doc (the FIX-M2 flip rides on
+    // the staff gate, issue #62). The route keeps its lookup-first
+    // ordering (404 before the staff gate, L1 pattern).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
+    const username = parseQuery(request, tasksGetQuerySchema).username || ctx.actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
@@ -28,11 +30,16 @@ export async function GET(request: NextRequest) {
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
-    if (student.username !== session.username) {
-      const isStaff = session.role === 'faculty' || session.role === 'admin'
-      if (!isStaff || student.branch !== session.branch) {
-        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-      }
+
+    // C2.4: self-or-staff gate centralized (task.list read; DB role).
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'task.list', studentUsername: username }, 'read')
+    )
+    if (gate) throw gate
+    // Route-kept: staff reads of another student's tasks stay
+    // same-branch (student.branch vs the JWT branch claim, as today).
+    if (student.username !== ctx.actor.username && student.branch !== ctx.claims.branch) {
+      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     // VISIBILITY RULE: Students only see tasks of the ACTIVE
@@ -117,6 +124,8 @@ const taskPatchSchema = z.object({
 // Faculty must only create for codes they teach this term. Returns
 // the faculty doc plus the code list, or an error response.
 // Exported for reuse by the grade + submissions endpoints (refs #32).
+// C2.4: zero importers remain after this commit (its own calls below
+// died in the task.section swap); the definition is deleted in C4.1.
 export async function requireTeachingFaculty(performedBy: unknown, branch: unknown, subjectCode: unknown) {
   // BUG-010: reject operator objects before they reach Mongo filters.
   if (typeof performedBy !== 'string' || !performedBy || typeof branch !== 'string' || !branch || typeof subjectCode !== 'string' || !subjectCode) {
@@ -150,27 +159,42 @@ export async function requireTeachingFaculty(performedBy: unknown, branch: unkno
 // subject so each student's submit and score stay independent.
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: performer is the session user. A mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.4: canonical actor first (the resource term comes off it).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
     const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await parseBody(
       request,
       taskPostSchema
     )
-    const spoof = spoofCheck(session, performedBy)
+    // Phase 6: performer is the session user. A mismatched performedBy is a spoof attempt.
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // Phase 6: teaching-load check runs as the session user, not a body field.
-    // (Legacy performedBy already spoof-checked above; it is otherwise ignored.)
-    const check = await requireTeachingFaculty(session.username, branch, subjectCode)
-    if (check.error) return check.error
-    const { performer, current } = check as { performer: any; current: any[] }
+    // C2.4: faculty role, claimed-branch parity, and the current-term
+    // teaching load centralized (task.section create).
+    const actor = ctx.actor
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), {
+        kind: 'task.section',
+        subjectCode,
+        term: { academicYear: actor.academicYear, semester: actor.semester },
+        branch,
+      }, 'create')
+    )
+    if (gate) throw gate
+
+    // Fan-out roster + term stamp (data query, same JS-side term
+    // matching the policy's relation uses).
+    const subjectsCol = await getCollection('subjects')
+    const taught = await subjectsCol
+      .find({ branch, professor: actor.fullName, code: subjectCode })
+      .project({ academicYear: 1, semester: 1, yearLevel: 1, studentUsername: 1 })
+      .toArray()
+    const current: any[] = taught.filter(
+      (d: any) => (d.academicYear || '') === (actor.academicYear || '') && (d.semester || '') === (actor.semester || '')
+    )
     const yearLevel = current[0]?.yearLevel || ''
     const usernames = Array.from(new Set(current.map((d) => d.studentUsername).filter(Boolean)))
     if (usernames.length === 0) {
@@ -181,7 +205,7 @@ export async function POST(request: NextRequest) {
     const verdict = await moderateContent({
       surface: 'task',
       fields: { title, description },
-      actor: { username: session.username, role: performer.role, branch: performer.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
     const now = new Date()
@@ -189,7 +213,7 @@ export async function POST(request: NextRequest) {
       branch,
       studentUsername,
       subjectCode,
-      term: { academicYear: performer.academicYear, semester: performer.semester, yearLevel },
+      term: { academicYear: actor.academicYear, semester: actor.semester, yearLevel },
       title,
       type,
       description: description || undefined,
@@ -210,7 +234,7 @@ export async function POST(request: NextRequest) {
     // fail the task post itself.
     try {
       const notifCol = await getCollection<MongoNotification>('notifications')
-      const sectionKey = `${subjectCode}|${performer.academicYear}|${performer.semester}`
+      const sectionKey = `${subjectCode}|${actor.academicYear}|${actor.semester}`
       const dueLabel = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       const trimmedDesc = description || ''
       const notifs: MongoNotification[] = usernames.map((studentUsername, i) => ({
@@ -218,8 +242,8 @@ export async function POST(request: NextRequest) {
         studentUsername,
         title: `New ${type}: ${title}`,
         body: trimmedDesc ? `${subjectCode} · due ${dueLabel} · ${trimmedDesc.slice(0, 140)}` : `${subjectCode} · due ${dueLabel}`,
-        fromName: performer.fullName,
-        fromUsername: session.username,
+        fromName: actor.fullName,
+        fromUsername: actor.username,
         sectionKey,
         subjectCode,
         taskId: (result.insertedIds as any)?.[i]?.toString() || null,
@@ -244,31 +268,38 @@ export async function POST(request: NextRequest) {
 // Faculty only (session). Flips submissionsClosed on every matching student doc.
 export async function PATCH(request: NextRequest) {
   try {
-    // Phase 6: performer is the session user; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.4: canonical actor first (the resource term comes off it).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
     const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await parseBody(
       request,
       taskPatchSchema
     )
-    const spoof = spoofCheck(session, performedBy)
+    // Phase 6: performer is the session user; mismatched performedBy is a spoof attempt.
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    if (branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    const check = await requireTeachingFaculty(session.username, branch, subjectCode)
-    if (check.error) return check.error
-    const { performer } = check as { performer: any }
+    // C2.4: faculty role, claimed-branch parity, and the current-term
+    // teaching load centralized (task.section update).
+    const actor = ctx.actor
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), {
+        kind: 'task.section',
+        subjectCode,
+        term: { academicYear: actor.academicYear, semester: actor.semester },
+        branch,
+      }, 'update')
+    )
+    if (gate) throw gate
+
     const query: Record<string, any> = {
       branch,
       subjectCode,
       title,
-      'term.academicYear': performer.academicYear,
-      'term.semester': performer.semester,
+      'term.academicYear': actor.academicYear,
+      'term.semester': actor.semester,
     }
     if (dueDate) {
       const start = new Date(dueDate)

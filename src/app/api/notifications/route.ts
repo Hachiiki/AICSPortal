@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse, objectIdSchema } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -72,28 +71,24 @@ const notificationPatchSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: inbox reads are self-or-staff. (Faculty sent history
-    // lives in /api/notifications/sent with grouping + expiry.)
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const query = parseQuery(request, notificationsGetQuerySchema)
     const username = query.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
-      const isStaff = session.role === 'faculty' || session.role === 'admin'
-      if (!isStaff) {
-        return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-      }
-    }
+    // C2.4: self-or-staff gate centralized (notification.inbox read;
+    // DB role — the FIX-M2 flip rides here, issue #62). The student
+    // lookup (404) and the branch-mismatch 403 stay route-kept below,
+    // exactly as today. (Faculty sent history lives in
+    // /api/notifications/sent with grouping + expiry.)
+    const {
+      ctx: { claims },
+    } = await requireCan(request, { kind: 'notification.inbox', username }, 'read')
     const student = await getStudentByUsername(username)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
-    if (student.branch !== session.branch) {
+    if (student.branch !== claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
     const col = await getCollection<MongoNotification>('notifications')
@@ -112,34 +107,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: sender is the session user; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { branch, title, body, sectionKeys, performedBy } = await parseBody(request, notificationPostSchema)
-    const spoof = spoofCheck(session, performedBy)
-    if (spoof) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    if (branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // Phase 6: sender is the session user (legacy performedBy already spoof-checked; ignored).
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'faculty') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-    }
-    if (performer.branch !== branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
+    // C2.4: session, spoof (performedBy), faculty role, and claimed
+    // branch parity centralized (notification.send create); the
+    // sender identity comes off the authz context.
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'notification.send', sectionKeys, branch }, 'send', {
+      claimedIdentity: performedBy,
+    })
 
-    // Resolve the performer's own sections from their teaching load.
+    // Resolve the actor's own sections from their teaching load.
     // Requested keys outside this set are rejected, so a teacher can
-    // never notify another teacher's students.
+    // never notify another teacher's students (unowned keys are
+    // silently dropped, all-unowned is a 403 — preserved behavior).
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
-      .find({ branch, professor: performer.fullName })
+      .find({ branch, professor: actor.fullName })
       .project({ code: 1, academicYear: 1, semester: 1, studentUsername: 1 })
       .toArray()
     const owned = new Map<string, { code: string; students: Set<string> }>()
@@ -162,7 +146,7 @@ export async function POST(request: NextRequest) {
     const verdict = await moderateContent({
       surface: 'section-notification',
       fields: { title, body },
-      actor: { username: session.username, role: performer.role, branch: performer.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
 
@@ -176,8 +160,8 @@ export async function POST(request: NextRequest) {
           studentUsername,
           title,
           body,
-          fromName: performer.fullName,
-          fromUsername: session.username,
+          fromName: actor.fullName,
+          fromUsername: actor.username,
           sectionKey: key,
           subjectCode: entry.code,
           createdAt: now,
@@ -208,21 +192,18 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    // Phase 6: readers may only mark their own docs (session-enforced).
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { username, id, all } = await parseBody(request, notificationPatchSchema)
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.4: auth + username-self gate centralized (notification.inbox
+    // markRead: self only, notOwner 403 otherwise).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'notification.inbox', username }, 'markRead')
     const student = await getStudentByUsername(username)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
     const col = await getCollection<MongoNotification>('notifications')
-    const base = { branch: student.branch, studentUsername: username }
+    const base = { branch: student.branch, studentUsername: actor.username }
     // Session-scoped to the reader's own username and branch (see above).
     if (all === true) {
       const result = await col.updateMany({ ...base, read: false }, { $set: { read: true, readAt: new Date() } })

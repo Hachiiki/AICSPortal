@@ -214,7 +214,7 @@ sc STU-GRADES-PARTIAL studentD GET "/api/student?username=b.mendoza" seeded 200 
 sc STU-EXPORT-SELF studentA GET /api/student/export seeded 200 - - "self export"
 sc STU-TASKS-SELF studentA GET /api/tasks seeded 200 - - "own tasks"
 sc STU-TASKS-OTHER studentB GET "/api/tasks?username=juan.santos" seeded 403 - - "student vs student tasks"
-sc STU-TASKS-STALE-ROLE staleFac GET "/api/tasks?username=juan.santos" seeded 200 - - "M2 site; flips 403 at C2.4 (issue #62)"
+sc STU-TASKS-STALE-ROLE staleFac GET "/api/tasks?username=juan.santos" seeded 200 - - "M2 fixed at C2.4: role read from the DB, stale faculty claim denied (issue #62)"
 sc STU-ENROLL-SELF studentA GET /api/enrollment seeded 200 - - "own finances"
 sc STU-ENROLL-OTHER studentB GET "/api/enrollment?username=juan.santos" seeded 403 - - "staff denied by design too"
 sc STU-UPDATE-SELF studentA PATCH "/api/student/update?username=juan.santos" seeded '{"phone":"+63 917 123 9999"}' - - "self profile update (username via query)"
@@ -228,7 +228,7 @@ sc FAC-TASKS-SELF facultyX GET /api/faculty/tasks seeded 200 - - "server-derived
 sc FAC-HISTORY-SELF facultyX GET /api/faculty/history seeded 200 - - "released-only rows"
 sc NOTIF-INBOX-SELF studentA GET "/api/notifications?username=juan.santos" seeded 200 - - "own inbox"
 sc NOTIF-INBOX-STAFF facultyX GET "/api/notifications?username=juan.santos" seeded 200 - - "D2 pin: staff inbox breadth (issue #79)"
-sc NOTIF-INBOX-STALE-ROLE staleFac GET "/api/notifications?username=juan.santos" seeded 200 - - "M2 site; flips 403 at C2.4 (issue #62)"
+sc NOTIF-INBOX-STALE-ROLE staleFac GET "/api/notifications?username=juan.santos" seeded 200 - - "M2 fixed at C2.4: role read from the DB, stale faculty claim denied (issue #62)"
 sc NOTIF-SENT-SELF facultyX GET "/api/notifications/sent?sentBy=m.reyes" seeded 200 - - "own outbox"
 
 # --- materials ---

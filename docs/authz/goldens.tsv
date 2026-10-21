@@ -13,7 +13,7 @@ STU-GRADES-PARTIAL	studentD	GET	/api/student?username=b.mendoza	seeded	200	conta
 STU-EXPORT-SELF	studentA	GET	/api/student/export	seeded	200	-	self export
 STU-TASKS-SELF	studentA	GET	/api/tasks	seeded	200	-	own tasks
 STU-TASKS-OTHER	studentB	GET	/api/tasks?username=juan.santos	seeded	403	-	student vs student tasks
-STU-TASKS-STALE-ROLE	staleFac	GET	/api/tasks?username=juan.santos	seeded	200	-	M2 site; flips 403 at C2.4 (issue #62)
+STU-TASKS-STALE-ROLE	staleFac	GET	/api/tasks?username=juan.santos	seeded	403	-	M2 fixed at C2.4: role read from the DB, stale faculty claim denied (issue #62)
 STU-ENROLL-SELF	studentA	GET	/api/enrollment	seeded	200	-	own finances
 STU-ENROLL-OTHER	studentB	GET	/api/enrollment?username=juan.santos	seeded	403	-	staff denied by design too
 STU-UPDATE-SELF	studentA	PATCH	/api/student/update?username=juan.santos	seeded	200	-	self profile update (username via query)
@@ -25,7 +25,7 @@ FAC-TASKS-SELF	facultyX	GET	/api/faculty/tasks	seeded	200	-	server-derived load 
 FAC-HISTORY-SELF	facultyX	GET	/api/faculty/history	seeded	200	-	released-only rows
 NOTIF-INBOX-SELF	studentA	GET	/api/notifications?username=juan.santos	seeded	200	-	own inbox
 NOTIF-INBOX-STAFF	facultyX	GET	/api/notifications?username=juan.santos	seeded	200	-	D2 pin: staff inbox breadth (issue #79)
-NOTIF-INBOX-STALE-ROLE	staleFac	GET	/api/notifications?username=juan.santos	seeded	200	-	M2 site; flips 403 at C2.4 (issue #62)
+NOTIF-INBOX-STALE-ROLE	staleFac	GET	/api/notifications?username=juan.santos	seeded	403	-	M2 fixed at C2.4: role read from the DB, stale faculty claim denied (issue #62)
 NOTIF-SENT-SELF	facultyX	GET	/api/notifications/sent?sentBy=m.reyes	seeded	200	-	own outbox
 MAT-LIST-STUDENT	studentA	GET	/api/materials	seeded	200	-	enrolled student list
 MAT-LIST-FACULTY	facultyX	GET	/api/materials	seeded	200	-	load-scoped faculty list
@@ -55,8 +55,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad8e91fcb41d94022b433c4/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad8e91fcb41d94022b433c4/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad8ed75f69b14e01b2c246d/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad8ed75f69b14e01b2c246d/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row

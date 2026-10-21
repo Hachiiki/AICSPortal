@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { submitTask } from '@/lib/mongodb/queries'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseQuery, errResponse, objectIdSchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -29,23 +29,26 @@ export async function PATCH(
 ) {
   try {
     const { taskId } = await params
-    // Phase 6 (closes BUG-004 cross-user submit): only the session user may submit their own tasks.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    const claimed = parseQuery(request, submitQuerySchema).username
+    // C2.4: auth + username-self gate centralized (task submit: any
+    // authed actor passes; the atomic update filter self-scopes to
+    // {studentUsername: session username}). The username query field
+    // rides the guard's spoof check, preserving the ownership-in-filter
+    // pattern (design section 6.2).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'task', taskId }, 'submit', {
+      claimedIdentity: claimed,
+    })
     // Route params are always strings; reject non-ObjectId shapes before ObjectId().
     const parsedId = objectIdSchema.safeParse(taskId)
     if (!parsedId.success) {
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
-    const username = parseQuery(request, submitQuerySchema).username || session.username
+    const username = claimed || actor.username
 
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const result = await submitTask(parsedId.data, username)

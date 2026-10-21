@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse, selfQuerySchema } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
-import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoMaterial } from '@/lib/mongodb/types'
 import { cloudinaryEnv, destroyAsset, extResourceType, spoofForbidden, MATERIALS_MAX_BYTES } from './cloudinary'
 
@@ -51,24 +50,33 @@ const materialPostSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // C2.4: canonical actor off the DB doc. The self-username check,
+    // the user lookup (404), and the user.branch vs claims.branch
+    // comparison stay route-kept (per the material.list policy
+    // comment); the admin-excluded role gate centralizes below.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
+    const username = parseQuery(request, selfQuerySchema).username || ctx.actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
+    if (username !== ctx.actor.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const user = await getStudentByUsername(username)
     if (!user) {
       return NextResponse.json({ ok: false, error: 'User not found.' }, { status: 404 })
     }
-    if (user.branch !== session.branch) {
+    if (user.branch !== ctx.claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
+    // C2.4: role gate centralized (material.list read: student or
+    // faculty, admin excluded by design).
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'material.list' }, 'read')
+    )
+    if (gate) throw gate
 
     let codes: string[]
     if (user.role === 'student') {
@@ -94,7 +102,7 @@ export async function GET(request: NextRequest) {
     const col = await getCollection<MongoMaterial>('materials')
     const rows = await col
       .find({
-        branch: session.branch,
+        branch: ctx.claims.branch,
         subjectCode: { $in: codes },
         'term.academicYear': user.academicYear,
         'term.semester': user.semester,
@@ -120,24 +128,40 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.4: canonical actor first (the resource term comes off it).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
     const { branch, subjectCode, title, kind, url, publicId, resourceType, bytes, format, filename, performedBy } =
       await parseBody(request, materialPostSchema)
-    const forbidden = spoofForbidden(session, performedBy)
+    const forbidden = spoofForbidden(ctx.claims, performedBy)
     if (forbidden) return forbidden
-    if (branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // Teaching-load check runs as the session user.
-    const check = await requireTeachingFaculty(session.username, session.branch, subjectCode)
-    if (check.error) return check.error
-    const { performer, current } = check as { performer: any; current: any[] }
+    // C2.4: faculty role, claimed-branch parity, and the current-term
+    // teaching load centralized (material.upload create).
+    const actor = ctx.actor
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), {
+        kind: 'material.upload',
+        subjectCode,
+        term: { academicYear: actor.academicYear, semester: actor.semester },
+        branch,
+      }, 'create')
+    )
+    if (gate) throw gate
+
+    // Term stamp (data query, same JS-side term matching the policy's
+    // relation uses; yearLevel off a current-term load row).
+    const loadCol = await getCollection('subjects')
+    const loadRows = await loadCol
+      .find({ branch, professor: actor.fullName, code: subjectCode })
+      .project({ academicYear: 1, semester: 1, yearLevel: 1 })
+      .toArray()
+    const current = loadRows.filter(
+      (d: any) => (d.academicYear || '') === (actor.academicYear || '') && (d.semester || '') === (actor.semester || '')
+    )
     const term = {
-      academicYear: performer.academicYear,
-      semester: performer.semester,
+      academicYear: actor.academicYear,
+      semester: actor.semester,
       yearLevel: current[0]?.yearLevel || '',
     }
 
@@ -149,7 +173,7 @@ export async function POST(request: NextRequest) {
       surface: 'material-link',
       fields: { title },
       urlFields: { url: typeof url === 'string' ? url.trim() : url },
-      actor: { username: session.username, role: performer.role, branch: performer.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
 
@@ -161,7 +185,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ ok: false, error: 'A valid http(s) URL is required.' }, { status: 400 })
       }
       const doc: MongoMaterial = {
-        branch: session.branch,
+        branch: ctx.claims.branch,
         subjectCode,
         term,
         title,
@@ -171,7 +195,7 @@ export async function POST(request: NextRequest) {
         resourceType: null,
         bytes: null,
         format: null,
-        uploadedBy: session.username,
+        uploadedBy: actor.username,
         uploadedAt: new Date(),
       }
       const result = await col.insertOne(doc as any)
@@ -203,7 +227,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'File type is not allowed.' }, { status: 400 })
     }
     const doc: MongoMaterial = {
-      branch: session.branch,
+      branch: ctx.claims.branch,
       subjectCode,
       term,
       title,
@@ -213,7 +237,7 @@ export async function POST(request: NextRequest) {
       resourceType,
       bytes: Math.floor(size),
       format: (format || ext || null)?.slice(0, 16) || null,
-      uploadedBy: session.username,
+      uploadedBy: actor.username,
       uploadedAt: new Date(),
     }
     const result = await col.insertOne(doc as any)
