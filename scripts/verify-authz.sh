@@ -202,7 +202,7 @@ if [ "$UPDATE" = 1 ]; then rm -f "$LOG_DIR/authz-actuals.tsv"; touch "$LOG_DIR/a
 # --- auth gates ---
 sc AUTH-NO-SESSION none GET /api/student seeded 401 - - "unauthenticated gate (proxy)"
 sc AUTH-SESSION-SELF studentA GET /api/auth/session seeded 200 - - "public passthrough, revocation-aware"
-sc DEMO-LOGIN none POST /api/auth/demo seeded - - - "demo login gated off in production builds (L5 pin; both worlds 404)"
+sc DEMO-LOGIN none POST /api/auth/demo seeded - - - "L5 fixed at C3.12: gates on the env.ts classification; production build stays 404 (issue #69)"
 
 # --- student surface ---
 sc STU-READ-SELF studentA GET "/api/student?username=juan.santos" seeded 200 - 'contains:Juan Dela Cruz Santos' "positive control"

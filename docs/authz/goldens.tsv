@@ -1,7 +1,7 @@
 id	actor	method	target	precondition	expect_status	expect_body	notes
 AUTH-NO-SESSION	none	GET	/api/student	seeded	401	-	unauthenticated gate (proxy)
 AUTH-SESSION-SELF	studentA	GET	/api/auth/session	seeded	200	-	public passthrough, revocation-aware
-DEMO-LOGIN	none	POST	/api/auth/demo	seeded	404	-	demo login gated off in production builds (L5 pin; both worlds 404)
+DEMO-LOGIN	none	POST	/api/auth/demo	seeded	404	-	L5 fixed at C3.12: gates on the env.ts classification; production build stays 404 (issue #69)
 STU-READ-SELF	studentA	GET	/api/student?username=juan.santos	seeded	200	contains:Juan Dela Cruz Santos	positive control
 STU-READ-OTHER-STU	studentB	GET	/api/student?username=juan.santos	seeded	403	-	student vs student
 STU-READ-ABSENT	studentA	GET	/api/student?username=ghost.user	absent	403	-	L1 fixed at C3.8: authz precedes existence, uniform deny (issue #65)
@@ -58,8 +58,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91edb3763629cead74029/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91edb3763629cead74029/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad91ff5adeeee840de449a1/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad91ff5adeeee840de449a1/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
