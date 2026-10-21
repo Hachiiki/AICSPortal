@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
+import { errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoStudent, MongoSubject, MongoProfessor, MongoEvent, MongoAnnouncement, MongoEnrollment, MongoProgram, MongoCourse } from '@/lib/mongodb/types'
 
 // GET /api/admin/stats
@@ -18,14 +19,9 @@ import type { MongoStudent, MongoSubject, MongoProfessor, MongoEvent, MongoAnnou
 // simpler and faster than an aggregation pipeline here.
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
+    // C2.1: session + admin-role gate centralized (admin.stats read,
+    // school-wide by design per D1; issue #79 registry row).
+    await requireCan(request, { kind: 'admin.stats' }, 'read')
 
     // getCollection<T> returns `any` (see connection.ts), so a typed
     // helper keeps the Promise.all tuple inference intact downstream.
@@ -279,6 +275,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Admin stats API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to compute school stats.' }, { status: 500 })
   }

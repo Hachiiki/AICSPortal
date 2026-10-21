@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { z } from 'zod'
 import { getStudentByUsername, getProfessors } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, idQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import type { MongoProfessor } from '@/lib/mongodb/types'
@@ -17,16 +17,17 @@ import type { MongoProfessor } from '@/lib/mongodb/types'
 // joins them with the student's current-term subjects by name.
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: branch directory reads require a session; username must be self.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, professorsGetQuerySchema).username || session.username
+    // C2.1: auth gate centralized (branch.directory read: any authed).
+    // The username-self check and the student lookup stay route-kept
+    // (identity validation, lookup-first, not policy decisions).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.directory' }, 'read')
+    const username = parseQuery(request, professorsGetQuerySchema).username || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
+    if (username !== actor.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -101,24 +102,13 @@ const professorPatchSchema = z.object({
   room: professorField('Room').optional(),
 })
 
-async function requireAdmin(request: NextRequest) {
-  const session = await getSession(request)
-  if (!session) {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 }) }
-  }
-  const performer = await getStudentByUsername(session.username)
-  if (!performer || performer.role !== 'admin') {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 }) }
-  }
-  return { performer }
-}
-
 // POST /api/professors (admin) — add a directory entry
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.directory create).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.directory' }, 'create')
 
     const fields = await parseBody(request, professorCreateSchema)
     if (!fields.name || !fields.email) {
@@ -130,7 +120,7 @@ export async function POST(request: NextRequest) {
 
     const col = await getCollection<MongoProfessor>('professors')
     const doc: MongoProfessor = {
-      branch: performer.branch,
+      branch: actor.branch,
       name: fields.name,
       email: fields.email,
       officeHours: fields.officeHours || 'TBA',
@@ -155,9 +145,10 @@ export async function POST(request: NextRequest) {
 // PATCH /api/professors (admin) — edit a directory entry
 export async function PATCH(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.directory update).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.directory' }, 'update')
 
     const { id, ...fields } = await parseBody(request, professorPatchSchema)
     let idFilter: ObjectId
@@ -179,7 +170,7 @@ export async function PATCH(request: NextRequest) {
     const col = await getCollection<MongoProfessor>('professors')
     let result
     try {
-      result = await col.updateOne({ _id: idFilter, branch: performer.branch }, { $set: update })
+      result = await col.updateOne({ _id: idFilter, branch: actor.branch }, { $set: update })
     } catch (err: any) {
       if (err?.code === 11000) {
         return NextResponse.json({ ok: false, error: 'Another professor in this branch already uses that name.' }, { status: 409 })
@@ -202,9 +193,10 @@ export async function PATCH(request: NextRequest) {
 // directory card disappears from the student Professors page.
 export async function DELETE(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.directory delete).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.directory' }, 'delete')
 
     const query = parseQuery(request, idQuerySchema)
     let idFilter: ObjectId
@@ -214,7 +206,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Professor not found.' }, { status: 404 })
     }
     const col = await getCollection<MongoProfessor>('professors')
-    const result = await col.deleteOne({ _id: idFilter, branch: performer.branch })
+    const result = await col.deleteOne({ _id: idFilter, branch: actor.branch })
     if (result.deletedCount === 0) {
       return NextResponse.json({ ok: false, error: 'Professor not found.' }, { status: 404 })
     }

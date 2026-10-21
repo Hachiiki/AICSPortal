@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
+import { errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import { NOTIFICATION_RETENTION_DAYS } from '@/lib/aics/notifications'
 import type { MongoNotification } from '@/lib/mongodb/types'
 
@@ -45,16 +47,14 @@ import type { MongoNotification } from '@/lib/mongodb/types'
 //  per-teacher parameter at all, and the two accepted callers
 //  (cron secret, admin session) are both system-level. Faculty
 //  sessions are rejected.
+//
+//  C2.1: the admin-session half of the gate is the notification.cleanup
+//  policy case (src/lib/authz), which reads the role from the DB, not
+//  the JWT claim (FIX-M2 rider, issue #62: a demoted admin loses this
+//  route on the next request). The Bearer CRON_SECRET half stays in the
+//  route until FIX-M3 (C3.6) admits the path in the proxy with a
+//  timing-safe compare.
 // ============================================================
-
-async function authorize(request: NextRequest): Promise<boolean> {
-  const secret = process.env.CRON_SECRET
-  if (secret && request.headers.get('authorization') === `Bearer ${secret}`) {
-    return true
-  }
-  const session = await getSession(request)
-  return !!session && session.role === 'admin'
-}
 
 async function runCleanup() {
   // Pure timestamp comparison — no formatted date strings anywhere.
@@ -66,13 +66,17 @@ async function runCleanup() {
 
 async function handle(request: NextRequest) {
   try {
-    if (!(await authorize(request))) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
+    // Bearer-secret path: route territory until FIX-M3 (C3.6).
+    const secret = process.env.CRON_SECRET
+    const bearerOk = !!secret && request.headers.get('authorization') === `Bearer ${secret}`
+    if (!bearerOk) {
+      await requireCan(request, { kind: 'notification.cleanup' }, 'cleanup')
     }
     const { deleted, cutoff } = await runCleanup()
     // Idempotent and safe to repeat: only already-expired docs match.
     return NextResponse.json({ ok: true, deleted, cutoff, retentionDays: NOTIFICATION_RETENTION_DAYS })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Notification cleanup error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to run cleanup.' }, { status: 500 })
   }

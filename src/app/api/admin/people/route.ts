@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
+import { errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
 import type { MongoStudent } from '@/lib/mongodb/types'
 
 // GET /api/admin/people
@@ -15,14 +16,9 @@ import type { MongoStudent } from '@/lib/mongodb/types'
 // Passwords and tokenVersion are never selected out of the database.
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
+    // C2.1: session + admin-role gate centralized (admin.directory read,
+    // school-wide by design per D1; issue #78 registry row).
+    await requireCan(request, { kind: 'admin.directory' }, 'read')
 
     const col = await getCollection<MongoStudent>('students')
     const users = await col
@@ -80,6 +76,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Admin people API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load directory.' }, { status: 500 })
   }
