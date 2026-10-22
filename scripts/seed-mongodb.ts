@@ -30,6 +30,28 @@ const BRANCH = 'commonwealth' as const
 const BRANCH_NAME = 'AICS Commonwealth'
 const BRANCH_ADDRESS = 'AICS Bldg., Commonwealth Ave., Cor., Holy Spirit Drive Brgy. Don Antonio, Quezon City'
 
+// Demo-credential rotation persistence guard (issue #72 security
+// follow-up, PROPOSED on dev/credential-rotation-prep): local seeds keep
+// the documented defaults so the login page's docs and QA harnesses keep
+// working, but a REMOTE (production-shaped) seed REFUSES to run unless
+// the demo passwords are injected via env. After
+// scripts/rotate-demo-credentials.ts rotates production, a reseed can
+// therefore never silently revert the rotation: either it aborts, or it
+// carries the rotated values forward explicitly. Preflight placement —
+// fails before any network I/O.
+const REMOTE_TARGET = !/127\.0\.0\.1|localhost/i.test(uri)
+const DEMO_PW = {
+  student: process.env.DEMO_PW_STUDENT,
+  faculty: process.env.DEMO_PW_FACULTY,
+  admin: process.env.DEMO_PW_ADMIN,
+}
+if (REMOTE_TARGET && (!DEMO_PW.student || !DEMO_PW.faculty || !DEMO_PW.admin)) {
+  console.error('ABORT: seeding a REMOTE database requires DEMO_PW_STUDENT / DEMO_PW_FACULTY /')
+  console.error('       DEMO_PW_ADMIN in the environment (demo-credential rotation persistence')
+  console.error('       guard — see docs/authz/credential-rotation-runbook.md).')
+  process.exit(2)
+}
+
 // BUG-018: index builds can stall silently on throttled tiers (observed on Atlas M0).
 // Helper adds per-index timeout + progress logs so a hang fails loudly instead of hanging.
 async function createIndexSafe(db: any, collection: string, spec: any, options: any, label: string) {
@@ -66,11 +88,13 @@ async function seed() {
 
   // Passwords are hashed at seed time (scrypt, same as the app's
   // verifyPassword) so a freshly seeded environment NEVER contains
-  // plaintext credentials. Demo passwords are unchanged — the login
-  // page's docs and QA harnesses keep working.
-  const STUDENT_PW = await hashPassword('student123')
-  const FACULTY_PW = await hashPassword('faculty123')
-  const ADMIN_PW = await hashPassword('admin123')
+  // plaintext credentials. Values come from the top-level guard:
+  // documented defaults locally, env-injected on remote targets.
+  const STUDENT_PW = await hashPassword(DEMO_PW.student || 'student123')
+  const FACULTY_PW = await hashPassword(DEMO_PW.faculty || 'faculty123')
+  const ADMIN_PW = await hashPassword(DEMO_PW.admin || 'admin123')
+  // Never print password values in seed logs (username-only from here on).
+  const pwLabel = REMOTE_TARGET ? 'env-injected' : 'documented defaults'
 
 
   // ----------------------------------------------------------
@@ -498,7 +522,7 @@ async function seed() {
 
   await db.collection('students').deleteMany({ branch: BRANCH, username: 'm.reyes' })
   await db.collection('students').insertOne(facultyUser)
-  console.log(`  ✓ Inserted faculty user: m.reyes / faculty123`)
+  console.log(`  ✓ Inserted faculty user: m.reyes (${pwLabel})`)
 
   // ----------------------------------------------------------
   //  4c. Admin user — same `students` collection, role='admin'.
@@ -539,7 +563,7 @@ async function seed() {
 
   await db.collection('students').deleteMany({ branch: BRANCH, username: 'admin' })
   await db.collection('students').insertOne(adminUser)
-  console.log(`  ✓ Inserted admin user: admin / admin123`)
+  console.log(`  ✓ Inserted admin user: admin (${pwLabel})`)
 
   // ----------------------------------------------------------
   //  5. Tasks (current term + previous term for visibility test)
@@ -906,7 +930,7 @@ async function seed() {
   console.log(`  ✓ Created indexes`)
 
   console.log('\n✅ Seed complete!')
-  console.log(`   Student: juan.santos / student123`)
+  console.log(`   Student: juan.santos (${pwLabel})`)
   console.log(`   Student #: 251438`)
   console.log(`   Year: 2nd Year, Section: CS-2A`)
   console.log(`   Current AY: 2026-2027 (in-progress)`)
@@ -916,9 +940,9 @@ async function seed() {
   console.log(`   Events: 10 school-wide calendar events`)
   console.log(`   Professors: ${professors.length} directory entries`)
   console.log(`   Enrollments: ${enrollments.length} per-term records (current term: partial payment)`)
-  console.log(`   Faculty: m.reyes / faculty123`)
-  console.log(`   Admin: admin / admin123`)
-  console.log(`   Additional students: maria.cruz / student123, jose.garcia / student123`)
+  console.log(`   Faculty: m.reyes (${pwLabel})`)
+  console.log(`   Admin: admin (${pwLabel})`)
+  console.log(`   Additional students: maria.cruz, jose.garcia (same student value)`)
   console.log(`   m.reyes roster: 3 students (juan.santos, maria.cruz, jose.garcia) in CS 208 & CS 209`)
 
   await client.close()
