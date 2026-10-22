@@ -81,9 +81,9 @@ GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after submit+release	200	contains
 GRD-AUDITS-WITHDRAW	facultyY	GET	/api/grades/audits	after withdraw	200	contains:withdraw	H1a: withdrawal writes a visible audit row (issue #58)
 GRD-AUDITS-UNRELEASE	admin	GET	/api/grades/audits	after unrelease	200	contains:unrelease	H1a: unrelease writes a visible audit row (issue #58)
 GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate
-FAC-ROSTER-FALLBACK	facultyX	GET	/api/faculty?username=m.reyes	unstamped CS 208 rows	200	contains:CS 208	A1 phase 1: unstamped rows fall back to the name match (issue #72)
-FAC-REASSIGN-OLD	facultyX	GET	/api/faculty?username=m.reyes	reassigned CS 209 rows	200	!contains:CS 209	A1 phase 1: stale display name no longer grants ownership (issue #72)
-FAC-REASSIGN-NEW	facultyY	GET	/api/faculty?username=l.bautista	reassigned CS 209 rows	200	contains:CS 209	A1 phase 1: stamped username owns the row (issue #72)
+FAC-ROSTER-FALLBACK	facultyX	GET	/api/faculty?username=m.reyes	unstamped CS 208 rows	200	contains:Systems Administration	A1 phase 1: unstamped rows fall back to the name match (issue #72)
+FAC-REASSIGN-OLD	facultyX	GET	/api/faculty?username=m.reyes	reassigned CS 209 rows	200	!contains:Human-Computer Interaction	A1 phase 1: stale display name no longer grants ownership (issue #72)
+FAC-REASSIGN-NEW	facultyY	GET	/api/faculty?username=l.bautista	reassigned CS 209 rows	200	contains:Human-Computer Interaction	A1 phase 1: stamped username owns the row (issue #72)
 GRD-PERIOD-USERNAME	facultyY	PATCH	/api/grades/update	reassigned CS 209 rows	200	-	A1 phase 1: grade-period ownership follows the stamp (issue #72)
 GRD-PERIOD-USERNAME-OLD	facultyX	PATCH	/api/grades/update	reassigned CS 209 rows	400	contains:Not your section	A1 phase 1: stale display name denied on the grade write (issue #72)
 CRON-ADMIN-SESSION	admin	POST	/api/notifications/cleanup	seeded	200	-	admin session path works today
