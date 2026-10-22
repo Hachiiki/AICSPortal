@@ -84,15 +84,18 @@ async function expectDeny(
   }
 }
 
-// rel where the caller's actor owns the subject under test
+// rel where the caller's actor owns the subject under test.
+// gradeRowState fakes carry professorUsername: '' (unstamped legacy
+// rows) so the fallback name comparison drives the existing assertions;
+// the A1 precedence tests below override with a stamp.
 const ownRel = (owner: string): Relations =>
   fakeRel({
     teachesSubject: async () => owner === 'owner',
     gradeRowState: async (ref: { subjectCode: string }) =>
       ref.subjectCode === 'CS 103'
-        ? { professor: 'Engr. Lorenzo Bautista', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'submitted', finals: 'released' } }
+        ? { professorUsername: '', professor: 'Engr. Lorenzo Bautista', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'submitted', finals: 'released' } }
         : ref.subjectCode === 'CS 101'
-          ? { professor: 'Maria Reyes', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'draft', finals: 'draft' } }
+          ? { professorUsername: '', professor: 'Maria Reyes', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'draft', finals: 'draft' } }
           : null,
   })
 
@@ -283,6 +286,49 @@ describe('grade policies', () => {
       'update',
       noName,
       ownRel('owner'),
+      'notAssigned',
+      403
+    )
+  })
+
+  it('A1: a stamped row is owned by the username only — display name is ignored (issue #72)', async () => {
+    // Stamped CS 209 row: professorUsername 'l.bautista', stale display
+    // name still "Engr. Maria Cristina Reyes" (the reassignment shape).
+    // facultyY (username l.bautista, different display name) owns it.
+    const stampedRel: Relations = fakeRel({
+      gradeRowState: async () => ({
+        professorUsername: 'l.bautista',
+        professor: 'Engr. Maria Cristina Reyes',
+        branch: 'commonwealth',
+        statuses: { prelim: '', midterm: '', finals: '' },
+      }),
+    })
+    await expectAllow(
+      { kind: 'grade.period', studentUsername: 'juan.santos', subjectCode: 'CS 209', term: T, period: 'prelim', branch: 'commonwealth' },
+      'update',
+      facultyY,
+      stampedRel
+    )
+  })
+
+  it('A1: a stale display name never grants ownership of a stamped row (issue #72)', async () => {
+    // Same stamped row; facultyX (username m.reyes) carries the display
+    // name that still matches the row's professor string — the name match
+    // must NOT grant ownership once the row is stamped to someone else.
+    const stampedRel: Relations = fakeRel({
+      gradeRowState: async () => ({
+        professorUsername: 'l.bautista',
+        professor: 'Engr. Maria Cristina Reyes',
+        branch: 'commonwealth',
+        statuses: { prelim: '', midterm: '', finals: '' },
+      }),
+    })
+    const mariaReyesWithStaleName = ctxFor({ username: 'm.reyes', fullName: 'Engr. Maria Cristina Reyes' })
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'juan.santos', subjectCode: 'CS 209', term: T, period: 'prelim', branch: 'commonwealth' },
+      'update',
+      mariaReyesWithStaleName,
+      stampedRel,
       'notAssigned',
       403
     )
