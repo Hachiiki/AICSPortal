@@ -24,6 +24,5 @@ export {
   createScopes,
   professorOwnership,
   type AuthzScopes,
-  type ProfessorMatchClause,
   type ProfessorOwnershipFilter,
 } from './scopes'

@@ -105,20 +105,14 @@ export async function can(
       })
       if (!st) return deny('notFound', 'Not found')
       // FIX-H1b (C3.2, issue #59): the professor-of-record check is
-      // unconditional — a missing fullName fails closed instead of
-      // skipping the check entirely.
+      // unconditional — a missing stamp fails closed instead of skipping
+      // the check entirely.
       //
-      // A1 phase 1 (issue #72): the check reads the dual-write key with
-      // the same per-row precedence as every ownership filter — a
-      // stamped row (professorUsername present) is owned by that
-      // username ONLY, so its stale display name never grants
-      // ownership; an unstamped row falls back to the display-name
-      // comparison, where a falsy fullName still fails closed.
-      if (
-        st.professorUsername
-          ? st.professorUsername !== ctx.actor.username
-          : !ctx.actor.fullName || st.professor !== ctx.actor.fullName
-      )
+      // A1 phase 3 (issue #72): strict username ownership — the stamp is
+      // the ONLY key. Unstamped rows ('' from an absent field) and
+      // malformed stamps match no account, so they deny fail-closed; the
+      // display name is never read for the ownership decision.
+      if (st.professorUsername !== ctx.actor.username)
         return deny('notAssigned', 'Not your section')
       // FIX-H1a (C3.3, issue #58): the grade write state machine is
       // forward-only: '' / draft -> submitted -> released. Encoding

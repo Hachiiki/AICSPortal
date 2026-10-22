@@ -157,14 +157,14 @@ export async function GET(request: NextRequest) {
     } else {
       // Faculty / admin: their own teaching assignments (subjects where
       // they are the professor), no student data of others.
-      // A1 phase 1 (issue #72): the exported teaching assignments use
-      // the dual-write ownership match — username stamp first, legacy
-      // name fallback.
+      // A1 phase 3 (issue #72): the exported teaching assignments use
+      // the strict ownership key — username equality only; unstamped
+      // rows are owned by no account.
       const subjectsCol = await getCollection('subjects')
       const teaching = await subjectsCol
         .find({
           branch: actor.branch,
-          ...professorOwnership(me.username, me.fullName),
+          ...professorOwnership(me.username),
         })
         .project({ code: 1, title: 1, units: 1, schedule: 1, room: 1, academicYear: 1, semester: 1, status: 1 })
         .toArray()

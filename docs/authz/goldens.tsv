@@ -59,8 +59,8 @@ ADM-ENROLL-XBRANCH	admin2	GET	/api/admin/enrollment	seeded	200	-	D1 pin
 TASK-CREATE-OWN	facultyX	POST	/api/tasks	seeded	200	-	load-checked create (contrast with C1)
 TASK-CREATE-OTHER	facultyY	POST	/api/tasks	seeded	403	-	requireTeachingFaculty blocks: control row for C1
 TASK-CLOSE-OTHER	facultyY	PATCH	/api/tasks	seeded	403	-	load-checked close
-TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ad921637355d4e21a0a001d/grade	seeded	200	-	load-checked grade
-TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ad921637355d4e21a0a001d/grade	seeded	403	-	load-checked grade, other faculty
+TASK-GRADE-OWN	facultyX	PATCH	/api/tasks/6ada24c7c537f26367be22e0/grade	seeded	200	-	load-checked grade
+TASK-GRADE-OTHER	facultyY	PATCH	/api/tasks/6ada24c7c537f26367be22e0/grade	seeded	403	-	load-checked grade, other faculty
 GRD-QUEUE-ADMIN	admin	GET	/api/grades/release	seeded	200	contains:CS 103	queue shows jose.garcia submitted prelim
 GRD-QUEUE-FACULTY	facultyX	GET	/api/grades/release	seeded	403	-	admin-only queue
 GRD-UPD-OWN-DRAFT	facultyY	PATCH	/api/grades/update	seeded	200	-	encode own draft row
@@ -81,11 +81,14 @@ GRD-AUDITS-OWN	facultyY	GET	/api/grades/audits	after submit+release	200	contains
 GRD-AUDITS-WITHDRAW	facultyY	GET	/api/grades/audits	after withdraw	200	contains:withdraw	H1a: withdrawal writes a visible audit row (issue #58)
 GRD-AUDITS-UNRELEASE	admin	GET	/api/grades/audits	after unrelease	200	contains:unrelease	H1a: unrelease writes a visible audit row (issue #58)
 GRD-AUDITS-STUDENT	studentA	GET	/api/grades/audits	seeded	403	-	role gate
-FAC-ROSTER-FALLBACK	facultyX	GET	/api/faculty?username=m.reyes	unstamped CS 208 rows	200	contains:Systems Administration	A1 phase 1: unstamped rows fall back to the name match (issue #72)
-FAC-REASSIGN-OLD	facultyX	GET	/api/faculty?username=m.reyes	reassigned CS 209 rows	200	!contains:Human-Computer Interaction	A1 phase 1: stale display name no longer grants ownership (issue #72)
-FAC-REASSIGN-NEW	facultyY	GET	/api/faculty?username=l.bautista	reassigned CS 209 rows	200	contains:Human-Computer Interaction	A1 phase 1: stamped username owns the row (issue #72)
-GRD-PERIOD-USERNAME	facultyY	PATCH	/api/grades/update	reassigned CS 209 rows	200	-	A1 phase 1: grade-period ownership follows the stamp (issue #72)
-GRD-PERIOD-USERNAME-OLD	facultyX	PATCH	/api/grades/update	reassigned CS 209 rows	400	contains:Not your section	A1 phase 1: stale display name denied on the grade write (issue #72)
+FAC-ROSTER-UNSTAMPED	facultyX	GET	/api/faculty?username=m.reyes	unstamped CS 208 rows	200	!contains:Systems Administration	A1 phase 3: unstamped rows belong to no account — the name match no longer grants the roster (issue #72)
+GRD-SUBMIT-UNSTAMPED	facultyX	POST	/api/grades/submit	unstamped CS 208 rows	403	contains:teaching load	A1 phase 3: unstamped subject is not in the teaching load (issue #72)
+GRD-PERIOD-UNSTAMPED	facultyX	PATCH	/api/grades/update	unstamped CS 208 rows	400	contains:Not your section	A1 phase 3: unstamped grade row denies the name-matching professor (issue #72)
+FAC-REASSIGN-OLD	facultyX	GET	/api/faculty?username=m.reyes	reassigned CS 209 rows	200	!contains:Human-Computer Interaction	A1 phase 3: stale display name never grants ownership (issue #72)
+FAC-REASSIGN-NEW	facultyY	GET	/api/faculty?username=l.bautista	reassigned CS 209 rows	200	contains:Human-Computer Interaction	A1 phase 3: stamped username owns the row (issue #72)
+GRD-PERIOD-USERNAME	facultyY	PATCH	/api/grades/update	reassigned CS 209 rows	200	-	A1 phase 3: grade-period ownership follows the stamp (issue #72)
+GRD-PERIOD-USERNAME-OLD	facultyX	PATCH	/api/grades/update	reassigned CS 209 rows	400	contains:Not your section	A1 phase 3: stale display name denied on the grade write (issue #72)
+FAC-ROSTER-MALFORMED	facultyX	GET	/api/faculty?username=m.reyes	malformed CS 208 stamp	200	!contains:Systems Administration	A1 phase 3: malformed stamp matches no account, fail-closed (issue #72)
 CRON-ADMIN-SESSION	admin	POST	/api/notifications/cleanup	seeded	200	-	admin session path works today
 CRON-NO-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	no credential: proxy 401 before route
 CRON-WRONG-BEARER	none	POST	/api/notifications/cleanup	seeded	401	-	wrong secret: proxy 401 (timing-safe compare fails)

@@ -121,13 +121,13 @@ export async function POST(request: NextRequest) {
     // Requested keys outside this set are rejected, so a teacher can
     // never notify another teacher's students (unowned keys are
     // silently dropped, all-unowned is a 403 — preserved behavior).
-    // A1 phase 1 (issue #72): the load query is the dual-write ownership
-    // match — username stamp first, legacy name fallback.
+    // A1 phase 3 (issue #72): the load query is the strict ownership
+    // key — username equality only.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
       .find({
         branch,
-        ...professorOwnership(actor.username, actor.fullName),
+        ...professorOwnership(actor.username),
       })
       .project({ code: 1, academicYear: 1, semester: 1, studentUsername: 1 })
       .toArray()

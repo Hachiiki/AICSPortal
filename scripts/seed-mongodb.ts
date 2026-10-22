@@ -145,14 +145,14 @@ async function seed() {
   //  3. Subjects (enrollments — TWO terms for Juan)
   // ----------------------------------------------------------
 
-  // A1 phase 1 (issue #72): stamp professorUsername on subject rows whose
+  // A1 phase 3 (issue #72): stamp professorUsername on subject rows whose
   // professor display name resolves to a seeded faculty account. A fresh
   // seed therefore models the post-backfill end state: every faculty-owned
-  // row matches the username arm. The unstamped legacy rows (the other six
-  // professor names, no faculty accounts) carry the pre-backfill shape for
-  // data variety only — the live fallback arm (`professorUsername` absent,
-  // name match) is characterized end-to-end by verify-authz.sh Fixture 1,
-  // which $unsets the stamp on the CS 208 rows mid-run.
+  // row matches the username arm. The unstamped rows (the other six
+  // professor names, no faculty accounts) are deliberately unowned —
+  // strict mode matches accounts only, and the unowned-row denial is
+  // characterized end-to-end by verify-authz.sh Fixture 1, which $unsets
+  // the stamp on the CS 208 rows mid-run.
   const FACULTY_USERNAME_BY_NAME: Record<string, string> = {
     'Engr. Maria Cristina Reyes': 'm.reyes',
     'Engr. Lorenzo Bautista': 'l.bautista',
@@ -457,9 +457,9 @@ async function seed() {
 
   // ----------------------------------------------------------
   //  4b. Faculty user — same `students` collection, role='faculty'.
-  //  Teaching assignment resolves two ways (A1 dual-write, issue #72):
-  //  stamped rows match `professorUsername === faculty.username`;
-  //  legacy rows fall back to `professor === faculty.fullName`. The
+  //  Teaching assignment resolves one way (A1 phase 3 strict, issue
+  //  #72): stamped rows match `professorUsername === faculty.username`
+  //  ONLY — the display name is never an ownership key. The
   //  seed stamps every row whose professor string is "Engr. Maria
   //  Cristina Reyes", so the dashboard roster (CS 101 + Juan Santos)
   //  resolves by username on a fresh seed. More subject assignments
@@ -883,9 +883,9 @@ async function seed() {
   await db.collection('subjects').insertMany(cs103)
   console.log(`  ✓ Inserted CS 103 subject rows (4 grade states: draft, submitted, released, partial-release-legacy)`)
 
-  // A1 phase 1 (issue #72): stamped vs legacy rows on the fresh seed.
+  // A1 phase 3 (issue #72): stamped vs unstamped rows on the fresh seed.
   const stampedCount = await db.collection('subjects').countDocuments({ professorUsername: { $exists: true } })
-  console.log(`  ✓ professorUsername stamped on ${stampedCount} subject rows (A1 dual-write; the rest stay legacy/name-matched)`)
+  console.log(`  ✓ professorUsername stamped on ${stampedCount} subject rows (A1 strict; unstamped rows are unowned — no name fallback)`)
 
   // ----------------------------------------------------------
   //  10. Indexes (BUG-018: progress + timeout per index; run `npm run db:indexes`

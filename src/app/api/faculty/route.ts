@@ -12,8 +12,8 @@ import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 //  Faculty members are stored in the same `students` collection
 //  as students (with `role='faculty'`). Their assigned subjects
 //  come from the `subjects` collection — every document owned by
-//  them under the A1 dual-write match (professorUsername stamp,
-//  display-name fallback — issue #72). Schedule sessions come
+//  them under the A1 strict ownership key (professorUsername —
+//  issue #72 phase 3). Schedule sessions come
 //  from the `sessions` collection (branch-scoped).
 //
 //  Returns:
@@ -53,17 +53,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Subjects are student-scoped (one doc per student per subject).
-    // A1 phase 1 (issue #72): the teaching-load match is the dual-write
-    // ownership filter — username stamp first, legacy display-name
-    // fallback second — so a renamed/duplicated faculty name can no
-    // longer silently transfer or break this roster. We query the
+    // A1 phase 3 (issue #72): the teaching-load match is the strict
+    // ownership filter — username equality only — so a renamed or
+    // duplicated faculty name can never transfer or break this
+    // roster, and unstamped rows are owned by no account. We query the
     // collection directly instead of going through `getSubjectsForStudent`
     // (which is filtered by studentUsername).
     const subjectsCol = await getCollection('subjects')
     const taughtSubjects = await subjectsCol
       .find({
         branch: faculty.branch,
-        ...professorOwnership(faculty.username, faculty.fullName),
+        ...professorOwnership(faculty.username),
       })
       .toArray()
 

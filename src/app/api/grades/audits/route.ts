@@ -50,19 +50,19 @@ export async function GET(request: NextRequest) {
 
     // FIX-M1 (C3.5, issue #61): faculty see audits for their own
     // professor-of-record subjects only (any term — the codes set is the
-    // dual-write ownership match over subjects rows, no term filter). An explicit
+    // strict ownership key over subjects rows, no term filter). An explicit
     // subjectCode filter is intersected with the load: a subject the
-    // caller does not teach returns nothing, fail-closed on a falsy
-    // fullName. Admin keeps the unscoped branch view.
+    // caller does not teach returns nothing, fail-closed on unstamped
+    // or mismatched stamps. Admin keeps the unscoped branch view.
     if (actor.role === 'faculty') {
-      // A1 phase 1 (issue #72): the faculty codes set uses the dual-write
-      // ownership match (username stamp first, legacy name fallback).
+      // A1 phase 3 (issue #72): the faculty codes set uses the strict
+      // ownership key (username equality only).
       // The claims.branch key is a preserved route quirk.
       const subjectsCol = await getCollection('subjects')
       const rows = await subjectsCol
         .find({
           branch: claims.branch,
-          ...professorOwnership(actor.username, actor.fullName),
+          ...professorOwnership(actor.username),
         })
         .project({ code: 1 })
         .toArray()

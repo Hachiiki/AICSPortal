@@ -158,14 +158,13 @@ export async function POST(request: NextRequest) {
     if (gate) throw gate
 
     // Fan-out roster + term stamp (data query, same JS-side term
-    // matching the policy's relation uses). A1 phase 1 (issue #72): the
-    // load query is the dual-write ownership match — username stamp
-    // first, legacy name fallback.
+    // matching the policy's relation uses). A1 phase 3 (issue #72): the
+    // load query is the strict ownership key — username equality only.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
       .find({
         branch,
-        ...professorOwnership(actor.username, actor.fullName),
+        ...professorOwnership(actor.username),
         code: subjectCode,
       })
       .project({ academicYear: 1, semester: 1, yearLevel: 1, studentUsername: 1 })
