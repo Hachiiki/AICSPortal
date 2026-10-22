@@ -77,11 +77,11 @@ export async function can(
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
       // FIX-C1 (C3.1, issue #57): only the subject's teaching faculty may
-      // submit its grades. The load query is a name match over
-      // professor-of-record rows under the actor's current term, so a
-      // co-teacher enumerated on any row passes. The write scope
-      // (subjectRows) carries the same professor key, so the filter is
-      // professor-scoped even if this gate is bypassed.
+      // submit its grades. The load query is the strict username match
+      // (A1 phase 3, issue #72) over professor-of-record rows under the
+      // actor's current term, so a co-teacher stamped on any row passes.
+      // The write scope (subjectRows) carries the same professor key, so
+      // the filter is professor-scoped even if this gate is bypassed.
       if (!(await rel.teachesSubject(resource.subjectCode)))
         return deny('notAssigned', 'Subject is not in your current teaching load.')
       return allow()
@@ -223,9 +223,10 @@ export async function can(
           return deny('role', 'Unauthorized: faculty or admin only')
         // FIX-H2 (C3.4, issue #60): faculty reads are load-scoped — the
         // section must be in the caller's teaching load (co-taught sections
-        // pass: the load query is the name match over professor-of-record
-        // rows). Admin keeps the branch-wide read, and the read path stays
-        // tolerant of historical off-roster usernames in stored records.
+        // pass: the load query is the strict username match over
+        // professor-of-record rows — A1 phase 3, issue #72). Admin keeps the
+        // branch-wide read, and the read path stays tolerant of historical
+        // off-roster usernames in stored records.
         if (ctx.actor.role === 'faculty' && !(await rel.teachesSection(resource.sectionKey)))
           return deny('notAssigned', 'You do not teach this section.')
         return allow()
