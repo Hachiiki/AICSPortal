@@ -20,4 +20,10 @@ export {
   type Guarded,
   type GuardOpts,
 } from './guards'
-export { createScopes, type AuthzScopes } from './scopes'
+export {
+  createScopes,
+  professorOwnership,
+  type AuthzScopes,
+  type ProfessorMatchClause,
+  type ProfessorOwnershipFilter,
+} from './scopes'

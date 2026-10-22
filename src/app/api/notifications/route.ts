@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { requireCan } from '@/lib/authz'
+import { requireCan, professorOwnership } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse, objectIdSchema } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -121,9 +121,14 @@ export async function POST(request: NextRequest) {
     // Requested keys outside this set are rejected, so a teacher can
     // never notify another teacher's students (unowned keys are
     // silently dropped, all-unowned is a 403 — preserved behavior).
+    // A1 phase 1 (issue #72): the load query is the dual-write ownership
+    // match — username stamp first, legacy name fallback.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
-      .find({ branch, professor: actor.fullName })
+      .find({
+        branch,
+        ...professorOwnership(actor.username, actor.fullName),
+      })
       .project({ code: 1, academicYear: 1, semester: 1, studentUsername: 1 })
       .toArray()
     const owned = new Map<string, { code: string; students: Set<string> }>()

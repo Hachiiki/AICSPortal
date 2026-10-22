@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { requireCan } from '@/lib/authz'
+import { requireCan, professorOwnership } from '@/lib/authz'
 import { HttpError } from '@/lib/http'
 import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
@@ -36,9 +36,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
     }
 
+    // A1 phase 1 (issue #72): the board load uses the dual-write
+    // ownership match — username stamp first, legacy name fallback.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
-      .find({ branch: faculty.branch, professor: faculty.fullName })
+      .find({
+        branch: faculty.branch,
+        ...professorOwnership(faculty.username, faculty.fullName),
+      })
       .project({ code: 1, academicYear: 1, semester: 1 })
       .toArray()
     const codes = Array.from(

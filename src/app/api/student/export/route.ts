@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
-import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { resolveContext, createRelations, can, decisionToHttpError, professorOwnership } from '@/lib/authz'
 import { HttpError } from '@/lib/http'
 import { errResponse } from '@/lib/validation'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
@@ -157,9 +157,15 @@ export async function GET(request: NextRequest) {
     } else {
       // Faculty / admin: their own teaching assignments (subjects where
       // they are the professor), no student data of others.
+      // A1 phase 1 (issue #72): the exported teaching assignments use
+      // the dual-write ownership match — username stamp first, legacy
+      // name fallback.
       const subjectsCol = await getCollection('subjects')
       const teaching = await subjectsCol
-        .find({ branch: actor.branch, professor: me.fullName })
+        .find({
+          branch: actor.branch,
+          ...professorOwnership(me.username, me.fullName),
+        })
         .project({ code: 1, title: 1, units: 1, schedule: 1, room: 1, academicYear: 1, semester: 1, status: 1 })
         .toArray()
       exportPayload.teachingAssignments = teaching

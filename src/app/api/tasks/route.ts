@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { resolveContext, createRelations, can, decisionToHttpError, professorOwnership } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -158,10 +158,16 @@ export async function POST(request: NextRequest) {
     if (gate) throw gate
 
     // Fan-out roster + term stamp (data query, same JS-side term
-    // matching the policy's relation uses).
+    // matching the policy's relation uses). A1 phase 1 (issue #72): the
+    // load query is the dual-write ownership match — username stamp
+    // first, legacy name fallback.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
-      .find({ branch, professor: actor.fullName, code: subjectCode })
+      .find({
+        branch,
+        ...professorOwnership(actor.username, actor.fullName),
+        code: subjectCode,
+      })
       .project({ academicYear: 1, semester: 1, yearLevel: 1, studentUsername: 1 })
       .toArray()
     const current: any[] = taught.filter(

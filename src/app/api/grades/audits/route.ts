@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { requireCan } from '@/lib/authz'
+import { requireCan, professorOwnership } from '@/lib/authz'
 import { parseQuery, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -50,14 +50,20 @@ export async function GET(request: NextRequest) {
 
     // FIX-M1 (C3.5, issue #61): faculty see audits for their own
     // professor-of-record subjects only (any term — the codes set is the
-    // name match over subjects rows, no term filter). An explicit
+    // dual-write ownership match over subjects rows, no term filter). An explicit
     // subjectCode filter is intersected with the load: a subject the
     // caller does not teach returns nothing, fail-closed on a falsy
     // fullName. Admin keeps the unscoped branch view.
     if (actor.role === 'faculty') {
+      // A1 phase 1 (issue #72): the faculty codes set uses the dual-write
+      // ownership match (username stamp first, legacy name fallback).
+      // The claims.branch key is a preserved route quirk.
       const subjectsCol = await getCollection('subjects')
       const rows = await subjectsCol
-        .find({ branch: claims.branch, professor: actor.fullName })
+        .find({
+          branch: claims.branch,
+          ...professorOwnership(actor.username, actor.fullName),
+        })
         .project({ code: 1 })
         .toArray()
       const codes = [...new Set(rows.map((r: any) => r.code))]

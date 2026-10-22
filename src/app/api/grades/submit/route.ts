@@ -87,8 +87,6 @@ export async function POST(request: NextRequest) {
     } else {
       // All periods: set all three draft -> submitted
       const docs = await col.find({ ...query, $or: [{ prelimStatus: 'draft' }, { midtermStatus: 'draft' }, { finalsStatus: 'draft' }, { gradeStatus: 'draft' }] }).toArray()
-      // If no per-period statuses but legacy gradeStatus draft, handle that too
-      const orQuery: any = { ...query, $or: [{ prelimStatus: 'draft' }, { midtermStatus: 'draft' }, { finalsStatus: 'draft' }, { gradeStatus: 'draft' }, { prelimStatus: '' }, { midtermStatus: '' }] }
       // Simpler: update any draft
       result = await col.updateMany(
         { ...query, $or: [{ prelimStatus: 'draft' }, { midtermStatus: 'draft' }, { finalsStatus: 'draft' }, { gradeStatus: 'draft' }] },
