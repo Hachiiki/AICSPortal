@@ -307,6 +307,19 @@ sc GRD-AUDITS-WITHDRAW facultyY GET /api/grades/audits 'after withdraw' 200 - 'c
 sc GRD-AUDITS-UNRELEASE admin GET /api/grades/audits 'after unrelease' 200 - 'contains:unrelease' "H1a: unrelease writes a visible audit row (issue #58)"
 sc GRD-AUDITS-STUDENT studentA GET /api/grades/audits seeded 403 - - "role gate"
 
+# --- A1 phase 1: professorUsername dual-write (issue #72) ---
+# Fixture 1: strip the stamp from every CS 208 row, so m.reyes keeps them
+# ONLY via the legacy display-name fallback.
+node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();const r=await c.db('aics_portal').collection('subjects').updateMany({branch:'commonwealth',code:'CS 208'},{'\$unset':{professorUsername:''}});console.log('  fixture: unstamped CS 208 rows: '+r.modifiedCount);await c.close()})().catch(e=>{console.error(e.message);process.exit(1)})"
+sc FAC-ROSTER-FALLBACK facultyX GET "/api/faculty?username=m.reyes" 'unstamped CS 208 rows' 200 - 'contains:CS 208' "A1 phase 1: unstamped rows fall back to the name match (issue #72)"
+# Fixture 2: reassign every CS 209 row to l.bautista — the display name
+# stays 'Engr. Maria Cristina Reyes' (the stale-name shape).
+node -e "const{MongoClient}=require('mongodb');(async()=>{const c=new MongoClient('mongodb://127.0.0.1:27017');await c.connect();const r=await c.db('aics_portal').collection('subjects').updateMany({branch:'commonwealth',code:'CS 209'},{'\$set':{professorUsername:'l.bautista'}});console.log('  fixture: reassigned CS 209 rows to l.bautista: '+r.modifiedCount);await c.close()})().catch(e=>{console.error(e.message);process.exit(1)})"
+sc FAC-REASSIGN-OLD facultyX GET "/api/faculty?username=m.reyes" 'reassigned CS 209 rows' 200 - '!contains:CS 209' "A1 phase 1: stale display name no longer grants ownership (issue #72)"
+sc FAC-REASSIGN-NEW facultyY GET "/api/faculty?username=l.bautista" 'reassigned CS 209 rows' 200 - 'contains:CS 209' "A1 phase 1: stamped username owns the row (issue #72)"
+sc GRD-PERIOD-USERNAME facultyY PATCH /api/grades/update 'reassigned CS 209 rows' '{"updates":[{"studentUsername":"juan.santos","subjectCode":"CS 209","branch":"commonwealth","academicYear":"2026-2027","semester":"1st Sem","prelim":"84"}]}' - - "A1 phase 1: grade-period ownership follows the stamp (issue #72)"
+sc GRD-PERIOD-USERNAME-OLD facultyX PATCH /api/grades/update 'reassigned CS 209 rows' '{"updates":[{"studentUsername":"juan.santos","subjectCode":"CS 209","branch":"commonwealth","academicYear":"2026-2027","semester":"1st Sem","prelim":"85"}]}' - 'contains:Not your section' "A1 phase 1: stale display name denied on the grade write (issue #72)"
+
 # --- cron cleanup path (M3) ---
 sc CRON-ADMIN-SESSION admin POST /api/notifications/cleanup seeded - - - "admin session path works today"
 sc CRON-NO-BEARER none POST /api/notifications/cleanup seeded - - - "no credential: proxy 401 before route"

@@ -489,6 +489,13 @@ The migration is deliberately sequenced AFTER the guard swap so the refactor and
 the data change never share a diff. `MongoSubject` gains
 `professorUsername?: string` (types.ts, backward-compatible).
 
+STATUS (2026-10-22): step 1 (dual-write) landed on main-full-dev — see
+docs/adr/0009-faculty-identity-username-key.md for the realized design
+(spread-safe `$and:[{$or:[...]}]` fragment, gate/scope equivalence, index
+decision, phase gates). Steps 2 (backfill) and 3 (strict read) remain
+owner-gated: production is assessed read-only, backed up, mutated, and
+verified separately before strict enforcement ships.
+
 ## 9. Migration strategy
 
 Five stages, each a set of small reviewable commits on `main-full-dev`. Stage 3
