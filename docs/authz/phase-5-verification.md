@@ -159,3 +159,31 @@ close. With the owner's go, everything on it has since been executed:
 Nothing else in the review changed. The remaining open items are the
 backlog trio (#71, #72, #77) and the deferred `professorUsername`
 migration (A1).
+
+## 8. Addendum 2: A1 executed, and the credential follow-up (2026-10-23)
+
+Section 7's closing line is superseded. What has happened since:
+
+- **A1/#72 is DONE.** Phase 1 (dual-write reads) merged to `main` as PR #84
+  (`606d92f`) on 2026-10-22; phase 3 (strict username-only ownership)
+  merged as PR #85 (`a5a363a`) the same day and deployed (Vercel
+  `7257198849`). Issue #72 closed 2026-10-22. `professorOwnership()` is
+  now the flat `{ professorUsername }` fragment with no display-name
+  fallback — the A1 hazard this report deferred no longer exists in
+  current code. The owner-directed production reset (2026-10-22) mooted
+  the backfill for that dataset; see `backfill-runbook.md` and ADR-0009
+  for the executed design. The open backlog is #71 and #77 only.
+- **Test counts have grown since this report.** The 55/55 numbers above
+  are historical for tree `6e0fe70`. The suite on `main-full-dev` is now
+  62 authz tests (phase-3 strict-ownership additions) plus 6 uri-local
+  tests under `scripts/lib/` (rotation-toolkit hardening, 2026-10-23).
+- **Credential-rotation follow-up (security, not authz logic).** The
+  demo-credential rotation toolkit was prepared, reviewed, hardened
+  (F1/F2/F3), and integrated onto `main-full-dev`; the demo-password
+  table was removed from `CONTRIBUTING.md` on `main` via PR #87
+  (`f5a63c5`). Rotation itself has NOT been executed — status and owner
+  decisions live in `credential-rotation-runbook.md`.
+- **Scope note (standing).** This report verified a local tree
+  (`6e0fe70`), and its §7 addendum verified merged commits and CI runs.
+  Neither is a test of the live production system; production claims in
+  these documents are dated evidence, not continuous guarantees.

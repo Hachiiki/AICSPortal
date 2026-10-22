@@ -6,7 +6,7 @@ Single-context app. One branch field on every doc. One portal shell that switche
 
 - branch: tenant string, e.g. `commonwealth`. Stored on every doc in every collection. All reads filter by `{branch, ...}`. Not a separate database.
 - student: a doc in `students` with `role='student'`. Holds profile, program, yearLevel, section, gpa, credentials.
-- faculty: a doc in `students` with `role='faculty'`. Same collection as student. `fullName` must match `subjects.professor` for their teaching assignments.
+- faculty: a doc in `students` with `role='faculty'`. Same collection as student. Teaching ownership is keyed on `subjects.professorUsername` matching the faculty account's `username` (strict, issue #72 phase 3); the `professor` display-name string is rendering only, never an ownership key. Unstamped rows are owned by no account (fail closed).
 - subject enrollment: one doc in `subjects` per `studentUsername` x `code` x `academicYear`/`semester`. Holds `prelim`, `midterm`, `finals`, `finalGrade`, `remarks` plus per-period statuses `prelimStatus`, `midtermStatus`, `finalsStatus`. Kept branch-scoped.
 - section: class grouping like `BSCS 1-A`. Source of truth is `students.section`. Not stored on `subjects`. Faculty roster groups by `code|academicYear|semester` and derives section from enrolled students.
 - gradeStatus: legacy overall status. Prefer per-period statuses. Values: `''` not set, `draft` teacher editing, `submitted` awaiting admin, `released` visible to students.
@@ -16,7 +16,7 @@ Single-context app. One branch field on every doc. One portal shell that switche
 ## Core flows
 
 - Auth: `POST /api/auth/login` verifies the scrypt hash (legacy plaintext docs upgrade on login) and issues a signed session JWT (jose HS256, httpOnly cookie, 8 h) carrying `role`/`branch`/`tv`. `src/proxy.ts` enforces the cookie on every `/api` + `/portal` route; authed routes re-verify `tokenVersion` via `getAuthedSession`, logout and password change bump it, revoking every prior token. Client localStorage (`aics_username`/`branch`/`role`, `useAuth`) is display state only.
-- Faculty roster: `GET /api/faculty?username=` finds faculty, then `subjects` where `professor===fullName` and `branch`, then unique `students` for those usernames. Used by My Students and Grade Encoding.
+- Faculty roster: `GET /api/faculty?username=` finds faculty, then `subjects` where `professorUsername === username` and `branch`, then unique `students` for those usernames. Used by My Students and Grade Encoding. (Strict key since PR #85; unstamped rows match no account.)
 - Grade workflow: per period. Teacher edits a period → `PATCH /api/grades/update` sets that period's `*Status='draft'` and writes audit. Teacher submits period → `POST /api/grades/submit` with `period` flips `draft→submitted` per subject+term and writes audit. Admin releases → `POST /api/grades/release` `submitted→released`. Student API only shows a period when its status is `released`, else `-` / `Pending`.
 
 ## Non-goals

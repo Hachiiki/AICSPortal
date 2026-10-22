@@ -1,5 +1,20 @@
 # Authorization enforcement map (Phase 1 audit)
 
+> **Historical record (2026-10-21) — read before using.** This map documents
+> the codebase as it stood during the phase-1 audit, BEFORE the centralized
+> authorization module existed. Every finding below was dispositioned: the
+> 14 approved fixes (C1, H1a/H1b, H2, M1-M4, L1-L5, A5) landed via the
+> phase-4 implementation and were ported to `main` in PR #81 (see
+> `phase-5-verification.md` §5 for the final disposition table); A1/#72 was
+> later executed as the professorUsername migration (PRs #84 and #85, both
+> merged 2026-10-22 — teaching ownership is now strict username-keyed, so the
+> display-name join this map describes at its §3 sites no longer exists);
+> A2/A3/A4 were resolved by the `src/lib/authz/` module itself. Do not treat
+> the findings, route gates, or relationship derivations below as current
+> behavior — current enforcement lives in `src/lib/authz/` on `main`, and the
+> authoritative close-out is `phase-5-verification.md` (plus its addenda).
+> Open backlog from this review: #71 and #77 only.
+
 Status: phase 1 of the 5-phase authorization review (audit only, no code changed).
 Branch: `main-full-dev`. Date: 2026-10-21. Source: full read of every `/api` route,
 `src/proxy.ts`, `src/lib/session.ts`, `src/lib/session-auth.ts`, `src/lib/http.ts`,

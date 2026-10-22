@@ -496,9 +496,15 @@ docs/adr/0009-faculty-identity-username-key.md for the realized design
 decision, phase gates), and docs/authz/backfill-runbook.md for the owner's
 production procedure (report-first, encrypted backup, `--apply --expect N`
 with the non-local firewall, exact-pre-state rollback; rehearsal 74/74).
-Step 3 (strict read) remains owner-gated: production is assessed
-read-only, backed up, mutated, and verified separately before strict
-enforcement ships.
+Step 3 (strict read) remained owner-gated at the time of this note.
+
+UPDATE (2026-10-23, documentation consistency audit): step 3 HAS since
+shipped — PR #85 merged strict username-only reads to `main` (`a5a363a`,
+2026-10-22; Vercel deployment `7257198849`), the fragment is now the flat
+`{ professorUsername: username }` shape, and the owner-directed production
+reset mooted the backfill for that dataset (85 of 96 rows stamped by the
+fresh seed; eligible=0). See ADR-0009's execution addendum and
+backfill-runbook.md for the executed end state.
 
 ## 9. Migration strategy
 

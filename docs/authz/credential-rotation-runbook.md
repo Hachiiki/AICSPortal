@@ -3,22 +3,41 @@
 Status: **PROPOSED — nothing has been executed against production.**
 Prepared 2026-10-22 on `dev/credential-rotation-prep` (off `main-full-dev`)
 as the separate security follow-up the owner requested alongside the
-issue #72 phase-3 review. No rotation, no seed change, no doc change is
-live until the owner approves and the phases below run in order.
+issue #72 phase-3 review. Rotation has NOT been run: no password value on
+any production account has changed, and the phases below still execute
+only after owner approval, in order.
 Hardened 2026-10-23 after the read-only toolkit review: F1 (`--apply`
 backup pre-flight decrypt/validate before any write), F2
 (parsed-hostname remote-seed classification — the old substring guard
 was bypassable), F3 (`--rollback` requires the same owner sanction as
 `--apply`), plus the operational notes in §6 and the full
 disposable-database rehearsal (§6.4, 48/48 checks).
+Integration status (2026-10-23): the toolkit (script + seed guard + this
+runbook) is merged into `main-full-dev` (`45cc38a`, synced at `31a4256`),
+and the `CONTRIBUTING.md` password-table removal is live on `main` via
+PR #87 (`f5a63c5`) — R3 items 1 and 2 are therefore complete. What
+remains open is the owner's D1-D5 decision set (§2) and, if approved,
+the R2 window.
 
 ## 1. Exposure being remediated
 
-`CONTRIBUTING.md` on `main` publishes three demo passwords
-(`student123` / `faculty123` / `admin123`). In production they sit behind
-Vercel Authentication (verified 2026-10-22: edge 302/SSO interception,
-app-level session gate 401s, forged-cookie bypass fails), so the public
-values alone do not grant access. The residual risks:
+Three demo password values were published in `CONTRIBUTING.md` until
+PR #87 (`f5a63c5`, merged 2026-10-22) removed the table from `main`.
+Removing the table did NOT unpublish them: the values remain readable
+in Git history, and the dev-branch seed script and agent guide still
+carry them as local-testing defaults — treat all three as public. The
+production login page is intentionally public (the owner's stated
+access model: no Vercel SSO / Deployment Protection; checked read-only
+2026-10-23 — `aics-portal.vercel.app` serves the login page directly,
+HTTP 200, zero redirects, and `vercel.json` carries no protection
+config). An earlier draft of this runbook credited a Vercel
+Authentication edge gate (edge 302/SSO interception, "verified
+2026-10-22") with keeping the values out of reach; that does not match
+the current public behavior and MUST NOT be relied on. The app-level
+session gate (401 without a valid session cookie) stops account
+access, but it is the only layer in front of the demo accounts, and the
+public values are exactly what it cannot help with — anyone holding a
+value can attempt it against every username visible in-app. The risks:
 
 1. **Value sharing.** The seed assigns `student123` to ~79 student
    accounts (74-roster + named extras + the `rogue.role` fixture; see
@@ -33,25 +52,26 @@ values alone do not grant access. The residual risks:
    defaults. The authoritative count always comes from a live dry plan
    (§R2 step 0) — never from this paragraph.
 2. **Reseed regression.** Any future production reseed would silently
-   restore the documented defaults. Guard (proposed, same branch):
+   restore the documented defaults. Guard (landed on `main-full-dev`
+   with the toolkit, `45cc38a`):
    `scripts/seed-mongodb.ts` refuses to seed a REMOTE database unless
    `DEMO_PW_STUDENT` / `DEMO_PW_FACULTY` / `DEMO_PW_ADMIN` are injected
    via env, so a reseed either aborts or carries the rotated values
    forward explicitly. Seed log lines no longer print password values.
-3. **Docs republishing.** `CONTRIBUTING.md` (dev branch copy, proposed)
-   drops the password column. Git history still contains the old values —
-   the rotation phase is the actual fix; the doc change only stops
-   re-publishing them.
+3. **Docs republishing.** DONE: PR #87 (merged 2026-10-22, `f5a63c5`)
+   removed the password table from `CONTRIBUTING.md` on `main`. Git
+   history still contains the old values — the rotation phase is the
+   actual fix; the doc change only stops re-publishing them.
 
 ## 2. Owner decision points (approve before R2)
 
 | # | Decision | Options | Recommendation |
 | - | -------- | ------- | -------------- |
-| D1 | Rotate at all, or accept the edge gate as the permanent control | (a) rotate value-wide; (b) keep edge gate only | (a) if any chance the edge gate is ever relaxed; else (b) is defensible |
+| D1 | Rotate at all, or keep the demo values as a documented property of the demo dataset | (a) rotate value-wide; (b) keep the values (public login page + app-level session auth + rate limits are the only controls) | (a) — the login page is public by design and the values live in Git history, so there is no edge gate to fall back on; (b) is defensible only while every account is a demo account |
 | D2 | Source of the new values | owner-chosen secrets in env at apply time | owner-chosen, distinct per role, min 8 chars |
 | D3 | Rotation scope | (a) value-wide (every carrier of the three values); (b) only the 3 documented accounts | (a) — see exposure item 1 |
 | D4 | Session kill | bump `tokenVersion` (all demo sessions die, forced re-login) | bump (default ON in the script; see §6.3 for the `--no-bump-tv` override) |
-| D5 | Docs strip timing | with R2, or after a soak period | with R2 |
+| D5 | Docs strip timing | DONE — PR #87 merged the strip to `main` on 2026-10-22, before R2 (the values stay in Git history regardless; see §1 item 3) | executed; nothing further to decide |
 
 ## 3. Phases
 
@@ -118,12 +138,16 @@ error logs for a burst of failed logins (expected as stale sessions die).
 
 ### R3 — prevent regression
 
-1. Merge the seed guard (`seed-mongodb.ts` remote-seed refusal with
-   parsed-hostname classification + env-injected values) so a reseed can
-   never silently revert rotation.
-2. Merge the `CONTRIBUTING.md` password-column removal (main-branch PR
-   from the dev-branch source, runtime-whitelist-clean).
-3. Re-run the dry plan monthly-ish: matched count must stay 0.
+1. DONE 2026-10-23 — seed guard landed on `main-full-dev` with the
+   toolkit (`45cc38a`, synced at `31a4256`): `seed-mongodb.ts` remote-seed
+   refusal with parsed-hostname classification + env-injected values, so
+   a reseed can never silently revert rotation. Scripts are dev-only
+   files under the branch topology; there is no `main` half to port.
+2. DONE 2026-10-22 — the `CONTRIBUTING.md` password-table removal is
+   live on `main` via PR #87 (`f5a63c5`, docs-only, whitelist-clean).
+3. OPEN, meaningful only after R2 runs: re-check the dry plan
+   periodically — the matched count must stay 0 (before R2 it prints
+   the full census, because rotation has not been executed).
 
 ## 4. Rollback
 
@@ -140,12 +164,16 @@ made on a covered account AFTER the backup was taken is overwritten
 (acceptable for demo-account emergency recovery, but say it out loud
 when you run it).
 
-## 5. Alternative: keep the demo credentials, rely on the edge gate
+## 5. Alternative: keep the demo credentials as a documented demo-dataset property
 
-If the owner decides the edge gate (whatever guards the production URL)
-is the permanent control (D1 = b), skip R2/R3-rotation; still consider
-the seed guard + docs strip (they cost nothing and reduce blast radius
-if the edge gate is ever relaxed). Record the decision in `TODO.md`.
+If the owner decides D1 = b — keep the values — the exposure is accepted
+knowingly: the login page is public by design, the values remain in Git
+history and dev-branch files, and the app-level controls (session auth,
+RBAC, rate limits) are the protection. There is no edge gate to lean on
+(an earlier draft of this section assumed one; see §1). The seed guard
+and docs strip in R3 are already landed either way, and nothing short of
+R2 changes the values on the accounts. Record the decision in `TODO.md`
+and re-derive the census before any later rotation.
 
 ## 6. Operational notes (added 2026-10-23, hardening review)
 

@@ -12,7 +12,7 @@ Stack: **Next.js 16 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4 + sh
 
 Key domain (single-context, see `@CONTEXT.md`):
 - `branch` tenant string (e.g. `commonwealth`) on every doc, all reads filter `{branch, ...}`. No DB per branch.
-- `student` / `faculty` both live in `students` collection, distinguished by `role`. `faculty.fullName` must match `subjects.professor`.
+- `student` / `faculty` both live in `students` collection, distinguished by `role`. Teaching ownership is keyed on `subjects.professorUsername` (strict, issue #72 phase 3, PR #85); `subjects.professor` is display-only.
 - `subject enrollment` = one doc per `studentUsername x code x academicYear/semester` with `prelim/midterm/finals/finalGrade/remarks` + per-period `*Status` (`''|draft|submitted|released`).
 - `section` source of truth is `students.section`, not `subjects`. Roster groups by `code|academicYear|semester`.
 - `INC` stored as string `"INC"`, counts as 0 in final math: `final = prelim*0.3 + midterm*0.3 + finals*0.4`.
@@ -20,7 +20,7 @@ Key domain (single-context, see `@CONTEXT.md`):
 
 Core flows:
 - Auth `POST /api/auth/login` → scrypt verify (legacy plaintext upgrades on login), issues a signed session JWT (jose HS256, httpOnly cookie, 8 h, `tv` revocation counter). `src/proxy.ts` enforces it on every `/api` + `/portal` route; each route re-verifies `tokenVersion` via `getAuthedSession`. Client localStorage (`aics_username`/`branch`/`role`, `useAuth` via `useSyncExternalStore`) is display state only, never a source of authority.
-- Faculty roster `GET /api/faculty?username=` → subjects where `professor===fullName` + branch → unique students.
+- Faculty roster `GET /api/faculty?username=` → subjects where `professorUsername === username` + branch → unique students. Unstamped rows match no account (fail closed).
 - Grade workflow per period: `PATCH /api/grades/update` (draft) → `POST /api/grades/submit` (draft→submitted) → `POST /api/grades/release` (submitted→released). Student API only shows `released` periods.
 
 ## 2. Current Focus
@@ -32,8 +32,9 @@ Core flows:
 - Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PRs #53/#54, 2026-10-20); `/dev/auth-preview` retired, no dev-only auth surfaces remain.
 - Content moderation live (English + Filipino) on every persisting write; Filipino reviewer sign-off still open (owner action, `@TODO.md`).
 - QA: Sep-2026 audit closed. 18 bugs (3 Critical) fixed or accepted, archived in `docs/done/qa_reports/`.
-- Authorization review (2026-10-21/22): CLOSED and on `main` (PR #81; follow-ups #82 CI job, #83 RoleGate retirement). `src/lib/authz/` (`can()`/`requireCan()`) gates all 35 changed routes; the 14 approved fixes are in; Phase 5 verification (runbook 93/93, untouched walk, credentials, nav pass 34/34) plus the port addendum live in `docs/authz/phase-5-verification.md`. Issues: 17 fixed, 4 declined with rationale (D2 decided 2026-10-22, staff-read breadth kept), 3 open backlog (#71, #72, #77). CI runs `authz-unit`: the real 55 tests on `main-full-dev`, skipped on `main` where test files never port. Findings registry: `docs/authz/`.
-- A1 faculty identity migration (issue #72, in progress on main-full-dev): phase 1 dual-write landed 2026-10-22 — `professorOwnership()` (username stamp first, display-name fallback second) is the single teaching-ownership match in relations/scopes/policies and all eight route-kept queries; seed stamps 85 rows; ADR-0009 records the design + index decision. Phase 2 tooling landed 2026-10-22 — `scripts/backfill-professor-username.ts` (report-first, `--strictness` gates, encrypted backup, `--apply --expect N`, exact rollback, non-local mutation firewall) rehearsed 74/74 (`scripts/verify-backfill-rehearsal.sh`); the owner's production procedure is `docs/authz/backfill-runbook.md` — ambiguous/unresolved rows are never auto-assigned. Phase 3 (strict) is owner-gated; `main` untouched by this work until the port PR.
+- Authorization review (2026-10-21/22): CLOSED and on `main` (PR #81; follow-ups #82 CI job, #83 RoleGate retirement). `src/lib/authz/` (`can()`/`requireCan()`) gates all 35 changed routes; the 14 approved fixes are in; Phase 5 verification (runbook 93/93, untouched walk, credentials, nav pass 34/34) plus the port addendum live in `docs/authz/phase-5-verification.md`. Issues: 17 fixed, 4 declined with rationale (D2 decided 2026-10-22, staff-read breadth kept), 2 open backlog (#71, #77 — #72 closed 2026-10-22, see the A1 bullet). CI runs `authz-unit`: the real 62 tests on `main-full-dev`, skipped on `main` where test files never port. Findings registry: `docs/authz/` (phase-1 enforcement-map is a dated historical audit; see its banner).
+- A1 faculty identity migration (issue #72): DONE, all phases on `main`. Phase 1 dual-write merged 2026-10-22 (PR #84, `606d92f`); phase 3 strict username-only ownership merged and deployed the same day (PR #85, `a5a363a`; Vercel deployment `7257198849`): `professorOwnership()` is the flat `{professorUsername}` fragment — username stamp only, no display-name fallback, unstamped/malformed rows fail closed. The owner-directed production reset (2026-10-22) re-seeded 96 subjects (85 stamped, 11 legacy rows for professor names without accounts), so the backfill apply is moot for this dataset; `scripts/backfill-professor-username.ts` + `docs/authz/backfill-runbook.md` stay the standing procedure for future unstamped rows. Known limitation: the 11 unresolved legacy rows are unowned by design (faculty-inaccessible). ADR-0009 records the design; its header now says executed.
+- Demo-credential rotation (issue #72 follow-up): toolkit complete and hardened on `main-full-dev` (`scripts/rotate-demo-credentials.ts`, seed remote-guard, `docs/authz/credential-rotation-runbook.md`; disposable-DB rehearsal 48/48). The demo-password table left `CONTRIBUTING.md` on `main` via PR #87 (`f5a63c5`), but the three demo values remain valid on the 83 seeded accounts and stay exposed via Git history and dev-branch files. Rotation NOT executed — owner decisions D1-D5 pending, and any future apply must re-derive the census from a live dry plan. The production login page is intentionally public (no Vercel SSO; app-level session auth is the gate).
 - Unslop content pass (2026-10-21): em dashes and curly quotes removed from every user-visible string and all living docs per `.agents/skills/unslop`; legal pages, README, CLAUDE/CONTEXT/TODO, docs/ tree. Owner follow-ups: legal name spelling (Willard vs Wilard), lawyer review of policy pages.
 - Deferred by owner: dark mode toggle (2026-10-14), real Face ID, In/Out log. Do not start unprompted.
 
@@ -65,7 +66,7 @@ gh issue create --title "..." --body "..."
 
 Env: `MONGODB_URI` required, `MONGODB_DB` default `aics_portal`, `NODE_ENV=development` enables demo login (`juan.santos/student123`, `m.reyes/faculty123`, `admin/admin123`). Never commit `.env.local`. See `example.env.local`.
 
-Unit tests: `bun test src/lib/authz/` (55 tests, dev-only files, never ported to main). No `npm test` script exists or should be added (plan decision P2). Wider verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev.
+Unit tests: `bun test src/lib/authz/` (62 tests, dev-only files, never ported to main; plus 6 uri-local tests under `scripts/lib/` covering the seed-guard hostname classification). No `npm test` script exists or should be added (plan decision P2). Wider verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev.
 
 ## 4. Project Structure
 
@@ -210,13 +211,24 @@ Issue tracker ops (`gh` inside clone infers repo):
 
 ## 10. References to Documentation
 
+Source-of-truth hierarchy (when sources disagree, the higher one wins):
+
+1. Current application code and configuration — authoritative for implemented behavior.
+2. Current Git history and merged PRs — repository and branch status.
+3. Current automated tests — only what those tests actually cover.
+4. Repository documentation — intended behavior and recorded evidence; dated audit reports and runbooks are historical records, not current state.
+5. External production settings and live database state — require external verification; never assume them from docs.
+
+`PROJECT_CONTEXT.md` is an external working document only; it is not committed to this repository (verified 2026-10-23). `CLAUDE.md` + `CONTEXT.md` + `TODO.md` on `main-full-dev` are the canonical in-repo context docs; runbooks and historical reports are linked, not copied, to keep this file actionable.
+
 - `@CONTEXT.md`: glossary, core flows, non-goals
 - `@TODO.md`: phase status, remaining gaps
 - `@README.md`: setup, API table, roadmap
+- `@docs/authz/`: `enforcement-map.md` (phase-1 audit — historical, see its banner), `phase-2-design.md`, `phase-3-plan.md`, `phase-5-verification.md` (close-out + addenda), `backfill-runbook.md`, `credential-rotation-runbook.md` (current rotation state: proposed, not executed)
 - `@docs/agents/issue-tracker.md`: gh conventions, PR policy (no), wayfinding ops
 - `@docs/agents/domain.md`: single-context layout, ADR/glossary rules
 - `@docs/agents/triage-labels.md`: canonical roles → label strings
-- `@docs/adr/`: 0001 branch-as-field, 0002 per-period-grade-status, 0003 inc-as-zero, 0004 grade-audit-log, 0005 student-section-source, 0006 auth-on-grade-writes, 0007 centralized-authorization, 0008 grade-write-state-machine
+- `@docs/adr/`: 0001 branch-as-field, 0002 per-period-grade-status, 0003 inc-as-zero, 0004 grade-audit-log, 0005 student-section-source, 0006 auth-on-grade-writes, 0007 centralized-authorization, 0008 grade-write-state-machine, 0009 faculty-identity-username-key (executed 2026-10-22)
 - `@docs/faculty-build-plan.md`: `@docs/faculty-roadmap.md`
 - `@docs/done/qa_reports/` + `@docs/done/qa_evidence/`: Sep-2026 QA verdict + logs/snapshots
 - `@graphify-out/GRAPH_REPORT.md` + `graph.json`, code graph, communities, god nodes

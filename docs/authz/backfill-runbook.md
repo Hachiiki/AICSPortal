@@ -73,10 +73,12 @@ whitespace/case drift) match **no** account: fail-closed. The 11
 unresolved production rows stay unassigned and faculty-inaccessible by
 design (nothing invents owners for them).
 
-- Dev branch: `dev/authz-strict-ownership` (off `main-full-dev`);
-  production PR: `feature/authz-strict-username-ownership` (off `main`,
-  runtime half only — the A1 port convention). **Not merged or deployed
-  without owner approval.**
+- **MERGED and DEPLOYED 2026-10-22**: production PR #85
+  (`feature/authz-strict-username-ownership` → `main`, merge commit
+  `a5a363a`; Vercel production deployment `7257198849` live). Dev half
+  `dev/authz-strict-ownership` merged into `main-full-dev` at
+  `31a4256`. (This section originally recorded the PR as awaiting owner
+  review; the approval was given and the merge completed the same day.)
 - Evidence: unit tests 62/62 (9 new/rewritten strict tests: unstamped
   deny, malformed-stamp deny, stale-name deny, username-owns allow,
   falsy-fullName owns); golden matrix 100 checks / 95 rows / 0 failed —
@@ -208,8 +210,11 @@ node scripts/backfill-professor-username.ts
 db.subjects.createIndex({ branch: 1, professorUsername: 1 })
 ```
 
-The dev seed creates this index (`scripts/seed-mongodb.ts`); production
-does not have it yet. It is not required for correctness — the
-ownership `$or` resolves via the existing `{branch, studentUsername}`
-scans — but it sharpens the faculty load queries once stamped rows
-dominate. Analysis in ADR-0009.
+The dev seed creates this index (`scripts/seed-mongodb.ts`). Production
+did not have it before the 2026-10-22 reset; the reset's fresh seed
+delivered it, and the post-reset verification confirmed it is present
+(see the status header above). The snippet below stays as the manual
+fallback for any future environment where the seed did not run. It is
+not required for correctness — the ownership filter resolves via the
+existing `{branch, studentUsername}` scans — but it sharpens the
+faculty load queries once stamped rows dominate. Analysis in ADR-0009.

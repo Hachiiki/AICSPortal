@@ -1,11 +1,19 @@
 # ADR-0009: Faculty teaching identity keyed by account username
 
 Date: 2026-10-22
-Status: Accepted — phase 1 (dual-write) and phase 2 (backfill tooling +
-rehearsal) landed on `main-full-dev`; the production backfill run and
-strict enforcement (phase 3) are pending owner-gated steps
-(`docs/authz/backfill-runbook.md`). Supersedes the display-name join
-flagged as hazard A1 (issue #72; Phase 1 finding registry `docs/authz/`).
+Status: Accepted — **executed in full**. Phase 1 (dual-write) merged to
+`main` as PR #84 (`606d92f`); phase 2 (backfill tooling + rehearsal)
+landed on `main-full-dev`; phase 3 (strict username-only reads) merged to
+`main` as PR #85 (`a5a363a`) and deployed (Vercel `7257198849`), all on
+2026-10-22. The production backfill apply was mooted by the owner-directed
+production reset that re-seeded stamped data (see
+`docs/authz/backfill-runbook.md` status header); the tooling remains the
+standing procedure for future unstamped rows. Issue #72 closed 2026-10-22.
+Supersedes the display-name join flagged as hazard A1 (issue #72; Phase 1
+finding registry `docs/authz/`). The Decision section below records the
+phase-1 dual-write fragment as designed; phase 3 collapsed it to the flat
+`{ professorUsername: username }` shape now in `src/lib/authz/scopes.ts`
+(see "Execution addendum" at the end).
 
 ## Context
 
@@ -138,3 +146,26 @@ Per the approved plan (issue #72) and owner requirements 2–3:
 - Unit tests 55 → 60; runbook goldens gain five A1 rows
   (FAC-ROSTER-FALLBACK, FAC-REASSIGN-OLD/NEW, GRD-PERIOD-USERNAME/
   -OLD) exercising fallback, precedence, and grade-period ownership.
+
+## Execution addendum (2026-10-23)
+
+Recorded by the documentation consistency audit; the decision text above
+is preserved as written at design time.
+
+- Phase 1 shipped to `main` as PR #84 (`606d92f`, 2026-10-22): dual-write
+  reads, seed stamps 85 of 96 rows.
+- The planned phase-2 production apply never ran: the owner-directed
+  production reset (2026-10-22) dropped and re-seeded `aics_portal` from
+  the A1-aware seed, leaving 85 stamped rows and the
+  `{branch, professorUsername}` index in place, eligible=0. The tooling
+  (`scripts/backfill-professor-username.ts`) and runbook stay as the
+  standing procedure for future unstamped rows.
+- Phase 3 shipped to `main` as PR #85 (`a5a363a`, 2026-10-22; Vercel
+  deployment `7257198849`): `professorOwnership()` is now the flat
+  `{ professorUsername: username }` fragment — the `$or` fallback arm in
+  the Decision section no longer exists; unstamped rows match no account
+  (fail-closed). The 11 legacy rows for professor names without accounts
+  are unowned by design.
+- Test counts since execution: 62 authz unit tests
+  (`bun test src/lib/authz/`), plus 6 uri-local tests under
+  `scripts/lib/` from the 2026-10-23 rotation-toolkit hardening.
