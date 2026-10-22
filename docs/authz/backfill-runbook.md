@@ -57,6 +57,22 @@ read-only report and approves the expected count first. Deploy phase 1
 meaningful; a backfill before the deploy is inert-but-harmless (the
 legacy code ignores the field).
 
+## Alternatives considered: reseed vs targeted backfill (2026-10-22)
+
+Evaluated at the owner's request after PR #84 merged:
+update the seed script and reseed a fresh database instead of running
+the targeted backfill. Verdict: **rejected — the backfill stays.** The
+seed already models the post-backfill end state (85 stamped of 96 rows
+on a fresh seed; evidence: `scripts/eval-seed-vs-backfill.sh`, 13/13 on
+a newly created disposable DB), and reseeding cannot migrate the 92
+existing Atlas subject rows — that is what the backfill does. A fresh
+reseed also adds no test coverage the harness lacks: the live
+name-fallback arm is characterized by `verify-authz.sh` Fixture 1, and
+the migration lifecycle (report, apply, idempotency, rollback,
+strictness gates) by `verify-backfill-rehearsal.sh`. Reseeding any
+existing database remains forbidden; the seed is for fresh installs
+only.
+
 ## Categories the report prints (counts only, no PII)
 
 | Category | Meaning | Phase-3 gate |
