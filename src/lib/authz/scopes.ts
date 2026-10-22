@@ -11,65 +11,41 @@
 // attendance ownership in the policy gate); the fragments below are
 // the fixed shapes.
 //
-// A1 phase 1 (issue #72): the professor-of-record key became the
-// professorOwnership() dual-write match — username stamp first, legacy
-// display-name fallback second — so teaching ownership stops silently
-// transferring or breaking on duplicate/renamed display names. The gate
-// (relations.ts) and the scopes read the SAME fragment, keeping the
-// FIX-C1 gate/scope parity by construction.
+// A1 phase 1 (issue #72) shipped the professor-of-record key as a
+// dual-write match — username stamp first, legacy display-name fallback
+// second. Phase 3 (issue #72, owner-authorized) REMOVES the name arm:
+// the runtime reads the stamp only, so teaching ownership is exactly
+// "the row's professorUsername equals the authenticated account's
+// username". Unstamped rows (field absent or null) and malformed stamps
+// ('' or any non-matching value) match NO account — fail-closed. The
+// gate (relations.ts) and the scopes read the SAME fragment, keeping
+// the FIX-C1 gate/scope parity by construction.
 
 import type { Branch } from '@/lib/mongodb/types'
 import type { AuthzContext } from './context'
 import type { TermKey } from './types'
 
 /**
- * One arm of the teaching-ownership match (A1, issue #72):
- * - username arm: the row is stamped and owned by that account;
- * - name arm: the row is unstamped (Mongo `{ field: null }` matches
- *   absent AND null) and still matched by display name — legacy rows.
- */
-export type ProfessorMatchClause =
-  | { professorUsername: string }
-  | { professorUsername: null; professor: string }
-
-/**
- * Spread-safe ownership filter: the $or is wrapped in a single-element
- * $and so a route composing `{ ...scope, $or: [...] }` (grades/submit's
- * status clauses do exactly that) can never clobber the ownership match
- * by overwriting a top-level `$or` key. Mongo reads `$and:[{$or:[...]}]`
- * identically to a bare `$or` — this is purely collision-proofing for
- * object spreads.
+ * Teaching-ownership filter (A1 phase 3, issue #72): strict username
+ * equality. The display name is never read for ownership — a stale,
+ * duplicated, or renamed fullName can neither grant nor revoke access.
+ * Rows without a stamp (absent/null) or with a malformed stamp match
+ * nothing and stay unassigned until an owner reassigns them.
  */
 export interface ProfessorOwnershipFilter {
-  $and: [{ $or: ProfessorMatchClause[] }]
+  professorUsername: string
 }
 
 /**
- * Teaching-ownership match for one faculty identity (A1 phase 1, issue #72).
+ * Teaching-ownership match for one faculty account (A1 phase 3, issue #72).
  *
- * Per-row precedence: a stamped row (professorUsername present and
- * non-empty) matches by username ONLY — its stale display name never
- * grants ownership; an unstamped row (field absent/null) falls back to
- * the display-name match, which is exactly the pre-migration behavior,
- * so a zero-stamp database behaves identically to today.
- *
- * `''` is never written and matches neither arm (dead value, fail-closed).
- * A falsy fullName keeps the name arm matching only rows whose professor
- * is literally '' (none exist in seeded data), so the FIX-C1 fail-closed
- * property is preserved for unstamped rows; stamped rows for the account
- * still match — the username is the real key.
+ * Flat single-key shape: a route composing `{ ...scope, $or: [...] }`
+ * (grades/submit's status clauses) cannot clobber a plain equality key
+ * the way it could clobber a top-level `$or`, so the phase-1 `$and` wrap
+ * is no longer needed; the ownership key survives every object spread.
  */
-export function professorOwnership(username: string, fullName: string): ProfessorOwnershipFilter {
-  return {
-    $and: [
-      {
-        $or: [
-          { professorUsername: username },
-          { professorUsername: null, professor: fullName },
-        ],
-      },
-    ],
-  }
+export function professorOwnership(username: string): ProfessorOwnershipFilter {
+  return { professorUsername: username }
 }
 
 export interface OwnStudentRowsScope {
@@ -79,8 +55,8 @@ export interface OwnStudentRowsScope {
 
 export interface TeachingLoadScope {
   branch: Branch
-  /** A1 dual-write teaching-ownership match (issue #72). */
-  $and: ProfessorOwnershipFilter['$and']
+  /** A1 strict teaching-ownership key (issue #72 phase 3). */
+  professorUsername: string
   academicYear?: string
   semester?: string
 }
@@ -88,8 +64,8 @@ export interface TeachingLoadScope {
 export interface SubjectRowsScope {
   branch: Branch
   code: string
-  /** A1 dual-write teaching-ownership match (issue #72). */
-  $and: ProfessorOwnershipFilter['$and']
+  /** A1 strict teaching-ownership key (issue #72 phase 3). */
+  professorUsername: string
   academicYear?: string
   semester?: string
 }
@@ -106,10 +82,10 @@ export interface AuthzScopes {
   teachingLoad(term?: TermKey): TeachingLoadScope
   /**
    * Write scope for one subject's rows (grades/submit). FIX-C1 (C3.1)
-   * + A1 phase 1 (issue #72): carries the dual-write professor-of-record
-   * match — username stamp first, legacy name fallback second — so the
-   * write filter touches only rows the actor teaches and the shape is
-   * identical to the policy gate's relation query by construction.
+   * + A1 phase 3 (issue #72): carries the strict professor-of-record
+   * key — username equality only — so the write filter touches only
+   * rows the actor teaches and the shape is identical to the policy
+   * gate's relation query by construction.
    */
   subjectRows(code: string, term?: TermKey): SubjectRowsScope
   /**
@@ -138,20 +114,20 @@ export function createScopes(ctx: AuthzContext): AuthzScopes {
 
     teachingLoad: (term) => ({
       branch: actor.branch,
-      // A1 phase 1 (issue #72): dual-write ownership match replaces the
-      // bare display-name key.
-      ...professorOwnership(actor.username, actor.fullName),
+      // A1 phase 3 (issue #72): strict username key replaces the
+      // phase-1 dual-write match.
+      ...professorOwnership(actor.username),
       ...termKeys(term),
     }),
 
     subjectRows: (code, term) => ({
       branch: actor.branch,
       code,
-      // FIX-C1 (C3.1) + A1 phase 1 (issue #72): the professor-of-record
-      // match, unconditional on purpose — omitting it would reopen the C1
-      // hole; the fragment fails closed for unstamped rows with a falsy
-      // fullName and matches stamped rows by username only.
-      ...professorOwnership(actor.username, actor.fullName),
+      // FIX-C1 (C3.1) + A1 phase 3 (issue #72): the professor-of-record
+      // key, unconditional on purpose — omitting it would reopen the C1
+      // hole; the fragment fails closed for unstamped rows (no account
+      // matches) and matches stamped rows by username only.
+      ...professorOwnership(actor.username),
       ...termKeys(term),
     }),
 

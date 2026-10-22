@@ -77,11 +77,11 @@ export async function can(
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
       // FIX-C1 (C3.1, issue #57): only the subject's teaching faculty may
-      // submit its grades. The load query is a name match over
-      // professor-of-record rows under the actor's current term, so a
-      // co-teacher enumerated on any row passes. The write scope
-      // (subjectRows) carries the same professor key, so the filter is
-      // professor-scoped even if this gate is bypassed.
+      // submit its grades. The load query is the strict username match
+      // (A1 phase 3, issue #72) over professor-of-record rows under the
+      // actor's current term, so a co-teacher stamped on any row passes.
+      // The write scope (subjectRows) carries the same professor key, so
+      // the filter is professor-scoped even if this gate is bypassed.
       if (!(await rel.teachesSubject(resource.subjectCode)))
         return deny('notAssigned', 'Subject is not in your current teaching load.')
       return allow()
@@ -105,20 +105,14 @@ export async function can(
       })
       if (!st) return deny('notFound', 'Not found')
       // FIX-H1b (C3.2, issue #59): the professor-of-record check is
-      // unconditional — a missing fullName fails closed instead of
-      // skipping the check entirely.
+      // unconditional — a missing stamp fails closed instead of skipping
+      // the check entirely.
       //
-      // A1 phase 1 (issue #72): the check reads the dual-write key with
-      // the same per-row precedence as every ownership filter — a
-      // stamped row (professorUsername present) is owned by that
-      // username ONLY, so its stale display name never grants
-      // ownership; an unstamped row falls back to the display-name
-      // comparison, where a falsy fullName still fails closed.
-      if (
-        st.professorUsername
-          ? st.professorUsername !== ctx.actor.username
-          : !ctx.actor.fullName || st.professor !== ctx.actor.fullName
-      )
+      // A1 phase 3 (issue #72): strict username ownership — the stamp is
+      // the ONLY key. Unstamped rows ('' from an absent field) and
+      // malformed stamps match no account, so they deny fail-closed; the
+      // display name is never read for the ownership decision.
+      if (st.professorUsername !== ctx.actor.username)
         return deny('notAssigned', 'Not your section')
       // FIX-H1a (C3.3, issue #58): the grade write state machine is
       // forward-only: '' / draft -> submitted -> released. Encoding
@@ -229,9 +223,10 @@ export async function can(
           return deny('role', 'Unauthorized: faculty or admin only')
         // FIX-H2 (C3.4, issue #60): faculty reads are load-scoped — the
         // section must be in the caller's teaching load (co-taught sections
-        // pass: the load query is the name match over professor-of-record
-        // rows). Admin keeps the branch-wide read, and the read path stays
-        // tolerant of historical off-roster usernames in stored records.
+        // pass: the load query is the strict username match over
+        // professor-of-record rows — A1 phase 3, issue #72). Admin keeps the
+        // branch-wide read, and the read path stays tolerant of historical
+        // off-roster usernames in stored records.
         if (ctx.actor.role === 'faculty' && !(await rel.teachesSection(resource.sectionKey)))
           return deny('notAssigned', 'You do not teach this section.')
         return allow()

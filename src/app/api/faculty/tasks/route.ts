@@ -36,13 +36,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
     }
 
-    // A1 phase 1 (issue #72): the board load uses the dual-write
-    // ownership match — username stamp first, legacy name fallback.
+    // A1 phase 3 (issue #72): the board load uses the strict
+    // ownership key — username equality only.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
       .find({
         branch: faculty.branch,
-        ...professorOwnership(faculty.username, faculty.fullName),
+        ...professorOwnership(faculty.username),
       })
       .project({ code: 1, academicYear: 1, semester: 1 })
       .toArray()
