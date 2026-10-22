@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
@@ -13,7 +13,12 @@ import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
 const readMarkBaseSchema = z.object({
   username: z.string({ error: 'Username is required.' }).min(1),
   announcementId: z.string().optional(),
-  ids: z.array(z.string(), { error: 'An announcement id is required.' }).optional(),
+  // FIX-L4 (C3.11, issue #68): ids are capped at 200 like bulk-delete —
+  // an unbounded array fed a bulkWrite of upserts per request.
+  ids: z
+    .array(z.string(), { error: 'An announcement id is required.' })
+    .max(200, { message: 'Marking is capped at 200 announcements per request.' })
+    .optional(),
 })
 
 const readMarkPostSchema = readMarkBaseSchema.extend({
@@ -30,15 +35,16 @@ function toIdList(announcementId?: string, ids?: string[]): string[] {
 // Phase 6: users record reads for their own session username only.
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { username, announcementId, ids, action } = await parseBody(request, readMarkPostSchema)
-    // Phase 6: username must be the session user.
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.2: auth + username-self gate centralized (announcement.reads
+    // markRead; the policy self-scopes via the session-stamped filter
+    // keys, and the legacy username field rides the guard's spoof
+    // check: a mismatched value is a 403 exactly where the old inline
+    // comparison fired). FIX-L4 (C3.11): the ids cap rides the schema
+    // above, like bulk-delete.
+    await requireCan(request, { kind: 'announcement.reads' }, 'markRead', {
+      claimedIdentity: username,
+    })
     const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
@@ -71,14 +77,12 @@ export async function POST(request: NextRequest) {
 // Same guards as POST: session user only, string ids, branch-scoped delete.
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { username, announcementId, ids } = await parseBody(request, readMarkBaseSchema)
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.2: auth + username-self gate centralized (announcement.reads
+    // delete; same spoof-check mapping as POST).
+    await requireCan(request, { kind: 'announcement.reads' }, 'delete', {
+      claimedIdentity: username,
+    })
     const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })

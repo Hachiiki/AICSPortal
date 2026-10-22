@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import { cloudinaryEnv, photoFolder, destroyAsset } from '@/app/api/materials/cloudinary'
@@ -29,10 +29,18 @@ const photoCleanupSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.2: auth + self-only cleanup gate centralized (account.photo
+    // cleanup). The destroyable subtree is the session account's own
+    // folder (no username input), so the policy resource is the
+    // actor's username and the context is resolved first to state it;
+    // the folder-containment check below stays route-kept.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'account.photo', username: ctx.actor.username }, 'cleanup')
+    )
+    if (gate) throw gate
+
     const { publicId } = await parseBody(request, photoCleanupSchema)
     const env = cloudinaryEnv()
     if (!env) {
@@ -44,7 +52,7 @@ export async function POST(request: NextRequest) {
     // prefix match — not equality — against the session user's own
     // folder is the right boundary: only assets inside the caller's
     // own branch+username subtree can ever be destroyed here.
-    const folder = photoFolder(env.baseFolder, session.branch, session.username)
+    const folder = photoFolder(env.baseFolder, ctx.actor.branch, ctx.actor.username)
     if (!publicId.startsWith(`${folder}/`)) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }

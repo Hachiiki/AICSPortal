@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
 import { z } from 'zod'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import type { MongoEnrollment, MongoStudent } from '@/lib/mongodb/types'
@@ -49,25 +48,14 @@ const paymentPostSchema = z.object({
   note: z.string().trim().max(200, { message: 'Note must be at most 200 characters.' }).optional(),
 })
 
-async function requireAdmin(request: NextRequest) {
-  const session = await getSession(request)
-  if (!session) {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 }) }
-  }
-  const performer = await getStudentByUsername(session.username)
-  if (!performer || performer.role !== 'admin') {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 }) }
-  }
-  return { performer }
-}
-
 // ------------------------------------------------------------
 // GET /api/admin/enrollment
 // ------------------------------------------------------------
 export async function GET(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
+    // C2.1: session + admin-role gate centralized (admin.enrollment read,
+    // school-wide by design per D1).
+    await requireCan(request, { kind: 'admin.enrollment' }, 'read')
 
     // getCollection<T> returns `any` (see connection.ts), so a typed
     // helper keeps the Promise.all tuple inference intact downstream.
@@ -145,10 +133,6 @@ export async function GET(request: NextRequest) {
 // ------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
-
     const { id, currentStep } = await parseBody(request, enrollmentOverrideSchema)
     let idFilter: ObjectId
     try {
@@ -162,9 +146,13 @@ export async function PATCH(request: NextRequest) {
     if (!existing) {
       return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
     }
-    if (existing.branch !== performer.branch) {
-      return NextResponse.json({ ok: false, error: 'This record belongs to another branch.' }, { status: 403 })
-    }
+    // C2.1: admin role + branch parity on the target record centralized
+    // (admin.enrollment update; the fetched record supplies the branch).
+    await requireCan(
+      request,
+      { kind: 'admin.enrollment', id, branch: existing.branch },
+      'update'
+    )
 
     const stepCount = (existing.steps ?? []).length
     if (currentStep > stepCount) {
@@ -194,10 +182,6 @@ export async function PATCH(request: NextRequest) {
 // ------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
-
     const { id, amount, date, note } = await parseBody(request, paymentPostSchema)
     let idFilter: ObjectId
     try {
@@ -211,9 +195,15 @@ export async function POST(request: NextRequest) {
     if (!existing) {
       return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
     }
-    if (existing.branch !== performer.branch) {
-      return NextResponse.json({ ok: false, error: 'This record belongs to another branch.' }, { status: 403 })
-    }
+    // C2.1: admin role + branch parity on the target record centralized
+    // (admin.enrollment create; the fetched record supplies the branch).
+    const {
+      ctx: { actor },
+    } = await requireCan(
+      request,
+      { kind: 'admin.enrollment', id, branch: existing.branch },
+      'create'
+    )
 
     const totalAssessment = existing.assessment?.totalAssessment ?? 0
     const amountPaid = existing.assessment?.amountPaid ?? 0
@@ -243,7 +233,7 @@ export async function POST(request: NextRequest) {
           'assessment.paymentDate': paymentDate,
         },
         $push: {
-          payments: { amount, date: receivedAt, postedBy: performer.username, note: safeNote },
+          payments: { amount, date: receivedAt, postedBy: actor.username, note: safeNote },
         },
       }
     )

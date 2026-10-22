@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getCourses, getSessions } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
-import { parseQuery, selfQuerySchema } from "@/lib/validation"
+import { requireCan } from '@/lib/authz'
+import { HttpError } from '@/lib/http'
+import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
 // ============================================================
 //  Faculty API — GET /api/faculty?username=...
@@ -24,23 +25,21 @@ import { parseQuery, selfQuerySchema } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: workspace belongs to the session user; the username param
-    // must match (spoofing another faculty's roster is a 403).
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // C2.3: auth + username-self gate centralized (faculty.roster read:
+    // faculty or admin, DB role). The username query field rides the
+    // guard's spoof check; the faculty lookup (404) and the roster
+    // data flow stay route-kept (D2 breadth preserved, issue #79).
+    const claimed = parseQuery(request, selfQuerySchema).username
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'faculty.roster' }, 'read', {
+      claimedIdentity: claimed,
+    })
+    const username = claimed || actor.username
     if (!username) {
       return NextResponse.json(
         { ok: false, error: 'Username is required.' },
         { status: 400 }
-      )
-    }
-    if (username !== session.username) {
-      return NextResponse.json(
-        { ok: false, error: 'Forbidden' },
-        { status: 403 }
       )
     }
 
@@ -49,15 +48,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { ok: false, error: 'Faculty member not found.' },
         { status: 404 }
-      )
-    }
-
-    // BUG-006: role gate (mirrors faculty/tasks FAC-03). Still caller-supplied
-    // until server sessions land (BUG-009); closes anonymous student-shaped access.
-    if (faculty.role !== 'faculty' && faculty.role !== 'admin') {
-      return NextResponse.json(
-        { ok: false, error: 'Unauthorized: faculty only' },
-        { status: 403 }
       )
     }
 
@@ -161,6 +151,7 @@ export async function GET(request: NextRequest) {
       sessions,
     })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Faculty API error:', err)
     return NextResponse.json(
       { ok: false, error: 'Failed to fetch faculty data.' },

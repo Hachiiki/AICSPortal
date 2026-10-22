@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { z } from 'zod'
 import { getStudentByUsername, getEvents } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, dateInput, trimmedString, errResponse, idQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import type { MongoEvent, EventCategory } from '@/lib/mongodb/types'
@@ -25,17 +25,18 @@ import type { MongoEvent, EventCategory } from '@/lib/mongodb/types'
 // accepted from the client.
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: branch directory reads require a session; username must be self.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.1: auth gate centralized (branch.calendar read: any authed).
+    // The username-self check and the student lookup stay route-kept
+    // (identity validation, lookup-first, not policy decisions).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.calendar' }, 'read')
     const query = parseQuery(request, eventsGetQuerySchema)
-    const username = query.username || session.username
+    const username = query.username || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
+    if (username !== actor.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -108,28 +109,16 @@ const eventPatchSchema = z.object({
   category: eventCategorySchema.optional(),
 })
 
-/** Session + admin-role gate for write operations. Returns the admin's doc or a 401/403 response. */
-async function requireAdmin(request: NextRequest) {
-  const session = await getSession(request)
-  if (!session) {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 }) }
-  }
-  const performer = await getStudentByUsername(session.username)
-  if (!performer || performer.role !== 'admin') {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 }) }
-  }
-  return { performer }
-}
-
 // ------------------------------------------------------------
 // POST /api/events (admin) — create
 // Body: { title, description?, date, endDate?, category }
 // ------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.calendar create).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.calendar' }, 'create')
 
     const { title, description, date, endDate, category } = await parseBody(request, eventCreateSchema)
     const safeEndDate = endDate ?? null
@@ -139,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     const col = await getCollection<MongoEvent>('events')
     const doc: MongoEvent = {
-      branch: performer.branch,
+      branch: actor.branch,
       title,
       description: description ?? undefined,
       date,
@@ -162,9 +151,10 @@ export async function POST(request: NextRequest) {
 // ------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.calendar update).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.calendar' }, 'update')
 
     const { id, title, description, date, endDate, category } = await parseBody(request, eventPatchSchema)
     let idFilter: ObjectId
@@ -176,7 +166,7 @@ export async function PATCH(request: NextRequest) {
 
     // Merge onto the existing doc so range validation sees final values.
     const col = await getCollection<MongoEvent>('events')
-    const existing = await col.findOne({ _id: idFilter, branch: performer.branch })
+    const existing = await col.findOne({ _id: idFilter, branch: actor.branch })
     if (!existing) {
       return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
     }
@@ -197,7 +187,7 @@ export async function PATCH(request: NextRequest) {
     if (Object.keys(update).length === 0) {
       return NextResponse.json({ ok: false, error: 'Nothing to update.' }, { status: 400 })
     }
-    await col.updateOne({ _id: idFilter, branch: performer.branch }, { $set: update })
+    await col.updateOne({ _id: idFilter, branch: actor.branch }, { $set: update })
     return NextResponse.json({ ok: true, message: 'Event updated.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
@@ -211,9 +201,10 @@ export async function PATCH(request: NextRequest) {
 // ------------------------------------------------------------
 export async function DELETE(request: NextRequest) {
   try {
-    const gate = await requireAdmin(request)
-    if ('error' in gate) return gate.error
-    const { performer } = gate
+    // C2.1: session + admin-role gate centralized (branch.calendar delete).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'branch.calendar' }, 'delete')
 
     const query = parseQuery(request, idQuerySchema)
     let idFilter: ObjectId
@@ -223,7 +214,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
     }
     const col = await getCollection<MongoEvent>('events')
-    const result = await col.deleteOne({ _id: idFilter, branch: performer.branch })
+    const result = await col.deleteOne({ _id: idFilter, branch: actor.branch })
     if (result.deletedCount === 0) {
       return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
     }

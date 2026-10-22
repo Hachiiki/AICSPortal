@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername, getEnrollment } from '@/lib/mongodb/queries'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
-import { parseQuery, selfQuerySchema } from "@/lib/validation"
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { HttpError } from '@/lib/http'
+import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: financial data is self-only (session-enforced).
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // C2.2: auth + self-only gate centralized (student.finances read;
+    // staff denied by design). The context resolves first because the
+    // username defaults to the actor's own; any other value denies
+    // before the lookup, exactly where the old inline check fired.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
+    const username = parseQuery(request, selfQuerySchema).username || ctx.actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'student.finances', username }, 'read')
+    )
+    if (gate) throw gate
+
     const student = await getStudentByUsername(username)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
@@ -50,6 +55,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, enrollment: clientEnrollment })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Enrollment API error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to fetch enrollment data.' }, { status: 500 })
   }
