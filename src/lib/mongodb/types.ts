@@ -86,6 +86,12 @@ export interface MongoSubject {
   title: string
   units: number
   professor: string
+  // A1 dual-write (issue #72, phase 1): the immutable faculty account
+  // username that owns this row. Absent/null = legacy row, still matched
+  // by display name; present-and-non-empty = stamped, matched by username
+  // ONLY (a stale display name never grants ownership). Never written as
+  // '' — the empty string matches neither arm of the ownership filter.
+  professorUsername?: string
   professorEmail: string
   schedule: string // human-readable, e.g. "Mon / Wed 8:00 - 9:30 AM"
   room: string

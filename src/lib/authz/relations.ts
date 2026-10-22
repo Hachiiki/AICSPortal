@@ -7,10 +7,12 @@
 // goldens still expect the recorded current behavior.
 //
 // Two Mongo-matching subtleties preserved here:
-// - teachesSubject/teachesSection fetch rows by {branch, professor, code}
-//   and match the term IN JS with (field || '') comparisons, exactly like
-//   the notifications ownership map: a Mongo
-//   {academicYear: ''} filter would NOT match docs missing the field.
+// - teachesSubject/teachesSection fetch rows by {branch, code} plus the A1
+//   dual-write ownership fragment (professorOwnership: username arm first,
+//   display-name arm for unstamped rows — see scopes.ts) and match the term
+//   IN JS with (field || '') comparisons, exactly like the notifications
+//   ownership map: a Mongo {academicYear: ''} filter would NOT match docs
+//   missing the field.
 // - isEnrolled uses the filter form with the term keys always present
 //   (matching the materials student path), where '' matches only docs whose
 //   field is explicitly ''.
@@ -25,9 +27,12 @@
 import { getCollection } from '@/lib/mongodb/connection'
 import type { GradePeriodStatus } from '@/lib/mongodb/types'
 import type { AuthzContext } from './context'
+import { professorOwnership } from './scopes'
 import type { TermKey } from './types'
 
 export interface GradeRowState {
+  /** A1 dual-write (issue #72): the row's stamped owner username; '' = unstamped legacy row (name match). */
+  professorUsername: string
   professor: string
   branch: string
   statuses: {
@@ -82,13 +87,20 @@ export function createRelations(ctx: AuthzContext): Relations {
     semester: actor.semester,
   })
 
-  // Shared loader: enrollment rows for {branch, professor, code}, projected
-  // to the term fields. Callers match terms in JS with (field || '') so
-  // docs missing term fields match an empty term, as the routes do.
+  // Shared loader: enrollment rows for {branch, code} owned by the actor
+  // under the A1 dual-write match (issue #72: username stamp first, legacy
+  // display-name fallback second), projected to the term fields. Callers
+  // match terms in JS with (field || '') so docs missing term fields match
+  // an empty term, as the routes do. Same fragment as scopes.subjectRows —
+  // the FIX-C1 gate/scope parity holds by construction.
   async function loadProfessorRows(code: string): Promise<{ academicYear?: string; semester?: string }[]> {
     const col = await getCollection('subjects')
     return col
-      .find({ branch: actor.branch, professor: actor.fullName, code })
+      .find({
+        branch: actor.branch,
+        code,
+        ...professorOwnership(actor.username, actor.fullName),
+      })
       .project({ academicYear: 1, semester: 1 })
       .toArray()
   }
@@ -149,6 +161,7 @@ export function createRelations(ctx: AuthzContext): Relations {
           if (t?.semester) filter.semester = t.semester
           const doc = await col.findOne(filter, {
             projection: {
+              professorUsername: 1,
               professor: 1,
               branch: 1,
               prelimStatus: 1,
@@ -158,6 +171,7 @@ export function createRelations(ctx: AuthzContext): Relations {
           })
           if (!doc) return null
           return {
+            professorUsername: typeof doc.professorUsername === 'string' ? doc.professorUsername : '',
             professor: typeof doc.professor === 'string' ? doc.professor : '',
             branch: typeof doc.branch === 'string' ? doc.branch : '',
             statuses: {
