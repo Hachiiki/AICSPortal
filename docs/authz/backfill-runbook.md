@@ -46,6 +46,21 @@ resolution. Tool: `scripts/backfill-professor-username.ts` (pattern:
   production deployment completed and live). Phase 1 reads and dual-writes
   in production, so the stamps are meaningful; the backfill below may
   proceed at the owner's discretion.
+- **SUPERSEDED 2026-10-22 (later the same day): production state reset.**
+  At the owner's explicit direction ("those data are mock data as well"),
+  `scripts/prod-reseed.ts` staged: read-only precheck (16 collections,
+  791 docs — mock-scale, sanity ceiling enforced) -> local backup
+  (`db/prod-backup-2026-10-22T07-45-14/`, gitignored, never printed) ->
+  scoped drop of every non-system collection in `aics_portal` ONLY ->
+  fresh seed via the A1-aware seed script. Post-reset verified: 96
+  subjects (85 stamped: 81 m.reyes + 4 l.bautista; 11 legacy rows for
+  professor names without accounts), the `{branch, professorUsername}`
+  index now present in production, and the dual-key fragment/strict arms
+  agree for both faculty. **The 81-row apply below is therefore MOOT for
+  this dataset** — the read-only report now reads eligible=0 and
+  `--strictness` passes gates A, B, and C. This runbook stays as the
+  standing procedure should unstamped rows ever appear in production
+  again (new rows written by pre-phase-1 code, manual edits, imports).
 
 ## Why approval is required
 
