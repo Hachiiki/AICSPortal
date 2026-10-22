@@ -117,12 +117,13 @@ table.
 | L6 throttle first-hop keying | #71 | still open, backlog |
 | A7 in-memory rate limiter | #77 | still open, backlog |
 | A1 display-name keying | #72 | still open, migration deferred |
-| D2 staff read breadth | #79 | still open, policy call pending |
+| D2 staff read breadth | #79 | closed not planned 2026-10-22, breadth kept by choice |
 
-Sum: 17 closed as completed, 3 closed as not planned with the rationale
-recorded in the issue bodies, 4 open (two backlog items in the BUG-013
-family, one deferred migration with its plan already written in
-phase-2-design section 8, one open product-policy question).
+Sum: 17 closed as completed, 4 closed as not planned with the rationale
+recorded in the issue bodies (D2 decided 2026-10-22 after the port:
+current breadth kept, reopening path recorded), 3 open (two backlog
+items in the BUG-013 family, one deferred migration with its plan
+already written in phase-2-design section 8).
 
 ## 6. Phase status and what is deliberately not done
 
@@ -132,3 +133,29 @@ step defined in CLAUDE.md 6a and phase-3-plan section 11, and it needs its
 own explicit go before anything moves. The `authz-unit` CI job application
 through the GitHub web UI remains the recorded owner action from C4.4
 (TODO.md).
+
+## 7. Addendum: the port landed (2026-10-22, same day)
+
+Section 6 recorded the deliberate not-done list as of the verification
+close. With the owner's go, everything on it has since been executed:
+
+- PR #81 ported the review to `main`: the 8 module files, 35 route
+  files, `proxy.ts`, `nav-config.ts`, and README, blob-identical to the
+  verified tree, whitelist guard green in CI.
+- PR #83 retired the RoleGate component the port preview had missed
+  (the plan predated the C4.2 deletion; zero importers on either
+  branch).
+- PR #82 applied the `authz-unit` CI job via the workflow-scoped token
+  path. Two corrections to the parked design surfaced in its first
+  run: `bun test` exits 1 on unmatched filters, so the step now skips
+  itself when no test files exist, and the whitelist pattern keeps the
+  `vercel.json` entry the parked copy had drifted from.
+- D2 (#79) was decided: current staff-read breadth stays, the same
+  intended-oversight family as D1 and D3, with the reopening path
+  recorded in the issue body.
+- `main-full-dev` synced both times (e4a0862, 0cc9bdb) and the golden
+  suite still passes 55/55 on the merged tree.
+
+Nothing else in the review changed. The remaining open items are the
+backlog trio (#71, #72, #77) and the deferred `professorUsername`
+migration (A1).
