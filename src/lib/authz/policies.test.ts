@@ -1,7 +1,7 @@
 // Unit tests for the policy decision table (plan P3: bun test, dev-only).
 //
-// Coverage goal: every kind x action pair the swap-scope routes will call,
-// including the LEGACY branches (marked tests flip with their C3.x commit).
+// Coverage goal: every kind x action pair the swap-scope routes call,
+// including the flipped rows of the 14 landed stage 3 fixes.
 // Relations are fakes; no database, no environment.
 //
 // Cast mirrors the golden seed: facultyX m.reyes teaches CS 101 (current

@@ -39,8 +39,7 @@ export async function POST(request: NextRequest) {
     if (!env) {
       return NextResponse.json({ ok: false, error: 'File uploads are not configured. Post a link instead.' }, { status: 503 })
     }
-    // C2.4: faculty role, branch parity (the JWT claim, the same
-    // comparison requireTeachingFaculty ran), and the current-term
+    // C2.4: faculty role, branch parity (the JWT claim), and the current-term
     // teaching load centralized (material.upload signUpload).
     const actor = ctx.actor
     const gate = decisionToHttpError(

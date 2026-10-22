@@ -125,38 +125,6 @@ const taskPatchSchema = z.object({
   performedBy: z.string().optional(),
 })
 
-// Faculty must only create for codes they teach this term. Returns
-// the faculty doc plus the code list, or an error response.
-// Exported for reuse by the grade + submissions endpoints (refs #32).
-// C2.4: zero importers remain after this commit (its own calls below
-// died in the task.section swap); the definition is deleted in C4.1.
-export async function requireTeachingFaculty(performedBy: unknown, branch: unknown, subjectCode: unknown) {
-  // BUG-010: reject operator objects before they reach Mongo filters.
-  if (typeof performedBy !== 'string' || !performedBy || typeof branch !== 'string' || !branch || typeof subjectCode !== 'string' || !subjectCode) {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: performedBy is required' }, { status: 403 }) }
-  }
-  const studentsCol = await getCollection('students')
-  const performer = await studentsCol.findOne({ username: performedBy })
-  if (!performer || performer.role !== 'faculty') {
-    return { error: NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 }) }
-  }
-  if (performer.branch !== branch) {
-    return { error: NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 }) }
-  }
-  const subjectsCol = await getCollection('subjects')
-  const taught = await subjectsCol
-    .find({ branch, professor: performer.fullName, code: subjectCode })
-    .project({ academicYear: 1, semester: 1, yearLevel: 1, studentUsername: 1 })
-    .toArray()
-  const current = taught.filter(
-    (d: any) => (d.academicYear || '') === (performer.academicYear || '') && (d.semester || '') === (performer.semester || '')
-  )
-  if (current.length === 0) {
-    return { error: NextResponse.json({ ok: false, error: 'Subject is not in your current teaching load.' }, { status: 403 }) }
-  }
-  return { performer, current }
-}
-
 // POST /api/tasks
 // Body: { branch, subjectCode, title, type, description?, maxScore, dueDate, performedBy }
 // Faculty only. Fans out one task doc per enrolled student in that

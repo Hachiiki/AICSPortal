@@ -2,11 +2,10 @@
 //
 // Pure logic over resolved attributes: every database read goes through the
 // injected Relations, which is what makes this table unit-testable with
-// fakes. The table encodes the CURRENT live behavior of every route in the
-// 33-file swap scope (phase-3-plan section 2.3), with one LEGACY marker per
-// approved behavior fix naming the stage-3 commit that flips it. Stage 2
-// swaps routes onto this table with zero golden movement; stage 3 flips the
-// LEGACY branches one finding per commit.
+// fakes. The table is the live behavior of every route in the 33-file swap
+// scope (phase-3-plan section 2.3). Stage 2 swapped the routes onto this
+// table with zero golden movement; stage 3 landed the 14 approved behavior
+// fixes, one finding per commit, so no LEGACY branches remain in the table.
 //
 // Conventions:
 // - Role checks read ctx.actor.role, the DB value (fixes the M2 stale-role
@@ -78,9 +77,9 @@ export async function can(
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
       // FIX-C1 (C3.1, issue #57): only the subject's teaching faculty may
-      // submit its grades. The load query is requireTeachingFaculty's: a
-      // name match over professor-of-record rows under the actor's current
-      // term, so a co-teacher enumerated on any row passes. The write scope
+      // submit its grades. The load query is a name match over
+      // professor-of-record rows under the actor's current term, so a
+      // co-teacher enumerated on any row passes. The write scope
       // (subjectRows) carries the same professor key, so the filter is
       // professor-scoped even if this gate is bypassed.
       if (!(await rel.teachesSubject(resource.subjectCode)))
@@ -181,8 +180,8 @@ export async function can(
       if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
-      // requireTeachingFaculty semantics: the load check always uses the
-      // actor's CURRENT term (tasks stamp the term from the faculty doc).
+      // The load check always uses the actor's CURRENT term (tasks stamp
+      // the term from the faculty doc).
       if (!(await rel.teachesSubject(resource.subjectCode)))
         return deny('notAssigned', 'Subject is not in your current teaching load.')
       return allow()

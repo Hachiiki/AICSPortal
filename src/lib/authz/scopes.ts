@@ -7,8 +7,9 @@
 // is the structural fix for C1/H2/M1 (writes missing ownership keys).
 //
 // Pure functions over the actor doc: no Mongo access, unit-testable.
-// LEGACY variants below carry the permissive pre-fix shapes; each marker
-// names the stage-3 commit that flips it, per plan section 3.
+// The stage 3 fixes landed (C3.1 professor key on subjectRows, C3.4
+// attendance ownership in the policy gate); the fragments below are
+// the fixed shapes.
 
 import type { Branch } from '@/lib/mongodb/types'
 import type { AuthzContext } from './context'

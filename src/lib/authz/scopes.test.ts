@@ -1,9 +1,9 @@
 // Unit tests for the scope fragment builders (plan P3: bun test, dev-only).
 //
-// These pin the CURRENT fragment shapes, including the LEGACY permissive
-// variants whose markers name the stage-3 commit that flips them. When
-// C3.1/C3.4 land, the corresponding assertions here flip in the same commit
-// (subjectRows gains the professor key; attendanceRows gains ownership keys).
+// These pin the current fragment shapes. The stage 3 fixes landed:
+// subjectRows carries the professor key (C3.1) and attendance
+// ownership lives in the policy gate (C3.4), so the assertions below
+// reflect the fixed shapes.
 
 import { describe, expect, it } from 'bun:test'
 import { createScopes } from './scopes'

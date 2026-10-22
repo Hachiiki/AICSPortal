@@ -31,9 +31,8 @@ const submissionsGetQuerySchema = z.object({
 //  close/reopen PATCH, so exact-ms drift cannot hide rows.
 //  C2.3: faculty role, branch parity, and the teaching-load check
 //  run in the task.section read policy case; the load check uses
-//  the actor's current term, exactly as requireTeachingFaculty did
-//  (its last import outside G4 dies here; the definition follows
-//  in C2.4/C4.1).
+//  the actor's current term, the semantics inherited from the
+//  pre-swap inline helper (retired in C4.1).
 // ============================================================
 
 export async function GET(request: NextRequest) {

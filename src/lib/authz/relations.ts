@@ -9,7 +9,7 @@
 // Two Mongo-matching subtleties preserved here:
 // - teachesSubject/teachesSection fetch rows by {branch, professor, code}
 //   and match the term IN JS with (field || '') comparisons, exactly like
-//   requireTeachingFaculty and the notifications ownership map: a Mongo
+//   the notifications ownership map: a Mongo
 //   {academicYear: ''} filter would NOT match docs missing the field.
 // - isEnrolled uses the filter form with the term keys always present
 //   (matching the materials student path), where '' matches only docs whose
