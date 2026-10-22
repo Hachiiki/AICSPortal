@@ -15,8 +15,10 @@
 //   stamped        professorUsername is a non-empty string
 //   orphaned       stamped, but no faculty account has that username (data
 //                  integrity problem — reported, never auto-fixed)
-//   invalid-empty  professorUsername === '' (dead value matching neither
-//                  fragment arm — reported, never auto-fixed)
+//   invalid        professorUsername is a dead or corrupt value: '' (dead)
+//                  or any non-string, non-null type (corrupt — e.g. a
+//                  number). Either way it matches NEITHER fragment arm;
+//                  reported, never auto-fixed, never stamped over.
 //   eligible       unstamped (absent/null) + exactly 1 fullName match
 //   ambiguous      unstamped + 2+ fullName matches — NEVER auto-assigned;
 //                  stamping one would silently reassign ownership
@@ -158,11 +160,13 @@ function decryptJson(buf: Buffer): any {
 }
 
 // Pre-image: exact professorUsername state per subjects doc.
-//   e: 1 = field existed, 0 = field absent; v: the value when e===1.
+//   e: 1 = field existed, 0 = field absent; v: the value when e===1
+//   (string, null, or whatever corrupt value was there — rollback
+//   restores it byte-for-byte).
 interface PreImage {
   _id: string
   e: 0 | 1
-  v: string | null
+  v: unknown
 }
 
 // --- classification --------------------------------------------------------
@@ -170,7 +174,10 @@ interface Row {
   _id: ObjectId
   professor: string
   branch: string
-  pu: string | null | undefined
+  // Whatever the field actually holds: string, null, undefined — or a
+  // corrupt type (number/array/object) from out-of-band writes. The
+  // classifier type-checks explicitly instead of trusting this shape.
+  pu: unknown
 }
 
 interface Classified {
@@ -209,7 +216,7 @@ async function classify(db: import('mongodb').Db): Promise<Classified> {
     _id: r._id,
     professor: typeof r.professor === 'string' ? r.professor : '',
     branch: typeof r.branch === 'string' ? r.branch : '',
-    pu: r.professorUsername,
+    pu: r.professorUsername as unknown,
   }))
 
   const c: Classified = {
@@ -237,8 +244,12 @@ async function classify(db: import('mongodb').Db): Promise<Classified> {
       }
       continue
     }
-    if (row.pu === '') {
-      // Dead value: matches neither fragment arm. Reported, never touched.
+    if (row.pu !== null && row.pu !== undefined) {
+      // Dead ('') or corrupt-typed (number/array/object) value: matches
+      // NEITHER fragment arm, so the row is invisible to ownership at
+      // runtime. Reported as invalid, never auto-fixed, never stamped
+      // over — classifying it as unstamped would miscount it eligible
+      // and trip the apply guard mid-run.
       c.invalid.push(row)
       continue
     }
@@ -263,7 +274,7 @@ function printReport(c: Classified) {
   console.log(`db: ${dbName}`)
   console.log(`host: ${hostLabel}`)
   console.log(
-    `subjects: total=${c.rows.length} stamped=${c.stamped.length} orphaned-stamps=${c.orphaned.length} invalid-empty=${c.invalid.length}`
+    `subjects: total=${c.rows.length} stamped=${c.stamped.length} orphaned-stamps=${c.orphaned.length} invalid-stamps=${c.invalid.length}`
   )
   console.log(
     `unstamped: eligible=${c.eligible.length} ambiguous=${c.ambiguous.length} unresolved=${c.unresolved.length}`
@@ -355,7 +366,7 @@ async function main() {
         console.log(`${g.key}: ${g.n} ${pass ? 'PASS' : `FAIL (${g.hint})`}`)
       }
       console.log(`info: unresolved=${c.unresolved.length} (unowned today and after strict mode — accepted residual)`)
-      console.log(`info: invalid-empty-stamps=${c.invalid.length} (dead values — fix manually)`)
+      console.log(`info: invalid-stamps=${c.invalid.length} (dead '' or corrupt-typed values — fix manually)`)
       console.log(`info: stale-name-stamps=${c.staleNameStamps} (display name differs from stamp — by design, harmless)`)
       if (LIST_NAMES) {
         console.log(`ambiguous-names: ${JSON.stringify(distinctNames(c.ambiguous.map((a) => a.row)))}`)

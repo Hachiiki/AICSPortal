@@ -40,7 +40,7 @@ legacy code ignores the field).
 | --- | --- | --- |
 | `stamped` | `professorUsername` set and non-empty | — |
 | `orphaned-stamps` | stamped but no faculty account has that username | gate C: must be 0 |
-| `invalid-empty` | `professorUsername === ''` (dead value) | manual fix, reported |
+| `invalid-stamps` | `professorUsername` is a dead (`''`) or corrupt-typed (non-string) value — matches neither fragment arm | manual fix, reported |
 | `eligible` | unstamped + exactly ONE faculty `fullName` match | gate A: must be 0 |
 | `ambiguous` | unstamped + 2+ accounts share that `fullName` | gate B: must be 0 |
 | `unresolved` | unstamped + no account matches | informational (unowned today and after strict mode) |

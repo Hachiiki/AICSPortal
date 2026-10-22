@@ -16,6 +16,9 @@
 #   - TWO 'Engr. Carlos Santos' accounts    -> 1 ambiguous row (duplicate
 #     names) — must NEVER be auto-assigned
 #   - one 'Prof. Patricia Villanueva' row professorUsername=''  -> invalid
+#   - one 'Coach Felix Guerrero' row professorUsername=42 (NUMBER) ->
+#     invalid (corrupt-typed stamp: review F-6 — must classify invalid,
+#     never eligible/unresolved, never stamped over)
 #   - one 'Engr. James Villanueva' row professorUsername='ghost.user'
 #                                          -> orphaned stamp
 #
@@ -139,7 +142,7 @@ U0=$(sed -nE 's/.*\bunresolved=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | 
 E0=$(sed -nE 's/.*\beligible=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | head -1)
 A0=$(sed -nE 's/.*\bambiguous=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | head -1)
 O0=$(sed -nE 's/.*\borphaned-stamps=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | head -1)
-Z0=$(sed -nE 's/.*\binvalid-empty=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | head -1)
+Z0=$(sed -nE 's/.*\binvalid-stamps=([0-9]+)\b.*/\1/p' "$RDIR/report-baseline.log" | head -1)
 grep -q 'host: local' "$RDIR/report-baseline.log" && ok "host classified local, URI not printed" || bad "host line missing"
 [ "${E0:-x}" = 0 ] && [ "${A0:-x}" = 0 ] && [ "${O0:-x}" = 0 ] && [ "${Z0:-x}" = 0 ] \
   && ok "fresh seed: eligible=0 ambiguous=0 orphaned=0 invalid=0 (stamped=${S0} unresolved=${U0})" \
@@ -175,6 +178,9 @@ const { MongoClient } = require('mongodb')
   ])
   // invalid dead value: '' matches neither ownership arm
   await su.updateOne({ professor: 'Prof. Patricia Villanueva', professorUsername: null }, { $set: { professorUsername: '' } })
+  // invalid corrupt-typed value: a NUMBER also matches neither arm and
+  // must never fall into the unstamped pool (review finding F-6)
+  await su.updateOne({ professor: 'Coach Felix Guerrero', professorUsername: null }, { $set: { professorUsername: 42 } })
   // orphaned stamp: username no account has
   await su.updateOne({ professor: 'Engr. James Villanueva', professorUsername: null }, { $set: { professorUsername: 'ghost.user' } })
   await c.close()
@@ -209,14 +215,14 @@ E1=$(sed -nE 's/.*\beligible=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head 
 A1_=$(sed -nE 's/.*\bambiguous=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
 U1=$(sed -nE 's/.*\bunresolved=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
 O1=$(sed -nE 's/.*\borphaned-stamps=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
-Z1=$(sed -nE 's/.*\binvalid-empty=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
+Z1=$(sed -nE 's/.*\binvalid-stamps=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
 X1=$(sed -nE 's/.*\beligible-cross-branch=([0-9]+)\b.*/\1/p' "$RDIR/report-dirty.log" | head -1)
 [ "${E1:-x}" = "$E" ] && ok "eligible=${E1} (anna-lim + roberto-cruz)" || bad "eligible=${E1:-?} expected ${E}"
 [ "${A1_:-x}" = "$CS" ] && ok "ambiguous=${A1_} (duplicate 'Engr. Carlos Santos' accounts)" || bad "ambiguous=${A1_:-?} expected ${CS}"
 [ "${O1:-x}" = 1 ] && ok "orphaned-stamps=${O1} (ghost.user)" || bad "orphaned=${O1:-?} expected 1"
-[ "${Z1:-x}" = 1 ] && ok "invalid-empty=${Z1} (dead '' value)" || bad "invalid=${Z1:-?} expected 1"
+[ "${Z1:-x}" = 2 ] && ok "invalid-stamps=${Z1} (dead '' + corrupt-typed 42)" || bad "invalid=${Z1:-?} expected 2"
 [ "${X1:-x}" = "$RC_N" ] && ok "eligible-cross-branch=${X1} (roberto-cruz account lives in novaliches)" || bad "cross-branch=${X1:-?} expected ${RC_N}"
-EXP_U=$((U0 - AL - RC_N - CS - 2))
+EXP_U=$((U0 - AL - RC_N - CS - 3))
 [ "${U1:-x}" = "$EXP_U" ] && ok "unresolved=${U1} (baseline ${U0} minus eligible/ambiguous/invalid/orphan injections)" || bad "unresolved=${U1:-?} expected ${EXP_U}"
 pii_guard "$RDIR/report-dirty.log" "dirty report"
 
@@ -289,10 +295,15 @@ ORPH_STILL=$(mcount <<'J'
 { "professorUsername": "ghost.user" }
 J
 )
+CORRUPT_STILL=$(mcount <<'J'
+{ "professorUsername": 42 }
+J
+)
 [ "${ST1:-0}" = "$AL" ] && ok "anna-lim rows stamped a.lim: ${ST1}/${AL}" || bad "anna-lim stamped=${ST1:-?} expected ${AL}"
 [ "${ST2:-0}" = "$RC_N" ] && ok "roberto-cruz rows stamped r.cruz: ${ST2}/${RC_N} (cross-branch stamp works)" || bad "roberto-cruz stamped=${ST2:-?} expected ${RC_N}"
 [ "${AMB_STILL:-x}" = "$CS" ] && ok "HARD GUARANTEE: ambiguous rows still unstamped (${AMB_STILL}/${CS}) — never auto-assigned" || bad "ambiguous rows were stamped (${AMB_STILL} expected ${CS} unstamped)"
 [ "${INV_STILL:-x}" = 1 ] && ok "invalid '' row untouched" || bad "invalid row changed (${INV_STILL:-?})"
+[ "${CORRUPT_STILL:-x}" = 1 ] && ok "invalid corrupt-typed row untouched (F-6: never stamped over)" || bad "corrupt row changed (${CORRUPT_STILL:-?})"
 [ "${ORPH_STILL:-x}" = 1 ] && ok "orphaned ghost.user row untouched" || bad "orphaned row changed (${ORPH_STILL:-?})"
 
 # Fragment equivalence: the runtime ownership filter must match the SAME
@@ -372,8 +383,13 @@ ORPH_BACK=$(mcount <<'J'
 { "professorUsername": "ghost.user" }
 J
 )
+CORRUPT_BACK=$(mcount <<'J'
+{ "professorUsername": 42 }
+J
+)
 [ "${AL_BACK:-0}" = "$AL" ] && ok "anna-lim rows unstamped again (${AL_BACK}/${AL}) — the unset operator restores the absent field" || bad "anna-lim unstamped=${AL_BACK:-?} expected ${AL}"
 [ "${INV_BACK:-x}" = 1 ] && ok "'' dead value preserved through rollback" || bad "'' row lost by rollback (${INV_BACK:-?})"
+[ "${CORRUPT_BACK:-x}" = 1 ] && ok "corrupt-typed 42 preserved through rollback (exact pre-state fidelity)" || bad "corrupt row lost by rollback (${CORRUPT_BACK:-?})"
 [ "${ORPH_BACK:-x}" = 1 ] && ok "ghost.user orphan preserved through rollback" || bad "ghost row lost by rollback (${ORPH_BACK:-?})"
 
 # ---------------------------------------------------------------------
@@ -424,6 +440,61 @@ elif grep -qE 'mongodb(\+srv)?://rehearsal-user' "$RDIR/fw-prod.log"; then
 else
   ok "scrubber: no credentials, no URI in the --prod failure output"
 fi
+
+# ---------------------------------------------------------------------
+echo "== 15. corrupt-typed stamp differential (review F-6) =="
+# Differential pin: a corrupt-typed stamp on an otherwise-ELIGIBLE name must
+# NOT be counted eligible. The pre-F-6 classifier pushed it through the
+# unstamped branch -> eligible +1 -> strictness gate-A over-counted and
+# --apply --expect would abort mid-run. Post-F-6: invalid-stamps +1,
+# eligible unchanged, apply --expect 0 completes cleanly.
+node <<'EOF' > "$RDIR/f6-corrupt.log" 2>&1
+const { MongoClient } = require('mongodb')
+;(async () => {
+  const c = new MongoClient('mongodb://127.0.0.1:27017'); await c.connect()
+  const su = c.db('aics_portal').collection('subjects')
+  // corrupt ONE stamped a.lim row with a number
+  const r = await su.updateOne({ professor: 'Prof. Anna Lim', professorUsername: 'a.lim' }, { $set: { professorUsername: 42 } })
+  await c.close()
+  console.log('corrupted=' + r.modifiedCount)
+})().catch(e => { console.error(e.message); process.exit(1) })
+EOF
+grep -q 'corrupted=1' "$RDIR/f6-corrupt.log" && ok "corrupt-typed stamp injected on one a.lim row (42)" || bad "F-6 injection failed: $(tail -3 "$RDIR/f6-corrupt.log")"
+
+node scripts/backfill-professor-username.ts > "$RDIR/f6-report.log" 2>&1 || die "F-6 report errored"
+F6_E=$(sed -nE 's/.*\beligible=([0-9]+)\b.*/\1/p' "$RDIR/f6-report.log" | head -1)
+F6_Z=$(sed -nE 's/.*\binvalid-stamps=([0-9]+)\b.*/\1/p' "$RDIR/f6-report.log" | head -1)
+[ "${F6_E:-x}" = 0 ] && ok "F-6: corrupt-typed row NOT counted eligible (eligible stays 0)" || bad "F-6: corrupt row leaked into eligible (${F6_E:-?})"
+[ "${F6_Z:-x}" = 3 ] && ok "F-6: invalid-stamps=${F6_Z} ('' + felix-42 + a.lim-42)" || bad "F-6: invalid-stamps=${F6_Z:-?} expected 3"
+
+node scripts/backfill-professor-username.ts --strictness > "$RDIR/f6-strictness.log" 2>&1
+grep -q 'gate-A unstamped-uniquely-resolvable: 0 PASS' "$RDIR/f6-strictness.log" \
+  && ok "F-6: strictness gate-A stays 0 PASS with a corrupt-typed stamp present" \
+  || bad "F-6: gate-A over-counted: $(grep 'gate-A' "$RDIR/f6-strictness.log")"
+pii_guard "$RDIR/f6-report.log" "F-6 report"
+pii_guard "$RDIR/f6-strictness.log" "F-6 strictness"
+
+if node scripts/backfill-professor-username.ts --apply --expect 0 --backup "$BACKUP_FILE" > "$RDIR/f6-apply.log" 2>&1; then
+  grep -q 'verified 0/0' "$RDIR/f6-apply.log" \
+    && ok "F-6: apply --expect 0 completes cleanly with the corrupt row present (old classifier would abort)" \
+    || bad "F-6 apply verified line missing: $(grep verified "$RDIR/f6-apply.log")"
+else
+  bad "F-6: apply tripped on the corrupt-typed row: $(tail -3 "$RDIR/f6-apply.log")"
+fi
+pii_guard "$RDIR/f6-apply.log" "F-6 apply"
+
+# restore the stamp exactly (cleanup; throwaway DB anyway)
+node <<'EOF' > "$RDIR/f6-restore.log" 2>&1
+const { MongoClient } = require('mongodb')
+;(async () => {
+  const c = new MongoClient('mongodb://127.0.0.1:27017'); await c.connect()
+  const su = c.db('aics_portal').collection('subjects')
+  const r = await su.updateOne({ professor: 'Prof. Anna Lim', professorUsername: 42 }, { $set: { professorUsername: 'a.lim' } })
+  await c.close()
+  console.log('restored=' + r.modifiedCount)
+})().catch(e => { console.error(e.message); process.exit(1) })
+EOF
+grep -q 'restored=1' "$RDIR/f6-restore.log" && ok "corrupt-typed stamp restored to a.lim (row ownership intact)" || bad "F-6 restore failed: $(tail -3 "$RDIR/f6-restore.log")"
 
 # ---------------------------------------------------------------------
 kill "$MONGO_PID" 2>/dev/null || true; MONGO_PID=""
