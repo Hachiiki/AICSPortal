@@ -145,6 +145,20 @@ async function seed() {
   //  3. Subjects (enrollments — TWO terms for Juan)
   // ----------------------------------------------------------
 
+  // A1 phase 1 (issue #72): stamp professorUsername on subject rows whose
+  // professor display name resolves to a seeded faculty account, so the
+  // dual-write ownership filter exercises BOTH arms on a fresh seed —
+  // stamped rows (m.reyes, l.bautista) and unstamped legacy rows (the
+  // other six professor names fall back to the name match).
+  const FACULTY_USERNAME_BY_NAME: Record<string, string> = {
+    'Engr. Maria Cristina Reyes': 'm.reyes',
+    'Engr. Lorenzo Bautista': 'l.bautista',
+  }
+  const stampProfessorUsername = (row: any) =>
+    FACULTY_USERNAME_BY_NAME[row.professor]
+      ? { ...row, professorUsername: FACULTY_USERNAME_BY_NAME[row.professor] }
+      : row
+
   // TERM 1: 1st Year / 1st Sem / AY 2025-2026 — completed with released
   // grades (restored per owner request 2026-09-12; the 2nd Year term
   // below stays INC / in-progress as the current term).
@@ -169,7 +183,7 @@ async function seed() {
     { branch: BRANCH, studentUsername: 'juan.santos', code: 'PE 2', title: 'Team Sports', units: 2, professor: 'Coach Felix Guerrero', professorEmail: 'f.guerrero@aics.edu.ph', schedule: 'Sat 8:00 - 10:00 AM', room: 'Gymnasium', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
   ]
 
-  const allSubjects = [...term1Subjects, ...term2Subjects]
+  const allSubjects = [...term1Subjects, ...term2Subjects].map(stampProfessorUsername)
 
   const forceSeed = process.argv.includes('--force')
   if (forceSeed) {
@@ -277,7 +291,7 @@ async function seed() {
     { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 208', title: 'Systems Administration', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Fri 8:00 - 9:30 AM', room: 'Room 203', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
     { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 209', title: 'Human-Computer Interaction', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'Mon / Tue 1:00 - 2:30 PM', room: 'Lab 202', prelim: 'INC', midterm: 'INC', finals: 'INC', finalGrade: 'INC', remarks: 'INC', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: '', midtermStatus: '', finalsStatus: '' },
     ...protoSubjects,
-  ]
+  ].map(stampProfessorUsername)
 
   const protoUsernames = protoStudents.map(s=>s.username)
   await db.collection('subjects').deleteMany({ branch: BRANCH, studentUsername: { $in: ['maria.cruz', 'jose.garcia', ...protoUsernames] } })
@@ -295,7 +309,7 @@ async function seed() {
   const historySubjects = [
     { branch: BRANCH, studentUsername: 'maria.cruz', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '88', midterm: '84', finals: '86', finalGrade: '86.00', remarks: 'Very Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
     { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 105', title: 'Networking Fundamentals', units: 3, professor: 'Engr. Maria Cristina Reyes', professorEmail: 'm.reyes@aics.edu.ph', schedule: 'TTH 13:00-14:30', room: 'Room 303 — Lab B', prelim: '82', midterm: '85', finals: '84', finalGrade: '83.70', remarks: 'Good', academicYear: '2025-2026', semester: '1st Sem', yearLevel: '1st Year', status: 'completed', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
-  ]
+  ].map(stampProfessorUsername)
   const historyFilter = { branch: BRANCH, code: 'CS 105', academicYear: '2025-2026', semester: '1st Sem', professor: 'Engr. Maria Cristina Reyes' }
   if (forceSeed) {
     await db.collection('subjects').deleteMany(historyFilter)
@@ -440,12 +454,13 @@ async function seed() {
 
   // ----------------------------------------------------------
   //  4b. Faculty user — same `students` collection, role='faculty'.
-  //  The faculty member's name MUST match the `professor` field on
-  //  their assigned subjects in the `subjects` collection. "Engr.
-  //  Maria Cristina Reyes" matches the CS 101 row above (and the
-  //  matching professor entry in the `professors` collection), so
-  //  the faculty dashboard will show CS 101 + Juan Santos in the
-  //  roster. More subject assignments can be added later.
+  //  Teaching assignment resolves two ways (A1 dual-write, issue #72):
+  //  stamped rows match `professorUsername === faculty.username`;
+  //  legacy rows fall back to `professor === faculty.fullName`. The
+  //  seed stamps every row whose professor string is "Engr. Maria
+  //  Cristina Reyes", so the dashboard roster (CS 101 + Juan Santos)
+  //  resolves by username on a fresh seed. More subject assignments
+  //  can be added later.
   // ----------------------------------------------------------
   const facultyUser = {
     branch: BRANCH,
@@ -860,10 +875,14 @@ async function seed() {
     { branch: BRANCH, studentUsername: 'jose.garcia', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '88', midterm: '', finals: '', finalGrade: '', remarks: '', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '2nd Year', status: 'in-progress', prelimStatus: 'submitted', midtermStatus: '', finalsStatus: '' },
     { branch: BRANCH, studentUsername: 'a.castillo', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '90', midterm: '86', finals: '88', finalGrade: '87.60', remarks: 'Very Good', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '1st Year', status: 'in-progress', prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' },
     { branch: BRANCH, studentUsername: 'b.mendoza', code: 'CS 103', title: 'Discrete Mathematics', units: 3, professor: 'Engr. Lorenzo Bautista', professorEmail: 'l.bautista@aics.edu.ph', schedule: 'Mon / Wed 1:00 - 2:30 PM', room: 'Room 105', prelim: '82', midterm: '', finals: '', finalGrade: '80.00', remarks: 'Good', academicYear: '2026-2027', semester: '1st Sem', yearLevel: '1st Year', status: 'in-progress', prelimStatus: 'released', midtermStatus: '', finalsStatus: '', gradeStatus: 'released' },
-  ]
+  ].map(stampProfessorUsername)
   await db.collection('subjects').deleteMany({ branch: BRANCH, code: 'CS 103' })
   await db.collection('subjects').insertMany(cs103)
   console.log(`  ✓ Inserted CS 103 subject rows (4 grade states: draft, submitted, released, partial-release-legacy)`)
+
+  // A1 phase 1 (issue #72): stamped vs legacy rows on the fresh seed.
+  const stampedCount = await db.collection('subjects').countDocuments({ professorUsername: { $exists: true } })
+  console.log(`  ✓ professorUsername stamped on ${stampedCount} subject rows (A1 dual-write; the rest stay legacy/name-matched)`)
 
   // ----------------------------------------------------------
   //  10. Indexes (BUG-018: progress + timeout per index; run `npm run db:indexes`
@@ -873,6 +892,11 @@ async function seed() {
   await createIndexSafe(db, 'subjects', { branch: 1, studentUsername: 1 }, {}, '2/7 subjects-student')
   await createIndexSafe(db, 'subjects', { branch: 1, code: 1, academicYear: 1, semester: 1 }, {}, '3/7 subjects-code')
   await createIndexSafe(db, 'subjects', { branch: 1, professor: 1, academicYear: 1, semester: 1 }, {}, '4/7 subjects-prof')
+  // A1 phase 1 (issue #72): serves the username arm of the dual-write
+  // ownership match and the eventual strict (phase 3) queries; the legacy
+  // name index above keeps serving the fallback arm. Analysis + decision:
+  // docs/adr/0009-faculty-identity-username-key.md.
+  await createIndexSafe(db, 'subjects', { branch: 1, professorUsername: 1 }, {}, '4b/7 subjects-professorUsername')
   await createIndexSafe(db, 'sessions', { branch: 1 }, {}, '5/7 sessions')
   await createIndexSafe(db, 'courses', { branch: 1, code: 1 }, { unique: true }, '6/7 courses')
   await createIndexSafe(db, 'grade_audits', { branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 }, {}, '7/7 audits')
