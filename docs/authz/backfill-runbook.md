@@ -62,6 +62,36 @@ resolution. Tool: `scripts/backfill-professor-username.ts` (pattern:
   standing procedure should unstamped rows ever appear in production
   again (new rows written by pre-phase-1 code, manual edits, imports).
 
+## Phase 3: strict username-only reads (2026-10-22, implemented)
+
+Owner-authorized the same day ("Authorize Phase 3 with Safeguards").
+`professorOwnership()` in `src/lib/authz/scopes.ts` dropped the legacy
+name arm — the fragment is now flat `{ professorUsername: username }`
+— and the `grade.period` per-row check in `policies.ts` is a byte-exact
+username equality. Unstamped rows and malformed stamps (`''`,
+whitespace/case drift) match **no** account: fail-closed. The 11
+unresolved production rows stay unassigned and faculty-inaccessible by
+design (nothing invents owners for them).
+
+- Dev branch: `dev/authz-strict-ownership` (off `main-full-dev`);
+  production PR: `feature/authz-strict-username-ownership` (off `main`,
+  runtime half only — the A1 port convention). **Not merged or deployed
+  without owner approval.**
+- Evidence: unit tests 62/62 (9 new/rewritten strict tests: unstamped
+  deny, malformed-stamp deny, stale-name deny, username-owns allow,
+  falsy-fullName owns); golden matrix 100 checks / 95 rows / 0 failed —
+  `FAC-ROSTER-FALLBACK` flipped to `FAC-ROSTER-UNSTAMPED` (200,
+  `!contains:Systems Administration` — the fallback allowance is gone),
+  new rows `GRD-SUBMIT-UNSTAMPED` (403 teaching load),
+  `GRD-PERIOD-UNSTAMPED` (400 Not your section),
+  `FAC-ROSTER-MALFORMED` (200, `''` stamp matches nothing); fixture 2
+  (reassignment) unchanged; typecheck clean; lint 0 errors; fresh
+  `next build`.
+- Rollback: revert the PR — the data model is unchanged (stamps already
+  present; phase-1 dual-write reads would return unchanged behavior for
+  the current stamped dataset). The backfill tooling above is unaffected
+  and remains the standing procedure for future unstamped rows.
+
 ## Why approval is required
 
 `--apply` writes `professorUsername` on subject rows. It is idempotent,

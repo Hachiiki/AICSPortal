@@ -85,17 +85,18 @@ async function expectDeny(
 }
 
 // rel where the caller's actor owns the subject under test.
-// gradeRowState fakes carry professorUsername: '' (unstamped legacy
-// rows) so the fallback name comparison drives the existing assertions;
-// the A1 precedence tests below override with a stamp.
+// gradeRowState fakes carry STAMPED rows (A1 phase 3, issue #72: username
+// equality is the only ownership key) — CS 103 stamped to l.bautista,
+// CS 101 to m.reyes, matching the golden seed cast; the phase 3 denial
+// tests below override with unstamped / malformed shapes.
 const ownRel = (owner: string): Relations =>
   fakeRel({
     teachesSubject: async () => owner === 'owner',
     gradeRowState: async (ref: { subjectCode: string }) =>
       ref.subjectCode === 'CS 103'
-        ? { professorUsername: '', professor: 'Engr. Lorenzo Bautista', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'submitted', finals: 'released' } }
+        ? { professorUsername: 'l.bautista', professor: 'Engr. Lorenzo Bautista', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'submitted', finals: 'released' } }
         : ref.subjectCode === 'CS 101'
-          ? { professorUsername: '', professor: 'Maria Reyes', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'draft', finals: 'draft' } }
+          ? { professorUsername: 'm.reyes', professor: 'Maria Reyes', branch: 'commonwealth', statuses: { prelim: 'draft', midterm: 'draft', finals: 'draft' } }
           : null,
   })
 
@@ -279,19 +280,66 @@ describe('grade policies', () => {
     )
   })
 
-  it('FIX-H1b: falsy fullName fails closed on the professor check (C3.2)', async () => {
+  it('A1 phase 3: a falsy fullName still owns stamped rows — the username is the only key (issue #72)', async () => {
+    // Phase 1 kept a fail-closed name arm for falsy display names;
+    // phase 3 reads no name at all, so an account with an empty fullName
+    // keeps full control of its stamped rows (and can touch no one
+    // else's). The FIX-H1b "check is unconditional" property survives:
+    // nothing about the actor's name can skip the stamp comparison.
     const noName = ctxFor({ username: 'l.bautista', fullName: '' })
-    await expectDeny(
-      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 101', term: T, period: 'prelim', branch: 'commonwealth' },
+    await expectAllow(
+      { kind: 'grade.period', studentUsername: 'a.castillo', subjectCode: 'CS 103', term: T, period: 'prelim', branch: 'commonwealth' },
       'update',
       noName,
-      ownRel('owner'),
+      ownRel('owner')
+    )
+  })
+
+  it('A1 phase 3: an unstamped row denies even when the display name matches (fallback removed) (issue #72)', async () => {
+    // The phase-1 name arm is gone: an unstamped row ('' from an absent
+    // field) matches no account, so the pre-phase-3 fallback allowance
+    // for a matching display name is now a denial — fail-closed.
+    const unstampedRel = fakeRel({
+      gradeRowState: async () => ({
+        professorUsername: '',
+        professor: 'Maria Reyes',
+        branch: 'commonwealth',
+        statuses: { prelim: '', midterm: '', finals: '' },
+      }),
+    })
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'juan.santos', subjectCode: 'CS 208', term: T, period: 'prelim', branch: 'commonwealth' },
+      'update',
+      facultyX,
+      unstampedRel,
       'notAssigned',
       403
     )
   })
 
-  it('A1: a stamped row is owned by the username only — display name is ignored (issue #72)', async () => {
+  it('A1 phase 3: a malformed stamp denies fail-closed — no normalization (issue #72)', async () => {
+    // A near-miss stamp (whitespace / case drift) is NOT normalized to
+    // the account username: strict means byte-exact equality, and
+    // anything else is an unowned row.
+    const malformedRel = fakeRel({
+      gradeRowState: async () => ({
+        professorUsername: ' m.reyes ',
+        professor: 'Maria Reyes',
+        branch: 'commonwealth',
+        statuses: { prelim: '', midterm: '', finals: '' },
+      }),
+    })
+    await expectDeny(
+      { kind: 'grade.period', studentUsername: 'juan.santos', subjectCode: 'CS 208', term: T, period: 'prelim', branch: 'commonwealth' },
+      'update',
+      facultyX,
+      malformedRel,
+      'notAssigned',
+      403
+    )
+  })
+
+  it('A1 phase 3: a stamped row is owned by the username only — display name is ignored (issue #72)', async () => {
     // Stamped CS 209 row: professorUsername 'l.bautista', stale display
     // name still "Engr. Maria Cristina Reyes" (the reassignment shape).
     // facultyY (username l.bautista, different display name) owns it.
@@ -311,7 +359,7 @@ describe('grade policies', () => {
     )
   })
 
-  it('A1: a stale display name never grants ownership of a stamped row (issue #72)', async () => {
+  it('A1 phase 3: a stale display name never grants ownership of a stamped row (issue #72)', async () => {
     // Same stamped row; facultyX (username m.reyes) carries the display
     // name that still matches the row's professor string — the name match
     // must NOT grant ownership once the row is stamped to someone else.

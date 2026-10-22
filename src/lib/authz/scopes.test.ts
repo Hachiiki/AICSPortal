@@ -2,9 +2,9 @@
 //
 // These pin the current fragment shapes. The stage 3 fixes landed:
 // subjectRows carries the professor key (C3.1) and attendance
-// ownership lives in the policy gate (C3.4). A1 phase 1 (issue #72)
-// turned the bare professor key into the dual-write ownership match:
-// username stamp first, legacy display-name fallback second.
+// ownership lives in the policy gate (C3.4). A1 phase 3 (issue #72)
+// turned the dual-write match into the strict ownership key: username
+// equality only — the display name is never read for ownership.
 
 import { describe, expect, it } from 'bun:test'
 import { createScopes, professorOwnership } from './scopes'
@@ -45,39 +45,37 @@ describe('authz scopes', () => {
   it('teachingLoad omits term keys when no term is passed', () => {
     expect(createScopes(facultyCtx).teachingLoad()).toEqual({
       branch: 'commonwealth',
-      $and: [{ $or: [{ professorUsername: 'm.reyes' }, { professorUsername: null, professor: 'Maria Reyes' }] }],
+      professorUsername: 'm.reyes',
     })
   })
 
   it('teachingLoad includes term keys when a term is passed', () => {
     expect(createScopes(facultyCtx).teachingLoad(T)).toEqual({
       branch: 'commonwealth',
-      $and: [{ $or: [{ professorUsername: 'm.reyes' }, { professorUsername: null, professor: 'Maria Reyes' }] }],
+      professorUsername: 'm.reyes',
       academicYear: '2026-2027',
       semester: '1st Sem',
     })
   })
 
-  it('subjectRows carries branch + code + the dual-write ownership match (FIX-C1 + A1)', () => {
+  it('subjectRows carries branch + code + the strict ownership key (FIX-C1 + A1 phase 3)', () => {
     // FIX-C1 (C3.1): the professor-of-record key scopes the write filter
-    // to rows the actor teaches. A1 phase 1 (issue #72): the key is the
-    // dual-write match — username arm first, name fallback second — so a
-    // stamped row matches by username only and unstamped rows keep the
-    // pre-migration behavior.
+    // to rows the actor teaches. A1 phase 3 (issue #72): the key is
+    // strict username equality — stamped rows match their owner only,
+    // unstamped and malformed rows match no account.
     const frag = createScopes(facultyCtx).subjectRows('CS 101')
     expect(frag).toEqual({
       branch: 'commonwealth',
       code: 'CS 101',
-      $and: [{ $or: [{ professorUsername: 'm.reyes' }, { professorUsername: null, professor: 'Maria Reyes' }] }],
+      professorUsername: 'm.reyes',
     })
   })
 
   it('subjectRows adds term keys only for non-empty term values', () => {
-    const ownership = { $and: [{ $or: [{ professorUsername: 'm.reyes' }, { professorUsername: null, professor: 'Maria Reyes' }] }] }
     expect(createScopes(facultyCtx).subjectRows('CS 101', T)).toEqual({
       branch: 'commonwealth',
       code: 'CS 101',
-      ...ownership,
+      professorUsername: 'm.reyes',
       academicYear: '2026-2027',
       semester: '1st Sem',
     })
@@ -85,7 +83,7 @@ describe('authz scopes', () => {
     expect(createScopes(facultyCtx).subjectRows('CS 101', { academicYear: '', semester: '1st Sem' })).toEqual({
       branch: 'commonwealth',
       code: 'CS 101',
-      ...ownership,
+      professorUsername: 'm.reyes',
       semester: '1st Sem',
     })
   })
@@ -114,47 +112,40 @@ describe('authz scopes', () => {
     expect(s.branchDocs()).toEqual({ branch: 'novaliches' })
     expect(s.teachingLoad()).toEqual({
       branch: 'novaliches',
-      $and: [{ $or: [{ professorUsername: 'm.reyes' }, { professorUsername: null, professor: 'Someone Else' }] }],
+      professorUsername: 'm.reyes',
     })
     expect(s.ownStudentRows()).toEqual({ branch: 'novaliches', studentUsername: 'm.reyes' })
   })
 
-  it('A1: falsy fullName keeps the name arm fail-closed while the username arm still matches stamped rows', () => {
-    // FIX-C1's fail-closed property survives the A1 swap for unstamped
-    // rows: the name arm can only match a row whose professor is literally
-    // '' (none exist). The username arm is untouched — stamped rows for
-    // this account still match, because the username is the real key
-    // (issue #72).
-    const frag = createScopes({ ...facultyCtx, actor: { ...facultyCtx.actor, fullName: '' } }).subjectRows('CS 101')
-    expect(frag.$and[0].$or[0]).toEqual({ professorUsername: 'm.reyes' })
-    expect(frag.$and[0].$or[1]).toEqual({ professorUsername: null, professor: '' })
+  it('A1 phase 3: the fragment is a flat username equality — the display name is absent', () => {
+    // Strict ownership: no clause reads `professor`, so a renamed,
+    // duplicated, or falsy fullName can neither grant nor revoke access,
+    // and unstamped rows (professorUsername absent/null) match nothing
+    // (Mongo equality on a missing field is a non-match, fail-closed).
+    const frag = professorOwnership('l.bautista')
+    expect(frag).toEqual({ professorUsername: 'l.bautista' })
+    expect(Object.keys(frag)).toEqual(['professorUsername'])
   })
 
-  it('A1: professorOwnership precedence — username arm first, name arm only on unstamped rows', () => {
-    // The shape IS the precedence: a stamped row (professorUsername
-    // present) can only match the first arm — the second arm requires
-    // professorUsername to be null/absent, so a stale display name never
-    // grants ownership of a stamped row (issue #72, requirement 5).
-    const f = professorOwnership('l.bautista', 'Engr. Maria Cristina Reyes')
-    expect(f.$and).toHaveLength(1)
-    expect(f.$and[0].$or).toEqual([
-      { professorUsername: 'l.bautista' },
-      { professorUsername: null, professor: 'Engr. Maria Cristina Reyes' },
-    ])
-    // Mongo `{ field: null }` matches absent AND null — the fallback arm
-    // is pinned to unstamped rows only.
-    expect(f.$and[0].$or[1].professorUsername).toBeNull()
-  })
-
-  it('A1: the ownership match survives a route spreading its own top-level $or (collision-proof)', () => {
+  it('A1 phase 3: the ownership key survives a route spreading its own top-level $or', () => {
     // grades/submit composes `{ ...subjectRows(...), $or: [status...] }`.
-    // With a bare top-level $or the spread would clobber the ownership
-    // key and silently reopen C1; the $and wrap makes the fragment immune
-    // (issue #72).
+    // The flat key cannot be clobbered by the spread (only an explicit
+    // `professorUsername:` write could, and no route does); the C1 hole
+    // stays closed (issue #72).
     const scope = createScopes(facultyCtx).subjectRows('CS 101')
     const composed = { ...scope, $or: [{ prelimStatus: 'draft' }] }
     expect(composed.$or).toEqual([{ prelimStatus: 'draft' }])
-    expect(composed.$and).toEqual(scope.$and)
-    expect(Object.keys(composed).sort()).toEqual(['$and', '$or', 'branch', 'code'])
+    expect(composed.professorUsername).toBe('m.reyes')
+    expect(Object.keys(composed).sort()).toEqual(['$or', 'branch', 'code', 'professorUsername'])
+  })
+
+  it('A1 phase 3: a falsy fullName no longer affects the fragment at all', () => {
+    // Phase 1 kept a fail-closed name arm for falsy names; phase 3 reads
+    // no name, so the fragment is identical with or without one — the
+    // username is the only key (issue #72).
+    const withName = createScopes(facultyCtx).subjectRows('CS 101')
+    const noName = createScopes({ ...facultyCtx, actor: { ...facultyCtx.actor, fullName: '' } }).subjectRows('CS 101')
+    expect(withName).toEqual(noName)
+    expect(noName.professorUsername).toBe('m.reyes')
   })
 })
