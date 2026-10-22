@@ -87,14 +87,14 @@ export async function GET(request: NextRequest) {
         .toArray()
       codes = Array.from(new Set(mine.map((d: any) => d.code).filter(Boolean)))
     } else if (user.role === 'faculty') {
-      // A1 phase 1 (issue #72): the faculty material-list load uses the
-      // dual-write ownership match — username stamp first, legacy name
-      // fallback — alongside the term keys.
+      // A1 phase 3 (issue #72): the faculty material-list load uses the
+      // strict ownership key — username equality only — alongside the
+      // term keys.
       const subjectsCol = await getCollection('subjects')
       const taught = await subjectsCol
         .find({
           branch: user.branch,
-          ...professorOwnership(user.username, user.fullName),
+          ...professorOwnership(user.username),
           academicYear: user.academicYear,
           semester: user.semester,
         })
@@ -159,13 +159,13 @@ export async function POST(request: NextRequest) {
 
     // Term stamp (data query, same JS-side term matching the policy's
     // relation uses; yearLevel off a current-term load row).
-    // A1 phase 1 (issue #72): the upload load check uses the dual-write
-    // ownership match, same as the policy gate's relation.
+    // A1 phase 3 (issue #72): the upload load check uses the strict
+    // ownership key, same as the policy gate's relation.
     const loadCol = await getCollection('subjects')
     const loadRows = await loadCol
       .find({
         branch,
-        ...professorOwnership(actor.username, actor.fullName),
+        ...professorOwnership(actor.username),
         code: subjectCode,
       })
       .project({ academicYear: 1, semester: 1, yearLevel: 1 })

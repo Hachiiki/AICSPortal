@@ -51,15 +51,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
     }
 
-    // A1 phase 1 (issue #72): the history load uses the dual-write
-    // ownership match — username stamp first, legacy name fallback.
-    // The line-155 'Now taught by' comparison below is display-only and
-    // stays on the display name.
+    // A1 phase 3 (issue #72): the history load uses the strict
+    // ownership key — username equality only. The 'Now taught by'
+    // comparison below is display-only and stays on the display
+    // name — it never grants or revokes access.
     const subjectsCol = await getCollection('subjects')
     const taught = await subjectsCol
       .find({
         branch: faculty.branch,
-        ...professorOwnership(faculty.username, faculty.fullName),
+        ...professorOwnership(faculty.username),
       })
       .project({
         code: 1,
