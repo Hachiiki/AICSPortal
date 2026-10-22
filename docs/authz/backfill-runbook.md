@@ -7,22 +7,43 @@ depending on mutable display names. Ambiguous (duplicate-name) and
 unresolved rows are **never auto-assigned** — they are reported for manual
 resolution. Tool: `scripts/backfill-professor-username.ts` (pattern:
 `scripts/rehash-passwords.ts`). Full local proof:
-`scripts/verify-backfill-rehearsal.sh` (74/74 on a throwaway mongod,
+`scripts/verify-backfill-rehearsal.sh` (88/88 on a throwaway mongod,
 2026-10-22).
 
-**Status (2026-10-22):**
+**Status (2026-10-22, after the independent verification pass):**
 
 - Backfill tooling: **landed on `main-full-dev`** (report / strictness /
-  backup / apply / rollback + production firewall).
-- Local dev DB: **verified.** The rehearsal seeded the dev database,
-  injected duplicate-name, cross-branch, dead-value, and orphaned-stamp
-  conditions, then ran report -> strictness FAIL -> backup -> apply ->
-  idempotency -> guard abort -> rollback (exact pre-state) -> re-apply.
+  backup / apply / rollback + production firewall). Hardened the same
+  day from an independent review: corrupt-typed `professorUsername`
+  values (non-string, non-null — e.g. a number from an out-of-band
+  write) now classify as `invalid-stamps` instead of leaking into the
+  eligible count (the old classifier was fail-safe — the apply guard
+  aborted — but the report over-promised and strictness gate-A
+  over-counted). Report label renamed `invalid-empty` -> `invalid-stamps`
+  to match the widened meaning.
+- Local dev DB: **verified.** The rehearsal (88/88 assertions) seeded
+  the dev database, injected duplicate-name, cross-branch, dead-value,
+  corrupt-typed, and orphaned-stamp conditions, then ran report ->
+  strictness FAIL -> backup -> apply -> idempotency -> guard abort ->
+  rollback (exact pre-state) -> re-apply -> corrupt-typed differential.
   Fragment equivalence confirmed: the runtime ownership filter matches
   the same rows before and after stamping.
-- Production (Atlas): **not yet run.** This runbook is the owner's
-  procedure. Nothing in the sandbox holds the production URI, and the
-  tool's firewall refuses non-local mutations without `--prod`.
+- Production (Atlas): **read-only assessment RUN and verified
+  2026-10-22** (committed tool, zero writes, counts only): `aics_portal`
+  has 92 subjects — 81 eligible, 11 unresolved (6 distinct display
+  names, no faculty accounts match), 0 ambiguous, 0 orphaned, 0
+  invalid, 0 eligible-cross-branch. Strictness: gates B and C PASS,
+  gate-A FAIL 81 (exactly the pending backfill). Cross-checked three
+  independent ways: the tool report, the strictness report, and a raw
+  aggregation (81 rows carry the sole faculty account's display name;
+  the field is missing on all 92 rows; all rows sit in one branch).
+  **Expected mutation when the owner applies: exactly 81 rows.** The
+  mutation itself remains owner-gated via this runbook; the tool's
+  firewall refuses non-local mutations without `--prod`.
+- Phase 1 port: **PR #84** (`feature/authz-a1-username-ownership` ->
+  `main`, 14 runtime files). CI green (lint+typecheck, whitelist guard,
+  authz-unit) and a Vercel preview deployment is live. Merge + deploy
+  precedes the backfill so the stamps are meaningful.
 
 ## Why approval is required
 
