@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { rateLimit } from '@/lib/rate-limit'
 import { hashPassword, verifyPassword } from '@/lib/password'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -24,17 +24,21 @@ const changePasswordSchema = z.object({
 // BUG-003 incremental: new writes are always hashed; legacy verifies then upgrades.
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: password changes require the session user (closes unauth oracle).
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    const claimed = parseQuery(request, selfQuerySchema).username
+    // C2.2: auth centralized (account.password update; the policy
+    // passes the guard through and the route keeps its gates). The
+    // legacy username query field rides the guard's spoof check: a
+    // mismatched value is a 403 exactly where the old inline
+    // comparison fired. Old-password verification and the tv bump
+    // stay in the route.
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'account.password' }, 'update', {
+      claimedIdentity: claimed,
+    })
+    const username = claimed || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     const { currentPassword, newPassword } = await parseBody(request, changePasswordSchema)

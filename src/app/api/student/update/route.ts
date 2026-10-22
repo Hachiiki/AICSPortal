@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -41,17 +41,17 @@ const profileUpdateSchema = z.object({
 // Password changes go through /api/auth/change-password, not here.
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const username = parseQuery(request, selfQuerySchema).username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username && session.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.2: self-or-admin gate centralized (student.profile update).
+    // The role is the DB value, so a stale JWT admin claim no longer
+    // passes here (FIX-M2 rider, issue #62); the admin path's target
+    // 404 and branch-mismatch checks stay route-kept.
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'student.profile', username }, 'update')
 
     const body = await parseBody(request, profileUpdateSchema)
 
@@ -76,18 +76,18 @@ export async function PATCH(request: NextRequest) {
         emergencyContactNumber: body.emergencyContactNumber,
       },
       urlFields: { photoUrl: body.photoUrl },
-      actor: { username: session.username, role: session.role, branch: session.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
 
     const col = await getCollection('students')
     // Admins editing another profile must stay in-branch.
-    if (username !== session.username) {
+    if (username !== actor.username) {
       const target = await col.findOne({ username })
       if (!target) {
         return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
       }
-      if (target.branch !== session.branch) {
+      if (target.branch !== actor.branch) {
         return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
       }
     }

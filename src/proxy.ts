@@ -31,6 +31,30 @@ const PUBLIC_API = new Set([
   '/api/auth/session',
 ])
 
+// FIX-M3 (C3.6, issue #63): the cron cleanup path may authenticate with
+// the CRON_SECRET bearer instead of a session. Pure-JS constant-time
+// compare (no early exit) because this file stays edge-compatible —
+// node:crypto's timingSafeEqual is not importable here. The twin in
+// notifications/cleanup/route.ts is byte-identical (Node runtime).
+function constantTimeEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
+
+// Narrow exception, per the sign-off condition: admitted only for exactly
+// the cleanup path, only when CRON_SECRET is set, only on a full
+// timing-safe match of the Authorization header. Every other path keeps
+// the session gate; without the secret set, nothing changes.
+function cronBearerAdmitted(request: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET
+  if (!secret) return false
+  return constantTimeEquals(request.headers.get('authorization') || '', `Bearer ${secret}`)
+}
+
+const CRON_CLEANUP_PATH = '/api/notifications/cleanup'
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -53,6 +77,14 @@ export async function proxy(request: NextRequest) {
     }
 
     if (PUBLIC_API.has(pathname)) return NextResponse.next()
+    // FIX-M3 (C3.6, issue #63): the single proxy exception — a sessionless
+    // cleanup request carrying the correct CRON_SECRET bearer is admitted
+    // AFTER the rate-limit tier, never before it. Wrong or missing bearer,
+    // any other path, or an unset CRON_SECRET falls through to the session
+    // gate exactly as before.
+    if (!session && pathname === CRON_CLEANUP_PATH && cronBearerAdmitted(request)) {
+      return NextResponse.next()
+    }
     if (!session) {
       return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
     }

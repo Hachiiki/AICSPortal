@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseQuery, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -21,30 +21,52 @@ const auditsGetQuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: audit trail belongs to the session faculty/admin, branch-forced.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    if (session.role !== 'faculty' && session.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
-    }
     const { username, branch, subjectCode, studentUsername, limit } = parseQuery(
       request,
       auditsGetQuerySchema
     )
-    // Legacy username param must match the session when supplied.
-    if (username && username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
+    // C2.5: auth + username-self + role gates centralized
+    // (grade.audits read: faculty or admin, DB role). FIX-M1 (C3.5):
+    // faculty reads are scoped below to the caller's professor-of-record
+    // subjects (any term); admin keeps the branch view (issue #61). The
+    // legacy username param rides the guard's spoof check; the branch
+    // forcing and cross-branch rejection stay route-kept.
+    const {
+      ctx: { actor, claims },
+    } = await requireCan(
+      request,
+      { kind: 'grade.audits', subjectCode, studentUsername },
+      'read',
+      { claimedIdentity: username }
+    )
     // Branch is forced to the session branch; cross-branch reads rejected.
-    if (branch && branch !== session.branch) {
+    if (branch && branch !== claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
-    const query: any = { branch: session.branch }
+    const query: any = { branch: claims.branch }
     if (subjectCode) query.subjectCode = subjectCode
     if (studentUsername) query.studentUsername = studentUsername
+
+    // FIX-M1 (C3.5, issue #61): faculty see audits for their own
+    // professor-of-record subjects only (any term — the codes set is the
+    // name match over subjects rows, no term filter). An explicit
+    // subjectCode filter is intersected with the load: a subject the
+    // caller does not teach returns nothing, fail-closed on a falsy
+    // fullName. Admin keeps the unscoped branch view.
+    if (actor.role === 'faculty') {
+      const subjectsCol = await getCollection('subjects')
+      const rows = await subjectsCol
+        .find({ branch: claims.branch, professor: actor.fullName })
+        .project({ code: 1 })
+        .toArray()
+      const codes = [...new Set(rows.map((r: any) => r.code))]
+      if (subjectCode) {
+        if (!codes.includes(subjectCode)) query.subjectCode = { $in: [] as string[] }
+      } else {
+        query.subjectCode = { $in: codes }
+      }
+    }
 
     const col = await getCollection('grade_audits')
     const audits = await col.find(query).sort({ performedAt: -1 }).limit(limit).toArray()

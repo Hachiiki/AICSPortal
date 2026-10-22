@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, type Period } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -21,6 +21,10 @@ const gradeUpdateItemSchema = z.object({
   remarks: z.string().optional(),
   academicYear: z.string().optional(),
   semester: z.string().optional(),
+  // FIX-H1a (C3.3): withdraw a submitted period back to draft (audited).
+  // A withdrawal item carries no grade values; mixed items are rejected
+  // per row (issue #58).
+  withdraw: z.enum(['prelim', 'midterm', 'finals'], { error: 'Invalid request shape.' }).optional(),
 })
 
 const gradeUpdateSchema = z.object({
@@ -58,31 +62,22 @@ function remarksFor(final: string): string {
 export async function PATCH(request: NextRequest) {
   try {
     const { updates, performedBy } = await parseBody(request, gradeUpdateSchema)
-    // Phase 6: writer is the session user. A mismatched performedBy is a
-    // spoof attempt (403). The field is otherwise ignored — no dual-auth paths.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const spoof = spoofCheck(session, performedBy)
+    // C2.5: canonical actor first; the spoof check is preserved.
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    const performedByUser = session.username
+    const rel = createRelations(ctx)
+    const performedByUser = ctx.actor.username
 
-    // Auth: writer must be the session faculty in the same branch.
-    // (Session replaces the old optional-performer pattern — BUG-002.)
-    const studentsCol = await getCollection('students')
-    const performer = await studentsCol.findOne({ username: performedByUser })
-    if (!performer || performer.role !== 'faculty') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
-    }
-    const performerBranch: string | null = performer.branch
-    const performerName: string | null = performer.fullName
-    if (performerBranch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-
+    // C2.5: the faculty-role, claims-vs-DB branch parity, per-row
+    // claimed-branch parity, row existence, professor-of-record, and
+    // (C3.3) grade-status state decisions run per row in the grade.period
+    // policy case (policies.ts). Per-row deny errors map to the envelope
+    // reasons, so the 207 partial-success shape is preserved; the row
+    // fetch below stays for the audit trail and the finalGrade compute.
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
     const results: { ok: boolean; studentUsername: string; subjectCode: string; reason?: string }[] = []
@@ -96,7 +91,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     for (const update of updates) {
-      const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester } = update
+      const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester, withdraw } = update
 
       // BUG-010: keys reaching Mongo filters must be strings; objects become operators.
       if (typeof studentUsername !== 'string' || !studentUsername || typeof subjectCode !== 'string' || !subjectCode || typeof branch !== 'string' || !branch) {
@@ -108,9 +103,95 @@ export async function PATCH(request: NextRequest) {
         continue
       }
 
-      // Branch guard: performer must match branch if provided
-      if (performerBranch && performerBranch !== branch) {
-        results.push({ ok: false, studentUsername, subjectCode, reason: 'Branch mismatch' })
+      const term = { academicYear: academicYear ?? '', semester: semester ?? '' }
+
+      // FIX-H1a (C3.3): withdrawal items — submitted -> draft for the
+      // named period, audited as action 'withdraw'. Mixed items (values
+      // alongside withdraw) are rejected per row (issue #58).
+      if (withdraw !== undefined) {
+        if (prelim !== undefined || midterm !== undefined || finals !== undefined || finalGrade !== undefined || remarks !== undefined) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Invalid request' })
+          continue
+        }
+        const decision = await can(ctx, rel, {
+          kind: 'grade.period',
+          studentUsername,
+          subjectCode,
+          term,
+          period: withdraw,
+          branch,
+        }, 'withdraw')
+        if (!decision.ok) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: decision.error })
+          continue
+        }
+        const existing = await col.findOne({ studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) })
+        if (!existing) {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Not found' })
+          continue
+        }
+        const periodKey = `${withdraw}Status`
+        // The submitted guard rides the write filter itself (atomic), so a
+        // raced resubmit cannot be clobbered by the withdrawal.
+        const result = await col.updateOne(
+          { studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}), [periodKey]: 'submitted' },
+          { $set: { [periodKey]: 'draft', gradeStatus: 'draft' } }
+        )
+        if (result.modifiedCount > 0) {
+          try {
+            await auditCol.insertMany([{
+              branch,
+              studentUsername,
+              subjectCode,
+              academicYear: existing.academicYear || academicYear || '',
+              semester: existing.semester || semester || '',
+              period: withdraw,
+              oldValue: 'submitted',
+              newValue: 'draft',
+              action: 'withdraw',
+              performedBy: performedByUser,
+              performedAt: new Date(),
+            }])
+          } catch (auditErr) {
+            console.error('Grade withdraw audit insert failed:', auditErr)
+            auditOk = false
+          }
+          results.push({ ok: true, studentUsername, subjectCode })
+        } else {
+          results.push({ ok: false, studentUsername, subjectCode, reason: 'Not submitted' })
+        }
+        continue
+      }
+
+      // C2.5/C3.3: per-row decision (grade.period update). The state
+      // machine runs per touched period — a row touching several periods
+      // must find every one of them '' or 'draft'; the structural default
+      // stays 'finals' for finalGrade/remarks-only rows. gradeRowState is
+      // memoized per Relations instance, so the extra decisions cost no
+      // extra queries.
+      const touched: Period[] = [
+        ...(prelim !== undefined ? (['prelim'] as Period[]) : []),
+        ...(midterm !== undefined ? (['midterm'] as Period[]) : []),
+        ...(finals !== undefined ? (['finals'] as Period[]) : []),
+      ]
+      const periodsToCheck: Period[] = touched.length > 0 ? touched : ['finals']
+      let rowReason: string | null = null
+      for (const p of periodsToCheck) {
+        const decision = await can(ctx, rel, {
+          kind: 'grade.period',
+          studentUsername,
+          subjectCode,
+          term,
+          period: p,
+          branch,
+        }, 'update')
+        if (!decision.ok) {
+          rowReason = decision.error
+          break
+        }
+      }
+      if (rowReason) {
+        results.push({ ok: false, studentUsername, subjectCode, reason: rowReason })
         continue
       }
 
@@ -118,12 +199,6 @@ export async function PATCH(request: NextRequest) {
       const existing = await col.findOne({ studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) })
       if (!existing) {
         results.push({ ok: false, studentUsername, subjectCode, reason: 'Not found' })
-        continue
-      }
-
-      // BUG-008: enforce professor-of-record. Faculty may only edit their own sections.
-      if (performerName && existing.professor !== performerName) {
-        results.push({ ok: false, studentUsername, subjectCode, reason: 'Not your section' })
         continue
       }
 

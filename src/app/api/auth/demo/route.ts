@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
 import { sessionCookie, signSession } from '@/lib/session'
+import { getAppEnv } from '@/lib/env'
 
 // POST /api/auth/demo — dev-only one-click login for local development.
 // Issues a real session for the seeded demo student WITHOUT any password
 // in the client bundle (BUG-012 full fix). Returns 404 outside development.
+// FIX-L5 (C3.12, issue #69): the gate reads the env.ts classification
+// (APP_ENV > VERCEL_ENV > NODE_ENV), not NODE_ENV alone — an
+// APP_ENV=production deployment that happens to run with
+// NODE_ENV=development no longer exposes the demo login.
 export async function POST() {
-  if (process.env.NODE_ENV !== 'development') {
+  if (getAppEnv() !== 'development') {
     return NextResponse.json({ ok: false, error: 'Not found.' }, { status: 404 })
   }
   const col = await getCollection('students')

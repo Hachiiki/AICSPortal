@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
-import { parseQuery, selfQuerySchema } from "@/lib/validation"
+import { requireCan } from '@/lib/authz'
+import { HttpError } from '@/lib/http'
+import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
 // ============================================================
 //  Faculty history API — GET /api/faculty/history?username=...
@@ -31,25 +32,23 @@ function isReleased(doc: any): boolean {
 
 export async function GET(request: NextRequest) {
   try {
-    // Phase 6: history belongs to the session user.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const username = parseQuery(request, selfQuerySchema).username || session.username
+    // C2.3: auth + username-self + role gates centralized
+    // (faculty.history read: faculty or admin, DB role). The username
+    // query field rides the guard's spoof check; the faculty lookup
+    // (404) and the released-only grouping stay route-kept.
+    const claimed = parseQuery(request, selfQuerySchema).username
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'faculty.history' }, 'read', {
+      claimedIdentity: claimed,
+    })
+    const username = claimed || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-    if (username !== session.username) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const faculty = await getStudentByUsername(username)
     if (!faculty) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
-    }
-    // BUG-006: same role gate as /api/faculty (caller-supplied until sessions land).
-    if (faculty.role !== 'faculty' && faculty.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty only' }, { status: 403 })
     }
 
     const subjectsCol = await getCollection('subjects')
@@ -170,6 +169,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ ok: true, terms: outTerms })
   } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
     console.error('Faculty history error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load teaching history.' }, { status: 500 })
   }

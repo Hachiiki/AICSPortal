@@ -3,8 +3,7 @@ import { ObjectId } from 'mongodb'
 import { z } from 'zod'
 import { getStudentByUsername, getAnnouncements } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, dateInput, trimmedString, errResponse, idQuerySchema } from '@/lib/validation'
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
@@ -20,16 +19,18 @@ import type { MongoAnnouncement } from '@/lib/mongodb/types'
 // The response also carries expiryDate (ignored by the student deck).
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.1: auth gate centralized (announcement read: any authed reader).
+    // The username-self check and the student lookup stay route-kept
+    // (identity validation, lookup-first, not policy decisions).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'announcement' }, 'read')
     const query = parseQuery(request, announcementsGetQuerySchema)
-    const username = query.username || session.username
+    const username = query.username || actor.username
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    if (username !== session.username) {
+    if (username !== actor.username) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
     const wantsAll = query.all === '1'
     let announcements: MongoAnnouncement[]
     if (wantsAll) {
-      if (student.role !== 'admin') {
+      // Admin-only variant; the role is the DB value off the authz context.
+      if (actor.role !== 'admin') {
         return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
       }
       const col = await getCollection<MongoAnnouncement>('announcements')
@@ -129,36 +131,24 @@ const announcementPatchSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Phase 6: author is the session admin; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
     const { branch, title, body, category, priority, expiryDate, performedBy } = await parseBody(
       request,
       announcementPostSchema
     )
-    const spoof = spoofCheck(session, performedBy)
-    if (spoof) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
-    if (branch !== session.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
-    // Phase 6: author is the session user (legacy performedBy already spoof-checked; ignored).
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
-    if (performer.branch !== branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
+    // C2.1: session, spoof (performedBy), admin role, and branch parity
+    // centralized in the announcement create case; author identity is
+    // the session admin off the authz context.
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'announcement', branch }, 'create', {
+      claimedIdentity: performedBy,
+    })
     // Content moderation (server-side, next to the Zod layer): a verdict
     // that is not ok carries the 422 response naming the rule that fired.
     const verdict = await moderateContent({
       surface: 'announcement',
       fields: { title, body },
-      actor: { username: session.username, role: performer.role, branch: performer.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
     const col = await getCollection<MongoAnnouncement>('announcements')
@@ -168,7 +158,7 @@ export async function POST(request: NextRequest) {
       body,
       category,
       priority,
-      author: performer.fullName,
+      author: actor.fullName,
       postedDate: new Date(),
       expiryDate: expiryDate ?? null,
     }
@@ -190,14 +180,10 @@ export async function POST(request: NextRequest) {
 // ------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
+    // C2.1: session + admin-role gate centralized (announcement update).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'announcement' }, 'update')
 
     const { id, title, body, category, priority, expiryDate } = await parseBody(
       request,
@@ -214,13 +200,13 @@ export async function PATCH(request: NextRequest) {
     const verdict = await moderateContent({
       surface: 'announcement',
       fields: { title, body },
-      actor: { username: session.username, role: performer.role, branch: performer.branch },
+      actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
 
     const col = await getCollection<MongoAnnouncement>('announcements')
     const result = await col.updateOne(
-      { _id: idFilter, branch: performer.branch },
+      { _id: idFilter, branch: actor.branch },
       {
         $set: {
           title,
@@ -248,14 +234,10 @@ export async function PATCH(request: NextRequest) {
 // ------------------------------------------------------------
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
-    const performer = await getStudentByUsername(session.username)
-    if (!performer || performer.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: admin only' }, { status: 403 })
-    }
+    // C2.1: session + admin-role gate centralized (announcement delete).
+    const {
+      ctx: { actor },
+    } = await requireCan(request, { kind: 'announcement' }, 'delete')
 
     const query = parseQuery(request, idQuerySchema)
     let idFilter: ObjectId
@@ -266,14 +248,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     const col = await getCollection<MongoAnnouncement>('announcements')
-    const result = await col.deleteOne({ _id: idFilter, branch: performer.branch })
+    const result = await col.deleteOne({ _id: idFilter, branch: actor.branch })
     if (result.deletedCount === 0) {
       return NextResponse.json({ ok: false, error: 'Announcement not found.' }, { status: 404 })
     }
     // Read markers reference the announcement by id; remove them so
     // the collection never accumulates orphans.
     const readsCol = await getCollection('announcement_reads')
-    await readsCol.deleteMany({ branch: performer.branch, announcementId: query.id })
+    await readsCol.deleteMany({ branch: actor.branch, announcementId: query.id })
     return NextResponse.json({ ok: true, message: 'Announcement deleted.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)

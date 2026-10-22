@@ -3,10 +3,9 @@ import { ObjectId } from 'mongodb'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { getAuthedSession as getSession } from '@/lib/session-auth'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
-import { requireTeachingFaculty } from '@/app/api/tasks/route'
 import type { MongoTask } from '@/lib/mongodb/types'
 
 // ============================================================
@@ -17,9 +16,11 @@ import type { MongoTask } from '@/lib/mongodb/types'
 //    score: number, 0..maxScore (required)
 //    feedback: string up to 2000 chars, or null to clear (optional;
 //      omitted leaves existing feedback untouched)
-//  Faculty only (session). Branch match + teaching-load check via
-//  the shared requireTeachingFaculty helper. Honest {ok, ...}
-//  envelope, Zod input guards.
+//  C2.4: faculty role + the current-term teaching-load check on the
+//  FETCHED task's subject run in the task grade policy case (past-
+//  term tasks stay gradeable under a current-term load, preserved);
+//  the optional body-branch and fetched-task branch parity checks
+//  stay route-kept, as today.
 //
 //  Decision (plan non-goal, refs #32): task scores do NOT write
 //  grade_audits rows. Tasks are not grades; if score history is
@@ -50,11 +51,10 @@ export async function PATCH(
 ) {
   try {
     const { taskId } = await params
-    // Phase 6: grader is the session user; mismatched performedBy is a spoof attempt.
-    const session = await getSession(request)
-    if (!session) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
+    // C2.4: canonical actor first (the resource needs the fetched task).
+    const ctx = await resolveContext(request)
+    if (!ctx) throw new HttpError(401, 'Unauthorized')
+
     // BUG-010: taskId must be a plain string before it reaches ObjectId().
     if (typeof taskId !== 'string' || !taskId) {
       return NextResponse.json({ ok: false, error: 'Task id is required.' }, { status: 400 })
@@ -66,12 +66,13 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
     const { score, feedback, performedBy, branch } = await parseBody(request, taskGradeSchema)
-    const spoof = spoofCheck(session, performedBy)
+    // Phase 6: grader is the session user; mismatched performedBy is a spoof attempt.
+    const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
-    // BUG-010: branch, when supplied, must match the session.
-    if (branch !== undefined && branch !== session.branch) {
+    // BUG-010: branch, when supplied, must match the session (route-kept).
+    if (branch !== undefined && branch !== ctx.claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
@@ -80,12 +81,15 @@ export async function PATCH(
     if (!task) {
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
-    if (task.branch !== session.branch) {
+    if (task.branch !== ctx.claims.branch) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
-    // Teaching-load check runs as the session user, not a body field.
-    const check = await requireTeachingFaculty(session.username, session.branch, task.subjectCode)
-    if (check.error) return check.error
+    // C2.4: faculty role + teaching load on the fetched task's subject
+    // centralized (task grade).
+    const gate = decisionToHttpError(
+      await can(ctx, createRelations(ctx), { kind: 'task', taskId, subjectCode: task.subjectCode }, 'grade')
+    )
+    if (gate) throw gate
 
     const max = Number(task.maxScore)
     if (!isFinite(max) || max <= 0) {
@@ -102,7 +106,7 @@ export async function PATCH(
       set.feedback = null
     }
     // Branch-scoped write: the filter re-asserts the tenant.
-    const result = await col.updateOne({ _id: oid, branch: session.branch } as any, { $set: set })
+    const result = await col.updateOne({ _id: oid, branch: ctx.claims.branch } as any, { $set: set })
     if (result.matchedCount === 0) {
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
