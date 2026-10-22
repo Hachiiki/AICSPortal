@@ -7,12 +7,11 @@
 // goldens still expect the recorded current behavior.
 //
 // Two Mongo-matching subtleties preserved here:
-// - teachesSubject/teachesSection fetch rows by {branch, code} plus the A1
-//   dual-write ownership fragment (professorOwnership: username arm first,
-//   display-name arm for unstamped rows — see scopes.ts) and match the term
-//   IN JS with (field || '') comparisons, exactly like the notifications
-//   ownership map: a Mongo {academicYear: ''} filter would NOT match docs
-//   missing the field.
+// - teachesSubject/teachesSection fetch rows by {branch, code} plus the
+//   A1 strict ownership key (professorOwnership: username equality only
+//   — phase 3, issue #72) and match the term IN JS with (field || '')
+//   comparisons, exactly like the notifications ownership map: a Mongo
+//   {academicYear: ''} filter would NOT match docs missing the field.
 // - isEnrolled uses the filter form with the term keys always present
 //   (matching the materials student path), where '' matches only docs whose
 //   field is explicitly ''.
@@ -31,8 +30,9 @@ import { professorOwnership } from './scopes'
 import type { TermKey } from './types'
 
 export interface GradeRowState {
-  /** A1 dual-write (issue #72): the row's stamped owner username; '' = unstamped legacy row (name match). */
+  /** A1 strict (issue #72 phase 3): the row's stamped owner username; '' = unstamped, owned by no account. */
   professorUsername: string
+  /** Display-only professor name; never an ownership key in phase 3. */
   professor: string
   branch: string
   statuses: {
@@ -88,18 +88,19 @@ export function createRelations(ctx: AuthzContext): Relations {
   })
 
   // Shared loader: enrollment rows for {branch, code} owned by the actor
-  // under the A1 dual-write match (issue #72: username stamp first, legacy
-  // display-name fallback second), projected to the term fields. Callers
-  // match terms in JS with (field || '') so docs missing term fields match
-  // an empty term, as the routes do. Same fragment as scopes.subjectRows —
-  // the FIX-C1 gate/scope parity holds by construction.
+  // under the A1 strict key (issue #72 phase 3: username equality only —
+  // unstamped rows match no account), projected to the term fields.
+  // Callers match terms in JS with (field || '') so docs missing term
+  // fields match an empty term, as the routes do. Same fragment as
+  // scopes.subjectRows — the FIX-C1 gate/scope parity holds by
+  // construction.
   async function loadProfessorRows(code: string): Promise<{ academicYear?: string; semester?: string }[]> {
     const col = await getCollection('subjects')
     return col
       .find({
         branch: actor.branch,
         code,
-        ...professorOwnership(actor.username, actor.fullName),
+        ...professorOwnership(actor.username),
       })
       .project({ academicYear: 1, semester: 1 })
       .toArray()
