@@ -12,10 +12,10 @@
 #
 # The authz-unit job runs the policy-table unit tests (src/lib/authz/,
 # `bun test`, 5 min timeout). The test files are dev-only and never port
-# to main, where the job passes vacuously (bun test exits 0 on zero
-# matches); the integration runbook (scripts/verify-authz.sh) stays a
-# manual gate, not a CI job, because it needs a throwaway mongod and a
-# built server.
+# to main; the step skips itself when no test files exist, because bun
+# test exits 1 on unmatched filters. The integration runbook
+# (scripts/verify-authz.sh) stays a manual gate, not a CI job, because
+# it needs a throwaway mongod and a built server.
 #
 # The whitelist guard inspects the FULL tree a PR into main would put
 # on main — not just the diff — so it also catches branches cut from
@@ -79,7 +79,12 @@ jobs:
         run: bun install --frozen-lockfile || bun install
 
       - name: Unit tests (bun test src/lib/authz/)
-        run: bun test src/lib/authz/
+        run: |
+          if ls src/lib/authz/*.test.ts >/dev/null 2>&1; then
+            bun test src/lib/authz/
+          else
+            echo "No authz test files on this branch (dev-only); vacuous pass."
+          fi
 
   whitelist:
     name: Production whitelist guard
