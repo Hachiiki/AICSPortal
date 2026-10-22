@@ -7,10 +7,12 @@
 // goldens still expect the recorded current behavior.
 //
 // Two Mongo-matching subtleties preserved here:
-// - teachesSubject/teachesSection fetch rows by {branch, professor, code}
-//   and match the term IN JS with (field || '') comparisons, exactly like
-//   the notifications ownership map: a Mongo
-//   {academicYear: ''} filter would NOT match docs missing the field.
+// - teachesSubject/teachesSection fetch rows by {branch, code} plus the A1
+//   dual-write ownership fragment (professorOwnership: username arm first,
+//   display-name arm for unstamped rows — see scopes.ts) and match the term
+//   IN JS with (field || '') comparisons, exactly like the notifications
+//   ownership map: a Mongo {academicYear: ''} filter would NOT match docs
+//   missing the field.
 // - isEnrolled uses the filter form with the term keys always present
 //   (matching the materials student path), where '' matches only docs whose
 //   field is explicitly ''.
