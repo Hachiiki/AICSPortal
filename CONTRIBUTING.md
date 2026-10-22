@@ -75,13 +75,21 @@ npm run dev
 
 The app runs at [http://localhost:3000](http://localhost:3000).
 
-**Demo credentials** (development mode only, after seeding the dev branch):
+**Demo accounts** (development mode only, after seeding the dev branch):
 
-| Role | Username | Password |
-| --- | --- | --- |
-| Student | `juan.santos` | `student123` |
-| Faculty | `m.reyes` | `faculty123` |
-| Admin | `admin` | `admin123` |
+| Role | Username |
+| --- | --- |
+| Student | `juan.santos` |
+| Faculty | `m.reyes` |
+| Admin | `admin` |
+
+Demo passwords are no longer published in this repository. The local dev
+seed uses fixed documented defaults (ask the project owner, or see the
+seed script), and any remote/production seed requires the values to be
+injected via environment variables — see
+`docs/authz/credential-rotation-runbook.md` on the dev branch. Git history
+still contains the previously published values; the runbook's rotation
+phase is the actual remediation, this table only stops re-publishing them.
 
 ### Run the linter and type checker
 
