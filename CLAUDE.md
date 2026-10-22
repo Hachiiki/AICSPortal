@@ -32,7 +32,7 @@ Core flows:
 - Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PRs #53/#54, 2026-10-20); `/dev/auth-preview` retired, no dev-only auth surfaces remain.
 - Content moderation live (English + Filipino) on every persisting write; Filipino reviewer sign-off still open (owner action, `@TODO.md`).
 - QA: Sep-2026 audit closed. 18 bugs (3 Critical) fixed or accepted, archived in `docs/done/qa_reports/`.
-- Authorization review (2026-10-21): 5-phase RBAC/ABAC centralization under way. Phases 1-3 live in `docs/authz/` (enforcement map with findings C1..L6, centralized design, implementation plan with commit slicing and the sign-off checklist). Phase 4 implementation waits on owner sign-off of that checklist; no route code touched yet, all work on `main-full-dev` only.
+- Authorization review (2026-10-21/22): Phase 4 landed on `main-full-dev`. `src/lib/authz/` (`can()`/`requireCan()`) gates all 33 swap-scope routes; the 14 approved fixes are in (C1, H1a, H1b, H2, M1-M4, L1-L5, A5, goldens flipped per commit); stage 4 cleanup done (helper retired, nav permission mirror wired, ADRs 0007/0008). Phase 5 verification remains; porting to `main` is a separate post-Phase-5 owner decision (section 6a). Findings registry: `docs/authz/`.
 - Unslop content pass (2026-10-21): em dashes and curly quotes removed from every user-visible string and all living docs per `.agents/skills/unslop`; legal pages, README, CLAUDE/CONTEXT/TODO, docs/ tree. Owner follow-ups: legal name spelling (Willard vs Wilard), lawyer review of policy pages.
 - Deferred by owner: dark mode toggle (2026-10-14), real Face ID, In/Out log. Do not start unprompted.
 
@@ -64,7 +64,7 @@ gh issue create --title "..." --body "..."
 
 Env: `MONGODB_URI` required, `MONGODB_DB` default `aics_portal`, `NODE_ENV=development` enables demo login (`juan.santos/student123`, `m.reyes/faculty123`, `admin/admin123`). Never commit `.env.local`. See `example.env.local`.
 
-No unit test runner configured. Verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev. Do not invent `npm test`.
+Unit tests: `bun test src/lib/authz/` (55 tests, dev-only files, never ported to main). No `npm test` script exists or should be added (plan decision P2). Wider verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev.
 
 ## 4. Project Structure
 
@@ -99,6 +99,9 @@ AICSPortal/
 │       ├── password.ts           # scrypt hash/verify, legacy upgrade-on-login
 │       ├── rate-limit.ts         # tiered limiter (auth/read/write) + route throttles
 │       ├── env.ts, http.ts, validation.ts   # env matrix, HttpError, Zod schemas
+│       ├── authz/               # centralized authorization: policies (can()),
+│       │                       #   guards (requireCan/requireRole), relations,
+│       │                       #   scopes, client-safe permissions
 │       ├── moderation/           # EN + Filipino engine, url-policy, allowlist, log
 │       ├── aics/                 # types, nav-config.ts, use-faculty-rows.ts,
 │       │                         #   use-student-data.ts, use-portal-route.ts
@@ -154,7 +157,7 @@ Forbidden moves: PR, merge, or rebase FROM `main-full-dev` INTO `main`. CI notes
 ## 7. Behavioral Guardrails & Rules (hard constraints)
 
 1. Always filter Mongo reads by `branch`. Missing branch filter = bug.
-2. Grade writes require `performedBy` + role check server-side. Never trust client role alone. `update/submit` faculty-only, `release` admin-only, same branch.
+2. Authorization lives in `src/lib/authz/`: every route gates through `requireCan` / `can()`, which reads the role from the DB actor doc (never the JWT claim or client state). Grade writes: `update/submit` faculty-only (professor of record, fail-closed on missing fullName), `release/unrelease` admin-only, same branch; period states are forward-only (`draft` to `submitted` to `released`) with audited withdrawal and admin unrelease (ADR 0008).
 3. Per-period statuses only (`prelimStatus/midtermStatus/finalsStatus`). Never use legacy `gradeStatus` for new logic.
 4. `INC = 0` in final math, display `INC` badge. Never coerce to NaN.
 5. Hide `dropped/transferred` in Grade Encoding, keep visible in My Students with `X hidden` count.
@@ -212,7 +215,7 @@ Issue tracker ops (`gh` inside clone infers repo):
 - `@docs/agents/issue-tracker.md`: gh conventions, PR policy (no), wayfinding ops
 - `@docs/agents/domain.md`: single-context layout, ADR/glossary rules
 - `@docs/agents/triage-labels.md`: canonical roles → label strings
-- `@docs/adr/`: 0001 branch-as-field … 0006 auth-on-grade-writes
+- `@docs/adr/`: 0001 branch-as-field, 0002 per-period-grade-status, 0003 inc-as-zero, 0004 grade-audit-log, 0005 student-section-source, 0006 auth-on-grade-writes, 0007 centralized-authorization, 0008 grade-write-state-machine
 - `@docs/faculty-build-plan.md`: `@docs/faculty-roadmap.md`
 - `@docs/done/qa_reports/` + `@docs/done/qa_evidence/`: Sep-2026 QA verdict + logs/snapshots
 - `@graphify-out/GRAPH_REPORT.md` + `graph.json`, code graph, communities, god nodes

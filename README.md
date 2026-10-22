@@ -25,7 +25,7 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 | Student portal | Feature complete | All pages live and QA-verified, including profile photo upload. Remaining polish: dark mode toggle (deferred by owner) |
 | Faculty portal | Feature complete | Full teaching loop: encoding, submission, release, task grading, attendance + history, materials, messaging, grouped sent history |
 | Admin portal | Feature complete | Dashboard stats, release queue, cross-branch people directory, professors/events/announcements management, enrollment overrides + payments |
-| Security | Hardened | Session auth + revocation, scrypt hashing, tiered rate limits, Zod on every route, English + Filipino content moderation, grade audit logs |
+| Security | Hardened | Session auth + revocation, centralized policy-table authorization, scrypt hashing, tiered rate limits, Zod on every route, English + Filipino content moderation, grade audit logs |
 | Sign-in experience | Shipped | Route Trail progress animation + workspace-assemble entrance (2026-10-20) |
 | Deployment | Live on Vercel | Production smoke tests passed 10/10 on 2026-09-10 |
 
@@ -67,13 +67,14 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 
 ### Platform and security
 - Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, proxy enforcement (`src/proxy.ts`) on every `/api` and `/portal` route
+- **Centralized authorization**: one policy table (`src/lib/authz/`) decides every API request through `can()` / `requireCan()` from the database-read role, branch parity, and teaching load; ownership keys ride scope fragments into the Mongo filters, and client-side checks are display-only
 - **scrypt password hashing** with automatic upgrade of legacy plaintext accounts on next login
 - **Tiered rate limiting** on every `/api` request, enforced ahead of the session gate: 100/5 min per IP on the auth routes, 300/5 min reads and 120/5 min writes per session, plus failure-based throttles on login and password change
 - **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist, violations return 422 and every decision is logged
 - **Zod validation** on every route; unknown keys are stripped, operator objects can never reach Mongo filters
 - **Error boundaries** at every level: per-view retry card, segment, root, global. The shell survives a crashing view
 - **Branch scoping** on every query, IDOR guards on every read and write
-- **Grade audit log**: every encode, submit, and release writes a `grade_audits` row
+- **Grade audit log**: every encode, submit, withdrawal, release, and unrelease writes a `grade_audits` row; period states are forward-only (`draft` to `submitted` to `released`), so a correction needs the audited admin unrelease path
 - **Cloudinary signed uploads** for avatars and course materials (secret never leaves the server; link-only mode works without Cloudinary configured)
 - **Legal & compliance surface**: public Privacy / Terms / Cookie / Refund policy pages (`/legal/*`, pre-auth), a consent banner gating the cookieless Vercel analytics beacons behind an explicit opt-in, an in-app data export (Settings → Privacy & Data, `GET /api/student/export`), and clear "unofficial, system-generated" disclaimers on the digital ID and Certificate of Enrollment
 - **Accessibility**: skip link, keyboard-operable accordions and sortable tables, focus-trapped dialogs, labelled icon-only controls, `role="switch"` toggles, `scope="col"` tables, and a ≥3:1 global focus indicator
@@ -224,6 +225,8 @@ The `tv` claim is the revocation counter. It is compared against the user's curr
 ### Route protection: `src/proxy.ts`
 
 Every `/api` route except the three auth entry points requires a valid session cookie. `/portal` pages bounce anonymous visitors to the login view.
+
+Past the proxy, every swap-scope route re-decides authorization through the centralized policy table in `src/lib/authz/`: the role comes from the database actor document (never the token claim), branch parity and teaching-load relations decide the rest, and the deny maps onto the route's existing error envelope.
 
 ```ts
 const session = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value || '')
@@ -390,6 +393,8 @@ AICSPortal/
 │       ├── password.ts          # scrypt hash/verify with legacy upgrade
 │       ├── rate-limit.ts        # Tiered fixed-window limiter (auth/read/write)
 │       ├── validation.ts        # Zod parseBody/parseQuery for every route
+│       ├── authz/                # Authorization policy table (can/requireCan),
+│       │                        #   relations, scope fragments, permissions
 │       ├── env.ts               # Environment classification (dev/staging/production)
 │       ├── moderation/          # English + Filipino content moderation engine
 │       ├── aics/                # Domain: nav-config, hooks (use-faculty-rows,
