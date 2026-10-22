@@ -1,10 +1,11 @@
 # ADR-0009: Faculty teaching identity keyed by account username
 
 Date: 2026-10-22
-Status: Accepted — phase 1 (dual-write) landed on `main-full-dev`; backfill
-(phase 2) and strict enforcement (phase 3) are pending owner-gated steps.
-Supersedes the display-name join flagged as hazard A1 (issue #72; Phase 1
-finding registry `docs/authz/`).
+Status: Accepted — phase 1 (dual-write) and phase 2 (backfill tooling +
+rehearsal) landed on `main-full-dev`; the production backfill run and
+strict enforcement (phase 3) are pending owner-gated steps
+(`docs/authz/backfill-runbook.md`). Supersedes the display-name join
+flagged as hazard A1 (issue #72; Phase 1 finding registry `docs/authz/`).
 
 ## Context
 
@@ -111,6 +112,12 @@ Per the approved plan (issue #72) and owner requirements 2–3:
    the report on production FIRST; ambiguous or unresolved names are
    never auto-assigned (left unstamped, reported). Rollback: `$unset`
    restores the exact pre-state.
+   LANDED 2026-10-22: `scripts/backfill-professor-username.ts` +
+   `scripts/verify-backfill-rehearsal.sh` (74/74, throwaway mongod —
+   duplicate names, cross-branch resolutions, dead values, orphaned
+   stamps, idempotency, guard abort, exact-pre-state rollback, fragment
+   equivalence, production firewall). Production run pending owner
+   review: `docs/authz/backfill-runbook.md`.
 3. **Phase 3** — strict username-only reads, gated on a clean strictness
    report: zero unstamped-but-uniquely-resolvable rows, zero ambiguous
    names, zero orphaned stamps. NOT enabled after the dev backfill;
