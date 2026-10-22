@@ -86,6 +86,18 @@ jobs:
             echo "No authz test files on this branch (dev-only); vacuous pass."
           fi
 
+      # F2 regression tests (credential-rotation review, issue #72 follow-up):
+      # the seed remote-guard hostname classification must never regress to
+      # substring matching. Dev-only path (scripts/ is never on main); the
+      # step skips itself when the files are absent, like the authz tests.
+      - name: Unit tests (bun test scripts/lib/)
+        run: |
+          if ls scripts/lib/*.test.ts >/dev/null 2>&1; then
+            bun test scripts/lib/
+          else
+            echo "No scripts/lib test files on this branch (dev-only); vacuous pass."
+          fi
+
   whitelist:
     name: Production whitelist guard
     runs-on: ubuntu-latest

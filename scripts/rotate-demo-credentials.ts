@@ -21,18 +21,30 @@
 //                        write ONLY ciphertext -> decrypt-verify ->
 //                        print path + bytes.
 //   --apply --expect <N> --backup <path>
-//                        real run: decrypt-verifies <path> first, aborts
-//                        unless live matched count === N, then per doc:
+//                        real run: decrypt-validates <path> FIRST
+//                        (F1 pre-flight: GCM integrity + entry shape +
+//                        count === live plan + every live _id present
+//                        in the backup — any failure aborts BEFORE the
+//                        first database write), then aborts unless live
+//                        matched count === N, then per doc:
 //                        concurrency-guarded update (filter matches the
 //                        read-time password; 0 matches = abort) writing
 //                        the scrypt hash of the replacement value and
 //                        bumping tokenVersion (kills every session),
 //                        then self-verifies every updated doc with the
 //                        app's own verifyPassword ("verified X/X").
+//                        Requires BACKUP_KEY (the pre-flight decrypt).
 //   --rollback --backup <path>
 //                        restore password + tokenVersion per _id from
-//                        the backup. Ask the owner before using; never
-//                        improvise.
+//                        the backup (shape-validated on load). Also
+//                        requires DEMO_ROTATE_SANCTIONED=1 (F3 — the
+//                        rollback re-publishes the documented demo
+//                        defaults, so it must never be casual). Ask
+//                        the owner before using; never improvise.
+//   --no-bump-tv         skips the tokenVersion bump on --apply.
+//                        D4 override: existing sessions then SURVIVE
+//                        the rotation. NOT recommended outside
+//                        rehearsals; default behavior bumps.
 //
 // NEW VALUES come from the environment ONLY — never CLI args, never
 // printed, never written to the backup:
@@ -41,9 +53,14 @@
 //   DEMO_PW_ADMIN     replaces admin123
 //
 // GUARDS:
-//   - requires DEMO_ROTATE_SANCTIONED=1 (explicit owner consent flag)
+//   - requires DEMO_ROTATE_SANCTIONED=1 for BOTH --apply and --rollback
+//     (explicit owner consent flag; the rollback restores the published
+//     defaults, so it is gated exactly like the rotation itself)
 //   - MONGODB_DB must be explicit (no fallback); the printed "db:" line
 //     is the last human check before --apply
+//   - --apply pre-flight: --backup must decrypt (BACKUP_KEY), have valid
+//     entries, match the live plan count, and cover every live _id —
+//     before the first write (F1)
 //   - refuses a replacement equal to the current documented default
 //     (no-op rotation) or shorter than 8 characters
 //   - aborts on role/value mismatches (e.g. an admin account carrying
@@ -138,6 +155,40 @@ function decryptJson(buf: Buffer): any {
   return JSON.parse(Buffer.concat([decipher.update(Buffer.from(data, 'hex')), decipher.final()]).toString('utf8'))
 }
 
+// F1/F3 load path: decrypt + shape-validate a backup file. GCM auth makes
+// tampering/wrong keys throw; the shape checks catch a validly-encrypted
+// file that simply is not a rotation pre-image (wrong file, wrong tool).
+function loadBackup(path: string): PreImage[] {
+  let raw: Buffer
+  try {
+    raw = readFileSync(path)
+  } catch {
+    fail(`cannot read --backup file: ${path}`)
+  }
+  let parsed: unknown
+  try {
+    parsed = decryptJson(raw)
+  } catch {
+    fail('--backup failed to decrypt (wrong BACKUP_KEY or corrupt file) — refusing to touch the database.')
+  }
+  const pre = parsed as PreImage[]
+  if (!Array.isArray(pre) || pre.length === 0) {
+    fail('backup payload is not a non-empty array — wrong file?')
+  }
+  const seen = new Set<string>()
+  for (const d of pre) {
+    if (!d || typeof d !== 'object') fail('backup entry is not an object')
+    if (typeof d._id !== 'string' || !/^[0-9a-f]{24}$/.test(d._id)) fail('backup entry has an invalid _id')
+    if (typeof d.username !== 'string' || d.username === '') fail('backup entry has an invalid username')
+    if (typeof d.role !== 'string') fail('backup entry has an invalid role')
+    if (typeof d.password !== 'string' || d.password === '') fail('backup entry has an invalid password hash')
+    if (typeof d.tokenVersion !== 'number') fail('backup entry has an invalid tokenVersion')
+    if (seen.has(d._id)) fail(`duplicate _id ${d._id} in backup`)
+    seen.add(d._id)
+  }
+  return pre
+}
+
 interface PreImage {
   _id: string
   username: string
@@ -157,11 +208,15 @@ interface Matched {
 
 async function main() {
   if (APPLY && ROLLBACK) fail('Choose one: --apply or --rollback.')
+  if (ROLLBACK && BACKUP_TO) fail('Choose one: --rollback or --backup-to.')
   if (APPLY && EXPECT === null) fail('--apply requires --expect <N> (re-derive the count from the dry run, never trust memory).')
   if ((APPLY || ROLLBACK) && !BACKUP) fail('Refusing without --backup <encrypted-path> (decrypt-verified first).')
   if (BACKUP_TO && APPLY) fail('Choose one: --backup-to or --apply.')
-  if (APPLY && process.env.DEMO_ROTATE_SANCTIONED !== '1') {
-    fail('DEMO_ROTATE_SANCTIONED=1 is required (owner-sanctioned rotation window).')
+  // F3: BOTH directions of the destructive path are owner-sanctioned —
+  // --apply replaces the published values, --rollback RESTORES them, so
+  // the rollback is gated exactly like the rotation itself.
+  if ((APPLY || ROLLBACK) && process.env.DEMO_ROTATE_SANCTIONED !== '1') {
+    fail('DEMO_ROTATE_SANCTIONED=1 is required for --apply AND --rollback (owner-sanctioned window).')
   }
   if (APPLY) {
     for (const key of ['student', 'faculty', 'admin'] as const) {
@@ -181,17 +236,24 @@ async function main() {
   console.log(`[demo-rotate] target db: ${dbName} (host redacted)`)
 
   if (ROLLBACK) {
-    const pre: PreImage[] = decryptJson(readFileSync(BACKUP!))
+    const pre: PreImage[] = loadBackup(BACKUP!)
     console.log(`  backup: ${pre.length} docs, restoring password + tokenVersion per _id ...`)
-    let restored = 0
+    const { ObjectId } = await import('mongodb')
+    let processed = 0
+    let modified = 0
     for (const d of pre) {
       const r = await db.collection('students').updateOne(
-        { _id: new (await import('mongodb')).ObjectId(d._id) },
+        { _id: new ObjectId(d._id) },
         { $set: { password: d.password, tokenVersion: d.tokenVersion } }
       )
-      if (r.modifiedCount > 0) restored++
+      if (r.matchedCount > 0) processed++
+      if (r.modifiedCount > 0) modified++
     }
-    console.log(`  ROLLBACK DONE: ${restored}/${pre.length} docs restored (sessions for restored docs die again on next login).`)
+    console.log(`  ROLLBACK DONE: ${processed}/${pre.length} docs matched, ${modified} modified (sessions for restored docs die again on next login).`)
+    if (processed !== pre.length) {
+      console.log(`  WARNING: ${pre.length - processed} backup docs no longer exist in the collection.`)
+    }
+    console.log('  NOTE: rollback restores the BACKED-UP state — any password/tokenVersion change made AFTER the backup is overwritten. Only use it inside the owner-sanctioned window.')
     await client.close()
     return
   }
@@ -233,6 +295,9 @@ async function main() {
   }
 
   if (BACKUP_TO) {
+    if (matched.length === 0) {
+      fail('NOTHING matched to back up — the database carries no documented demo defaults (already rotated, or wrong database?). An empty backup cannot protect a rotation.')
+    }
     const pre: PreImage[] = matched.map((m) => ({
       _id: m._id,
       username: m.username,
@@ -253,6 +318,21 @@ async function main() {
   if (APPLY) {
     if (matched.length !== Number(EXPECT)) {
       fail(`live matched count ${matched.length} !== --expect ${EXPECT} — re-run the dry plan and re-derive.`)
+    }
+    // ---- F1 pre-flight: the recovery material must be PROVEN usable
+    // BEFORE the first write. A backup that only turns out to be
+    // undecryptable / count-mismatched / missing live ids at --rollback
+    // time is the worst possible moment to discover it (mid-incident,
+    // half-rotated). loadBackup() enforces GCM integrity + entry shape;
+    // the checks below pin the backup to THIS rotation's live plan.
+    const pre = loadBackup(BACKUP!)
+    if (pre.length !== matched.length) {
+      fail(`backup holds ${pre.length} docs but the live plan matched ${matched.length} — re-derive both with a fresh dry run + --backup-to.`)
+    }
+    const preIds = new Set(pre.map((p) => p._id))
+    const uncovered = matched.filter((m) => !preIds.has(m._id))
+    if (uncovered.length > 0) {
+      fail(`live plan contains ${uncovered.length} doc(s) absent from the backup (first: _id ${uncovered[0]._id}) — refusing to write.`)
     }
     const { ObjectId } = await import('mongodb')
     const newHashes: Record<string, string> = {}

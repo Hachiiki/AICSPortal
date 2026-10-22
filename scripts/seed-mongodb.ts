@@ -14,6 +14,8 @@ import { MongoClient } from 'mongodb'
 import { config } from 'dotenv'
 // @ts-expect-error: explicit .ts import required by node --experimental-strip-types at runtime
 import { hashPassword } from '../src/lib/password.ts'
+// @ts-expect-error: explicit .ts import required by node --experimental-strip-types at runtime
+import { isLocalMongoUri } from './lib/uri-local.ts'
 
 // Load .env.local into process.env (silent if file is missing)
 config({ path: '.env.local' })
@@ -39,7 +41,14 @@ const BRANCH_ADDRESS = 'AICS Bldg., Commonwealth Ave., Cor., Holy Spirit Drive B
 // therefore never silently revert the rotation: either it aborts, or it
 // carries the rotated values forward explicitly. Preflight placement —
 // fails before any network I/O.
-const REMOTE_TARGET = !/127\.0\.0\.1|localhost/i.test(uri)
+//
+// F2 (credential-rotation review, 2026-10-23): classification is by
+// PARSED HOSTNAME (scripts/lib/uri-local.ts), never a substring scan of
+// the whole URI — a remote host whose credentials contain "localhost"
+// or "127.0.0.1" must not slip past as local. Unparseable URIs are
+// classified REMOTE (fail-closed). Regression tests:
+// scripts/lib/uri-local.test.ts.
+const REMOTE_TARGET = !isLocalMongoUri(uri)
 const DEMO_PW = {
   student: process.env.DEMO_PW_STUDENT,
   faculty: process.env.DEMO_PW_FACULTY,
@@ -94,7 +103,11 @@ async function seed() {
   const FACULTY_PW = await hashPassword(DEMO_PW.faculty || 'faculty123')
   const ADMIN_PW = await hashPassword(DEMO_PW.admin || 'admin123')
   // Never print password values in seed logs (username-only from here on).
-  const pwLabel = REMOTE_TARGET ? 'env-injected' : 'documented defaults'
+  // pwLabel must describe the values ACTUALLY hashed: env-injected demo
+  // passwords apply to localhost targets too (rehearsal/DR environments),
+  // so the label keys off the value source, not the target kind — a local
+  // seed with DEMO_PW_* set must not claim "documented defaults".
+  const pwLabel = DEMO_PW.student || DEMO_PW.faculty || DEMO_PW.admin ? 'env-injected' : 'documented defaults'
 
 
   // ----------------------------------------------------------
