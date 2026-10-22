@@ -41,9 +41,11 @@ resolution. Tool: `scripts/backfill-professor-username.ts` (pattern:
   mutation itself remains owner-gated via this runbook; the tool's
   firewall refuses non-local mutations without `--prod`.
 - Phase 1 port: **PR #84** (`feature/authz-a1-username-ownership` ->
-  `main`, 14 runtime files). CI green (lint+typecheck, whitelist guard,
-  authz-unit) and a Vercel preview deployment is live. Merge + deploy
-  precedes the backfill so the stamps are meaningful.
+  `main`, 14 runtime files) **merged 2026-10-22** (merge commit `606d92f`;
+  main CI green on lint+typecheck, whitelist guard, authz-unit; Vercel
+  production deployment completed and live). Phase 1 reads and dual-writes
+  in production, so the stamps are meaningful; the backfill below may
+  proceed at the owner's discretion.
 
 ## Why approval is required
 
