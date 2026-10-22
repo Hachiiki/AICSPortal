@@ -146,10 +146,13 @@ async function seed() {
   // ----------------------------------------------------------
 
   // A1 phase 1 (issue #72): stamp professorUsername on subject rows whose
-  // professor display name resolves to a seeded faculty account, so the
-  // dual-write ownership filter exercises BOTH arms on a fresh seed —
-  // stamped rows (m.reyes, l.bautista) and unstamped legacy rows (the
-  // other six professor names fall back to the name match).
+  // professor display name resolves to a seeded faculty account. A fresh
+  // seed therefore models the post-backfill end state: every faculty-owned
+  // row matches the username arm. The unstamped legacy rows (the other six
+  // professor names, no faculty accounts) carry the pre-backfill shape for
+  // data variety only — the live fallback arm (`professorUsername` absent,
+  // name match) is characterized end-to-end by verify-authz.sh Fixture 1,
+  // which $unsets the stamp on the CS 208 rows mid-run.
   const FACULTY_USERNAME_BY_NAME: Record<string, string> = {
     'Engr. Maria Cristina Reyes': 'm.reyes',
     'Engr. Lorenzo Bautista': 'l.bautista',
