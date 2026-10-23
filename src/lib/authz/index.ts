@@ -23,6 +23,8 @@ export {
 export {
   createScopes,
   professorOwnership,
+  editablePeriodGuard,
   type AuthzScopes,
   type ProfessorOwnershipFilter,
+  type GradeRowScope,
 } from './scopes'

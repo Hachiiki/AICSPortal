@@ -7,7 +7,7 @@
 // equality only — the display name is never read for ownership.
 
 import { describe, expect, it } from 'bun:test'
-import { createScopes, professorOwnership } from './scopes'
+import { createScopes, professorOwnership, editablePeriodGuard } from './scopes'
 import type { AuthzContext } from './context'
 import type { SessionClaims } from '@/lib/session'
 
@@ -147,5 +147,167 @@ describe('authz scopes', () => {
     const noName = createScopes({ ...facultyCtx, actor: { ...facultyCtx.actor, fullName: '' } }).subjectRows('CS 101')
     expect(withName).toEqual(noName)
     expect(noName.professorUsername).toBe('m.reyes')
+  })
+})
+
+// ---- issue #86: TOCTOU write-side re-assertion (grades/update) -----------
+//
+// gradeRow() is the write fragment grades/update composes into both
+// updateOne filters (update + withdraw). These pin the shape the route
+// spreads: row keys + the strict ownership key, and the period-state
+// guard that mirrors the grade.period gate. Pure shape assertions —
+// Mongo match semantics (missing field = non-match for equality) are
+// pinned gate-side in policies.test.ts; the composition below rides the
+// same property.
+
+describe('authz scopes — issue #86 gradeRow write fragments', () => {
+  const facultyYCtx: AuthzContext = {
+    actor: {
+      username: 'l.bautista',
+      role: 'faculty',
+      branch: 'commonwealth',
+      fullName: 'Engr. Lorenzo Bautista',
+      academicYear: '2026-2027',
+      semester: '1st Sem',
+      yearLevel: '',
+      section: '',
+    },
+    claims: { username: 'l.bautista', role: 'faculty', branch: 'commonwealth', tv: 0 },
+  }
+
+  it('gradeRow carries the row keys plus the strict ownership key', () => {
+    const frag = createScopes(facultyCtx).gradeRow('a.castillo', 'CS 103')
+    expect(frag).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+    })
+  })
+
+  it('gradeRow adds term keys only for non-empty term values (route conditional spread)', () => {
+    expect(createScopes(facultyCtx).gradeRow('a.castillo', 'CS 103', T)).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+      academicYear: '2026-2027',
+      semester: '1st Sem',
+    })
+    expect(createScopes(facultyCtx).gradeRow('a.castillo', 'CS 103', { academicYear: '', semester: '1st Sem' })).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+      semester: '1st Sem',
+    })
+  })
+
+  it('gradeRow derives from the actor doc — stale claims cannot widen the write', () => {
+    // Same M2-class property as every other fragment: the DB actor doc is
+    // the only source. A stale JWT (different username/branch) never
+    // leaks into the write filter, so the write stays keyed to the
+    // account the DB says is making it.
+    const staleCtx: AuthzContext = {
+      actor: { ...facultyCtx.actor, branch: 'novaliches' },
+      claims, // still says m.reyes / commonwealth
+    }
+    const frag = createScopes(staleCtx).gradeRow('a.castillo', 'CS 101')
+    expect(frag).toEqual({
+      branch: 'novaliches',
+      code: 'CS 101',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+    })
+  })
+
+  it('mismatched ownership: another faculty\'s filter carries their key — never mine', () => {
+    // A row stamped professorUsername 'm.reyes' cannot match l.bautista's
+    // write filter: the only ownership arm is the byte-exact username
+    // equality (flat key, no fallback, no normalization), so a mid-flight
+    // reassignment no-ops the old owner's write instead of landing.
+    const frag = createScopes(facultyYCtx).gradeRow('a.castillo', 'CS 103')
+    expect(frag).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'l.bautista',
+    })
+  })
+
+  it('mismatched ownership: a display name matching the row\'s professor grants nothing', () => {
+    // Seed shape: CS 208 rows carry professor 'Engr. Maria Cristina Reyes'
+    // stamped professorUsername 'm.reyes'. An account whose fullName
+    // matches the display field but whose username differs writes
+    // nothing — the name is not an ownership key anywhere.
+    const impostorCtx: AuthzContext = {
+      actor: { ...facultyCtx.actor, username: 'someone.else', fullName: 'Engr. Maria Cristina Reyes' },
+      claims: { username: 'someone.else', role: 'faculty', branch: 'commonwealth', tv: 0 },
+    }
+    const frag = createScopes(impostorCtx).gradeRow('juan.santos', 'CS 208')
+    expect(frag).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 208',
+      studentUsername: 'juan.santos',
+      professorUsername: 'someone.else',
+    })
+  })
+
+  it('editablePeriodGuard mirrors the grade.period gate: deny only submitted/released', () => {
+    // Gate allow rule (policies.ts, FIX-H1a): anything except
+    // 'submitted'/'released' is editable — '' and 'draft' pass, and
+    // gradeRowState maps a missing field to ''. The $nin of exactly the
+    // two locked values is the write-side mirror: '' / 'draft' / null /
+    // absent fields all match, so no valid update the gate allowed is
+    // blocked, and a period locked between gate and write no-ops.
+    expect(editablePeriodGuard('prelim')).toEqual({ prelimStatus: { $nin: ['submitted', 'released'] } })
+    expect(editablePeriodGuard('midterm')).toEqual({ midtermStatus: { $nin: ['submitted', 'released'] } })
+    expect(editablePeriodGuard('finals')).toEqual({ finalsStatus: { $nin: ['submitted', 'released'] } })
+  })
+
+  it('update composition: the ownership key survives the route spreading the state guards', () => {
+    // grades/update composes { ...gradeRow(...), ...guard, ...guard }.
+    // The flat key survives every spread (only an explicit
+    // professorUsername write could clobber it, and no route does), so
+    // ownership and state ride the write atomically together.
+    const composed = {
+      ...createScopes(facultyCtx).gradeRow('a.castillo', 'CS 103', T),
+      ...editablePeriodGuard('prelim'),
+      ...editablePeriodGuard('midterm'),
+    }
+    expect(composed).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+      academicYear: '2026-2027',
+      semester: '1st Sem',
+      prelimStatus: { $nin: ['submitted', 'released'] },
+      midtermStatus: { $nin: ['submitted', 'released'] },
+    })
+  })
+
+  it('withdraw composition: ownership and the submitted guard co-exist on the write', () => {
+    // The withdraw path composes { ...gradeRow(...), [periodKey]:
+    // 'submitted' } — the atomic submitted guard that already existed,
+    // now with the ownership key beside it. Both survive the spread.
+    const composed = {
+      ...createScopes(facultyCtx).gradeRow('a.castillo', 'CS 103'),
+      midtermStatus: 'submitted',
+    }
+    expect(composed).toEqual({
+      branch: 'commonwealth',
+      code: 'CS 103',
+      studentUsername: 'a.castillo',
+      professorUsername: 'm.reyes',
+      midtermStatus: 'submitted',
+    })
+    expect(Object.keys(composed).sort()).toEqual([
+      'branch',
+      'code',
+      'midtermStatus',
+      'professorUsername',
+      'studentUsername',
+    ])
   })
 })
