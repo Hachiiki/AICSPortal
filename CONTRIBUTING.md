@@ -83,13 +83,15 @@ The app runs at [http://localhost:3000](http://localhost:3000).
 | Faculty | `m.reyes` |
 | Admin | `admin` |
 
-Demo passwords are no longer published in this repository. The local dev
-seed uses fixed documented defaults (ask the project owner, or see the
-seed script), and any remote/production seed requires the values to be
-injected via environment variables — see
-`docs/authz/credential-rotation-runbook.md` on the dev branch. Git history
-still contains the previously published values; the runbook's rotation
-phase is the actual remediation, this table only stops re-publishing them.
+Demo passwords are no longer published in this contributor guide. The
+local dev seed uses fixed documented defaults (ask the project owner, or
+see the dev branch's seed script and agent guide, where the
+local-testing values still appear), and any remote/production seed
+requires the values to be injected via environment variables — see
+`docs/authz/credential-rotation-runbook.md` on the dev branch. Git
+history still contains the previously published values, so treat the
+demo credentials as public until the runbook's rotation phase is
+executed; removing this table only stops re-publishing them here.
 
 ### Run the linter and type checker
 
