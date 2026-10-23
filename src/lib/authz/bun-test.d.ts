@@ -1,9 +1,11 @@
 // Ambient declarations for the 'bun:test' module.
 //
-// Production-branch shim: ships on `main` alongside scopes.test.ts so
-// `tsc --noEmit` keeps passing while the CI authz-unit job executes
-// that focused suite on production branches. The dev-only authz test
-// files that stay on main-full-dev consume the same shim there.
+// Production-branch shim: ships on `main` alongside the production-
+// tracked authz test suites (scopes.test.ts and the route-level
+// grades-update-write.test.ts) so `tsc --noEmit` keeps passing while
+// the CI authz-unit job executes those suites on production branches.
+// The dev-only authz test files that stay on main-full-dev consume the
+// same shim there.
 //
 // The repo typechecks with tsc (CI + local gate before every commit), but the
 // bun test globals are provided by the bun runtime, not by any @types package
@@ -52,4 +54,10 @@ declare module 'bun:test' {
   export function beforeEach(fn: () => void | Promise<void>): void
   export function afterEach(fn: () => void | Promise<void>): void
   export const expect: <T = unknown>(actual: T) => ExpectStatic<T>
+
+  // Module interception (used by grades-update-write.test.ts to
+  // substitute the mongodb/session seams before importing the route).
+  export const mock: {
+    module(specifier: string, factory: () => unknown): unknown
+  }
 }

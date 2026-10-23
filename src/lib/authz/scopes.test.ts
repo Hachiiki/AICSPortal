@@ -1,7 +1,8 @@
 // Unit tests for the scope fragment builders (plan P3: bun test).
 //
-// Production-branch suite: this file (with bun-test.d.ts) ships on
-// `main`, and the CI authz-unit job executes it there, so the issue #86
+// Production-branch suite: this file, the route-level wiring suite
+// (grades-update-write.test.ts), and bun-test.d.ts ship on `main`, and
+// the CI authz-unit job executes them there, so the issue #86
 // write-ownership guards and the fragment-shape regressions they ride
 // on are pinned on every PR into `main` — not only on main-full-dev.
 // The other authz test files (guards, permissions, policies, types)

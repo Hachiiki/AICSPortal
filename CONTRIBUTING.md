@@ -100,7 +100,7 @@ npm run lint
 npm run typecheck
 ```
 
-CI runs both on every pull request, plus a production whitelist guard and the authorization unit tests. PRs into `main` must only touch source and root config files (dev tooling lives on the dev branch) — with one tracked exception: the focused scope suite (`src/lib/authz/scopes.test.ts` and its `bun-test.d.ts` type shim) ships on `main`, so the ownership and grading-period write-guard regressions run in CI on production branches too. The remaining authz test files stay dev-only unless the maintainers explicitly port them.
+CI runs both on every pull request, plus a production whitelist guard and the authorization unit tests. PRs into `main` must only touch source and root config files (dev tooling lives on the dev branch) — with one tracked exception: the focused authorization suites (`src/lib/authz/scopes.test.ts`, the route-level wiring suite `src/lib/authz/grades-update-write.test.ts`, and their shared `bun-test.d.ts` type shim) ship on `main`, so the ownership and grading-period write-guard regressions run in CI on production branches too. The wiring suite substitutes the database and session seams with mocks, so it runs without a database. The remaining authz test files stay dev-only unless the maintainers explicitly port them.
 
 ---
 
