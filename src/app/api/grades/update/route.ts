@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
-import { resolveContext, createRelations, can, type Period } from '@/lib/authz'
+import { resolveContext, createRelations, createScopes, can, editablePeriodGuard, type Period } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 
@@ -70,6 +70,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
     const rel = createRelations(ctx)
+    // Issue #86: write-side scope fragments (the same source the
+    // grades/submit write filter composes). gradeRow() keys ownership on
+    // the DB actor doc — the authoritative record resolveContext read —
+    // never the JWT claim, matching every other fragment in scopes.ts.
+    const scope = createScopes(ctx)
     const performedByUser = ctx.actor.username
 
     // C2.5: the faculty-role, claims-vs-DB branch parity, per-row
@@ -133,8 +138,12 @@ export async function PATCH(request: NextRequest) {
         const periodKey = `${withdraw}Status`
         // The submitted guard rides the write filter itself (atomic), so a
         // raced resubmit cannot be clobbered by the withdrawal.
+        // Issue #86: the ownership key rides it too — a stamp flipped
+        // between the gate read and the write no-ops here (modifiedCount 0,
+        // reason 'Not submitted') instead of withdrawing a row the actor
+        // no longer owns.
         const result = await col.updateOne(
-          { studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}), [periodKey]: 'submitted' },
+          { ...scope.gradeRow(studentUsername, subjectCode, term), [periodKey]: 'submitted' },
           { $set: { [periodKey]: 'draft', gradeStatus: 'draft' } }
         )
         if (result.modifiedCount > 0) {
@@ -303,12 +312,32 @@ export async function PATCH(request: NextRequest) {
         continue
       }
 
+      // Issue #86 (TOCTOU defense-in-depth): the ownership key and the
+      // gate's per-period state rule ride the write filter itself —
+      // atomically with the write. A stamp flipped between the gate read
+      // and this write no-ops (reason 'No change'); a period locked
+      // (submitted/released) in that window no-ops too, exactly as the
+      // gate would have denied it. The guards cover exactly the periods
+      // the gate checked (touched periods, or the structural 'finals'
+      // default for finalGrade/remarks-only rows), so gate and write
+      // agree by construction; $nin mirrors the gate's allow rule
+      // (deny only 'submitted'/'released', everything else editable).
+      const stateGuards: Record<string, { $nin: string[] }> = {}
+      for (const p of periodsToCheck) {
+        Object.assign(stateGuards, editablePeriodGuard(p))
+      }
       const result = await col.updateOne(
-        { studentUsername, branch, code: subjectCode, ...(academicYear ? { academicYear } : {}), ...(semester ? { semester } : {}) },
+        { ...scope.gradeRow(studentUsername, subjectCode, term), ...stateGuards },
         { $set: setDoc }
       )
 
-      if (auditEntries.length > 0) {
+      // Issue #86: audits record changes that LANDED. When the ownership
+      // key or a state guard no-ops the write (modifiedCount 0), the
+      // values computed above never reached the row — persisting the
+      // audit entries would claim a change that did not happen. Mirrors
+      // the withdraw path's existing modifiedCount gate; the
+      // attempted-vs-landed distinction stays honest.
+      if (result.modifiedCount > 0 && auditEntries.length > 0) {
         // BUG-011: never swallow audit failures silently; flag them for observability.
         try {
           await auditCol.insertMany(auditEntries)

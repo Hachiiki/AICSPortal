@@ -23,7 +23,7 @@
 
 import type { Branch } from '@/lib/mongodb/types'
 import type { AuthzContext } from './context'
-import type { TermKey } from './types'
+import type { Period, TermKey } from './types'
 
 /**
  * Teaching-ownership filter (A1 phase 3, issue #72): strict username
@@ -48,6 +48,24 @@ export function professorOwnership(username: string): ProfessorOwnershipFilter {
   return { professorUsername: username }
 }
 
+/**
+ * Write-side mirror of the grade.period gate's update state rule
+ * (issue #86, second arm of the TOCTOU hardening).
+ *
+ * The gate (policies.ts, FIX-H1a/C3.3) allows encoding while the touched
+ * period's status is anything OTHER than 'submitted' or 'released' — ''
+ * and 'draft' pass, and gradeRowState maps a missing field to '' — so
+ * `$nin` of the two locked values is the exact mirror: '' / 'draft' /
+ * null / absent fields all match on the write side exactly as they all
+ * pass on the gate side, and a period locked (submit/release) between
+ * the gate read and the write makes the updateOne a no-op instead of
+ * clobbering the locked state. No status the gate allowed is blocked
+ * here and no status the gate denied slips through.
+ */
+export function editablePeriodGuard(period: Period): { [periodKey: string]: { $nin: string[] } } {
+  return { [`${period}Status`]: { $nin: ['submitted', 'released'] } }
+}
+
 export interface OwnStudentRowsScope {
   branch: Branch
   studentUsername: string
@@ -65,6 +83,20 @@ export interface SubjectRowsScope {
   branch: Branch
   code: string
   /** A1 strict teaching-ownership key (issue #72 phase 3). */
+  professorUsername: string
+  academicYear?: string
+  semester?: string
+}
+
+export interface GradeRowScope {
+  branch: Branch
+  code: string
+  studentUsername: string
+  /**
+   * A1 strict teaching-ownership key (issue #72 phase 3), re-asserted on
+   * the write by issue #86: the value is the DB actor doc's username,
+   * exactly like every other fragment here (never the JWT claim).
+   */
   professorUsername: string
   academicYear?: string
   semester?: string
@@ -88,6 +120,18 @@ export interface AuthzScopes {
    * gate's relation query by construction.
    */
   subjectRows(code: string, term?: TermKey): SubjectRowsScope
+  /**
+   * Write scope for ONE grade row (grades/update, issue #86): the row
+   * keys plus the strict professor-of-record key, so the update/withdraw
+   * write filters re-assert ownership atomically. TOCTOU defense-in-depth:
+   * the grade.period gate reads the stamp once per request; if the stamp
+   * flips between that read and the write (out-of-band reassignment,
+   * seed tooling, future admin UI), this key makes the write a no-op
+   * (modifiedCount 0) instead of landing on a row the actor no longer
+   * owns. Same fragment shape the gate's gradeRowState lookup uses for
+   * its row keys, plus the ownership key the gate compares in JS.
+   */
+  gradeRow(studentUsername: string, code: string, term?: TermKey): GradeRowScope
   /**
    * Write scope for attendance upserts. FIX-H2 (C3.4): the sectionKey is
    * ownership-gated by the policy (teachesSection) and record keys are
@@ -127,6 +171,19 @@ export function createScopes(ctx: AuthzContext): AuthzScopes {
       // key, unconditional on purpose — omitting it would reopen the C1
       // hole; the fragment fails closed for unstamped rows (no account
       // matches) and matches stamped rows by username only.
+      ...professorOwnership(actor.username),
+      ...termKeys(term),
+    }),
+
+    gradeRow: (studentUsername, code, term) => ({
+      branch: actor.branch,
+      code,
+      studentUsername,
+      // Issue #86 (TOCTOU defense-in-depth for grades/update): the same
+      // strict ownership key as subjectRows, keyed on the DB actor doc's
+      // username — the gate (grade.period) compares this exact value in
+      // JS, so the write filter asserts what the gate asserted, atomically
+      // with the write itself.
       ...professorOwnership(actor.username),
       ...termKeys(term),
     }),
