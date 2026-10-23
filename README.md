@@ -18,16 +18,16 @@ AICS ran on paper for enrollment records, grade reports, schedules, and document
 
 The app is branch-scoped and multi-tenant: one deployment serves every campus branch. Every document in every MongoDB collection carries a `branch` field and every query filters on it. There is one portal shell that switches navigation and permissions by role, not three separate apps.
 
-### Current status (2026-10-20)
+### Current status (2026-10-23)
 
 | Area | State | Notes |
 | --- | --- | --- |
 | Student portal | Feature complete | All pages live and QA-verified, including profile photo upload. Remaining polish: dark mode toggle (deferred by owner) |
 | Faculty portal | Feature complete | Full teaching loop: encoding, submission, release, task grading, attendance + history, materials, messaging, grouped sent history |
 | Admin portal | Feature complete | Dashboard stats, release queue, cross-branch people directory, professors/events/announcements management, enrollment overrides + payments |
-| Security | Hardened | Session auth + revocation, centralized policy-table authorization, scrypt hashing, tiered rate limits, Zod on every route, English + Filipino content moderation, grade audit logs |
+| Security | Hardened | Session auth + revocation, centralized policy-table authorization with username-keyed teaching ownership (`professorUsername`), scrypt hashing, tiered rate limits, Zod on every route, English + Filipino content moderation, grade audit logs |
 | Sign-in experience | Shipped | Route Trail progress animation + workspace-assemble entrance (2026-10-20) |
-| Deployment | Live on Vercel | Production smoke tests passed 10/10 on 2026-09-10 |
+| Deployment | Live on Vercel | Production deploys automatically on every merge to `main`. Dated historical result: the go-live smoke tests passed 10/10 on 2026-09-10 against the pre-reset dataset; that check does not certify later deployments |
 
 ---
 
@@ -67,7 +67,7 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 
 ### Platform and security
 - Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, proxy enforcement (`src/proxy.ts`) on every `/api` and `/portal` route
-- **Centralized authorization**: one policy table (`src/lib/authz/`) decides every API request through `can()` / `requireCan()` from the database-read role, branch parity, and teaching load; ownership keys ride scope fragments into the Mongo filters, and client-side checks are display-only
+- **Centralized authorization**: one policy table (`src/lib/authz/`) decides every API request through `can()` / `requireCan()` from the database-read role, branch parity, and teaching load keyed on `professorUsername` (the faculty account username, not the display name); ownership keys ride scope fragments into the Mongo filters, and client-side checks are display-only
 - **scrypt password hashing** with automatic upgrade of legacy plaintext accounts on next login
 - **Tiered rate limiting** on every `/api` request, enforced ahead of the session gate: 100/5 min per IP on the auth routes, 300/5 min reads and 120/5 min writes per session, plus failure-based throttles on login and password change
 - **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist, violations return 422 and every decision is logged
@@ -158,7 +158,9 @@ The database seeder is maintenance tooling and ships on the dev branch (`main-fu
 node --experimental-strip-types scripts/seed-mongodb.ts
 ```
 
-The script auto-loads `.env.local` and populates the **commonwealth** branch: 77 scrypt-hashed accounts (students, faculty, admin), subjects with per-period grade statuses, courses, schedule sessions, tasks, events, announcements, notifications, and one released prior term so Previous Records is not empty.
+The script auto-loads `.env.local` and populates the **commonwealth** branch plus a small **novaliches** satellite for cross-branch demo rows: 83 scrypt-hashed accounts in total (students, faculty, admin), subjects with per-period grade statuses, courses, schedule sessions, tasks, events, announcements, notifications, and one released prior term so Previous Records is not empty.
+
+The 83 is the seed script's inventory: it matches the 2026-10-23 rehearsal census, and production was re-seeded from this script on 2026-10-22. It is not a live database count, and older documentation citing 77 accounts describes earlier datasets.
 
 **Seed logins:** the dev branch's `CLAUDE.md` documents the demo usernames/passwords for local testing. They are intentionally kept out of this public README, if the seed script ever ran against a shared or production database, published plaintext credentials would make every seeded account trivially compromisable. Never reuse seed credentials outside a throwaway local database.
 
