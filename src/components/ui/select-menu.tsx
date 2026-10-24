@@ -193,7 +193,7 @@ export function SelectMenu<V extends string | number = string>({
       aria-labelledby={ariaLabelledBy ?? (label ? labelId : undefined)}
       disabled={disabled}
       className={cn(
-        'min-w-56 w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-left text-slate-700 flex items-center justify-between gap-2 hover:border-slate-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+        'min-w-56 w-full rounded-lg border border-slate-200 bg-surface px-4 py-2.5 text-sm text-left text-slate-700 flex items-center justify-between gap-2 hover:border-slate-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
         buttonClassName,
       )}
     >
@@ -214,7 +214,7 @@ export function SelectMenu<V extends string | number = string>({
       aria-labelledby={label ? labelId : triggerId}
       onKeyDown={onListKeyDown}
       className={cn(
-        'absolute mt-2 w-full min-w-56 rounded-lg border border-slate-200 bg-white shadow-lg z-20 max-h-64 overflow-auto',
+        'absolute mt-2 w-full min-w-56 rounded-lg border border-slate-200 bg-surface shadow-lg z-20 max-h-64 overflow-auto',
         panelClassName,
       )}
     >
@@ -229,11 +229,11 @@ export function SelectMenu<V extends string | number = string>({
             onClick={() => select(o.value)}
             className={cn(
               'w-full text-left px-4 py-2 text-sm flex items-center justify-between gap-2 hover:bg-slate-50',
-              isSelected ? 'text-blue-700 font-medium' : 'text-slate-700',
+              isSelected ? 'text-link-strong font-medium' : 'text-slate-700',
             )}
           >
             <span className="truncate">{o.label}</span>
-            {isSelected && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+            {isSelected && <Check className="w-4 h-4 text-link flex-shrink-0" />}
           </button>
         )
       })}

@@ -251,12 +251,12 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading events...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
@@ -266,11 +266,11 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
             <EmptyState icon={CalendarDays} message="No events match" hint="Adjust the filters or add a new event." />
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[620px]">
                 <thead className="sticky top-0 z-10">
@@ -342,7 +342,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>

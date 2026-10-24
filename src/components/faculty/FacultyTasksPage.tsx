@@ -123,7 +123,7 @@ function GroupActions({ group, toggling, closed, onSubmissions, onToggle, vertic
       <button
         type="button"
         onClick={() => onSubmissions(group)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-medium text-blue-700 hover:bg-blue-100 ${stretch}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-medium text-link-strong hover:bg-blue-100 ${stretch}`}
       >
         <UsersIcon className="w-3.5 h-3.5" />
         Submissions
@@ -132,7 +132,7 @@ function GroupActions({ group, toggling, closed, onSubmissions, onToggle, vertic
         type="button"
         onClick={() => onToggle(group)}
         disabled={toggling}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50 disabled:opacity-60 ${stretch}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50 disabled:opacity-60 ${stretch}`}
       >
         {toggling ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -349,7 +349,7 @@ export function FacultyTasksPage({
       <div className="min-h-dvh bg-slate-50 grid place-items-center">
         <div className="text-center">
           <p className="text-red-600 text-sm font-medium mb-2">{taskGroupsError}</p>
-          <button onClick={onFetchTaskGroups} className="text-blue-600 text-sm font-medium hover:underline">
+          <button onClick={onFetchTaskGroups} className="text-link text-sm font-medium hover:underline">
             Try again
           </button>
         </div>
@@ -391,9 +391,9 @@ export function FacultyTasksPage({
             list (grid row-span distribution was the old bug). */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
           <div className="min-w-0 flex flex-col gap-6">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-w-0">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden min-w-0">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-            <ClipboardList className="w-4 h-4 text-blue-600" />
+            <ClipboardList className="w-4 h-4 text-link" />
             <h2 className="text-base font-semibold text-slate-900">New task</h2>
           </div>
           <div className="px-6 py-5 space-y-4">
@@ -483,11 +483,11 @@ export function FacultyTasksPage({
         <div className="space-y-3 min-w-0">
           <h2 className="text-sm font-semibold text-slate-900">Open ({openGroups.length})</h2>
           {groups.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">No tasks posted yet. Create the first one above.</p>
             </div>
           ) : openGroups.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">Nothing open. Reopen a closed task from beside the form to collect work again.</p>
             </div>
           ) : (
@@ -497,11 +497,11 @@ export function FacultyTasksPage({
                     const closed = isClosedGroup(group)
                     const toggling = togglingKey === key
               return (
-                <div key={key} className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <div key={key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-blue-700">{group.subjectCode}</span>
+                        <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
                           {group.type}
                         </span>
@@ -542,9 +542,9 @@ export function FacultyTasksPage({
                   const key = groupKey(group)
                   const toggling = togglingKey === key
                   return (
-                    <div key={key} className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3">
+                    <div key={key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-blue-700">{group.subjectCode}</span>
+                        <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
                           {group.type}
                         </span>
@@ -577,7 +577,7 @@ export function FacultyTasksPage({
 
       {gradingGroup && (
         <Modal
-          title={<>Submissions · <span className="font-mono text-blue-700">{gradingGroup.subjectCode}</span> {gradingGroup.title}</>}
+          title={<>Submissions · <span className="font-mono text-link-strong">{gradingGroup.subjectCode}</span> {gradingGroup.title}</>}
           description={<>Due {formatDue(gradingGroup.dueDate)} • {gradingGroup.submitted}/{gradingGroup.total} submitted • {gradingGroup.graded} graded • {gradingGroup.maxScore} pts max. Scores show on the student side as soon as you save.</>}
           onClose={closeGrading}
           maxWidthClass="max-w-2xl"
@@ -631,7 +631,7 @@ export function FacultyTasksPage({
                         onChange={(e) => setDrafts((prev) => ({ ...prev, [row._id]: { ...draft, score: e.target.value } }))}
                         aria-label={`Score for ${row.fullName}`}
                         placeholder={`0–${row.maxScore}`}
-                        className="w-24 h-9 px-2 rounded-lg border border-slate-200 bg-white text-sm font-mono outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="w-24 h-9 px-2 rounded-lg border border-slate-200 bg-surface text-sm font-mono outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       />
                       <span className="text-xs text-slate-500">/ {row.maxScore}</span>
                       <button
@@ -652,7 +652,7 @@ export function FacultyTasksPage({
                       rows={2}
                       aria-label={`Feedback for ${row.fullName}`}
                       placeholder="What did they do well? What to fix next time..."
-                      className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
+                      className="mt-1 w-full px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
                     />
                   </div>
                 )

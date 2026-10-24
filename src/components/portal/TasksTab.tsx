@@ -197,16 +197,16 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* TASK OVERVIEW CARD */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
         </div>
         <div className="px-6 py-5">
           <div className="grid grid-cols-5 divide-x divide-slate-100">
-            <OverviewStat label="Total" value={summary.total} color="text-blue-700" />
+            <OverviewStat label="Total" value={summary.total} color="text-link-strong" />
             <OverviewStat label="Graded" value={summary.graded} color="text-green-700" />
             <OverviewStat label="Pending" value={summary.pending} color="text-amber-700" />
-            <OverviewStat label="Needs attention" value={summary.needs} color="text-blue-700" />
+            <OverviewStat label="Needs attention" value={summary.needs} color="text-link-strong" />
             <OverviewStat label="Missing" value={summary.missing} color="text-red-700" />
           </div>
           <div className="mt-4">
@@ -221,7 +221,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* FILTER CARD */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-4">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-4">
         <div className="flex flex-wrap gap-6 items-center">
           {/* Subject (custom dropdown — shared SelectMenu) */}
           <SelectMenu
@@ -264,7 +264,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* NEEDS ATTENTION CARD */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Needs Attention</h3>
           <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
@@ -310,7 +310,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-slate-900">Courses</h3>
         <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
-          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+          className="inline-flex items-center gap-1 text-xs font-medium text-link hover:text-link-strong">
           {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
           {expandedCourses.size === currentSubjects.length ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
@@ -318,7 +318,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
 
       {/* COURSE ACCORDION CARDS */}
       {filteredTasks.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={ClipboardList} message="No tasks for this term." hint="When a teacher posts a task, it shows up here." />
         </div>
       ) : (
@@ -333,13 +333,13 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
             const taskCountLabel = subjectTasks.length === 1 ? '1 task' : `${subjectTasks.length} tasks`
             return (
               <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
-                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Accordion header */}
                 <button type="button" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
                   className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-blue-700">{subjectCode}</span>
+                      <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
                       <span className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</span>
                     </div>
                     {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
@@ -509,14 +509,14 @@ function OverviewStat({ label, value, color }: { label: string; value: number; c
 function SubmitWarningModal({ task, onCancel, onConfirm, submitting }: { task: Task; onCancel: () => void; onConfirm: () => void; submitting: boolean }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onCancel}>
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50" onClick={onCancel}>
       <DialogPanel
         onClose={onCancel}
         aria-label="Confirm task submission"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        className="bg-surface rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
@@ -548,14 +548,14 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50" onClick={onClose}>
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50" onClick={onClose}>
       <DialogPanel
         onClose={onClose}
         aria-label="Task details"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        className="bg-surface rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">

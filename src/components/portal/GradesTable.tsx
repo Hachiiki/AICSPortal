@@ -26,7 +26,7 @@ export function GradesTable({ student }: GradesTableProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-      className="bg-white rounded-xl border border-slate-200 shadow-sm"
+      className="bg-surface rounded-xl border border-slate-200 shadow-sm"
     >
       {/* Section header */}
       <div className="px-6 py-4 border-b border-slate-100">

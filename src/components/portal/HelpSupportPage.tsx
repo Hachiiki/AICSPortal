@@ -86,9 +86,9 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-            <CircleHelp className="w-4 h-4 text-blue-600" />
+            <CircleHelp className="w-4 h-4 text-link" />
             <h2 className="text-base font-semibold text-slate-900">Frequently asked questions</h2>
           </div>
           <div className="divide-y divide-slate-100">
@@ -114,7 +114,7 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100">
             <h2 className="text-base font-semibold text-slate-900">Contact support</h2>
           </div>

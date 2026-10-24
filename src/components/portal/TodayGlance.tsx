@@ -94,11 +94,11 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
   return (
     <section aria-label="Today at a glance" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Next class */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Next class</p>
           {nextClass && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 flex-shrink-0">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-link-strong flex-shrink-0">
               <Clock className="w-3.5 h-3.5" /> {nextClass.until}
             </span>
           )}
@@ -117,7 +117,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
       <button
         type="button"
         onClick={() => onNavigate('academics')}
-        className="group text-left bg-white rounded-xl border border-slate-200 shadow-sm p-4 min-w-0 hover:border-blue-200 focus-visible:border-blue-600 outline-none"
+        className="group text-left bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0 hover:border-blue-200 focus-visible:border-blue-600 outline-none"
       >
         <div className="flex items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Tasks</p>
@@ -139,15 +139,15 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
             <p className="text-xs text-slate-500 mt-0.5 truncate">{pending.nextDue}</p>
           </>
         )}
-        <p className="mt-3 text-xs font-medium text-blue-700 group-hover:underline">Review tasks</p>
+        <p className="mt-3 text-xs font-medium text-link-strong group-hover:underline">Review tasks</p>
       </button>
 
       {/* Announcements */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcements</p>
           {unread !== null && unread > 0 && (
-            <span className="size-6 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold grid place-items-center flex-shrink-0">
+            <span className="size-6 rounded-full bg-blue-50 border border-blue-200 text-link-strong text-xs font-bold grid place-items-center flex-shrink-0">
               {unread}
             </span>
           )}

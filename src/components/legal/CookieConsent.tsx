@@ -69,7 +69,7 @@ export function CookieConsent() {
     <section
       role="region"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85"
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex items-start gap-3 text-sm leading-relaxed text-slate-700">

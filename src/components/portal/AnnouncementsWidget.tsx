@@ -55,7 +55,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
   }
 
   const bannerBg = isUrgent ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'
-  const accentColor = isUrgent ? 'text-red-600' : 'text-blue-600'
+  const accentColor = isUrgent ? 'text-red-600' : 'text-link'
 
   return (
     <div className={`rounded-lg border ${bannerBg} px-4 py-2.5 flex items-center gap-3`}>
@@ -92,7 +92,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
           <button
             type="button"
             onClick={() => setActiveIndex((i) => (i + 1) % visible.length)}
-            className="p-1 rounded text-slate-500 hover:bg-white/50 hover:text-slate-600"
+            className="p-1 rounded text-slate-500 hover:bg-surface/50 hover:text-slate-600"
             aria-label="Next announcement"
           >
             <ChevronRight className="w-3.5 h-3.5" />
@@ -104,7 +104,7 @@ export function AnnouncementsWidget({ announcements }: AnnouncementsWidgetProps)
       <button
         type="button"
         onClick={() => dismissItem(active._id)}
-        className="p-1 rounded text-slate-500 hover:bg-white/50 hover:text-slate-600 flex-shrink-0"
+        className="p-1 rounded text-slate-500 hover:bg-surface/50 hover:text-slate-600 flex-shrink-0"
         aria-label="Dismiss announcement"
       >
         <X className="w-3.5 h-3.5" />

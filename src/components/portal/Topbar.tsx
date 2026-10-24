@@ -81,7 +81,7 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200"
+      className="sticky top-0 z-20 h-16 bg-surface border-b border-slate-200"
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
@@ -146,7 +146,7 @@ export function Topbar({
                   <button
                     type="button"
                     onClick={() => inbox?.onMark(undefined, true)}
-                    className="text-xs font-medium text-blue-600 hover:underline"
+                    className="text-xs font-medium text-link hover:underline"
                   >
                     Mark all read
                   </button>

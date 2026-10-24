@@ -128,7 +128,7 @@ function StatCard({
   const clickable = typeof onClick === 'function'
   return (
     <div
-      className={`bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 ${
+      className={`bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5 ${
         clickable ? 'cursor-pointer hover:border-blue-300 hover:shadow transition-colors' : ''
       }`}
       onClick={onClick}
@@ -138,7 +138,7 @@ function StatCard({
     >
       <div className="flex items-center gap-2.5">
         <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-          <Icon className="w-4 h-4 text-blue-700" />
+          <Icon className="w-4 h-4 text-link-strong" />
         </span>
         <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
       </div>
@@ -151,7 +151,7 @@ function StatCard({
 function BreakdownList({ title, rows, emptyLabel }: { title: string; rows: { label: string; count: number }[]; emptyLabel: string }) {
   const total = rows.reduce((sum, r) => sum + r.count, 0)
   return (
-    <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+    <section className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5">
       <h2 className="text-sm font-bold text-slate-900">{title}</h2>
       {rows.length === 0 ? (
         <EmptyState compact icon={Users} message={emptyLabel} className="mt-3" />
@@ -225,12 +225,12 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Crunching school numbers...</p>
           </div>
         ) : error || !stats ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
@@ -272,7 +272,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
 
             {/* GPA distribution + enrollment status */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <section className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="text-sm font-bold text-slate-900">GPA distribution</h2>
                   <p className="text-xs text-slate-500">
@@ -312,7 +312,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <BreakdownList title="By year level" rows={stats.enrollment.byYearLevel} emptyLabel="No students yet." />
               <BreakdownList title="By program" rows={stats.enrollment.byProgram} emptyLabel="No students yet." />
-              <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <section className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5">
                 <h2 className="text-sm font-bold text-slate-900">Fee collection</h2>
                 <dl className="mt-3 space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -359,7 +359,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             </div>
 
             {/* Branch overview */}
-            <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <section className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-5 pt-5 pb-3">
                 <h2 className="text-sm font-bold text-slate-900">Branch overview</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Per-branch counts across every collection.</p>
@@ -413,10 +413,10 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
 
             {/* Upcoming events + recent announcements */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <section className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-slate-900">Next 7 days</h2>
-                  <button type="button" onClick={() => onNavigate('admin-events')} className="text-xs font-semibold text-blue-700 hover:underline">
+                  <button type="button" onClick={() => onNavigate('admin-events')} className="text-xs font-semibold text-link-strong hover:underline">
                     Manage events
                   </button>
                 </div>
@@ -437,10 +437,10 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                 )}
               </section>
 
-              <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <section className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-slate-900">Latest announcements</h2>
-                  <button type="button" onClick={() => onNavigate('admin-announcements')} className="text-xs font-semibold text-blue-700 hover:underline">
+                  <button type="button" onClick={() => onNavigate('admin-announcements')} className="text-xs font-semibold text-link-strong hover:underline">
                     Manage announcements
                   </button>
                 </div>

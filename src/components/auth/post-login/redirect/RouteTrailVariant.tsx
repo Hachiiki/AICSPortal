@@ -270,7 +270,7 @@ export function RouteTrailVariant({ branch, onComplete, readiness }: AuthStagePr
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-white py-10"
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-surface py-10"
     >
       <span role="status" className="sr-only">
         {caption}
@@ -327,7 +327,7 @@ export function RouteTrailVariant({ branch, onComplete, readiness }: AuthStagePr
                     initial={false}
                     animate={{ borderColor: done || active ? T.primary : '#CBD5E1' }}
                     transition={{ duration: 0.25 }}
-                    className="relative w-9 h-9 rounded-full grid place-items-center border-2 bg-white overflow-hidden"
+                    className="relative w-9 h-9 rounded-full grid place-items-center border-2 bg-surface overflow-hidden"
                   >
                     {/* The stage's own symbol — never covered by the dot */}
                     <Icon className="w-4 h-4" style={{ color: active ? T.primary : '#94A3B8' }} />

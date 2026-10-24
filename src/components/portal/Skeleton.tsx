@@ -26,7 +26,7 @@ function PortalShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-slate-50 font-sans">
       {/* Sidebar (frozen) */}
-      <div className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white border-r border-slate-200 p-4">
+      <div className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-surface border-r border-slate-200 p-4">
         <div className="flex items-center gap-2 mb-8 px-2">
           <SkeletonBlock className="w-9 h-9 rounded-lg" />
           <div className="flex-1 space-y-1.5">
@@ -43,7 +43,7 @@ function PortalShell({ children }: { children: React.ReactNode }) {
 
       <div className="lg:pl-60">
         {/* Topbar */}
-        <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+        <div className="h-16 bg-surface border-b border-slate-200 flex items-center justify-between px-6">
           <SkeletonBlock className="h-6 w-48" />
           <div className="flex items-center gap-3">
             <SkeletonBlock className="w-9 h-9 rounded-full" />
@@ -68,7 +68,7 @@ export function DashboardSkeleton() {
   return (
     <PortalShell>
       {/* Academic header (hero) */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2 flex-1">
             <SkeletonBlock className="h-3 w-24" />
@@ -84,7 +84,7 @@ export function DashboardSkeleton() {
       </div>
 
       {/* Grades table card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-surface shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="space-y-2">
             <SkeletonBlock className="h-5 w-40" />
@@ -115,7 +115,7 @@ export function DashboardSkeleton() {
 
       {/* Schedule + Today's Classes */}
       <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 rounded-xl border border-slate-200 bg-white shadow-sm p-6 space-y-4">
+        <div className="flex-1 rounded-xl border border-slate-200 bg-surface shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <SkeletonBlock className="h-5 w-36" />
@@ -125,7 +125,7 @@ export function DashboardSkeleton() {
           </div>
           <SkeletonBlock className="h-64 w-full rounded-lg" />
         </div>
-        <div className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-white shadow-sm p-5 space-y-3">
+        <div className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-surface shadow-sm p-5 space-y-3">
           <div className="space-y-2 pb-3 border-b border-slate-100">
             <SkeletonBlock className="h-5 w-32" />
             <SkeletonBlock className="h-3 w-20" />
@@ -162,7 +162,7 @@ export function AcademicsSkeleton() {
       </div>
 
       {/* Grades card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-surface shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="space-y-2">
             <SkeletonBlock className="h-5 w-56" />
@@ -204,7 +204,7 @@ export function ProfileSkeleton() {
     <PortalShell>
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Hero card */}
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-6">
+        <div className="rounded-xl border border-slate-200 bg-surface shadow-sm p-6">
           <div className="flex items-start gap-6">
             <SkeletonBlock className="w-28 h-28 rounded-2xl" />
             <div className="flex-1 space-y-2.5">
@@ -222,7 +222,7 @@ export function ProfileSkeleton() {
         {/* Two-column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 2 }).map((_, col) => (
-            <div key={col} className="rounded-xl border border-slate-200 bg-white shadow-sm p-6 space-y-4">
+            <div key={col} className="rounded-xl border border-slate-200 bg-surface shadow-sm p-6 space-y-4">
               <SkeletonBlock className="h-5 w-32" />
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -257,7 +257,7 @@ export function TasksSkeleton() {
       </div>
 
       {/* Overview card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-surface shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100">
           <SkeletonBlock className="h-5 w-36" />
         </div>
@@ -278,7 +278,7 @@ export function TasksSkeleton() {
       </div>
 
       {/* Filter card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm px-6 py-4">
+      <div className="rounded-xl border border-slate-200 bg-surface shadow-sm px-6 py-4">
         <div className="flex flex-wrap gap-6 items-center">
           <div className="space-y-1.5">
             <SkeletonBlock className="h-2.5 w-12" />
@@ -304,7 +304,7 @@ export function TasksSkeleton() {
       </div>
 
       {/* Needs attention card */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-surface shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 space-y-2">
           <SkeletonBlock className="h-5 w-36" />
           <SkeletonBlock className="h-3 w-48" />
@@ -326,7 +326,7 @@ export function TasksSkeleton() {
       {/* Course accordion cards */}
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-slate-200 bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+          <div key={i} className="rounded-xl border border-slate-200 bg-surface shadow-sm px-6 py-4 flex items-center justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <SkeletonBlock className="h-3.5 w-16" />
@@ -376,7 +376,7 @@ export function EventsSkeleton() {
           </div>
 
           {/* Calendar card */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <SkeletonBlock className="h-5 w-36" />
               <div className="flex gap-2">
@@ -410,7 +410,7 @@ export function EventsSkeleton() {
 
         {/* Right rail */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 space-y-2">
               <SkeletonBlock className="h-5 w-32" />
               <SkeletonBlock className="h-3 w-36" />
@@ -460,7 +460,7 @@ export function ProfessorsSkeleton() {
       {/* Card grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div key={i} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             {/* Header — avatar + name/email + contact button */}
             <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
               <SkeletonBlock className="w-11 h-11 rounded-full flex-shrink-0" />

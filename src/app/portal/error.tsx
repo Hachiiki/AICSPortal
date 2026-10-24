@@ -26,7 +26,7 @@ export default function PortalError({
     <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 font-sans">
       <div
         role="alert"
-        className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm"
+        className="w-full max-w-md rounded-2xl border border-red-200 bg-surface p-8 text-center shadow-sm"
       >
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
           <AlertTriangle className="h-7 w-7 text-red-600" aria-hidden />
@@ -49,7 +49,7 @@ export default function PortalError({
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-surface px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             <LogOut className="h-4 w-4" aria-hidden />
             Back to login

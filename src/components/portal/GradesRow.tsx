@@ -35,13 +35,13 @@ export function GradesHeader() {
 export function GradesRow({ subject, rowKey }: { subject: Subject; rowKey: string }) {
   return (
     <tr key={rowKey} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-      <td className="px-4 py-3 whitespace-nowrap"><span className="font-mono text-xs font-bold text-blue-700">{subject.code}</span></td>
+      <td className="px-4 py-3 whitespace-nowrap"><span className="font-mono text-xs font-bold text-link-strong">{subject.code}</span></td>
       <td className="px-4 py-3"><span className="text-sm text-slate-700">{subject.title}</span></td>
       <td className="px-4 py-3 text-center text-sm text-slate-700 whitespace-nowrap">{subject.units}</td>
       <td className="px-4 py-3"><span className="text-sm text-slate-700">{subject.professor}</span></td>
       <td className="px-4 py-3 text-center font-mono text-sm text-slate-700 whitespace-nowrap">{subject.midterm}</td>
       <td className="px-4 py-3 text-center font-mono text-sm text-slate-700 whitespace-nowrap">{subject.finals}</td>
-      <td className="px-4 py-3 text-center whitespace-nowrap"><span className="font-mono text-sm font-bold text-blue-700">{subject.finalGrade}</span></td>
+      <td className="px-4 py-3 text-center whitespace-nowrap"><span className="font-mono text-sm font-bold text-link-strong">{subject.finalGrade}</span></td>
       <td className="px-4 py-3 text-center">
         <RemarksBadge remarks={subject.remarks} />
       </td>
@@ -98,7 +98,7 @@ function SubjectCard({ subject, showTerm }: { subject: Subject; showTerm?: boole
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-blue-700 flex-shrink-0">{subject.code}</span>
+            <span className="font-mono text-xs font-bold text-link-strong flex-shrink-0">{subject.code}</span>
             <h3 className="text-sm font-semibold text-slate-900 truncate">{subject.title}</h3>
           </div>
           <p className="text-xs text-slate-500 mt-0.5 truncate">
@@ -122,7 +122,7 @@ function GradeStat({ label, value, strong }: { label: string; value: string | nu
   return (
     <span className="inline-flex items-baseline gap-1.5">
       <span className="text-[10px] uppercase tracking-wider font-medium text-slate-500">{label}</span>
-      <span className={`font-mono text-sm tabular-nums ${strong ? 'font-bold text-blue-700' : 'text-slate-700'}`}>
+      <span className={`font-mono text-sm tabular-nums ${strong ? 'font-bold text-link-strong' : 'text-slate-700'}`}>
         {fmtGrade(value)}
       </span>
     </span>

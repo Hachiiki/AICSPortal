@@ -23,7 +23,7 @@ interface RemarksBadgeProps {
 
 const REMARKS_STYLES: Record<string, string> = {
   excellent: 'bg-violet-50 text-violet-700',
-  'very good': 'bg-blue-50 text-blue-700',
+  'very good': 'bg-blue-50 text-link-strong',
   good: 'bg-cyan-50 text-cyan-700',
   passed: 'bg-green-50 text-green-700',
   conditional: 'bg-amber-50 text-amber-700',

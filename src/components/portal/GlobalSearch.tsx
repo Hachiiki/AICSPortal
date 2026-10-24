@@ -387,7 +387,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
       {/* Search field */}
       <div
         className={`flex items-center gap-2 h-9 px-3 rounded-lg border bg-slate-50 transition-colors ${
-          open ? 'border-blue-500 bg-white ring-2 ring-blue-100' : 'border-slate-200 hover:bg-white'
+          open ? 'border-blue-500 bg-surface ring-2 ring-blue-100' : 'border-slate-200 hover:bg-surface'
         }`}
       >
         <Search className="w-4 h-4 text-slate-400 flex-shrink-0" aria-hidden="true" />
@@ -440,7 +440,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
         <div
           id="global-search-results"
           role="listbox"
-          className="absolute left-0 right-0 mt-2 bg-white rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+          className="absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
         >
           <p className="sr-only" role="status" aria-live="polite">
             {flat.length === 0
@@ -474,7 +474,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                       >
                         <span
                           className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 ${
-                            isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                            isActive ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-slate-500'
                           }`}
                         >
                           <Icon className="w-4 h-4" />

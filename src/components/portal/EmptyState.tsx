@@ -38,7 +38,7 @@ export function EmptyState({ icon: Icon, message, hint, action, compact = false,
       <div
         className={`${
           compact ? 'size-10 mb-2.5' : 'size-12 mb-3'
-        } rounded-full bg-blue-50 text-blue-600 grid place-items-center mx-auto`}
+        } rounded-full bg-blue-50 text-link grid place-items-center mx-auto`}
       >
         <Icon className={compact ? 'w-5 h-5' : 'w-6 h-6'} aria-hidden="true" />
       </div>

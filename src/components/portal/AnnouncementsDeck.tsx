@@ -178,7 +178,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <div
           ref={deckRef}
           tabIndex={0}
-          className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
+          className="bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -216,7 +216,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-blue-600" />
+            <Megaphone className="w-4 h-4 text-link" />
             <span className="text-sm font-semibold text-slate-900">Announcements</span>
           </div>
         </div>
@@ -287,7 +287,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <button
           type="button"
           onClick={dismissAll}
-          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-700"
+          className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-surface/80 flex items-center justify-center text-slate-500 hover:bg-surface hover:text-slate-700"
           aria-label="Dismiss all announcements"
         >
           <X className="w-3.5 h-3.5" aria-hidden />
@@ -338,7 +338,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               }}
             >
               <div
-                className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
+                className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
                 style={{
                   minHeight: 210,
                   touchAction: 'pan-y',

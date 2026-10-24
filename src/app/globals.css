@@ -40,27 +40,19 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Profile page design tokens */
-  --color-canvas: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-line: #E2E8F0;
-  --color-ink: #0F172A;
-  --color-body: #334155;
-  --color-muted: #64748B;
-  --color-brand-50: #EFF6FF;
-  --color-brand-100: #DBEAFE;
-  --color-brand-200: #BFDBFE;
-  --color-brand-600: #2563EB;
-  --color-brand-700: #1D4ED8;
-  --color-brand-800: #1E40AF;
-  --color-navy: #1E3A8A;
-  --color-success-text: #15803D;
-  --color-success-bg: #F0FDF4;
-  --color-success-border: #BBF7D0;
-  --color-success-icon: #16A34A;
-  --color-danger-text: #DC2626;
-  --color-danger-bg: #FEF2F2;
-  --color-danger-border: #FECACA;
+  /* Semantic surface / link / scrim tokens (dark-theme plan §2.5).
+     Var-chain form: utilities emit var(--surface) etc., so a `.dark`
+     block on <html> can re-map them by cascade — the same mechanism
+     the shadcn tokens above already use. Phase 0 defines LIGHT values
+     only, byte-identical to the utilities they replace (v4 palette
+     white / blue-600 / blue-700 / blue-800 / slate-900); dark values
+     land with the Phase-1 theme engine. Opacity modifiers stay on the
+     class itself, never baked into the token. */
+  --color-surface: var(--surface);
+  --color-link: var(--link);
+  --color-link-strong: var(--link-strong);
+  --color-link-deep: var(--link-deep);
+  --color-scrim: var(--scrim);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -101,6 +93,16 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* §2.5 light values — resolve to the same computed colors as the
+     pre-migration utilities (G1 equivalence gate proves this).
+     Light-mode values only in Phase 0; dark counterparts land in
+     Phase 1 together with the .dark recalibration. */
+  --surface: #FFFFFF;
+  --link: oklch(54.6% 0.245 262.881);
+  --link-strong: oklch(48.8% 0.243 264.376);
+  --link-deep: oklch(42.4% 0.199 265.638);
+  --scrim: oklch(20.8% 0.042 265.755);
 }
 
 .dark {

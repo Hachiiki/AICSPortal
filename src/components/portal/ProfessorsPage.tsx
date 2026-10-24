@@ -49,7 +49,7 @@ interface ProfessorWithSubjects {
 // chips. Full literal class strings so the Tailwind v4 JIT keeps
 // them in the build.
 const CHIP_STYLES: Record<CourseColor, { chip: string; dot: string; code: string }> = {
-  blue: { chip: 'border-blue-200 bg-blue-50', dot: 'bg-blue-600', code: 'text-blue-700' },
+  blue: { chip: 'border-blue-200 bg-blue-50', dot: 'bg-blue-600', code: 'text-link-strong' },
   green: { chip: 'border-green-200 bg-green-50', dot: 'bg-green-600', code: 'text-green-700' },
   amber: { chip: 'border-amber-200 bg-amber-50', dot: 'bg-amber-500', code: 'text-amber-700' },
   violet: { chip: 'border-violet-200 bg-violet-50', dot: 'bg-violet-600', code: 'text-violet-700' },
@@ -126,7 +126,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
@@ -138,13 +138,13 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
 
           {/* Summary chips */}
           <div className="flex gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
-              <Users className="w-4 h-4 text-blue-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-slate-200 shadow-sm">
+              <Users className="w-4 h-4 text-link" />
               <span className="text-xs font-medium text-slate-500">Professors</span>
               <span className="text-sm font-bold text-slate-900">{professorCards.length}</span>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm">
-              <BookOpen className="w-4 h-4 text-blue-600" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-slate-200 shadow-sm">
+              <BookOpen className="w-4 h-4 text-link" />
               <span className="text-xs font-medium text-slate-500">Subjects</span>
               <span className="text-sm font-bold text-slate-900">{currentSubjects.length}</span>
             </div>
@@ -152,7 +152,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
 
           {/* Empty state */}
           {professorCards.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
               <EmptyState icon={Users} message="No professors found for this term." hint="Once subjects with assigned professors are loaded, the directory appears here." />
             </div>
           ) : (
@@ -162,7 +162,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                 {professorCards.map(({ professor, subjects }) => (
                   <div
                     key={professor.name}
-                    className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+                    className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden"
                   >
                     {/* Card header — avatar + name + contact */}
                     <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
@@ -178,7 +178,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                         {professor.email && (
                           <a
                             href={`mailto:${professor.email}`}
-                            className="text-xs text-blue-600 hover:underline truncate block"
+                            className="text-xs text-link hover:underline truncate block"
                           >
                             {professor.email}
                           </a>

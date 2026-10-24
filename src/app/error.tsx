@@ -25,7 +25,7 @@ export default function RootError({
     <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 font-sans">
       <div
         role="alert"
-        className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm"
+        className="w-full max-w-md rounded-2xl border border-red-200 bg-surface p-8 text-center shadow-sm"
       >
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
           <AlertTriangle className="h-7 w-7 text-red-600" aria-hidden />
