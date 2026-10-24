@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dark-theme Phase-0 gate specimen — §2.5 mapping forms</title>
+  <!--
+    CANONICAL INVENTORY for the G1/G2/G3 gate harness (plan §5.1).
+
+    Each pair tests one distinct old->new utility form from the §2.5
+    migration table (the complete inventory: 16 distinct forms covering
+    361 migrated occurrences). Elements in a pair share identical tag,
+    geometry, and content; only the utility differs (data-old vs data-new).
+
+    Gate usage (see scripts/theme/lib.mjs):
+      G1 parses the data-old/data-new class lists (old side compiled at the
+         pinned baseline, new side at HEAD).
+      G2 renders this file (paired mode) with a stylesheet compiled at HEAD
+         containing BOTH vocabularies, then compares getComputedStyle of the
+         two elements of every pair.
+      G3 derives single-side variants (old classes only / new classes only,
+         same first-cell geometry) and pixel-diffs baseline vs HEAD renders.
+
+    Interaction kinds represented: plain, /alpha, hover:, focus:, file:,
+    supports-[backdrop-filter]: variants.
+  -->
+  <style>
+    body { margin: 0; padding: 16px; background: #f8fafc; font: 14px/1.2 sans-serif; }
+    .pair { margin: 8px 0; padding: 6px; border: 1px solid #e2e8f0; }
+    .pair-label { font: 11px/1 sans-serif; color: #64748b; margin-bottom: 4px; }
+    .pair-cells { display: grid; grid-template-columns: repeat(2, 180px); gap: 8px; }
+    [data-old], [data-new] { width: 180px; height: 72px; box-sizing: border-box; }
+  </style>
+  <!-- The gate scripts replace this placeholder link with the compiled sheet. -->
+  <link rel="stylesheet" href="out.css">
+</head>
+<body>
+
+  <div class="pair" data-form="bg-white__bg-surface">
+    <div class="pair-label">01 bg-white → bg-surface</div>
+    <div class="pair-cells">
+      <div class="bg-white" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="bg-surface" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="bg-white_95__bg-surface_95">
+    <div class="pair-label">02 bg-white/95 → bg-surface/95</div>
+    <div class="pair-cells">
+      <div class="bg-white/95" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="bg-surface/95" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="supports_bg-white_85__supports_bg-surface_85">
+    <div class="pair-label">03 supports-[backdrop-filter]:bg-white/85 → supports-[backdrop-filter]:bg-surface/85</div>
+    <div class="pair-cells">
+      <div class="supports-[backdrop-filter]:bg-white/85" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="supports-[backdrop-filter]:bg-surface/85" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="bg-white_80__bg-surface_80">
+    <div class="pair-label">04 bg-white/80 → bg-surface/80</div>
+    <div class="pair-cells">
+      <div class="bg-white/80" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="bg-surface/80" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="hover_bg-white__hover_bg-surface">
+    <div class="pair-label">05 hover:bg-white → hover:bg-surface</div>
+    <div class="pair-cells">
+      <div class="hover:bg-white" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="hover:bg-surface" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="hover_bg-white_50__hover_bg-surface_50">
+    <div class="pair-label">06 hover:bg-white/50 → hover:bg-surface/50</div>
+    <div class="pair-cells">
+      <div class="hover:bg-white/50" data-old="" style="outline:1px solid #cbd5e1">Aa</div>
+      <div class="hover:bg-surface/50" data-new="" style="outline:1px solid #cbd5e1">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="focus_bg-white__focus_bg-surface">
+    <div class="pair-label">07 focus:bg-white → focus:bg-surface</div>
+    <div class="pair-cells">
+      <a href="#" onclick="return false" class="focus:bg-white" data-old="" style="outline:1px solid #cbd5e1">Focus me</a>
+      <a href="#" onclick="return false" class="focus:bg-surface" data-new="" style="outline:1px solid #cbd5e1">Focus me</a>
+    </div>
+  </div>
+
+  <div class="pair" data-form="file_bg-white__file_bg-surface">
+    <div class="pair-label">08 file:bg-white → file:bg-surface</div>
+    <div class="pair-cells">
+      <input type="file" class="file:bg-white" data-old="">
+      <input type="file" class="file:bg-surface" data-new="">
+    </div>
+  </div>
+
+  <div class="pair" data-form="text-blue-600__text-link">
+    <div class="pair-label">09 text-blue-600 → text-link</div>
+    <div class="pair-cells">
+      <div class="text-blue-600" data-old="" style="background:#f1f5f9">Link text 123</div>
+      <div class="text-link" data-new="" style="background:#f1f5f9">Link text 123</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="text-blue-700__text-link-strong">
+    <div class="pair-label">10 text-blue-700 → text-link-strong</div>
+    <div class="pair-cells">
+      <div class="text-blue-700" data-old="" style="background:#f1f5f9">Link text 123</div>
+      <div class="text-link-strong" data-new="" style="background:#f1f5f9">Link text 123</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="hover_text-blue-700__hover_text-link-strong">
+    <div class="pair-label">11 hover:text-blue-700 → hover:text-link-strong</div>
+    <div class="pair-cells">
+      <div class="hover:text-blue-700" data-old="" style="background:#f1f5f9">Link text 123</div>
+      <div class="hover:text-link-strong" data-new="" style="background:#f1f5f9">Link text 123</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="focus_text-blue-700__focus_text-link-strong">
+    <div class="pair-label">12 focus:text-blue-700 → focus:text-link-strong</div>
+    <div class="pair-cells">
+      <a href="#" onclick="return false" class="focus:text-blue-700" data-old="" style="background:#f1f5f9">Focus me</a>
+      <a href="#" onclick="return false" class="focus:text-link-strong" data-new="" style="background:#f1f5f9">Focus me</a>
+    </div>
+  </div>
+
+  <div class="pair" data-form="hover_text-blue-800__hover_text-link-deep">
+    <div class="pair-label">13 hover:text-blue-800 → hover:text-link-deep</div>
+    <div class="pair-cells">
+      <div class="hover:text-blue-800" data-old="" style="background:#f1f5f9">Link text 123</div>
+      <div class="hover:text-link-deep" data-new="" style="background:#f1f5f9">Link text 123</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="bg-slate-900_40__bg-scrim_40">
+    <div class="pair-label">14 bg-slate-900/40 → bg-scrim/40</div>
+    <div class="pair-cells">
+      <div class="bg-slate-900/40" data-old="" style="background:#94a3b8">Aa</div>
+      <div class="bg-scrim/40" data-new="" style="background:#94a3b8">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="bg-slate-900_50__bg-scrim_50">
+    <div class="pair-label">15 bg-slate-900/50 → bg-scrim/50</div>
+    <div class="pair-cells">
+      <div class="bg-slate-900/50" data-old="" style="background:#94a3b8">Aa</div>
+      <div class="bg-scrim/50" data-new="" style="background:#94a3b8">Aa</div>
+    </div>
+  </div>
+
+  <div class="pair" data-form="focus_bg-slate-900__focus_bg-scrim">
+    <div class="pair-label">16 focus:bg-slate-900 → focus:bg-scrim</div>
+    <div class="pair-cells">
+      <a href="#" onclick="return false" class="focus:bg-slate-900" data-old="" style="color:#fff">Focus me</a>
+      <a href="#" onclick="return false" class="focus:bg-scrim" data-new="" style="color:#fff">Focus me</a>
+    </div>
+  </div>
+
+</body>
+</html>
