@@ -1,0 +1,9 @@
+timestamp: 2026-10-24T14:46:29.094Z
+baseline SHA: 822a5cfdd0871cf6ae98452e0d8c42a15910e2ce
+HEAD SHA: cfc6e6747b2db03439c498f909e09be0d13f576e
+worktree: /home/z/my-project/.worktree-mfd
+command: bun scripts/theme/equiv-check.mjs --baseline "$(cat docs/done/qa_evidence/ui-ux/dark-theme/phase0/baseline-sha.txt)" --out docs/done/qa_evidence/ui-ux/dark-theme/phase0/g1/
+exit code: 0
+pairs: 16 (failures: 0)
+method: both sides compiled with the project @tailwindcss/postcss v4.3.3; values resolved against light-mode :root custom properties; winner branch = @supports (color: color-mix(...)) per plan §5.1/§2.5
+fallback asymmetry (static color-mix(in srgb) vs var()) is documented, not a failure — plan R7; browser floor unchanged

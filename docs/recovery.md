@@ -14,59 +14,96 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-24 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | `3a16e13` — Rev 2-final plan push (CI: success) |
-| This notes commit | immediately after `3a16e13` (see `git log -1`) |
+| Last verified checkpoint | Phase 0 complete — all four gates green (this commit) |
+| Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
 
 ## Completed (through this checkpoint)
 
-- Dark theme Phase 1 plan finalized and pushed: Rev 1 (`f085e20`) then
-  Rev 2-final (`3a16e13`), owner-approved after two review rounds. Key
-  content: §1 audit (1,634 slate utilities / 237 bg-white / 119
-  text-blue links / 163 hex literals / 5 `dark:` variants); §2 OKLCH
-  light/dark tokens + palette-var bridge; §2.5 light-preservation
-  mapping table (228 bg-white→bg-surface, 122 links→text-link, 11
-  scrim→bg-scrim; whitelisted exceptions: StudentIdCard `/80`,
-  FacultyGradeEncodingPage `/20`); §3 next-themes (`storageKey`
-  `aics_theme`, light/dark/system, attribute class); §4 Tier A/B/C
-  rollout; §5 WCAG 2.1 AA contrast gates; §5.1 mandatory gates G1–G4
-  (pinned baselines, exact `bun scripts/theme/*.mjs` commands,
-  stop-on-failure, evidence under
-  `docs/done/qa_evidence/ui-ux/dark-theme/<phase>/<gate>/`); §6
-  normative phase table (Phase 1 = engine + all four controls in one
-  push; Phase 2 = non-blocking polish only); §7 verified vs assumed.
-- Environment-reset recovery (2026-10-24): dev worktree and local
-  helper files were wiped; verified GitHub already held `3a16e13` with
-  a doc-only diff (+231/−88, single file) and green CI; rebuilt the
-  dev worktree from `origin/main-full-dev`; established these notes.
+- **Phase 0 of the dark-theme plan (Rev 2-final `3a16e13`), fully gated:**
+  - §2.5 migrations: 361 class occurrences across 57 files — 228
+    `bg-white`→`bg-surface` (all variant prefixes + /alpha preserved; the
+    two allowlisted literals stay: StudentIdCard `bg-white/80`,
+    FacultyGradeEncodingPage `bg-white/20`), 122 link occurrences
+    (`text-blue-600`→`text-link` ×36, `text-blue-700`→`text-link-strong`
+    ×85 incl. 10 hover + 1 focus, `hover:text-blue-800`→
+    `hover:text-link-deep` ×1), 11 scrim sites
+    (`bg-slate-900/{40,50}`→`bg-scrim/{40,50}` ×10 + LegalShell skip-link
+    `focus:bg-slate-900`→`focus:bg-scrim`).
+  - globals.css: five var-chain tokens added with LIGHT values only
+    (`--surface` `#FFFFFF`; `--link/--link-strong/--link-deep` =
+    v4-exact blue-600/700/800 oklch; `--scrim` = v4-exact slate-900);
+    dead "Profile page design tokens" block deleted (resolves the
+    `--color-muted` last-wins duplicate — zero `*-muted` call sites — and
+    the literal `--color-surface` collision). Vestigial
+    `tailwind.config.ts` deleted.
+  - Gate harness at `scripts/theme/` (+ Playwright, the only new
+    devDependency): `lib.mjs`, `specimen.html` (canonical 16-form §2.5
+    inventory), `equiv-check.mjs` (G1), `g2-computed.mjs` (G2),
+    `g3-specimen-diff.mjs` (G3), `g4-route-diff.mjs` (G4),
+    `db-clone.mjs` (EJSON DB snapshot/restore for deterministic gate
+    data).
+
+## Gate results (Phase 0, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase0/)
+
+- **G1 token-resolution equivalence: PASS** — 16/16 mapping forms resolve
+  identically in light mode (old vocabulary compiled at the pinned
+  baseline, new at HEAD, project's own Tailwind 4.3.3; winner branch =
+  `@supports` color-mix). Evidence: `g1/` (report.json, resolved-pairs.tsv,
+  pre/post inventories: 363 old occurrences − 2 allowlisted = 361).
+- **G2 computed-style equality: PASS** — 16/16 pairs × 11 properties
+  identical in headless Chromium under real :hover/:focus states,
+  `::file-selector-button` pseudo, and the supports-[backdrop-filter]
+  variant. Evidence: `g2/` (computed.json, mismatches.txt empty).
+- **G3 specimen screenshot diff: PASS** — 0 differing pixels for the rest
+  capture and the focused-state captures of every focus-kind pair.
+  Evidence: `g3/`.
+- **G4 route-level + coverage: PASS** — 24/24 route/state pairs at 0
+  differing pixels (login, 4 legal, 8 student, 3 faculty, 4 admin routes +
+  admin-events modal, student COE modal, topbar dropdown, skeleton
+  loading); all coverage greps pass (exactly the two allowlisted
+  bg-white literals remain; zero text-blue-600/700/800 and bg-slate-900
+  stragglers); class-diff multiset == §2.5 mapping table exactly.
+  Emitted CSS: 97505 B → 97561 B (+56 B, +0.06%). Evidence: `g4/`.
+- **Other validation:** authz 76/76 pass; scripts/lib 6/6 pass; lint 0
+  errors (23 pre-existing warnings); typecheck clean; `bun run build`
+  succeeded for both trees (as part of G4).
+- **Honest deviations/findings (documented in gate manifests):** student
+  COE modal captured on /profile (the UI lives there); faculty/admin
+  sessions minted with the dev fallback secret (DB-validated); student
+  demo auth via native fetch (Playwright context.request throws on
+  Set-Cookie under Bun); DB seeded once + snapshot/restored (the seed
+  randomizes part of the roster); hover variants render at rest in G3
+  (active states proven by G2/G4).
 
 ## Pending / exact next step
 
-- **WAITING for the owner's separate Phase 0 authorization.** Do NOT
-  start Phase 0 (or any phase) without explicit authorization.
-- Phase 0 scope per plan §6: tooling commit only — add Playwright as
-  the sole new devDependency, create the `scripts/theme/*.mjs` gate
-  scripts, and pin gate baselines (`git rev-parse HEAD >
-  .../baseline-sha.txt` as the first Phase-0 action).
-
-## Validation results (latest)
-
-- `3a16e13` push: doc-only diff vs `f085e20` (+231/−88, single file
-  `docs/dark-theme-phase1-plan.md`); local == `origin/main-full-dev`;
-  CI completed with success (2026-10-24T10:37:21Z).
-- Code baseline (unchanged since `f085e20`): authz 76 pass;
-  scripts/lib 6 pass; lint 0 errors; typecheck clean.
-- Doc-only commits: code checks not applicable (skipped and reported
-  honestly per workflow rule 2).
+- **WAITING for the owner's separate Phase 1 authorization.** Do NOT
+  start Phase 1 (or any phase) without explicit authorization.
+- Phase 1 scope per plan §6: the single 1a+1b push — theme engine
+  (ThemeProvider with `attribute="class"`, `defaultTheme="system"`,
+  `enableSystem`, `storageKey="aics_theme"`, `disableTransitionOnChange`;
+  recalibrated `.dark` tokens + Layer-2 palette overrides; login `T.*`
+  dark values; dark skeleton; `color-scheme`) + ALL FOUR controls
+  (Settings appearance selector, Topbar toggle, login toggle). Phase 1
+  re-runs G1/G2/G4 in light vs the Phase-0 exit commit before its push.
 
 ## Known issues / constraints
 
-- `docs/` is gitignored (`.gitignore:53`) — always `git add -f`.
+- `docs/` and `/scripts/` are gitignored in-repo (`.gitignore:53`) —
+  always `git add -f` (tracked files are unaffected by ignore rules).
 - `.git/info/exclude` hides `.worktree-mfd/`, `scripts/`, `download/`,
-  `tool-results/` from status — check dirty state carefully.
-- Playwright is NOT yet in `package.json` (planned for Phase 0).
-- Demo auth exists: `src/app/api/auth/demo/route.ts` (dev-only, seed
-  student juan.santos).
+  `tool-results/`, `.baseline-check/` locally — check dirty state carefully.
+- Playwright is a devDependency (Phase 0); Chromium installed at
+  `~/.cache/ms-playwright` (headless shell 156.0.8078.4).
+- Local gate environment: mongod 7.0.14 daemon (`--fork`) on
+  127.0.0.1:27017 with dbpath `/home/z/my-project/scripts/mongo-data`;
+  re-provision via mongodb-memory-server downloader if lost. Both
+  worktrees need `.env.local` (MONGODB_URI, MONGODB_DB=aics_portal,
+  APP_ENV=development — required for the dev-only demo auth under
+  `next start`). The mongodb driver must run under Node, not Bun.
+- G4 runs as two stages (`--stage setup`, `--stage capture`) to fit
+  execution timeouts; a full run rebuilds both trees (~10 min).
 - Conventions: English `type: description` commits; every push to
   `main-full-dev` requires explicit owner authorization; never
   force-push, never rewrite shared history, never push to or merge
@@ -80,7 +117,8 @@ uncommitted files or session history survived.
 - Repository: `Hachiiki/AICSPortal` (GitHub, token-embedded remote URL)
 - Main worktree: `/home/z/my-project` (branch `main` — do not develop here)
 - Dev worktree: `/home/z/my-project/.worktree-mfd` (`main-full-dev`)
-- Runtime: bun (bun install / bun run / bun test)
+- Runtime: bun (bun install / bun run / bun test); node for mongodb
+  driver scripts
 - Detailed task history: local worklog at `/home/z/my-project/worklog.md`
   (untracked; may not survive resets — these notes are the durable copy)
 
@@ -94,6 +132,8 @@ uncommitted files or session history survived.
    `git worktree prune && git worktree add .worktree-mfd main-full-dev`
    (run from `/home/z/my-project`).
 4. Read this file's Checkpoint status and Pending sections.
-5. Recreate local helpers (`scripts/board.py`, `worklog.md`) as needed.
+5. Recreate local helpers (`scripts/board.py`, worklog) and the gate
+   environment (mongod, `.env.local`, `bunx playwright install chromium`)
+   as needed — see Known issues above.
 6. Resume the exact next step listed above; obtain fresh owner
    authorization for anything beyond it.

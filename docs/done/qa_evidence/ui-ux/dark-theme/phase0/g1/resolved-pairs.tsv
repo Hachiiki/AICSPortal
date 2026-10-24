@@ -1,0 +1,17 @@
+form	prop	pre-resolved	post-resolved	equal	pre-fallback	post-fallback
+bg-white -> bg-surface	background-color	#ffffff	#ffffff	true	#ffffff	#ffffff
+bg-white/95 -> bg-surface/95	background-color	color-mix(in oklab, #ffffff 95%, transparent)	color-mix(in oklab, #ffffff 95%, transparent)	true	color-mix(in srgb, #ffffff 95%, transparent)	#ffffff
+supports-[backdrop-filter]:bg-white/85 -> supports-[backdrop-filter]:bg-surface/85	background-color	color-mix(in oklab, #ffffff 85%, transparent)	color-mix(in oklab, #ffffff 85%, transparent)	true	color-mix(in srgb, #ffffff 85%, transparent)	#ffffff
+bg-white/80 -> bg-surface/80	background-color	color-mix(in oklab, #ffffff 80%, transparent)	color-mix(in oklab, #ffffff 80%, transparent)	true	color-mix(in srgb, #ffffff 80%, transparent)	#ffffff
+hover:bg-white -> hover:bg-surface	background-color	#ffffff	#ffffff	true	#ffffff	#ffffff
+hover:bg-white/50 -> hover:bg-surface/50	background-color	color-mix(in oklab, #ffffff 50%, transparent)	color-mix(in oklab, #ffffff 50%, transparent)	true	color-mix(in srgb, #ffffff 50%, transparent)	#ffffff
+focus:bg-white -> focus:bg-surface	background-color	#ffffff	#ffffff	true	#ffffff	#ffffff
+file:bg-white -> file:bg-surface	background-color	#ffffff	#ffffff	true	#ffffff	#ffffff
+text-blue-600 -> text-link	color	oklch(0.546 0.245 262.881)	oklch(0.546 0.245 262.881)	true	oklch(0.546 0.245 262.881)	oklch(0.546 0.245 262.881)
+text-blue-700 -> text-link-strong	color	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)	true	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)
+hover:text-blue-700 -> hover:text-link-strong	color	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)	true	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)
+focus:text-blue-700 -> focus:text-link-strong	color	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)	true	oklch(0.488 0.243 264.376)	oklch(0.488 0.243 264.376)
+hover:text-blue-800 -> hover:text-link-deep	color	oklch(0.424 0.199 265.638)	oklch(0.424 0.199 265.638)	true	oklch(0.424 0.199 265.638)	oklch(0.424 0.199 265.638)
+bg-slate-900/40 -> bg-scrim/40	background-color	color-mix(in oklab, oklch(0.208 0.042 265.755) 40%, transparent)	color-mix(in oklab, oklch(0.208 0.042 265.755) 40%, transparent)	true	color-mix(in srgb, oklch(0.208 0.042 265.755) 40%, transparent)	oklch(0.208 0.042 265.755)
+bg-slate-900/50 -> bg-scrim/50	background-color	color-mix(in oklab, oklch(0.208 0.042 265.755) 50%, transparent)	color-mix(in oklab, oklch(0.208 0.042 265.755) 50%, transparent)	true	color-mix(in srgb, oklch(0.208 0.042 265.755) 50%, transparent)	oklch(0.208 0.042 265.755)
+focus:bg-slate-900 -> focus:bg-scrim	background-color	oklch(0.208 0.042 265.755)	oklch(0.208 0.042 265.755)	true	oklch(0.208 0.042 265.755)	oklch(0.208 0.042 265.755)

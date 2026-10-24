@@ -1,0 +1,187 @@
+{
+  "gate": "G1 token-resolution equivalence",
+  "baseline": "822a5cfdd0871cf6ae98452e0d8c42a15910e2ce",
+  "head": "cfc6e6747b2db03439c498f909e09be0d13f576e",
+  "pairsTotal": 16,
+  "pairsEqual": 16,
+  "failures": 0,
+  "expected": "every pair identical (winner = @supports color-mix branch)",
+  "results": [
+    {
+      "form": "bg-white -> bg-surface",
+      "kind": "bg",
+      "prop": "background-color",
+      "preWinner": "#ffffff",
+      "postWinner": "#ffffff",
+      "equal": true,
+      "preFallback": "#ffffff",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "bg-white/95 -> bg-surface/95",
+      "kind": "bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, #ffffff 95%, transparent)",
+      "postWinner": "color-mix(in oklab, #ffffff 95%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, #ffffff 95%, transparent)",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "supports-[backdrop-filter]:bg-white/85 -> supports-[backdrop-filter]:bg-surface/85",
+      "kind": "supports-bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, #ffffff 85%, transparent)",
+      "postWinner": "color-mix(in oklab, #ffffff 85%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, #ffffff 85%, transparent)",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "bg-white/80 -> bg-surface/80",
+      "kind": "bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, #ffffff 80%, transparent)",
+      "postWinner": "color-mix(in oklab, #ffffff 80%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, #ffffff 80%, transparent)",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "hover:bg-white -> hover:bg-surface",
+      "kind": "hover-bg",
+      "prop": "background-color",
+      "preWinner": "#ffffff",
+      "postWinner": "#ffffff",
+      "equal": true,
+      "preFallback": "#ffffff",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "hover:bg-white/50 -> hover:bg-surface/50",
+      "kind": "hover-bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, #ffffff 50%, transparent)",
+      "postWinner": "color-mix(in oklab, #ffffff 50%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, #ffffff 50%, transparent)",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "focus:bg-white -> focus:bg-surface",
+      "kind": "focus-bg",
+      "prop": "background-color",
+      "preWinner": "#ffffff",
+      "postWinner": "#ffffff",
+      "equal": true,
+      "preFallback": "#ffffff",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "file:bg-white -> file:bg-surface",
+      "kind": "file-bg",
+      "prop": "background-color",
+      "preWinner": "#ffffff",
+      "postWinner": "#ffffff",
+      "equal": true,
+      "preFallback": "#ffffff",
+      "postFallback": "#ffffff",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "text-blue-600 -> text-link",
+      "kind": "text",
+      "prop": "color",
+      "preWinner": "oklch(0.546 0.245 262.881)",
+      "postWinner": "oklch(0.546 0.245 262.881)",
+      "equal": true,
+      "preFallback": "oklch(0.546 0.245 262.881)",
+      "postFallback": "oklch(0.546 0.245 262.881)",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "text-blue-700 -> text-link-strong",
+      "kind": "text",
+      "prop": "color",
+      "preWinner": "oklch(0.488 0.243 264.376)",
+      "postWinner": "oklch(0.488 0.243 264.376)",
+      "equal": true,
+      "preFallback": "oklch(0.488 0.243 264.376)",
+      "postFallback": "oklch(0.488 0.243 264.376)",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "hover:text-blue-700 -> hover:text-link-strong",
+      "kind": "hover-text",
+      "prop": "color",
+      "preWinner": "oklch(0.488 0.243 264.376)",
+      "postWinner": "oklch(0.488 0.243 264.376)",
+      "equal": true,
+      "preFallback": "oklch(0.488 0.243 264.376)",
+      "postFallback": "oklch(0.488 0.243 264.376)",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "focus:text-blue-700 -> focus:text-link-strong",
+      "kind": "focus-text",
+      "prop": "color",
+      "preWinner": "oklch(0.488 0.243 264.376)",
+      "postWinner": "oklch(0.488 0.243 264.376)",
+      "equal": true,
+      "preFallback": "oklch(0.488 0.243 264.376)",
+      "postFallback": "oklch(0.488 0.243 264.376)",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "hover:text-blue-800 -> hover:text-link-deep",
+      "kind": "hover-text",
+      "prop": "color",
+      "preWinner": "oklch(0.424 0.199 265.638)",
+      "postWinner": "oklch(0.424 0.199 265.638)",
+      "equal": true,
+      "preFallback": "oklch(0.424 0.199 265.638)",
+      "postFallback": "oklch(0.424 0.199 265.638)",
+      "fallbackAsymmetric": false
+    },
+    {
+      "form": "bg-slate-900/40 -> bg-scrim/40",
+      "kind": "bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, oklch(0.208 0.042 265.755) 40%, transparent)",
+      "postWinner": "color-mix(in oklab, oklch(0.208 0.042 265.755) 40%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, oklch(0.208 0.042 265.755) 40%, transparent)",
+      "postFallback": "oklch(0.208 0.042 265.755)",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "bg-slate-900/50 -> bg-scrim/50",
+      "kind": "bg",
+      "prop": "background-color",
+      "preWinner": "color-mix(in oklab, oklch(0.208 0.042 265.755) 50%, transparent)",
+      "postWinner": "color-mix(in oklab, oklch(0.208 0.042 265.755) 50%, transparent)",
+      "equal": true,
+      "preFallback": "color-mix(in srgb, oklch(0.208 0.042 265.755) 50%, transparent)",
+      "postFallback": "oklch(0.208 0.042 265.755)",
+      "fallbackAsymmetric": true
+    },
+    {
+      "form": "focus:bg-slate-900 -> focus:bg-scrim",
+      "kind": "focus-bg",
+      "prop": "background-color",
+      "preWinner": "oklch(0.208 0.042 265.755)",
+      "postWinner": "oklch(0.208 0.042 265.755)",
+      "equal": true,
+      "preFallback": "oklch(0.208 0.042 265.755)",
+      "postFallback": "oklch(0.208 0.042 265.755)",
+      "fallbackAsymmetric": false
+    }
+  ]
+}
