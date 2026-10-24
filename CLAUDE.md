@@ -66,7 +66,7 @@ gh issue create --title "..." --body "..."
 
 Env: `MONGODB_URI` required, `MONGODB_DB` default `aics_portal`, `NODE_ENV=development` enables demo login (`juan.santos/student123`, `m.reyes/faculty123`, `admin/admin123`). Never commit `.env.local`. See `example.env.local`.
 
-Unit tests: `bun test src/lib/authz/` (62 tests, dev-only files, never ported to main; plus 6 uri-local tests under `scripts/lib/` covering the seed-guard hostname classification). No `npm test` script exists or should be added (plan decision P2). Wider verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev.
+Unit tests: `bun test src/lib/authz/` (76 tests across six suites on main-full-dev). Convention change 2026-10-24 (PR #89, merge `b7f6fca`): two of the suites — `scopes.test.ts` (fragment builders) and the route-level wiring `grades-update-write.test.ts` (mongodb/session seams mocked, no DB) — are production-tracked and ship on `main`, where the CI authz-unit step executes them for real (25 tests there); the remaining authz test files stay dev-only and port only by an explicit convention decision. Plus 6 uri-local tests under `scripts/lib/` covering the seed-guard hostname classification, run by their own CI step. No `npm test` script exists or should be added (plan decision P2). Wider verification = `npm run build` + `npm run lint` + manual browser check + API curl against local dev.
 
 ## 4. Project Structure
 
