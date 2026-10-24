@@ -11,9 +11,19 @@
 # the app router shell.
 #
 # The authz-unit job runs the policy-table unit tests (src/lib/authz/,
-# `bun test`, 5 min timeout). The test files are dev-only and never port
-# to main; the step skips itself when no test files exist, because bun
-# test exits 1 on unmatched filters. The integration runbook
+# `bun test`, 5 min timeout). Convention (issue #86 regression coverage,
+# PR #89): two focused suites are production-tracked and ship on main —
+# scopes.test.ts (fragment builders) and grades-update-write.test.ts
+# (route-level wiring of the write guards into both grades/update
+# write filters, with the mongodb/session seams mocked, so it needs no
+# database) — plus the bun-test.d.ts type shim they typecheck against,
+# so PRs and pushes there execute the ownership and grading-period
+# write-guard tests for real. The other authz test files (guards,
+# permissions, policies, types) are dev-only and stay on main-full-dev
+# unless a convention decision
+# ports them; the step still skips itself when no test files exist
+# (branches cut from a pre-suite main), because bun test exits 1 on
+# unmatched filters. The integration runbook
 # (scripts/verify-authz.sh) stays a manual gate, not a CI job, because
 # it needs a throwaway mongod and a built server.
 #
@@ -83,7 +93,7 @@ jobs:
           if ls src/lib/authz/*.test.ts >/dev/null 2>&1; then
             bun test src/lib/authz/
           else
-            echo "No authz test files on this branch (dev-only); vacuous pass."
+            echo "No authz test files on this branch (legacy branch cut before the scopes suite shipped on main); vacuous pass."
           fi
 
       # F2 regression tests (credential-rotation review, issue #72 follow-up):
