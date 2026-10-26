@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import { KeyRound, MapPin, LayoutDashboard, CheckCircle2, Flag, Loader2 } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import {
   useAuthSequence,
   STEP_MS,
@@ -89,6 +90,16 @@ function smoothstep(u: number) {
 }
 
 export function RouteTrailVariant({ branch, onComplete, readiness }: AuthStageProps) {
+  // This overlay only mounts after a successful client-side login, so
+  // reading the resolved theme here is hydration-safe. The concrete hex
+  // values feed framer-motion, which interpolates colors and cannot
+  // animate to a var() reference; every other color below reads T.*
+  // (var-chained) and themes through the cascade.
+  const { resolvedTheme } = useTheme()
+  const dark = resolvedTheme === 'dark'
+  const primaryHex = dark ? '#5294E6' : '#1769AA' // --login-primary dark (oklch 0.66 0.14 255) vs light
+  const idleBorderHex = dark ? '#484E55' : '#CBD5E1' // dark slate-300 vs slate-300
+  const idleIconHex = dark ? '#646970' : '#94A3B8' // dark slate-400 vs slate-400
   const { step, finalChecked } = useAuthSequence({ readiness, onComplete })
   const branchDisplay = branch.charAt(0).toUpperCase() + branch.slice(1)
 
@@ -325,12 +336,12 @@ export function RouteTrailVariant({ branch, onComplete, readiness }: AuthStagePr
                 <div className="relative">
                   <motion.div
                     initial={false}
-                    animate={{ borderColor: done || active ? T.primary : '#CBD5E1' }}
+                    animate={{ borderColor: done || active ? primaryHex : idleBorderHex }}
                     transition={{ duration: 0.25 }}
                     className="relative w-9 h-9 rounded-full grid place-items-center border-2 bg-surface overflow-hidden"
                   >
                     {/* The stage's own symbol — never covered by the dot */}
-                    <Icon className="w-4 h-4" style={{ color: active ? T.primary : '#94A3B8' }} />
+                    <Icon className="w-4 h-4" style={{ color: active ? T.primary : idleIconHex }} />
                     {/* Karaoke fill — blue circle, border, and white
                         check wipe in together, scrubbed per frame by
                         the stage's actual progress. */}

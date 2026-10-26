@@ -13,7 +13,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import {
   WT, EVID, git, headSha, readBaselineSha, compileSheet,
   parseSpecimen, buildSpecimenPage, launchBrowser, newGateContext,
-  writeManifest, resolve,
+  writeManifest, invocationLine, resolve,
 } from './lib.mjs'
 
 const args = process.argv.slice(2)
@@ -168,7 +168,7 @@ const mismLines = results.flatMap((r) =>
 )
 writeFileSync(`${outDir}/mismatches.txt`, mismLines.join('\n') + (mismLines.length ? '\n' : ''))
 writeManifest(outDir, [
-  'command: bun scripts/theme/g2-computed.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase0/g2/',
+  `command: ${invocationLine('g2-computed.mjs')}`,
   `exit code: ${mismatches ? 1 : 0}`,
   `pairs: ${results.length} (mismatches: ${mismatches}, skipped: ${skipped})`,
   `properties: ${PROPS.join(', ')}`,

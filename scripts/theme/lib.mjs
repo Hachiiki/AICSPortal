@@ -1,13 +1,20 @@
-// Shared library for the dark-theme Phase-0 acceptance gates (G1–G4).
+// Shared library for the dark-theme acceptance gates (G1–G4).
 // Plan reference: docs/dark-theme-phase1-plan.md §5.1.
 //
 // Conventions:
-// - The dev worktree is the "post" side; the pinned baseline SHA (docs/done/
-//   qa_evidence/ui-ux/dark-theme/phase0/baseline-sha.txt) is the "pre" side.
-// - Baseline sources are read via `git show` (no worktree needed) for G1/G3;
-//   G4 builds a real baseline scratch worktree (see g4-route-diff.mjs).
-// - Every gate writes a manifest.txt recording baseline SHA, HEAD SHA, exact
-//   commands, exit codes, timestamps, and any documented deviations.
+// - The dev worktree is the "post" side; the pinned baseline SHA is the
+//   "pre" side. The pinned file lives at
+//   docs/done/qa_evidence/ui-ux/dark-theme/<phase>/baseline-sha.txt —
+//   phase0 for the Phase-0 run (the migration baseline 822a5cfd), phase1
+//   for the Phase-1 re-run (the Phase-0 exit commit acbe71a, per plan
+//   §5.1 "Phase-1 re-run"). GATE_EVID selects the phase evidence root
+//   (default: phase0); the pinned Phase-0 baseline is never rewritten.
+// - Baseline sources are read via `git show` (no worktree needed) for
+//   G1/G3; G4 builds a real baseline scratch worktree (see
+//   g4-route-diff.mjs).
+// - Every gate writes a manifest.txt recording baseline SHA, HEAD SHA,
+//   the actual command line and gate-relevant environment, exit codes,
+//   timestamps, and any documented deviations.
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, symlinkSync } from 'node:fs'
@@ -16,10 +23,21 @@ import postcss from 'postcss'
 import tailwindcss from '@tailwindcss/postcss'
 import { chromium } from 'playwright'
 
-export const WT = process.env.GATE_WT || '/home/z/my-project/.worktree-mfd'
-export const EVID = resolve(WT, 'docs/done/qa_evidence/ui-ux/dark-theme/phase0')
-export const SCRATCH_ROOT = process.env.GATE_SCRATCH || '/home/z/my-project/scripts/theme-scratch'
+export const WT = process.env.GATE_WT || '/home/z/my-project/AICSPortal'
+export const EVID = process.env.GATE_EVID
+  ? resolve(WT, process.env.GATE_EVID)
+  : resolve(WT, 'docs/done/qa_evidence/ui-ux/dark-theme/phase0')
+export const SCRATCH_ROOT = process.env.GATE_SCRATCH || '/home/z/my-project/AICSPortal/scripts/theme-scratch'
 export const FIXED_TIME = '2026-10-24T09:00:00'
+
+/** The gate invocation, as actually run (argv + gate env), for manifests. */
+export function invocationLine(scriptName) {
+  const env = []
+  for (const k of ['GATE_WT', 'GATE_EVID', 'GATE_SCRATCH', 'GATE_MAIN_WT', 'GATE_BASELINE_WT']) {
+    if (process.env[k]) env.push(`${k}=${process.env[k]}`)
+  }
+  return `${env.length ? env.join(' ') + ' ' : ''}bun scripts/theme/${scriptName} ${process.argv.slice(2).join(' ')}`.trim()
+}
 
 // ---------------------------------------------------------------------------
 // git helpers
@@ -356,6 +374,12 @@ export async function pixelDiff(browser, pngA, pngB) {
       const da = xa.getImageData(0, 0, w, h).data
       const db = xb.getImageData(0, 0, w, h).data
       let diff = 0
+      // Bounding box of differing pixels: lets Phase-1 runs prove that
+      // pixel changes are confined to the new theme controls.
+      let minX = null
+      let minY = null
+      let maxX = null
+      let maxY = null
       const mark = xd.createImageData(1, 1)
       mark.data[0] = 255
       mark.data[3] = 255
@@ -364,6 +388,10 @@ export async function pixelDiff(browser, pngA, pngB) {
           const i = (y * w + x) * 4
           if (da[i] !== db[i] || da[i + 1] !== db[i + 1] || da[i + 2] !== db[i + 2] || da[i + 3] !== db[i + 3]) {
             diff++
+            if (minX === null || x < minX) minX = x
+            if (minY === null || y < minY) minY = y
+            if (maxX === null || x > maxX) maxX = x
+            if (maxY === null || y > maxY) maxY = y
             xd.putImageData(mark, x, y)
           }
         }
@@ -374,6 +402,7 @@ export async function pixelDiff(browser, pngA, pngB) {
         height: h,
         sizeA: `${ia.width}x${ia.height}`,
         sizeB: `${ib.width}x${ib.height}`,
+        bbox: diff ? { minX, minY, maxX, maxY } : null,
         diffDataUrl: diff ? cd.toDataURL('image/png') : null,
       }
     },

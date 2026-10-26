@@ -4,8 +4,30 @@
 // renders pixel-identically in light mode after Phase 0, and the migration
 // inventory is complete (no stragglers, no smuggled class changes).
 //
-// Command:
+// Command (Phase 0):
 //   bun scripts/theme/g4-route-diff.mjs --baseline "$(cat docs/done/qa_evidence/ui-ux/dark-theme/phase0/baseline-sha.txt)" --out docs/done/qa_evidence/ui-ux/dark-theme/phase0/g4/
+// Phase-1 re-run (plan §5.1 "Phase-1 re-run", §6 exit gates):
+//   GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase1 \
+//   bun scripts/theme/g4-route-diff.mjs --mode parity --out docs/done/qa_evidence/ui-ux/dark-theme/phase1/g4-parity/
+//   (at commit 1a, the engine-only state: zero pixels, the literal plan
+//    criterion, because no control ships yet)
+//   GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase1 \
+//   bun scripts/theme/g4-route-diff.mjs --mode final --allow-diff <names> --out docs/done/qa_evidence/ui-ux/dark-theme/phase1/g4/
+//   (at HEAD with controls: zero pixels everywhere EXCEPT the routes that
+//    render the new theme controls, each diff's bounding box recorded and
+//    reviewed; the legal routes carry no control and stay the 0-px control)
+//
+// Modes:
+//   phase0 (default) — the Phase-0 acceptance run: exact §2.5 multiset
+//     class-diff, 0 px on all routes.
+//   parity — Phase-1 engine re-run: 0 px on all routes; class-diff asserts
+//     no old-vocabulary token reappears (new-vocabulary changes are
+//     recorded; the body-class removal shows up there and is explained in
+//     the manifest).
+//   final — Phase-1 full re-run with controls: routes named in
+//     --allow-diff (comma-separated) may differ (diff count + bounding
+//     box recorded per route); every other route must be 0 px; class-diff
+//     same rule as parity (controls may add new-vocabulary classes).
 //
 // Stages (the gate runs as one logical unit; stages exist so each fits
 // execution timeouts — run setup, then capture; `--stage all` runs both):
@@ -18,6 +40,8 @@
 //     demo dataset (scripts/seed-mongodb.ts; re-seeded before EACH capture
 //     pass so per-route database state is identical on both sides).
 //   - Playwright Chromium installed (bunx playwright install chromium).
+//   - GATE_MAIN_WT / GATE_BASELINE_WT override the repo holding the objects
+//     and the baseline scratch path (defaults documented in lib.mjs).
 //
 // Coverage is never reduced silently: any route, interaction, or check that
 // cannot be captured FAILS the gate with the gap reported. Authenticated
@@ -37,8 +61,8 @@ import { spawn, execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { SignJWT } from 'jose'
 import {
-  WT, EVID, git, headSha, readBaselineSha, launchBrowser, newGateContext,
-  pixelDiff, writeManifest, resolve,
+  WT, EVID, SCRATCH_ROOT, git, headSha, readBaselineSha, launchBrowser, newGateContext,
+  pixelDiff, writeManifest, invocationLine, resolve,
 } from './lib.mjs'
 
 const args = process.argv.slice(2)
@@ -49,6 +73,17 @@ const argOf = (name, dflt) => {
 const baselineArg = argOf('--baseline', null)
 const outDir = argOf('--out', `${EVID}/g4`)
 const stage = argOf('--stage', 'all')
+const mode = argOf('--mode', 'phase0')
+const allowDiffArg = argOf('--allow-diff', '')
+const allowDiff = new Set(allowDiffArg ? allowDiffArg.split(',').map((s) => s.trim()).filter(Boolean) : [])
+if (!['phase0', 'parity', 'final'].includes(mode)) {
+  console.error(`G4 FAIL: unknown --mode ${mode} (phase0 | parity | final)`)
+  process.exit(2)
+}
+if (mode === 'final' && !allowDiff.size) {
+  console.error('G4 FAIL: --mode final requires --allow-diff <route,names> so every permitted diff is explicit (coverage is never loosened silently)')
+  process.exit(2)
+}
 
 const baseline = readBaselineSha()
 if (baselineArg && baselineArg !== baseline) {
@@ -56,8 +91,8 @@ if (baselineArg && baselineArg !== baseline) {
   process.exit(2)
 }
 
-const MAIN_WT = '/home/z/my-project'
-const BASELINE_WT = '/home/z/my-project/.baseline-check'
+const MAIN_WT = process.env.GATE_MAIN_WT || '/home/z/my-project'
+const BASELINE_WT = process.env.GATE_BASELINE_WT || '/home/z/my-project/.baseline-check'
 const PORT_BASE = 4100
 const PORT_HEAD = 4200
 const ORIGIN_BASE = `http://127.0.0.1:${PORT_BASE}`
@@ -177,8 +212,17 @@ async function capturePass(browser, origin, sideLabel, outRoot) {
         await context.addCookies([{ name: SESSION_COOKIE, value: token, url: origin }])
       }
       if (job.hangApi) {
-        // Deterministic skeleton state: every API request hangs forever.
-        await page.route('**/api/**', () => {})
+        // Deterministic skeleton state: the DATA requests hang forever,
+        // but /api/auth/session must answer — useAuth gates the whole
+        // portal render on it (hanging it too yields an empty page, never
+        // a skeleton; that vacuous capture is issue #<phase0-skeleton>,
+        // fixed here for the Phase-1 runs).
+        await page.route('**/api/**', (route) => {
+          if (route.request().url().includes('/api/auth/session')) {
+            return route.continue()
+          }
+          return undefined // hang
+        })
         await page.goto(`${origin}${job.url}`, { waitUntil: 'domcontentloaded' })
         await page.waitForTimeout(2500)
       } else {
@@ -327,7 +371,7 @@ try {
   // re-seeding between passes would produce different people on each side.
   // Instead: seed ONCE, snapshot, baseline pass, RESTORE, post pass. This is
   // both deterministic and immune to any pass-induced DB mutations.
-  const snapFile = resolve('/home/z/my-project/scripts/theme-scratch', 'g4-db-snapshot.json')
+  const snapFile = resolve(SCRATCH_ROOT, 'g4-db-snapshot.json')
   console.log('G4[capture]: seeding database (once) + snapshotting')
   sh(`cd ${WT} && node scripts/seed-mongodb.ts`, { stdio: 'inherit' })
   const envUri = readFileSync(resolve(WT, '.env.local'), 'utf8')
@@ -352,6 +396,7 @@ try {
   const routeReport = []
   let totalDiff = 0
   let failedCaptures = 0
+  let unexpectedDiffs = 0
   for (const job of ALL_CAPTURES) {
     const b = resolve(routesDir, `${job.name}-baseline.png`)
     const h = resolve(routesDir, `${job.name}-post.png`)
@@ -365,13 +410,18 @@ try {
       writeFileSync(resolve(routesDir, `${job.name}-diff.png`), Buffer.from(d.diffDataUrl.split(',')[1], 'base64'))
     }
     totalDiff += d.diffPixels
+    const allowed = mode === 'final' && allowDiff.has(job.name)
+    if (d.diffPixels !== 0 && !allowed) unexpectedDiffs++
     routeReport.push({
       name: job.name,
       diffPixels: d.diffPixels,
       sizeBaseline: d.sizeA,
       sizePost: d.sizeB,
+      bbox: d.bbox,
+      diffAllowed: allowed,
     })
-    console.log(`  ${d.diffPixels === 0 ? 'PASS' : 'DIFF'} ${job.name}: ${d.diffPixels} px (${d.sizeA} vs ${d.sizeB})`)
+    const verdict = d.diffPixels === 0 ? 'PASS' : allowed ? 'DIFF (allowed, recorded)' : 'DIFF (UNEXPECTED)'
+    console.log(`  ${verdict} ${job.name}: ${d.diffPixels} px (${d.sizeA} vs ${d.sizeB})${d.bbox ? ` bbox=[${d.bbox.minX},${d.bbox.minY}..${d.bbox.maxX},${d.bbox.maxY}]` : ''}`)
   }
 
   // --- grep coverage (exact commands + outputs recorded) ------------------
@@ -431,6 +481,7 @@ try {
     'text-link': 36,
     'text-link-strong': 74,
   }
+  const OLD_VOCAB = /bg-white|text-blue-(600|700|800)|bg-slate-900/
   const diff = git(`diff --unified=0 ${baseline} -- src/`)
   const removed = {}
   const added = {}
@@ -442,24 +493,43 @@ try {
       store[tok] = (store[tok] || 0) + 1
     }
   }
-  const expected = {}
-  for (const [tok, n] of Object.entries(removed)) {
-    const m = [...tok.matchAll(TOKEN)][0]
-    const key = `${m[1] || ''}${NAME_MAP[m[2]]}${m[3] || ''}`
-    expected[key] = (expected[key] || 0) + n
+  let classDiffOk
+  let classDiffNote
+  if (mode === 'phase0') {
+    const expected = {}
+    for (const [tok, n] of Object.entries(removed)) {
+      const m = [...tok.matchAll(TOKEN)][0]
+      const key = `${m[1] || ''}${NAME_MAP[m[2]]}${m[3] || ''}`
+      expected[key] = (expected[key] || 0) + n
+    }
+    const canonical = (o) => JSON.stringify(Object.fromEntries(Object.entries(o).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))))
+    classDiffOk = canonical(expected) === canonical(EXPECTED_MULTISET) && canonical(added) === canonical(EXPECTED_MULTISET)
+    classDiffNote = 'phase0: added == expected == §2.5 mapping table exactly'
+  } else {
+    // parity / final: the Phase-1 rule. Old vocabulary may never reappear
+    // (that is what the greps assert tree-wide; this asserts it for the
+    // diff specifically). New-vocabulary changes are recorded: the engine
+    // removes the body's hardcoded bg-surface (the @layer base rule takes
+    // over, byte-identical in light, proven by the pixel diff), and the
+    // controls legitimately add semantic-token classes.
+    const oldInRemoved = Object.keys(removed).filter((t) => OLD_VOCAB.test(t))
+    const oldInAdded = Object.keys(added).filter((t) => OLD_VOCAB.test(t))
+    classDiffOk = oldInRemoved.length === 0 && oldInAdded.length === 0
+    classDiffNote = `${mode}: zero old-vocabulary tokens in the diff (${oldInRemoved.length} removed / ${oldInAdded.length} added); new-vocabulary changes recorded below`
   }
-  const canonical = (o) => JSON.stringify(Object.fromEntries(Object.entries(o).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))))
-  const classDiffOk = canonical(expected) === canonical(EXPECTED_MULTISET) && canonical(added) === canonical(EXPECTED_MULTISET)
   writeFileSync(
     resolve(outDir, 'class-diff.txt'),
     [
       `# class-diff extraction: git diff --unified=0 ${baseline} -- src/`,
-      `# filtered to the migration families; the added-class multiset must equal`,
-      `# the §2.5 mapping table exactly (no unlisted changes smuggled in).`,
+      `# filtered to the migration families; mode: ${mode}`,
+      `# ${classDiffNote}`,
+      `# phase0 rule: added-class multiset must equal the §2.5 mapping table exactly.`,
+      `# parity/final rule: no old-vocabulary token may appear; new-vocabulary`,
+      `# removals/additions are evidence (body-class removal, new controls).`,
       ``,
       `removed (old vocabulary): ${JSON.stringify(removed, null, 2)}`,
       `added (new vocabulary): ${JSON.stringify(added, null, 2)}`,
-      `expected multiset (§2.5): ${JSON.stringify(EXPECTED_MULTISET, null, 2)}`,
+      `expected multiset (§2.5, phase0 only): ${JSON.stringify(EXPECTED_MULTISET, null, 2)}`,
       `equal: ${classDiffOk}`,
     ].join('\n') + '\n'
   )
@@ -484,19 +554,23 @@ try {
 
   // --- report ---------------------------------------------------------------
   const grepsOk = g1 && g2 && g3 && g4
-  const pass = totalDiff === 0 && failedCaptures === 0 && grepsOk && classDiffOk
+  const pass = unexpectedDiffs === 0 && failedCaptures === 0 && grepsOk && classDiffOk
   writeFileSync(
     resolve(outDir, 'route-report.json'),
     JSON.stringify(
       {
         gate: 'G4 route-level screenshot + grep coverage',
+        mode,
+        allowDiff: [...allowDiff],
         baseline,
         head: headSha(),
         captures: routeReport,
         totalDiffPixels: totalDiff,
         failedCaptures,
+        unexpectedDiffs,
         greps: greps.map((g) => ({ desc: g.desc, ok: g.ok, lines: g.lines.length })),
         classDiffEqual: classDiffOk,
+        classDiffNote,
         cssSizeDelta: { baseline: baseCss, head: headCss },
         pass,
       },
@@ -507,23 +581,25 @@ try {
   await browser.close()
 
   writeManifest(outDir, [
-    'command: bun scripts/theme/g4-route-diff.mjs --baseline "$(cat docs/done/qa_evidence/ui-ux/dark-theme/phase0/baseline-sha.txt)" --out docs/done/qa_evidence/ui-ux/dark-theme/phase0/g4/',
+    `command: ${invocationLine('g4-route-diff.mjs')}`,
+    `mode: ${mode}${allowDiff.size ? ` (allow-diff: ${[...allowDiff].join(',')})` : ''}`,
     `exit code: ${pass ? 0 : 1}`,
     `route/state captures: ${ALL_CAPTURES.length} (${failedCaptures} failed)`,
-    `total differing pixels: ${totalDiff}`,
+    `total differing pixels: ${totalDiff} (unexpected: ${unexpectedDiffs})`,
     `grep coverage: ${grepsOk ? 'all pass' : 'FAILURE'}`,
-    `class-diff == mapping table: ${classDiffOk}`,
+    `class-diff: ${classDiffOk} — ${classDiffNote}`,
     `emitted CSS size: baseline ${baseCss?.total ?? 'n/a'} B -> HEAD ${headCss?.total ?? 'n/a'} B`,
     `servers: baseline ${ORIGIN_BASE} (worktree ${BASELINE_WT}), HEAD ${ORIGIN_HEAD} (worktree ${WT}); both built with APP_ENV=development and started with next start`,
     'sessions: student via POST /api/auth/demo (per server); faculty/admin via dev-fallback-secret JWT (mint-session mechanism, DB-validated by src/lib/session-auth.ts); time frozen at 2026-10-24T09:00:00 via Playwright clock on every page',
     'database protocol: seeded once, snapshotted (EJSON, scripts/theme/db-clone.mjs), restored before the post pass — deterministic despite the seed script randomized roster, and immune to pass-induced mutations',
     'content validation: authenticated routes assert the rendered page is not the login view (invalid sessions client-redirect to /portal/login)',
     'deviation: student COE modal captured on /profile (the COE request UI lives there; plan named the feature)',
-    'skeleton state: all /api/* requests hang (page.route never fulfilling); domcontentloaded + 2500ms settle',
+    'skeleton state: all /api/* requests EXCEPT /api/auth/session hang (page.route never fulfilling) — the session call must answer because useAuth gates the portal render on it (the Phase-0 variant hung it too and captured an empty page on both sides; see the filed issue); domcontentloaded + 2500ms settle',
     'browser: headless Chromium, viewport 1280x800, deviceScaleFactor 1, colorScheme light, prefers-reduced-motion reduce, networkidle + 500ms settle (plain routes)',
+    'phase-1 note (parity mode): zero pixels expected everywhere; the engine ships no control at commit 1a. phase-1 note (final mode): allow-listed routes carry the new theme controls (login toggle, topbar toggle, settings appearance section); every diff bounding box is recorded in route-report.json and each <route>-diff.png is retained for review; legal routes carry no control and must stay at 0 px',
   ])
 
-  console.log(`\nG4 ${pass ? 'PASS' : 'FAIL'}: totalDiff=${totalDiff} failedCaptures=${failedCaptures} greps=${grepsOk} classDiff=${classDiffOk}`)
+  console.log(`\nG4 ${pass ? 'PASS' : 'FAIL'} (mode ${mode}): totalDiff=${totalDiff} unexpectedDiffs=${unexpectedDiffs} failedCaptures=${failedCaptures} greps=${grepsOk} classDiff=${classDiffOk}`)
   if (!pass) process.exitCode = 1
 } finally {
   await cleanup()

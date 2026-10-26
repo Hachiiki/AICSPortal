@@ -15,7 +15,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import {
   WT, EVID, git, readBaselineSha, headSha, compileSheet,
   collectVars, findUtilityDecl, resolveValue, normalizeColor,
-  parseSpecimen, writeManifest,
+  parseSpecimen, writeManifest, invocationLine,
 } from './lib.mjs'
 
 const args = process.argv.slice(2)
@@ -149,7 +149,7 @@ writeFileSync(
 )
 const tsv = results.map((r) => `  ${r.equal ? 'PASS' : 'FAIL'}  ${r.form}\t${r.prop}: ${r.preWinner} == ${r.postWinner}`)
 writeManifest(outDir, [
-  'command: bun scripts/theme/equiv-check.mjs --baseline "$(cat docs/done/qa_evidence/ui-ux/dark-theme/phase0/baseline-sha.txt)" --out docs/done/qa_evidence/ui-ux/dark-theme/phase0/g1/',
+  `command: ${invocationLine('equiv-check.mjs')}`,
   `exit code: ${failures ? 1 : 0}`,
   `pairs: ${results.length} (failures: ${failures})`,
   'method: both sides compiled with the project @tailwindcss/postcss v4.3.3; values resolved against light-mode :root custom properties; winner branch = @supports (color: color-mix(...)) per plan §5.1/§2.5',

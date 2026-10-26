@@ -49,9 +49,12 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
       style={{ background: T.white, color: T.text }}
     >
       {/* ===================== LEFT 60% ===================== */}
+      {/* Campus photograph + navy overlay. Brand-constant in both
+          themes (plan §2): the navy panel and its white text never
+          re-theme; the right-side form panel below does. */}
       <section
         className="relative lg:w-[60%] w-full h-[42vh] lg:h-auto lg:min-h-dvh overflow-hidden flex-shrink-0"
-        style={{ background: T.text }}
+        style={{ background: T.navy }}
       >
         {/* Campus photograph */}
         <img
@@ -217,7 +220,11 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               (LICENSE / README: All Rights Reserved, proprietary), plus the
               legal links required for the pre-auth surfaces. */}
           <div className="mt-6 text-center">
-            <p className="text-[11px]" style={{ color: '#64748B' }}>
+            {/* #64748B is the v3 slate-500 this line has always rendered;
+                the v4 class would shift it by 1-3 channels (G4 parity
+                caught exactly this), so the literal stays and only the
+                dark variant maps onto the themed slate-500. */}
+            <p className="text-[11px] text-[#64748B] dark:text-slate-500">
               &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved
             </p>
             <nav aria-label="Legal" className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
