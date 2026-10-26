@@ -14,10 +14,74 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-26 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Phase 2 Stage 2C (this push): full route matrix x roles x both themes + COE print + ID-card validation with narrow regression fixes; see the Stage 2C sections below |
+| Last verified checkpoint | Phase 2 Stage 2C: full route matrix x roles x both themes + COE print + ID-card validation with narrow regression fixes; see the Stage 2C sections below |
+| Latest push | 2026-10-26 attribution correction (owner-approved identity-only history rewrite of the 10 dark-theme commits) plus this recovery-doc update; see the Attribution correction section below |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
+
+## Attribution correction (2026-10-26)
+
+Owner-approved identity-only history rewrite, executed and pushed on
+2026-10-26. The 10 dark-theme commits on `main-full-dev` (Phase 1a
+`474b9bc` through the Stage 2C checkpoint `c9cc6b5`) had been created
+under a sandbox identity, `Z User <z@container>`. They were rewritten
+to the verified owner identity `Willard James Paluga
+<ninonakano408@gmail.com>` (both author and committer) via
+`git filter-branch --env-filter` on `acbe71a..main-full-dev`, then
+pushed once with `--force-with-lease`.
+
+Verified before pushing (all checks passed): the file trees are
+identical (root tree hash unchanged and every per-commit tree hash
+unchanged, so `git diff` old..new is empty); commit messages, author
+timestamps, committer timestamps, order, and the parent chain are
+identical (the first rewritten commit still parents to `acbe71a`);
+`git range-diff` old..new shows exactly one changed line per commit
+(the Author identity); the anchors `822a5cf` and `acbe71a` and
+`origin/main` = `b7f6fca` are untouched. CI on the rewrite push: success
+(run #40295811713). No other branch, tag, or PR was affected (the 10
+commits existed only on `main-full-dev`; no tags contain them and the
+only PR ever opened from this branch, #38, was closed-unmerged in
+2026-09 against other commits).
+
+New canonical hashes (old pre-rewrite hash -> new hash; the trees are
+byte-identical):
+
+| Old (pre-rewrite, now unreachable) | New canonical | Subject |
+|---|---|---|
+| `474b9bc27ecdc4f64232e548d4d6b1b8a20b3cc1` | `8704af8de4dfd3abcb8a6367170ed298d18fc728` | feat(theme): Phase 1a theme engine |
+| `7a2f16e7086cc10435ee9b74de4bf4bb93268e1e` | `030655e13c4df9f64da1d75fd860468f18ffa68a` | feat(theme): Phase 1b theme controls |
+| `bc0a3333b83d2c9288f9c1f1ec83b9661682484f` | `5db3038553b16256ecc3449f027202b9463c51a7` | docs(theme): Phase 1 complete evidence |
+| `8d4ba5761fa8d77168550ba0c3ddcb3e4b50374b` | `3d6a861f51014a1eae2f175ff2d80fbe3453bc9e` | docs(theme): issues #90/#91/#92 follow-up |
+| `9bbcdda569970a26f9bddd90b7f1c088e8481d8b` | `14ad462487eb0ee7ee2092e8c543bc552d6ef999` | test(theme): Stage 2A G4 skeleton gate |
+| `5eaa382c64ab5fb44b29e36022bf915c2398c864` | `54b6297bbf266745decc9ea0c4716b20add571d0` | docs(theme): Stage 2A evidence |
+| `85e81c04ab2a7a92cd49154805a2b3095fac5f97` | `7957bda7087e955976a1786c67fcc698c318cd9c` | refactor(theme): Stage 2B inline-hex cleanup |
+| `462c413f07a304bee9f7e90ffb5bb60436bf9894` | `3f99f41674e88414ac24fa6a571ff32b80fab0d3` | docs(theme): Stage 2B evidence |
+| `8e2c690c54479d485c2d3915fc7c208bc9ce753b` | `2bba462d62c41879e9017ff4596a0454e9968bd8` | fix(theme): Stage 2C regressions + COE print |
+| `c9cc6b52356f4dcf880f9010ebf8aefcc81eaf80` | `10d8cde815629322c1239f050e67ecefd07fa860` | docs(theme): Stage 2C evidence + checkpoint |
+
+Provenance notes:
+
+- Old hashes quoted anywhere in this file, in the committed evidence
+  manifests, or in GitHub issue/PR history identify the PRE-rewrite
+  commits. They are no longer reachable from any branch. Use the table
+  above to translate them to the current canonical hashes.
+- The evidence bundles remain valid for the rewritten history: every
+  manifest pinned an old HEAD whose tree is byte-identical to its
+  mapped new commit, and CI re-ran green on the rewritten tip. The
+  standing "re-run the gate after a history restructure" rule recorded
+  under Historical evidence provenance (#90) was consciously not
+  applied here: the owner authorized an identity-only rewrite with no
+  tree change, and gate re-runs were outside that authorization's
+  scope. No evidence files were edited.
+- Backup references (local to the recovery clone only, NOT pushed):
+  branch `backup/main-full-dev-pre-attribution-fix` at the pre-rewrite
+  tip `c9cc6b52356f4dcf880f9010ebf8aefcc81eaf80`, plus
+  `refs/original/refs/heads/main-full-dev` created by filter-branch.
+  Delete them only after the owner confirms the rewrite is good.
+- The repository-local git identity is now set to the owner identity
+  (`git config user.name/user.email` in the clone), so future commits
+  no longer fall back to the sandbox identity.
 
 ## Completed (through this checkpoint)
 
@@ -310,6 +374,10 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
 
 ## Pending / exact next step
 
+- The 2026-10-26 attribution correction is complete and pushed
+  (identity only; see the Attribution correction section above). It
+  changed zero application code and zero evidence trees; the Stage 2D
+  stop below remains in force.
 - **Stage 2C is complete and pushed. STOPPED per the owner's explicit
   instruction: do NOT begin Stage 2D (blurred surfaces review, red-700
   hover contrast fix at 2.909:1 on solid destructive chips, optional
@@ -381,7 +449,9 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   `main-full-dev` requires explicit owner authorization; never
   force-push, never rewrite shared history, never push to or merge
   into `main` without explicit authorization; do not bypass failing
-  checks to create a checkpoint.
+  checks to create a checkpoint. One explicitly owner-authorized
+  exception exists: the 2026-10-26 attribution correction
+  (identity-only rewrite of `main-full-dev`; see that section above).
 - Status-board credentials live only in the local untracked helper
   script; they must never be committed, logged, or reported.
 - Dual-use red-600 (deliberate, documented): dark `--color-red-600`
