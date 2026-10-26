@@ -20,8 +20,14 @@ import {
   Download,
   ExternalLink,
   Cookie,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
@@ -48,13 +54,21 @@ interface SettingsPageProps {
   onStudentPatch?: (patch: Partial<Student>) => void
 }
 
-type Section = 'profile' | 'security' | 'notifications' | 'privacy'
+type Section = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearance'
 
 // Matches PHOTO_MAX_BYTES on the server (POST /api/student/photo).
 const PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
+
+  // Appearance selector state (dark-theme plan §6, Phase 1 control 2).
+  // `theme` is the stored preference (light/dark/system); the mounted
+  // gate keeps SSR and the first client render identical (next-themes
+  // initializes the stored value synchronously on the client, so a
+  // checked radio rendered before mount would hydrate-mismatch).
+  const { theme, resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
 
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
@@ -273,6 +287,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Privacy & Data', icon: ShieldCheck },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
   ]
 
   return (
@@ -679,6 +694,58 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                     records the school still requires may be anonymized instead of deleted.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+          {/* Appearance section — the theme selector (Phase 1).
+              Appended last: the sections above keep their exact layout. */}
+          {activeSection === 'appearance' && (
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h2 className="text-base font-semibold text-slate-900">Appearance</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-3">
+                  {([
+                    { value: 'light', label: 'Light', desc: 'Bright surfaces and dark text.', icon: Sun },
+                    { value: 'dark', label: 'Dark', desc: 'Dark surfaces and light text.', icon: Moon },
+                    { value: 'system', label: 'System', desc: `Follows your device (${themeMounted && resolvedTheme === 'dark' ? 'currently dark' : 'currently light'}).`, icon: Monitor },
+                  ] as const).map((o) => {
+                    const OptionIcon = o.icon
+                    return (
+                      <label
+                        key={o.value}
+                        className="group relative flex items-start gap-3 rounded-lg border border-slate-200 px-4 py-3 cursor-pointer transition-colors hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500"
+                      >
+                        {/* sr-only keeps native radio semantics: keyboard
+                            arrows and screen readers work for free. */}
+                        <input
+                          type="radio"
+                          name="aics-appearance"
+                          value={o.value}
+                          checked={themeMounted ? theme === o.value : false}
+                          onChange={() => setTheme(o.value)}
+                          className="sr-only"
+                        />
+                        <OptionIcon className="w-5 h-5 mt-0.5 text-slate-400 shrink-0 group-has-[:checked]:text-link-strong" aria-hidden />
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-medium text-slate-900">{o.label}</span>
+                          <span className="block text-xs text-slate-500 mt-0.5">{o.desc}</span>
+                        </span>
+                        <Check
+                          className="w-4 h-4 mt-1 text-link-strong shrink-0 transition-opacity opacity-0 group-has-[:checked]:opacity-100"
+                          aria-hidden
+                        />
+                      </label>
+                    )
+                  })}
+                </div>
+                <p className="mt-4 text-[11px] leading-relaxed text-slate-500">
+                  System mode follows your device appearance live: change your OS theme and the portal follows without a reload.
+                </p>
               </div>
             </div>
           )}

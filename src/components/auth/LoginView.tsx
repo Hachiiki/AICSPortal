@@ -7,8 +7,12 @@ import {
   ShieldCheck,
   Lock,
   CircleAlert,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
 import type { AuthMode } from '@/lib/aics/types'
 import { T, PORTAL_TEXT_GRADIENT, SHOW_DEMO_LOGIN } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
@@ -39,6 +43,14 @@ interface LoginViewProps {
 
 export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const [authMode, setAuthMode] = useState<AuthMode>('credentials')
+
+  // Login-page theme toggle (dark-theme plan §6, Phase 1 control 4):
+  // functional before authentication, outside the portal shell. The
+  // icon renders only after mount so SSR and the first client render
+  // stay identical (resolvedTheme is undefined until then).
+  const { resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
+  const isDark = themeMounted && resolvedTheme === 'dark'
 
   return (
     // reducedMotion="user" mirrors PortalShell's contract for the login
@@ -133,6 +145,20 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-center justify-center px-6 sm:px-10 py-12 lg:min-h-dvh lg:-ml-12 rounded-t-[28px] lg:rounded-t-none lg:rounded-l-[40px]"
         style={{ background: T.white }}
       >
+        {/* Theme toggle — top-right corner of the form panel. Pre-auth
+            surface, so it lives here rather than in the portal topbar.
+            Token-driven (var-chained) classes: themes with the cascade. */}
+        <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
+          <button
+            type="button"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40"
+          >
+            {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden /> : <Moon className="w-4.5 h-4.5" aria-hidden />}
+          </button>
+        </div>
+
         <div className="relative w-full max-w-sm py-4">
           {/* Heading */}
           <div className="mb-8">
