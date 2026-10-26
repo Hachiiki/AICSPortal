@@ -261,7 +261,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
                             onClick={() => handleDelete(p)}
                             disabled={deleting}
                             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
-                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-700 hover:bg-red-50'
+                              confirming ? 'bg-red-600 text-white hover:bg-red-700 dark:hover:bg-red-500' : 'text-red-700 hover:bg-red-50'
                             }`}
                           >
                             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
