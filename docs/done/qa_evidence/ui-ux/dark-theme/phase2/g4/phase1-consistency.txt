@@ -1,0 +1,44 @@
+# Stage 2A: phase2 G4 final re-run vs Phase-1 evidence (artifact comparison)
+# phase1 report: /home/z/my-project/AICSPortal/docs/done/qa_evidence/ui-ux/dark-theme/phase1/g4/route-report.json
+# phase2 report: /home/z/my-project/AICSPortal/docs/done/qa_evidence/ui-ux/dark-theme/phase2/g4/route-report.json
+# phase1: baseline acbe71a33e head 7a2f16e708 totalDiffPixels=74347 unexpectedDiffs=0 failedCaptures=0 pass=True
+# phase2: baseline acbe71a33e head 9bbcdda569 totalDiffPixels=74347 unexpectedDiffs=0 failedCaptures=0 pass=True
+# phase1 allowDiff (20 names): login,student-dashboard,student-academics,student-settings,student-enrollment,student-events,student-tasks,student-profile,student-professors,faculty-dashboard,faculty-my-students,faculty-grade-encoding,admin-dashboard,admin-people,admin-events,admin-announcements,interaction-admin-events-modal,interaction-student-coe-modal,interaction-topbar-dropdown,interaction-skeleton-loading
+# phase2 allowDiff (19 names): login,student-dashboard,student-academics,student-settings,student-enrollment,student-events,student-tasks,student-profile,student-professors,faculty-dashboard,faculty-my-students,faculty-grade-encoding,admin-dashboard,admin-people,admin-events,admin-announcements,interaction-admin-events-modal,interaction-student-coe-modal,interaction-topbar-dropdown
+# allowDiff delta: phase2 removes interaction-skeleton-loading (Stage 2A strict negative control): ['interaction-skeleton-loading']
+
+# per-capture comparison (diffPixels / sizes / bbox):
+route                        p1 px   p2 px   sizes            bbox match
+---------------------------  ------  ------  ---------------  ----------
+login                          1228    1228  1280x838/1280x838 SAME
+legal-privacy                     0       0  1280x5025/1280x5025 SAME
+legal-terms                       0       0  1280x3468/1280x3468 SAME
+legal-cookies                     0       0  1280x2033/1280x2033 SAME
+legal-refund                      0       0  1280x1525/1280x1525 SAME
+student-dashboard              4585    4585  1280x1794/1280x1794 SAME
+student-academics              4585    4585  1280x1477/1280x1477 SAME
+student-settings              10913   10913  1280x1027/1280x1027 SAME
+student-enrollment             4585    4585  1280x1526/1280x1526 SAME
+student-events                 4585    4585  1280x1025/1280x1025 SAME
+student-tasks                  4585    4585  1280x1794/1280x1794 SAME
+student-profile                4585    4585  1280x1971/1280x1971 SAME
+student-professors             4585    4585  1280x1124/1280x1124 SAME
+faculty-dashboard              2131    2131  1280x838/1280x838 SAME
+faculty-my-students            2131    2131  1280x993/1280x993 SAME
+faculty-grade-encoding         2131    2131  1280x1079/1280x1079 SAME
+admin-dashboard                3180    3180  1280x1766/1280x1766 SAME
+admin-people                   3180    3180  1280x1976/1280x1976 SAME
+admin-events                   3180    3180  1280x1012/1280x1012 SAME
+admin-announcements            3180    3180  1280x838/1280x838 SAME
+interaction-admin-events-modal   3175    3175  1280x1012/1280x1012 SAME
+interaction-student-coe-modal   2081    2081  1280x1971/1280x1971 SAME
+interaction-topbar-dropdown    5742    5742  1280x1794/1280x1794 SAME
+interaction-skeleton-loading      0       0  1280x894/1280x894 SAME
+                             skeleton p2: {"baseline": {"count": 108, "firstVisible": true}, "post": {"count": 108, "firstVisible": true}} (Stage 2A probe, p1 had none)
+
+# totals: phase1 totalDiffPixels=74347  phase2 totalDiffPixels=74347  equal=True
+# unexpectedDiffs: phase1=0 phase2=0; failedCaptures: phase1=0 phase2=0
+# greps: phase1 [True, True, True, True] phase2 [True, True, True, True]
+# classDiffEqual: phase1=True phase2=True
+
+# VERDICT: CONSISTENT — every per-capture diff count, PNG size, and bbox identical to Phase 1; totals identical (74347 px); the only behavioral difference is interaction-skeleton-loading now strict (0 px, off the allow-list) with the presence probe recorded

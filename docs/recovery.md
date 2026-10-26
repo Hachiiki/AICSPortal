@@ -14,7 +14,7 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-26 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Documentation follow-up for issues #90/#91/#92 (this commit): plan Rev 2.1 two-stage G4 criteria + evidence provenance caveat + Phase-2 skeleton note; no code or harness change |
+| Last verified checkpoint | Phase 2 Stage 2A (this push): G4 skeleton gate hardening (presence assertion + strict negative control); zero application code changed; see the Stage 2A sections below |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
@@ -53,7 +53,7 @@ uncommitted files or session history survived.
     skeleton interaction now hangs data APIs only (issue #92). New
     Phase-1 tooling: `phase1-contrast.mjs`, `phase1-controls-check.mjs`,
     `phase1-dark-smoke.mjs`.
-- **Documentation follow-up for issues #90/#91/#92 (this commit):**
+- **Documentation follow-up for issues #90/#91/#92 (commit `8d4ba57`):**
   `docs/dark-theme-phase1-plan.md` amended to Rev 2.1 so the written
   Phase-1 G4 criteria match the committed two-stage harness (the §5.1
   Phase-1 re-run paragraph was rewritten; the §6 phase-table exit-gate
@@ -61,6 +61,32 @@ uncommitted files or session history survived.
   gained the Phase-0 evidence-provenance caveat (#90, new subsection
   under Gate results) and the Phase-2 skeleton-presence follow-up (#92,
   under Pending). Zero application code and zero harness code changed.
+  The owner closed all three issues on GitHub afterwards.
+- **Phase 2 Stage 2A (owner-authorized 2026-10-26; this push):** the G4
+  skeleton gate hardening from the issue #92 follow-up, and nothing else.
+  `scripts/theme/lib.mjs` exports `skeletonPresence()` (probes
+  `.aics-skeleton` count plus first-block visibility);
+  `scripts/theme/g4-route-diff.mjs` asserts it on BOTH sides right before
+  the interaction-skeleton-loading screenshot, so a vacuous capture
+  fails the gate, and now hard-rejects interaction-skeleton-loading from
+  `--allow-diff` in final mode (exit 2): while the data APIs hang the
+  page renders the skeleton shell, never the real Topbar, so no theme
+  control can appear there and the capture is a strict 0-px negative
+  control like the four /legal routes (it measured 0 px in the Phase-1
+  final run even while allow-listed). New
+  `scripts/theme/g4-skeleton-negative.mjs` applies the same imported
+  predicate to three controlled conditions on an isolated throwaway
+  server: A vacuous (all /api hung including session, the Phase-0
+  defect), B real (the G4 capture condition), C hidden (B plus an
+  in-page display:none injection); expected and observed A FAIL / B PASS
+  / C FAIL. Evidence under
+  `docs/done/qa_evidence/ui-ux/dark-theme/phase2/` (baseline-sha.txt
+  pins the Phase-1 baseline `acbe71a` so the re-run compares the same
+  trees as the Phase-1 artifacts): g4/ (final re-run PASS),
+  g4-skeleton-negative/ (negative control PASS), plus
+  g4/phase1-consistency.txt (field-by-field artifact comparison).
+  Validation: lint 0 errors (23 pre-existing warnings), typecheck clean,
+  authz 76/76, scripts/lib 6/6. Zero src/ changes in the diff.
 
 ## Gate results (Phase 1, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase1/)
 
@@ -137,45 +163,70 @@ exist for that bundle; keep them distinct:
 
 Standing rule: a gate manifest pins the commit that will carry the
 evidence; after any history restructure, re-run the gate (as happened
-for G3) before pushing.
+for G3) before pushing. Applied again during Stage 2A: the harness
+commit was amended after the first G4 run, so both evidence generators
+were re-run at the final commit `9bbcdda` before pushing (the amended
+`0fda1df` would have been unreachable, exactly the #90 failure mode).
+
+## Gate results (Phase 2 Stage 2A, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase2/)
+
+- **G4 final re-run with the hardened harness: PASS**: 24/24 route/state
+  captures, 0 failed, 0 unexpected diffs, greps and class-diff pass,
+  totalDiff 74347 px. The 19-route allow-list (Phase-1's 20 minus
+  interaction-skeleton-loading) diffed only where the Phase-1 controls
+  render: every per-capture diffPixels, PNG size, and bounding box is
+  identical to the Phase-1 `g4/route-report.json` (field-by-field record
+  in `g4/phase1-consistency.txt`; baseline `acbe71a` vs harness commit
+  `9bbcdda`). interaction-skeleton-loading passed STRICTLY at 0 px off
+  the allow-list with the new presence probe green on both sides (108
+  blocks each, first block visible, counts recorded in
+  route-report.json). Emitted CSS 97561 B -> 107897 B (same as Phase 1).
+- **Skeleton-presence negative control: PASS (A FAIL / B PASS / C
+  FAIL)**: the imported predicate fails on the vacuous page (all /api
+  hung including session, the Phase-0 defect; count 0), passes on the
+  real G4 condition (count 108, first block visible, byte-size-matching
+  the gate's own skeleton captures), and fails when the blocks are
+  present but hidden (count 108, firstVisible false). Ran on an isolated
+  throwaway server (port 4302); the application, harness, worktree, and
+  database were never modified.
 
 ## Pending / exact next step
 
-- **WAITING for the owner's separate Phase 2 authorization.** Do NOT
-  start Phase 2 (or any phase) without explicit authorization.
-- **Also waiting: the owner's decision on issues #90/#91/#92** after
-  this documentation push (agent recommendation: close all three;
-  #90's mitigation is now documented here, #91's resolution is now
-  the plan's own Rev 2.1 wording, #92's fix is committed and evidenced).
-  The agent did NOT close, edit, or relabel any issue; that step
-  belongs to the owner.
-- **Phase 2 scope per plan §6: non-blocking polish & QA only** (inline-hex
-  cleanups in shared components, blurred-surfaces review, full route
-  matrix x3 roles x2 themes, COE/ID-card light-on-dark checks,
-  evidence archive under `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`).
-- Known Phase-2 polish candidates found during Phase 1: hover on solid
-  destructive chips in dark (white bold text on `--color-red-700` at
-  2.90:1 during the transient hover; rest state passes 3:1; see
-  `contrast/report.json`); Sidebar/Topbar/EmptyState inline hex literals
-  are Phase-2 scope by the plan's own Tier list.
-- Phase-2 hardening candidate from issue #92 (recorded 2026-10-26, not
-  yet implemented): add an explicit `.aics-skeleton` presence assertion
-  to the G4 `interaction-skeleton-loading` capture, and/or drop that
-  route from the final-mode allow list, since it is a proven 0-px
-  negative control (final-mode diff was 0 px even while allow-listed).
-  Why the gap exists: the only presence assertion today lives in
-  `phase1-dark-smoke.mjs` (`skeletonCount > 0`, 108 blocks) and proves
-  skeleton rendering in resolved DARK only. The light-mode G4 final run
-  allow-lists the route, so a future light-mode skeleton regression
-  would surface as an "allowed diff" instead of failing the gate.
-  Parity mode still protects the route strictly (0 px), which is why
-  this is hardening, not a bug. Requires the owner's Phase 2
-  authorization; do not touch the harness before then.
+- **Stage 2A is complete and pushed. STOPPED per the owner's explicit
+  instruction: do NOT begin Stage 2B, 2C, or 2D, or any other Phase 2
+  polish, until the owner reviews the Stage 2A evidence and explicitly
+  approves the next stage.**
+- Owner rulings recorded with the Stage 2A authorization (2026-10-26),
+  binding for the later stages: the legal brand colors `#1769AA` and
+  `#124D7A` stay as brand constants for now; the Topbar avatar `#1e293b`
+  migrates to an appropriate theme-aware token in Stage 2B while
+  preserving exact light-mode output; the red-700 hover contrast fix
+  belongs to the proposed Stage 2D scope; Chromium is the locally
+  testable browser and Firefox/Safari remain explicitly unverified
+  unless they are actually tested.
+- Remaining proposed Phase-2 stages (NOT yet authorized): Stage 2B
+  inline-hex cleanup in shared components (Sidebar `#64748b`/`#f1f5f9`
+  style props, Topbar avatar token per the ruling above plus the
+  `#153357` chip, AcademicHeader `#1d4ed8`/`#0f172a`, TasksTab
+  conditional big-number hex; EmptyState hex are comments only;
+  CookieConsent/LegalShell brand constants stay), Stage 2C full route
+  matrix x3 roles x2 themes plus COE print (must print light) and
+  ID-card light-on-dark checks, Stage 2D optional polish
+  (blurred-surfaces review, the red-700 hover contrast fix at 2.909:1
+  during hover on solid destructive chips, browser-matrix caveat).
+  Evidence continues under
+  `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`.
 
 ## Known issues / constraints
 
 - `docs/` and `/scripts/` are gitignored in-repo (`.gitignore:53`) —
   `git add -f` for everything under them, tracked or new.
+- A fresh clone needs `mkdir -p scripts/theme-scratch` before the G4
+  capture stage: the db-clone snapshot writes to
+  `<repo>/scripts/theme-scratch/g4-db-snapshot.json` and the directory
+  is untracked (scripts/ is gitignored), so it does not survive resets
+  (discovered during the Stage 2A re-provisioning; the first capture
+  attempt failed with ENOENT until the directory was created).
 - Playwright is a devDependency; Chromium headless shell 156.0.8078.4
   (build 1248) at `~/.cache/ms-playwright` (`bunx playwright install
   chromium` re-provisions).
@@ -234,7 +285,8 @@ for G3) before pushing.
    local-only commits, fast-forward local to the remote tip.
 3. Read this file's Checkpoint status and Pending sections.
 4. `bun install`, then `bunx playwright install chromium` if the
-   browser cache is missing.
+   browser cache is missing (playwright 1.64.1 needs build 1248), and
+   `mkdir -p scripts/theme-scratch` (see Known issues above).
 5. Provision the gate environment: start mongod (binary path above)
    with `--dbpath /home/z/my-project/scripts/mongo-data --fork
    --logpath /home/z/my-project/scripts/mongod.log --bind_ip

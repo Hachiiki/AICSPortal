@@ -1,0 +1,368 @@
+{
+  "gate": "G4 route-level screenshot + grep coverage",
+  "mode": "final",
+  "allowDiff": [
+    "login",
+    "student-dashboard",
+    "student-academics",
+    "student-settings",
+    "student-enrollment",
+    "student-events",
+    "student-tasks",
+    "student-profile",
+    "student-professors",
+    "faculty-dashboard",
+    "faculty-my-students",
+    "faculty-grade-encoding",
+    "admin-dashboard",
+    "admin-people",
+    "admin-events",
+    "admin-announcements",
+    "interaction-admin-events-modal",
+    "interaction-student-coe-modal",
+    "interaction-topbar-dropdown"
+  ],
+  "baseline": "acbe71a33e851bdda7116f8dd88cd77d0e8612f8",
+  "head": "9bbcdda569970a26f9bddd90b7f1c088e8481d8b",
+  "captures": [
+    {
+      "name": "login",
+      "diffPixels": 1228,
+      "sizeBaseline": "1280x838",
+      "sizePost": "1280x838",
+      "bbox": {
+        "minX": 1224,
+        "minY": 58,
+        "maxX": 1259,
+        "maxY": 93
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "legal-privacy",
+      "diffPixels": 0,
+      "sizeBaseline": "1280x5025",
+      "sizePost": "1280x5025",
+      "bbox": null,
+      "diffAllowed": false
+    },
+    {
+      "name": "legal-terms",
+      "diffPixels": 0,
+      "sizeBaseline": "1280x3468",
+      "sizePost": "1280x3468",
+      "bbox": null,
+      "diffAllowed": false
+    },
+    {
+      "name": "legal-cookies",
+      "diffPixels": 0,
+      "sizeBaseline": "1280x2033",
+      "sizePost": "1280x2033",
+      "bbox": null,
+      "diffAllowed": false
+    },
+    {
+      "name": "legal-refund",
+      "diffPixels": 0,
+      "sizeBaseline": "1280x1525",
+      "sizePost": "1280x1525",
+      "bbox": null,
+      "diffAllowed": false
+    },
+    {
+      "name": "student-dashboard",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1794",
+      "sizePost": "1280x1794",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-academics",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1477",
+      "sizePost": "1280x1477",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-settings",
+      "diffPixels": 10913,
+      "sizeBaseline": "1280x1027",
+      "sizePost": "1280x1027",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 945,
+        "maxY": 265
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-enrollment",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1526",
+      "sizePost": "1280x1526",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-events",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1025",
+      "sizePost": "1280x1025",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-tasks",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1794",
+      "sizePost": "1280x1794",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-profile",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1971",
+      "sizePost": "1280x1971",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "student-professors",
+      "diffPixels": 4585,
+      "sizeBaseline": "1280x1124",
+      "sizePost": "1280x1124",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 931,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "faculty-dashboard",
+      "diffPixels": 2131,
+      "sizeBaseline": "1280x838",
+      "sizePost": "1280x838",
+      "bbox": {
+        "minX": 799,
+        "minY": 52,
+        "maxX": 909,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "faculty-my-students",
+      "diffPixels": 2131,
+      "sizeBaseline": "1280x993",
+      "sizePost": "1280x993",
+      "bbox": {
+        "minX": 799,
+        "minY": 52,
+        "maxX": 909,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "faculty-grade-encoding",
+      "diffPixels": 2131,
+      "sizeBaseline": "1280x1079",
+      "sizePost": "1280x1079",
+      "bbox": {
+        "minX": 799,
+        "minY": 52,
+        "maxX": 909,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "admin-dashboard",
+      "diffPixels": 3180,
+      "sizeBaseline": "1280x1766",
+      "sizePost": "1280x1766",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 934,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "admin-people",
+      "diffPixels": 3180,
+      "sizeBaseline": "1280x1976",
+      "sizePost": "1280x1976",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 934,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "admin-events",
+      "diffPixels": 3180,
+      "sizeBaseline": "1280x1012",
+      "sizePost": "1280x1012",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 934,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "admin-announcements",
+      "diffPixels": 3180,
+      "sizeBaseline": "1280x838",
+      "sizePost": "1280x838",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 934,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "interaction-admin-events-modal",
+      "diffPixels": 3175,
+      "sizeBaseline": "1280x1012",
+      "sizePost": "1280x1012",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 934,
+        "maxY": 87
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "interaction-student-coe-modal",
+      "diffPixels": 2081,
+      "sizeBaseline": "1280x1971",
+      "sizePost": "1280x1971",
+      "bbox": {
+        "minX": 480,
+        "minY": 1185,
+        "maxX": 931,
+        "maxY": 1202
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "interaction-topbar-dropdown",
+      "diffPixels": 5742,
+      "sizeBaseline": "1280x1794",
+      "sizePost": "1280x1794",
+      "bbox": {
+        "minX": 480,
+        "minY": 52,
+        "maxX": 1234,
+        "maxY": 214
+      },
+      "diffAllowed": true
+    },
+    {
+      "name": "interaction-skeleton-loading",
+      "diffPixels": 0,
+      "sizeBaseline": "1280x894",
+      "sizePost": "1280x894",
+      "bbox": null,
+      "diffAllowed": false,
+      "skeleton": {
+        "baseline": {
+          "count": 108,
+          "firstVisible": true
+        },
+        "post": {
+          "count": 108,
+          "firstVisible": true
+        }
+      }
+    }
+  ],
+  "totalDiffPixels": 74347,
+  "failedCaptures": 0,
+  "unexpectedDiffs": 0,
+  "greps": [
+    {
+      "desc": "no non-allowlisted bg-white remnants (plan-literal pattern)",
+      "ok": true,
+      "lines": 0
+    },
+    {
+      "desc": "exactly the two §2.5 allowlisted bg-white literals remain",
+      "ok": true,
+      "lines": 2
+    },
+    {
+      "desc": "no text-blue-600/700/800 stragglers",
+      "ok": true,
+      "lines": 0
+    },
+    {
+      "desc": "no bg-slate-900 stragglers",
+      "ok": true,
+      "lines": 0
+    }
+  ],
+  "classDiffEqual": true,
+  "classDiffNote": "final: zero old-vocabulary tokens in the diff (0 removed / 0 added); new-vocabulary changes recorded below",
+  "cssSizeDelta": {
+    "baseline": {
+      "total": 97561,
+      "files": [
+        "36_ofujl8qiov.css: 97561"
+      ]
+    },
+    "head": {
+      "total": 107897,
+      "files": [
+        "21opk4m_ck4by.css: 107897"
+      ]
+    }
+  },
+  "pass": true
+}

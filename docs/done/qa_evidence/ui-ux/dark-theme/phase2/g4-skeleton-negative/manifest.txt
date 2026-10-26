@@ -1,0 +1,10 @@
+timestamp: 2026-10-26T05:15:41.065Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 9bbcdda569970a26f9bddd90b7f1c088e8481d8b
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 bun scripts/theme/g4-skeleton-negative.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/g4-skeleton-negative/
+exit code: 0
+A vacuous: FAIL (count=0, firstVisible=false; expected FAIL) — every /api/* request hung INCLUDING /api/auth/session, the exact Phase-0 defect
+B real: PASS (count=108, firstVisible=true; expected PASS) — data APIs hung, session answered, the exact G4 capture condition
+C hidden: FAIL (count=108, firstVisible=false; expected FAIL) — B plus an injected .aics-skeleton display:none style (in-page only; the page context is closed right after, so the application, harness, and database are untouched)
+server: http://127.0.0.1:4302 (next start on the dev worktree, APP_ENV=development); isolated: the harness, worktree, and database were never modified; read-only requests plus the dev demo login only; screenshots retained under shots/

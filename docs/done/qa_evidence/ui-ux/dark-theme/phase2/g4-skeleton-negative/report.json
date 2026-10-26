@@ -1,0 +1,39 @@
+{
+  "gate": "G4 skeleton-presence negative control (Stage 2A, issue #92 follow-up)",
+  "predicate": "skeletonPresence() imported from scripts/theme/lib.mjs — the exact function g4-route-diff.mjs enforces at capture time",
+  "conditions": [
+    {
+      "label": "A vacuous — all /api hung including /api/auth/session (the Phase-0 defect)",
+      "probe": {
+        "count": 0,
+        "firstVisible": false
+      },
+      "verdict": "FAIL",
+      "expected": "FAIL",
+      "shot": "shots/A-vacuous.png"
+    },
+    {
+      "label": "B real — data APIs hung, /api/auth/session answered (the G4 capture condition)",
+      "probe": {
+        "count": 108,
+        "firstVisible": true
+      },
+      "verdict": "PASS",
+      "expected": "PASS",
+      "shot": "shots/B-real.png"
+    },
+    {
+      "label": "C hidden — B plus injected .aics-skeleton display:none (DOM present, not rendered)",
+      "probe": {
+        "count": 108,
+        "firstVisible": false
+      },
+      "verdict": "FAIL",
+      "expected": "FAIL",
+      "shot": "shots/C-hidden.png"
+    }
+  ],
+  "expectedPattern": "A FAIL / B PASS / C FAIL",
+  "head": "9bbcdda569970a26f9bddd90b7f1c088e8481d8b",
+  "pass": true
+}
