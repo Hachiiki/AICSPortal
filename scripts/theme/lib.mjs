@@ -311,6 +311,25 @@ ${rows}
 }
 
 // ---------------------------------------------------------------------------
+// Skeleton presence probe (Stage 2A, issue #92 follow-up)
+// ---------------------------------------------------------------------------
+
+/**
+ * Probe a skeleton-loading page state: how many .aics-skeleton blocks are
+ * in the DOM, and whether the first one is actually rendered (visible, has
+ * a box). G4's capturePass fails the interaction-skeleton-loading capture
+ * when count === 0 or the first block is invisible, so a vacuous capture
+ * (the Phase-0 defect: both sides rendering an empty page) can never pass
+ * silently. Exported so g4-skeleton-negative.mjs exercises the exact same
+ * predicate — the negative control cannot drift from the real assertion.
+ */
+export async function skeletonPresence(page) {
+  const count = await page.locator('.aics-skeleton').count()
+  const firstVisible = count > 0 ? await page.locator('.aics-skeleton').first().isVisible() : false
+  return { count, firstVisible }
+}
+
+// ---------------------------------------------------------------------------
 // Browser environment (common spec, plan §5.1): headless Chromium, 1280x800,
 // dsf 1, light color scheme, reduced motion.
 // ---------------------------------------------------------------------------

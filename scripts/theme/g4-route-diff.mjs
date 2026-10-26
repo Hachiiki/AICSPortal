@@ -29,6 +29,23 @@
 //     box recorded per route); every other route must be 0 px; class-diff
 //     same rule as parity (controls may add new-vocabulary classes).
 //
+// Stage 2A hardening (issue #92 follow-up, 2026-10-26):
+//   - interaction-skeleton-loading carries a .aics-skeleton presence
+//     assertion on BOTH sides (count > 0 and first block visible, probed
+//     right before the screenshot). A capture with zero or hidden
+//     skeleton blocks fails the gate. Phase 0 hung /api/auth/session too
+//     and captured an empty page on both sides — the comparison passed
+//     vacuously (issue #92); this assertion makes that failure mode
+//     impossible to miss in every mode (phase0/parity/final).
+//   - final mode REJECTS interaction-skeleton-loading in --allow-diff:
+//     while data APIs hang, the page renders the skeleton shell
+//     (SkeletonBlock topbar), never the real Topbar, so no theme control
+//     can appear there — the capture is a strict 0-px negative control
+//     (proven 0 px in the Phase-1 final run even while allow-listed).
+//     The four /legal routes plus this capture are the final-mode
+//     negative controls. The per-side skeleton counts are recorded in
+//     route-report.json.
+//
 // Stages (the gate runs as one logical unit; stages exist so each fits
 // execution timeouts — run setup, then capture; `--stage all` runs both):
 //   setup   — baseline scratch worktree + install + env + builds (both sides)
@@ -62,7 +79,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { SignJWT } from 'jose'
 import {
   WT, EVID, SCRATCH_ROOT, git, headSha, readBaselineSha, launchBrowser, newGateContext,
-  pixelDiff, writeManifest, invocationLine, resolve,
+  pixelDiff, writeManifest, invocationLine, resolve, skeletonPresence,
 } from './lib.mjs'
 
 const args = process.argv.slice(2)
@@ -82,6 +99,15 @@ if (!['phase0', 'parity', 'final'].includes(mode)) {
 }
 if (mode === 'final' && !allowDiff.size) {
   console.error('G4 FAIL: --mode final requires --allow-diff <route,names> so every permitted diff is explicit (coverage is never loosened silently)')
+  process.exit(2)
+}
+if (mode === 'final' && allowDiff.has('interaction-skeleton-loading')) {
+  console.error(
+    'G4 FAIL: interaction-skeleton-loading must NOT be named in --allow-diff. ' +
+      'While the data APIs hang, the page renders the skeleton shell (SkeletonBlock topbar), never the real Topbar, so no theme control can appear there — ' +
+      'this capture is a strict 0-px negative control (proven 0 px in the Phase-1 final run even while allow-listed) and is protected by the .aics-skeleton presence assertion instead. ' +
+      'If the light-mode skeleton state legitimately changed, make that a deliberate, reviewed harness-policy change rather than re-allow-listing the route.',
+  )
   process.exit(2)
 }
 
@@ -188,6 +214,11 @@ async function mintSession(username, role, branch) {
     .sign(new TextEncoder().encode(DEV_SECRET))
 }
 
+// Stage 2A evidence: per-side skeleton probe results for the hangApi
+// interaction, recorded into route-report.json (present iff the capture
+// reached the probe).
+const skeletonProbe = {}
+
 async function capturePass(browser, origin, sideLabel, outRoot) {
   const shots = []
   for (const job of ALL_CAPTURES) {
@@ -236,6 +267,21 @@ async function capturePass(browser, origin, sideLabel, outRoot) {
         if (path === '/portal/login') {
           throw new Error(`authenticated route rendered the login view on ${sideLabel} (session not accepted)`)
         }
+      }
+      // Stage 2A hardening (issue #92 follow-up): the skeleton interaction
+      // must render REAL skeleton blocks on BOTH sides before the screenshot
+      // is taken. Zero (or hidden) .aics-skeleton blocks means the capture
+      // would be vacuous — exactly how the Phase-0 variant passed while
+      // both sides rendered an empty page. Fails the capture, hence the gate.
+      if (job.hangApi) {
+        const sk = await skeletonPresence(page)
+        ;(skeletonProbe[job.name] ??= {})[sideLabel] = sk
+        if (sk.count === 0 || !sk.firstVisible) {
+          throw new Error(
+            `skeleton capture vacuous on ${sideLabel}: .aics-skeleton count=${sk.count}, firstVisible=${sk.firstVisible} — the skeleton-loading interaction must render real skeleton blocks while the data APIs hang (issue #92 hardening)`,
+          )
+        }
+        console.log(`  [${sideLabel}] ${job.name} skeleton presence: ${sk.count} blocks, first visible`)
       }
       if (job.click) {
         await page.click(job.click, { timeout: 10000 })
@@ -402,7 +448,7 @@ try {
     const h = resolve(routesDir, `${job.name}-post.png`)
     if (!existsSync(b) || !existsSync(h)) {
       failedCaptures++
-      routeReport.push({ name: job.name, error: 'capture missing', diffPixels: null })
+      routeReport.push({ name: job.name, error: 'capture missing', diffPixels: null, ...(skeletonProbe[job.name] ? { skeleton: skeletonProbe[job.name] } : {}) })
       continue
     }
     const d = await pixelDiff(browser, b, h)
@@ -412,14 +458,16 @@ try {
     totalDiff += d.diffPixels
     const allowed = mode === 'final' && allowDiff.has(job.name)
     if (d.diffPixels !== 0 && !allowed) unexpectedDiffs++
-    routeReport.push({
+    const entry = {
       name: job.name,
       diffPixels: d.diffPixels,
       sizeBaseline: d.sizeA,
       sizePost: d.sizeB,
       bbox: d.bbox,
       diffAllowed: allowed,
-    })
+    }
+    if (skeletonProbe[job.name]) entry.skeleton = skeletonProbe[job.name]
+    routeReport.push(entry)
     const verdict = d.diffPixels === 0 ? 'PASS' : allowed ? 'DIFF (allowed, recorded)' : 'DIFF (UNEXPECTED)'
     console.log(`  ${verdict} ${job.name}: ${d.diffPixels} px (${d.sizeA} vs ${d.sizeB})${d.bbox ? ` bbox=[${d.bbox.minX},${d.bbox.minY}..${d.bbox.maxX},${d.bbox.maxY}]` : ''}`)
   }
@@ -595,6 +643,8 @@ try {
     'content validation: authenticated routes assert the rendered page is not the login view (invalid sessions client-redirect to /portal/login)',
     'deviation: student COE modal captured on /profile (the COE request UI lives there; plan named the feature)',
     'skeleton state: all /api/* requests EXCEPT /api/auth/session hang (page.route never fulfilling) — the session call must answer because useAuth gates the portal render on it (the Phase-0 variant hung it too and captured an empty page on both sides; see the filed issue); domcontentloaded + 2500ms settle',
+    'skeleton presence (Stage 2A, issue #92 follow-up): interaction-skeleton-loading asserts .aics-skeleton count > 0 with the first block visible on BOTH sides right before the screenshot; per-side counts are recorded in route-report.json; a vacuous capture fails the gate',
+    'final-mode policy (Stage 2A): interaction-skeleton-loading is rejected from --allow-diff — the skeleton shell renders no theme control (the real Topbar never mounts while data APIs hang), so the capture is a strict 0-px negative control like the four /legal routes',
     'browser: headless Chromium, viewport 1280x800, deviceScaleFactor 1, colorScheme light, prefers-reduced-motion reduce, networkidle + 500ms settle (plain routes)',
     'phase-1 note (parity mode): zero pixels expected everywhere; the engine ships no control at commit 1a. phase-1 note (final mode): allow-listed routes carry the new theme controls (login toggle, topbar toggle, settings appearance section); every diff bounding box is recorded in route-report.json and each <route>-diff.png is retained for review; legal routes carry no control and must stay at 0 px',
   ])
