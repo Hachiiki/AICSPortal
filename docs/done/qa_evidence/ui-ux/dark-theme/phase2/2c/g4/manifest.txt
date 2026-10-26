@@ -1,0 +1,22 @@
+timestamp: 2026-10-26T08:11:03.439Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 8e2c690c54479d485c2d3915fc7c208bc9ce753b
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 GATE_MAIN_WT=/home/z/my-project/AICSPortal bun scripts/theme/g4-route-diff.mjs --mode final --allow-diff login,student-dashboard,student-academics,student-settings,student-enrollment,student-events,student-tasks,student-profile,student-professors,faculty-dashboard,faculty-my-students,faculty-grade-encoding,admin-dashboard,admin-people,admin-events,admin-announcements,interaction-admin-events-modal,interaction-student-coe-modal,interaction-topbar-dropdown --stage capture --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2c/g4/
+mode: final (allow-diff: login,student-dashboard,student-academics,student-settings,student-enrollment,student-events,student-tasks,student-profile,student-professors,faculty-dashboard,faculty-my-students,faculty-grade-encoding,admin-dashboard,admin-people,admin-events,admin-announcements,interaction-admin-events-modal,interaction-student-coe-modal,interaction-topbar-dropdown)
+exit code: 0
+route/state captures: 24 (0 failed)
+total differing pixels: 74347 (unexpected: 0)
+grep coverage: all pass
+class-diff: true — final: zero old-vocabulary tokens in the diff (0 removed / 0 added); new-vocabulary changes recorded below
+emitted CSS size: baseline 97561 B -> HEAD 109937 B
+servers: baseline http://127.0.0.1:4100 (worktree /home/z/my-project/.baseline-check), HEAD http://127.0.0.1:4200 (worktree /home/z/my-project/AICSPortal); both built with APP_ENV=development and started with next start
+sessions: student via POST /api/auth/demo (per server); faculty/admin via dev-fallback-secret JWT (mint-session mechanism, DB-validated by src/lib/session-auth.ts); time frozen at 2026-10-24T09:00:00 via Playwright clock on every page
+database protocol: seeded once, snapshotted (EJSON, scripts/theme/db-clone.mjs), restored before the post pass — deterministic despite the seed script randomized roster, and immune to pass-induced mutations
+content validation: authenticated routes assert the rendered page is not the login view (invalid sessions client-redirect to /portal/login)
+deviation: student COE modal captured on /profile (the COE request UI lives there; plan named the feature)
+skeleton state: all /api/* requests EXCEPT /api/auth/session hang (page.route never fulfilling) — the session call must answer because useAuth gates the portal render on it (the Phase-0 variant hung it too and captured an empty page on both sides; see the filed issue); domcontentloaded + 2500ms settle
+skeleton presence (Stage 2A, issue #92 follow-up): interaction-skeleton-loading asserts .aics-skeleton count > 0 with the first block visible on BOTH sides right before the screenshot; per-side counts are recorded in route-report.json; a vacuous capture fails the gate
+final-mode policy (Stage 2A): interaction-skeleton-loading is rejected from --allow-diff — the skeleton shell renders no theme control (the real Topbar never mounts while data APIs hang), so the capture is a strict 0-px negative control like the four /legal routes
+browser: headless Chromium, viewport 1280x800, deviceScaleFactor 1, colorScheme light, prefers-reduced-motion reduce, networkidle + 500ms settle (plain routes)
+phase-1 note (parity mode): zero pixels expected everywhere; the engine ships no control at commit 1a. phase-1 note (final mode): allow-listed routes carry the new theme controls (login toggle, topbar toggle, settings appearance section); every diff bounding box is recorded in route-report.json and each <route>-diff.png is retained for review; legal routes carry no control and must stay at 0 px

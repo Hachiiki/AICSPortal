@@ -1,0 +1,5 @@
+# pre-migration utility inventory (baseline acbe71a33e851bdda7116f8dd88cd77d0e8612f8, git grep -oP over src/)
+# pattern: (?<![\w.-])((?:[a-z]+(?=:))?:)?(bg-white|text-blue-(600|700|800)|bg-slate-900)(/\d+)?(?![\w-])
+1	acbe71a33e851bdda7116f8dd88cd77d0e8612f8:src/components/faculty/FacultyGradeEncodingPage.tsx:bg-white/20
+1	acbe71a33e851bdda7116f8dd88cd77d0e8612f8:src/components/portal/StudentIdCard.tsx:bg-white/80
+# total occurrences: 2

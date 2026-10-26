@@ -1,0 +1,136 @@
+Stage 2C — findings, fixes, and limitations report
+==================================================
+
+Scope executed (owner authorization 2026-10-26): full route matrix x roles x
+both themes, COE print-view validation, ID-card light-on-dark validation;
+narrow fixes for confirmed regressions only.
+
+Survey (pre-fix, HEAD 462c413 — matrix-survey/)
+------------------------------------------------
+- 33 routes x 2 themes (login, 4 legal, 404, student x9, faculty x9,
+  admin x9 — the nav-config inventory + parsePath URL space), 5
+  interactions x 2 themes, skeleton loading x 2 themes with the hardened
+  Stage-2A presence predicate (108 blocks both themes), COE print x 2.
+- 31 unique dark-regression contrast signatures (light counterparts pass),
+  6 light-parity pairs, 13 light-only INFO pairs; plus the COE print
+  output was COMPLETELY BLANK in both themes (4 white A4 pages, 0 dark
+  pixels — pre-existing defect, not theme-caused).
+
+Confirmed regressions fixed (commit 8e2c690, 8 files)
+-----------------------------------------------------
+1. COE on-screen preview (dark): the document's brand literals (navy
+   #153357, ocean #287CBB, gray #6b7280) sat directly on the dark
+   DialogPanel surface (~1.3:1, 117 sub-bar texts incl. the whole
+   subjects table). Fix: `.dark .coe-print-area { background: #ffffff }`
+   (globals.css) — the preview now reads as paper, matching what prints;
+   the remaining document-internal sub-4.5 pairs are byte-for-byte the
+   same pre-existing pairs light mode has (light-parity INFO).
+2. COE print BLANK PAGES (both themes, pre-existing since the print CSS
+   landed): the modal backdrop carried `no-print`; `display:none` on an
+   ancestor suppresses ALL descendants — the .coe-print-area the print
+   rules re-enable via `visibility` cannot escape it (visibility is
+   overridable by descendants, display is not). Fix: removed `no-print`
+   from the COEModal backdrop (the `body * { visibility: hidden }` rule
+   hides it in print; its rgba backdrop never prints with printBackground
+   off). The Print / Save-as-PDF / Preview Certificate paths all print the
+   document on white paper now (verified via page.pdf + pdftoppm pixel
+   checks: white corners, dark navy-dominant text).
+3. Cookie-consent link (every dark page): brand literal #1769AA on the
+   dark banner = 3.0:1. Fix: dark:text-link (+ dark decoration
+   counterparts); the #1769AA light literal is untouched.
+4. LegalShell links (4 legal pages: current nav link + footer mailto):
+   same #1769AA-on-dark fix.
+5. DevBanner (every dark page): black text on the bridged dark
+   amber-400 = 4.27:1. Fix: dark:bg-amber-500 (established bridge rung;
+   6.6:1). Light keeps amber-400 exactly.
+6. Faculty grade-encoding auto-compute pill: text-amber-700 (bridged,
+   bright) on the literal light bg-[#fffbeb] = 1.65:1. Fix:
+   bg-[#fffbeb] dark:bg-amber-50 (light literal preserved byte-exactly —
+   v4 light amber-50 is an oklch value, NOT #fffbeb).
+7. AdminPeople role-filter count: bridged dark text-blue-200 on the
+   brand-constant navy chip = 1.51:1. Fix: text-blue-200
+   dark:text-[#bfdbfe] — the constant accent stays at its light value on
+   the constant navy in both themes (light keeps the v4 token exactly).
+8. Enrollment step labels + document status dates (dark): inline literals
+   on the dark card — labels at 1.04:1 (near-invisible), dates 3.41/2.64:1.
+   Fix: labelClass fields carrying the same light hexes plus bridged dark
+   counterparts (dark:text-slate-900 / slate-500 / green-700 / red-700).
+
+Gate (post-fix, HEAD 8e2c690 — matrix/)
+---------------------------------------
+- 81/81 entries PASS, 0 failures, 0 blocked. Dark REGRESSION findings:
+  0. Dark light-parity pairs: 9 unique signatures. Light INFO: 13.
+- Every capture: rendered-page assertion (not login redirect), resolved
+  theme state (html.dark + canvas token), zero console/page errors
+  (resource-status 401/403 lines from the unauthenticated session probe
+  and pre-existing API denials are recorded informationally via the
+  response listener), DOM text-contrast audit (computed color vs
+  composited effective background; WCAG 2.1 bars 4.5:1 body / 3:1 large).
+- COE print (both themes): modal opens; print emulation shows ONLY
+  .coe-print-area (absolute 0,0, visibility visible, outside hidden);
+  title color stays the literal rgb(21,51,87) in BOTH themes (dark does
+  not leak into the printed document); real page.pdf output pixel-verified
+  (white paper, navy-dominant text, 1 page each theme —
+  coe-print-light.pdf / coe-print-dark.pdf + rasterized PNGs retained).
+- ID card (both themes): overlay text colors are EXACTLY the
+  id-card-config literals (white/yellow/ink) in both themes — the card is
+  theme-independent by construction and empirically; the View Digital ID
+  dialog opens and audits clean; the card INTERIOR is pixel-identical
+  between themes (0 px), with 56 edge-AA px recorded as expected (the
+  rounded corners blend against the theme-dependent page background).
+  No ID-card print/export path exists in the project (dialog only) —
+  the COE modal is the sole window.print() consumer.
+- G4 final (hardened Stage-2A harness, baseline acbe71a): PASS, 24/24
+  captures, totalDiff 74347 with 0 unexpected — every per-capture value
+  field-identical to the Stage-2B run (see g4/stage2b-consistency.txt);
+  the Stage-2C fixes add ZERO light-mode pixels. Emitted CSS
+  108614 -> 109937 B (+1323 B for the new dark: utilities). G1 16/16,
+  G2 16/16. Lint 0 errors (23 pre-existing warnings), typecheck clean,
+  tests 82/82, build clean.
+
+Limitations (honest record)
+---------------------------
+- Light-parity pairs remain by policy (both themes fail at the same
+  marginal ratio; light output is pixel-frozen by G4): schedule-grid
+  times/rooms on tinted cells (~4.34:1 dark vs ~4.37:1 light), the COE
+  modal "Print" button white-on-ocean 4.48:1 (both themes), and the COE
+  document's internal gray/ocean small-print pairs (4.14-4.47:1, same in
+  light). Fixing these would change frozen light pixels — recorded for a
+  future owner decision, not fixed under Stage 2C.
+- The enrollment step CIRCLES/pills and document-status pills keep their
+  literal light backgrounds in dark mode (readable: their own text sits
+  on their own light bg). Recorded as optional Stage-2D-style polish.
+- ID card edge AA (56 px) differs between themes (corner blend vs page
+  background) — physical, expected, documented above.
+- The printed COE paginates onto multiple pages when the underlying page
+  is tall (the hidden boxes keep their layout height); the document
+  itself starts at page 1 top-left. Users can select page 1 in the print
+  dialog. Pre-existing print-CSS design; not changed under Stage 2C
+  (would alter the print layout the owner has not asked to redesign).
+- Chromium-only validation (established project constraint); Firefox and
+  Safari remain explicitly unverified. printBackground=false (the app
+  sets no print-color-adjust: exact — backgrounds drop in print by
+  design; verified in both themes).
+- The survey did not run the dedicated ID-card phase pre-fix (its
+  findings were derivable: the ID dialog interaction capture showed only
+  the two shared-chrome regressions, both fixed); the full ID-card suite
+  ran in gate mode at the fix commit.
+- Environment: mongod binary lives DIRECTLY at
+  scripts/mmserver/node_modules/.cache/mongodb-memory-server/
+  mongod-x64-debian-8.2.6 (no /bin subdirectory — the recovery note has
+  been corrected); the gate sandbox reaps detached background processes,
+  so the matrix harness runs as foreground slices (phase arg) appending
+  to results.jsonl, with a final report phase.
+
+Evidence map
+------------
+- matrix-survey/ — pre-fix survey at 462c413 (route-matrix.json,
+  findings-summary.txt, manifest.txt, results.jsonl, shots/, COE PDFs)
+- matrix/ — post-fix gate at 8e2c690 (same layout; route-matrix.json is
+  the canonical deduped report — results.jsonl is the raw append log
+  where re-run phases supersede earlier entries, last wins)
+- g1/, g2/, g4/ (incl. stage2b-consistency.txt)
+- Harness: scripts/theme/phase2-2c-matrix.mjs (new); scripts/theme/
+  g4-route-diff.mjs (grep allowlist line-number pin relaxed to file+form
+  — the 2C comments shifted a line number and failed the gate spuriously;
+  assertion intent unchanged)

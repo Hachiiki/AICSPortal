@@ -14,7 +14,7 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-26 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Phase 2 Stage 2B (this push): inline-hex cleanup in shared components with exact light-output preservation; see the Stage 2B sections below |
+| Last verified checkpoint | Phase 2 Stage 2C (this push): full route matrix x roles x both themes + COE print + ID-card validation with narrow regression fixes; see the Stage 2C sections below |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
@@ -254,14 +254,77 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   `visuals/report.json`; observations and the dark-avatar-edge
   trade-off recorded in `visuals/inspection-notes.txt`.
 
+## Gate results (Phase 2 Stage 2C, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase2/2c/)
+
+- **Full route matrix gate (new harness `phase2-2c-matrix.mjs`): PASS —
+  81/81 entries, 0 failures, 0 blocked, 0 dark regressions.** Survey at
+  the Stage-2B checkpoint `462c413` found 31 unique dark-regression
+  contrast signatures plus a pre-existing BLANK COE print (both themes);
+  the fix commit `8e2c690` (8 files) cleared everything. Matrix: 33
+  routes (login, 4 legal, 404, student x9, faculty x9, admin x9 — the
+  nav-config inventory) x 2 themes + 5 interactions x 2 + skeleton x 2
+  (hardened Stage-2A predicate, 108 blocks) + COE print x 2 + ID card
+  x 2. Per capture: rendered-page assertion, resolved theme state, zero
+  console/page errors (401/403 resource-status lines recorded
+  informationally), DOM text-contrast audit (computed color vs
+  composited effective background, WCAG 4.5:1 / 3:1 bars, structural
+  exemptions + the documented dual-use red-600 chip ruling; light-parity
+  pairs classified INFO — the same marginal pair fails in light too and
+  light is pixel-frozen). COE print: print-media layout assertions (only
+  .coe-print-area visible, absolute 0,0; title stays the literal navy in
+  BOTH themes) + real page.pdf output rasterized with pdftoppm and
+  pixel-verified (white paper, navy text). ID card: overlay colors are
+  exactly the id-card-config literals in both themes; card INTERIOR
+  pixel-identical between themes (0 px; 56 edge-AA px = corner blend vs
+  the page background, expected); the View Digital ID dialog audits
+  clean. See `findings-and-limitations.txt` for the full record
+  (remaining light-parity pairs, enrollment literal chips left as
+  optional polish, environment constraints).
+- **Fixes (commit `8e2c690`):** COE preview paper (`.dark
+  .coe-print-area { background: #ffffff }`); COE modal chrome
+  literal-classes with dark counterparts; COE BLANK PRINT fixed by
+  removing `no-print` from the modal backdrop (display:none on an
+  ancestor suppresses the print area the CSS re-enables via visibility
+  — pre-existing defect, both themes, found by the 2C print
+  validation); cookie-consent + legal-shell #1769AA links got
+  dark:text-link; DevBanner dark:bg-amber-500; grade-encoding pill
+  bg-[#fffbeb] dark:bg-amber-50; admin-people count text-blue-200
+  dark:text-[#bfdbfe] (constant accent on the constant navy chip);
+  enrollment labelClass + status-date classes. Two first-draft edits
+  (bg-amber-50 / text-[#bfdbfe] substitutions) moved +123 light pixels
+  (v4 oklch values differ from the v3 hexes!) and were corrected by
+  amending the unpushed commit — the light-exact forms above are what
+  shipped.
+- **G1 re-run: PASS 16/16; G2 re-run: PASS 16/16** (`g1/`, `g2/`).
+- **G4 final re-run (hardened Stage-2A harness, baseline `acbe71a`):
+  PASS** — 24/24 captures, totalDiff 74347, 0 unexpected, greps +
+  class-diff pass, and every per-capture value field-by-field IDENTICAL
+  to the Stage-2B run (`g4/stage2b-consistency.txt`): the Stage-2C
+  fixes add ZERO light-mode pixels. Emitted CSS 108614 -> 109937 B
+  (+1323 B, the new dark: utilities). The coverage-grep allowlist's
+  exact-line-number pin was relaxed to file+alpha-form (2C comments
+  shifted FacultyGradeEncodingPage.tsx:530 -> 534 and failed the gate
+  spuriously; assertion intent unchanged).
+- **Other validation:** lint 0 errors (23 pre-existing warnings);
+  typecheck clean; tests 82/82; `bun run build` clean.
+
 ## Pending / exact next step
 
-- **Stage 2B is complete and pushed. STOPPED per the owner's explicit
-  instruction: do NOT begin Stage 2C (full route matrix, COE print,
-  ID-card checks) or Stage 2D (blurred surfaces, red-700 hover
-  contrast, additional polish), or any other Phase 2 work, until the
-  owner reviews the Stage 2B evidence and explicitly authorizes the
-  next stage.**
+- **Stage 2C is complete and pushed. STOPPED per the owner's explicit
+  instruction: do NOT begin Stage 2D (blurred surfaces review, red-700
+  hover contrast fix at 2.909:1 on solid destructive chips, optional
+  dark-avatar edge definition, browser-matrix caveat) or any other
+  Phase 2 work until the owner reviews the Stage 2C evidence and
+  explicitly authorizes the next stage.**
+- Stage 2C additionally recorded (not fixed, by scope/policy):
+  light-parity marginal pairs (schedule-grid tints ~4.35:1 both themes,
+  COE modal Print button 4.48:1 both themes, COE document internal
+  small-print 4.14-4.47:1 both themes — fixing these would alter the
+  pixel-frozen light output, owner decision required); enrollment step
+  circles/pills keep literal light backgrounds in dark (readable —
+  their own text sits on their own bg; optional polish); COE print
+  still paginates trailing blank pages when the underlying page is tall
+  (pre-existing print-CSS design).
 - Owner rulings recorded with the Stage 2A authorization (2026-10-26),
   binding for the later stages: the legal brand colors `#1769AA` and
   `#124D7A` stay as brand constants for now; the Topbar avatar `#1e293b`
@@ -273,13 +336,13 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   tested. The Topbar `#153357` chip was inspected per the Stage-2B
   authorization and stays a brand constant (repo-wide navy family;
   documented in-code and in the Stage 2B record above).
-- Remaining proposed Phase-2 stages (NOT yet authorized): Stage 2C
-  full route matrix x3 roles x2 themes plus COE print (must print
-  light) and ID-card light-on-dark checks, Stage 2D optional polish
-  (blurred-surfaces review, the red-700 hover contrast fix at 2.909:1
-  during hover on solid destructive chips, optional dark-avatar edge
-  definition per the 2B inspection note, browser-matrix caveat).
-  Evidence continues under
+- Remaining proposed Phase-2 stage (NOT yet authorized): Stage 2D
+  optional polish (blurred-surfaces review, the red-700 hover contrast
+  fix at 2.909:1 during hover on solid destructive chips, optional
+  dark-avatar edge definition per the 2B inspection note,
+  browser-matrix caveat, plus the Stage-2C-recorded optional items:
+  enrollment literal chips, COE trailing blank print pages, the
+  light-parity marginal pairs). Evidence continues under
   `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`.
 
 ## Known issues / constraints
@@ -296,9 +359,10 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   (build 1248) at `~/.cache/ms-playwright` (`bunx playwright install
   chromium` re-provisions).
 - Local gate environment: mongod 8.2.6 (from mongodb-memory-server's
-  downloader, binary at
-  `/home/z/my-project/scripts/mmserver/node_modules/.cache/mongodb-memory-server/mongod-x64-debian-8.2.6`)
-  on 127.0.0.1:27017, dbpath `/home/z/my-project/scripts/mongo-data`;
+  downloader; the BINARY sits directly at
+  `/home/z/my-project/scripts/mmserver/node_modules/.cache/mongodb-memory-server/mongod-x64-debian-8.2.6`
+  — no `/bin` subdirectory; corrected 2026-10-26 during Stage 2C) on
+  127.0.0.1:27017, dbpath `/home/z/my-project/scripts/mongo-data`;
   re-seed with `node scripts/seed-mongodb.ts` (needs `.env.local`).
 - **Environment layout (CHANGED 2026-10-26):** the repo clone lives at
   `/home/z/my-project/AICSPortal` (branch `main-full-dev` checked out

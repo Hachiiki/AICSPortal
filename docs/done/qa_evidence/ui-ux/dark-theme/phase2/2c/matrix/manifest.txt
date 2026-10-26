@@ -1,0 +1,13 @@
+timestamp: 2026-10-26T08:02:18.915Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 8e2c690c54479d485c2d3915fc7c208bc9ce753b
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 bun scripts/theme/phase2-2c-matrix.mjs --mode gate --phase report --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2c/matrix/
+mode: gate (survey reports findings; gate fails on dark findings that are neither exempt, nor light-parity pre-existing pairs)
+route matrix: 33 routes (login, 4 legal, 404, student x9, faculty x9, admin x9) x 2 themes + 5 interactions x 2 themes + skeleton x2 + COE print x2 + ID card x2
+result: PASS in gate mode
+dark regression findings: 0 unique; dark light-parity (pre-existing, INFO): 9; light INFO: 13
+Stage 2C starting checkpoint: 462c413 (Stage 2B evidence bundle); survey run pre-fix at that tree, gate run at the Stage 2C fix commit
+sessions: student via POST /api/auth/demo; faculty/admin via dev-fallback-secret JWT; time frozen 2026-10-24T09:00:00
+print: @media print emulated + page.pdf (printBackground false, A4) rasterized with pdftoppm -r 96 and pixel-verified
+exemptions: [role=img] overlays, skeleton/gradient backgrounds, svg, sr-only; dual-use red-600 chips at the 3:1 bar (documented ruling)

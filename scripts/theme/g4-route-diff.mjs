@@ -487,7 +487,12 @@ try {
         ? lines.length === 0
         : expect === 'exactly-2-allowlisted'
           ? lines.length === 2 &&
-            lines.every((l) => /StudentIdCard\.tsx:40.*bg-white\/80/.test(l) || /FacultyGradeEncodingPage\.tsx:530.*bg-white\/20/.test(l))
+            // Stage 2C: line numbers unpinned (any edit above a site shifts
+            // it — the 2C comments moved the bg-white/20 chip from 530 to
+            // 534 and failed the gate spuriously). The assertion keeps its
+            // intent: exactly the two §2.5 allowlisted alpha-form sites,
+            // in those two files.
+            lines.every((l) => /StudentIdCard\.tsx:\d+.*bg-white\/80/.test(l) || /FacultyGradeEncodingPage\.tsx:\d+.*bg-white\/20/.test(l))
           : false
     greps.push({ desc, pattern, expect, lines, ok })
     return ok
