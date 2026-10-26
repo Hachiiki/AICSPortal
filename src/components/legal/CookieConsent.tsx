@@ -79,7 +79,7 @@ export function CookieConsent() {
             cookieless usage analytics stay off unless you allow them.{' '}
             <Link
               href="/legal/cookies"
-              className="font-medium text-[#1769AA] underline decoration-[#1769AA]/40 underline-offset-2 hover:decoration-[#1769AA]"
+              className="font-medium text-[#1769AA] dark:text-link underline decoration-[#1769AA]/40 dark:decoration-link/40 underline-offset-2 hover:decoration-[#1769AA] dark:hover:decoration-link"
             >
               Read the Cookie Policy
             </Link>

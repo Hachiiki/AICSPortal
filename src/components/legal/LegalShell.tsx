@@ -62,7 +62,7 @@ export function LegalShell({
                 aria-current={p.href === current ? 'page' : undefined}
                 className={
                   p.href === current
-                    ? 'text-sm font-semibold text-[#1769AA] underline underline-offset-4'
+                    ? 'text-sm font-semibold text-[#1769AA] dark:text-link underline underline-offset-4'
                     : 'text-sm text-slate-600 transition-colors hover:text-slate-900'
                 }
               >
@@ -97,7 +97,7 @@ export function LegalShell({
             Questions?{' '}
             <a
               href={`mailto:${LEGAL.operatorEmail}?subject=AICS%20Portal%20legal%20question`}
-              className="inline-flex items-center gap-1 font-medium text-[#1769AA] underline underline-offset-2"
+              className="inline-flex items-center gap-1 font-medium text-[#1769AA] dark:text-link underline underline-offset-2"
             >
               <Mail className="h-3.5 w-3.5" aria-hidden />
               {LEGAL.operatorEmail}

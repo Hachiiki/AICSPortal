@@ -364,7 +364,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 {(['all', 'prelim', 'midterm', 'finals'] as const).map((p) => (<button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${period === p ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}>{p === 'all' ? 'All periods' : p === 'prelim' ? 'Prelim only' : p === 'midterm' ? 'Midterm only' : 'Finals only'}</button>))}
               </div>
               <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5" /> Final • auto-computed (INC = 0)</span>
+                {/* Stage 2C: bg-[#fffbeb] is exact in light; dark pairs
+                    with the bridged amber-50 token (v4 light amber-50 is an
+                    oklch value, NOT #fffbeb — the literal must stay for
+                    light pixel parity). */}
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] dark:bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5" /> Final • auto-computed (INC = 0)</span>
                 <button onClick={() => toast.info('Auto-compute: Final = Prelim*0.3+Mid*0.3+Finals*0.4, INC counts as 0')} className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-semibold text-link-strong hover:bg-blue-100 inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Auto-compute</button>
                 <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed opacity-60' : 'bg-surface border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
               </div>

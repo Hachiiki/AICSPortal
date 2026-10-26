@@ -365,6 +365,18 @@
   }
 }
 
+/* Stage 2C: the COE preview is an intentionally LIGHT document —
+   COEDocument paints brand-literal navy/ocean/gray text (the same
+   literals that print). In dark mode the surrounding DialogPanel is a
+   dark surface, which left the document text at ~1.3:1. Force the
+   paper background for the preview container in dark only; light mode
+   is untouched (--surface is #FFFFFF there, so the panel already reads
+   as paper). The print rules above position this same container on
+   white paper regardless of theme. */
+.dark .coe-print-area {
+  background: #ffffff;
+}
+
 /* ----------------------------------------------------------------
    Skeleton loading shimmer
    Used by <Skeleton> primitives in src/components/portal/Skeleton.tsx.

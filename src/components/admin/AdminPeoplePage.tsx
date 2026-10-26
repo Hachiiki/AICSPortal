@@ -318,7 +318,14 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {label}
-                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200' : 'text-slate-500'}`}>{count}</span>
+                  {/* Stage 2C: constant accent on the brand-constant navy chip —
+                      the chip bg is the #153357 literal that never re-themes,
+                      so the count keeps the light blue-200 value in BOTH
+                      themes: light keeps the v4 token (an oklch value — NOT
+                      #bfdbfe; swapping the class would move light pixels),
+                      dark overrides with the light literal so it does not
+                      follow the bridged dark blue-200 (1.5:1 on the navy). */}
+                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200 dark:text-[#bfdbfe]' : 'text-slate-500'}`}>{count}</span>
                 </button>
               ))}
             </div>

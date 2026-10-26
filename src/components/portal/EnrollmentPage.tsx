@@ -62,10 +62,16 @@ const formatPeso = (amount: number) =>
   }).format(amount)
 
 // Status → color tokens for the enrollment step circles.
+// Stage 2C: labelClass carries the same light hexes the label style
+// objects had, plus the bridged dark counterparts (the inline styles
+// alone rendered 1.04:1 label text on the dark card); the circle/pill/
+// connector literals are deliberate constant chips (their own light
+// backgrounds keep their text readable in both themes) and stay as-is.
 const STEP_STYLES = {
   completed: {
     circle: { background: '#16a34a', color: '#ffffff', borderColor: '#16a34a' },
     label: { color: '#0f172a' },
+    labelClass: 'text-[#0f172a] dark:text-slate-900',
     sublabel: { color: '#16a34a' },
     connector: '#16a34a',
     pill: { background: '#dcfce7', color: '#15803d' },
@@ -73,6 +79,7 @@ const STEP_STYLES = {
   current: {
     circle: { background: '#1e40af', color: '#ffffff', borderColor: '#1e40af' },
     label: { color: '#0f172a' },
+    labelClass: 'text-[#0f172a] dark:text-slate-900',
     sublabel: { color: '#1e40af' },
     connector: '#cbd5e1',
     pill: { background: '#dbeafe', color: '#1d4ed8' },
@@ -80,6 +87,7 @@ const STEP_STYLES = {
   upcoming: {
     circle: { background: '#ffffff', color: '#64748b', borderColor: '#cbd5e1' },
     label: { color: '#64748b' },
+    labelClass: 'text-[#64748b] dark:text-slate-500',
     sublabel: { color: '#64748b' },
     connector: '#e2e8f0',
     pill: { background: '#f1f5f9', color: '#64748b' },
@@ -179,9 +187,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
 
                 {/* Label + status pill + date */}
                 <div className="mt-3 text-center px-1 w-full">
-                  <p className="text-xs font-semibold" style={style.label}>
-                    {s.label}
-                  </p>
+                  <p className={`text-xs font-semibold ${style.labelClass}`}>{s.label}</p>
                   <div className="mt-1.5 flex flex-col items-center gap-1">
                     <StatusPill status={s.status} />
                     {s.date && (
@@ -219,9 +225,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold" style={style.label}>
-                    {s.label}
-                  </p>
+                  <p className={`text-sm font-semibold ${style.labelClass}`}>{s.label}</p>
                   <StatusPill status={s.status} />
                 </div>
                 {s.date && (
@@ -405,9 +409,13 @@ function RequirementsChecklist({ student }: { student: Student }) {
                 </div>
                 <p className="text-sm text-slate-700 truncate">{d.name}</p>
               </div>
+              {/* Stage 2C: same light hexes as the inline styles, plus the
+                  bridged dark status tokens (green-700 / red-700) — the bare
+                  literals sat at 3.41:1 / 2.64:1 on the dark card. */}
               <p
-                className="text-xs font-medium whitespace-nowrap"
-                style={d.submitted ? { color: '#15803d' } : { color: '#b91c1c' }}
+                className={`text-xs font-medium whitespace-nowrap ${
+                  d.submitted ? 'text-[#15803d] dark:text-green-700' : 'text-[#b91c1c] dark:text-red-700'
+                }`}
               >
                 {d.submitted
                   ? d.dateSubmitted || 'Submitted'

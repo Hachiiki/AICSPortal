@@ -31,7 +31,16 @@ export function COEModal({ student, onClose }: COEModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 no-print"
+      /* Stage 2C: NO no-print here. `display: none` on an ancestor
+         suppresses ALL descendants — including this modal's
+         .coe-print-area, which the @media print rules re-enable with
+         visibility only (visibility is inheritable-overridable;
+         display is not). With no-print on the backdrop, printing
+         emitted blank pages in BOTH themes (pre-existing defect found
+         by the Stage 2C print validation). The backdrop itself stays
+         hidden in print via the `body * { visibility: hidden }` rule,
+         and its rgba backdrop does not print (printBackground off). */
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(21,51,87,0.55)' }}
       onClick={onClose}
     >
@@ -45,14 +54,17 @@ export function COEModal({ student, onClose }: COEModalProps) {
         className="bg-surface rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal header */}
+        {/* Modal header — app chrome (not part of the printed document:
+            carries no-print). Stage 2C theme-awareness: the brand-literal
+            light hexes are kept exact (same values the inline styles had);
+            dark counterparts use the semantic tokens (ink / line / link /
+            slate-500 bridge), the Stage-2B idiom. */}
         <div
-          className="px-6 py-4 flex items-center justify-between border-b no-print"
-          style={{ borderColor: PALETTE.mist }}
+          className="px-6 py-4 flex items-center justify-between border-b no-print border-[#D2D2D3] dark:border-line"
         >
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5" style={{ color: PALETTE.ocean }} aria-hidden />
-            <h2 id={titleId} className="font-bold text-sm" style={{ color: PALETTE.navy }}>
+            <FileText className="w-5 h-5 text-[#287CBB] dark:text-link" aria-hidden />
+            <h2 id={titleId} className="font-bold text-sm text-[#153357] dark:text-ink">
               Certificate of Enrollment
             </h2>
           </div>
@@ -66,16 +78,14 @@ export function COEModal({ student, onClose }: COEModalProps) {
             </button>
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              style={{ border: `1px solid ${PALETTE.mist}`, color: PALETTE.navy }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 border border-[#D2D2D3] dark:border-line text-[#153357] dark:text-ink"
             >
               <Download className="w-3.5 h-3.5" aria-hidden /> Save as PDF
             </button>
             <button
               onClick={onClose}
               aria-label="Close certificate preview"
-              className="p-1.5 rounded-lg transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              style={{ color: '#6b7280' }}
+              className="p-1.5 rounded-lg transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 text-[#6b7280] dark:text-slate-500"
             >
               <X className="w-4 h-4" aria-hidden />
             </button>
