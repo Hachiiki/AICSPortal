@@ -122,6 +122,15 @@
   --body: oklch(0.372 0.044 257.287);      /* slate-700 */
   --muted-fg: oklch(0.554 0.046 257.417);  /* slate-500 */
 
+  /* Avatar placeholder fill (Phase 2 Stage 2B): the initials circle
+     behind white text. Light is the exact pre-Stage-2B literal #1e293b
+     (v4 slate-800 is oklch, which renders differently); dark is the
+     raised-dark tone shared with --line so the circle reads as a
+     deliberate chip on the dark topbar while white initials keep
+     ~9:1. Consumers use bg-[var(--avatar-bg)] (CredentialsForm
+     var-arbitrary precedent). */
+  --avatar-bg: #1e293b;
+
   /* Login-scoped tokens (plan §2 login palette). Consumers read them
      through the `T` object in src/components/auth/login-tokens.ts as
      var() references, so the login surface themes with zero React
@@ -191,6 +200,9 @@
   --link-strong: oklch(0.75 0.13 260);
   --link-deep: oklch(0.78 0.12 260);
   --scrim: oklch(0 0 0);
+
+  /* Avatar placeholder fill, dark counterpart (see the :root block). */
+  --avatar-bg: oklch(0.32 0.014 255);
 
   /* §2 Layer-2 palette bridge. Default-palette utilities compile to
      var(--color-*) references resolved at the element, and this

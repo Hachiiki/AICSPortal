@@ -203,11 +203,14 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
         </div>
         <div className="px-6 py-5">
           <div className="grid grid-cols-5 divide-x divide-slate-100">
-            <OverviewStat label="Total" value={summary.total} color="text-link-strong" />
-            <OverviewStat label="Graded" value={summary.graded} color="text-green-700" />
-            <OverviewStat label="Pending" value={summary.pending} color="text-amber-700" />
-            <OverviewStat label="Needs attention" value={summary.needs} color="text-link-strong" />
-            <OverviewStat label="Missing" value={summary.missing} color="text-red-700" />
+            {/* Tone classes keep the exact pre-Stage-2B light hexes (v4
+                oklch palette shades render differently); the dark:
+                variants re-theme via the tokens/bridge. */}
+            <OverviewStat label="Total" value={summary.total} tone="text-[#2563EB] dark:text-link" />
+            <OverviewStat label="Graded" value={summary.graded} tone="text-[#15803D] dark:text-green-700" />
+            <OverviewStat label="Pending" value={summary.pending} tone="text-[#B45309] dark:text-amber-700" />
+            <OverviewStat label="Needs attention" value={summary.needs} tone="text-[#2563EB] dark:text-link" />
+            <OverviewStat label="Missing" value={summary.missing} tone="text-[#DC2626] dark:text-red-600" />
           </div>
           <div className="mt-4">
             <p className="text-xs text-slate-500 mb-1.5">
@@ -497,10 +500,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
 //  Sub-components
 // ============================================================
 
-function OverviewStat({ label, value, color }: { label: string; value: number; color: string }) {
+function OverviewStat({ label, value, tone }: { label: string; value: number; tone: string }) {
   return (
     <div className="text-center px-2">
-      <p className="text-2xl font-bold {color}" style={{ color: color.replace('text-', '').includes('green') ? '#15803D' : color.includes('amber') ? '#B45309' : color.includes('red') ? '#DC2626' : '#2563EB' }}>{value}</p>
+      <p className={`text-2xl font-bold ${tone}`}>{value}</p>
       <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mt-0.5">{label}</p>
     </div>
   )

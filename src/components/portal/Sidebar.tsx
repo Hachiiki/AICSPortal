@@ -39,19 +39,21 @@ function NavButton({
   const Icon = item.icon
 
   // --- Disabled / "coming soon" state ---
+  // Colors keep the exact pre-Stage-2B light values (v3 hex literals:
+  // v4 oklch palette shades render differently, so the fg stays an
+  // arbitrary value like the LoginView footer precedent) while the
+  // dark: variants re-theme through the palette bridge.
   if (!item.enabled) {
     return (
       <div
         aria-disabled="true"
-        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none"
-        style={{ color: '#64748b', background: '#f1f5f9' }}
+        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none bg-slate-100 text-[#64748b] dark:text-slate-500"
         title="Coming soon"
       >
         <Icon className="w-4 h-4 flex-shrink-0 opacity-50" />
         <span className="truncate flex-1">{item.label}</span>
         <span
-          className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-          style={{ background: '#f1f5f9', color: '#64748b' }}
+          className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-[#64748b] dark:text-slate-500"
         >
           Soon
         </span>

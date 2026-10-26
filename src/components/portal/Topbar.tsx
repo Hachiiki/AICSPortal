@@ -108,6 +108,10 @@ export function Topbar({
           >
             <Menu className="w-5 h-5" />
           </button>
+          {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
+              `navy`, 40+ action-button/chip sites) — brand-constant in
+              both themes per the dark-theme plan §2.5 navy-chip ruling,
+              same class of literal as the protected #1769AA/#124D7A. */}
           <span className="hidden sm:inline-flex px-2.5 py-1 rounded bg-[#153357] text-white text-xs font-semibold tracking-wide">
             BRANCH: {student.branch?.toUpperCase() || 'MANILA'}
           </span>
@@ -224,8 +228,7 @@ export function Topbar({
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                    style={{ background: '#1e293b' }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)]"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
