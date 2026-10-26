@@ -228,7 +228,7 @@ export function Topbar({
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)]"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
