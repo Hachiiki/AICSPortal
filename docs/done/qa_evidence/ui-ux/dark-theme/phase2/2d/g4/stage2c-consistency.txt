@@ -1,0 +1,13 @@
+Stage 2D G4 run vs Stage 2C G4 run — field-by-field artifact comparison
+2C report: docs/done/qa_evidence/ui-ux/dark-theme/phase2/2c/g4/route-report.json (HEAD 8e2c690c5447, Stage 2C fix commit; baseline acbe71a33e85)
+2D report: docs/done/qa_evidence/ui-ux/dark-theme/phase2/2d/g4/route-report.json (HEAD 8be6e6558962, Stage 2D code tip; baseline acbe71a33e85)
+capture order identical: True (24 vs 24 captures)
+gate total totalDiffPixels: 2C=74347 2D=74347 [SAME]
+gate total failedCaptures: 2C=0 2D=0 [SAME]
+gate total unexpectedDiffs: 2C=0 2D=0 [SAME]
+gate total greps: 2C=[{'desc': 'no non-allowlisted bg-white remnants (plan-literal pattern)', 'ok': True, 'lines': 0}, {'desc': 'exactly the two §2.5 allowlisted bg-white literals remain', 'ok': True, 'lines': 2}, {'desc': 'no text-blue-600/700/800 stragglers', 'ok': True, 'lines': 0}, {'desc': 'no bg-slate-900 stragglers', 'ok': True, 'lines': 0}] 2D=[{'desc': 'no non-allowlisted bg-white remnants (plan-literal pattern)', 'ok': True, 'lines': 0}, {'desc': 'exactly the two §2.5 allowlisted bg-white literals remain', 'ok': True, 'lines': 2}, {'desc': 'no text-blue-600/700/800 stragglers', 'ok': True, 'lines': 0}, {'desc': 'no bg-slate-900 stragglers', 'ok': True, 'lines': 0}] [SAME]
+gate total classDiffEqual: 2C=True 2D=True [SAME]
+captures compared: 24 (fields: diffPixels, sizeA, sizeB, bbox, diffAllowed, skeletonCountA, skeletonCountB, skeletonFirstVisibleA, skeletonFirstVisibleB)
+result: IDENTICAL — every per-capture value and every comparable total matches the Stage 2C run; the Stage-2D edits (7 red-chip dark:hover utilities + the avatar dark:ring triple) add zero light-mode pixels on top of the Phase-1 control diffs.
+EXPECTED cssSizeDelta.head: 2C=97561 B -> 109937 B vs 2D=97561 B -> 110563 B (the Stage-2D dark: utilities add 626 B; baseline identical)
+EXPECTED head SHA: 2C=8e2c690c54479d485c2d3915fc7c208bc9ce753b (Stage-2C fix commit) vs 2D=8be6e65589626ce58d4e3acc211a579919e4881c (Stage-2D avatar-polish commit atop the red-hover commit 7aed783) — different commits by design.

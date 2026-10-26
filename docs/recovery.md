@@ -14,8 +14,8 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-26 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Phase 2 Stage 2C: full route matrix x roles x both themes + COE print + ID-card validation with narrow regression fixes; see the Stage 2C sections below |
-| Latest push | 2026-10-26 attribution correction (owner-approved identity-only history rewrite of the 10 dark-theme commits) plus this recovery-doc update; see the Attribution correction section below |
+| Last verified checkpoint | Phase 2 Stage 2D: red-chip dark hover contrast fix (7 sites), avatar dark edge ring B3, blurred-surfaces evidence-only review; full gate suite re-run vs the Stage-2C baseline; see the Stage 2D sections below |
+| Latest push | 2026-10-26 Stage 2D (7aed783 red-hover fix, 8be6e65 avatar ring, 2D evidence bundle + this checkpoint) on top of the attribution correction and the Stage 2C checkpoint |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
@@ -372,18 +372,81 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
 - **Other validation:** lint 0 errors (23 pre-existing warnings);
   typecheck clean; tests 82/82; `bun run build` clean.
 
+## Gate results (Phase 2 Stage 2D, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase2/2d/)
+
+- **Scope (owner-authorized 2026-10-26):** exactly the three reviewed
+  plan items. (1) Red-chip hover contrast: `dark:hover:bg-red-500`
+  added alongside the existing `hover:bg-red-700` on the seven
+  solid-red hover sites (commit `7aed783`; 4 admin delete-confirm
+  chips + 3 error/retry buttons); light behavior and resting states
+  untouched. (2) Avatar edge option B3: `dark:ring-1 dark:ring-inset
+  dark:ring-white/15` on the Topbar initials placeholder only (commit
+  `8be6e65`; fill token, initials, and the real-photo branch
+  untouched). (3) Blurred surfaces: evidence only, no styling
+  changes.
+- **Browser-measured red-chip contrast (focus/):** light rest
+  #e7000b 4.765:1 -> hover #c10007/#c20007 6.36-6.42:1 (idiom
+  preserved); dark rest #ec5b57 3.382:1 (equals Phase-1 entry 80)
+  -> hover #da534f 3.931-3.951:1 (was 2.909:1; clears the 3:1
+  bold-chip bar, matches the planning 3.951 estimate on the real UI
+  chips). Four admin chips driven through their real confirm-state
+  UI; the three error-button class strings measured via injected
+  class-identical elements (no deterministic way to trigger the
+  error routes in the built demo app; same emitted stylesheet).
+- **Avatar (focus/):** light preserved — computed box-shadow none,
+  fill exactly rgb(30, 41, 59), and G4 field-by-field identity with
+  Stage 2C proves zero new light pixels. Dark ring computed at
+  oklab(white / 0.15) inset 1px; measured edge profile: fill #2e333a
+  (1.346:1 vs topbar) -> ring band #4a4e54 (2.045:1 vs topbar,
+  1.52:1 vs fill; theoretical 15% white over fill ~#4c4e54).
+  IMPORTANT: the planning report's B3 estimate (rim #dcdddf, 12.6:1)
+  had an alpha-direction error in its blend model (85% white instead
+  of 15%); the authorized classes were implemented verbatim and the
+  discrepancy is documented in findings-and-limitations.txt. VLM
+  review of the close-ups: subtle, crisp, deliberate contour; not
+  excessive; initials clear. If a stronger rim is wanted, a one-class
+  alpha bump (e.g. dark:ring-white/30) awaits owner decision.
+- **Blurred surfaces (focus/, evidence only):** the four faculty
+  modal states captured in dark (grade-history, previous-records
+  section, student-file, attendance-history): scrim blur(8px)
+  translucent, panels opaque (dark --surface), readability audits
+  10/17/54/6 records with one pre-existing light-parity finding (the
+  "Soon" inline-literal chip #64748b on #f1f5f9 at 4.34:1, both
+  themes; optional-polish bucket, owner decision). Cookie banner
+  compositing recorded in dark (oklab(0.225 / 0.85) + blur(8px))
+  with the flat-blend-model caveat and a readable VLM review; no
+  change, no regression.
+- **G1 re-run: PASS 16/16; G2 re-run: PASS 16/16** (`g1/`, `g2/`).
+- **G4 final re-run (hardened Stage-2A harness, baseline `acbe71a`):
+  PASS** — 24/24 captures, totalDiff 74347, 0 unexpected, skeleton
+  gate intact (108/108), and every per-capture value field-by-field
+  IDENTICAL to the Stage-2C run (`g4/stage2c-consistency.txt`): the
+  Stage-2D edits add ZERO light-mode pixels. Emitted CSS 109937 ->
+  110563 B (+626 B, the new dark: utilities).
+- **Full 2C route matrix re-run (gate mode): PASS 81/81 entries, 0
+  failures, 0 blocked, 0 dark regressions** (`matrix/`; 9 dark
+  light-parity INFO + 13 light INFO, same signatures as 2C).
+- **Other validation:** lint 0 errors (23 pre-existing warnings);
+  typecheck clean; tests 82/82; `bun run build` clean. New harness:
+  `scripts/theme/phase2-2d-focus.mjs` (isolated server on port 4305;
+  committed with this evidence bundle).
+
 ## Pending / exact next step
 
 - The 2026-10-26 attribution correction is complete and pushed
   (identity only; see the Attribution correction section above). It
-  changed zero application code and zero evidence trees; the Stage 2D
-  stop below remains in force.
-- **Stage 2C is complete and pushed. STOPPED per the owner's explicit
-  instruction: do NOT begin Stage 2D (blurred surfaces review, red-700
-  hover contrast fix at 2.909:1 on solid destructive chips, optional
-  dark-avatar edge definition, browser-matrix caveat) or any other
-  Phase 2 work until the owner reviews the Stage 2C evidence and
-  explicitly authorizes the next stage.**
+  changed zero application code and zero evidence trees.
+- **Stage 2D is complete and pushed. STOPPED per the owner's explicit
+  instruction: do NOT begin any further phase (no Phase 3, no
+  additional polish) and do NOT clean up the attribution backup
+  references until the owner reviews the Stage 2D evidence and
+  explicitly authorizes the next step.**
+- Owner-decision items recorded with Stage 2D (not fixed, by scope):
+  the avatar rim magnitude (the authorized white/15 renders subtle at
+  2.045:1 vs topbar; a stronger one-class bump such as
+  dark:ring-white/30 would need separate authorization); the
+  "Soon" inline-literal chip in the faculty student-file footer
+  (4.34:1 both themes, same optional-polish bucket as the 2C list).
 - Stage 2C additionally recorded (not fixed, by scope/policy):
   light-parity marginal pairs (schedule-grid tints ~4.35:1 both themes,
   COE modal Print button 4.48:1 both themes, COE document internal
@@ -404,14 +467,13 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   tested. The Topbar `#153357` chip was inspected per the Stage-2B
   authorization and stays a brand constant (repo-wide navy family;
   documented in-code and in the Stage 2B record above).
-- Remaining proposed Phase-2 stage (NOT yet authorized): Stage 2D
-  optional polish (blurred-surfaces review, the red-700 hover contrast
-  fix at 2.909:1 during hover on solid destructive chips, optional
-  dark-avatar edge definition per the 2B inspection note,
-  browser-matrix caveat, plus the Stage-2C-recorded optional items:
-  enrollment literal chips, COE trailing blank print pages, the
-  light-parity marginal pairs). Evidence continues under
-  `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`.
+- Remaining optional-polish items recorded across 2C/2D (NOT
+  authorized): enrollment literal chips, COE trailing blank print
+  pages, the light-parity marginal pairs (schedule-grid tints,
+  COE Print button 4.48:1, COE small-print 4.14-4.47:1 — fixing
+  these would alter the pixel-frozen light output), the "Soon"
+  literal chip, and the avatar rim alpha bump. Evidence continues
+  under `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`.
 
 ## Known issues / constraints
 

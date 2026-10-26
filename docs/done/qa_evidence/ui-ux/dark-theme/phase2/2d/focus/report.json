@@ -1,0 +1,817 @@
+{
+  "redChips": [
+    {
+      "site": "AdminAnnouncementsPage row delete-confirm chip (real UI)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(40.4273 67.2623 53.7441)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c10007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.42,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminAnnouncementsPage bulk delete-confirm chip (real UI)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(40.4273 67.2623 53.7441)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c10007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.42,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminEventsPage row delete-confirm chip (real UI)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(40.4273 67.2623 53.7441)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c10007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.42,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminProfessorsPage row delete-confirm chip (real UI)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(40.4273 67.2623 53.7441)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c10007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.42,
+      "hoverChanged": true
+    },
+    {
+      "site": "Error/retry button class string from app/portal/error.tsx (injected class-identical probe)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.507256 0.189776 0.0988577)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c20007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.36,
+      "hoverChanged": true,
+      "probeClass": "inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    },
+    {
+      "site": "Error/retry button class string from app/error.tsx (injected class-identical probe)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.50551 0.189079 0.0985169)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c10007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.407,
+      "hoverChanged": true,
+      "probeClass": "mt-6 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    },
+    {
+      "site": "Error/retry button class string from components/ErrorBoundary.tsx (injected class-identical probe)",
+      "theme": "light",
+      "restBg": "lab(48.4493 77.4328 61.5452)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.507257 0.189776 0.0988578)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#e7000b",
+      "hoverBgHex": "#c20007",
+      "restContrast": 4.765,
+      "hoverContrast": 6.36,
+      "hoverChanged": true,
+      "probeClass": "mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    },
+    {
+      "site": "AdminAnnouncementsPage row delete-confirm chip (real UI)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(54.2311 53.5119 31.5282)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.951,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminAnnouncementsPage bulk delete-confirm chip (real UI)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(54.2311 53.5119 31.5282)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.951,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminEventsPage row delete-confirm chip (real UI)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(54.2311 53.5119 31.5282)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.951,
+      "hoverChanged": true
+    },
+    {
+      "site": "AdminProfessorsPage row delete-confirm chip (real UI)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "lab(54.2311 53.5119 31.5282)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.951,
+      "hoverChanged": true
+    },
+    {
+      "site": "Error/retry button class string from app/portal/error.tsx (injected class-identical probe)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.621252 0.154335 0.0719893)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.931,
+      "hoverChanged": true,
+      "probeClass": "inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    },
+    {
+      "site": "Error/retry button class string from app/error.tsx (injected class-identical probe)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.621251 0.154334 0.0719891)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.931,
+      "hoverChanged": true,
+      "probeClass": "mt-6 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    },
+    {
+      "site": "Error/retry button class string from components/ErrorBoundary.tsx (injected class-identical probe)",
+      "theme": "dark",
+      "restBg": "lab(58.7725 56.6528 33.348)",
+      "restColor": "rgb(255, 255, 255)",
+      "hoverBg": "oklab(0.62125 0.154334 0.071989)",
+      "hoverColor": "rgb(255, 255, 255)",
+      "restBgHex": "#ec5b57",
+      "hoverBgHex": "#da534f",
+      "restContrast": 3.382,
+      "hoverContrast": 3.931,
+      "hoverChanged": true,
+      "probeClass": "mt-5 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+    }
+  ],
+  "avatar": {
+    "light": {
+      "computed": {
+        "bg": "rgb(30, 41, 59)",
+        "boxShadow": "none",
+        "width": 36,
+        "height": 36,
+        "topbarBg": "rgb(255, 255, 255)"
+      },
+      "shot": "shots/avatar-light.png",
+      "contextShot": "shots/avatar-context-light.png"
+    },
+    "dark": {
+      "computed": {
+        "bg": "lab(21.084 -0.990123 -5.06331)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.999994 0.0000455678 0.0000200868 / 0.15) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "width": 36,
+        "height": 36,
+        "topbarBg": "lab(10.0672 -0.812985 -4.32482)"
+      },
+      "shot": "shots/avatar-dark.png",
+      "contextShot": "shots/avatar-context-dark.png"
+    }
+  },
+  "facultyModals": [
+    {
+      "name": "grade-history",
+      "theme": "dark",
+      "status": "pass",
+      "checks": [
+        {
+          "desc": "modal panel opened",
+          "ok": true
+        },
+        {
+          "desc": "scrim has backdrop blur",
+          "ok": true
+        },
+        {
+          "desc": "scrim element found (full-viewport, blurred)",
+          "ok": true
+        },
+        {
+          "desc": "panel is opaque (alpha 1)",
+          "ok": true
+        },
+        {
+          "desc": "panel text readability audit ran",
+          "ok": true
+        }
+      ],
+      "modalComputed": {
+        "panelBg": "lab(10.0672 -0.812985 -4.32482)",
+        "panelBackdropFilter": "none",
+        "scrim": {
+          "cls": "fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40",
+          "bg": "oklab(0 0 0 / 0.4)",
+          "backdropFilter": "blur(8px)"
+        }
+      },
+      "audited": 10,
+      "readabilityFindings": [],
+      "shot": "shots/dark-faculty-grade-history.png"
+    },
+    {
+      "name": "previous-records-section",
+      "theme": "dark",
+      "status": "pass",
+      "checks": [
+        {
+          "desc": "modal panel opened",
+          "ok": true
+        },
+        {
+          "desc": "scrim has backdrop blur",
+          "ok": true
+        },
+        {
+          "desc": "scrim element found (full-viewport, blurred)",
+          "ok": true
+        },
+        {
+          "desc": "panel is opaque (alpha 1)",
+          "ok": true
+        },
+        {
+          "desc": "panel text readability audit ran",
+          "ok": true
+        }
+      ],
+      "modalComputed": {
+        "panelBg": "lab(10.0672 -0.812985 -4.32482)",
+        "panelBackdropFilter": "none",
+        "scrim": {
+          "cls": "fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40",
+          "bg": "oklab(0 0 0 / 0.4)",
+          "backdropFilter": "blur(8px)"
+        }
+      },
+      "audited": 17,
+      "readabilityFindings": [],
+      "shot": "shots/dark-faculty-previous-records-section.png"
+    },
+    {
+      "name": "student-file",
+      "theme": "dark",
+      "status": "pass",
+      "checks": [
+        {
+          "desc": "modal panel opened",
+          "ok": true
+        },
+        {
+          "desc": "scrim has backdrop blur",
+          "ok": true
+        },
+        {
+          "desc": "scrim element found (full-viewport, blurred)",
+          "ok": true
+        },
+        {
+          "desc": "panel is opaque (alpha 1)",
+          "ok": true
+        },
+        {
+          "desc": "panel text readability audit ran",
+          "ok": true
+        }
+      ],
+      "modalComputed": {
+        "panelBg": "lab(10.0672 -0.812985 -4.32482)",
+        "panelBackdropFilter": "none",
+        "scrim": {
+          "cls": "fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40",
+          "bg": "oklab(0 0 0 / 0.4)",
+          "backdropFilter": "blur(8px)"
+        }
+      },
+      "audited": 54,
+      "readabilityFindings": [
+        {
+          "text": "Soon",
+          "fg": "#64748b",
+          "bg": "#f1f5f9",
+          "ratio": 4.34,
+          "bar": 4.5,
+          "fontSize": "9px",
+          "fontWeight": "600"
+        }
+      ],
+      "shot": "shots/dark-faculty-student-file.png"
+    },
+    {
+      "name": "attendance-history",
+      "theme": "dark",
+      "status": "pass",
+      "checks": [
+        {
+          "desc": "modal panel opened",
+          "ok": true
+        },
+        {
+          "desc": "scrim has backdrop blur",
+          "ok": true
+        },
+        {
+          "desc": "scrim element found (full-viewport, blurred)",
+          "ok": true
+        },
+        {
+          "desc": "panel is opaque (alpha 1)",
+          "ok": true
+        },
+        {
+          "desc": "panel text readability audit ran",
+          "ok": true
+        }
+      ],
+      "modalComputed": {
+        "panelBg": "lab(10.0672 -0.812985 -4.32482)",
+        "panelBackdropFilter": "none",
+        "scrim": {
+          "cls": "fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40",
+          "bg": "oklab(0 0 0 / 0.4)",
+          "backdropFilter": "blur(8px)"
+        }
+      },
+      "audited": 6,
+      "readabilityFindings": [],
+      "shot": "shots/dark-faculty-attendance-history.png"
+    }
+  ],
+  "cookieBanner": {
+    "computed": {
+      "bg": "oklab(0.224999 -0.00310804 -0.0115853 / 0.85)",
+      "backdropFilter": "blur(8px)",
+      "borderTop": "lab(21.084 -0.990123 -5.06331)",
+      "supportsQuery": true
+    },
+    "shot": "shots/dark-cookie-banner.png"
+  },
+  "parserSelfTest": [
+    {
+      "prop": "--surface",
+      "computed": "lab(10.0672 -0.812985 -4.32482)",
+      "ok": true,
+      "detail": "drift=0.01/255 contrast=1.000 #181c21 vs #181c21"
+    },
+    {
+      "prop": "--ink",
+      "computed": "lab(93.0303 -0.4116 -1.83759)",
+      "ok": true,
+      "detail": "drift=0.03/255 contrast=1.000 #e9ebee vs #e9ebee"
+    },
+    {
+      "prop": "--muted-fg",
+      "computed": "lab(58.214 -0.939995 -4.38379)",
+      "ok": true,
+      "detail": "drift=0.02/255 contrast=1.000 #878d94 vs #878d94"
+    },
+    {
+      "prop": "--link",
+      "computed": "lab(66.5981 1.20062 -49.6365)",
+      "ok": true,
+      "detail": "drift=0.04/255 contrast=1.000 #6fa4fc vs #6fa4fc"
+    }
+  ],
+  "redChipVerdict": {
+    "sites": 14,
+    "darkHoverMin": 3.931,
+    "darkHoverAllPass3": true,
+    "darkRestAllPass3": true,
+    "lightRestRange": [
+      4.765,
+      4.765
+    ],
+    "lightHoverRange": [
+      6.36,
+      6.42
+    ],
+    "lightHoverChanged": true,
+    "darkHoverChanged": true
+  },
+  "avatarRim": {
+    "width": 36,
+    "height": 37,
+    "horizontalProfile": [
+      [
+        74,
+        78,
+        84
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        181,
+        183,
+        185
+      ],
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        84,
+        88,
+        94
+      ],
+      [
+        181,
+        183,
+        185
+      ],
+      [
+        237,
+        238,
+        238
+      ],
+      [
+        255,
+        255,
+        255
+      ],
+      [
+        243,
+        243,
+        244
+      ],
+      [
+        128,
+        131,
+        136
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        47,
+        52,
+        59
+      ],
+      [
+        74,
+        78,
+        84
+      ]
+    ],
+    "verticalProfile": [
+      [
+        24,
+        28,
+        33
+      ],
+      [
+        75,
+        80,
+        85
+      ],
+      [
+        47,
+        52,
+        59
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        64,
+        68,
+        75
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        46,
+        51,
+        58
+      ],
+      [
+        47,
+        52,
+        59
+      ],
+      [
+        75,
+        80,
+        85
+      ]
+    ],
+    "fillHex": "#2e333a",
+    "innerAaHex": "#2f343b",
+    "ringBandHex": "#4a4e54",
+    "topbarHex": "#181c21",
+    "ringBandVsTopbar": 2.045,
+    "fillVsTopbar": 1.346,
+    "ringBandVsFill": 1.52,
+    "innerAaVsFill": 1.015,
+    "note": "36px avatar, 1px inset ring with subpixel AA: the outermost pixel is the ring color (15% white over the fill; theoretical 0.15*255+0.85*fill) blended slightly toward the topbar at the circle edge; the second-from-edge pixel is the inner AA half. Raw per-pixel profiles retained in report.json."
+  }
+}

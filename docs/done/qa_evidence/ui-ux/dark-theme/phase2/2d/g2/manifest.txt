@@ -1,0 +1,10 @@
+timestamp: 2026-10-26T10:13:45.342Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 8be6e65589626ce58d4e3acc211a579919e4881c
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 GATE_MAIN_WT=/home/z/my-project/AICSPortal bun scripts/theme/g2-computed.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2d/g2/
+exit code: 0
+pairs: 16 (mismatches: 0, skipped: 0)
+properties: color, background-color, background-image, border-top-color, border-right-color, border-bottom-color, border-left-color, outline-color, box-shadow, text-decoration-color, accent-color
+environment: headless Chromium (playwright bundled), viewport 1280x800, deviceScaleFactor 1, colorScheme light, prefers-reduced-motion reduce, networkidle + 500ms settle
+sheet: single compile at HEAD containing BOTH vocabularies through the real src/app/globals.css (scratch dir scripts/theme-scratch/g2-sheet)

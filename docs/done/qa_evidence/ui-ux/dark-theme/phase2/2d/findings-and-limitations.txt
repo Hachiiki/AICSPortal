@@ -1,0 +1,160 @@
+Stage 2D findings and limitations (2026-10-26)
+=================================================
+
+Scope: the three owner-authorized Stage-2D items on top of the Stage-2C
+checkpoint (0b1c4f7 / code tip 8be6e65): (1) red-chip dark hover
+contrast fix on the seven solid-red hover sites, (2) avatar dark edge
+definition option B3, (3) blurred-surfaces review, evidence only.
+
+CHANGE 1: red-chip hover contrast (fix, 7aed783)
+-------------------------------------------------
+Seven sites now carry dark:hover:bg-red-500 alongside the existing
+hover:bg-red-700: AdminProfessorsPage row chip, AdminAnnouncementsPage
+row chip + bulk chip, AdminEventsPage row chip (the four admin
+delete-confirm chips), plus ErrorBoundary, app/error, app/portal/error
+(the three error/retry buttons). Light resting colors, light hover
+colors, and resting-state colors in both themes are untouched.
+
+Browser-measured (Chromium, real pages, focus/report.json; the four
+admin chips driven through their real confirm-state UI, the three
+error-button class strings measured via class-identical injected
+elements on a real authenticated page because the built demo app offers
+no deterministic way to trigger the error routes):
+
+  light rest   #e7000b (red-600 v4)   4.765:1   (unchanged idiom)
+  light hover  #c10007/#c20007        6.36-6.42:1 (darkens; unchanged)
+  dark rest    #ec5b57 (red-600 dark) 3.382:1   (matches the Phase-1
+              contrast report entry 80 exactly; unchanged)
+  dark hover   #da534f (red-500 dark) 3.931-3.951:1 (was 2.909:1 on
+              red-700; now clears the 3:1 bold-chip bar and matches
+              the planning estimate 3.951:1 on the real UI chips; the
+              3.931-3.946 spread on injected probes is reserialization
+              rounding, not a different color)
+
+The darker-on-hover idiom is restored in dark mode: the dark palette
+bridge makes red-700 (oklch 0.70) LIGHTER than red-600 (0.66), which
+is what originally dropped hover contrast below the bar; red-500
+(oklch 0.62) is darker, so hover now darkens in both themes.
+
+CHANGE 2: avatar dark edge, option B3 (fix, 8be6e65)
+-----------------------------------------------------
+The initials-placeholder avatar in Topbar.tsx now carries
+dark:ring-1 dark:ring-inset dark:ring-white/15 (exactly the authorized
+classes; the real-photo branch is untouched).
+
+Light theme: preserved. Computed box-shadow is none, fill is exactly
+rgb(30, 41, 59) (#1e293b), and the G4 final re-run is field-by-field
+IDENTICAL to the Stage-2C run (totalDiff 74347, every per-capture
+diffPixels/PNG size/bbox/skeleton count equal; see
+g4/stage2c-consistency.txt) — zero new light-mode pixels anywhere.
+
+Dark theme: computed box-shadow carries the inset 1px ring at
+oklab(0.999994 0.0000455678 0.0000200868 / 0.15) — white at 15 percent
+alpha, as specified.
+
+IMPORTANT FINDING, planning-estimate discrepancy (owner attention):
+The Stage-2D planning report quoted option B3 as "rim #dcdddf, 12.6:1
+vs topbar". Re-running the planning calculation script
+(scripts/stage2d_contrast_calcs.py, outside the repo) shows its
+oklab_blend() weights the FIRST color (the fill) by the alpha
+parameter, so "white/15" was actually modeled as 85 percent white over
+the fill. The CSS ring-white/15 is the opposite direction: 15 percent
+white OVER the fill. The correctly-modeled expectation, and the
+browser-measured reality:
+
+  fill (dark --avatar-bg)     #2e333a   1.346:1 vs topbar (before)
+  ring band (measured)        #4a4e54   2.045:1 vs topbar (after)
+  ring band vs fill                     1.52:1
+  theoretical 0.15*255+0.85*fill ~= #4c4e54 (the measured band matches
+  to within AA rounding)
+
+So the rendered edge definition improved from 1.346:1 to 2.045:1 — a
+subtle, real lift — not to 12.6:1. Per the authorization ("if the ring
+looks visually excessive or differs materially from the plan, stop and
+report the finding instead of inventing another treatment"): the
+authorized classes were implemented verbatim, nothing was substituted,
+and the discrepancy is reported here rather than silently absorbed.
+Visual inspection of the dark close-up (VLM review, focus/vlm/):
+"very fine, crisp, well-defined boundary... subtle... does not appear
+harsh, excessive, or halo-like... initials perfectly clear" — the
+qualitative intent (a deliberate contour) is met. If the owner wants
+the stronger rim magnitude the planning number implied, the follow-up
+is a one-class alpha bump (e.g. dark:ring-white/30, roughly #74767c,
+about 3.3:1 vs topbar) — NOT done here, awaiting owner decision.
+
+CHANGE 3: blurred surfaces (evidence only; no styling changed)
+---------------------------------------------------------------
+The four faculty modal states were captured in dark mode with their
+bg-scrim/40 backdrop-blur-sm scrims (focus/shots/dark-faculty-*.png):
+grade-history drawer, previous-records section drawer, student-file
+drawer, attendance-history dialog. Measured per modal: scrim
+backdrop-filter blur(8px) (Tailwind v4 backdrop-blur-sm), translucent
+scrim background, opaque DialogPanel (the dark --surface token,
+computed alpha 1). Text-readability audits inside the panels: 10/17/54/6
+records audited, zero findings except one pre-existing pair (below).
+VLM review: readable, no banding/smearing/bleed, clean separation.
+
+Pre-existing finding (recorded, not fixed; same category as the 2C
+optional-polish list): the "Soon" mini-chip in the student-file footer
+(FacultyStudentsPage.tsx, inline style literals background #f1f5f9 /
+color #64748b) measures 4.34:1 at 9px/600 — under the 4.5:1 body bar.
+It is theme-constant (identical literals in both themes; light output
+is pixel-frozen), so it is a light-parity pre-existing pair, not a
+dark-theme regression, and this stage's scope excludes unrelated UI
+changes. Owner decision required if it is ever to be migrated.
+
+Cookie-consent banner compositing caveat (documented per the plan):
+the banner composites bg-surface/95 (fallback) or /85 under
+supports(backdrop-filter) over live page content; measured in dark:
+oklab(0.224999 -0.00310804 -0.0115853 / 0.85) with blur(8px). The
+caveat recorded in planning: a flat color-mix blend model cannot
+faithfully predict perceived contrast over an arbitrary blurred
+backdrop (the planning numbers 5.07-9.29:1 assumed specific composite
+backgrounds); the honest evidence is the dark capture plus the VLM
+review (focus/vlm/cookie-banner.json): text readable, no ghosting,
+sufficient separation. No change made; no regression observed.
+
+VALIDATION SUMMARY (all at code tip 8be6e65, baseline acbe71a)
+----------------------------------------------------------------
+  lint          0 errors (23 pre-existing warnings, none new)
+  typecheck     clean
+  tests         82/82 (authz units + scripts/lib, as at 2C)
+  build         clean
+  G1            PASS 16/16 (2d/g1/)
+  G2            PASS 16/16 pairs x 11 properties (2d/g2/)
+  G4 final      PASS 24/24 captures, totalDiff 74347, 0 unexpected,
+                skeleton-presence gate intact (108/108, first visible),
+                interaction-skeleton-loading strict 0 px off the
+                allow-list; field-by-field IDENTICAL to the Stage-2C
+                run (2d/g4/stage2c-consistency.txt). Emitted CSS
+                109937 -> 110563 B (+626 B, the new dark utilities).
+  2C matrix     PASS 81/81 entries, 0 failures, 0 blocked, 0 dark
+                regressions (2d/matrix/); rerun in phased slices
+                (routes 0-10 / 11-21 / 22-32, interactions, coe, id,
+                report).
+  focus probes  PASS (2d/focus/): 14 red-chip site-themes, avatar
+                computed+pixel, 4 faculty modal dark captures, cookie
+                banner record; color parser self-test 4/4.
+
+LIMITATIONS / NOT VERIFIED (honest record)
+-------------------------------------------
+- Firefox and Safari remain unverified (standing owner ruling:
+  Chromium is the locally testable browser).
+- The three error/retry routes were not triggered as real error
+  renders; their class strings were measured via injected
+  class-identical elements on a real authenticated page under the same
+  emitted stylesheet. The utilities are source-scanned and identical;
+  the real-UI path was exercised for the four admin chips.
+- The avatar ring's visual quality was assessed by pixel measurement
+  plus VLM review of the captures; no human eye was in the loop.
+- The sandbox was reset after Stage 2C: node_modules, the Playwright
+  Chromium build, the mongod binary, the seeded database, and .env.local
+  were re-provisioned this session (bun install; playwright install
+  chromium -> headless shell 156.0.8078.4 build 1248, matching the
+  recorded environment; mongodb-memory-server downloader -> mongod
+  8.2.6 at the recorded path; seed via scripts/seed-mongodb.ts). G4
+  rebuilt both trees from the pinned baseline acbe71a as usual, so the
+  comparison basis is unchanged.
+- The 2C matrix re-run used the same harness and DB protocol as the
+  2C gate run; per-capture values match the 2C baseline expectations
+  (0 dark regressions, 9 dark light-parity INFO, 13 light INFO).

@@ -1,0 +1,22 @@
+## no non-allowlisted bg-white remnants (plan-literal pattern)
+$ rg -P -n 'bg-white(?!/80|/20)' src/
+expected: none
+result (0 lines): OK
+
+## exactly the two §2.5 allowlisted bg-white literals remain
+$ rg -P -n 'bg-white' src/
+expected: exactly-2-allowlisted
+result (2 lines): OK
+  src/components/portal/StudentIdCard.tsx:40:        <div className="absolute top-1 right-1 text-[8px] font-mono text-red-600 bg-white/80 px-1 rounded">
+  src/components/faculty/FacultyGradeEncodingPage.tsx:534:              <button onClick={handleSubmitConfirm} disabled={submitting} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-60">{submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {submitting ? 'Submitting…' : 'Submit'} <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">{filtered.filter((r: any) => { const k = period === 'all' ? 'gradeStatus' : period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : 'finalsStatus'; const st = (r as any)[k] ?? ''; return !st || st === 'draft' }).length}</span></button>
+
+## no text-blue-600/700/800 stragglers
+$ rg -P -n 'text-blue-(600|700|800)' src/
+expected: none
+result (0 lines): OK
+
+## no bg-slate-900 stragglers
+$ rg -P -n 'bg-slate-900' src/
+expected: none
+result (0 lines): OK
+
