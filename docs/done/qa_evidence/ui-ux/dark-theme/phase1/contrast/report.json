@@ -1,0 +1,690 @@
+{
+  "gate": "Phase-1 dark-mode contrast matrix (plan §5)",
+  "head": "7a2f16e7086cc10435ee9b74de4bf4bb93268e1e",
+  "bars": {
+    "bodyText": 4.5,
+    "largeTextAndIcons": 3,
+    "nonTextUI": 3
+  },
+  "pairsTotal": 83,
+  "pairsGated": 73,
+  "pairsPassing": 73,
+  "recordedInformational": 10,
+  "failures": 0,
+  "results": [
+    {
+      "desc": "ink on surface",
+      "fg": "oklch(0.94 0.005 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 14.342,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "ink on canvas",
+      "fg": "oklch(0.94 0.005 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 15.632,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "body on surface",
+      "fg": "oklch(0.80 0.01 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 9.157,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "body on canvas",
+      "fg": "oklch(0.80 0.01 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 9.98,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "muted-fg on surface",
+      "fg": "oklch(0.64 0.012 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.087,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "muted-fg on canvas",
+      "fg": "oklch(0.64 0.012 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 5.544,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link on surface",
+      "fg": "oklch(0.72 0.14 260)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 6.839,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link on canvas",
+      "fg": "oklch(0.72 0.14 260)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 7.454,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link-strong on surface",
+      "fg": "oklch(0.75 0.13 260)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 7.641,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link-strong on canvas",
+      "fg": "oklch(0.75 0.13 260)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 8.328,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link-deep on surface",
+      "fg": "oklch(0.78 0.12 260)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 8.507,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "link-deep on canvas",
+      "fg": "oklch(0.78 0.12 260)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 9.273,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "muted-fg on surface (plan target 4.6)",
+      "fg": "oklch(0.64 0.012 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.087,
+      "bar": 4.6,
+      "ok": true
+    },
+    {
+      "desc": "slate-500 on surface",
+      "fg": "oklch(0.64 0.012 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.087,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-500 on canvas",
+      "fg": "oklch(0.64 0.012 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 5.544,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-600 on surface",
+      "fg": "oklch(0.72 0.01 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 6.896,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-600 on canvas",
+      "fg": "oklch(0.72 0.01 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 7.517,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-700 on surface",
+      "fg": "oklch(0.80 0.01 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 9.157,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-700 on canvas",
+      "fg": "oklch(0.80 0.01 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 9.98,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-800 on surface",
+      "fg": "oklch(0.88 0.008 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 11.916,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-800 on canvas",
+      "fg": "oklch(0.88 0.008 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 12.988,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-900 on surface",
+      "fg": "oklch(0.94 0.005 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 14.342,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "slate-900 on canvas",
+      "fg": "oklch(0.94 0.005 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 15.632,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "green-700 on green-50",
+      "fg": "oklch(0.79 0.14 155)",
+      "bg": "oklch(0.30 0.04 155)",
+      "ratio": 7.333,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "amber-700 on amber-50",
+      "fg": "oklch(0.83 0.14 80)",
+      "bg": "oklch(0.32 0.05 75)",
+      "ratio": 7.467,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "red-700 on red-50",
+      "fg": "oklch(0.70 0.19 25)",
+      "bg": "oklch(0.30 0.06 25)",
+      "ratio": 4.802,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "emerald-700 on emerald-50",
+      "fg": "oklch(0.78 0.14 160)",
+      "bg": "oklch(0.30 0.05 160)",
+      "ratio": 7.068,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "violet-700 on violet-50",
+      "fg": "oklch(0.75 0.13 300)",
+      "bg": "oklch(0.30 0.05 300)",
+      "ratio": 5.966,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "cyan-700 on cyan-50",
+      "fg": "oklch(0.75 0.13 195)",
+      "bg": "oklch(0.30 0.05 195)",
+      "ratio": 6.335,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "teal-700 on teal-50",
+      "fg": "oklch(0.75 0.13 175)",
+      "bg": "oklch(0.30 0.05 175)",
+      "ratio": 6.352,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "orange-700 on orange-50",
+      "fg": "oklch(0.80 0.12 55)",
+      "bg": "oklch(0.30 0.05 55)",
+      "ratio": 7.172,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "red-600 (text x35) on surface",
+      "fg": "oklch(0.66 0.18 25)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.055,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "red-600 (text x35) on canvas",
+      "fg": "oklch(0.66 0.18 25)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 5.51,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "amber-600 on surface",
+      "fg": "oklch(0.77 0.13 80)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 8.144,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "amber-800 on amber-50",
+      "fg": "oklch(0.86 0.12 80)",
+      "bg": "oklch(0.32 0.05 75)",
+      "ratio": 8.266,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "green-600 on green-50",
+      "fg": "oklch(0.72 0.14 155)",
+      "bg": "oklch(0.30 0.04 155)",
+      "ratio": 5.735,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "emerald-600 on surface",
+      "fg": "oklch(0.72 0.15 160)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 7.357,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "amber-700 on amber-50 (hardest pair)",
+      "fg": "oklch(0.83 0.14 80)",
+      "bg": "oklch(0.32 0.05 75)",
+      "ratio": 7.467,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "red-700 on surface",
+      "fg": "oklch(0.70 0.19 25)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.876,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "green-700 on surface",
+      "fg": "oklch(0.79 0.14 155)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 9.347,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "amber-700 on surface",
+      "fg": "oklch(0.83 0.14 80)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 9.995,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "emerald-700 on surface",
+      "fg": "oklch(0.78 0.14 160)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 9.052,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "violet-700 on surface",
+      "fg": "oklch(0.75 0.13 300)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 7.362,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "orange-700 on surface",
+      "fg": "oklch(0.80 0.12 55)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 8.873,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "red-500 (alert icons x10, dots) on surface",
+      "fg": "oklch(0.62 0.17 25)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 4.328,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "red-500 (alert icons x10, dots) on canvas",
+      "fg": "oklch(0.62 0.17 25)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 4.717,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "green-500 (dots) on surface",
+      "fg": "oklch(0.62 0.13 155)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 4.983,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "amber-500 (dots) on surface",
+      "fg": "oklch(0.66 0.13 80)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.412,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "emerald-500 (dots) on surface",
+      "fg": "oklch(0.63 0.13 160)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.195,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "violet-500 (dots) on surface",
+      "fg": "oklch(0.62 0.13 300)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 4.467,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "slate-400 (faint icons) on surface",
+      "fg": "oklch(0.52 0.012 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 3.106,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "slate-400 (faint icons) on canvas",
+      "fg": "oklch(0.52 0.012 255)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 3.386,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "line on surface",
+      "fg": "oklch(0.32 0.014 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 1.349,
+      "bar": null,
+      "recorded": true,
+      "note": "decorative divider/border; plan §2 value"
+    },
+    {
+      "desc": "slate-200 on surface",
+      "fg": "oklch(0.32 0.014 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 1.349,
+      "bar": null,
+      "recorded": true,
+      "note": "decorative card/table borders"
+    },
+    {
+      "desc": "slate-300 on surface",
+      "fg": "oklch(0.42 0.014 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.022,
+      "bar": null,
+      "recorded": true,
+      "note": "decorative chevron affordances"
+    },
+    {
+      "desc": "login-border on surface",
+      "fg": "oklch(0.32 0.014 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 1.349,
+      "bar": null,
+      "recorded": true,
+      "note": "input boundary; labels + 3:1 focus ring convey the field"
+    },
+    {
+      "desc": "red-200 on surface",
+      "fg": "oklch(0.46 0.12 25)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.257,
+      "bar": null,
+      "recorded": true,
+      "note": "pill border; the pill text/bg pair is gated"
+    },
+    {
+      "desc": "green-200 on surface",
+      "fg": "oklch(0.44 0.07 155)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.28,
+      "bar": null,
+      "recorded": true,
+      "note": "pill border; the pill text/bg pair is gated"
+    },
+    {
+      "desc": "amber-200 on surface",
+      "fg": "oklch(0.46 0.08 80)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.376,
+      "bar": null,
+      "recorded": true,
+      "note": "pill border; the pill text/bg pair is gated"
+    },
+    {
+      "desc": "emerald-200 on surface",
+      "fg": "oklch(0.44 0.07 160)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.282,
+      "bar": null,
+      "recorded": true,
+      "note": "pill border; the pill text/bg pair is gated"
+    },
+    {
+      "desc": "violet-200 on surface",
+      "fg": "oklch(0.44 0.07 300)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 2.142,
+      "bar": null,
+      "recorded": true,
+      "note": "pill border; the pill text/bg pair is gated"
+    },
+    {
+      "desc": "login-text on login-surface",
+      "fg": "oklch(0.93 0.01 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 13.919,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "login-text on login-bg",
+      "fg": "oklch(0.93 0.01 255)",
+      "bg": "oklch(0.21 0.012 255)",
+      "ratio": 14.42,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "login-muted on login-surface",
+      "fg": "oklch(0.66 0.012 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.5,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "login-muted on login-bg",
+      "fg": "oklch(0.66 0.012 255)",
+      "bg": "oklch(0.21 0.012 255)",
+      "ratio": 5.698,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "login-primary (as text) on login-surface",
+      "fg": "oklch(0.66 0.14 255)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 5.48,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "login-primary (as text) on login-bg",
+      "fg": "oklch(0.66 0.14 255)",
+      "bg": "oklch(0.21 0.012 255)",
+      "ratio": 5.677,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "ring (focus indicator) on surface",
+      "fg": "oklch(0.70 0.15 260)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 6.336,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "ring (focus indicator) on canvas",
+      "fg": "oklch(0.70 0.15 260)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 6.906,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "blue-500 (rings/dots) on surface",
+      "fg": "oklch(0.70 0.15 260)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 6.336,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "blue-500 (rings/dots) on canvas",
+      "fg": "oklch(0.70 0.15 260)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 6.906,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "login-accent (scan line/focus) on surface",
+      "fg": "oklch(0.72 0.13 240)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 7.007,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "login-accent (scan line/focus) on canvas",
+      "fg": "oklch(0.72 0.13 240)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 7.637,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "red-500 (ring-red-500 focus rings) on surface",
+      "fg": "oklch(0.62 0.17 25)",
+      "bg": "oklch(0.225 0.012 255)",
+      "ratio": 4.328,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "red-500 (ring-red-500 focus rings) on canvas",
+      "fg": "oklch(0.62 0.17 25)",
+      "bg": "oklch(0.185 0.012 255)",
+      "ratio": 4.717,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "white on blue-600 (v4)",
+      "fg": "oklch(54.6% 0.245 262.881)",
+      "bg": "#FFFFFF",
+      "ratio": 5.256,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "white on blue-700 (v4)",
+      "fg": "oklch(48.8% 0.243 264.376)",
+      "bg": "#FFFFFF",
+      "ratio": 6.824,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "white on blue-800 (v4)",
+      "fg": "oklch(42.4% 0.199 265.638)",
+      "bg": "#FFFFFF",
+      "ratio": 8.839,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "white on red-600 (v4, light-mode value)",
+      "fg": "oklch(57.7% 0.245 27.325)",
+      "bg": "#FFFFFF",
+      "ratio": 4.915,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "white on login navy",
+      "fg": "#17324D",
+      "bg": "#FFFFFF",
+      "ratio": 13.126,
+      "bar": 4.5,
+      "ok": true
+    },
+    {
+      "desc": "white on dark red-600 (solid chips, bold text)",
+      "fg": "oklch(0.66 0.18 25)",
+      "bg": "#FFFFFF",
+      "ratio": 3.382,
+      "bar": 3,
+      "ok": true
+    },
+    {
+      "desc": "white on dark red-700 (chip hover, transient)",
+      "fg": "oklch(0.70 0.19 25)",
+      "bg": "#FFFFFF",
+      "ratio": 2.909,
+      "bar": null,
+      "recorded": true,
+      "note": "below 3:1 during the transient hover; mirrors the plan brand-action deviation; candidate Phase-2 polish (darker-on-dark hover)"
+    },
+    {
+      "desc": "white on login-primary (icon)",
+      "fg": "oklch(0.66 0.14 255)",
+      "bg": "#FFFFFF",
+      "ratio": 3.12,
+      "bar": 3,
+      "ok": true
+    }
+  ]
+}

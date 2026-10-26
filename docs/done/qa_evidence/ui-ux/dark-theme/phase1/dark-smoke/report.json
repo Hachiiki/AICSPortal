@@ -1,0 +1,49 @@
+{
+  "gate": "Phase-1 dark-mode route smoke (plan §6)",
+  "head": "7a2f16e7086cc10435ee9b74de4bf4bb93268e1e",
+  "stepsTotal": 8,
+  "stepsPassing": 8,
+  "failures": 0,
+  "results": [
+    {
+      "desc": "login: html.dark + dark canvas token",
+      "ok": true,
+      "detail": "lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "desc": "sonner toast renders in dark (failed sign-in)",
+      "ok": true,
+      "detail": "toasts=1"
+    },
+    {
+      "desc": "student dashboard: html.dark + dark canvas token",
+      "ok": true,
+      "detail": "lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "desc": "faculty dashboard: html.dark + dark canvas token",
+      "ok": true,
+      "detail": "lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "desc": "admin dashboard: html.dark + dark canvas token",
+      "ok": true,
+      "detail": "lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "desc": "dropdown-menu opens in dark (notifications; empty state text visible)",
+      "ok": true,
+      "detail": "menus=1"
+    },
+    {
+      "desc": "dialog opens in dark (admin add-event modal, inputs/buttons visible)",
+      "ok": true,
+      "detail": "dialogs=1"
+    },
+    {
+      "desc": "skeletons visible in dark (network-hungry events page)",
+      "ok": true,
+      "detail": "blocks=108"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+timestamp: 2026-10-26T02:48:41.688Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 7a2f16e7086cc10435ee9b74de4bf4bb93268e1e
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase1 bun scripts/theme/phase1-controls-check.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase1/controls/
+exit code: 0
+steps: 32 (0 failures)
+server: next start on 127.0.0.1:4300 (APP_ENV=development, production build); student session via POST /api/auth/demo; faculty/admin via dev-fallback-secret JWT (DB-validated)
+environment: headless Chromium 1280x800, colorScheme driven per check (light default; dark for the system-mode and no-FOUC system cases); throttled first paint = 250ms delay on every request for the no-FOUC checks
+assertions: documentElement.classList, localStorage aics_theme, documentElement.style.colorScheme, and the lightness of the computed --background token on <html> (Chrome reserializes oklch as lab(); the leading component is thresholded: dark <= 10, light >= 99, which proves the .dark cascade flipped the canvas token)

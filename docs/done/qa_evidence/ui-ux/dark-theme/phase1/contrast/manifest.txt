@@ -1,0 +1,12 @@
+timestamp: 2026-10-26T02:48:06.364Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 7a2f16e7086cc10435ee9b74de4bf4bb93268e1e
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase1 bun scripts/theme/phase1-contrast.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase1/contrast/
+exit code: 0
+pairs: 73 gated (0 failures) + 10 recorded informational
+method: token values parsed from src/app/globals.css at HEAD (dark block + :root + emitted v4 palette, first occurrence); OKLCH -> sRGB -> relative luminance -> WCAG contrast ratio, computed in JS (no browser needed)
+scoping: WCAG 1.4.11 applies the 3:1 non-text bar to boundaries required to identify UI components and status-conveying graphics; decorative dividers, card borders, chevron affordances, and tint pill borders are recorded as informational (the pill text-on-tint pairs and all focus rings are gated)
+dual-use note: dark red-600 serves 35 text sites (>= 4.5:1, gated) and 9 solid chips with white bold text (>= 3:1, gated); its chip-hover red-700 pair is recorded below 3:1 as a known Phase-2 polish candidate
+light-mode parity is NOT asserted here: it is G1/G2/G4's job (the Phase-1 re-runs cover it against the Phase-0 exit)
+role-specific bars follow plan §5: 4.5:1 body text, 3:1 large text / icons-as-status / non-text UI (1.4.11); the white icon on --login-primary is a declared 3:1 role

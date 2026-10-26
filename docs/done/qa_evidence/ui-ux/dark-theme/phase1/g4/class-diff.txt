@@ -1,0 +1,34 @@
+# class-diff extraction: git diff --unified=0 acbe71a33e851bdda7116f8dd88cd77d0e8612f8 -- src/
+# filtered to the migration families; mode: final
+# final: zero old-vocabulary tokens in the diff (0 removed / 0 added); new-vocabulary changes recorded below
+# phase0 rule: added-class multiset must equal the §2.5 mapping table exactly.
+# parity/final rule: no old-vocabulary token may appear; new-vocabulary
+# removals/additions are evidence (body-class removal, new controls).
+
+removed (old vocabulary): {
+  "bg-surface": 3
+}
+added (new vocabulary): {
+  "bg-surface": 3,
+  ":text-link-strong": 1,
+  "text-link-strong": 1
+}
+expected multiset (§2.5, phase0 only): {
+  ":bg-surface/85": 1,
+  "bg-scrim/40": 5,
+  "bg-scrim/50": 5,
+  "bg-surface": 219,
+  "bg-surface/80": 1,
+  "bg-surface/95": 1,
+  "file:bg-surface": 1,
+  "focus:bg-scrim": 1,
+  "focus:bg-surface": 1,
+  "focus:text-link-strong": 1,
+  "hover:bg-surface": 2,
+  "hover:bg-surface/50": 2,
+  "hover:text-link-deep": 1,
+  "hover:text-link-strong": 10,
+  "text-link": 36,
+  "text-link-strong": 74
+}
+equal: true

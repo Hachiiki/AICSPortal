@@ -1,0 +1,208 @@
+{
+  "gate": "Phase-1 controls functional verification (plan §6 controls checklist)",
+  "head": "7a2f16e7086cc10435ee9b74de4bf4bb93268e1e",
+  "controls": {
+    "C1 ThemeProvider": 4,
+    "C2 Settings appearance selector": 9,
+    "C3 Topbar toggle": 12,
+    "C4 Login-page toggle": 5,
+    "cross-tab": 2
+  },
+  "stepsTotal": 32,
+  "stepsPassing": 32,
+  "failures": 0,
+  "results": [
+    {
+      "control": "C1",
+      "desc": "no FOUC with stored dark preference under throttled first paint (class set + dark canvas at domcontentloaded)",
+      "ok": true,
+      "detail": "dark=true bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C1",
+      "desc": "stored preference resolves dark after full load too",
+      "ok": true,
+      "detail": "{\"dark\":true,\"colorScheme\":\"dark\",\"stored\":\"dark\"}"
+    },
+    {
+      "control": "C1",
+      "desc": "no FOUC with system dark and no stored value (defaultTheme=system resolves pre-paint)",
+      "ok": true,
+      "detail": "dark=true bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C1",
+      "desc": "light default renders light with color-scheme hint",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":null} bg=lab(100% 0 0)"
+    },
+    {
+      "control": "C4",
+      "desc": "login toggle present and reachable pre-authentication",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C4",
+      "desc": "login toggle switches to dark (class + canvas + aics_theme)",
+      "ok": true,
+      "detail": "bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C4",
+      "desc": "dark persists across login-page refresh",
+      "ok": true,
+      "detail": "bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C4",
+      "desc": "login toggle relabels per resolved theme",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C4",
+      "desc": "login toggle switches back to light",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    },
+    {
+      "control": "C3",
+      "desc": "student session accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle present on student surface (0 interactions)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle switches student surface to dark",
+      "ok": true,
+      "detail": "bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle cycles back to light on student surface",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    },
+    {
+      "control": "C3",
+      "desc": "faculty session accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle present on faculty surface (0 interactions)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle switches faculty surface to dark",
+      "ok": true,
+      "detail": "bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle cycles back to light on faculty surface",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    },
+    {
+      "control": "C3",
+      "desc": "admin session accepted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle present on admin surface (0 interactions)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle switches admin surface to dark",
+      "ok": true,
+      "detail": "bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C3",
+      "desc": "topbar toggle cycles back to light on admin surface",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    },
+    {
+      "control": "C2",
+      "desc": "Settings reachable from the dashboard sidebar (interaction 1)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C2",
+      "desc": "Appearance tab present in Settings (interaction 2)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C2",
+      "desc": "appearance radiogroup renders with three options",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "control": "C2",
+      "desc": "selector: Light mode applies + persists key",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    },
+    {
+      "control": "C2",
+      "desc": "selector: Dark mode applies (class + canvas + key)",
+      "ok": true,
+      "detail": "{\"dark\":true,\"colorScheme\":\"dark\",\"stored\":\"dark\"} bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C2",
+      "desc": "selector: System mode stores \"system\" and resolves per OS (light)",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"system\"}"
+    },
+    {
+      "control": "C2",
+      "desc": "System mode follows a live OS theme change without reload",
+      "ok": true,
+      "detail": "{\"dark\":true,\"colorScheme\":\"dark\",\"stored\":\"system\"} bg=lab(5.6913% -.608146 -3.84873)"
+    },
+    {
+      "control": "C2",
+      "desc": "System mode follows the OS back to light without reload",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"system\"}"
+    },
+    {
+      "control": "C2",
+      "desc": "System preference persists across refresh",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"system\"}"
+    },
+    {
+      "control": "cross",
+      "desc": "tab 1 toggles dark; tab 2 follows via the storage event without reload",
+      "ok": true,
+      "detail": "tab1={\"dark\":true,\"colorScheme\":\"dark\",\"stored\":\"dark\"} tab2={\"dark\":true,\"colorScheme\":\"dark\",\"stored\":\"dark\"}"
+    },
+    {
+      "control": "cross",
+      "desc": "tab 2 follows back to light",
+      "ok": true,
+      "detail": "{\"dark\":false,\"colorScheme\":\"light\",\"stored\":\"light\"}"
+    }
+  ]
+}

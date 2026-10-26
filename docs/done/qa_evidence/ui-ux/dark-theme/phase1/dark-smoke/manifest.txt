@@ -1,0 +1,11 @@
+timestamp: 2026-10-26T02:49:01.644Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 7a2f16e7086cc10435ee9b74de4bf4bb93268e1e
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase1 bun scripts/theme/phase1-dark-smoke.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase1/dark-smoke/
+exit code: 0
+steps: 8 (0 failures)
+coverage: login + one route per role in resolved dark (aics_theme=dark), plus dark dropdown (with empty state), dark dialog + form controls, a real sonner error toast (failed sign-in), and dark skeleton loading
+server: next start on 127.0.0.1:4301 (APP_ENV=development, production build); student session via POST /api/auth/demo; faculty/admin via dev-fallback-secret JWT (DB-validated)
+environment: headless Chromium 1280x800, colorScheme light (dark comes from the stored aics_theme preference, proving the engine rather than the OS emulation)
+assertions: html.dark + computed canvas color per route; element presence for menu/dialog/toast/skeleton; screenshots retained under shots/
