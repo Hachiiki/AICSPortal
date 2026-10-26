@@ -1,0 +1,11 @@
+timestamp: 2026-10-26T05:52:49.585Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 85e81c04ab2a7a92cd49154805a2b3095fac5f97
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 GATE_MAIN_WT=/home/z/my-project/AICSPortal bun scripts/theme/phase2-2b-computed.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2b/computed/
+exit code: 0
+pairs: 9 x 2 themes (failures: 0)
+light method: fill-paint pixel comparison, threshold 0 (old inline literal vs the new utility's resolved computed color), through the real HEAD src/app/globals.css compile (scratch dir scripts/theme-scratch/phase2-2b-sheet)
+dark method: <html class="dark"> (production next-themes mechanism) + computed-string equality against the .dark token / Layer-2 bridge values
+dark context note: runTheme('dark') reuses the common gate context spec but flips the html class via addInitScript; colorScheme emulation is not used for the .dark cascade itself
+rationale: v4 oklch palette shades render differently from the v3 hex literals these components used (probe-verified pre-edit), so light parity requires the literal (arbitrary-value utility) and only the dark: half is new vocabulary — LoginView footer precedent (text-[#64748B] dark:text-slate-500)

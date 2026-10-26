@@ -1,0 +1,8 @@
+Stage 2B G4 run vs Stage 2A G4 run — field-by-field artifact comparison
+2A report: docs/done/qa_evidence/ui-ux/dark-theme/phase2/g4/route-report.json (HEAD 9bbcdda, Stage 2A harness commit; baseline acbe71a)
+2B report: docs/done/qa_evidence/ui-ux/dark-theme/phase2/2b/g4/route-report.json (HEAD 85e81c0, Stage 2B code commit; baseline acbe71a)
+captures compared: 24 (fields: every route-report field per capture — diffPixels, PNG sizes, bboxes, skeleton presence counts, diffAllowed)
+result: IDENTICAL — every per-capture value and every comparable total matches the Stage 2A run; the Stage-2B edits add zero light-mode pixels
+
+EXPECTED head SHA: 2A=9bbcdda569970a26f9bddd90b7f1c088e8481d8b (harness commit 9bbcdda) vs 2B=85e81c04ab2a7a92cd49154805a2b3095fac5f97 (Stage-2B code commit) — different commits by design
+EXPECTED cssSizeDelta.head: 2A=107897 B -> 2B=108614 B (the Stage-2B utilities: 717 B; baseline identical at 97561 B)

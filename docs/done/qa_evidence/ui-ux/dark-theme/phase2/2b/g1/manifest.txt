@@ -1,0 +1,9 @@
+timestamp: 2026-10-26T05:53:07.154Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 85e81c04ab2a7a92cd49154805a2b3095fac5f97
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 GATE_MAIN_WT=/home/z/my-project/AICSPortal bun scripts/theme/equiv-check.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2b/g1/
+exit code: 0
+pairs: 16 (failures: 0)
+method: both sides compiled with the project @tailwindcss/postcss v4.3.3; values resolved against light-mode :root custom properties; winner branch = @supports (color: color-mix(...)) per plan §5.1/§2.5
+fallback asymmetry (static color-mix(in srgb) vs var()) is documented, not a failure — plan R7; browser floor unchanged

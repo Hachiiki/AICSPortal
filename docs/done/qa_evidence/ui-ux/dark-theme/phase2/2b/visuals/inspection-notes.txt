@@ -1,0 +1,41 @@
+Stage 2B affected-component visual inspection notes
+===================================================
+
+Computed values (report.json, real app, both themes)
+----------------------------------------------------
+Topbar avatar bg:      light rgb(30, 41, 59) = #1e293b EXACT (pre-2B literal);
+                       dark lab(21.084 ...) = oklch(0.32 0.014 255) = the raised-dark
+                       tone shared with dark --line / --login-border.
+AcademicHeader Stat:   light rgb(15, 23, 42) = #0f172a EXACT; dark lab(93.03 ...) =
+                       oklch(0.94 0.005 255) = dark --color-slate-900 bridge ink.
+TasksTab OverviewStat: light rgb(37,99,235)/rgb(21,128,61)/rgb(180,83,9)/
+                       rgb(220,38,38) = #2563EB/#15803D/#B45309/#DC2626 EXACT;
+                       dark = the link / green-700 / amber-700 / red-600 dark
+                       tokens (lab serializations in report.json).
+
+Visual inspection (VLM-assisted review of the shots/ captures)
+--------------------------------------------------------------
+- light-student-dashboard.png / dark-student-dashboard.png: avatar renders as a
+  dark slate circle with white initials in light and a slightly-raised dark
+  circle with white initials in dark; the four Stat values are dark and readable
+  in light and near-white and readable in dark; no clipped text, invisible
+  elements, broken layout, or unreadable text in either theme.
+- light-academics-tasks.png / dark-academics-tasks.png: the five Task Overview
+  big numbers are blue/green/amber/blue/red on white in light and brighter
+  readable pastel versions on the dark card in dark; tables, badges, filter
+  buttons readable in both themes; no clipped or invisible elements.
+- Avatar close-ups: both render as clean circles with legible white initials.
+  Observed trade-off (recorded honestly): the dark avatar's circle EDGE is
+  subtle against the near-black topbar (oklch 0.32 fill on the 0.225 surface,
+  roughly 1.5:1 boundary contrast). The informational content (white initials,
+  ~9:1) is fully legible, the avatar is not an interactive control so WCAG
+  1.4.11 does not require a 3:1 boundary, and 0.32 is exactly the established
+  raised-dark rung (dark --line / --login-border) rather than a new invented
+  elevation. Raising the fill further (e.g. the 0.42 slate-300 rung) would make
+  the circle more prominent at the cost of a brighter dot in the calm topbar;
+  left as-is and flagged for the owner as optional Stage-2D-style polish if a
+  more defined edge is wanted.
+
+Sidebar disabled/"Soon" state: no live instance (every nav item in
+nav-config.ts is enabled: true), so it has no route capture; its colors are
+covered by the phase2-2b-computed.mjs pair check (light-exact + dark-aware).

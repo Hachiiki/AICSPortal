@@ -1,0 +1,11 @@
+timestamp: 2026-10-26T05:59:20.034Z
+baseline SHA: acbe71a33e851bdda7116f8dd88cd77d0e8612f8
+HEAD SHA: 85e81c04ab2a7a92cd49154805a2b3095fac5f97
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/dark-theme/phase2 GATE_MAIN_WT=/home/z/my-project/AICSPortal bun scripts/theme/phase2-2b-visuals.mjs --out docs/done/qa_evidence/ui-ux/dark-theme/phase2/2b/visuals/
+exit code: 0
+routes: /portal/commonwealth/student/juan.santos (dashboard) + /portal/commonwealth/student/juan.santos/academics (Tasks tab) per theme, session via POST /api/auth/demo
+themes: aics_theme=light|dark localStorage (production next-themes mechanism), colorScheme light held constant
+captures: shots/<theme>-student-dashboard.png, shots/<theme>-topbar-avatar.png, shots/<theme>-academics-tasks.png
+sidebar disabled state: no live instance (all nav items enabled: true) — colors covered by phase2-2b-computed.mjs
+server: isolated next start on 127.0.0.1:4303 (APP_ENV=development), killed on exit

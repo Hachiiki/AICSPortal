@@ -1,0 +1,56 @@
+{
+  "gate": "Phase 2 Stage 2B affected-component visuals",
+  "head": "85e81c04ab2a7a92cd49154805a2b3095fac5f97",
+  "results": [
+    {
+      "desc": "light: html.light applied",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "desc": "light: Topbar avatar computed bg",
+      "ok": true,
+      "detail": "rgb(30, 41, 59)"
+    },
+    {
+      "desc": "light: AcademicHeader Stat computed color (4 stats)",
+      "ok": true,
+      "detail": "rgb(15, 23, 42)"
+    },
+    {
+      "desc": "light: TasksTab OverviewStat tones captured",
+      "ok": true,
+      "detail": "[\"rgb(37, 99, 235)\",\"rgb(21, 128, 61)\",\"rgb(180, 83, 9)\",\"rgb(37, 99, 235)\",\"rgb(220, 38, 38)\"]"
+    },
+    {
+      "desc": "light: OverviewStat computed tones",
+      "ok": true,
+      "detail": "[{\"label\":\"Total\",\"color\":\"rgb(37, 99, 235)\",\"text\":\"11\"},{\"label\":\"Graded\",\"color\":\"rgb(21, 128, 61)\",\"text\":\"4\"},{\"label\":\"Pending\",\"color\":\"rgb(180, 83, 9)\",\"text\":\"2\"},{\"label\":\"Needs attention\",\"color\":\"rgb(37, 99, 235)\",\"text\":\"3\"},{\"label\":\"Missing\",\"color\":\"rgb(220, 38, 38)\",\"text\":\"2\"}]"
+    },
+    {
+      "desc": "dark: html.dark applied",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "desc": "dark: Topbar avatar computed bg",
+      "ok": true,
+      "detail": "lab(21.084 -0.990123 -5.06331)"
+    },
+    {
+      "desc": "dark: AcademicHeader Stat computed color (4 stats)",
+      "ok": true,
+      "detail": "lab(93.0303 -0.4116 -1.83759)"
+    },
+    {
+      "desc": "dark: TasksTab OverviewStat tones captured",
+      "ok": true,
+      "detail": "[\"lab(66.5981 1.20062 -49.6365)\",\"lab(77.4703 -44.3998 22.8615)\",\"lab(80.3458 13.994 61.2661)\",\"lab(66.5981 1.20062 -49.6365)\",\"lab(58.7725 56.6528 33.348)\"]"
+    },
+    {
+      "desc": "dark: OverviewStat computed tones",
+      "ok": true,
+      "detail": "[{\"label\":\"Total\",\"color\":\"lab(66.5981 1.20062 -49.6365)\",\"text\":\"11\"},{\"label\":\"Graded\",\"color\":\"lab(77.4703 -44.3998 22.8615)\",\"text\":\"4\"},{\"label\":\"Pending\",\"color\":\"lab(80.3458 13.994 61.2661)\",\"text\":\"2\"},{\"label\":\"Needs attention\",\"color\":\"lab(66.5981 1.20062 -49.6365)\",\"text\":\"3\"},{\"label\":\"Missing\",\"color\":\"lab(58.7725 56.6528 33.348)\",\"text\":\"2\"}]"
+    }
+  ]
+}

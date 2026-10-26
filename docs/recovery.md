@@ -14,7 +14,7 @@ uncommitted files or session history survived.
 |---|---|
 | Updated | 2026-10-26 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Phase 2 Stage 2A (this push): G4 skeleton gate hardening (presence assertion + strict negative control); zero application code changed; see the Stage 2A sections below |
+| Last verified checkpoint | Phase 2 Stage 2B (this push): inline-hex cleanup in shared components with exact light-output preservation; see the Stage 2B sections below |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
@@ -87,6 +87,45 @@ uncommitted files or session history survived.
   g4/phase1-consistency.txt (field-by-field artifact comparison).
   Validation: lint 0 errors (23 pre-existing warnings), typecheck clean,
   authz 76/76, scripts/lib 6/6. Zero src/ changes in the diff.
+- **Phase 2 Stage 2B (owner-authorized 2026-10-26; this push):** the
+  approved inline-hex cleanup in shared components, and nothing else.
+  Migrated: Sidebar disabled/"Soon" state (the `#64748b`/`#f1f5f9` style
+  props became `bg-slate-100 text-[#64748b] dark:text-slate-500`
+  classes; slate-100 is probe-verified pixel-exact in light, and both
+  halves re-theme via the Layer-2 bridge); Topbar avatar initials
+  circle (the `#1e293b` style prop became `bg-[var(--avatar-bg)]`, a
+  new theme-aware token: light keeps the exact literal, dark is the
+  raised-dark `oklch(0.32 0.014 255)` tone shared with dark
+  `--line`/`--login-border`, per the owner's Stage-2A ruling);
+  AcademicHeader Stat (`#1d4ed8`/`#0f172a` became
+  `text-[#1d4ed8] dark:text-link-strong` / `text-[#0f172a]
+  dark:text-slate-900`); TasksTab OverviewStat (the conditional
+  big-number hex hack and the literal `{color}` junk class became
+  declarative tone props with the same exact light hexes and dark:
+  token counterparts). The decisive implementation fact, verified by a
+  pre-edit Chromium probe: v4 oklch palette shades do NOT render as
+  these v3 hex literals (e.g. slate-500 renders rgb(98,116,142) vs
+  #64748b rgb(100,116,139)), so plain class substitution would break
+  light parity; the LoginView footer precedent (`text-[#64748B]
+  dark:text-slate-500`) is the established idiom and was followed. The
+  Topbar `#153357` branch chip STAYS a documented brand constant
+  (repo-wide navy family: `palette.ts` navy + 40+ sites; plan §2.5
+  navy-chip ruling; a single-site token would fragment the vocabulary
+  — recorded per the do-not-force-substitution instruction). New
+  harness: `phase2-2b-computed.mjs` (9-pair light-pixel + dark-token
+  check) and `phase2-2b-visuals.mjs` (affected components, both
+  themes, isolated server on port 4303). Validation: 2B pair check
+  9/9 light-exact + 9/9 dark-theme-aware; G1 16/16 and G2 16/16
+  re-runs PASS; G4 final re-run PASS at the 19-name allow-list with
+  the hardened skeleton gate (24/24 captures, totalDiff 74347,
+  0 unexpected, 0 failed; field-by-field identical to the Stage-2A
+  route-report — the 2B edits add zero light-mode pixels; emitted CSS
+  107897 -> 108614 B, +717 B); visuals captured and inspected in both
+  themes (recorded trade-off: the dark avatar circle edge is subtle
+  against the topbar at ~1.5:1 — initials keep ~9:1 and 0.32 is the
+  established raised-dark rung; flagged as optional polish). Evidence
+  under `phase2/2b/` (computed, g1, g2, g4 incl.
+  stage2a-consistency.txt, visuals incl. inspection-notes.txt).
 
 ## Gate results (Phase 1, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase1/)
 
@@ -190,30 +229,56 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   throwaway server (port 4302); the application, harness, worktree, and
   database were never modified.
 
+## Gate results (Phase 2 Stage 2B, evidence under docs/done/qa_evidence/ui-ux/dark-theme/phase2/2b/)
+
+- **Stage 2B computed/pixel pair check: PASS (9/9 both themes)**: every
+  migrated pair resolves to the IDENTICAL quantized sRGB as its exact
+  pre-2B inline literal in light (fill-paint pixel comparison, threshold
+  0, through the real HEAD globals.css compile) and to the intended
+  theme-aware token in dark (`<html class="dark">`, the production
+  next-themes mechanism). See `computed/`.
+- **G1 re-run at the 2B commit: PASS — 16/16** mapping pairs identical
+  (`g1/`). **G2 re-run: PASS — 16/16 pairs x 11 computed properties**
+  (`g2/`). The existing §2.5 vocabulary is undisturbed.
+- **G4 final re-run with the hardened Stage 2A harness: PASS**: 24/24
+  captures, 0 failed, 0 unexpected diffs, greps and class-diff pass,
+  totalDiff 74347 px — and every per-capture diffPixels, PNG size,
+  bounding box, and skeleton-presence count is field-by-field IDENTICAL
+  to the Stage-2A run (`g4/stage2a-consistency.txt`): the Stage-2B
+  edits add zero light-mode pixels on top of the Phase-1 control
+  diffs. Emitted CSS 97561 -> 108614 B (baseline unchanged; +717 B
+  over Stage 2A from the new utilities).
+- **Affected-component visuals: PASS** — student dashboard (Stat values,
+  Topbar avatar) and Academics Tasks tab (OverviewStat tones) captured
+  and inspected in both themes; computed colors recorded in
+  `visuals/report.json`; observations and the dark-avatar-edge
+  trade-off recorded in `visuals/inspection-notes.txt`.
+
 ## Pending / exact next step
 
-- **Stage 2A is complete and pushed. STOPPED per the owner's explicit
-  instruction: do NOT begin Stage 2B, 2C, or 2D, or any other Phase 2
-  polish, until the owner reviews the Stage 2A evidence and explicitly
-  approves the next stage.**
+- **Stage 2B is complete and pushed. STOPPED per the owner's explicit
+  instruction: do NOT begin Stage 2C (full route matrix, COE print,
+  ID-card checks) or Stage 2D (blurred surfaces, red-700 hover
+  contrast, additional polish), or any other Phase 2 work, until the
+  owner reviews the Stage 2B evidence and explicitly authorizes the
+  next stage.**
 - Owner rulings recorded with the Stage 2A authorization (2026-10-26),
   binding for the later stages: the legal brand colors `#1769AA` and
   `#124D7A` stay as brand constants for now; the Topbar avatar `#1e293b`
   migrates to an appropriate theme-aware token in Stage 2B while
-  preserving exact light-mode output; the red-700 hover contrast fix
-  belongs to the proposed Stage 2D scope; Chromium is the locally
-  testable browser and Firefox/Safari remain explicitly unverified
-  unless they are actually tested.
-- Remaining proposed Phase-2 stages (NOT yet authorized): Stage 2B
-  inline-hex cleanup in shared components (Sidebar `#64748b`/`#f1f5f9`
-  style props, Topbar avatar token per the ruling above plus the
-  `#153357` chip, AcademicHeader `#1d4ed8`/`#0f172a`, TasksTab
-  conditional big-number hex; EmptyState hex are comments only;
-  CookieConsent/LegalShell brand constants stay), Stage 2C full route
-  matrix x3 roles x2 themes plus COE print (must print light) and
-  ID-card light-on-dark checks, Stage 2D optional polish
+  preserving exact light-mode output (DONE in this push, as
+  `--avatar-bg`); the red-700 hover contrast fix belongs to the
+  proposed Stage 2D scope; Chromium is the locally testable browser and
+  Firefox/Safari remain explicitly unverified unless they are actually
+  tested. The Topbar `#153357` chip was inspected per the Stage-2B
+  authorization and stays a brand constant (repo-wide navy family;
+  documented in-code and in the Stage 2B record above).
+- Remaining proposed Phase-2 stages (NOT yet authorized): Stage 2C
+  full route matrix x3 roles x2 themes plus COE print (must print
+  light) and ID-card light-on-dark checks, Stage 2D optional polish
   (blurred-surfaces review, the red-700 hover contrast fix at 2.909:1
-  during hover on solid destructive chips, browser-matrix caveat).
+  during hover on solid destructive chips, optional dark-avatar edge
+  definition per the 2B inspection note, browser-matrix caveat).
   Evidence continues under
   `docs/done/qa_evidence/ui-ux/dark-theme/phase2/`.
 

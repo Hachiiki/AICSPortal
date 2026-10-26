@@ -1,0 +1,261 @@
+{
+  "gate": "Phase 2 Stage 2B computed/pixel pair check",
+  "head": "85e81c04ab2a7a92cd49154805a2b3095fac5f97",
+  "baseline": "acbe71a33e851bdda7116f8dd88cd77d0e8612f8",
+  "pairs": [
+    {
+      "label": "sidebar-disabled-fg",
+      "newClass": "text-[#64748b] dark:text-slate-500",
+      "oldHex": "#64748b",
+      "darkExpect": "oklch(0.64 0.012 255)",
+      "darkFrom": "--color-slate-500 bridge (dark)"
+    },
+    {
+      "label": "sidebar-disabled-bg",
+      "newClass": "bg-slate-100",
+      "oldHex": "#f1f5f9",
+      "darkExpect": "oklch(0.26 0.012 255)",
+      "darkFrom": "--color-slate-100 bridge (dark)"
+    },
+    {
+      "label": "topbar-avatar-bg",
+      "newClass": "bg-[var(--avatar-bg)]",
+      "oldHex": "#1e293b",
+      "darkExpect": "oklch(0.32 0.014 255)",
+      "darkFrom": "--avatar-bg token (dark)"
+    },
+    {
+      "label": "acad-stat-accent",
+      "newClass": "text-[#1d4ed8] dark:text-link-strong",
+      "oldHex": "#1d4ed8",
+      "darkExpect": "oklch(0.75 0.13 260)",
+      "darkFrom": "--link-strong token (dark)"
+    },
+    {
+      "label": "acad-stat-ink",
+      "newClass": "text-[#0f172a] dark:text-slate-900",
+      "oldHex": "#0f172a",
+      "darkExpect": "oklch(0.94 0.005 255)",
+      "darkFrom": "--color-slate-900 bridge (dark)"
+    },
+    {
+      "label": "tasks-tone-green",
+      "newClass": "text-[#15803D] dark:text-green-700",
+      "oldHex": "#15803D",
+      "darkExpect": "oklch(0.79 0.14 155)",
+      "darkFrom": "--color-green-700 bridge (dark)"
+    },
+    {
+      "label": "tasks-tone-amber",
+      "newClass": "text-[#B45309] dark:text-amber-700",
+      "oldHex": "#B45309",
+      "darkExpect": "oklch(0.83 0.14 80)",
+      "darkFrom": "--color-amber-700 bridge (dark)"
+    },
+    {
+      "label": "tasks-tone-red",
+      "newClass": "text-[#DC2626] dark:text-red-600",
+      "oldHex": "#DC2626",
+      "darkExpect": "oklch(0.66 0.18 25)",
+      "darkFrom": "--color-red-600 bridge (dark, dual-use)"
+    },
+    {
+      "label": "tasks-tone-blue",
+      "newClass": "text-[#2563EB] dark:text-link",
+      "oldHex": "#2563EB",
+      "darkExpect": "oklch(0.72 0.14 260)",
+      "darkFrom": "--link token (dark)"
+    }
+  ],
+  "results": [
+    {
+      "label": "sidebar-disabled-fg",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#64748b",
+      "newClass": "text-[#64748b] dark:text-slate-500",
+      "resolvedLight": "rgb(100, 116, 139)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "sidebar-disabled-bg",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#f1f5f9",
+      "newClass": "bg-slate-100",
+      "resolvedLight": "oklch(0.968 0.007 247.896)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "topbar-avatar-bg",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#1e293b",
+      "newClass": "bg-[var(--avatar-bg)]",
+      "resolvedLight": "rgb(30, 41, 59)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "acad-stat-accent",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#1d4ed8",
+      "newClass": "text-[#1d4ed8] dark:text-link-strong",
+      "resolvedLight": "rgb(29, 78, 216)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "acad-stat-ink",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#0f172a",
+      "newClass": "text-[#0f172a] dark:text-slate-900",
+      "resolvedLight": "rgb(15, 23, 42)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "tasks-tone-green",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#15803D",
+      "newClass": "text-[#15803D] dark:text-green-700",
+      "resolvedLight": "rgb(21, 128, 61)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "tasks-tone-amber",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#B45309",
+      "newClass": "text-[#B45309] dark:text-amber-700",
+      "resolvedLight": "rgb(180, 83, 9)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "tasks-tone-red",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#DC2626",
+      "newClass": "text-[#DC2626] dark:text-red-600",
+      "resolvedLight": "rgb(220, 38, 38)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "tasks-tone-blue",
+      "theme": "light",
+      "ok": true,
+      "oldLiteral": "#2563EB",
+      "newClass": "text-[#2563EB] dark:text-link",
+      "resolvedLight": "rgb(37, 99, 235)",
+      "diffPixels": 0,
+      "totalPixels": 5760,
+      "firstDiff": null
+    },
+    {
+      "label": "sidebar-disabled-fg",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#64748b] dark:text-slate-500",
+      "resolvedDark": "oklch(0.64 0.012 255)",
+      "expectedDark": "oklch(0.64 0.012 255)",
+      "darkFrom": "--color-slate-500 bridge (dark)",
+      "preStageLiteral": "#64748b"
+    },
+    {
+      "label": "sidebar-disabled-bg",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "bg-slate-100",
+      "resolvedDark": "oklch(0.26 0.012 255)",
+      "expectedDark": "oklch(0.26 0.012 255)",
+      "darkFrom": "--color-slate-100 bridge (dark)",
+      "preStageLiteral": "#f1f5f9"
+    },
+    {
+      "label": "topbar-avatar-bg",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "bg-[var(--avatar-bg)]",
+      "resolvedDark": "oklch(0.32 0.014 255)",
+      "expectedDark": "oklch(0.32 0.014 255)",
+      "darkFrom": "--avatar-bg token (dark)",
+      "preStageLiteral": "#1e293b"
+    },
+    {
+      "label": "acad-stat-accent",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#1d4ed8] dark:text-link-strong",
+      "resolvedDark": "oklch(0.75 0.13 260)",
+      "expectedDark": "oklch(0.75 0.13 260)",
+      "darkFrom": "--link-strong token (dark)",
+      "preStageLiteral": "#1d4ed8"
+    },
+    {
+      "label": "acad-stat-ink",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#0f172a] dark:text-slate-900",
+      "resolvedDark": "oklch(0.94 0.005 255)",
+      "expectedDark": "oklch(0.94 0.005 255)",
+      "darkFrom": "--color-slate-900 bridge (dark)",
+      "preStageLiteral": "#0f172a"
+    },
+    {
+      "label": "tasks-tone-green",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#15803D] dark:text-green-700",
+      "resolvedDark": "oklch(0.79 0.14 155)",
+      "expectedDark": "oklch(0.79 0.14 155)",
+      "darkFrom": "--color-green-700 bridge (dark)",
+      "preStageLiteral": "#15803D"
+    },
+    {
+      "label": "tasks-tone-amber",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#B45309] dark:text-amber-700",
+      "resolvedDark": "oklch(0.83 0.14 80)",
+      "expectedDark": "oklch(0.83 0.14 80)",
+      "darkFrom": "--color-amber-700 bridge (dark)",
+      "preStageLiteral": "#B45309"
+    },
+    {
+      "label": "tasks-tone-red",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#DC2626] dark:text-red-600",
+      "resolvedDark": "oklch(0.66 0.18 25)",
+      "expectedDark": "oklch(0.66 0.18 25)",
+      "darkFrom": "--color-red-600 bridge (dark, dual-use)",
+      "preStageLiteral": "#DC2626"
+    },
+    {
+      "label": "tasks-tone-blue",
+      "theme": "dark",
+      "ok": true,
+      "newClass": "text-[#2563EB] dark:text-link",
+      "resolvedDark": "oklch(0.72 0.14 260)",
+      "expectedDark": "oklch(0.72 0.14 260)",
+      "darkFrom": "--link token (dark)",
+      "preStageLiteral": "#2563EB"
+    }
+  ]
+}
