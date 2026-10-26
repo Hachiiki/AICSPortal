@@ -157,7 +157,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
   }, [sessions])
 
   return (
-    <section className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-surface shadow-sm">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
         <div>
@@ -172,7 +172,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
             onClick={goPrev}
             disabled={!anchor}
             aria-label="Previous week"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -184,7 +184,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
             onClick={goNext}
             disabled={!anchor}
             aria-label="Next week"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -192,7 +192,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
             type="button"
             onClick={goToday}
             disabled={!anchor}
-            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-blue-600 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             Today
           </button>
@@ -212,7 +212,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
                 key={day}
                 className="text-[11px] font-medium uppercase tracking-wider text-center py-2.5 border-b border-l border-slate-200"
               >
-                <span className={i === todayIndex ? 'text-blue-600' : 'text-slate-500'}>
+                <span className={i === todayIndex ? 'text-link' : 'text-slate-500'}>
                   {day} {anchor ? days[i].getDate() : ''}
                 </span>
               </div>

@@ -117,27 +117,27 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading pending releases...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <p className="text-sm text-red-600 font-medium mb-1">{error}</p>
             <button
               type="button"
               onClick={fetchGroups}
-              className="text-blue-600 text-sm font-medium hover:underline"
+              className="text-link text-sm font-medium hover:underline"
             >
               Try again
             </button>
           </div>
         ) : groups.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
             <EmptyState icon={Inbox} message="Nothing waiting" hint="Submitted periods from faculty will appear here." />
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[720px]">
                 <thead className="sticky top-0 z-10">
@@ -157,14 +157,14 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
                     return (
                       <tr key={key} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                         <td className="px-4 py-3">
-                          <span className="font-mono text-xs font-bold text-blue-700">{group.subjectCode}</span>
+                          <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
                           <span className="text-sm text-slate-700 ml-2">{group.title}</span>
                         </td>
                         <td className="px-4 py-3 text-sm text-slate-600">
                           {group.academicYear} {group.semester}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-blue-700 border-blue-200">
+                          <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-link-strong border-blue-200">
                             {periodLabel(group.period)}
                           </span>
                         </td>

@@ -132,18 +132,18 @@ export function AttendanceModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-scrim/50" onClick={onClose} aria-hidden="true" />
       <DialogPanel
         onClose={onClose}
         aria-labelledby={titleId}
-        className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
+        className="relative bg-surface rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col"
       >
         <div className="px-6 py-4 border-b border-slate-100">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 id={titleId} className="font-bold">Take attendance</h3>
               <p className="text-xs text-slate-500 mt-1">
-                {sec ? (<><span className="font-mono font-bold text-blue-700">{sec.code}</span> {sec.title} • {termOf(sec.key)}</>) : 'No classes found.'}
+                {sec ? (<><span className="font-mono font-bold text-link-strong">{sec.code}</span> {sec.title} • {termOf(sec.key)}</>) : 'No classes found.'}
               </p>
             </div>
             <button
@@ -192,14 +192,14 @@ export function AttendanceModal({
             <button
               type="button"
               onClick={() => setAll('present')}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50"
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50"
             >
               Mark all present
             </button>
             <button
               type="button"
               onClick={() => setAll('absent')}
-              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium hover:bg-slate-50"
+              className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50"
             >
               Mark all absent
             </button>
@@ -228,7 +228,7 @@ export function AttendanceModal({
                         type="button"
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'present' }))}
                         aria-pressed={isPresent}
-                        className={`px-3 py-1.5 text-xs font-semibold ${isPresent ? 'bg-emerald-700 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                        className={`px-3 py-1.5 text-xs font-semibold ${isPresent ? 'bg-emerald-700 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
                       >
                         Present
                       </button>
@@ -236,7 +236,7 @@ export function AttendanceModal({
                         type="button"
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'absent' }))}
                         aria-pressed={!isPresent}
-                        className={`px-3 py-1.5 text-xs font-semibold ${!isPresent ? 'bg-red-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                        className={`px-3 py-1.5 text-xs font-semibold ${!isPresent ? 'bg-red-600 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
                       >
                         Absent
                       </button>

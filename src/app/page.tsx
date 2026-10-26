@@ -668,7 +668,7 @@ function StudentDataWrapper({
             <button
               type="button"
               onClick={onLogout}
-              className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Back to login
             </button>

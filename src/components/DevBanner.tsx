@@ -18,7 +18,10 @@ export function DevBanner({ appEnv }: { appEnv: AppEnv }) {
     <div
       className={cn(
         'w-full border-b-2 border-black text-black',
-        isStaging ? 'bg-sky-300' : 'bg-amber-400',
+        // Stage 2C: the bridged dark amber-400 (oklch 0.55) drops black
+        // text to 4.27:1; the dark amber-500 rung (0.66) restores 6.6:1
+        // while light mode keeps amber-400 exactly.
+        isStaging ? 'bg-sky-300' : 'bg-amber-400 dark:bg-amber-500',
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center">

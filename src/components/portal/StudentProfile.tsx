@@ -116,7 +116,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 rounded"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </button>
@@ -130,7 +130,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
 
             {/* ===================== PROFILE HERO CARD ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+              <div className="bg-surface rounded-2xl border border-slate-200 shadow-sm p-6">
                 {/* Top row: avatar + name + chips */}
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -165,7 +165,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                       <ShieldCheck className="w-3.5 h-3.5" /> {student.enrollmentStatus || 'Enrolled'}
                     </span>
                     {student.deanLister && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-blue-50 border border-blue-200 text-link-strong">
                         <Star className="w-3.5 h-3.5" /> Dean's Lister
                       </span>
                     )}
@@ -214,7 +214,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               className="grid lg:grid-cols-3 gap-6"
             >
               {/* Personal Information (2 cols, full width for faculty without Digital ID) */}
-              <div className={`${isFaculty ? '' : 'lg:col-span-2 '}bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0`}>
+              <div className={`${isFaculty ? '' : 'lg:col-span-2 '}bg-surface rounded-2xl border border-slate-200 shadow-sm min-w-0`}>
                 <div className="p-6 pb-4">
                   <h3 className="text-lg font-semibold text-slate-900">Personal Information</h3>
                 </div>
@@ -267,7 +267,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
 
               {/* Digital ID (1 col, students only — faculty have no student ID card) */}
               {!isFaculty && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="bg-surface rounded-2xl border border-slate-200 shadow-sm">
                 <div className="p-6 pb-4">
                   <h3 className="text-lg font-semibold text-slate-900">Digital ID</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -297,7 +297,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               className="grid lg:grid-cols-3 gap-6"
             >
               {/* Submitted Documents (2 cols) */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm min-w-0">
+              <div className="lg:col-span-2 bg-surface rounded-2xl border border-slate-200 shadow-sm min-w-0">
                 <div className="p-6 pb-4 flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <h3 className="text-lg font-semibold text-slate-900">Submitted Documents</h3>
@@ -345,7 +345,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               </div>
 
               {/* Certificate of Enrollment (1 col) */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <div className="bg-surface rounded-2xl border border-slate-200 shadow-sm">
                 <div className="p-6 pb-4">
                   <h3 className="text-lg font-semibold text-slate-900">Certificate of Enrollment</h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -411,7 +411,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
             {/* ===================== BOTTOM BANNER ===================== */}
             <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
               <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="size-9 rounded-full bg-white border border-blue-200 text-blue-600 flex items-center justify-center flex-shrink-0">
+                <div className="size-9 rounded-full bg-surface border border-blue-200 text-link flex items-center justify-center flex-shrink-0">
                   <Info className="w-4 h-4" />
                 </div>
                 <div className="flex-1">
@@ -468,7 +468,7 @@ function StatCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center py-3 px-2">
       <p className="text-[11px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
-      <p className="text-lg font-bold text-blue-700 mt-1">{value}</p>
+      <p className="text-lg font-bold text-link-strong mt-1">{value}</p>
     </div>
   )
 }
@@ -477,7 +477,7 @@ function QuickFact({ icon: Icon, label, value }: { icon: LucideIcon; label: stri
   if (!value) return null
   return (
     <div className="flex items-center gap-2.5 min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-      <Icon className="w-4 h-4 text-blue-700 flex-shrink-0" aria-hidden="true" />
+      <Icon className="w-4 h-4 text-link-strong flex-shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
         <p className="text-xs font-medium text-slate-700 truncate">{value}</p>
@@ -498,10 +498,10 @@ function SubSection({
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <div className="size-9 rounded-lg bg-blue-50 text-blue-600 grid place-items-center flex-shrink-0">
+        <div className="size-9 rounded-lg bg-blue-50 text-link grid place-items-center flex-shrink-0">
           <Icon className="w-4 h-4" />
         </div>
-        <h4 className="text-sm font-semibold text-blue-600">{title}</h4>
+        <h4 className="text-sm font-semibold text-link">{title}</h4>
       </div>
       <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">{children}</div>
     </div>

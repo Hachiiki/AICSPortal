@@ -62,10 +62,16 @@ const formatPeso = (amount: number) =>
   }).format(amount)
 
 // Status → color tokens for the enrollment step circles.
+// Stage 2C: labelClass carries the same light hexes the label style
+// objects had, plus the bridged dark counterparts (the inline styles
+// alone rendered 1.04:1 label text on the dark card); the circle/pill/
+// connector literals are deliberate constant chips (their own light
+// backgrounds keep their text readable in both themes) and stay as-is.
 const STEP_STYLES = {
   completed: {
     circle: { background: '#16a34a', color: '#ffffff', borderColor: '#16a34a' },
     label: { color: '#0f172a' },
+    labelClass: 'text-[#0f172a] dark:text-slate-900',
     sublabel: { color: '#16a34a' },
     connector: '#16a34a',
     pill: { background: '#dcfce7', color: '#15803d' },
@@ -73,6 +79,7 @@ const STEP_STYLES = {
   current: {
     circle: { background: '#1e40af', color: '#ffffff', borderColor: '#1e40af' },
     label: { color: '#0f172a' },
+    labelClass: 'text-[#0f172a] dark:text-slate-900',
     sublabel: { color: '#1e40af' },
     connector: '#cbd5e1',
     pill: { background: '#dbeafe', color: '#1d4ed8' },
@@ -80,6 +87,7 @@ const STEP_STYLES = {
   upcoming: {
     circle: { background: '#ffffff', color: '#64748b', borderColor: '#cbd5e1' },
     label: { color: '#64748b' },
+    labelClass: 'text-[#64748b] dark:text-slate-500',
     sublabel: { color: '#64748b' },
     connector: '#e2e8f0',
     pill: { background: '#f1f5f9', color: '#64748b' },
@@ -118,7 +126,7 @@ function StatusPill({
 
 function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentStep: number }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900">Enrollment Progress</h2>
@@ -126,7 +134,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
             Step {currentStep} of {steps.length} — {steps.find((s) => s.status === 'current')?.label || 'In Progress'}
           </p>
         </div>
-        <Stamp className="w-5 h-5 text-blue-600 flex-shrink-0" />
+        <Stamp className="w-5 h-5 text-link flex-shrink-0" />
       </div>
 
       {/* Desktop / tablet horizontal tracker — circles + labels only */}
@@ -179,9 +187,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
 
                 {/* Label + status pill + date */}
                 <div className="mt-3 text-center px-1 w-full">
-                  <p className="text-xs font-semibold" style={style.label}>
-                    {s.label}
-                  </p>
+                  <p className={`text-xs font-semibold ${style.labelClass}`}>{s.label}</p>
                   <div className="mt-1.5 flex flex-col items-center gap-1">
                     <StatusPill status={s.status} />
                     {s.date && (
@@ -219,9 +225,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold" style={style.label}>
-                    {s.label}
-                  </p>
+                  <p className={`text-sm font-semibold ${style.labelClass}`}>{s.label}</p>
                   <StatusPill status={s.status} />
                 </div>
                 {s.date && (
@@ -248,7 +252,7 @@ function AssessmentCard({ enrollment }: { enrollment: Enrollment }) {
   const miscTotal = a.miscFees.reduce((sum, f) => sum + f.amount, 0)
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900">Assessment of Fees</h2>
@@ -256,7 +260,7 @@ function AssessmentCard({ enrollment }: { enrollment: Enrollment }) {
             {enrollment.semester} &bull; AY {enrollment.academicYear}
           </p>
         </div>
-        <Wallet className="w-5 h-5 text-blue-600 flex-shrink-0" />
+        <Wallet className="w-5 h-5 text-link flex-shrink-0" />
       </div>
 
       <div className="px-6 py-5 space-y-5">
@@ -370,7 +374,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
   const allComplete = submitted === total
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-slate-900">Requirements Checklist</h2>
@@ -378,7 +382,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
             {submitted} of {total} submitted
           </p>
         </div>
-        <ListChecks className="w-5 h-5 text-blue-600 flex-shrink-0" />
+        <ListChecks className="w-5 h-5 text-link flex-shrink-0" />
       </div>
 
       {docs.length === 0 ? (
@@ -405,9 +409,13 @@ function RequirementsChecklist({ student }: { student: Student }) {
                 </div>
                 <p className="text-sm text-slate-700 truncate">{d.name}</p>
               </div>
+              {/* Stage 2C: same light hexes as the inline styles, plus the
+                  bridged dark status tokens (green-700 / red-700) — the bare
+                  literals sat at 3.41:1 / 2.64:1 on the dark card. */}
               <p
-                className="text-xs font-medium whitespace-nowrap"
-                style={d.submitted ? { color: '#15803d' } : { color: '#b91c1c' }}
+                className={`text-xs font-medium whitespace-nowrap ${
+                  d.submitted ? 'text-[#15803d] dark:text-green-700' : 'text-[#b91c1c] dark:text-red-700'
+                }`}
               >
                 {d.submitted
                   ? d.dateSubmitted || 'Submitted'
@@ -434,7 +442,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
 function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
   const r = enrollment.registrar
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-20">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-20">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -478,7 +486,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
             </p>
             <a
               href={`mailto:${r.email}`}
-              className="text-xs font-medium text-blue-600 hover:underline mt-0.5 block truncate"
+              className="text-xs font-medium text-link hover:underline mt-0.5 block truncate"
             >
               {r.email}
             </a>
@@ -509,7 +517,7 @@ function LoadingShell() {
   return (
     <div className="space-y-6">
       {/* Step tracker skeleton */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100">
           <div className="aics-skeleton h-4 w-44 rounded" />
         </div>
@@ -530,13 +538,13 @@ function LoadingShell() {
 
       {/* Two-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="lg:col-span-2 bg-surface rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div className="aics-skeleton h-4 w-40 rounded" />
           <div className="aics-skeleton h-4 w-full rounded" />
           <div className="aics-skeleton h-4 w-3/4 rounded" />
           <div className="aics-skeleton h-20 w-full rounded-lg" />
         </div>
-        <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div className="lg:col-span-1 bg-surface rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="aics-skeleton h-4 w-24 rounded" />
           <div className="aics-skeleton h-4 w-full rounded" />
           <div className="aics-skeleton h-4 w-2/3 rounded" />
@@ -576,7 +584,7 @@ export function EnrollmentPage({
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
@@ -588,7 +596,7 @@ export function EnrollmentPage({
 
           {/* Error state */}
           {enrollmentError ? (
-            <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+            <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
               <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
               <p className="text-sm text-red-600 font-medium mb-1">
                 {enrollmentError}
@@ -600,7 +608,7 @@ export function EnrollmentPage({
           ) : enrollmentLoading ? (
             <LoadingShell />
           ) : !enrollment ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
               <EmptyState
                 icon={Stamp}
                 message="No enrollment record found for this term."

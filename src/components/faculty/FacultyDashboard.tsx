@@ -213,7 +213,7 @@ export function FacultyDashboard({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-            className="bg-white rounded-xl border border-slate-200 shadow-sm"
+            className="bg-surface rounded-xl border border-slate-200 shadow-sm"
           >
             <div className="px-6 py-4 border-b border-slate-100">
               <h2 className="text-base font-semibold text-slate-900">
@@ -250,7 +250,7 @@ export function FacultyDashboard({
                         className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
                       >
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="font-mono text-xs font-bold text-blue-700">
+                          <span className="font-mono text-xs font-bold text-link-strong">
                             {row.code}
                           </span>
                         </td>
@@ -267,7 +267,7 @@ export function FacultyDashboard({
                           <span className="text-sm text-slate-700">{row.room}</span>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-blue-50 text-link-strong text-xs font-semibold">
                             {row.enrolled}
                           </span>
                         </td>
@@ -302,7 +302,7 @@ function Stat({
         {label}
       </p>
       <div className="mt-0.5 flex items-center gap-1.5">
-        {Icon && <Icon className="w-4 h-4 text-blue-700" />}
+        {Icon && <Icon className="w-4 h-4 text-link-strong" />}
         <p className="text-xl font-bold tabular-nums text-slate-900">{value}</p>
       </div>
     </div>

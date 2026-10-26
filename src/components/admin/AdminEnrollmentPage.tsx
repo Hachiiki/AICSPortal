@@ -284,12 +284,12 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-500 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading enrollment records...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
@@ -302,17 +302,17 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
           <>
             {/* Summary strip */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Landmark className="w-4 h-4 text-blue-700" />
+                    <Landmark className="w-4 h-4 text-link-strong" />
                   </span>
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Assessed</p>
                 </div>
                 <p className="mt-3 text-2xl font-bold text-slate-900 tabular-nums">{peso.format(totals.assessment)}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{records.length} record{records.length === 1 ? '' : 's'}</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
                     <Wallet className="w-4 h-4 text-emerald-600" />
@@ -322,7 +322,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                 <p className="mt-3 text-2xl font-bold text-emerald-700 tabular-nums">{peso.format(totals.paid)}</p>
                 <p className="mt-0.5 text-xs text-slate-500">{totals.paidCount} paid · {totals.partialCount} partial · {totals.unpaidCount} unpaid</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
                     <AlertTriangle className="w-4 h-4 text-red-500" />
@@ -332,7 +332,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                 <p className="mt-3 text-2xl font-bold text-red-600 tabular-nums">{peso.format(totals.balance)}</p>
                 <p className="mt-0.5 text-xs text-slate-500">across all records</p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
                     <Stamp className="w-4 h-4 text-amber-600" />
@@ -345,7 +345,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
             </div>
 
             {records.length === 0 ? (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
                 <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-3">
                   <Landmark className="w-6 h-6 text-blue-500" />
                 </div>
@@ -353,7 +353,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                 <p className="text-xs text-slate-500 mt-1">Records appear when the registrar creates them per student per term.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm min-w-[760px]">
                     <thead className="sticky top-0 z-10">
@@ -420,7 +420,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                             <button
                               type="button"
                               onClick={() => setViewFor(r)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-link-strong hover:bg-blue-50"
                             >
                               View
                             </button>
@@ -447,7 +447,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
               <button
                 type="button"
                 onClick={() => setOverrideFor(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -517,7 +517,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
               <button
                 type="button"
                 onClick={() => setPaymentFor(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>
@@ -566,7 +566,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
               <button
                 type="button"
                 onClick={() => setPayAmount(String(paymentFor.assessment.balance))}
-                className="mt-1.5 text-[11px] font-semibold text-blue-700 hover:underline"
+                className="mt-1.5 text-[11px] font-semibold text-link-strong hover:underline"
               >
                 Full balance ({peso.format(paymentFor.assessment.balance)})
               </button>
@@ -612,7 +612,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
             <button
               type="button"
               onClick={() => setViewFor(null)}
-              className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Close
             </button>

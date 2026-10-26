@@ -74,7 +74,7 @@ export function computeStatus(task: Task): {
 
 // Type badge colors
 export const TYPE_COLORS: Record<TaskType, string> = {
-  Activity: 'bg-blue-50 text-blue-700 border-blue-200',
+  Activity: 'bg-blue-50 text-link-strong border-blue-200',
   Quiz: 'bg-violet-50 text-violet-700 border-violet-200',
   Test: 'bg-orange-50 text-orange-700 border-orange-200',
   Project: 'bg-teal-50 text-teal-700 border-teal-200',
@@ -86,7 +86,7 @@ export const VARIANT_COLORS: Record<TaskVariant, string> = {
   PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
   MISSING_CLOSED: 'bg-slate-100 text-slate-600 border-slate-200',
   MISSING_OPEN: 'bg-red-50 text-red-700 border-red-200',
-  NEEDS_ATTENTION: 'bg-blue-50 text-blue-700 border-blue-200',
+  NEEDS_ATTENTION: 'bg-blue-50 text-link-strong border-blue-200',
 }
 
 // Status display labels
@@ -103,7 +103,7 @@ export const STATUS_ICON_COLORS: Record<TaskVariant, string> = {
   PENDING: 'bg-amber-100 text-amber-700',
   MISSING_CLOSED: 'bg-slate-100 text-slate-500',
   MISSING_OPEN: 'bg-red-100 text-red-700',
-  NEEDS_ATTENTION: 'bg-blue-100 text-blue-700',
+  NEEDS_ATTENTION: 'bg-blue-100 text-link-strong',
 }
 
 // Helper: should this task show an action button (Submit / Submit Late)?

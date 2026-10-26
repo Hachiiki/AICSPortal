@@ -20,8 +20,14 @@ import {
   Download,
   ExternalLink,
   Cookie,
+  Palette,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
@@ -48,13 +54,21 @@ interface SettingsPageProps {
   onStudentPatch?: (patch: Partial<Student>) => void
 }
 
-type Section = 'profile' | 'security' | 'notifications' | 'privacy'
+type Section = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearance'
 
 // Matches PHOTO_MAX_BYTES on the server (POST /api/student/photo).
 const PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
+
+  // Appearance selector state (dark-theme plan §6, Phase 1 control 2).
+  // `theme` is the stored preference (light/dark/system); the mounted
+  // gate keeps SSR and the first client render identical (next-themes
+  // initializes the stored value synchronously on the client, so a
+  // checked radio rendered before mount would hydrate-mismatch).
+  const { theme, resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
 
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
@@ -273,6 +287,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Privacy & Data', icon: ShieldCheck },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
   ]
 
   return (
@@ -292,7 +307,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden /> Back to Dashboard
             </button>
@@ -320,7 +335,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    selected ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   <Icon className="w-4 h-4" aria-hidden /> {s.label}
@@ -331,7 +346,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Profile section */}
           {activeSection === 'profile' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Contact information</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Update your contact details. Changes apply immediately.</p>
@@ -355,7 +370,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                       </div>
                     )}
                     {photoBusy && (
-                      <div className="absolute inset-0 rounded-full bg-slate-900/50 grid place-items-center">
+                      <div className="absolute inset-0 rounded-full bg-scrim/50 grid place-items-center">
                         <Loader2 className="w-6 h-6 animate-spin text-white" aria-hidden />
                       </div>
                     )}
@@ -378,7 +393,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                           href="/legal/privacy"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline underline-offset-2 text-blue-700 hover:text-blue-800"
+                          className="underline underline-offset-2 text-link-strong hover:text-link-deep"
                         >
                           Privacy Policy
                         </a>
@@ -400,7 +415,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                           type="button"
                           onClick={handleRemovePhoto}
                           disabled={photoBusy}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 border border-red-200 bg-surface hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                         >
                           <Trash2 className="w-3.5 h-3.5" aria-hidden /> Remove
                         </button>
@@ -491,7 +506,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Security section */}
           {activeSection === 'security' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Change password</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Use at least 6 characters. Mix letters and numbers for stronger security.</p>
@@ -577,7 +592,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Notifications section */}
           {activeSection === 'notifications' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Notification preferences</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Choose how you want to be notified about portal updates.</p>
@@ -619,7 +634,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
               subject rights (export / erasure request). */}
           {activeSection === 'privacy' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
                   <h2 className="text-base font-semibold text-slate-900">Documents</h2>
                   <p className="text-xs text-slate-500 mt-0.5">The policies that govern this portal and your data.</p>
@@ -647,7 +662,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
                   <h2 className="text-base font-semibold text-slate-900">Your data rights</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Access and control the data held in your account.</p>
@@ -668,7 +683,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   </p>
                   <a
                     href={`mailto:${LEGAL.operatorEmail}?subject=${encodeURIComponent('AICS Portal data deletion request')}&body=${encodeURIComponent(`Please delete or deactivate my account data.\n\nUsername: ${student.username}\nBranch: ${student.branch}\n\n(You may be asked to verify your identity before the request is processed.)`)}`}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-700 border border-red-200 bg-surface hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     <Trash2 className="w-4 h-4" aria-hidden />
                     Request data deletion
@@ -679,6 +694,58 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                     records the school still requires may be anonymized instead of deleted.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+          {/* Appearance section — the theme selector (Phase 1).
+              Appended last: the sections above keep their exact layout. */}
+          {activeSection === 'appearance' && (
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h2 className="text-base font-semibold text-slate-900">Appearance</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-3">
+                  {([
+                    { value: 'light', label: 'Light', desc: 'Bright surfaces and dark text.', icon: Sun },
+                    { value: 'dark', label: 'Dark', desc: 'Dark surfaces and light text.', icon: Moon },
+                    { value: 'system', label: 'System', desc: `Follows your device (${themeMounted && resolvedTheme === 'dark' ? 'currently dark' : 'currently light'}).`, icon: Monitor },
+                  ] as const).map((o) => {
+                    const OptionIcon = o.icon
+                    return (
+                      <label
+                        key={o.value}
+                        className="group relative flex items-start gap-3 rounded-lg border border-slate-200 px-4 py-3 cursor-pointer transition-colors hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500"
+                      >
+                        {/* sr-only keeps native radio semantics: keyboard
+                            arrows and screen readers work for free. */}
+                        <input
+                          type="radio"
+                          name="aics-appearance"
+                          value={o.value}
+                          checked={themeMounted ? theme === o.value : false}
+                          onChange={() => setTheme(o.value)}
+                          className="sr-only"
+                        />
+                        <OptionIcon className="w-5 h-5 mt-0.5 text-slate-400 shrink-0 group-has-[:checked]:text-link-strong" aria-hidden />
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-medium text-slate-900">{o.label}</span>
+                          <span className="block text-xs text-slate-500 mt-0.5">{o.desc}</span>
+                        </span>
+                        <Check
+                          className="w-4 h-4 mt-1 text-link-strong shrink-0 transition-opacity opacity-0 group-has-[:checked]:opacity-100"
+                          aria-hidden
+                        />
+                      </label>
+                    )
+                  })}
+                </div>
+                <p className="mt-4 text-[11px] leading-relaxed text-slate-500">
+                  System mode follows your device appearance live: change your OS theme and the portal follows without a reload.
+                </p>
               </div>
             </div>
           )}
@@ -716,7 +783,7 @@ function ToggleRow({ label, description, checked, onChange }: { label: string; d
           checked ? 'bg-blue-600' : 'bg-slate-300'
         }`}
       >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
   )

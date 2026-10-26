@@ -137,10 +137,11 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
       transition={{ duration: 0.2 }}
       className="space-y-4"
     >
-      {/* Face video area */}
+      {/* Face video area: navy backdrop like the brand panel
+          (brand-constant across themes, plan §2). */}
       <div
         className="relative aspect-square w-full rounded-[12px] overflow-hidden flex items-center justify-center"
-        style={{ background: T.text, border: `1px solid ${T.border}` }}
+        style={{ background: T.navy, border: `1px solid ${T.border}` }}
       >
         {(faceState === 'starting' ||
           faceState === 'scanning' ||
@@ -179,7 +180,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
                 className="relative w-[56%] aspect-[3/4] rounded-[40%]"
                 style={{
                   border: `2px solid ${T.accent}`,
-                  boxShadow: `0 0 0 3px ${T.accent}22`,
+                  boxShadow: `0 0 0 3px ${T.accentSoft}`,
                 }}
               >
                 {[
@@ -239,7 +240,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-            style={{ background: `${T.text}E6` }}
+            style={{ background: T.navyVeil }}
           >
             <motion.div
               initial={{ scale: 0.5 }}
@@ -258,7 +259,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
         {faceState === 'error' && (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
-            style={{ background: T.text }}
+            style={{ background: T.navy }}
           >
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
