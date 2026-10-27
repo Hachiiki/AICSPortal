@@ -33,6 +33,8 @@ import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
 import {
   type PaletteId,
+  detectBase,
+  PALETTE_CHANGE_EVENT,
   readPalettePref,
   readStoredCustomTheme,
   setPalettePref,
@@ -96,36 +98,59 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   // next to the next-themes light/dark preference. Read after mount —
   // localStorage is not reactive, so every selection updates this
   // state explicitly alongside the DOM application in theme-palette.
+  // The palette-change event covers writes from elsewhere (the topbar
+  // quick toggle drops a custom palette back to standard).
   const [palette, setPaletteState] = useState<PaletteId>('dark')
   useEffect(() => {
     setPaletteState(readPalettePref())
+    const sync = () => setPaletteState(readPalettePref())
+    window.addEventListener(PALETTE_CHANGE_EVENT, sync)
+    return () => window.removeEventListener(PALETTE_CHANGE_EVENT, sync)
   }, [])
 
   // The radio grid's selected value: system/light come straight from
   // next-themes; an explicit dark preference shows the active palette.
+  // A custom palette rides on BOTH light and dark, so it wins the
+  // highlight whichever explicit mode it is riding on — the user stays
+  // "in Custom" until they pick something else.
   const selectedTheme = !themeMounted
     ? null
     : theme === 'system'
       ? 'system'
-      : theme === 'light'
-        ? 'light'
-        : palette
+      : palette === 'custom'
+        ? 'custom'
+        : theme === 'light'
+          ? 'light'
+          : palette
 
   const handleThemeChoice = (id: string) => {
     if (id === 'light' || id === 'system') {
-      // No palette reset here: palettes only ever ride along with
-      // dark, so the stored one simply stays inert until the user
-      // picks a dark-family option again.
+      // Clicking Light/System must visibly leave a custom palette —
+      // custom rides both modes now, so a stored palette left untouched
+      // would keep painting. Step it down to the standard palette
+      // (inert in light/system, ready if the user returns to dark).
+      // Dark-family palettes (midnight/slate/oled) need no reset: they
+      // are inert in light and ride again on the next dark selection.
+      if (readPalettePref() === 'custom') {
+        setPaletteState('dark')
+        setPalettePref('dark', id)
+      }
       setTheme(id)
     } else if (id === 'dark') {
       setTheme('dark')
       setPaletteState('dark')
       setPalettePref('dark', 'dark')
     } else if (id === 'custom') {
+      // Keep the current explicit mode — the custom var map renders on
+      // either base. Coming from System there is no explicit mode yet,
+      // so pick once from the saved background's detected base; that is
+      // the only place base detection influences the selection.
       const stored = readStoredCustomTheme()
-      setTheme(stored.base)
+      const mode =
+        theme === 'dark' || theme === 'light' ? theme : detectBase(stored.colors.background)
+      setTheme(mode)
       setPaletteState('custom')
-      setPalettePref('custom', stored.base)
+      setPalettePref('custom', mode)
     } else {
       setTheme('dark')
       setPaletteState(id as PaletteId)

@@ -23,9 +23,12 @@
 //   - Non-custom palettes ride along whenever the app is dark
 //     (including system-resolved dark); the attribute is inert in
 //     light mode because the CSS blocks are .dark-scoped.
-//   - Custom needs an explicit light/dark base (its vars are inline
-//     styles, not .dark-scoped), so it only applies when the stored
-//     aics_theme equals the saved base. System strips it.
+//   - Custom applies on BOTH explicit light and dark (its var map
+//     re-maps the full slate/gray bridge, so the utilities ladder
+//     follows the user's colors on either base). The stored `base` is
+//     informational — it never gates application and editing the
+//     background never switches the selected theme. System strips it
+//     (no explicit utilities base to ride on).
 
 export const PALETTE_STORAGE_KEY = 'aics_palette'
 export const CUSTOM_THEME_STORAGE_KEY = 'aics_custom_theme'
@@ -148,7 +151,10 @@ export function detectBase(background: string): CustomBase {
 
 /** Every inline var the custom layer is allowed to write. The sync
  *  code uses this list to clear stale values; keep it exactly in sync
- *  with customThemeToVars(). */
+ *  with customThemeToVars(). The slate/gray bridge rungs are part of
+ *  the set: the visible page canvas is `bg-slate-50` (PortalShell and
+ *  the loading/error shells), so a custom background only reaches the
+ *  page when --color-slate-50 rides along with --background. */
 export const CUSTOM_VAR_KEYS = [
   '--background', '--foreground',
   '--card', '--card-foreground',
@@ -170,6 +176,15 @@ export const CUSTOM_VAR_KEYS = [
   '--login-text', '--login-muted',
   '--login-primary', '--login-primary-dark',
   '--login-accent', '--login-accent-soft',
+  // Slate/gray bridge (same rungs the .dark block and the palette
+  // blocks re-map). Low rungs carry elevation from the background
+  // ladder; high rungs carry text weight so utilities compile to the
+  // user's colors on either utilities base.
+  '--color-slate-50', '--color-slate-100', '--color-slate-200',
+  '--color-slate-300', '--color-slate-400', '--color-slate-500',
+  '--color-slate-600', '--color-slate-700', '--color-slate-800',
+  '--color-slate-900',
+  '--color-gray-50', '--color-gray-100',
 ] as const
 
 /**
@@ -177,9 +192,13 @@ export const CUSTOM_VAR_KEYS = [
  * follow the vault's dark-mode guidance: elevation and borders carry
  * hierarchy instead of shadows, hover shades lighten on dark bases,
  * and the accent's foreground is picked by contrast so primary buttons
- * stay readable whatever the user picks. The slate/gray bridge and the
- * status scales deliberately stay on their base-class values — custom
- * recolors surfaces and the accent, not the semantic status ramp.
+ * stay readable whatever the user picks. The slate/gray bridge is
+ * re-mapped from the same anchors (surfaces low, text high) so the
+ * whole utility ladder follows the custom colors on EITHER utilities
+ * base — the canvas (`bg-slate-50`) paints the exact background, and
+ * `text-slate-900` etc. resolve to the user's text. The status scales
+ * deliberately stay on their base-class values — custom recolors
+ * surfaces and the accent, not the semantic status ramp.
  */
 export function customThemeToVars(c: CustomThemeColors): Record<string, string> {
   const surface2 = mixHex(c.surface, c.text, 0.045)
@@ -190,6 +209,17 @@ export function customThemeToVars(c: CustomThemeColors): Record<string, string> 
   const avatarBg = mixHex(c.surface, c.text, 0.12)
   const accentFg = relativeLuminance(c.accent) > 0.45 ? '#0D1117' : '#F4F6F9'
   const accentSoft = withAlpha(c.accent, 0.133)
+  // Bridge ladder, calibrated against the .dark block's rung spacing:
+  // 50 = canvas (exactly the user's background), 200 = the border/line
+  // rung, 500 = muted text, 700 = body text, 900 = main text; the
+  // in-between rungs interpolate between those anchors. gray-50/100
+  // mirror slate-100/200 as they do in .dark.
+  const slate100 = mixHex(c.background, c.border, 0.3)
+  const slate300 = mixHex(c.border, c.mutedText, 0.3)
+  const slate400 = mixHex(c.border, c.mutedText, 0.6)
+  const slate600 = mixHex(c.mutedText, c.text, 0.27)
+  const slate800 = mixHex(c.mutedText, c.text, 0.8)
+  const gray100 = mixHex(slate100, c.border, 0.35)
   return {
     '--background': c.background,
     '--foreground': c.text,
@@ -234,6 +264,18 @@ export function customThemeToVars(c: CustomThemeColors): Record<string, string> 
     '--login-primary-dark': accentHover,
     '--login-accent': c.accent,
     '--login-accent-soft': accentSoft,
+    '--color-slate-50': c.background,
+    '--color-slate-100': slate100,
+    '--color-slate-200': c.border,
+    '--color-slate-300': slate300,
+    '--color-slate-400': slate400,
+    '--color-slate-500': c.mutedText,
+    '--color-slate-600': slate600,
+    '--color-slate-700': body,
+    '--color-slate-800': slate800,
+    '--color-slate-900': c.text,
+    '--color-gray-50': slate100,
+    '--color-gray-100': gray100,
   }
 }
 
@@ -262,8 +304,26 @@ export function readStoredCustomTheme(): StoredCustomTheme {
     const raw = window.localStorage.getItem(CUSTOM_THEME_STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as StoredCustomTheme
-      if (parsed && parsed.colors && parsed.vars && (parsed.base === 'dark' || parsed.base === 'light')) {
-        return parsed
+      const colorsOk =
+        parsed && parsed.colors &&
+        (Object.keys(DEFAULT_CUSTOM_COLORS) as (keyof CustomThemeColors)[])
+          .every((k) => isValidHex(parsed.colors[k]))
+      if (parsed && colorsOk && (parsed.base === 'dark' || parsed.base === 'light')) {
+        // Colors are the source of truth: always re-derive the var map
+        // so a save from an older var-map version (pre slate/gray
+        // bridge) upgrades in place instead of half-applying. Only
+        // rewrite storage when the derivation actually changed.
+        const vars = customThemeToVars(parsed.colors)
+        if (!parsed.vars || parsed.vars['--color-slate-50'] !== vars['--color-slate-50']) {
+          const healed: StoredCustomTheme = { base: parsed.base, colors: parsed.colors, vars }
+          try {
+            window.localStorage.setItem(CUSTOM_THEME_STORAGE_KEY, JSON.stringify(healed))
+          } catch {
+            /* storage full/blocked — the in-memory healed copy below still works */
+          }
+          return healed
+        }
+        return { base: parsed.base, colors: parsed.colors, vars }
       }
     }
   } catch {
@@ -310,14 +370,20 @@ function clearCustomVars(el: HTMLElement) {
  * Apply the palette rules to <html> for the given next-themes stored
  * preference ('light' | 'dark' | 'system' | undefined before mount).
  * Idempotent; safe to call on every theme change.
+ *
+ * Custom applies on both explicit light and dark — the saved base is
+ * informational (used by the editor badge and the one-time mode pick
+ * when selecting Custom from System) and never gates application, so
+ * editing the background color can never strand the palette. System
+ * still strips it: with no explicit utilities base to ride on, the
+ * inline vars would fight whatever the OS resolved to.
  */
 export function applyPaletteToDom(theme: string | undefined) {
   if (typeof document === 'undefined') return
   if (previewingCustom) return
   const el = document.documentElement
   const palette = readPalettePref()
-  const customApplies = palette === 'custom' && (theme === 'dark' || theme === 'light') &&
-    readStoredCustomTheme().base === theme
+  const customApplies = palette === 'custom' && (theme === 'dark' || theme === 'light')
 
   if (palette !== 'dark' && palette !== 'custom') {
     el.setAttribute('data-palette', palette)
@@ -353,6 +419,39 @@ export function setPalettePref(id: PaletteId, theme: string | undefined) {
     /* ignore — DOM application below still gives this session the right look */
   }
   applyPaletteToDom(theme)
+  notifyPaletteChange()
+}
+
+/** Event fired whenever setPalettePref writes a new palette, so surfaces
+ *  that mirror the palette in React state (the Settings grid) can re-read
+ *  it even when the write came from somewhere else (topbar quick toggle). */
+export const PALETTE_CHANGE_EVENT = 'aics:palette-change'
+
+function notifyPaletteChange() {
+  try {
+    window.dispatchEvent(new Event(PALETTE_CHANGE_EVENT))
+  } catch {
+    /* very old browsers — the Settings grid re-reads on mount anyway */
+  }
+}
+
+/**
+ * Quick-toggle helper (topbar + login). A custom palette rides on BOTH
+ * light and dark, so flipping the mode alone would leave the page
+ * looking exactly the same — a dead toggle. Treat the quick toggle as
+ * an explicit ask for the standard palettes: drop a stored custom
+ * palette back to standard, then flip the mode. Dark-family palettes
+ * (midnight/slate/oled) keep their ride-along behavior untouched.
+ */
+export function quickToggleTheme(
+  resolvedTheme: string | undefined,
+  setTheme: (theme: string) => void,
+): void {
+  const target = resolvedTheme === 'dark' ? 'light' : 'dark'
+  if (readPalettePref() === 'custom') {
+    setPalettePref('dark', target)
+  }
+  setTheme(target)
 }
 
 // ---------------------------------------------------------------------------
@@ -365,6 +464,12 @@ export function setPalettePref(id: PaletteId, theme: string | undefined) {
  * template literals, resilient to every failure mode (wrapped in
  * try/catch so a corrupt value can never take the page down). Logic
  * mirrors applyPaletteToDom() — keep the two in agreement.
+ *
+ * A stored custom theme applies on either explicit light or dark. The
+ * vars must carry the slate/gray bridge (‘--color-slate-50’ present);
+ * a pre-bridge save from an older build is skipped here and healed by
+ * the sync component right after hydration, so the first paint falls
+ * back to the standard palette instead of a half-applied custom one.
  */
 export const PALETTE_BOOT_SCRIPT = `(function(){try{
 var d=document.documentElement,s=window.localStorage;
@@ -375,7 +480,7 @@ var ok=false;
 if(custom&&(t==='dark'||t==='light')){
 var raw=s.getItem('aics_custom_theme');
 if(raw){try{var c=JSON.parse(raw);
-if(c&&c.base===t&&c.vars){ok=true;d.setAttribute('data-palette','custom');
+if(c&&c.vars&&c.vars['--color-slate-50']){ok=true;d.setAttribute('data-palette','custom');
 for(var k in c.vars){d.style.setProperty(k,c.vars[k]);}}
 }catch(e){}}
 }

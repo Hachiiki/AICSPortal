@@ -13,6 +13,7 @@ import {
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import type { AuthMode } from '@/lib/aics/types'
 import { T, PORTAL_TEXT_GRADIENT, SHOW_DEMO_LOGIN } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
@@ -151,7 +152,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
           <button
             type="button"
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             className="inline-flex items-center justify-center w-9 h-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40"
           >

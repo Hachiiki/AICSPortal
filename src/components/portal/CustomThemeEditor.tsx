@@ -9,15 +9,19 @@
 // in isolation.
 //
 // Interaction model:
-//   - Every change previews LIVE on the document (previewCustomColorsToDom),
-//     including an automatic light/dark base flip when the chosen
-//     background crosses the luminance threshold, so the utilities
-//     (dark: variants, status ramps) always match the base the user sees.
+//   - Every change previews LIVE on the document (previewCustomColorsToDom).
+//     The var map re-maps the full slate/gray bridge, so the draft
+//     paints the real page canvas — on either utilities base.
+//   - Nothing here ever switches the selected theme: the detected
+//     light/dark base is informational only (the badge + the stored
+//     base field), because flipping the mode on a background edit
+//     kicked the user out of their Custom selection (issue: white
+//     background auto-switched the app to Light).
 //   - Nothing persists until Save. Discard restores the saved theme;
 //     Reset loads the default seed as another draft (still unsaved).
 //   - While a draft is dirty, the palette sync layer stands down
-//     (setPreviewingCustom) so the live base flip cannot clobber the
-//     preview with the stored values.
+//     (setPreviewingCustom) so nothing re-applies the stored values
+//     over the preview mid-edit.
 //
 // Contrast readouts follow WCAG: 4.5:1 for body text, 3:1 for large
 // text and UI. They warn, never block — the owner of the device gets
@@ -56,7 +60,7 @@ export function CustomThemeEditor({
   initialColors: CustomThemeColors
   onSaved: () => void
 }) {
-  const { theme, setTheme } = useTheme()
+  const { theme } = useTheme()
   const [draft, setDraft] = useState<CustomThemeColors>(initialColors)
   const [dirty, setDirty] = useState(false)
   // Ref mirror so rapid color-input events always build on the latest
@@ -89,18 +93,20 @@ export function CustomThemeEditor({
     setDirty(true)
     setPreviewingCustom(true)
     previewCustomColorsToDom(next)
-    // Live base flip: utilities must match the background the user is
-    // looking at, otherwise the preview lies about what Save will do.
-    setTheme(detectBase(next.background))
+    // Deliberately NO setTheme here: the selected theme is independent
+    // of the background value. The bridge rungs in customThemeToVars
+    // keep utilities readable on the current base, whatever it is.
   }
 
   const handleSave = () => {
     if (!allValid) return
     setPreviewingCustom(false)
+    // The stored base stays informational (it guides the one-time mode
+    // pick when Custom is selected from System). Saving never switches
+    // the current theme — the colors apply on either base.
     const savedBase = detectBase(draft.background)
     saveCustomTheme(draft, savedBase)
-    setTheme(savedBase)
-    setPalettePref('custom', savedBase)
+    setPalettePref('custom', themeRef.current)
     setDirty(false)
     onSaved()
   }
@@ -110,8 +116,9 @@ export function CustomThemeEditor({
     const stored = readStoredCustomTheme()
     draftRef.current = stored.colors
     setDraft(stored.colors)
-    setTheme(stored.base)
-    setPalettePref('custom', stored.base)
+    // Re-apply the SAVED custom theme under the current theme (no mode
+    // change), replacing the draft preview on the document.
+    setPalettePref('custom', themeRef.current)
     setDirty(false)
   }
 
@@ -122,7 +129,6 @@ export function CustomThemeEditor({
     setDirty(true)
     setPreviewingCustom(true)
     previewCustomColorsToDom(next)
-    setTheme(detectBase(next.background))
   }
 
   return (
@@ -161,8 +167,9 @@ export function CustomThemeEditor({
             <ContrastRow label="Accent used as links" a={draft.accent} b={draft.background} />
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-            Aim for 4.5:1 or better on body text. The base follows your background color
-            automatically, so dark and light utilities always match what you see.
+            Aim for 4.5:1 or better on body text. Your colors apply on top of the
+            current Light/Dark utilities — the badge shows which base your
+            background suits, but the selection stays yours to make.
           </p>
         </div>
       </div>
