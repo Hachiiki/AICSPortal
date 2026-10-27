@@ -97,7 +97,7 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => decide('analytics')}
-            className="h-10 rounded-lg bg-[#1769AA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#124D7A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="h-10 rounded-lg bg-[var(--login-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--login-primary-dark)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             Allow analytics
           </button>

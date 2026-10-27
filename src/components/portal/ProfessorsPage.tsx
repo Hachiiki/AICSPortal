@@ -167,8 +167,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                     {/* Card header — avatar + name + contact */}
                     <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
                       <div
-                        className="w-11 h-11 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                        style={{ background: '#1e293b' }}
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)]"
                         aria-hidden="true"
                       >
                         {getInitials(professor.name)}

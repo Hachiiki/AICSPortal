@@ -175,7 +175,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">
