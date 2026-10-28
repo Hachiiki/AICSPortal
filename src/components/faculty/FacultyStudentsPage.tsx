@@ -525,14 +525,14 @@ export function FacultyStudentsPage({
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3">
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3">
                 <ChevronLeft className="w-4 h-4" /> Back to Dashboard
               </button>
               <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
+              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
               </button>
               <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
@@ -546,7 +546,7 @@ export function FacultyStudentsPage({
               <label htmlFor="faculty-students-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
-                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-white shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-surface shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
@@ -583,13 +583,13 @@ export function FacultyStudentsPage({
           </div>
 
           {filteredSections.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
               <EmptyState
                 icon={UsersIcon}
                 message="No classes found."
                 action={
                   (searchQuery || sectionFilter !== 'all' || statusFilter !== 'all') && (
-                    <button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all'); resetPage() }} className="text-xs font-medium text-blue-600 hover:underline">Clear filters</button>
+                    <button onClick={() => { setSearchQuery(''); setSectionFilter('all'); setStatusFilter('all'); resetPage() }} className="text-xs font-medium text-link hover:underline">Clear filters</button>
                   )
                 }
               />
@@ -602,7 +602,7 @@ export function FacultyStudentsPage({
                 const safePage = Math.min(page, pageCount)
                 const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
-                  <div key={sec.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div key={sec.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <button
                       type="button"
                       aria-expanded={isExpanded}
@@ -611,7 +611,7 @@ export function FacultyStudentsPage({
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-blue-700">{sec.subjectCode}</span>
+                          <span className="font-mono text-xs font-bold text-link-strong">{sec.subjectCode}</span>
                           <span className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
@@ -660,7 +660,7 @@ export function FacultyStudentsPage({
                                   <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                                     <td className="px-6 py-3">
                                       <div className="flex items-center gap-2.5">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900">{stu.fullName}</span>
                                       </div>
                                     </td>
@@ -669,13 +669,13 @@ export function FacultyStudentsPage({
                                     <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{prelim}</td>
                                     <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.midterm || '-'}</td>
                                     <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{subj?.finals || '-'}</td>
-                                    <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{subj?.finalGrade || '-'}</span></td>
+                                    <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-link-strong">{subj?.finalGrade || '-'}</span></td>
                                     <td className="px-4 py-3 text-center">{subj && <RemarksBadge remarks={subj.remarks} />}</td>
                                     <td className="px-4 py-3 text-center"><span className={`text-[11px] px-2 py-0.5 rounded-full border ${statusBadge}`}>{rawStatus}</span></td>
                                     <td className="px-6 py-3 text-right">
                                       <div className="flex justify-end gap-1">
-                                        <button type="button" onClick={() => { setSelectedStudent(stu); setSelectedSectionKey(sec.key) }} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200">View</button>
-                                        <button type="button" onClick={() => onNavigate('grade-encoding')} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-white border border-slate-200 hover:bg-slate-50">Grade</button>
+                                        <button type="button" onClick={() => { setSelectedStudent(stu); setSelectedSectionKey(sec.key) }} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-link-strong bg-blue-50 hover:bg-blue-100 border border-blue-200">View</button>
+                                        <button type="button" onClick={() => onNavigate('grade-encoding')} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-surface border border-slate-200 hover:bg-slate-50">Grade</button>
                                       </div>
                                     </td>
                                   </tr>
@@ -694,7 +694,7 @@ export function FacultyStudentsPage({
                                 type="button"
                                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                                 disabled={safePage <= 1}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Prev
                               </button>
@@ -703,7 +703,7 @@ export function FacultyStudentsPage({
                                 type="button"
                                 onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                                 disabled={safePage >= pageCount}
-                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface font-medium hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Next
                               </button>
@@ -711,9 +711,9 @@ export function FacultyStudentsPage({
                           </div>
                         )}
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
-                          <button onClick={() => setMessageSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle, room: sec.room })} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
-                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
-                          <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
+                          <button onClick={() => setMessageSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle, room: sec.room })} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
+                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
                           <span className="ml-auto text-slate-500">Click View for student file.</span>
                         </div>
                       </div>
@@ -728,21 +728,21 @@ export function FacultyStudentsPage({
       <AnimatePresence>
         {selectedStudent && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setSelectedStudent(null)} aria-hidden="true" />
-            <DialogPanel onClose={() => setSelectedStudent(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40" onClick={() => setSelectedStudent(null)} aria-hidden="true" />
+            <DialogPanel onClose={() => setSelectedStudent(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-surface shadow-2xl z-50 flex flex-col" aria-label="Student file" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <h3 className="font-bold text-sm text-slate-900">Student file</h3>
                 <button type="button" onClick={() => setSelectedStudent(null)} aria-label="Close student file" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: '#1e293b' }}>{selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-[var(--avatar-bg)]">{selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                   <div>
                     <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
                     <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber} • {selectedStudent.username} • {selectedStudent.program} {selectedStudent.section}</p>
                     <div className="flex gap-2 mt-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${selectedStudent.enrollmentStatus?.toLowerCase() === 'dropped' ? 'bg-red-50 text-red-700 border-red-200' : selectedStudent.enrollmentStatus?.toLowerCase() === 'transferred' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>{selectedStudent.enrollmentStatus || 'Enrolled'}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">{faculty.branch}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-link-strong border border-blue-200">{faculty.branch}</span>
                       {selectedStudent.gpa && <span className="text-xs px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">GPA {selectedStudent.gpa}</span>}
                     </div>
                   </div>
@@ -771,13 +771,13 @@ export function FacultyStudentsPage({
                 <div className="rounded-xl border border-slate-200 overflow-hidden">
                   <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Grades you teach this student</p>
-                    <span className="text-xs font-mono bg-white border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects</span>
+                    <span className="text-xs font-mono bg-surface border px-2 py-0.5 rounded">{selectedStudent.subjects.length} subjects</span>
                   </div>
                   <div className="p-3 space-y-2">
                     {selectedStudent.subjects.length === 0 ? (<p className="text-xs text-slate-500">No shared subjects.</p>) : (selectedStudent.subjects.map((s, i) => (
                         <div key={i} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-100">
                           <div className="min-w-0">
-                            <p className="font-mono text-xs font-bold text-blue-700">{s.code}</p>
+                            <p className="font-mono text-xs font-bold text-link-strong">{s.code}</p>
                             <p className="text-xs text-slate-700 truncate">{s.title}</p>
                             <p className="text-[10px] text-slate-500">{s.academicYear} {s.semester} • {s.yearLevel}</p>
                           </div>
@@ -786,7 +786,7 @@ export function FacultyStudentsPage({
                               <span><span className="text-slate-500">P:</span> <span className="font-mono text-slate-700">{s.prelim || '-'}</span></span>
                               <span><span className="text-slate-500">M:</span> <span className="font-mono text-slate-700">{s.midterm || '-'}</span></span>
                               <span><span className="text-slate-500">F:</span> <span className="font-mono text-slate-700">{s.finals || '-'}</span></span>
-                              <span><span className="text-slate-500">FG:</span> <span className="font-mono font-bold text-blue-700">{s.finalGrade || '-'}</span></span>
+                              <span><span className="text-slate-500">FG:</span> <span className="font-mono font-bold text-link-strong">{s.finalGrade || '-'}</span></span>
                             </div>
                             <div className="mt-1"><RemarksBadge remarks={s.remarks} /></div>
                             <p className="text-[10px] text-slate-500 mt-1">{s.gradeStatus || 'No status'} • {s.status}</p>
@@ -798,7 +798,7 @@ export function FacultyStudentsPage({
                 <div className="rounded-xl border border-slate-200 p-4 space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-600">Classroom management</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <button onClick={() => openMaterials(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Upload materials</button>
+                    <button onClick={() => openMaterials(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-surface font-medium hover:bg-slate-50">Upload materials</button>
                     <button
                       onClick={() => {
                         // Refs #36: Announce quiz is just a Quiz-type task post,
@@ -810,11 +810,11 @@ export function FacultyStudentsPage({
                         } catch {}
                         onNavigate('tasks')
                       }}
-                      className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50"
+                      className="h-9 rounded-lg border border-slate-200 bg-surface font-medium hover:bg-slate-50"
                     >
                       Announce quiz
                     </button>
-                    <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-white font-medium hover:bg-slate-50">Attendance history</button>
+                    <button onClick={() => openHistory(selectedSectionKey)} className="h-9 rounded-lg border border-slate-200 bg-surface font-medium hover:bg-slate-50">Attendance history</button>
                     <div
                       aria-disabled="true"
                       title="Coming soon. Needs a campus entry/exit data source"
@@ -822,8 +822,7 @@ export function FacultyStudentsPage({
                     >
                       In/Out log
                       <span
-                        className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                        style={{ background: '#f1f5f9', color: '#64748b' }}
+                        className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500"
                       >
                         Soon
                       </span>
@@ -843,8 +842,8 @@ export function FacultyStudentsPage({
       <AnimatePresence>
         {historyKey && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40" onClick={() => setHistoryKey(null)} aria-hidden="true" />
-            <DialogPanel onClose={() => setHistoryKey(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl z-50 flex flex-col" aria-label="Attendance history" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40" onClick={() => setHistoryKey(null)} aria-hidden="true" />
+            <DialogPanel onClose={() => setHistoryKey(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[520px] bg-surface shadow-2xl z-50 flex flex-col" aria-label="Attendance history" onClick={(e) => e.stopPropagation()}>
               {(() => {
                 const sec = filteredSections.find((s) => s.key === historyKey)
                 const roster = new Map((sec?.students || []).map((s) => [s.username, s]))
@@ -882,7 +881,7 @@ export function FacultyStudentsPage({
                                 type="button"
                                 onClick={() => loadHistoryRecords(historyKey, s.date)}
                                 aria-pressed={historyDate === s.date}
-                                className={`px-3 py-1.5 rounded-lg border text-xs font-medium ${historyDate === s.date ? 'bg-[#153357] text-white border-[#153357]' : 'bg-white border-slate-200 hover:bg-slate-50'}`}
+                                className={`px-3 py-1.5 rounded-lg border text-xs font-medium ${historyDate === s.date ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface border-slate-200 hover:bg-slate-50'}`}
                               >
                                 {fmtDate(s.date)}
                               </button>
@@ -907,7 +906,7 @@ export function FacultyStudentsPage({
                                   <ul className="space-y-1">
                                     {present.map((u) => (
                                       <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
                                       </li>
                                     ))}
@@ -922,7 +921,7 @@ export function FacultyStudentsPage({
                                   <ul className="space-y-1">
                                     {absent.map((u) => (
                                       <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-red-50/60 border border-red-100">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
                                       </li>
                                     ))}
@@ -947,7 +946,7 @@ export function FacultyStudentsPage({
 
       {messageSec && (
         <Modal
-          title={<>Message section · <span className="font-mono text-blue-700">{messageSec.subjectCode}</span></>}
+          title={<>Message section · <span className="font-mono text-link-strong">{messageSec.subjectCode}</span></>}
           description={<>To every enrolled student in <span className="font-medium text-slate-700">{messageSec.subjectTitle} • {messageSec.room}</span>. Lands in their bell inbox; read state persists there.</>}
           onClose={closeMessage}
           footer={
@@ -989,7 +988,7 @@ export function FacultyStudentsPage({
 
       {materialsSec && (
         <Modal
-          title={<>Materials · <span className="font-mono text-blue-700">{materialsSec.subjectCode}</span></>}
+          title={<>Materials · <span className="font-mono text-link-strong">{materialsSec.subjectCode}</span></>}
           description={<>Files upload to the portal's Cloudinary folder; links post as-is. Enrolled students see both under Academics → Materials.</>}
           onClose={closeMaterials}
           maxWidthClass="max-w-2xl"
@@ -1007,14 +1006,14 @@ export function FacultyStudentsPage({
               type="button"
               onClick={() => setMatTab('upload')}
               disabled={!uploadsConfigured}
-              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'upload' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'} disabled:opacity-50`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'upload' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'} disabled:opacity-50`}
             >
               Upload file
             </button>
             <button
               type="button"
               onClick={() => setMatTab('link')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'link' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${matTab === 'link' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
               Paste link
             </button>
@@ -1038,7 +1037,7 @@ export function FacultyStudentsPage({
                 accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.webp,.gif,.zip"
                 onChange={(e) => setMatFile(e.target.files?.[0] || null)}
                 aria-label="Choose a file to upload"
-                className="w-full text-sm text-slate-600 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-slate-200 file:bg-white file:text-xs file:font-medium hover:file:bg-slate-50"
+                className="w-full text-sm text-slate-600 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-slate-200 file:bg-surface file:text-xs file:font-medium hover:file:bg-slate-50"
               />
               <div className="flex justify-end">
                 <button
@@ -1086,19 +1085,19 @@ export function FacultyStudentsPage({
               <div className="max-h-[30vh] overflow-y-auto space-y-2 pr-1">
                 {matList.map((m) => (
                   <div key={m._id} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border flex-shrink-0 ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border flex-shrink-0 ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
                       {m.kind === 'file' ? 'File' : 'Link'}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-slate-900 truncate">{m.title}</p>
                       <p className="text-[11px] text-slate-500">{new Date(m.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}{m.format ? ` • ${String(m.format).toUpperCase()}` : ''}</p>
                     </div>
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-[11px] font-medium hover:bg-slate-100 flex-shrink-0">Open</a>
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-surface text-[11px] font-medium hover:bg-slate-100 flex-shrink-0">Open</a>
                     <button
                       type="button"
                       onClick={() => deleteMaterial(m._id)}
                       disabled={deletingId === m._id}
-                      className="px-2.5 py-1.5 rounded-lg border border-red-200 bg-white text-[11px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 flex-shrink-0"
+                      className="px-2.5 py-1.5 rounded-lg border border-red-200 bg-surface text-[11px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-60 flex-shrink-0"
                     >
                       {deletingId === m._id ? 'Deleting...' : 'Delete'}
                     </button>

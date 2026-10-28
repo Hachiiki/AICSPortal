@@ -42,7 +42,7 @@ export function TodaysClasses({ courses, sessions }: TodaysClassesProps) {
   const todaySessions = todayIndex >= 0 ? getSessionsForDay(todayIndex, sessions) : []
 
   return (
-    <section className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col">
+    <section className="w-full lg:w-[320px] flex-shrink-0 rounded-xl border border-slate-200 bg-surface shadow-sm flex flex-col">
       {/* Header */}
       <div className="px-5 py-4 border-b border-slate-100">
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">Today&apos;s Classes</h2>

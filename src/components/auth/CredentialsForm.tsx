@@ -105,7 +105,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-white border border-[#D9E0E6] text-[#17324D] outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
+            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
         </div>
       </div>
@@ -127,7 +127,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-white border border-[#D9E0E6] text-[#17324D] outline-none transition-colors focus-visible:border-[#1769AA] focus-visible:ring-[3px] focus-visible:ring-[#2F9ED8]/15"
+            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
           <button
             type="button"
@@ -175,7 +175,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

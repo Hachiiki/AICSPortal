@@ -162,7 +162,7 @@ export function FacultyAnnouncementsPage({
       <div className="min-h-dvh bg-slate-50 grid place-items-center">
         <div className="text-center">
           <p className="text-red-600 text-sm font-medium mb-2">{sentError}</p>
-          <button onClick={() => onFetchSent?.(1)} className="text-blue-600 text-sm font-medium hover:underline">
+          <button onClick={() => onFetchSent?.(1)} className="text-link text-sm font-medium hover:underline">
             Try again
           </button>
         </div>
@@ -201,9 +201,9 @@ export function FacultyAnnouncementsPage({
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         <div className="lg:col-span-3">
         {/* Compose */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-blue-600" />
+            <Megaphone className="w-4 h-4 text-link" />
             <h2 className="text-base font-semibold text-slate-900">Notify sections</h2>
           </div>
           <div className="px-6 py-5 space-y-4">
@@ -241,7 +241,7 @@ export function FacultyAnnouncementsPage({
                   <button
                     type="button"
                     onClick={toggleAll}
-                    className="text-xs font-semibold text-blue-700 hover:underline"
+                    className="text-xs font-semibold text-link-strong hover:underline"
                   >
                     {allChecked ? 'Clear all' : 'Select all'}
                   </button>
@@ -257,7 +257,7 @@ export function FacultyAnnouncementsPage({
                       <label
                         key={s.key}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border cursor-pointer transition-colors ${
-                          checked ? 'bg-blue-50/60 border-blue-200' : 'bg-white border-slate-200 hover:bg-slate-50'
+                          checked ? 'bg-blue-50/60 border-blue-200' : 'bg-surface border-slate-200 hover:bg-slate-50'
                         }`}
                       >
                         <input
@@ -266,7 +266,7 @@ export function FacultyAnnouncementsPage({
                           onChange={() => toggleKey(s.key)}
                           className="w-4 h-4 rounded accent-blue-700 flex-shrink-0"
                         />
-                        <span className="font-mono text-xs font-bold text-blue-700">{s.subjectCode}</span>
+                        <span className="font-mono text-xs font-bold text-link-strong">{s.subjectCode}</span>
                         <span className="text-sm text-slate-700 truncate flex-1">{s.subjectTitle}</span>
                         <span className="text-xs text-slate-500 flex-shrink-0">
                           {s.room} • {s.students.length} students
@@ -299,7 +299,7 @@ export function FacultyAnnouncementsPage({
             <span className="text-[11px] text-slate-500">Newest first · keeps the last {NOTIFICATION_RETENTION_DAYS} days</span>
           </div>
           {!sent || sent.groups.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">
                 Nothing sent yet. Messages you send to sections will appear here, grouped by send.
               </p>
@@ -312,7 +312,7 @@ export function FacultyAnnouncementsPage({
                   const subjectCodes = Array.from(new Set(g.sections.map((s) => s.subjectCode)))
                   const allRead = g.readCount >= g.total
                   return (
-                    <div key={g.key} className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                    <div key={g.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-slate-900 min-w-0">{g.title}</p>
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -322,7 +322,7 @@ export function FacultyAnnouncementsPage({
                             </span>
                           )}
                           {subjectCodes.slice(0, 2).map((code) => (
-                            <span key={code} className="font-mono text-xs font-bold text-blue-700">{code}</span>
+                            <span key={code} className="font-mono text-xs font-bold text-link-strong">{code}</span>
                           ))}
                           {subjectCodes.length > 2 && (
                             <span className="text-[10px] text-slate-500">+{subjectCodes.length - 2} more</span>
@@ -351,7 +351,7 @@ export function FacultyAnnouncementsPage({
                           type="button"
                           onClick={() => toggleExpanded(g.key)}
                           aria-expanded={expanded}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 hover:underline flex-shrink-0"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-link-strong hover:underline flex-shrink-0"
                         >
                           {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                           {expanded ? 'Hide recipients' : `View ${g.total} recipient${g.total === 1 ? '' : 's'}`}
@@ -402,7 +402,7 @@ export function FacultyAnnouncementsPage({
               </div>
 
               {/* Pager — server-side pagination, app's existing control style */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
                 <p className="text-xs text-slate-500 tabular-nums">
                   Showing {(sent.page - 1) * sent.pageSize + 1}–{Math.min(sent.page * sent.pageSize, sent.total)} of{' '}
                   {sent.total}
@@ -412,7 +412,7 @@ export function FacultyAnnouncementsPage({
                     type="button"
                     onClick={() => onFetchSent?.(sent.page - 1)}
                     disabled={sent.page <= 1 || sentPending}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
@@ -423,7 +423,7 @@ export function FacultyAnnouncementsPage({
                     type="button"
                     onClick={() => onFetchSent?.(sent.page + 1)}
                     disabled={sent.page >= sent.totalPages || sentPending}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>

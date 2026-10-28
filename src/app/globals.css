@@ -40,27 +40,29 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Profile page design tokens */
-  --color-canvas: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-line: #E2E8F0;
-  --color-ink: #0F172A;
-  --color-body: #334155;
-  --color-muted: #64748B;
-  --color-brand-50: #EFF6FF;
-  --color-brand-100: #DBEAFE;
-  --color-brand-200: #BFDBFE;
-  --color-brand-600: #2563EB;
-  --color-brand-700: #1D4ED8;
-  --color-brand-800: #1E40AF;
-  --color-navy: #1E3A8A;
-  --color-success-text: #15803D;
-  --color-success-bg: #F0FDF4;
-  --color-success-border: #BBF7D0;
-  --color-success-icon: #16A34A;
-  --color-danger-text: #DC2626;
-  --color-danger-bg: #FEF2F2;
-  --color-danger-border: #FECACA;
+  /* Semantic surface / link / scrim tokens (dark-theme plan §2.5).
+     Var-chain form: utilities emit var(--surface) etc., so a `.dark`
+     block on <html> can re-map them by cascade — the same mechanism
+     the shadcn tokens above already use. Phase 0 defines LIGHT values
+     only, byte-identical to the utilities they replace (v4 palette
+     white / blue-600 / blue-700 / blue-800 / slate-900); dark values
+     land with the Phase-1 theme engine. Opacity modifiers stay on the
+     class itself, never baked into the token. */
+  --color-surface: var(--surface);
+  --color-link: var(--link);
+  --color-link-strong: var(--link-strong);
+  --color-link-deep: var(--link-deep);
+  --color-scrim: var(--scrim);
+
+  /* Remaining §2 Layer-1 semantic tokens (Phase 1). Unused by any
+     call site today (zero emitted utilities); they define the target
+     vocabulary and back the body base rule below. Light values are
+     the exact v4 slate shades they stand for. */
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-body: var(--body);
+  --color-muted-fg: var(--muted-fg);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -101,40 +103,347 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* §2.5 light values — resolve to the same computed colors as the
+     pre-migration utilities (G1 equivalence gate proves this).
+     Light-mode values only in Phase 0; dark counterparts land in
+     Phase 1 together with the .dark recalibration. */
+  --surface: #FFFFFF;
+  --link: oklch(54.6% 0.245 262.881);
+  --link-strong: oklch(48.8% 0.243 264.376);
+  --link-deep: oklch(42.4% 0.199 265.638);
+  --scrim: oklch(20.8% 0.042 265.755);
+
+  /* §2 Layer-1 light values (Phase 1). Exact v4 slate shades so the
+     body base rule keeps byte-identical light rendering. */
+  --surface-2: oklch(0.968 0.007 247.896); /* slate-100 */
+  --line: oklch(0.929 0.013 255.508);      /* slate-200 */
+  --ink: oklch(0.208 0.042 265.755);       /* slate-900 */
+  --body: oklch(0.372 0.044 257.287);      /* slate-700 */
+  --muted-fg: oklch(0.554 0.046 257.417);  /* slate-500 */
+
+  /* Avatar placeholder fill (Phase 2 Stage 2B): the initials circle
+     behind white text. Light is the exact pre-Stage-2B literal #1e293b
+     (v4 slate-800 is oklch, which renders differently); dark is the
+     raised-dark tone shared with --line so the circle reads as a
+     deliberate chip on the dark topbar while white initials keep
+     ~9:1. Consumers use bg-[var(--avatar-bg)] (CredentialsForm
+     var-arbitrary precedent). */
+  --avatar-bg: #1e293b;
+
+  /* Login-scoped tokens (plan §2 login palette). Consumers read them
+     through the `T` object in src/components/auth/login-tokens.ts as
+     var() references, so the login surface themes with zero React
+     changes and zero flash: the values cascade from <html class>. */
+  --login-surface: #FFFFFF;
+  --login-bg: #F7F9FB;
+  --login-border: #D9E0E6;
+  --login-text: #17324D;
+  --login-muted: #5D6874;
+  --login-primary: #1769AA;
+  --login-primary-dark: #124D7A;
+  --login-accent: #2893CF;
+  --login-accent-soft: rgba(40, 147, 207, 0.133333);
+  /* Brand-constant navy: the login brand panel and the overlays that
+     carry white text keep the navy in BOTH themes (plan §2: the navy
+     panel + PORTAL_TEXT_GRADIENT stay as-is). */
+  --login-navy: #17324D;
+  --login-navy-veil: rgba(23, 50, 77, 0.901961);
+
+  color-scheme: light;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* Phase-1 recalibration (plan §2). Base surface scale: a restrained
+     blue-tinted near-dark ladder; never #000. Solid line colors, not
+     white-alpha, so borders survive the backdrop-blur surfaces. */
+  --background: oklch(0.185 0.012 255);
+  --foreground: oklch(0.94 0.005 255);
+  --card: oklch(0.225 0.012 255);
+  --card-foreground: oklch(0.94 0.005 255);
+  --popover: oklch(0.225 0.012 255);
+  --popover-foreground: oklch(0.94 0.005 255);
+  --primary: oklch(0.94 0.005 255);
+  --primary-foreground: oklch(0.185 0.012 255);
+  --secondary: oklch(0.27 0.014 255);
+  --secondary-foreground: oklch(0.94 0.005 255);
+  --muted: oklch(0.27 0.014 255);
+  --muted-foreground: oklch(0.64 0.012 255);
+  --accent: oklch(0.27 0.014 255);
+  --accent-foreground: oklch(0.94 0.005 255);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: oklch(0.32 0.014 255);
+  --input: oklch(0.32 0.014 255);
+  --ring: oklch(0.70 0.15 260);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar: oklch(0.225 0.012 255);
+  --sidebar-foreground: oklch(0.94 0.005 255);
+  --sidebar-primary: oklch(0.72 0.14 260);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-accent: oklch(0.27 0.014 255);
+  --sidebar-accent-foreground: oklch(0.94 0.005 255);
+  --sidebar-border: oklch(0.32 0.014 255);
+  --sidebar-ring: oklch(0.70 0.15 260);
+
+  /* §2 Layer-1 dark values. */
+  --surface: oklch(0.225 0.012 255);
+  --surface-2: oklch(0.27 0.014 255);
+  --line: oklch(0.32 0.014 255);
+  --ink: oklch(0.94 0.005 255);
+  --body: oklch(0.80 0.01 255);
+  --muted-fg: oklch(0.64 0.012 255);
+  --link: oklch(0.72 0.14 260);
+  --link-strong: oklch(0.75 0.13 260);
+  --link-deep: oklch(0.78 0.12 260);
+  --scrim: oklch(0 0 0);
+
+  /* Avatar placeholder fill, dark counterpart (see the :root block). */
+  --avatar-bg: oklch(0.32 0.014 255);
+
+  /* §2 Layer-2 palette bridge. Default-palette utilities compile to
+     var(--color-*) references resolved at the element, and this
+     unlayered block on <html> overrides the @layer theme :root values
+     by cascade (probe-verified, plan §1.2). NOT overridden: white,
+     black, blue-600/700/800 (brand action surfaces keep their deep
+     blues and white text), and the print/ID hex literals. */
+  --color-slate-50: oklch(0.22 0.012 255);
+  --color-slate-100: oklch(0.26 0.012 255);
+  --color-slate-200: oklch(0.32 0.014 255);
+  --color-slate-300: oklch(0.42 0.014 255);
+  --color-slate-400: oklch(0.52 0.012 255);
+  --color-slate-500: oklch(0.64 0.012 255);
+  --color-slate-600: oklch(0.72 0.01 255);
+  --color-slate-700: oklch(0.80 0.01 255);
+  --color-slate-800: oklch(0.88 0.008 255);
+  --color-slate-900: oklch(0.94 0.005 255);
+
+  /* Stray gray utilities (login show-password hover, one chip fill):
+     mapped onto the same dark ladder so they follow the theme. */
+  --color-gray-50: oklch(0.26 0.012 255);
+  --color-gray-100: oklch(0.30 0.012 255);
+
+  --color-blue-500: oklch(0.70 0.15 260);
+  --color-blue-50: oklch(0.28 0.05 255);
+  --color-blue-100: oklch(0.32 0.06 255);
+  --color-blue-200: oklch(0.42 0.08 255);
+  --color-blue-300: oklch(0.42 0.08 255);
+  --color-blue-900: oklch(0.80 0.10 260);
+  --color-blue-950: oklch(0.86 0.07 260);
+
+  /* Status scales (§2 brand & status table). Anchors per family:
+     -50 tinted dark bg, -700 readable text, -200 border; the other
+     used shades follow the same ramp. red-600 keeps a dual role
+     (text x35, solid chips x9 with white bold text): the value below
+     passes 4.5:1 as text on canvas/surface while the bold chip text
+     keeps the 3:1 non-text/large bar (scripts/theme/phase1-contrast
+     .mjs records both numbers). Solid destructive action backgrounds
+     red-600/700 follow the brand-action precedent either way. */
+  --color-green-50: oklch(0.30 0.04 155);
+  --color-green-100: oklch(0.33 0.05 155);
+  --color-green-200: oklch(0.44 0.07 155);
+  --color-green-300: oklch(0.47 0.08 155);
+  --color-green-500: oklch(0.62 0.13 155);
+  --color-green-600: oklch(0.72 0.14 155);
+  --color-green-700: oklch(0.79 0.14 155);
+
+  --color-amber-50: oklch(0.32 0.05 75);
+  --color-amber-100: oklch(0.35 0.06 75);
+  --color-amber-200: oklch(0.46 0.08 80);
+  --color-amber-300: oklch(0.49 0.09 80);
+  --color-amber-400: oklch(0.55 0.11 80);
+  --color-amber-500: oklch(0.66 0.13 80);
+  --color-amber-600: oklch(0.77 0.13 80);
+  --color-amber-700: oklch(0.83 0.14 80);
+  --color-amber-800: oklch(0.86 0.12 80);
+  --color-amber-900: oklch(0.90 0.08 80);
+
+  --color-red-50: oklch(0.30 0.06 25);
+  --color-red-100: oklch(0.33 0.07 25);
+  --color-red-200: oklch(0.46 0.12 25);
+  --color-red-300: oklch(0.49 0.13 25);
+  --color-red-400: oklch(0.52 0.14 25);
+  --color-red-500: oklch(0.62 0.17 25);
+  --color-red-600: oklch(0.66 0.18 25);
+  --color-red-700: oklch(0.70 0.19 25);
+  --color-red-900: oklch(0.85 0.09 25);
+
+  --color-emerald-50: oklch(0.30 0.05 160);
+  --color-emerald-100: oklch(0.33 0.06 160);
+  --color-emerald-200: oklch(0.44 0.07 160);
+  --color-emerald-300: oklch(0.47 0.08 160);
+  --color-emerald-500: oklch(0.63 0.13 160);
+  --color-emerald-600: oklch(0.72 0.15 160);
+  --color-emerald-700: oklch(0.78 0.14 160);
+  --color-emerald-800: oklch(0.84 0.12 160);
+
+  --color-violet-50: oklch(0.30 0.05 300);
+  --color-violet-100: oklch(0.33 0.06 300);
+  --color-violet-200: oklch(0.44 0.07 300);
+  --color-violet-300: oklch(0.47 0.08 300);
+  --color-violet-500: oklch(0.62 0.13 300);
+  --color-violet-600: oklch(0.72 0.14 300);
+  --color-violet-700: oklch(0.75 0.13 300);
+
+  --color-cyan-50: oklch(0.30 0.05 195);
+  --color-cyan-100: oklch(0.33 0.06 195);
+  --color-cyan-200: oklch(0.44 0.07 195);
+  --color-cyan-300: oklch(0.47 0.08 195);
+  --color-cyan-500: oklch(0.62 0.13 195);
+  --color-cyan-600: oklch(0.72 0.14 195);
+  --color-cyan-700: oklch(0.75 0.13 195);
+
+  --color-teal-50: oklch(0.30 0.05 175);
+  --color-teal-100: oklch(0.33 0.06 175);
+  --color-teal-200: oklch(0.44 0.07 175);
+  --color-teal-300: oklch(0.47 0.08 175);
+  --color-teal-500: oklch(0.62 0.13 175);
+  --color-teal-600: oklch(0.72 0.14 175);
+  --color-teal-700: oklch(0.75 0.13 175);
+
+  --color-orange-50: oklch(0.30 0.05 55);
+  --color-orange-100: oklch(0.33 0.06 55);
+  --color-orange-200: oklch(0.44 0.07 55);
+  --color-orange-300: oklch(0.47 0.08 55);
+  --color-orange-500: oklch(0.62 0.13 55);
+  --color-orange-600: oklch(0.72 0.14 55);
+  --color-orange-700: oklch(0.80 0.12 55);
+
+  /* Login palette dark values (plan §2, L calibrated per the §5
+     contrast run: primary sits at 0.66 so the white check icon drawn
+     on it keeps >= 3:1, while still passing 4.5:1 as text). Hover
+     inverts: the hover shade is LIGHTER on dark. The navy pair stays
+     brand-constant. */
+  --login-surface: oklch(0.225 0.012 255);
+  --login-bg: oklch(0.21 0.012 255);
+  --login-border: oklch(0.32 0.014 255);
+  --login-text: oklch(0.93 0.01 255);
+  --login-muted: oklch(0.66 0.012 255);
+  --login-primary: oklch(0.66 0.14 255);
+  --login-primary-dark: oklch(0.72 0.13 255);
+  --login-accent: oklch(0.72 0.13 240);
+  --login-accent-soft: color-mix(in srgb, oklch(0.72 0.13 240) 13%, transparent);
+
+  color-scheme: dark;
+}
+
+/* ----------------------------------------------------------------
+   Palette layer (theme expansion, Refs #92).
+
+   A palette is a drop-in re-map of the dark surface ladder; it rides
+   ON TOP of the .dark block via [data-palette] on <html>, so every
+   dark: utility and every .dark-scoped rule above keeps working
+   unchanged. Only surfaces, lines, the slate/gray bridge rungs that
+   encode elevation (50/100/200/300), the avatar chip, and the login
+   surfaces are re-mapped; text rungs, status colors, charts, links,
+   and the brand-constant navy pair stay shared with .dark.
+
+   Rules (mirrored by the pre-paint script and the sync component in
+   src/lib/aics/theme-palette.ts — keep the three in agreement):
+   - The attribute only ever sits alongside .dark; light and
+     system-light never see it, so light stays byte-identical.
+   - data-palette="dark" (or no attribute) is the standard palette.
+   - data-palette="custom" is driven by inline vars written by the
+     editor, not by a CSS block.
+----------------------------------------------------------------- */
+
+/* Midnight — a deeper, bluer ladder for low-light rooms. Hue shifts
+   255 -> 260 with a touch more chroma; every rung drops ~0.04 L. */
+.dark[data-palette='midnight'] {
+  --background: oklch(0.145 0.018 260);
+  --card: oklch(0.185 0.018 260);
+  --popover: oklch(0.185 0.018 260);
+  --secondary: oklch(0.23 0.018 260);
+  --muted: oklch(0.23 0.018 260);
+  --accent: oklch(0.23 0.018 260);
+  --border: oklch(0.28 0.018 260);
+  --input: oklch(0.28 0.018 260);
+  --sidebar: oklch(0.185 0.018 260);
+  --sidebar-accent: oklch(0.23 0.018 260);
+  --sidebar-border: oklch(0.28 0.018 260);
+  --surface: oklch(0.185 0.018 260);
+  --surface-2: oklch(0.23 0.018 260);
+  --line: oklch(0.28 0.018 260);
+  --avatar-bg: oklch(0.28 0.018 260);
+
+  --color-slate-50: oklch(0.18 0.018 260);
+  --color-slate-100: oklch(0.225 0.018 260);
+  --color-slate-200: oklch(0.28 0.018 260);
+  --color-slate-300: oklch(0.38 0.016 260);
+  --color-gray-50: oklch(0.225 0.018 260);
+  --color-gray-100: oklch(0.26 0.016 260);
+
+  --login-bg: oklch(0.17 0.018 260);
+  --login-surface: oklch(0.185 0.018 260);
+  --login-border: oklch(0.28 0.018 260);
+}
+
+/* Slate — the same ladder with the blue tint removed: near-zero
+   chroma, a slightly softer base. The neutral hue IS the feature. */
+.dark[data-palette='slate'] {
+  --background: oklch(0.19 0.004 255);
+  --card: oklch(0.23 0.004 255);
+  --popover: oklch(0.23 0.004 255);
+  --secondary: oklch(0.275 0.004 255);
+  --muted: oklch(0.275 0.004 255);
+  --accent: oklch(0.275 0.004 255);
+  --border: oklch(0.325 0.004 255);
+  --input: oklch(0.325 0.004 255);
+  --sidebar: oklch(0.23 0.004 255);
+  --sidebar-accent: oklch(0.275 0.004 255);
+  --sidebar-border: oklch(0.325 0.004 255);
+  --surface: oklch(0.23 0.004 255);
+  --surface-2: oklch(0.275 0.004 255);
+  --line: oklch(0.325 0.004 255);
+  --avatar-bg: oklch(0.325 0.004 255);
+
+  --color-slate-50: oklch(0.225 0.004 255);
+  --color-slate-100: oklch(0.265 0.004 255);
+  --color-slate-200: oklch(0.325 0.004 255);
+  --color-slate-300: oklch(0.42 0.004 255);
+  --color-gray-50: oklch(0.265 0.004 255);
+  --color-gray-100: oklch(0.305 0.004 255);
+
+  --login-bg: oklch(0.215 0.004 255);
+  --login-surface: oklch(0.23 0.004 255);
+  --login-border: oklch(0.325 0.004 255);
+}
+
+/* OLED Black — the one deliberate pure-black exception (owner
+   request): true black page background for AMOLED panels, with a
+   clearly elevated card rung so hierarchy survives. Text stays the
+   shared off-white (0.94) rather than pure white, keeping halation
+   in check against the black canvas. */
+.dark[data-palette='oled'] {
+  --background: oklch(0 0 0);
+  --card: oklch(0.095 0.01 255);
+  --popover: oklch(0.095 0.01 255);
+  --secondary: oklch(0.14 0.01 255);
+  --muted: oklch(0.14 0.01 255);
+  --accent: oklch(0.14 0.01 255);
+  --border: oklch(0.19 0.01 255);
+  --input: oklch(0.19 0.01 255);
+  --sidebar: oklch(0.095 0.01 255);
+  --sidebar-accent: oklch(0.14 0.01 255);
+  --sidebar-border: oklch(0.19 0.01 255);
+  --surface: oklch(0.095 0.01 255);
+  --surface-2: oklch(0.14 0.01 255);
+  --line: oklch(0.19 0.01 255);
+  --avatar-bg: oklch(0.19 0.01 255);
+
+  --color-slate-50: oklch(0.09 0.01 255);
+  --color-slate-100: oklch(0.135 0.01 255);
+  --color-slate-200: oklch(0.19 0.01 255);
+  --color-slate-300: oklch(0.3 0.01 255);
+  --color-gray-50: oklch(0.135 0.01 255);
+  --color-gray-100: oklch(0.17 0.01 255);
+
+  --login-bg: oklch(0.055 0.008 255);
+  --login-surface: oklch(0.095 0.01 255);
+  --login-border: oklch(0.19 0.01 255);
 }
 
 @layer base {
@@ -142,7 +451,12 @@
     @apply border-border outline-foreground/70;
   }
   body {
-    @apply bg-background text-foreground;
+    /* text-ink, not text-foreground: light --ink is exactly slate-900,
+     so removing the body's hardcoded utilities (Phase 1, layout.tsx)
+     keeps light rendering byte-identical while dark gets the ink
+     value. Light --foreground (oklch 0.145) would darken inherited
+     light text. */
+    @apply bg-background text-ink;
   }
 }
 
@@ -167,11 +481,28 @@
   }
 }
 
+/* Stage 2C: the COE preview is an intentionally LIGHT document —
+   COEDocument paints brand-literal navy/ocean/gray text (the same
+   literals that print). In dark mode the surrounding DialogPanel is a
+   dark surface, which left the document text at ~1.3:1. Force the
+   paper background for the preview container in dark only; light mode
+   is untouched (--surface is #FFFFFF there, so the panel already reads
+   as paper). The print rules above position this same container on
+   white paper regardless of theme. */
+.dark .coe-print-area {
+  background: #ffffff;
+}
+
 /* ----------------------------------------------------------------
    Skeleton loading shimmer
    Used by <Skeleton> primitives in src/components/portal/Skeleton.tsx.
    A slow gradient sweep gives a "content is loading" feel without
    the harsh on/off flashing of plain animate-pulse.
+
+   Var-based (theme expansion): the sweep runs --line to --surface-2,
+   which are byte-equivalent to the old slate literals in light and
+   re-map per palette (and per custom theme) in the dark family, so
+   skeletons stay calm and correctly tinted on every surface ladder.
 ----------------------------------------------------------------- */
 @keyframes aics-shimmer {
   0% {
@@ -185,9 +516,9 @@
 .aics-skeleton {
   background: linear-gradient(
     90deg,
-    rgb(226 232 240) 0%,   /* slate-200 */
-    rgb(241 245 249) 50%,  /* slate-100 */
-    rgb(226 232 240) 100%  /* slate-200 */
+    var(--line) 0%,
+    var(--surface-2) 50%,
+    var(--line) 100%
   );
   background-size: 200% 100%;
   animation: aics-shimmer 1.6s ease-in-out infinite;
@@ -195,11 +526,11 @@
 }
 
 /* WCAG 2.3.3 / vestibular safety: kill the infinite shimmer sweep
-   for users who ask for reduced motion. A static slate-200 block
+   for users who ask for reduced motion. A static --line block
    still reads as "loading" without the movement. */
 @media (prefers-reduced-motion: reduce) {
   .aics-skeleton {
     animation: none;
-    background: rgb(226 232 240);
+    background: var(--line);
   }
 }

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto_Condensed, Roboto } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { DevBanner } from "@/components/DevBanner";
+import { ThemePaletteScript } from "@/components/ThemePaletteScript";
+import { ThemePaletteSync } from "@/components/ThemePaletteSync";
 import { getAppEnv } from "@/lib/env";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
@@ -55,20 +58,45 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${robotoCondensed.variable} ${roboto.variable} font-sans antialiased bg-white text-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} ${robotoCondensed.variable} ${roboto.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
-        <DevBanner appEnv={getAppEnv()} />
-        {children}
-        <Toaster richColors position="bottom-right" />
-        {/* Analytics beacons are cookieless but still send usage events
-            to Vercel (US), so they are consent-gated and off until
-            opt-in. See /legal/cookies. */}
-        <ConsentGate>
-          <Analytics />
-          <SpeedInsights />
-        </ConsentGate>
-        <CookieConsent />
+        {/* Theme engine (dark-theme plan §3, Phase 1): class strategy on
+            <html>, system default, aics_theme storage key matching the
+            aics_cookie_consent convention, no cross-fade on switches.
+            The pre-paint script sets .dark before first paint (no FOUC);
+            suppressHydrationWarning above covers the class/style it
+            writes. Body colors come from the @layer base rule
+            (bg-background text-ink), identical to the removed hardcoded
+            utilities in light mode.
+
+            Palette layer (theme expansion): ThemePaletteScript runs even
+            earlier — it restores the stored dark-family palette (or saved
+            custom vars) before first paint too, and ThemePaletteSync
+            keeps the palette consistent whenever the theme changes
+            elsewhere (topbar/login toggles). Both stay inert in light
+            mode, so light rendering is unchanged. */}
+        <ThemePaletteScript />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          storageKey="aics_theme"
+          disableTransitionOnChange
+        >
+          <ThemePaletteSync />
+          <DevBanner appEnv={getAppEnv()} />
+          {children}
+          <Toaster richColors position="bottom-right" />
+          {/* Analytics beacons are cookieless but still send usage events
+              to Vercel (US), so they are consent-gated and off until
+              opt-in. See /legal/cookies. */}
+          <ConsentGate>
+            <Analytics />
+            <SpeedInsights />
+          </ConsentGate>
+          <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   );

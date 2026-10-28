@@ -37,7 +37,7 @@ export const COLOR_STYLES: Record<
   CourseColor,
   { dot: string; bg: string; border: string; code: string }
 > = {
-  blue: { dot: 'bg-blue-600', bg: 'bg-blue-50', border: 'border-blue-500', code: 'text-blue-700' },
+  blue: { dot: 'bg-blue-600', bg: 'bg-blue-50', border: 'border-blue-500', code: 'text-link-strong' },
   green: { dot: 'bg-green-600', bg: 'bg-green-50', border: 'border-green-600', code: 'text-green-700' },
   amber: { dot: 'bg-amber-500', bg: 'bg-amber-50', border: 'border-amber-500', code: 'text-amber-700' },
   violet: { dot: 'bg-violet-600', bg: 'bg-violet-50', border: 'border-violet-500', code: 'text-violet-700' },

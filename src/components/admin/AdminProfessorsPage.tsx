@@ -198,17 +198,17 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, email, room..."
             aria-label="Search professors"
-            className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading professors...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
@@ -218,7 +218,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
             <EmptyState
               icon={GraduationCap}
               message={query ? 'No professors match your search' : 'No professors listed yet'}
@@ -226,7 +226,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             />
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[680px]">
                 <thead className="sticky top-0 z-10">
@@ -261,7 +261,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
                             onClick={() => handleDelete(p)}
                             disabled={deleting}
                             className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
-                              confirming ? 'bg-red-600 text-white hover:bg-red-700' : 'text-red-700 hover:bg-red-50'
+                              confirming ? 'bg-red-600 text-white hover:bg-red-700 dark:hover:bg-red-500' : 'text-red-700 hover:bg-red-50'
                             }`}
                           >
                             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : confirming ? <Check className="w-3.5 h-3.5" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -288,7 +288,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Cancel
               </button>

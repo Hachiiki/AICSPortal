@@ -7,8 +7,13 @@ import {
   ShieldCheck,
   Lock,
   CircleAlert,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import type { AuthMode } from '@/lib/aics/types'
 import { T, PORTAL_TEXT_GRADIENT, SHOW_DEMO_LOGIN } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
@@ -40,6 +45,14 @@ interface LoginViewProps {
 export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const [authMode, setAuthMode] = useState<AuthMode>('credentials')
 
+  // Login-page theme toggle (dark-theme plan §6, Phase 1 control 4):
+  // functional before authentication, outside the portal shell. The
+  // icon renders only after mount so SSR and the first client render
+  // stay identical (resolvedTheme is undefined until then).
+  const { resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
+  const isDark = themeMounted && resolvedTheme === 'dark'
+
   return (
     // reducedMotion="user" mirrors PortalShell's contract for the login
     // surface (slides, scanner sweep, mode transitions).
@@ -49,9 +62,12 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
       style={{ background: T.white, color: T.text }}
     >
       {/* ===================== LEFT 60% ===================== */}
+      {/* Campus photograph + navy overlay. Brand-constant in both
+          themes (plan §2): the navy panel and its white text never
+          re-theme; the right-side form panel below does. */}
       <section
         className="relative lg:w-[60%] w-full h-[42vh] lg:h-auto lg:min-h-dvh overflow-hidden flex-shrink-0"
-        style={{ background: T.text }}
+        style={{ background: T.navy }}
       >
         {/* Campus photograph */}
         <img
@@ -130,6 +146,20 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-center justify-center px-6 sm:px-10 py-12 lg:min-h-dvh lg:-ml-12 rounded-t-[28px] lg:rounded-t-none lg:rounded-l-[40px]"
         style={{ background: T.white }}
       >
+        {/* Theme toggle — top-right corner of the form panel. Pre-auth
+            surface, so it lives here rather than in the portal topbar.
+            Token-driven (var-chained) classes: themes with the cascade. */}
+        <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
+          <button
+            type="button"
+            onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40"
+          >
+            {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden /> : <Moon className="w-4.5 h-4.5" aria-hidden />}
+          </button>
+        </div>
+
         <div className="relative w-full max-w-sm py-4">
           {/* Heading */}
           <div className="mb-8">
@@ -217,7 +247,11 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               (LICENSE / README: All Rights Reserved, proprietary), plus the
               legal links required for the pre-auth surfaces. */}
           <div className="mt-6 text-center">
-            <p className="text-[11px]" style={{ color: '#64748B' }}>
+            {/* #64748B is the v3 slate-500 this line has always rendered;
+                the v4 class would shift it by 1-3 channels (G4 parity
+                caught exactly this), so the literal stays and only the
+                dark variant maps onto the themed slate-500. */}
+            <p className="text-[11px] text-[#64748B] dark:text-slate-500">
               &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved
             </p>
             <nav aria-label="Legal" className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">

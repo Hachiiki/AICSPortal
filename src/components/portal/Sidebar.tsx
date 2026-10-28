@@ -39,19 +39,21 @@ function NavButton({
   const Icon = item.icon
 
   // --- Disabled / "coming soon" state ---
+  // Colors keep the exact pre-Stage-2B light values (v3 hex literals:
+  // v4 oklch palette shades render differently, so the fg stays an
+  // arbitrary value like the LoginView footer precedent) while the
+  // dark: variants re-theme through the palette bridge.
   if (!item.enabled) {
     return (
       <div
         aria-disabled="true"
-        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none"
-        style={{ color: '#64748b', background: '#f1f5f9' }}
+        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium cursor-not-allowed select-none bg-slate-100 text-[#64748b] dark:text-slate-500"
         title="Coming soon"
       >
         <Icon className="w-4 h-4 flex-shrink-0 opacity-50" />
         <span className="truncate flex-1">{item.label}</span>
         <span
-          className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-          style={{ background: '#f1f5f9', color: '#64748b' }}
+          className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-[#64748b] dark:text-slate-500"
         >
           Soon
         </span>
@@ -86,7 +88,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       <div className="px-4 py-5 flex items-center gap-3 border-b border-slate-100">
         <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-700">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-link-strong">
             {portalLabel}
           </p>
           <p className="text-sm font-bold text-slate-900 leading-snug">
@@ -180,7 +182,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
           flips animate targets in place. The mobile drawer below is
           untouched by the entrance. */}
       <motion.aside
-        className="hidden lg:flex flex-col fixed top-0 left-0 h-screen w-60 bg-white border-r border-slate-200 z-30"
+        className="hidden lg:flex flex-col fixed top-0 left-0 h-screen w-60 bg-surface border-r border-slate-200 z-30"
         aria-label="Primary"
         initial={entrance.initial}
         animate={entrance.animate}
@@ -199,7 +201,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden"
+              className="fixed inset-0 bg-scrim/40 z-40 lg:hidden"
               onClick={onMobileClose}
               aria-hidden="true"
             />
@@ -211,7 +213,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               animate={{ x: 0 }}
               exit={{ x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 z-50 lg:hidden flex flex-col outline-none"
+              className="fixed top-0 left-0 h-screen w-64 bg-surface border-r border-slate-200 z-50 lg:hidden flex flex-col outline-none"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"

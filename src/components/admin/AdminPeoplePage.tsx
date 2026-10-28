@@ -61,7 +61,7 @@ type SortDir = 'asc' | 'desc'
 const PAGE_SIZE = 25
 
 const ROLE_BADGES: Record<string, string> = {
-  student: 'bg-blue-50 text-blue-700 border-blue-200',
+  student: 'bg-blue-50 text-link-strong border-blue-200',
   faculty: 'bg-violet-50 text-violet-700 border-violet-200',
   admin: 'bg-amber-50 text-amber-700 border-amber-200',
 }
@@ -272,19 +272,19 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
             type="button"
             onClick={handleExportCsv}
             title="Downloads every account matching the current filters as a CSV spreadsheet"
-            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50 inline-flex items-center gap-2"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto mb-3" />
             <p className="text-sm text-slate-500">Loading directory...</p>
           </div>
         ) : error || !data ? (
-          <div className="bg-white rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
+          <div className="bg-surface rounded-xl border border-red-200 shadow-sm px-6 py-10 text-center">
             <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
             </div>
@@ -313,12 +313,19 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                     roleFilter === key
                       ? 'bg-[#153357] text-white border-[#153357]'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                      : 'bg-surface text-slate-600 border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   {label}
-                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200' : 'text-slate-500'}`}>{count}</span>
+                  {/* Stage 2C: constant accent on the brand-constant navy chip —
+                      the chip bg is the #153357 literal that never re-themes,
+                      so the count keeps the light blue-200 value in BOTH
+                      themes: light keeps the v4 token (an oklch value — NOT
+                      #bfdbfe; swapping the class would move light pixels),
+                      dark overrides with the light literal so it does not
+                      follow the bridged dark blue-200 (1.5:1 on the navy). */}
+                  <span className={`tabular-nums ${roleFilter === key ? 'text-blue-200 dark:text-[#bfdbfe]' : 'text-slate-500'}`}>{count}</span>
                 </button>
               ))}
             </div>
@@ -333,7 +340,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search name, username, email, student #..."
                   aria-label="Search directory"
-                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
               <SelectMenu
@@ -349,7 +356,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
             </div>
 
             {/* Directory table */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm min-w-[880px]">
                   <thead className="sticky top-0 z-10">
@@ -416,7 +423,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                       type="button"
                       onClick={() => setPage((p) => Math.max(0, p - 1))}
                       disabled={safePage === 0}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
                     >
                       Previous
                     </button>
@@ -427,7 +434,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                       type="button"
                       onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
                       disabled={safePage >= pageCount - 1}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40"
                     >
                       Next
                     </button>

@@ -87,7 +87,7 @@ export function CalendarGrid({
   onPrev, onNext, onToday, onSelectDay, monthHasEvents,
 }: CalendarGridProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Calendar header */}
       <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
         <h2 className="text-base font-semibold text-slate-900">
@@ -98,14 +98,14 @@ export function CalendarGrid({
             type="button"
             onClick={onPrev}
             aria-label="Previous month"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={onToday}
-            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50"
           >
             Today
           </button>
@@ -113,7 +113,7 @@ export function CalendarGrid({
             type="button"
             onClick={onNext}
             aria-label="Next month"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -174,7 +174,7 @@ export function CalendarGrid({
                 })()}
                 aria-current={isSelected ? 'date' : undefined}
                 className={`relative min-h-[88px] sm:min-h-[96px] p-1.5 border-b border-r border-slate-100 text-left transition-colors ${
-                  isOtherMonth ? 'bg-slate-50/40' : 'bg-white'
+                  isOtherMonth ? 'bg-slate-50/40' : 'bg-surface'
                 } hover:bg-blue-50/40 ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
               >
                 <div className="flex items-center justify-between">
@@ -235,7 +235,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDe
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden"
     >
       <div className="px-6 py-4 border-b border-slate-100">
         <h3 className="text-sm font-semibold text-slate-900">
@@ -323,7 +323,7 @@ interface UpcomingRailProps {
 
 export function UpcomingRail({ upcoming, onJumpTo }: UpcomingRailProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-20">
+    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-20">
       <div className="px-5 py-4 border-b border-slate-100">
         <h3 className="text-base font-semibold text-slate-900">Upcoming events</h3>
         <p className="text-xs text-slate-500 mt-0.5">Next 8 events from today</p>
@@ -405,7 +405,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
-                    : 'bg-white text-slate-500 border-slate-200'
+                    : 'bg-surface text-slate-500 border-slate-200'
                 }`}
               >
                 <span className={`w-2 h-2 rounded-full ${on ? CATEGORY_COLORS[cat] : 'bg-slate-300'}`} aria-hidden="true" />
@@ -431,7 +431,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
           }`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${
               showTasks ? 'translate-x-6' : 'translate-x-1'
             }`}
           />

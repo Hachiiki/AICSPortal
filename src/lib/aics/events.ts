@@ -26,7 +26,7 @@ export const CATEGORY_COLORS: Record<EventCategory, string> = {
 }
 
 export const CATEGORY_PILL_STYLES: Record<EventCategory, string> = {
-  academic: 'bg-blue-50 text-blue-700 border-blue-200',
+  academic: 'bg-blue-50 text-link-strong border-blue-200',
   deadline: 'bg-red-50 text-red-700 border-red-200',
   campus: 'bg-violet-50 text-violet-700 border-violet-200',
   holiday: 'bg-green-50 text-green-700 border-green-200',

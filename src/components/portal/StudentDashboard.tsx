@@ -90,7 +90,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
           <div className="flex justify-end">
             <button
               onClick={() => onNavigate('academics')}
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+              className="inline-flex items-center gap-1 text-sm font-medium text-link hover:text-link-strong hover:underline"
             >
               View full academic record <ChevronRight className="w-4 h-4" />
             </button>

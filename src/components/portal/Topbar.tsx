@@ -2,7 +2,9 @@
 
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -56,6 +58,17 @@ export function Topbar({
 }: TopbarProps) {
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
 
+  // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
+  // light/dark on every authenticated surface. Resolved theme drives the
+  // target so a System user flips out of whatever the OS resolved to.
+  // quickToggleTheme also drops a stored custom palette back to standard
+  // (custom rides both modes, so a bare mode flip would change nothing).
+  // Icon renders only after mount (resolvedTheme is undefined during SSR
+  // and the first client render; the mounted gate keeps hydration exact).
+  const { resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
+  const isDark = themeMounted && resolvedTheme === 'dark'
+
   // Bell click: mark read as before, plus deep-link task
   // announcements into Academics → Tasks for that doc. The focus
   // handoff is one-shot (consumed + cleared on mount).
@@ -69,8 +82,8 @@ export function Topbar({
     }
   }
 
-  const handleTheme = () => {
-    toast.info('Theme switching is coming soon.')
+  const handleThemeToggle = () => {
+    quickToggleTheme(resolvedTheme, setTheme)
   }
 
   // Workspace-assembly entrance (assemble candidate only): the real
@@ -81,7 +94,7 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200"
+      className="sticky top-0 z-20 h-16 bg-surface border-b border-slate-200"
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
@@ -98,6 +111,10 @@ export function Topbar({
           >
             <Menu className="w-5 h-5" />
           </button>
+          {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
+              `navy`, 40+ action-button/chip sites) — brand-constant in
+              both themes per the dark-theme plan §2.5 navy-chip ruling,
+              same class of literal as the protected #1769AA/#124D7A. */}
           <span className="hidden sm:inline-flex px-2.5 py-1 rounded bg-[#153357] text-white text-xs font-semibold tracking-wide">
             BRANCH: {student.branch?.toUpperCase() || 'MANILA'}
           </span>
@@ -116,8 +133,23 @@ export function Topbar({
           />
         </div>
 
-        {/* Right — notifications + profile dropdown + logout */}
+        {/* Right — theme toggle + notifications + profile dropdown + logout */}
         <div className="flex items-center gap-3 flex-shrink-0">
+          {/* Theme quick toggle. First in the right cluster so the
+              pre-existing controls keep their exact positions. */}
+          <button
+            type="button"
+            onClick={handleThemeToggle}
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            {isDark ? (
+              <Sun className="w-5 h-5" aria-hidden />
+            ) : (
+              <Moon className="w-5 h-5" aria-hidden />
+            )}
+          </button>
+
           <DropdownMenu
             onOpenChange={(open) => {
               if (open) inbox?.onRefresh()
@@ -146,7 +178,7 @@ export function Topbar({
                   <button
                     type="button"
                     onClick={() => inbox?.onMark(undefined, true)}
-                    className="text-xs font-medium text-blue-600 hover:underline"
+                    className="text-xs font-medium text-link hover:underline"
                   >
                     Mark all read
                   </button>
@@ -199,8 +231,7 @@ export function Topbar({
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                    style={{ background: '#1e293b' }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
@@ -229,13 +260,10 @@ export function Topbar({
                 <span>Profile</span>
               </DropdownMenuItem>
 
-              {/* Theme — not functional yet */}
-              <DropdownMenuItem onClick={handleTheme} className="cursor-pointer">
+              {/* Theme — full selector lives in Settings → Appearance */}
+              <DropdownMenuItem onClick={() => onNavigate('settings')} className="cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
-                <span>Theme</span>
-                <span className="ml-auto text-[10px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
-                  Soon
-                </span>
+                <span>Theme settings</span>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

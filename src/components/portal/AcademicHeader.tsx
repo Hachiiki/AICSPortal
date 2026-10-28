@@ -68,9 +68,14 @@ function Stat({ label, value, accent = false }: { label: string; value: string; 
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
         {label}
       </p>
+      {/* Exact pre-Stage-2B light hexes (v4 oklch palette shades render
+          differently); dark: variants re-theme via the bridge/tokens. */}
       <p
-        className="mt-0.5 text-xl font-bold tabular-nums"
-        style={{ color: accent ? '#1d4ed8' : '#0f172a' }}
+        className={`mt-0.5 text-xl font-bold tabular-nums ${
+          accent
+            ? 'text-[#1d4ed8] dark:text-link-strong'
+            : 'text-[#0f172a] dark:text-slate-900'
+        }`}
       >
         {value}
       </p>

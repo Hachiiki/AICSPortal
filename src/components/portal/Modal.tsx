@@ -80,14 +80,14 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-scrim/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className={`relative bg-white rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden outline-none`}
+        className={`relative bg-surface rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden outline-none`}
       >
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 id={titleId} className="font-bold">

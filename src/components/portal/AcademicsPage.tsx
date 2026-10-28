@@ -239,7 +239,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
@@ -256,7 +256,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('grades')}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'grades' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Grades
@@ -265,7 +265,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('subjects')}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'subjects' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Subjects
@@ -274,7 +274,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('tasks')}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'tasks' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Tasks
@@ -283,7 +283,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('materials')}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'materials' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Materials
@@ -294,7 +294,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           {activeTab === 'grades' && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               {terms.map((term) => (
-                <div key={term.key} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div key={term.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                   {/* Card header */}
                   <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -305,7 +305,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${
                           term.status === 'completed'
                             ? 'bg-green-50 text-green-700 border border-green-200'
-                            : 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-blue-50 text-link-strong border border-blue-200'
                         }`}>
                           {term.status === 'completed' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                           {term.status === 'completed' ? 'Completed' : 'In Progress'}
@@ -325,7 +325,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                   <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">GPA</p>
-                      <p className="text-base font-bold text-blue-700">{term.gpa}</p>
+                      <p className="text-base font-bold text-link-strong">{term.gpa}</p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Units</p>
@@ -362,7 +362,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           {/* SUBJECTS TAB */}
           {activeTab === 'subjects' && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
                   <div className="min-w-0">
@@ -390,7 +390,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Cumulative GPA</p>
-                    <p className="text-base font-bold text-blue-700">{cumulativeGPA}</p>
+                    <p className="text-base font-bold text-link-strong">{cumulativeGPA}</p>
                   </div>
                 </div>
 
@@ -408,13 +408,13 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                       {student.subjects.map((s, i) => (
                         <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                           <td className="px-4 py-3 whitespace-nowrap"><span className="text-xs text-slate-500">{s.yearLevel} &bull; AY {s.academicYear}</span></td>
-                          <td className="px-4 py-3"><span className="font-mono text-xs font-bold text-blue-700">{s.code}</span></td>
+                          <td className="px-4 py-3"><span className="font-mono text-xs font-bold text-link-strong">{s.code}</span></td>
                           <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.title}</span></td>
                           <td className="px-4 py-3 text-center text-sm text-slate-700">{s.units}</td>
                           <td className="px-4 py-3"><span className="text-sm text-slate-700">{s.professor}</span></td>
                           <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.midterm}</td>
                           <td className="px-4 py-3 text-center font-mono text-sm text-slate-700">{s.finals}</td>
-                          <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-blue-700">{s.finalGrade}</span></td>
+                          <td className="px-4 py-3 text-center"><span className="font-mono text-sm font-bold text-link-strong">{s.finalGrade}</span></td>
                           <td className="px-4 py-3 text-center">
                             <RemarksBadge remarks={s.remarks} />
                           </td>

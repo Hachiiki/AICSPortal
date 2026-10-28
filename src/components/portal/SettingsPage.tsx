@@ -20,17 +20,47 @@ import {
   Download,
   ExternalLink,
   Cookie,
+  Palette,
+  Sun,
+  Moon,
+  MoonStar,
+  Contrast,
+  Circle,
+  Monitor,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
+import { useMounted } from '@/lib/aics/use-mounted'
+import {
+  type PaletteId,
+  detectBase,
+  PALETTE_CHANGE_EVENT,
+  readPalettePref,
+  readStoredCustomTheme,
+  setPalettePref,
+  THEME_CHOICES,
+} from '@/lib/aics/theme-palette'
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
+import { CustomThemeEditor } from './CustomThemeEditor'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
+
+// Icon per theme choice; ids match THEME_CHOICES in theme-palette.ts.
+const CHOICE_ICONS = {
+  light: Sun,
+  dark: Moon,
+  midnight: MoonStar,
+  slate: Contrast,
+  oled: Circle,
+  custom: Palette,
+  system: Monitor,
+} as const
 
 interface SettingsPageProps {
   student: Student
@@ -48,13 +78,85 @@ interface SettingsPageProps {
   onStudentPatch?: (patch: Partial<Student>) => void
 }
 
-type Section = 'profile' | 'security' | 'notifications' | 'privacy'
+type Section = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearance'
 
 // Matches PHOTO_MAX_BYTES on the server (POST /api/student/photo).
 const PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
   const [activeSection, setActiveSection] = useState<Section>('profile')
+
+  // Appearance selector state (dark-theme plan §6, Phase 1 control 2).
+  // `theme` is the stored preference (light/dark/system); the mounted
+  // gate keeps SSR and the first client render identical (next-themes
+  // initializes the stored value synchronously on the client, so a
+  // checked radio rendered before mount would hydrate-mismatch).
+  const { theme, resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
+
+  // Palette layer (theme expansion): the stored dark-family palette
+  // next to the next-themes light/dark preference. Read after mount —
+  // localStorage is not reactive, so every selection updates this
+  // state explicitly alongside the DOM application in theme-palette.
+  // The palette-change event covers writes from elsewhere (the topbar
+  // quick toggle drops a custom palette back to standard).
+  const [palette, setPaletteState] = useState<PaletteId>('dark')
+  useEffect(() => {
+    setPaletteState(readPalettePref())
+    const sync = () => setPaletteState(readPalettePref())
+    window.addEventListener(PALETTE_CHANGE_EVENT, sync)
+    return () => window.removeEventListener(PALETTE_CHANGE_EVENT, sync)
+  }, [])
+
+  // The radio grid's selected value: system/light come straight from
+  // next-themes; an explicit dark preference shows the active palette.
+  // A custom palette rides on BOTH light and dark, so it wins the
+  // highlight whichever explicit mode it is riding on — the user stays
+  // "in Custom" until they pick something else.
+  const selectedTheme = !themeMounted
+    ? null
+    : theme === 'system'
+      ? 'system'
+      : palette === 'custom'
+        ? 'custom'
+        : theme === 'light'
+          ? 'light'
+          : palette
+
+  const handleThemeChoice = (id: string) => {
+    if (id === 'light' || id === 'system') {
+      // Clicking Light/System must visibly leave a custom palette —
+      // custom rides both modes now, so a stored palette left untouched
+      // would keep painting. Step it down to the standard palette
+      // (inert in light/system, ready if the user returns to dark).
+      // Dark-family palettes (midnight/slate/oled) need no reset: they
+      // are inert in light and ride again on the next dark selection.
+      if (readPalettePref() === 'custom') {
+        setPaletteState('dark')
+        setPalettePref('dark', id)
+      }
+      setTheme(id)
+    } else if (id === 'dark') {
+      setTheme('dark')
+      setPaletteState('dark')
+      setPalettePref('dark', 'dark')
+    } else if (id === 'custom') {
+      // Keep the current explicit mode — the custom var map renders on
+      // either base. Coming from System there is no explicit mode yet,
+      // so pick once from the saved background's detected base; that is
+      // the only place base detection influences the selection.
+      const stored = readStoredCustomTheme()
+      const mode =
+        theme === 'dark' || theme === 'light' ? theme : detectBase(stored.colors.background)
+      setTheme(mode)
+      setPaletteState('custom')
+      setPalettePref('custom', mode)
+    } else {
+      setTheme('dark')
+      setPaletteState(id as PaletteId)
+      setPalettePref(id as PaletteId, 'dark')
+    }
+  }
 
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
@@ -273,6 +375,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
     { id: 'security', label: 'Security', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'privacy', label: 'Privacy & Data', icon: ShieldCheck },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
   ]
 
   return (
@@ -292,7 +395,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden /> Back to Dashboard
             </button>
@@ -320,7 +423,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    selected ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   <Icon className="w-4 h-4" aria-hidden /> {s.label}
@@ -331,7 +434,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Profile section */}
           {activeSection === 'profile' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Contact information</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Update your contact details. Changes apply immediately.</p>
@@ -355,7 +458,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                       </div>
                     )}
                     {photoBusy && (
-                      <div className="absolute inset-0 rounded-full bg-slate-900/50 grid place-items-center">
+                      <div className="absolute inset-0 rounded-full bg-scrim/50 grid place-items-center">
                         <Loader2 className="w-6 h-6 animate-spin text-white" aria-hidden />
                       </div>
                     )}
@@ -378,7 +481,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                           href="/legal/privacy"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline underline-offset-2 text-blue-700 hover:text-blue-800"
+                          className="underline underline-offset-2 text-link-strong hover:text-link-deep"
                         >
                           Privacy Policy
                         </a>
@@ -400,7 +503,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                           type="button"
                           onClick={handleRemovePhoto}
                           disabled={photoBusy}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 border border-red-200 bg-surface hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                         >
                           <Trash2 className="w-3.5 h-3.5" aria-hidden /> Remove
                         </button>
@@ -491,7 +594,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Security section */}
           {activeSection === 'security' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Change password</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Use at least 6 characters. Mix letters and numbers for stronger security.</p>
@@ -577,7 +680,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
           {/* Notifications section */}
           {activeSection === 'notifications' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 className="text-base font-semibold text-slate-900">Notification preferences</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Choose how you want to be notified about portal updates.</p>
@@ -619,7 +722,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
               subject rights (export / erasure request). */}
           {activeSection === 'privacy' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
                   <h2 className="text-base font-semibold text-slate-900">Documents</h2>
                   <p className="text-xs text-slate-500 mt-0.5">The policies that govern this portal and your data.</p>
@@ -647,7 +750,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-100">
                   <h2 className="text-base font-semibold text-slate-900">Your data rights</h2>
                   <p className="text-xs text-slate-500 mt-0.5">Access and control the data held in your account.</p>
@@ -668,7 +771,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   </p>
                   <a
                     href={`mailto:${LEGAL.operatorEmail}?subject=${encodeURIComponent('AICS Portal data deletion request')}&body=${encodeURIComponent(`Please delete or deactivate my account data.\n\nUsername: ${student.username}\nBranch: ${student.branch}\n\n(You may be asked to verify your identity before the request is processed.)`)}`}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-700 border border-red-200 bg-white hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-red-700 border border-red-200 bg-surface hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     <Trash2 className="w-4 h-4" aria-hidden />
                     Request data deletion
@@ -679,6 +782,80 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                     records the school still requires may be anonymized instead of deleted.
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+          {/* Appearance section — the theme selector (Phase 1 control 2,
+              expanded for the theme palette layer). */}
+          {activeSection === 'appearance' && (
+            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h2 className="text-base font-semibold text-slate-900">Appearance</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {THEME_CHOICES.map((o) => {
+                    const OptionIcon = CHOICE_ICONS[o.id]
+                    const desc =
+                      o.id === 'system'
+                        ? `Follows your device (${themeMounted && resolvedTheme === 'dark' ? 'currently dark' : 'currently light'}).`
+                        : o.desc
+                    return (
+                      <label
+                        key={o.id}
+                        className="group relative flex items-start gap-3 rounded-lg border border-slate-200 px-4 py-3 cursor-pointer transition-colors hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500"
+                      >
+                        {/* sr-only keeps native radio semantics: keyboard
+                            arrows and screen readers work for free. */}
+                        <input
+                          type="radio"
+                          name="aics-appearance"
+                          value={o.id}
+                          checked={themeMounted ? selectedTheme === o.id : false}
+                          onChange={() => handleThemeChoice(o.id)}
+                          className="sr-only"
+                        />
+                        <OptionIcon className="w-5 h-5 mt-0.5 text-slate-400 shrink-0 group-has-[:checked]:text-link-strong" aria-hidden />
+                        <span className="flex-1 min-w-0">
+                          <span className="flex items-center justify-between gap-2">
+                            <span className="block text-sm font-medium text-slate-900">{o.label}</span>
+                            <Check
+                              className="w-4 h-4 text-link-strong shrink-0 transition-opacity opacity-0 group-has-[:checked]:opacity-100"
+                              aria-hidden
+                            />
+                          </span>
+                          <span className="block text-xs text-slate-500 mt-0.5">{desc}</span>
+                          {/* Illustrative palette strip: [background, surface, border, accent] */}
+                          <span className="mt-2 flex items-center gap-1" aria-hidden="true">
+                            {o.swatch.map((c, i) => (
+                              <span
+                                key={i}
+                                className="h-3 flex-1 rounded-sm border border-black/10 dark:border-white/10"
+                                style={{ background: c }}
+                              />
+                            ))}
+                          </span>
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+
+                {themeMounted && selectedTheme === 'custom' && (
+                  <CustomThemeEditor
+                    initialColors={readStoredCustomTheme().colors}
+                    onSaved={() => setPaletteState(readPalettePref())}
+                  />
+                )}
+
+                <p className="mt-4 text-[11px] leading-relaxed text-slate-500">
+                  System mode follows your device appearance live: change your OS theme and the portal follows without a reload.
+                  Palettes ride along whenever the portal is dark, including system-resolved dark. A custom theme needs its own
+                  explicit base, so System falls back to the standard palettes for it. Everything is stored on this device only.
+                </p>
               </div>
             </div>
           )}
@@ -716,7 +893,7 @@ function ToggleRow({ label, description, checked, onChange }: { label: string; d
           checked ? 'bg-blue-600' : 'bg-slate-300'
         }`}
       >
-        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-surface transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
   )

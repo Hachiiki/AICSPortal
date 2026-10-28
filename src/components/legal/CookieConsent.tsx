@@ -69,7 +69,7 @@ export function CookieConsent() {
     <section
       role="region"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/85"
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex items-start gap-3 text-sm leading-relaxed text-slate-700">
@@ -79,7 +79,7 @@ export function CookieConsent() {
             cookieless usage analytics stay off unless you allow them.{' '}
             <Link
               href="/legal/cookies"
-              className="font-medium text-[#1769AA] underline decoration-[#1769AA]/40 underline-offset-2 hover:decoration-[#1769AA]"
+              className="font-medium text-[#1769AA] dark:text-link underline decoration-[#1769AA]/40 dark:decoration-link/40 underline-offset-2 hover:decoration-[#1769AA] dark:hover:decoration-link"
             >
               Read the Cookie Policy
             </Link>
@@ -97,7 +97,7 @@ export function CookieConsent() {
           <button
             type="button"
             onClick={() => decide('analytics')}
-            className="h-10 rounded-lg bg-[#1769AA] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#124D7A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="h-10 rounded-lg bg-[var(--login-primary)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--login-primary-dark)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             Allow analytics
           </button>
