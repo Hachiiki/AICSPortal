@@ -330,6 +330,122 @@
   color-scheme: dark;
 }
 
+/* ----------------------------------------------------------------
+   Palette layer (theme expansion, Refs #92).
+
+   A palette is a drop-in re-map of the dark surface ladder; it rides
+   ON TOP of the .dark block via [data-palette] on <html>, so every
+   dark: utility and every .dark-scoped rule above keeps working
+   unchanged. Only surfaces, lines, the slate/gray bridge rungs that
+   encode elevation (50/100/200/300), the avatar chip, and the login
+   surfaces are re-mapped; text rungs, status colors, charts, links,
+   and the brand-constant navy pair stay shared with .dark.
+
+   Rules (mirrored by the pre-paint script and the sync component in
+   src/lib/aics/theme-palette.ts — keep the three in agreement):
+   - The attribute only ever sits alongside .dark; light and
+     system-light never see it, so light stays byte-identical.
+   - data-palette="dark" (or no attribute) is the standard palette.
+   - data-palette="custom" is driven by inline vars written by the
+     editor, not by a CSS block.
+----------------------------------------------------------------- */
+
+/* Midnight — a deeper, bluer ladder for low-light rooms. Hue shifts
+   255 -> 260 with a touch more chroma; every rung drops ~0.04 L. */
+.dark[data-palette='midnight'] {
+  --background: oklch(0.145 0.018 260);
+  --card: oklch(0.185 0.018 260);
+  --popover: oklch(0.185 0.018 260);
+  --secondary: oklch(0.23 0.018 260);
+  --muted: oklch(0.23 0.018 260);
+  --accent: oklch(0.23 0.018 260);
+  --border: oklch(0.28 0.018 260);
+  --input: oklch(0.28 0.018 260);
+  --sidebar: oklch(0.185 0.018 260);
+  --sidebar-accent: oklch(0.23 0.018 260);
+  --sidebar-border: oklch(0.28 0.018 260);
+  --surface: oklch(0.185 0.018 260);
+  --surface-2: oklch(0.23 0.018 260);
+  --line: oklch(0.28 0.018 260);
+  --avatar-bg: oklch(0.28 0.018 260);
+
+  --color-slate-50: oklch(0.18 0.018 260);
+  --color-slate-100: oklch(0.225 0.018 260);
+  --color-slate-200: oklch(0.28 0.018 260);
+  --color-slate-300: oklch(0.38 0.016 260);
+  --color-gray-50: oklch(0.225 0.018 260);
+  --color-gray-100: oklch(0.26 0.016 260);
+
+  --login-bg: oklch(0.17 0.018 260);
+  --login-surface: oklch(0.185 0.018 260);
+  --login-border: oklch(0.28 0.018 260);
+}
+
+/* Slate — the same ladder with the blue tint removed: near-zero
+   chroma, a slightly softer base. The neutral hue IS the feature. */
+.dark[data-palette='slate'] {
+  --background: oklch(0.19 0.004 255);
+  --card: oklch(0.23 0.004 255);
+  --popover: oklch(0.23 0.004 255);
+  --secondary: oklch(0.275 0.004 255);
+  --muted: oklch(0.275 0.004 255);
+  --accent: oklch(0.275 0.004 255);
+  --border: oklch(0.325 0.004 255);
+  --input: oklch(0.325 0.004 255);
+  --sidebar: oklch(0.23 0.004 255);
+  --sidebar-accent: oklch(0.275 0.004 255);
+  --sidebar-border: oklch(0.325 0.004 255);
+  --surface: oklch(0.23 0.004 255);
+  --surface-2: oklch(0.275 0.004 255);
+  --line: oklch(0.325 0.004 255);
+  --avatar-bg: oklch(0.325 0.004 255);
+
+  --color-slate-50: oklch(0.225 0.004 255);
+  --color-slate-100: oklch(0.265 0.004 255);
+  --color-slate-200: oklch(0.325 0.004 255);
+  --color-slate-300: oklch(0.42 0.004 255);
+  --color-gray-50: oklch(0.265 0.004 255);
+  --color-gray-100: oklch(0.305 0.004 255);
+
+  --login-bg: oklch(0.215 0.004 255);
+  --login-surface: oklch(0.23 0.004 255);
+  --login-border: oklch(0.325 0.004 255);
+}
+
+/* OLED Black — the one deliberate pure-black exception (owner
+   request): true black page background for AMOLED panels, with a
+   clearly elevated card rung so hierarchy survives. Text stays the
+   shared off-white (0.94) rather than pure white, keeping halation
+   in check against the black canvas. */
+.dark[data-palette='oled'] {
+  --background: oklch(0 0 0);
+  --card: oklch(0.095 0.01 255);
+  --popover: oklch(0.095 0.01 255);
+  --secondary: oklch(0.14 0.01 255);
+  --muted: oklch(0.14 0.01 255);
+  --accent: oklch(0.14 0.01 255);
+  --border: oklch(0.19 0.01 255);
+  --input: oklch(0.19 0.01 255);
+  --sidebar: oklch(0.095 0.01 255);
+  --sidebar-accent: oklch(0.14 0.01 255);
+  --sidebar-border: oklch(0.19 0.01 255);
+  --surface: oklch(0.095 0.01 255);
+  --surface-2: oklch(0.14 0.01 255);
+  --line: oklch(0.19 0.01 255);
+  --avatar-bg: oklch(0.19 0.01 255);
+
+  --color-slate-50: oklch(0.09 0.01 255);
+  --color-slate-100: oklch(0.135 0.01 255);
+  --color-slate-200: oklch(0.19 0.01 255);
+  --color-slate-300: oklch(0.3 0.01 255);
+  --color-gray-50: oklch(0.135 0.01 255);
+  --color-gray-100: oklch(0.17 0.01 255);
+
+  --login-bg: oklch(0.055 0.008 255);
+  --login-surface: oklch(0.095 0.01 255);
+  --login-border: oklch(0.19 0.01 255);
+}
+
 @layer base {
   * {
     @apply border-border outline-foreground/70;
@@ -382,6 +498,11 @@
    Used by <Skeleton> primitives in src/components/portal/Skeleton.tsx.
    A slow gradient sweep gives a "content is loading" feel without
    the harsh on/off flashing of plain animate-pulse.
+
+   Var-based (theme expansion): the sweep runs --line to --surface-2,
+   which are byte-equivalent to the old slate literals in light and
+   re-map per palette (and per custom theme) in the dark family, so
+   skeletons stay calm and correctly tinted on every surface ladder.
 ----------------------------------------------------------------- */
 @keyframes aics-shimmer {
   0% {
@@ -395,9 +516,9 @@
 .aics-skeleton {
   background: linear-gradient(
     90deg,
-    rgb(226 232 240) 0%,   /* slate-200 */
-    rgb(241 245 249) 50%,  /* slate-100 */
-    rgb(226 232 240) 100%  /* slate-200 */
+    var(--line) 0%,
+    var(--surface-2) 50%,
+    var(--line) 100%
   );
   background-size: 200% 100%;
   animation: aics-shimmer 1.6s ease-in-out infinite;
@@ -405,30 +526,11 @@
 }
 
 /* WCAG 2.3.3 / vestibular safety: kill the infinite shimmer sweep
-   for users who ask for reduced motion. A static slate-200 block
+   for users who ask for reduced motion. A static --line block
    still reads as "loading" without the movement. */
 @media (prefers-reduced-motion: reduce) {
   .aics-skeleton {
     animation: none;
-    background: rgb(226 232 240);
-  }
-}
-
-/* Dark shimmer (Phase 1): the same sweep over the dark surface
-   ladder, slate-100-dark to slate-200-dark, so skeletons stay calm
-   and visible on dark cards. */
-.dark .aics-skeleton {
-  background: linear-gradient(
-    90deg,
-    oklch(0.26 0.012 255) 0%,
-    oklch(0.32 0.014 255) 50%,
-    oklch(0.26 0.012 255) 100%
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dark .aics-skeleton {
-    animation: none;
-    background: oklch(0.26 0.012 255);
+    background: var(--line);
   }
 }

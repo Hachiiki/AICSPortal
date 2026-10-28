@@ -279,7 +279,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
         <button
           type="button"
           onClick={startFaceScan}
-          className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all"
+          className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] transition-all"
         >
           <span className="inline-flex items-center gap-2">
             <Camera className="w-4 h-4" /> Start Face Recognition
@@ -302,7 +302,7 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
         <button
           type="button"
           onClick={retryFaceScan}
-          className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[#1769AA] hover:bg-[#124D7A] active:scale-[0.99] transition-all"
+          className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] transition-all"
         >
           <span className="inline-flex items-center gap-2">
             <RefreshCw className="w-4 h-4" /> Try Again

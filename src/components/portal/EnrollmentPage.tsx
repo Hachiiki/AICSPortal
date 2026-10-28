@@ -61,47 +61,58 @@ const formatPeso = (amount: number) =>
     minimumFractionDigits: 2,
   }).format(amount)
 
-// Status → color tokens for the enrollment step circles.
-// Stage 2C: labelClass carries the same light hexes the label style
-// objects had, plus the bridged dark counterparts (the inline styles
-// alone rendered 1.04:1 label text on the dark card); the circle/pill/
-// connector literals are deliberate constant chips (their own light
-// backgrounds keep their text readable in both themes) and stay as-is.
+// Status → class tokens for the enrollment step circles.
+// Stage 2C fixed the labels (light hex + bridged dark). The theme
+// expansion pass extends the same treatment to the circles, pills,
+// and connectors: light hexes stay byte-identical, dark rides the
+// bridged status/slate tokens so nothing glows white or pastel on a
+// dark card. The completed/current circles keep their constant brand
+// fills (green-600 / blue-800 with white text — readable in both
+// themes, so no dark override needed there).
 const STEP_STYLES = {
   completed: {
-    circle: { background: '#16a34a', color: '#ffffff', borderColor: '#16a34a' },
-    label: { color: '#0f172a' },
+    circle: 'bg-[#16a34a] border-[#16a34a] text-white',
     labelClass: 'text-[#0f172a] dark:text-slate-900',
-    sublabel: { color: '#16a34a' },
-    connector: '#16a34a',
-    pill: { background: '#dcfce7', color: '#15803d' },
+    connector: 'bg-[#16a34a]',
+    pill: '',
   },
   current: {
-    circle: { background: '#1e40af', color: '#ffffff', borderColor: '#1e40af' },
-    label: { color: '#0f172a' },
+    circle: 'bg-[#1e40af] border-[#1e40af] text-white',
     labelClass: 'text-[#0f172a] dark:text-slate-900',
-    sublabel: { color: '#1e40af' },
-    connector: '#cbd5e1',
-    pill: { background: '#dbeafe', color: '#1d4ed8' },
+    connector: 'bg-[#cbd5e1] dark:bg-slate-300',
+    pill: 'bg-[#dbeafe] text-[#1d4ed8] dark:bg-blue-100 dark:text-blue-900',
   },
   upcoming: {
-    circle: { background: '#ffffff', color: '#64748b', borderColor: '#cbd5e1' },
-    label: { color: '#64748b' },
+    circle:
+      'bg-white border-[#cbd5e1] text-[#64748b] dark:bg-slate-100 dark:border-line dark:text-slate-500',
     labelClass: 'text-[#64748b] dark:text-slate-500',
-    sublabel: { color: '#64748b' },
-    connector: '#e2e8f0',
-    pill: { background: '#f1f5f9', color: '#64748b' },
+    connector: 'bg-[#e2e8f0] dark:bg-slate-200',
+    pill: '',
   },
 } as const
 
-// Payment status → color tokens + label.
+// Payment status → label + theme-aware pill/dot classes (same
+// light-hex + bridged-dark pattern; amber pair follows the Stage 2C
+// chip precedent in FacultyGradeEncodingPage).
 const PAYMENT_STYLES: Record<
   PaymentStatus,
-  { label: string; pill: { background: string; color: string } }
+  { label: string; pill: string; dot: string }
 > = {
-  paid: { label: 'Fully Paid', pill: { background: '#dcfce7', color: '#15803d' } },
-  partial: { label: 'Partial Payment', pill: { background: '#fef3c7', color: '#b45309' } },
-  unpaid: { label: 'Unpaid', pill: { background: '#fee2e2', color: '#b91c1c' } },
+  paid: {
+    label: 'Fully Paid',
+    pill: 'bg-[#dcfce7] text-[#15803d] dark:bg-green-100 dark:text-green-700',
+    dot: 'bg-[#15803d] dark:bg-green-700',
+  },
+  partial: {
+    label: 'Partial Payment',
+    pill: 'bg-[#fef3c7] text-[#b45309] dark:bg-amber-100 dark:text-amber-700',
+    dot: 'bg-[#b45309] dark:bg-amber-700',
+  },
+  unpaid: {
+    label: 'Unpaid',
+    pill: 'bg-[#fee2e2] text-[#b91c1c] dark:bg-red-100 dark:text-red-700',
+    dot: 'bg-[#b91c1c] dark:bg-red-700',
+  },
 }
 
 function StatusPill({
@@ -116,8 +127,7 @@ function StatusPill({
 
   return (
     <span
-      className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider"
-      style={STEP_STYLES[status].pill}
+      className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider ${STEP_STYLES[status].pill}`}
     >
       Current
     </span>
@@ -154,8 +164,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   {/* Left spacer/connector */}
                   {i > 0 ? (
                     <div
-                      className="flex-1 h-0.5"
-                      style={{ background: STEP_STYLES[steps[i - 1].status].connector }}
+                      className={`flex-1 h-0.5 ${STEP_STYLES[steps[i - 1].status].connector}`}
                       aria-hidden="true"
                     />
                   ) : (
@@ -163,8 +172,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   )}
                   {/* Circle */}
                   <div
-                    className="w-10 h-10 rounded-full border-2 flex items-center justify-center flex-shrink-0 mx-1"
-                    style={style.circle}
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center flex-shrink-0 mx-1 ${style.circle}`}
                     aria-label={`Step ${s.step}: ${s.label} (${s.status})`}
                   >
                     {s.status === 'completed' ? (
@@ -176,8 +184,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
                   {/* Right spacer/connector */}
                   {!isLast ? (
                     <div
-                      className="flex-1 h-0.5"
-                      style={{ background: style.connector }}
+                      className={`flex-1 h-0.5 ${style.connector}`}
                       aria-hidden="true"
                     />
                   ) : (
@@ -214,8 +221,7 @@ function StepTracker({ steps, currentStep }: { steps: EnrollmentStep[]; currentS
           return (
             <div key={s.step} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
               <div
-                className="w-9 h-9 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-                style={style.circle}
+                className={`w-9 h-9 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${style.circle}`}
               >
                 {s.status === 'completed' ? (
                   <Check className="w-4 h-4" />
@@ -326,12 +332,10 @@ function AssessmentCard({ enrollment }: { enrollment: Enrollment }) {
           </div>
           <div className="pt-2.5 mt-1 border-t border-slate-200 flex items-center justify-between gap-3">
             <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider"
-              style={payment.pill}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider ${payment.pill}`}
             >
               <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: payment.pill.color }}
+                className={`w-1.5 h-1.5 rounded-full ${payment.dot}`}
                 aria-hidden="true"
               />
               {payment.label}
@@ -392,13 +396,16 @@ function RequirementsChecklist({ student }: { student: Student }) {
           {docs.map((d) => (
             <li key={d.name} className="px-6 py-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
+                {/* Same Stage 2C treatment as the status text below: the
+                    light hexes stay exact, dark rides the bridged status
+                    tokens so the circles stop glowing pastel on dark
+                    cards. */}
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={
+                  className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
                     d.submitted
-                      ? { background: '#dcfce7', color: '#15803d' }
-                      : { background: '#fee2e2', color: '#b91c1c' }
-                  }
+                      ? 'bg-[#dcfce7] dark:bg-green-100 text-[#15803d] dark:text-green-700'
+                      : 'bg-[#fee2e2] dark:bg-red-100 text-[#b91c1c] dark:text-red-700'
+                  }`}
                   aria-hidden="true"
                 >
                   {d.submitted ? (
@@ -445,8 +452,7 @@ function RegistrarCard({ enrollment }: { enrollment: Enrollment }) {
     <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-20">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: '#1e293b', color: '#ffffff' }}
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--avatar-bg)] text-white"
           aria-hidden="true"
         >
           <Stamp className="w-5 h-5" />

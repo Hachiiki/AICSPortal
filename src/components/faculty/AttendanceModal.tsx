@@ -216,7 +216,7 @@ export function AttendanceModal({
                 const isPresent = (records[s.username] || 'present') === 'present'
                 return (
                   <li key={s.username} className="py-2.5 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">
                       {s.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
                     </div>
                     <div className="min-w-0 flex-1">

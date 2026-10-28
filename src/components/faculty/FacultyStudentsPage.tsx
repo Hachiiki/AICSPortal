@@ -660,7 +660,7 @@ export function FacultyStudentsPage({
                                   <tr key={stu.username} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
                                     <td className="px-6 py-3">
                                       <div className="flex items-center gap-2.5">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{stu.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900">{stu.fullName}</span>
                                       </div>
                                     </td>
@@ -736,7 +736,7 @@ export function FacultyStudentsPage({
               </div>
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: '#1e293b' }}>{selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0 bg-[var(--avatar-bg)]">{selectedStudent.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                   <div>
                     <p className="text-sm font-bold text-slate-900">{selectedStudent.fullName}</p>
                     <p className="text-xs text-slate-500 font-mono">{selectedStudent.studentNumber} • {selectedStudent.username} • {selectedStudent.program} {selectedStudent.section}</p>
@@ -822,8 +822,7 @@ export function FacultyStudentsPage({
                     >
                       In/Out log
                       <span
-                        className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                        style={{ background: '#f1f5f9', color: '#64748b' }}
+                        className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-500"
                       >
                         Soon
                       </span>
@@ -907,7 +906,7 @@ export function FacultyStudentsPage({
                                   <ul className="space-y-1">
                                     {present.map((u) => (
                                       <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
                                       </li>
                                     ))}
@@ -922,7 +921,7 @@ export function FacultyStudentsPage({
                                   <ul className="space-y-1">
                                     {absent.map((u) => (
                                       <li key={u} className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-red-50/60 border border-red-100">
-                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0" style={{ background: '#1e293b' }}>{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[9px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">{names(u).split(' ').map((n) => n[0]).slice(0, 2).join('')}</div>
                                         <span className="text-sm font-medium text-slate-900 truncate">{names(u)}</span>
                                       </li>
                                     ))}

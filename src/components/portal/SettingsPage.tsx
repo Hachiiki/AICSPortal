@@ -23,20 +23,44 @@ import {
   Palette,
   Sun,
   Moon,
+  MoonStar,
+  Contrast,
+  Circle,
   Monitor,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
+import {
+  type PaletteId,
+  detectBase,
+  PALETTE_CHANGE_EVENT,
+  readPalettePref,
+  readStoredCustomTheme,
+  setPalettePref,
+  THEME_CHOICES,
+} from '@/lib/aics/theme-palette'
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
+import { CustomThemeEditor } from './CustomThemeEditor'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
+
+// Icon per theme choice; ids match THEME_CHOICES in theme-palette.ts.
+const CHOICE_ICONS = {
+  light: Sun,
+  dark: Moon,
+  midnight: MoonStar,
+  slate: Contrast,
+  oled: Circle,
+  custom: Palette,
+  system: Monitor,
+} as const
 
 interface SettingsPageProps {
   student: Student
@@ -69,6 +93,70 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   // checked radio rendered before mount would hydrate-mismatch).
   const { theme, resolvedTheme, setTheme } = useTheme()
   const themeMounted = useMounted()
+
+  // Palette layer (theme expansion): the stored dark-family palette
+  // next to the next-themes light/dark preference. Read after mount —
+  // localStorage is not reactive, so every selection updates this
+  // state explicitly alongside the DOM application in theme-palette.
+  // The palette-change event covers writes from elsewhere (the topbar
+  // quick toggle drops a custom palette back to standard).
+  const [palette, setPaletteState] = useState<PaletteId>('dark')
+  useEffect(() => {
+    setPaletteState(readPalettePref())
+    const sync = () => setPaletteState(readPalettePref())
+    window.addEventListener(PALETTE_CHANGE_EVENT, sync)
+    return () => window.removeEventListener(PALETTE_CHANGE_EVENT, sync)
+  }, [])
+
+  // The radio grid's selected value: system/light come straight from
+  // next-themes; an explicit dark preference shows the active palette.
+  // A custom palette rides on BOTH light and dark, so it wins the
+  // highlight whichever explicit mode it is riding on — the user stays
+  // "in Custom" until they pick something else.
+  const selectedTheme = !themeMounted
+    ? null
+    : theme === 'system'
+      ? 'system'
+      : palette === 'custom'
+        ? 'custom'
+        : theme === 'light'
+          ? 'light'
+          : palette
+
+  const handleThemeChoice = (id: string) => {
+    if (id === 'light' || id === 'system') {
+      // Clicking Light/System must visibly leave a custom palette —
+      // custom rides both modes now, so a stored palette left untouched
+      // would keep painting. Step it down to the standard palette
+      // (inert in light/system, ready if the user returns to dark).
+      // Dark-family palettes (midnight/slate/oled) need no reset: they
+      // are inert in light and ride again on the next dark selection.
+      if (readPalettePref() === 'custom') {
+        setPaletteState('dark')
+        setPalettePref('dark', id)
+      }
+      setTheme(id)
+    } else if (id === 'dark') {
+      setTheme('dark')
+      setPaletteState('dark')
+      setPalettePref('dark', 'dark')
+    } else if (id === 'custom') {
+      // Keep the current explicit mode — the custom var map renders on
+      // either base. Coming from System there is no explicit mode yet,
+      // so pick once from the saved background's detected base; that is
+      // the only place base detection influences the selection.
+      const stored = readStoredCustomTheme()
+      const mode =
+        theme === 'dark' || theme === 'light' ? theme : detectBase(stored.colors.background)
+      setTheme(mode)
+      setPaletteState('custom')
+      setPalettePref('custom', mode)
+    } else {
+      setTheme('dark')
+      setPaletteState(id as PaletteId)
+      setPalettePref(id as PaletteId, 'dark')
+    }
+  }
 
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
@@ -697,8 +785,8 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
               </div>
             </div>
           )}
-          {/* Appearance section — the theme selector (Phase 1).
-              Appended last: the sections above keep their exact layout. */}
+          {/* Appearance section — the theme selector (Phase 1 control 2,
+              expanded for the theme palette layer). */}
           {activeSection === 'appearance' && (
             <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
@@ -708,16 +796,16 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 </p>
               </div>
               <div className="px-6 py-5">
-                <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-3">
-                  {([
-                    { value: 'light', label: 'Light', desc: 'Bright surfaces and dark text.', icon: Sun },
-                    { value: 'dark', label: 'Dark', desc: 'Dark surfaces and light text.', icon: Moon },
-                    { value: 'system', label: 'System', desc: `Follows your device (${themeMounted && resolvedTheme === 'dark' ? 'currently dark' : 'currently light'}).`, icon: Monitor },
-                  ] as const).map((o) => {
-                    const OptionIcon = o.icon
+                <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {THEME_CHOICES.map((o) => {
+                    const OptionIcon = CHOICE_ICONS[o.id]
+                    const desc =
+                      o.id === 'system'
+                        ? `Follows your device (${themeMounted && resolvedTheme === 'dark' ? 'currently dark' : 'currently light'}).`
+                        : o.desc
                     return (
                       <label
-                        key={o.value}
+                        key={o.id}
                         className="group relative flex items-start gap-3 rounded-lg border border-slate-200 px-4 py-3 cursor-pointer transition-colors hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/50 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500"
                       >
                         {/* sr-only keeps native radio semantics: keyboard
@@ -725,26 +813,48 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                         <input
                           type="radio"
                           name="aics-appearance"
-                          value={o.value}
-                          checked={themeMounted ? theme === o.value : false}
-                          onChange={() => setTheme(o.value)}
+                          value={o.id}
+                          checked={themeMounted ? selectedTheme === o.id : false}
+                          onChange={() => handleThemeChoice(o.id)}
                           className="sr-only"
                         />
                         <OptionIcon className="w-5 h-5 mt-0.5 text-slate-400 shrink-0 group-has-[:checked]:text-link-strong" aria-hidden />
                         <span className="flex-1 min-w-0">
-                          <span className="block text-sm font-medium text-slate-900">{o.label}</span>
-                          <span className="block text-xs text-slate-500 mt-0.5">{o.desc}</span>
+                          <span className="flex items-center justify-between gap-2">
+                            <span className="block text-sm font-medium text-slate-900">{o.label}</span>
+                            <Check
+                              className="w-4 h-4 text-link-strong shrink-0 transition-opacity opacity-0 group-has-[:checked]:opacity-100"
+                              aria-hidden
+                            />
+                          </span>
+                          <span className="block text-xs text-slate-500 mt-0.5">{desc}</span>
+                          {/* Illustrative palette strip: [background, surface, border, accent] */}
+                          <span className="mt-2 flex items-center gap-1" aria-hidden="true">
+                            {o.swatch.map((c, i) => (
+                              <span
+                                key={i}
+                                className="h-3 flex-1 rounded-sm border border-black/10 dark:border-white/10"
+                                style={{ background: c }}
+                              />
+                            ))}
+                          </span>
                         </span>
-                        <Check
-                          className="w-4 h-4 mt-1 text-link-strong shrink-0 transition-opacity opacity-0 group-has-[:checked]:opacity-100"
-                          aria-hidden
-                        />
                       </label>
                     )
                   })}
                 </div>
+
+                {themeMounted && selectedTheme === 'custom' && (
+                  <CustomThemeEditor
+                    initialColors={readStoredCustomTheme().colors}
+                    onSaved={() => setPaletteState(readPalettePref())}
+                  />
+                )}
+
                 <p className="mt-4 text-[11px] leading-relaxed text-slate-500">
                   System mode follows your device appearance live: change your OS theme and the portal follows without a reload.
+                  Palettes ride along whenever the portal is dark, including system-resolved dark. A custom theme needs its own
+                  explicit base, so System falls back to the standard palettes for it. Everything is stored on this device only.
                 </p>
               </div>
             </div>

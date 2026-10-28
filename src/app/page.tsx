@@ -661,7 +661,7 @@ function StudentDataWrapper({
             <button
               type="button"
               onClick={onRetryStudent}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744]"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] dark:hover:bg-[#1e4a77]"
             >
               <RotateCcw className="w-4 h-4" /> Try again
             </button>

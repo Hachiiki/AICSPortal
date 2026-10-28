@@ -4,6 +4,7 @@ import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -60,6 +61,8 @@ export function Topbar({
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
   // target so a System user flips out of whatever the OS resolved to.
+  // quickToggleTheme also drops a stored custom palette back to standard
+  // (custom rides both modes, so a bare mode flip would change nothing).
   // Icon renders only after mount (resolvedTheme is undefined during SSR
   // and the first client render; the mounted gate keeps hydration exact).
   const { resolvedTheme, setTheme } = useTheme()
@@ -80,7 +83,7 @@ export function Topbar({
   }
 
   const handleThemeToggle = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+    quickToggleTheme(resolvedTheme, setTheme)
   }
 
   // Workspace-assembly entrance (assemble candidate only): the real
