@@ -12,10 +12,12 @@ uncommitted files or session history survived.
 
 | Field | Value |
 |---|---|
-| Updated | 2026-10-26 (UTC+8) |
+| Updated | 2026-10-30 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Phase 2 Stage 2D: red-chip dark hover contrast fix (7 sites), avatar dark edge ring B3, blurred-surfaces evidence-only review; full gate suite re-run vs the Stage-2C baseline; see the Stage 2D sections below |
-| Latest push | 2026-10-26 Stage 2D (7aed783 red-hover fix, 8be6e65 avatar ring, 2D evidence bundle + this checkpoint) on top of the attribution correction and the Stage 2C checkpoint |
+| Last verified checkpoint | Onboarding Phase 1 complete and remote-verified: 7a01482 (authz onboarding.state policy), aa99733 (registry + onboarding_states + seed index), 314c23f (GET/PATCH /api/onboarding/state + wiring suite), tip == origin/main-full-dev; the five registry dimension identities approved as the baseline (onboarding plan section 2.6); see the Onboarding section below. Dark-theme history: Phase 2 Stage 2D remains its last verified checkpoint (2026-10-26) |
+| Latest push | 2026-10-30 onboarding approval record + this checkpoint (the recovered Phase 0 plan and the Phase 2 gate plan become tracked docs), on top of the 42208e5 CLAUDE.md push-rule update and the three Phase 1 commits (tip 314c23f) |
+| Onboarding plan baseline | `46c33a5` (read-only baseline the onboarding plans were verified against, 2026-10-29, remote-verified) |
+| Onboarding Phase 1 tip | `314c23f` == `origin/main-full-dev` (verified 2026-10-30) |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
 | Phase 1 baseline SHA | `acbe71a33e851bdda7116f8dd88cd77d0e8612f8` (Phase-0 exit, pinned per plan §5.1; file at `docs/done/qa_evidence/ui-ux/dark-theme/phase1/baseline-sha.txt`) |
 | Protected baseline | `origin/main` = `b7f6fca` (NEVER touch without authorization) |
@@ -82,6 +84,47 @@ Provenance notes:
 - The repository-local git identity is now set to the owner identity
   (`git config user.name/user.email` in the clone), so future commits
   no longer fall back to the sandbox identity.
+
+## Onboarding (2026-10-30)
+
+The onboarding campaign: plan at `docs/onboarding-phase0-plan.md`,
+gate plan of record at `docs/onboarding-phase2-gate-plan.md`. Both are
+tracked docs as of this checkpoint; before it they sat untracked in
+the worktree, and the ORIGINAL planning documents were already lost
+once to an environment reset and had to be consolidated from the
+owner's confirmed decision update. Authorized scope: Phase 1 and
+Phase 2 on `main-full-dev` only; the Phase 2 gate outcome stays the
+owner's decision alone; Phase 3+, `main`, PRs, merges, and
+deployments are not authorized.
+
+- **Phase 1 shipped and remote-verified** in three incremental
+  commits, each pushed immediately and remote-verified per the
+  standing rule (`CLAUDE.md` section 6, updated 2026-10-30 in
+  `42208e5`):
+  - `7a01482` feat(authz): the onboarding.state policy joins the
+    decision table (self-only by construction, read/update for every
+    role, corrupt roles fail closed).
+  - `aa99733` feat(onboarding): the state registry (five dimensions
+    per role, per-role versions, carry-forward) plus
+    MongoOnboardingState keyed {branch, username} and the unique
+    index added to the seed tooling.
+  - `314c23f` feat(onboarding): GET/PATCH /api/onboarding/state
+    (identity from the authenticated session only, Zod plus registry
+    key validation, non-blocking persistence with the skip-write
+    rule) plus the seam-mocked route-wiring suite in
+    `src/lib/authz/onboarding-state-write.test.ts`.
+- **Owner approval (2026-10-30):** the five registry dimension
+  identities exactly as implemented in
+  `src/lib/onboarding/registry.ts` are the approved baseline
+  (onboarding plan section 2.6); renaming or restructuring them needs
+  separate approval. The registry's RECOVERY NOTE checkpoint is
+  closed.
+- **Environment reset facts (2026-10-30):** the pre-reset clone
+  layout (`/home/z/my-project/AICSPortal`) is gone; the clone now
+  lives at `/home/z/my-project/aics-mfd`; the local-only attribution
+  backup refs, the mmserver mongod binary, `mongo-data`, the untracked
+  worklog, and `.env.local` did not survive the reset and need
+  re-provisioning before the next browser-gate run (see Known issues).
 
 ## Completed (through this checkpoint)
 
@@ -433,6 +476,23 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
 
 ## Pending / exact next step
 
+- **Onboarding Phase 2 is the exact next step (authorized 2026-10-29):
+  the in-house tour engine, the dev-only synthetic tour, and the
+  mandatory evidence package per `docs/onboarding-phase2-gate-plan.md`
+  (evidence root
+  `docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/`, automation
+  under `scripts/onboarding/` following the `scripts/theme`
+  conventions with a manifest per run). Every completed commit pushes
+  immediately to `origin/main-full-dev` and gets remote-verified.
+  When Phase 2 implementation and evidence are complete, present the
+  full evidence package, all 26 gate criteria with results,
+  performance findings against the provisional thresholds, the cost
+  assessment (S2 mandatory; S1, S3, S4, S5 satisfactory), blockers,
+  and a recommendation, then STOP: the gate outcome and any Phase 3
+  start stay the owner's decisions alone.**
+- Dark-theme work stays where its own STOP below put it; the
+  onboarding authorization neither reopens it nor touches the
+  attribution backup references.
 - The 2026-10-26 attribution correction is complete and pushed
   (identity only; see the Attribution correction section above). It
   changed zero application code and zero evidence trees.
@@ -487,33 +547,48 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   attempt failed with ENOENT until the directory was created).
 - Playwright is a devDependency; Chromium headless shell 156.0.8078.4
   (build 1248) at `~/.cache/ms-playwright` (`bunx playwright install
-  chromium` re-provisions).
+  chromium` re-provisions). Post-reset 2026-10-30: the cache holds
+  `chromium-1200` and `chromium_headless_shell-1200`; verify the
+  installed playwright package accepts the revision on the first run
+  and re-provision if it mismatches.
 - Local gate environment: mongod 8.2.6 (from mongodb-memory-server's
   downloader; the BINARY sits directly at
   `/home/z/my-project/scripts/mmserver/node_modules/.cache/mongodb-memory-server/mongod-x64-debian-8.2.6`
   — no `/bin` subdirectory; corrected 2026-10-26 during Stage 2C) on
   127.0.0.1:27017, dbpath `/home/z/my-project/scripts/mongo-data`;
   re-seed with `node scripts/seed-mongodb.ts` (needs `.env.local`).
-- **Environment layout (CHANGED 2026-10-26):** the repo clone lives at
-  `/home/z/my-project/AICSPortal` (branch `main-full-dev` checked out
-  directly; no separate `.worktree-mfd` dev worktree). Gate runs pass
-  `GATE_MAIN_WT=/home/z/my-project/AICSPortal` (baseline scratch
-  worktree still at `/home/z/my-project/.baseline-check`, outside the
-  repo). `GATE_WT` defaults to the clone. The sandbox's own scaffolding
-  repo sits at `/home/z/my-project` root — never touch it.
+  Post-reset 2026-10-30: the binary, the data dir, and `.env.local`
+  are gone; re-provision before the next browser-gate run (install
+  mongodb-memory-server in a scratch dir OUTSIDE the repo, start
+  mongod on 127.0.0.1:27017 with a dbpath outside the repo, write
+  `.env.local` per the recovery procedure, re-seed). The seed now
+  also creates the onboarding_states unique index (aa99733).
+- **Environment layout (CHANGED 2026-10-30):** the repo clone lives
+  at `/home/z/my-project/aics-mfd` (branch `main-full-dev` checked
+  out directly). The pre-reset clone `/home/z/my-project/AICSPortal`
+  and the G4 baseline scratch worktree
+  `/home/z/my-project/.baseline-check` are gone with the reset; any
+  future G4 re-run must pass the new
+  `GATE_MAIN_WT=/home/z/my-project/aics-mfd` and re-create the
+  scratch worktree. `GATE_WT` defaults to the clone. The sandbox's
+  own scaffolding repo sits at `/home/z/my-project` root — never
+  touch it.
 - The worktree needs `.env.local`
   (MONGODB_URI=mongodb://127.0.0.1:27017, MONGODB_DB=aics_portal,
-  APP_ENV=development) for `next start` demo auth.
+  APP_ENV=development) for `next start` demo auth. Missing after the
+  2026-10-30 reset; re-create it per the recovery procedure below.
 - G4 runs as two stages (`--stage setup`, `--stage capture`); a full run
   rebuilds both trees (~10 min). Phase-1 G4 uses `--mode parity|final`
   (see the harness header for exact commands).
-- Conventions: English `type: description` commits; every push to
-  `main-full-dev` requires explicit owner authorization; never
-  force-push, never rewrite shared history, never push to or merge
-  into `main` without explicit authorization; do not bypass failing
-  checks to create a checkpoint. One explicitly owner-authorized
-  exception exists: the 2026-10-26 attribution correction
-  (identity-only rewrite of `main-full-dev`; see that section above).
+- Conventions: English `type: description` commits; every completed
+  commit pushes immediately to `origin/main-full-dev` per the
+  standing user instruction (`CLAUDE.md` section 6, updated
+  2026-10-30) — only `main-full-dev`, never `main` or any other
+  branch, and verify the remote after each push; never force-push,
+  never rewrite shared history; do not bypass failing checks to
+  create a checkpoint. One explicitly owner-authorized exception
+  exists: the 2026-10-26 attribution correction (identity-only
+  rewrite of `main-full-dev`; see that section above).
 - Status-board credentials live only in the local untracked helper
   script; they must never be committed, logged, or reported.
 - Dual-use red-600 (deliberate, documented): dark `--color-red-600`
@@ -539,8 +614,8 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
 
 ## Recovery procedure (after a reset)
 
-1. `git clone -b main-full-dev <remote> /home/z/my-project/AICSPortal`
-   (or `git -C /home/z/my-project/AICSPortal fetch origin` if present).
+1. `git clone -b main-full-dev <remote> /home/z/my-project/aics-mfd`
+   (or `git -C /home/z/my-project/aics-mfd fetch origin` if present).
 2. Compare `git rev-parse main-full-dev` with
    `git ls-remote origin main-full-dev`; if local is behind with no
    local-only commits, fast-forward local to the remote tip.

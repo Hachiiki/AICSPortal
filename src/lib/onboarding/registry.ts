@@ -5,14 +5,17 @@
 // surface can render the checklist from the same source the server
 // validates against — the permissions.ts pattern, no server graph.
 //
-// RECOVERY NOTE (2026-10-30): the original planning document was lost
-// with the environment reset. The recovered scope pins the mechanism
-// (registry, five state dimensions per role, version carry-forward)
-// but not the dimension identities. The keys and labels below are
-// grounded in the portal's actual first-run surfaces and are the
-// review checkpoint for this phase: they are data, so the review can
-// rename, renumber, or re-scope them in this one file without touching
-// the mechanism.
+// RECOVERY NOTE (2026-10-30, approved same day): the original planning
+// document was lost with the environment reset. The recovered scope
+// pinned the mechanism (registry, five state dimensions per role,
+// version carry-forward) but not the dimension identities. The keys
+// and labels below are grounded in the portal's actual first-run
+// surfaces and were the review checkpoint for this phase; the owner
+// reviewed them exactly as implemented and approved all five per role
+// as the baseline (onboarding plan, section 2.6). They are data in
+// this one file, but renaming or restructuring them now needs
+// separate owner approval; the version-bump rule above governs any
+// future change.
 //
 // Versioning + carry-forward: each role spec carries its own version,
 // independent of the other roles. The stored doc keeps the version it
