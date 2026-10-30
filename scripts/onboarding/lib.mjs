@@ -56,7 +56,7 @@ export function invocationLine(scriptName) {
 }
 
 export function git(args) {
-  return execFileSync('git', args.split(' '), {
+  return execFileSync('git', Array.isArray(args) ? args : args.split(' '), {
     cwd: WT,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
