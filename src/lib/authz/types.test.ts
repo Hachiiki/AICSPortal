@@ -56,6 +56,7 @@ const SAMPLES: Record<ResourceKind, AuthzResource> = {
   'faculty.history': { kind: 'faculty.history' },
   'account.password': { kind: 'account.password' },
   'account.photo': { kind: 'account.photo', username: 'juan.santos' },
+  'onboarding.state': { kind: 'onboarding.state' },
 }
 
 describe('authz types', () => {

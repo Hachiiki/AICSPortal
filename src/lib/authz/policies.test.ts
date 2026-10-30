@@ -586,3 +586,27 @@ describe('M2 stale-role class dies by construction', () => {
     await expectDeny({ kind: 'notification.cleanup' }, 'cleanup', staleAdm, fakeRel(), 'role', 403)
   })
 })
+
+describe('onboarding.state policies (self-only, session-derived identity)', () => {
+  const rel = fakeRel()
+
+  it('read and update allow for every role — the surface is each user reading and writing their own progress', async () => {
+    await expectAllow({ kind: 'onboarding.state' }, 'read', studentA, rel)
+    await expectAllow({ kind: 'onboarding.state' }, 'update', studentA, rel)
+    await expectAllow({ kind: 'onboarding.state' }, 'read', facultyX, rel)
+    await expectAllow({ kind: 'onboarding.state' }, 'update', facultyX, rel)
+    await expectAllow({ kind: 'onboarding.state' }, 'read', admin, rel)
+    await expectAllow({ kind: 'onboarding.state' }, 'update', admin, rel)
+  })
+
+  it('every other action denies', async () => {
+    await expectDeny({ kind: 'onboarding.state' }, 'delete', admin, rel, 'role', 403)
+    await expectDeny({ kind: 'onboarding.state' }, 'create', studentA, rel, 'role', 403)
+  })
+
+  it('corrupt role strings deny fail-closed (issue #67 class)', async () => {
+    const rogue = ctxFor({ username: 'rogue.role', role: 'rogue' as AuthzContext['actor']['role'] })
+    await expectDeny({ kind: 'onboarding.state' }, 'read', rogue, rel, 'role', 403)
+    await expectDeny({ kind: 'onboarding.state' }, 'update', rogue, rel, 'role', 403)
+  })
+})
