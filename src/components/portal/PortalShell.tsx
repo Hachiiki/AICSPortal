@@ -11,7 +11,6 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { OnboardingDevMount } from '@/components/onboarding/OnboardingDevMount'
 
 interface PortalShellProps {
   student: Student
@@ -126,10 +125,6 @@ export function PortalShell({
           </ErrorBoundary>
         </motion.div>
       </div>
-      {/* Dev-only synthetic onboarding tour (onboarding plan, Phase 2).
-          The mount renders nothing outside development; see
-          OnboardingDevMount for the A1 gate. */}
-      <OnboardingDevMount />
     </div>
     </MotionConfig>
   )

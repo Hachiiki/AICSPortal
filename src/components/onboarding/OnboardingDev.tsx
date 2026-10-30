@@ -105,6 +105,15 @@ export function OnboardingDev() {
   const lateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { route, navigate } = usePortalRoute()
 
+  // Latest route through a ref so onNavigate keeps a stable identity: the
+  // route object from usePortalRoute is new every render, and an unstable
+  // callback would re-trigger the engine's per-step effect (and the
+  // board arming) on every host render.
+  const routeRef = useRef(route)
+  useEffect(() => {
+    routeRef.current = route
+  })
+
   // Read on mount (H2 model): the launcher is an onboarding surface, so
   // a failed read hides it while the portal keeps working. The Phase 1
   // route itself answers persisted:false on a DB failure and stays 200,
@@ -146,10 +155,11 @@ export function OnboardingDev() {
 
   const onNavigate = useCallback(
     (view: View) => {
-      if (route.view === 'login' || !isRoutableView(view)) return
-      navigate({ view, branch: route.branch, username: route.username, role: route.role })
+      const r = routeRef.current
+      if (r.view === 'login' || !isRoutableView(view)) return
+      navigate({ view, branch: r.branch, username: r.username, role: r.role })
     },
-    [route, navigate]
+    [navigate]
   )
 
   const onFinish = useCallback((completed: boolean) => {
@@ -200,26 +210,22 @@ export function OnboardingDev() {
             Dev synthetic targets
           </p>
           <div className="mt-2 space-y-2 text-xs">
-            <div
-              data-tour={lateTarget ? 'board-late-target' : undefined}
-              className={
-                lateTarget
-                  ? 'rounded-md border border-border bg-surface-2 px-2 py-3 text-center font-medium'
-                  : 'hidden'
-              }
-            >
-              Late-mounted target
-            </div>
-            <div
-              data-tour={volatileTarget ? 'board-volatile-target' : undefined}
-              className={
-                volatileTarget
-                  ? 'rounded-md border border-border bg-surface-2 px-2 py-3 text-center font-medium'
-                  : 'hidden'
-              }
-            >
-              Volatile target
-            </div>
+            {lateTarget && (
+              <div
+                data-tour="board-late-target"
+                className="rounded-md border border-border bg-surface-2 px-2 py-3 text-center font-medium"
+              >
+                Late-mounted target
+              </div>
+            )}
+            {volatileTarget && (
+              <div
+                data-tour="board-volatile-target"
+                className="rounded-md border border-border bg-surface-2 px-2 py-3 text-center font-medium"
+              >
+                Volatile target
+              </div>
+            )}
             {volatileTarget && (
               <button
                 type="button"

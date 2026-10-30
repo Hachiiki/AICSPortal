@@ -110,6 +110,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
   const navigatedForRef = useRef<string | null>(null)
   const ensuredVisibleRef = useRef(false)
   const advancedRef = useRef(false)
+  const pendingNoteRef = useRef('')
   const indexRef = useRef(0)
   const dispositionRef = useRef<StepDisposition>('waiting')
 
@@ -138,11 +139,13 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     dispositionRef.current = disposition
 
     // A target that never appeared skips the step forward, once. The
-    // budget timer lives in the per-step effect, so this pass itself
-    // never needs to schedule anything.
+    // skip note goes to a pending ref rather than the live region: the
+    // next step's announcement composes with it, so screen readers hear
+    // one sentence carrying both facts instead of a frame-lifetime
+    // blip the next step immediately overwrites.
     if (disposition === 'skipped' && !advancedRef.current) {
       advancedRef.current = true
-      setAnnouncement(`Step skipped: ${current.title} target is not available.`)
+      pendingNoteRef.current = `Step skipped: ${current.title} target is not available.`
       if (indexRef.current >= steps.length - 1) onFinish(true)
       else setIndex(indexRef.current + 1)
       return
@@ -194,7 +197,9 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     }
     onStepChange?.(current, index)
     const raf = requestAnimationFrame(() => {
-      setAnnouncement(stepAnnouncement(current, index, steps.length))
+      const note = pendingNoteRef.current
+      pendingNoteRef.current = ''
+      setAnnouncement((note ? `${note} ` : '') + stepAnnouncement(current, index, steps.length))
       headingRef.current?.focus({ preventScroll: true })
     })
     // The wait budget ends on its own even when nothing in the DOM
@@ -220,8 +225,17 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
   // window), DOM mutations (late mounts, unmounts, skeleton resolve),
   // and the mobile breakpoint. All coalesce into one rAF.
   useEffect(() => {
+    // childList covers mounts/unmounts (late targets, view swaps,
+    // skeletons resolving); attributes covers display/visibility flips
+    // on existing elements (a nav item hidden by class, a target whose
+    // data-tour hook appears). All coalesced into one rAF.
     const observer = new MutationObserver(schedule)
-    observer.observe(document.documentElement, { childList: true, subtree: true })
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-tour', 'class', 'style', 'hidden'],
+    })
     window.addEventListener('resize', schedule, { passive: true })
     window.addEventListener('scroll', schedule, { capture: true, passive: true })
     const mql = window.matchMedia(SHEET_QUERY)
@@ -236,7 +250,13 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       window.removeEventListener('resize', schedule)
       window.removeEventListener('scroll', schedule, { capture: true } as EventListenerOptions)
       mql.removeEventListener('change', onSheet)
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+      // StrictMode dev double-mount cancels the in-flight frame in this
+      // cleanup; the guard must be cleared with it or every later
+      // schedule() hits a stale id and never runs again.
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
       if (waitTimerRef.current !== null) clearTimeout(waitTimerRef.current)
     }
   }, [schedule])

@@ -10,6 +10,7 @@ import { useAuth, useStudentData } from '@/lib/aics/use-student-data'
 import { LoginView } from '@/components/auth/LoginView'
 import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
 import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
+import { OnboardingDevMount } from '@/components/onboarding/OnboardingDevMount'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -319,6 +320,14 @@ export default function AICSLoginPage() {
             facultyLoading={facultyLoading}
             onRefreshFaculty={refreshFacultyData}
           />
+          {/* Dev-only synthetic onboarding tour (onboarding plan, Phase 2).
+            Mounted HERE, outside the per-view shells: every portal page
+            renders its own PortalShell, so a view swap would unmount a
+            shell-level tour. The root branch persists across view
+            swaps (the C4 cross-route contract depends on that); the
+            mount renders nothing outside development and nothing on
+            the login route (no unauthenticated onboarding, D10). */}
+          <OnboardingDevMount />
         </AssembleRevealProvider>
       )}
       <AnimatePresence>
