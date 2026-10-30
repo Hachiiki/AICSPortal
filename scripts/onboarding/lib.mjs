@@ -432,11 +432,14 @@ export async function gateContext(browser, opts = {}) {
     reducedMotion: opts.reducedMotion ?? 'no-preference',
     recordVideo: opts.recordVideo ? { dir: opts.recordVideo.dir, size: opts.recordVideo.size } : undefined,
   })
+  // Origin override for production smokes (A1) that must not touch the
+  // gate dev server: session cookie and storage land on that origin.
+  const origin = opts.origin ?? ORIGIN
   const session =
     opts.session ?? (opts.role && opts.role !== 'student'
       ? await mintSession(opts.username, opts.role)
       : await studentSession())
-  await ctx.addCookies([{ name: 'aics_session', value: session, url: ORIGIN }])
+  await ctx.addCookies([{ name: 'aics_session', value: session, url: origin }])
   // Gate default: cookie consent already decided, so the legal banner
   // (z-50, bottom-docked) does not overlay the tour surfaces. The
   // banner itself is an existing surface, regression-checked separately.
@@ -447,21 +450,28 @@ export async function gateContext(browser, opts = {}) {
   return ctx
 }
 
-export function studentUrl(view = '') {
-  return `${ORIGIN}/portal/${BRANCH}/student/${STUDENT}${view ? '/' + view : ''}`
+export function studentUrl(view = '', origin = ORIGIN) {
+  return `${origin}/portal/${BRANCH}/student/${STUDENT}${view ? '/' + view : ''}`
 }
 
 // ---------------------------------------------------------------------------
 // Tour helpers
 // ---------------------------------------------------------------------------
 
-export async function openPortal(ctx, view = '') {
+export async function openPortal(ctx, view = '', { launcherRequired = true, origin = ORIGIN } = {}) {
+  // Loader view values come as 'view' strings; the prod smoke passes
+  // launcherRequired: false because the production page by design has
+  // NO dev launcher (asserting its absence is exactly criterion A1), and
+  // an origin override pointing at the production server (not the gate
+  // dev port).
   let lastErr = null
   for (let attempt = 0; attempt < 2; attempt++) {
     const page = await ctx.newPage()
     try {
-      await page.goto(studentUrl(view), { waitUntil: 'networkidle', timeout: 60000 })
-      await page.waitForSelector('[data-tour="dev-tour-launcher"]', { timeout: 45000 })
+      await page.goto(studentUrl(view, origin), { waitUntil: 'load', timeout: 60000 })
+      if (launcherRequired) {
+        await page.waitForSelector('[data-tour="dev-tour-launcher"]', { timeout: 45000 })
+      }
       return page
     } catch (err) {
       lastErr = err
