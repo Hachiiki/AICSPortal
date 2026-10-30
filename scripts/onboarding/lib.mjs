@@ -18,7 +18,9 @@ import { resolve } from 'node:path'
 import { SignJWT } from 'jose'
 import { chromium } from 'playwright'
 
-export const WT = process.env.GATE_WT || '/home/z/my-project/aics-mfd'
+// Windows adaptation: default to the two-levels-up repo root instead of
+// the original Linux clone path; GATE_WT still wins when set.
+export const WT = process.env.GATE_WT || resolve(import.meta.dirname, '..', '..')
 export const EVID = resolve(
   WT,
   process.env.GATE_EVID || 'docs/done/qa_evidence/ui-ux/onboarding/phase2-gate'
@@ -47,7 +49,7 @@ const DEV_SECRET = 'dev-only-insecure-secret-change-in-production'
 
 export function invocationLine(scriptName) {
   const env = []
-  for (const k of ['GATE_WT', 'GATE_EVID', 'GATE_PORT', 'GATE_MONGO_BIN']) {
+  for (const k of ['GATE_WT', 'GATE_EVID', 'GATE_PORT', 'GATE_MONGO_BIN', 'GATE_MONGO_DATA', 'GATE_MONGO_LOG']) {
     if (process.env[k]) env.push(`${k}=${process.env[k]}`)
   }
   return `${env.length ? env.join(' ') + ' ' : ''}bun scripts/onboarding/${scriptName} ${process.argv.slice(2).join(' ')}`.trim()
@@ -154,13 +156,26 @@ export async function ensureMongod() {
     throw new Error(`mongod binary missing at ${MONGO_BIN} — re-provision per docs/recovery.md (Known issues)`)
   }
   mkdirSync(MONGO_DATA, { recursive: true })
-  execFileSync(MONGO_BIN, [
-    '--dbpath', MONGO_DATA,
-    '--bind_ip', '127.0.0.1',
-    '--port', '27017',
-    '--fork',
-    '--logpath', MONGO_LOG,
-  ])
+  // Windows mongod does not support --fork; on win32 the process runs
+  // detached with its own log file, checked by the same TCP probe loop.
+  if (process.platform === 'win32') {
+    const logFd = openSync(MONGO_LOG + '.win', 'a')
+    const proc = spawn(MONGO_BIN, [
+      '--dbpath', MONGO_DATA,
+      '--bind_ip', '127.0.0.1',
+      '--port', '27017',
+      '--logpath', MONGO_LOG + '.win',
+    ], { stdio: ['ignore', logFd, logFd], detached: true })
+    proc.unref()
+  } else {
+    execFileSync(MONGO_BIN, [
+      '--dbpath', MONGO_DATA,
+      '--bind_ip', '127.0.0.1',
+      '--port', '27017',
+      '--fork',
+      '--logpath', MONGO_LOG,
+    ])
+  }
   for (let i = 0; i < 60; i++) {
     if (await tcpOpen(27017)) return
     await new Promise((r) => setTimeout(r, 500))
@@ -190,12 +205,20 @@ async function killStaleDev() {
   try {
     const pid = Number(readFileSync(DEV_PIDFILE, 'utf8').trim())
     if (Number.isInteger(pid) && pid > 0) {
-      try {
-        process.kill(-pid, 'SIGKILL')
-      } catch {
+      if (process.platform === 'win32') {
+        // Windows adaptation: no process groups; taskkill /T takes the
+        // whole child tree the way kill(-pid) does on POSIX.
         try {
-          process.kill(pid, 'SIGKILL')
+          execFileSync('taskkill', ['/T', '/F', '/PID', String(pid)], { stdio: 'ignore' })
         } catch {}
+      } else {
+        try {
+          process.kill(-pid, 'SIGKILL')
+        } catch {
+          try {
+            process.kill(pid, 'SIGKILL')
+          } catch {}
+        }
       }
       await new Promise((r) => setTimeout(r, 500))
     }
@@ -213,7 +236,13 @@ export async function ensureDevServer({ env = {} } = {}) {
   // to a log file, never pipes: a detached child writing into pipes
   // whose reader died wedges headless (binds, never serves).
   const logFd = openSync(DEV_LOG, 'a')
-  devProc = spawn('node_modules/.bin/next', ['dev', '-p', String(GATE_PORT)], {
+  // Windows adaptation: the node_modules/.bin/next shim is a POSIX shell
+  // script and un-spawnable on win32; run Next's real bin entry with node.
+  const nextBin = resolve(WT, 'node_modules/next/dist/bin/next')
+  const [cmd, cmdArgs] = process.platform === 'win32'
+    ? ['node', [nextBin]]
+    : ['node_modules/.bin/next', []]
+  devProc = spawn(cmd, [...cmdArgs, 'dev', '-p', String(GATE_PORT)], {
     cwd: WT,
     env: { ...process.env, ...env },
     stdio: ['ignore', logFd, logFd],
@@ -231,12 +260,22 @@ export async function ensureDevServer({ env = {} } = {}) {
 export function stopDevServer() {
   if (devProc) {
     const pid = devProc.pid
-    try {
-      process.kill(-pid, 'SIGTERM')
-    } catch {
+    if (process.platform === 'win32') {
       try {
-        devProc.kill('SIGTERM')
-      } catch {}
+        execFileSync('taskkill', ['/T', '/F', '/PID', String(pid)], { stdio: 'ignore' })
+      } catch {
+        try {
+          devProc.kill('SIGTERM')
+        } catch {}
+      }
+    } else {
+      try {
+        process.kill(-pid, 'SIGTERM')
+      } catch {
+        try {
+          devProc.kill('SIGTERM')
+        } catch {}
+      }
     }
     devProc = null
   }
@@ -270,6 +309,60 @@ export async function mintSession(username, role) {
 }
 
 export async function launchBrowser() {
+  // Windows adaptation (documented deviation): Playwright's default pipe
+  // transport hangs in this environment for chromium, msedge, and chrome
+  // alike, while a manual detached spawn with --remote-debugging-port
+  // works. On win32 spawn the same chromium binary detached on a dedicated
+  // CDP port, connect over CDP, and take the spawned tree down on close.
+  if (process.platform === 'win32') {
+    const port = Number(process.env.GATE_CDP_PORT || 4311)
+    const CDP_PIDFILE = resolve(WT, 'scripts/onboarding/.cdp-chrome.pid')
+    try {
+      const pid = Number(readFileSync(CDP_PIDFILE, 'utf8').trim())
+      if (Number.isInteger(pid) && pid > 0) {
+        try { execFileSync('taskkill', ['/T', '/F', '/PID', String(pid)], { stdio: 'ignore' }) } catch {}
+        await new Promise((r) => setTimeout(r, 500))
+      }
+    } catch {}
+    const chromeBin = chromium.executablePath()
+    const userDataDir = resolve(WT, 'scripts/onboarding/.cdp-chrome-profile')
+    mkdirSync(userDataDir, { recursive: true })
+    const logFd = openSync(resolve(WT, 'scripts/onboarding/cdp-chrome.log'), 'a')
+    const proc = spawn(chromeBin, [
+      '--headless=new',
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--hide-scrollbars',
+      '--force-color-profile=srgb',
+      `--user-data-dir=${userDataDir}`,
+      `--remote-debugging-port=${port}`,
+      'about:blank',
+    ], { stdio: ['ignore', logFd, logFd], detached: true })
+    proc.unref()
+    writeFileSync(CDP_PIDFILE, String(proc.pid))
+    const url = `http://127.0.0.1:${port}`
+    let up = false
+    for (let i = 0; i < 60; i++) {
+      try {
+        const res = await fetch(`${url}/json/version`, { signal: AbortSignal.timeout(1000) })
+        if (res.ok) { up = true; break }
+      } catch {}
+      await new Promise((r) => setTimeout(r, 500))
+    }
+    if (!up) {
+      try { execFileSync('taskkill', ['/T', '/F', '/PID', String(proc.pid)], { stdio: 'ignore' }) } catch {}
+      throw new Error('detached chromium did not expose its CDP endpoint')
+    }
+    const browser = await chromium.connectOverCDP(url)
+    const realClose = browser.close.bind(browser)
+    browser.close = async () => {
+      try { await realClose() } catch {}
+      try { execFileSync('taskkill', ['/T', '/F', '/PID', String(proc.pid)], { stdio: 'ignore' }) } catch {}
+      try { writeFileSync(CDP_PIDFILE, '') } catch {}
+    }
+    return browser
+  }
   return chromium.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--force-color-profile=srgb', '--hide-scrollbars'],

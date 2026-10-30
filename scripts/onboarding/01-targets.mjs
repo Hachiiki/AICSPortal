@@ -223,12 +223,18 @@ const run = async () => {
     const waiting = await settledState(page, 'waiting')
     step('B3: a late target holds in waiting, no spotlight painted', waiting.disposition === 'waiting' && waiting.spotlight === null, `disposition=${waiting.disposition}`)
     const wrongFlash = await page.evaluate(async () => {
-      // No spotlight element may appear before the target mounts.
-      for (let i = 0; i < 6; i++) {
+      // A spotlight may never appear while the target element is absent
+      // (a ring painted over nothing). Stop as soon as the target mounts:
+      // the mount timer is 800ms and the earlier fixed 600ms window
+      // sampled past it, counting the legitimate post-mount spotlight
+      // as a wrong-position flash. framed = target present; any
+      // spotlight seen BEFORE that is a flash.
+      for (let i = 0; i < 30; i++) {
+        if (document.querySelector('[data-tour="board-late-target"]')) return false
         if (document.querySelector('[data-tour-spotlight]')) return true
         await new Promise((r) => setTimeout(r, 100))
       }
-      return !!document.querySelector('[data-tour-spotlight]')
+      return false
     })
     step('B3: no wrong-position flash before the target mounts', !wrongFlash)
     const state = await settledState(page, 'spot')
