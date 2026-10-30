@@ -186,6 +186,7 @@ export async function ensureMongod() {
 let devProc = null
 
 const DEV_PIDFILE = resolve(WT, 'scripts/onboarding/.dev-server.pid')
+const DEV_ENVFILE = resolve(WT, 'scripts/onboarding/.dev-server.env')
 const DEV_LOG = resolve(WT, 'scripts/onboarding/dev-server.log')
 
 async function devPortAlive() {
@@ -229,8 +230,21 @@ async function killStaleDev() {
 }
 
 export async function ensureDevServer({ env = {} } = {}) {
-  // Reuse if a previous script left a healthy one on the gate port.
-  if (await devPortAlive()) return
+  // Reuse only a server whose bootstrap env matches this run's: a server
+  // spawned with a different MONGODB_URI writes to a different database,
+  // which would silently test the wrong persistence layer (observed live:
+  // a stale pre-gate server initialized from .env.local kept port 4310 and
+  // a completion PATCH landed on the remote cluster instead of the gate
+  // mongod). Fingerprint the connection-relevant vars at spawn time.
+  const fingerprint = [
+    'MONGODB_URI', 'MONGODB_DB', 'APP_ENV', 'AUTH_SECRET',
+  ].map((k) => `${k}=${env[k] ?? process.env[k] ?? ''}`).join('|')
+  try {
+    if (
+      (await devPortAlive()) &&
+      readFileSync(DEV_ENVFILE, 'utf8').trim() === fingerprint
+    ) return
+  } catch {}
   if (await tcpOpen(GATE_PORT)) await killStaleDev()
   // Detached (own process group, survives a killed script) with stdio
   // to a log file, never pipes: a detached child writing into pipes
@@ -249,6 +263,7 @@ export async function ensureDevServer({ env = {} } = {}) {
     detached: true,
   })
   writeFileSync(DEV_PIDFILE, String(devProc.pid))
+  try { writeFileSync(DEV_ENVFILE, fingerprint) } catch {}
   devProc.unref()
   for (let i = 0; i < 90; i++) {
     if (await devPortAlive()) return
