@@ -246,6 +246,20 @@ export async function ensureDevServer({ env = {} } = {}) {
     ) return
   } catch {}
   if (await tcpOpen(GATE_PORT)) await killStaleDev()
+  // Also kill by PORT: a stale listener not recorded in the pidfile still
+  // holds the gate port, and `next dev` would silently bind the gate
+  // port + 1 instead of failing (observed live), making every probe
+  // answer against the stale, differently-configured server.
+  if (process.platform === 'win32') {
+    try {
+      const out = execFileSync('netstat', ['-ano'], { encoding: 'utf8' })
+      const pids = [...new Set(out.split('\n').filter((l) => l.includes(`:${GATE_PORT} `) && /\s(LISTENING|LISTEN)\s/i.test(l)).map((l) => l.trim().split(/\s+/).pop()))]
+      for (const pid of pids) {
+        if (Number(pid) > 0) try { execFileSync('taskkill', ['/T', '/F', '/PID', pid], { stdio: 'ignore' }) } catch {}
+      }
+      if (pids.length) await new Promise((r) => setTimeout(r, 1200))
+    } catch {}
+  }
   // Detached (own process group, survives a killed script) with stdio
   // to a log file, never pipes: a detached child writing into pipes
   // whose reader died wedges headless (binds, never serves).
@@ -266,10 +280,29 @@ export async function ensureDevServer({ env = {} } = {}) {
   try { writeFileSync(DEV_ENVFILE, fingerprint) } catch {}
   devProc.unref()
   for (let i = 0; i < 90; i++) {
-    if (await devPortAlive()) return
+    if (await devPortAlive()) {
+      await validateDevServer()
+      return
+    }
     await new Promise((r) => setTimeout(r, 2000))
   }
   throw new Error(`dev server did not become ready at ${ORIGIN} (log: ${DEV_LOG})`)
+}
+
+// Readiness beyond the port: the demo login must actually answer OK on
+// the gate port (route compiles can 404 transiently; retries paper over
+// that), and the port probe above can be fooled by `next dev` silently
+// bumping ports when a stale listener survives, so validate the demo
+// route on the exact gate origin before declaring ready.
+export async function validateDevServer() {
+  for (let i = 0; i < 10; i++) {
+    try {
+      const r = await fetch(`${ORIGIN}/api/auth/demo`, { method: 'POST' })
+      if (r.ok) return
+    } catch {}
+    await new Promise((r2) => setTimeout(r2, 1500))
+  }
+  throw new Error(`dev server on ${ORIGIN} is up but the demo login route does not answer OK`)
 }
 
 export function stopDevServer() {
@@ -307,11 +340,18 @@ let studentCookie = null
 
 export async function studentSession() {
   if (studentCookie) return studentCookie
-  const res = await fetch(`${ORIGIN}/api/auth/demo`, { method: 'POST' })
-  if (!res.ok) throw new Error(`demo login failed: ${res.status}`)
-  const setCookie = res.headers.getSetCookie().join('\n')
-  studentCookie = setCookie.match(/aics_session=([^;]+)/)[1]
-  return studentCookie
+  // Retry: a just-started dev server can answer 404 on the first POST
+  // while the route + proxy middleware compile.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${ORIGIN}/api/auth/demo`, { method: 'POST' })
+    if (res.ok) {
+      const setCookie = res.headers.getSetCookie().join('\n')
+      studentCookie = setCookie.match(/aics_session=([^;]+)/)[1]
+      return studentCookie
+    }
+    await new Promise((r) => setTimeout(r, 1500))
+  }
+  throw new Error(`demo login failed after retries`)
 }
 
 export async function mintSession(username, role) {
