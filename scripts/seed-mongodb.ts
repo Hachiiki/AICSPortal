@@ -940,6 +940,10 @@ async function seed() {
   await createIndexSafe(db, 'sessions', { branch: 1 }, {}, '5/7 sessions')
   await createIndexSafe(db, 'courses', { branch: 1, code: 1 }, { unique: true }, '6/7 courses')
   await createIndexSafe(db, 'grade_audits', { branch: 1, subjectCode: 1, studentUsername: 1, performedAt: -1 }, {}, '7/7 audits')
+  // Onboarding progress (onboarding plan, Phase 1): one doc per user per
+  // branch; the unique index is the upsert key the self-service
+  // /api/onboarding/state route writes through.
+  await createIndexSafe(db, 'onboarding_states', { branch: 1, username: 1 }, { unique: true }, 'onboarding_states')
   console.log(`  ✓ Created indexes`)
 
   console.log('\n✅ Seed complete!')

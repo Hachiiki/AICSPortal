@@ -296,6 +296,26 @@ export interface MongoAnnouncementRead {
   at: Date
 }
 
+// Per-user onboarding progress (onboarding plan, Phase 1).
+// One doc per user per branch, keyed {branch, username} (unique index
+// via seed tooling). `values` maps the registry dimension keys for the
+// role the doc was last written under to done/not-done; `version` is
+// the registry version at that write. Reads always resolve against the
+// actor's CURRENT role spec and carry values forward across version
+// bumps (done steps that survive stay done, added dimensions start
+// false, retired dimensions drop out — src/lib/onboarding/registry.ts).
+export interface MongoOnboardingState {
+  _id?: string
+  branch: Branch
+  username: string
+  // The role the doc was last written under; reads use the actor's
+  // current DB role, and a role change re-normalizes on the next write.
+  role: Role
+  version: number
+  values: Record<string, boolean>
+  updatedAt: Date
+}
+
 // Course materials from faculty. One doc per posting (not per
 // student): students see the materials of their own current-term
 // subjects, faculty see what they posted for their load.
