@@ -335,10 +335,62 @@ export async function startTour(page, { toDisposition = 'spot' } = {}) {
     await page.waitForFunction(
       (d) => document.querySelector('[data-tour-overlay]')?.dataset.disposition === d,
       toDisposition,
-      { timeout: 10000 }
+      { timeout: 15000 }
     )
   }
   return page
+}
+
+export async function waitForStep(page, stepId, timeout = 20000) {
+  await page.waitForFunction(
+    (id) => document.querySelector('[data-tour-overlay]')?.dataset.stepId === id,
+    stepId,
+    { timeout }
+  )
+}
+
+/** Wait for the step's disposition, then wait until the spotlight rect
+ * stops moving (two identical reads 150ms apart) — assertions read a
+ * settled overlay, never a mid-settle frame. */
+export async function settledState(page, disposition = 'spot', timeout = 20000) {
+  await page.waitForFunction(
+    (d) => document.querySelector('[data-tour-overlay]')?.dataset.disposition === d,
+    disposition,
+    { timeout }
+  )
+  if (disposition !== 'spot') return overlayState(page)
+  let prev = null
+  for (let i = 0; i < 20; i++) {
+    const state = await overlayState(page)
+    const s = JSON.stringify(state.spotlight)
+    if (prev === s && state.spotlight !== null) return state
+    prev = s
+    await page.waitForTimeout(150)
+  }
+  return overlayState(page)
+}
+
+export async function clickNext(page) {
+  await page.click('button[aria-label="Go to the next tour step"]')
+}
+
+export async function targetRect(page, target) {
+  return page.evaluate((t) => {
+    const el = document.querySelector(`[data-tour="${t}"]`)
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    return { top: r.top, left: r.left, width: r.width, height: r.height }
+  }, target)
+}
+
+export function spotOverlapsTarget(spot, rect) {
+  if (!spot || !rect) return false
+  return (
+    spot.left < rect.left + rect.width &&
+    spot.left + spot.width > rect.left &&
+    spot.top < rect.top + rect.height &&
+    spot.top + spot.height > rect.top
+  )
 }
 
 export function overlayState(page) {

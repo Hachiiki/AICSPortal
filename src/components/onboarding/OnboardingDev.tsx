@@ -103,6 +103,8 @@ export function OnboardingDev() {
   const [lateTarget, setLateTarget] = useState(false)
   const [volatileTarget, setVolatileTarget] = useState(false)
   const lateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const launcherRef = useRef<HTMLButtonElement | null>(null)
+  const wasRunningRef = useRef(false)
   const { route, navigate } = usePortalRoute()
 
   // Latest route through a ref so onNavigate keeps a stable identity: the
@@ -138,6 +140,15 @@ export function OnboardingDev() {
     },
     []
   )
+
+  // The launcher is the tour's own trigger and intentionally unmounts
+  // while the tour runs, so the DialogPanel restore (which captured the
+  // trigger node at open) lands on a detached node when the overlay
+  // unmounts. The host owns the re-focus of its remounted launcher.
+  useEffect(() => {
+    if (wasRunningRef.current && !running) launcherRef.current?.focus()
+    wasRunningRef.current = running
+  }, [running])
 
   const onStepChange = useCallback((step: TourStep) => {
     setLateTarget(false)
@@ -190,6 +201,7 @@ export function OnboardingDev() {
       {visible && !running && (
         <button
           type="button"
+          ref={launcherRef}
           data-tour="dev-tour-launcher"
           onClick={() => setRunning(true)}
           className="fixed bottom-4 right-4 z-30 rounded-full border border-border bg-surface px-4 py-2 text-sm font-semibold text-ink shadow-lg hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"

@@ -282,10 +282,14 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       {/* Scrim. With a spotted target the spotlight element itself casts
           the dim through a huge outer box-shadow (a hole at the ring,
           pointer-transparent everywhere). Without a target, or on the
-          mobile sheet, a plain full-screen scrim dims the page. */}
+          mobile sheet, a plain full-screen scrim dims the page. Both
+          layers are decorative visuals: aria-hidden keeps them out of
+          the accessibility tree (D4 — everything exposed to AT is
+          named; the ring carries no semantics of its own). */}
       {showSpotlight && layout.spot ? (
         <motion.div
           data-tour-spotlight=""
+          aria-hidden="true"
           className="absolute rounded-xl ring-2 ring-blue-500"
           initial={false}
           animate={{
@@ -299,6 +303,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         />
       ) : (
         <motion.div
+          aria-hidden="true"
           className="absolute inset-0 bg-scrim/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
