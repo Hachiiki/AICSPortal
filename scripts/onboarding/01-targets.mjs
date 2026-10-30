@@ -220,8 +220,24 @@ const run = async () => {
     await waitForStep(page, 'dev-2')
     await clickNext(page)
     await waitForStep(page, 'dev-3')
-    const waiting = await settledState(page, 'waiting')
-    step('B3: a late target holds in waiting, no spotlight painted', waiting.disposition === 'waiting' && waiting.spotlight === null, `disposition=${waiting.disposition}`)
+    // The 'waiting' disposition is an ~800ms race window (the late target's
+    // mount timer) and under video recording the rAF-driven waitForFunction
+    // can stall past the whole window and miss it. Instead, observe the
+    // disposition passively at 25ms intervals on the JS clock, installed
+    // BEFORE the step lands, so no timing behavior can be missed.
+    await page.evaluate(() => {
+      window.__b3 = { waitingFrames: 0, spotBeforeMount: 0 }
+      window.__b3iv = setInterval(() => {
+        const ov = document.querySelector('[data-tour-overlay]')
+        if (ov?.dataset.stepId !== 'dev-3') return
+        if (ov.dataset.disposition === 'waiting') window.__b3.waitingFrames++
+        if (ov.dataset.disposition === 'spot' && !document.querySelector('[data-tour="board-late-target"]')) window.__b3.spotBeforeMount++
+      }, 25)
+    })
+    await page.waitForFunction(() => !!document.querySelector('[data-tour="board-late-target"]'), null, { timeout: 20000 })
+    await page.evaluate(() => clearInterval(window.__b3iv))
+    const b3obs = await page.evaluate(() => window.__b3)
+    step('B3: a late target holds in waiting, no spotlight painted', b3obs.waitingFrames > 0 && b3obs.spotBeforeMount === 0, `waitingFrames=${b3obs.waitingFrames}, spotBeforeMount=${b3obs.spotBeforeMount} (passive 25ms observation installed before the step landed)`)
     const wrongFlash = await page.evaluate(async () => {
       // A spotlight may never appear while the target element is absent
       // (a ring painted over nothing). Stop as soon as the target mounts:

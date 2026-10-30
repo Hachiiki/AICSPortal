@@ -117,10 +117,16 @@ const run = async () => {
     const ctx = await gateContext(browser, { viewport: { width: 1280, height: 800 }, reducedMotion: 'reduce' })
     const page = await openPortal(ctx)
     // For an advance every time including wraps: each tour run gives 7
-    // next-advances + 1 finish; restart the tour to accumulate.
+    // next-advances + 1 finish; restart the tour to accumulate. Run 1
+    // gets an EXTRA cycle: its 4 disclosed warm-up discards (first
+    // advance after each tour start + the first 3 advances of the
+    // cross-view cold compile) must not leave fewer than 20 MEASURED
+    // advances in the run. Thresholds and the warm-up protocol are
+    // unchanged; this only guarantees the rubric's per-run minimum.
     const b4 = []
-    let warmRun = run2 === 1 ? 3 : 0 // run 1 primes dev view compiles
-    for (let cycle = 0; cycle < 3; cycle++) {
+    const CYCLES = run2 === 1 ? 4 : 3 // run 1 primes dev view compiles
+    let warmRun = run2 === 1 ? 3 : 0
+    for (let cycle = 0; cycle < CYCLES; cycle++) {
       await startTour(page)
       let warmed = false
       for (let i = 0; i < 7; i++) {
@@ -130,8 +136,8 @@ const run = async () => {
         // mount compile remnants), and (b) in run 1 only, the first 3
         // advances - which include the cross-view step whose cold
         // first traversal compiles a whole new view chunk (observed
-        // 700ms-class spikes vs a ~19ms steady p50). 7 real advances +
-        // finish per cycle still give 21 (>= 20 across the 3 runs).
+        // 700ms-class spikes vs a ~19ms steady p50). Run 1 runs an
+        // extra cycle so measured advances stay >= 20 regardless.
         if (warmed && warmRun <= 0) {
           if (m) b4.push(m.ms)
         }
@@ -151,7 +157,7 @@ const run = async () => {
     }
     const ok = b4.filter((m) => typeof m === 'number')
     reduces.push(...ok)
-    step(`I2 engine run ${run2}: collected ${ok.length} advances (>=20 required across the 3 runs)`, ok.length + (run2 > 1 ? 21 : 0) >= 20, JSON.stringify(stats(ok)))
+    step(`I2 engine run ${run2}: collected ${ok.length} advances (>=20 required per run, measured after disclosed warm-up discards)`, ok.length >= 20, JSON.stringify(stats(ok)))
     await page.close()
     await ctx.close()
   }
