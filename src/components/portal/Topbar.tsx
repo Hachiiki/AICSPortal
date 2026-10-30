@@ -107,6 +107,7 @@ export function Topbar({
             type="button"
             onClick={onOpenMobileNav}
             aria-label="Open navigation menu"
+            data-tour="topbar-mobile-nav"
             className="lg:hidden p-2 -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <Menu className="w-5 h-5" />
@@ -159,6 +160,7 @@ export function Topbar({
               <button
                 type="button"
                 aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
+                data-tour="topbar-notifications"
                 className="relative p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <Bell className="w-5 h-5" aria-hidden />
@@ -219,6 +221,7 @@ export function Topbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+                data-tour="topbar-profile"
                 className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 aria-label="Account menu"
               >

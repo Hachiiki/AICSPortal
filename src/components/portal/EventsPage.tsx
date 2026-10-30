@@ -177,7 +177,7 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
       tasks={tasks}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main data-tour="events-page" className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           {/* Page header */}
           <div>
             <button
