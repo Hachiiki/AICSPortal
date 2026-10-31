@@ -1,0 +1,8 @@
+timestamp: 2026-10-31T01:41:59.495Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+command: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/10-perf.mjs
+node: v24.22.1
+scope: I2 provisional thresholds - (2) step-advance p95 <=100ms from click to settled over >=20 advances x 3 runs, reduced motion (engine work); (3) no >50ms long task during the scripted resize/scroll series (Long Tasks API); (4) no monotonic heap growth across 5 full tour cycles, near-baseline after end (CDP JSHeapUsedSize); plus a motion-enabled settle measurement kept strictly separate
+methodology: engine work = reduced-motion click->settled in-page via performance.now + consecutive-identical-rect rAFs (no CDP latency in the window); visual settle = same with motion enabled and 0.5px two-frame stability (includes the designed tween); the provisional p95 rule applies to engine work only

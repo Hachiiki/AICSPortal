@@ -1,0 +1,15 @@
+{
+ "markers": [
+  "TourOverlay",
+  "data-tour-overlay",
+  "data-tour-card",
+  "data-tour-spotlight",
+  "dev-tour-launcher",
+  "Guided tour completed.",
+  "FabricateOnboardingDev",
+  "onboarding board",
+  "remove-volatile-target"
+ ],
+ "hits": [],
+ "totalClientChunkFiles": 26
+}

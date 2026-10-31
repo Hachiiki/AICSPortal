@@ -1,0 +1,8 @@
+timestamp: 2026-10-30T16:11:42.688Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+invocation: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/06-mobile.mjs
+scope: F1 at 375x667 (sheet pinned, spotlight collapsed, Next/Back operable, mobile nav dialog opens above and Escape closes the dialog not the tour, clean end with focus restore, zero page errors)
+deviations: none
+exit: 0

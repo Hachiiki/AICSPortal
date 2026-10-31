@@ -1,0 +1,8 @@
+timestamp: 2026-10-30T16:18:59.292Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+command: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/11-prod-smoke.mjs
+node: v24.22.1
+scope: A1 production smoke - next build, .next client-chunk scan for onboarding markers (expected bytes: 0, modules: 0), next start on port 4320, portal loads with zero onboarding surfaces in the DOM
+build AUTH_SECRET: aics-phase2-gate-smoke-secret-0x5166-not-for-real-deploys (disclosed; production rejects the dev fallback, so a repo-contained smoke value is used; never a deploy credential)

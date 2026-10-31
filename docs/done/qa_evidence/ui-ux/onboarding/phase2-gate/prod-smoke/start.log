@@ -1,0 +1,34 @@
+▲ Next.js 16.1.3
+- Local:         http://localhost:4320
+- Network:       http://192.168.1.5:4320
+
+✓ Starting...
+✓ Ready in 2.2s
+▲ Next.js 16.1.3
+- Local:         http://localhost:4320
+- Network:       http://192.168.1.5:4320
+
+✓ Starting...
+✓ Ready in 1953ms
+[mongo] connected, env=production db=aics_portal authSecret=configured
+▲ Next.js 16.1.3
+- Local:         http://localhost:4320
+- Network:       http://192.168.1.5:4320
+
+✓ Starting...
+✓ Ready in 1881ms
+[mongo] connected, env=production db=aics_portal authSecret=configured
+▲ Next.js 16.1.3
+- Local:         http://localhost:4320
+- Network:       http://192.168.1.5:4320
+
+✓ Starting...
+✓ Ready in 1414ms
+[mongo] connected, env=production db=aics_portal authSecret=configured
+▲ Next.js 16.1.3
+- Local:         http://localhost:4320
+- Network:       http://192.168.1.5:4320
+
+✓ Starting...
+✓ Ready in 3s
+[mongo] connected, env=production db=aics_portal authSecret=configured

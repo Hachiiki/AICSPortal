@@ -1,0 +1,8 @@
+timestamp: 2026-10-30T15:48:24.037Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+invocation: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/04-sr.mjs
+scope: D3 live-region sentences (start, step change, composed skip, completed, skipped, no duplicate regions), D4 accessible names (dialog name, control names, launcher label, decorative spotlight hidden, accessibility snapshot audit)
+deviations: the scripted pass pins the live region and the name inventory; the human screen-reader pass is the owner review
+exit: 0

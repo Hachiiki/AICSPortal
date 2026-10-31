@@ -1,0 +1,8 @@
+timestamp: 2026-10-30T15:46:31.926Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+invocation: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/02-positioning.mjs
+scope: C1 resize series (1100/1024, height 600), C2 scroll tracking on the events view, C3 mid-step layout shift above the framed target (deterministic injected shift; the seeded events data is prefetched, so no skeleton exists at SPA step time), C4 cross-route pushState navigation + recording, C5 overlay coexistence (dropdown, COE modal, sonner toast)
+deviations: none
+exit: 0

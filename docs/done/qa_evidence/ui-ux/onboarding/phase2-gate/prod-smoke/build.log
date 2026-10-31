@@ -1,0 +1,1650 @@
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 75s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 2.9s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 53s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1844.4ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 45s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 2.1s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 18 errors:
+[next]/internal/font/google/roboto_b5d03dfe.module.css:9:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m  7 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m  8 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5[33m-[39mfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0460[39m[33m-[39m[35m052[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mC80[39m[33m-[39m[35m1[39m[33mC8A[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mB4[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mDE0[39m[33m-[39m[35m2[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mA640[39m[33m-[39m[33mA69F[39m[33m,[39m [33mU[39m[33m+[39m[33mFE2E[39m[33m-[39m[33mFE2F[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 10 |[39m }
+ [90m 11 |[39m [90m/* cyrillic */[39m
+ [90m 12 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:19:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 17 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 18 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn7ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 19 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0400[39m[33m-[39m[35m045[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0490[39m[33m-[39m[35m0491[39m[33m,[39m [33mU[39m[33m+[39m[35m04[39m[33mB0[39m[33m-[39m[35m04[39m[33mB1[39m[33m,[39m [33mU[39m[33m+[39m[35m2116[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 20 |[39m }
+ [90m 21 |[39m [90m/* greek-ext */[39m
+ [90m 22 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:29:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 27 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 28 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 29 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m1[39m[33mF00[39m[33m-[39m[35m1[39m[33mFFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 30 |[39m }
+ [90m 31 |[39m [90m/* greek */[39m
+ [90m 32 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:39:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 37 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 38 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 39 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0370[39m[33m-[39m[35m0377[39m[33m,[39m [33mU[39m[33m+[39m[35m037[39m[33mA[39m[33m-[39m[35m037[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0384[39m[33m-[39m[35m038[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m038[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m038E-03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 40 |[39m }
+ [90m 41 |[39m [90m/* math */[39m
+ [90m 42 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:49:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 47 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 48 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnlufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 49 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0302[39m[33m-[39m[35m0303[39m[33m,[39m [33mU[39m[33m+[39m[35m0305[39m[33m,[39m [33mU[39m[33m+[39m[35m0307[39m[33m-[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0310[39m[33m,[39m [33mU[39m[33m+[39m[35m0312[39m[33m,[39m [33mU[39m[33m+[39m[35m0315[39m[33m,[39m [33mU[39m[33m+[39m[35m031[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0326[39m[33m-[39m[35m0327[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mF[39m[33m-[39m[35m0330[39m[33m,[39m [33mU[39m[33m+[39m[35m0332[39m[33m-[39m[35m0333[39m[33m,[39m [33mU[39m[33m+[39m[35m0338[39m[33m,[39m [33mU[39m[33m+[39m[35m033[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0346[39m[33m,[39m [33mU[39m[33m+[39m[35m034[39m[33mD[39m[33m,[39m [33mU[39m[33m+[39m[35m0391[39m[33m-[39m[35m03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mA9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mB1[39m[33m-[39m[35m03[39m[33mC9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD5[39m[33m-[39m[35m03[39m[33mD6[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF0[39m[33m-[39m[35m03[39m[33mF1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF4[39m[33m-[39m[35m03[39m[33mF5[39m[33m,[39m [33mU[39m[33m+[39m[35m2016[39m[33m-[39m[35m2017[39m[33m,[39m [33mU[39m[33m+[39m[35m2034[39m[33m-[39m[35m2038[39m[33m,[39m [33mU[39m[33m+[39m[35m203[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2040[39m[33m,[39m [33mU[39m[33m+[39m[35m2043[39m[33m,[39m [33mU[39m[33m+[39m[35m2047[39m[33m,[39m [33mU[39m[33m+[39m[35m2050[39m[33m,[39m [33mU[39m[33m+[39m[35m2057[39m[33m,[39m [33mU[39m[33m+[39m[35m205[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2070[39m[33m-[39m[35m2071[39m[33m,[39m [33mU[39m[33m+[39m[35m2074[39m[33m-[39m[35m209[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mD0[39m[33m-[39m[35m20[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m20E1[39m[33m,[39m [33mU[39m[33m+[39m[35m20E5[39m[33m-[39m[35m20[39m[33mEF[39m[33m,[39m [33mU[39m[33m+[39m[35m2100[39m[33m-[39m[35m2112[39m[33m,[39m [33mU[39m[33m+[39m[35m2114[39m[33m-[39m[35m2115[39m[33m,[39m [33mU[39m[33m+[39m[35m2117[39m[33m-[39m[35m2121[39m[33m,[39m [33mU[39m[33m+[39m[35m2123[39m[33m-[39m[35m214[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m21[39m[33mAE[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mB0[39m[33m-[39m[35m21E5[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF1[39m[33m-[39m[35m21[39m[33mF2[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF4[39m[33m-[39m[35m2211[39m[33m,[39m [33mU[39m[33m+[39m[35m2213[39m[33m-[39m[35m2214[39m[33m,[39m [33mU[39m[33m+[39m[35m2216[39m[33m-[39m[35m22[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2308[39m[33m-[39m[35m230[39m[33mB[39m[33m,[39m [33mU[39m[33m+[39m[35m2310[39m[33m,[39m [33mU[39m[33m+[39m[35m2319[39m[33m,[39m [33mU[39m[33m+[39m[35m231[39m[33mC[39m[33m-[39m[35m2321[39m[33m,[39m [33mU[39m[33m+[39m[35m2336[39m[33m-[39m[35m237[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m237[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2395[39m[33m,[39m [33mU[39m[33m+[39m[35m239[39m[33mB[39m[33m-[39m[35m23[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mD0[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mDC[39m[33m-[39m[35m23E1[39m[33m,[39m [33mU[39m[33m+[39m[35m2474[39m[33m-[39m[35m2475[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB3[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mBD[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mC1[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCA[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m266[39m[33mD[39m[33m-[39m[35m266[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m27[39m[33mC0[39m[33m-[39m[35m27[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2900[39m[33m-[39m[35m2[39m[33mAFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB0E[39m[33m-[39m[35m2[39m[33mB11[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB30[39m[33m-[39m[35m2[39m[33mB4C[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mBFE[39m[33m,[39m [33mU[39m[33m+[39m[35m3030[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5B[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD400[39m[33m-[39m[35m1[39m[33mD7FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEE00[39m[33m-[39m[35m1[39m[33mEEFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 50 |[39m }
+ [90m 51 |[39m [90m/* symbols */[39m
+ [90m 52 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:59:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 57 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 58 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnhOfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 59 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0001[39m[33m-[39m[35m000[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m000E-001[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m007[39m[33mF[39m[33m-[39m[35m009[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mDD[39m[33m-[39m[35m20E0[39m[33m,[39m [33mU[39m[33m+[39m[35m20E2[39m[33m-[39m[35m20E4[39m[33m,[39m [33mU[39m[33m+[39m[35m2150[39m[33m-[39m[35m218[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m2199[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m21E6[39m[33m-[39m[35m21[39m[33mF0[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF3[39m[33m,[39m [33mU[39m[33m+[39m[35m2218[39m[33m-[39m[35m2219[39m[33m,[39m [33mU[39m[33m+[39m[35m2299[39m[33m,[39m [33mU[39m[33m+[39m[35m22[39m[33mC4[39m[33m-[39m[35m22[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m2300[39m[33m-[39m[35m243[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2440[39m[33m-[39m[35m244[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m2460[39m[33m-[39m[35m24[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mA0[39m[33m-[39m[35m27[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m2800[39m[33m-[39m[35m28[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2921[39m[33m-[39m[35m2922[39m[33m,[39m [33mU[39m[33m+[39m[35m2981[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mEB[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB00[39m[33m-[39m[35m2[39m[33mBFF[39m[33m,[39m [33mU[39m[33m+[39m[35m4[39m[33mDC0[39m[33m-[39m[35m4[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFF9[39m[33m-[39m[33mFFFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10140[39m[33m-[39m[35m1018[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m10190[39m[33m-[39m[35m1019[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mA0[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mD0[39m[33m-[39m[35m101[39m[33mFD[39m[33m,[39m [33mU[39m[33m+[39m[35m102E0[39m[33m-[39m[35m102[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10E60[39m[33m-[39m[35m10E7[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2C0[39m[33m-[39m[35m1[39m[33mD2D3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2E0[39m[33m-[39m[35m1[39m[33mD37F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF000[39m[33m-[39m[35m1[39m[33mF0FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF100[39m[33m-[39m[35m1[39m[33mF1AE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF1E6[39m[33m-[39m[35m1[39m[33mF1FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF30D[39m[33m-[39m[35m1[39m[33mF30F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF315[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF320[39m[33m-[39m[35m1[39m[33mF32C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF336[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF378[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF37D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF382[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF393[39m[33m-[39m[35m1[39m[33mF39F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3A7[39m[33m-[39m[35m1[39m[33mF3A8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3AC[39m[33m-[39m[35m1[39m[33mF3AF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C4[39m[33m-[39m[35m1[39m[33mF3C6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3CA[39m[33m-[39m[35m1[39m[33mF3CE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3D4[39m[33m-[39m[35m1[39m[33mF3E0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F1[39m[33m-[39m[35m1[39m[33mF3F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F5[39m[33m-[39m[35m1[39m[33mF3F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF408[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF415[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF41F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF426[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF43F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF441[39m[33m-[39m[35m1[39m[33mF442[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF444[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF446[39m[33m-[39m[35m1[39m[33mF449[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF44C[39m[33m-[39m[35m1[39m[33mF44E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF453[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF46A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF47D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4A3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4C8[39m[33m-[39m[35m1[39m[33mF4CB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4D6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4E3[39m[33m-[39m[35m1[39m[33mF4E6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4EA[39m[33m-[39m[35m1[39m[33mF4ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F9[39m[33m-[39m[35m1[39m[33mF4FB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4FD[39m[33m-[39m[35m1[39m[33mF4FE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF503[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF507[39m[33m-[39m[35m1[39m[33mF50B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF50D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF512[39m[33m-[39m[35m1[39m[33mF513[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF53E[39m[33m-[39m[35m1[39m[33mF54A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF54F[39m[33m-[39m[35m1[39m[33mF5FA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF610[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF650[39m[33m-[39m[35m1[39m[33mF67F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF687[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF68D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF691[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF694[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF698[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B9[39m[33m-[39m[35m1[39m[33mF6BA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6BC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6C6[39m[33m-[39m[35m1[39m[33mF6CF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6D3[39m[33m-[39m[35m1[39m[33mF6D7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6E0[39m[33m-[39m[35m1[39m[33mF6EA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F0[39m[33m-[39m[35m1[39m[33mF6F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F7[39m[33m-[39m[35m1[39m[33mF6FC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF700[39m[33m-[39m[35m1[39m[33mF80B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF810[39m[33m-[39m[35m1[39m[33mF847[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF850[39m[33m-[39m[35m1[39m[33mF859[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF860[39m[33m-[39m[35m1[39m[33mF887[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF890[39m[33m-[39m[35m1[39m[33mF8AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8B0[39m[33m-[39m[35m1[39m[33mF8BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8C0[39m[33m-[39m[35m1[39m[33mF8C1[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8D0[39m[33m-[39m[35m1[39m[33mF8D8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF900[39m[33m-[39m[35m1[39m[33mF90B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF93B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF946[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF984[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF996[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF9E9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA00[39m[33m-[39m[35m1[39m[33mFA6F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA70[39m[33m-[39m[35m1[39m[33mFA7C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA80[39m[33m-[39m[35m1[39m[33mFAC6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAC8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFACC[39m[33m-[39m[35m1[39m[33mFADD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFADF[39m[33m-[39m[35m1[39m[33mFAEB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAEF[39m[33m-[39m[35m1[39m[33mFAFA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFB00[39m[33m-[39m[35m1[39m[33mFBFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 60 |[39m }
+ [90m 61 |[39m [90m/* vietnamese */[39m
+ [90m 62 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:69:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 67 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 68 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 69 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0102[39m[33m-[39m[35m0103[39m[33m,[39m [33mU[39m[33m+[39m[35m0110[39m[33m-[39m[35m0111[39m[33m,[39m [33mU[39m[33m+[39m[35m0128[39m[33m-[39m[35m0129[39m[33m,[39m [33mU[39m[33m+[39m[35m0168[39m[33m-[39m[35m0169[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mA0[39m[33m-[39m[35m01[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mAF[39m[33m-[39m[35m01[39m[33mB0[39m[33m,[39m [33mU[39m[33m+[39m[35m0300[39m[33m-[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0303[39m[33m-[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m-[39m[35m0309[39m[33m,[39m [33mU[39m[33m+[39m[35m0323[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEA0[39m[33m-[39m[35m1[39m[33mEF9[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAB[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 70 |[39m }
+ [90m 71 |[39m [90m/* latin-ext */[39m
+ [90m 72 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:79:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 77 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 78 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5OfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 79 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0100[39m[33m-[39m[35m02[39m[33mBA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBD[39m[33m-[39m[35m02[39m[33mC5[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC7[39m[33m-[39m[35m02[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mCE[39m[33m-[39m[35m02[39m[33mD7[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDD[39m[33m-[39m[35m02[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD00[39m[33m-[39m[35m1[39m[33mDBF[39m[33m,[39m [33mU[39m[33m+[39m[35m1E00[39m[33m-[39m[35m1E9[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEF2[39m[33m-[39m[35m1[39m[33mEFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2020[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mA0[39m[33m-[39m[35m20[39m[33mAB[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAD[39m[33m-[39m[35m20[39m[33mC4[39m[33m,[39m [33mU[39m[33m+[39m[35m2113[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mC60[39m[33m-[39m[35m2[39m[33mC7F[39m[33m,[39m [33mU[39m[33m+[39m[33mA720[39m[33m-[39m[33mA7FF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 80 |[39m }
+ [90m 81 |[39m [90m/* latin */[39m
+ [90m 82 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:89:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 87 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 88 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 89 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0000[39m[33m-[39m[35m00[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0131[39m[33m,[39m [33mU[39m[33m+[39m[35m0152[39m[33m-[39m[35m0153[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBB[39m[33m-[39m[35m02[39m[33mBC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m2000[39m[33m-[39m[35m206[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAC[39m[33m,[39m [33mU[39m[33m+[39m[35m2122[39m[33m,[39m [33mU[39m[33m+[39m[35m2191[39m[33m,[39m [33mU[39m[33m+[39m[35m2193[39m[33m,[39m [33mU[39m[33m+[39m[35m2212[39m[33m,[39m [33mU[39m[33m+[39m[35m2215[39m[33m,[39m [33mU[39m[33m+[39m[33mFEFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFFD[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 90 |[39m }
+ [90m 91 |[39m [90m/* cyrillic-ext */[39m
+ [90m 92 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:99:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m  97 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m  98 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5[33m-[39mfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m  99 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0460[39m[33m-[39m[35m052[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mC80[39m[33m-[39m[35m1[39m[33mC8A[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mB4[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mDE0[39m[33m-[39m[35m2[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mA640[39m[33m-[39m[33mA69F[39m[33m,[39m [33mU[39m[33m+[39m[33mFE2E[39m[33m-[39m[33mFE2F[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 100 |[39m }
+ [90m 101 |[39m [90m/* cyrillic */[39m
+ [90m 102 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:109:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 107 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 108 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn7ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 109 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0400[39m[33m-[39m[35m045[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0490[39m[33m-[39m[35m0491[39m[33m,[39m [33mU[39m[33m+[39m[35m04[39m[33mB0[39m[33m-[39m[35m04[39m[33mB1[39m[33m,[39m [33mU[39m[33m+[39m[35m2116[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 110 |[39m }
+ [90m 111 |[39m [90m/* greek-ext */[39m
+ [90m 112 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:119:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 117 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 118 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 119 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m1[39m[33mF00[39m[33m-[39m[35m1[39m[33mFFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 120 |[39m }
+ [90m 121 |[39m [90m/* greek */[39m
+ [90m 122 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:129:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 127 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 128 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 129 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0370[39m[33m-[39m[35m0377[39m[33m,[39m [33mU[39m[33m+[39m[35m037[39m[33mA[39m[33m-[39m[35m037[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0384[39m[33m-[39m[35m038[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m038[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m038E-03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 130 |[39m }
+ [90m 131 |[39m [90m/* math */[39m
+ [90m 132 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:139:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 137 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 138 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnlufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 139 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0302[39m[33m-[39m[35m0303[39m[33m,[39m [33mU[39m[33m+[39m[35m0305[39m[33m,[39m [33mU[39m[33m+[39m[35m0307[39m[33m-[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0310[39m[33m,[39m [33mU[39m[33m+[39m[35m0312[39m[33m,[39m [33mU[39m[33m+[39m[35m0315[39m[33m,[39m [33mU[39m[33m+[39m[35m031[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0326[39m[33m-[39m[35m0327[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mF[39m[33m-[39m[35m0330[39m[33m,[39m [33mU[39m[33m+[39m[35m0332[39m[33m-[39m[35m0333[39m[33m,[39m [33mU[39m[33m+[39m[35m0338[39m[33m,[39m [33mU[39m[33m+[39m[35m033[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0346[39m[33m,[39m [33mU[39m[33m+[39m[35m034[39m[33mD[39m[33m,[39m [33mU[39m[33m+[39m[35m0391[39m[33m-[39m[35m03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mA9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mB1[39m[33m-[39m[35m03[39m[33mC9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD5[39m[33m-[39m[35m03[39m[33mD6[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF0[39m[33m-[39m[35m03[39m[33mF1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF4[39m[33m-[39m[35m03[39m[33mF5[39m[33m,[39m [33mU[39m[33m+[39m[35m2016[39m[33m-[39m[35m2017[39m[33m,[39m [33mU[39m[33m+[39m[35m2034[39m[33m-[39m[35m2038[39m[33m,[39m [33mU[39m[33m+[39m[35m203[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2040[39m[33m,[39m [33mU[39m[33m+[39m[35m2043[39m[33m,[39m [33mU[39m[33m+[39m[35m2047[39m[33m,[39m [33mU[39m[33m+[39m[35m2050[39m[33m,[39m [33mU[39m[33m+[39m[35m2057[39m[33m,[39m [33mU[39m[33m+[39m[35m205[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2070[39m[33m-[39m[35m2071[39m[33m,[39m [33mU[39m[33m+[39m[35m2074[39m[33m-[39m[35m209[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mD0[39m[33m-[39m[35m20[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m20E1[39m[33m,[39m [33mU[39m[33m+[39m[35m20E5[39m[33m-[39m[35m20[39m[33mEF[39m[33m,[39m [33mU[39m[33m+[39m[35m2100[39m[33m-[39m[35m2112[39m[33m,[39m [33mU[39m[33m+[39m[35m2114[39m[33m-[39m[35m2115[39m[33m,[39m [33mU[39m[33m+[39m[35m2117[39m[33m-[39m[35m2121[39m[33m,[39m [33mU[39m[33m+[39m[35m2123[39m[33m-[39m[35m214[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m21[39m[33mAE[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mB0[39m[33m-[39m[35m21E5[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF1[39m[33m-[39m[35m21[39m[33mF2[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF4[39m[33m-[39m[35m2211[39m[33m,[39m [33mU[39m[33m+[39m[35m2213[39m[33m-[39m[35m2214[39m[33m,[39m [33mU[39m[33m+[39m[35m2216[39m[33m-[39m[35m22[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2308[39m[33m-[39m[35m230[39m[33mB[39m[33m,[39m [33mU[39m[33m+[39m[35m2310[39m[33m,[39m [33mU[39m[33m+[39m[35m2319[39m[33m,[39m [33mU[39m[33m+[39m[35m231[39m[33mC[39m[33m-[39m[35m2321[39m[33m,[39m [33mU[39m[33m+[39m[35m2336[39m[33m-[39m[35m237[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m237[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2395[39m[33m,[39m [33mU[39m[33m+[39m[35m239[39m[33mB[39m[33m-[39m[35m23[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mD0[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mDC[39m[33m-[39m[35m23E1[39m[33m,[39m [33mU[39m[33m+[39m[35m2474[39m[33m-[39m[35m2475[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB3[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mBD[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mC1[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCA[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m266[39m[33mD[39m[33m-[39m[35m266[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m27[39m[33mC0[39m[33m-[39m[35m27[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2900[39m[33m-[39m[35m2[39m[33mAFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB0E[39m[33m-[39m[35m2[39m[33mB11[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB30[39m[33m-[39m[35m2[39m[33mB4C[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mBFE[39m[33m,[39m [33mU[39m[33m+[39m[35m3030[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5B[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD400[39m[33m-[39m[35m1[39m[33mD7FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEE00[39m[33m-[39m[35m1[39m[33mEEFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 140 |[39m }
+ [90m 141 |[39m [90m/* symbols */[39m
+ [90m 142 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:149:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 147 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 148 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnhOfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 149 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0001[39m[33m-[39m[35m000[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m000E-001[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m007[39m[33mF[39m[33m-[39m[35m009[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mDD[39m[33m-[39m[35m20E0[39m[33m,[39m [33mU[39m[33m+[39m[35m20E2[39m[33m-[39m[35m20E4[39m[33m,[39m [33mU[39m[33m+[39m[35m2150[39m[33m-[39m[35m218[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m2199[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m21E6[39m[33m-[39m[35m21[39m[33mF0[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF3[39m[33m,[39m [33mU[39m[33m+[39m[35m2218[39m[33m-[39m[35m2219[39m[33m,[39m [33mU[39m[33m+[39m[35m2299[39m[33m,[39m [33mU[39m[33m+[39m[35m22[39m[33mC4[39m[33m-[39m[35m22[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m2300[39m[33m-[39m[35m243[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2440[39m[33m-[39m[35m244[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m2460[39m[33m-[39m[35m24[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mA0[39m[33m-[39m[35m27[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m2800[39m[33m-[39m[35m28[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2921[39m[33m-[39m[35m2922[39m[33m,[39m [33mU[39m[33m+[39m[35m2981[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mEB[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB00[39m[33m-[39m[35m2[39m[33mBFF[39m[33m,[39m [33mU[39m[33m+[39m[35m4[39m[33mDC0[39m[33m-[39m[35m4[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFF9[39m[33m-[39m[33mFFFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10140[39m[33m-[39m[35m1018[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m10190[39m[33m-[39m[35m1019[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mA0[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mD0[39m[33m-[39m[35m101[39m[33mFD[39m[33m,[39m [33mU[39m[33m+[39m[35m102E0[39m[33m-[39m[35m102[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10E60[39m[33m-[39m[35m10E7[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2C0[39m[33m-[39m[35m1[39m[33mD2D3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2E0[39m[33m-[39m[35m1[39m[33mD37F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF000[39m[33m-[39m[35m1[39m[33mF0FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF100[39m[33m-[39m[35m1[39m[33mF1AE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF1E6[39m[33m-[39m[35m1[39m[33mF1FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF30D[39m[33m-[39m[35m1[39m[33mF30F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF315[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF320[39m[33m-[39m[35m1[39m[33mF32C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF336[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF378[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF37D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF382[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF393[39m[33m-[39m[35m1[39m[33mF39F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3A7[39m[33m-[39m[35m1[39m[33mF3A8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3AC[39m[33m-[39m[35m1[39m[33mF3AF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C4[39m[33m-[39m[35m1[39m[33mF3C6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3CA[39m[33m-[39m[35m1[39m[33mF3CE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3D4[39m[33m-[39m[35m1[39m[33mF3E0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F1[39m[33m-[39m[35m1[39m[33mF3F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F5[39m[33m-[39m[35m1[39m[33mF3F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF408[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF415[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF41F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF426[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF43F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF441[39m[33m-[39m[35m1[39m[33mF442[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF444[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF446[39m[33m-[39m[35m1[39m[33mF449[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF44C[39m[33m-[39m[35m1[39m[33mF44E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF453[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF46A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF47D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4A3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4C8[39m[33m-[39m[35m1[39m[33mF4CB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4D6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4E3[39m[33m-[39m[35m1[39m[33mF4E6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4EA[39m[33m-[39m[35m1[39m[33mF4ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F9[39m[33m-[39m[35m1[39m[33mF4FB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4FD[39m[33m-[39m[35m1[39m[33mF4FE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF503[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF507[39m[33m-[39m[35m1[39m[33mF50B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF50D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF512[39m[33m-[39m[35m1[39m[33mF513[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF53E[39m[33m-[39m[35m1[39m[33mF54A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF54F[39m[33m-[39m[35m1[39m[33mF5FA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF610[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF650[39m[33m-[39m[35m1[39m[33mF67F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF687[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF68D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF691[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF694[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF698[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B9[39m[33m-[39m[35m1[39m[33mF6BA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6BC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6C6[39m[33m-[39m[35m1[39m[33mF6CF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6D3[39m[33m-[39m[35m1[39m[33mF6D7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6E0[39m[33m-[39m[35m1[39m[33mF6EA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F0[39m[33m-[39m[35m1[39m[33mF6F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F7[39m[33m-[39m[35m1[39m[33mF6FC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF700[39m[33m-[39m[35m1[39m[33mF80B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF810[39m[33m-[39m[35m1[39m[33mF847[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF850[39m[33m-[39m[35m1[39m[33mF859[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF860[39m[33m-[39m[35m1[39m[33mF887[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF890[39m[33m-[39m[35m1[39m[33mF8AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8B0[39m[33m-[39m[35m1[39m[33mF8BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8C0[39m[33m-[39m[35m1[39m[33mF8C1[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8D0[39m[33m-[39m[35m1[39m[33mF8D8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF900[39m[33m-[39m[35m1[39m[33mF90B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF93B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF946[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF984[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF996[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF9E9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA00[39m[33m-[39m[35m1[39m[33mFA6F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA70[39m[33m-[39m[35m1[39m[33mFA7C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA80[39m[33m-[39m[35m1[39m[33mFAC6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAC8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFACC[39m[33m-[39m[35m1[39m[33mFADD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFADF[39m[33m-[39m[35m1[39m[33mFAEB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAEF[39m[33m-[39m[35m1[39m[33mFAFA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFB00[39m[33m-[39m[35m1[39m[33mFBFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 150 |[39m }
+ [90m 151 |[39m [90m/* vietnamese */[39m
+ [90m 152 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:159:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 157 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 158 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 159 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0102[39m[33m-[39m[35m0103[39m[33m,[39m [33mU[39m[33m+[39m[35m0110[39m[33m-[39m[35m0111[39m[33m,[39m [33mU[39m[33m+[39m[35m0128[39m[33m-[39m[35m0129[39m[33m,[39m [33mU[39m[33m+[39m[35m0168[39m[33m-[39m[35m0169[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mA0[39m[33m-[39m[35m01[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mAF[39m[33m-[39m[35m01[39m[33mB0[39m[33m,[39m [33mU[39m[33m+[39m[35m0300[39m[33m-[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0303[39m[33m-[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m-[39m[35m0309[39m[33m,[39m [33mU[39m[33m+[39m[35m0323[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEA0[39m[33m-[39m[35m1[39m[33mEF9[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAB[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 160 |[39m }
+ [90m 161 |[39m [90m/* latin-ext */[39m
+ [90m 162 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:169:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 167 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 168 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5OfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 169 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0100[39m[33m-[39m[35m02[39m[33mBA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBD[39m[33m-[39m[35m02[39m[33mC5[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC7[39m[33m-[39m[35m02[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mCE[39m[33m-[39m[35m02[39m[33mD7[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDD[39m[33m-[39m[35m02[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD00[39m[33m-[39m[35m1[39m[33mDBF[39m[33m,[39m [33mU[39m[33m+[39m[35m1E00[39m[33m-[39m[35m1E9[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEF2[39m[33m-[39m[35m1[39m[33mEFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2020[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mA0[39m[33m-[39m[35m20[39m[33mAB[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAD[39m[33m-[39m[35m20[39m[33mC4[39m[33m,[39m [33mU[39m[33m+[39m[35m2113[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mC60[39m[33m-[39m[35m2[39m[33mC7F[39m[33m,[39m [33mU[39m[33m+[39m[33mA720[39m[33m-[39m[33mA7FF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 170 |[39m }
+ [90m 171 |[39m [90m/* latin */[39m
+ [90m 172 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:179:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 177 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 178 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 179 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0000[39m[33m-[39m[35m00[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0131[39m[33m,[39m [33mU[39m[33m+[39m[35m0152[39m[33m-[39m[35m0153[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBB[39m[33m-[39m[35m02[39m[33mBC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m2000[39m[33m-[39m[35m206[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAC[39m[33m,[39m [33mU[39m[33m+[39m[35m2122[39m[33m,[39m [33mU[39m[33m+[39m[35m2191[39m[33m,[39m [33mU[39m[33m+[39m[35m2193[39m[33m,[39m [33mU[39m[33m+[39m[35m2212[39m[33m,[39m [33mU[39m[33m+[39m[35m2215[39m[33m,[39m [33mU[39m[33m+[39m[33mFEFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFFD[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 180 |[39m }
+ [90m 181 |[39m [33m@[39mfont[33m-[39mface {
+ [90m 182 |[39m     font[33m-[39mfamily[33m:[39m [32m'Roboto Fallback'[39m[33m;[39m[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:9:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:19:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:29:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:39:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:49:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:59:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:69:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:79:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:89:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:99:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:109:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:119:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:129:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:139:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:149:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:159:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:169:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:179:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 60s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1544.9ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 18 errors:
+[next]/internal/font/google/roboto_b5d03dfe.module.css:9:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m  7 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m  8 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5[33m-[39mfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0460[39m[33m-[39m[35m052[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mC80[39m[33m-[39m[35m1[39m[33mC8A[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mB4[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mDE0[39m[33m-[39m[35m2[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mA640[39m[33m-[39m[33mA69F[39m[33m,[39m [33mU[39m[33m+[39m[33mFE2E[39m[33m-[39m[33mFE2F[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 10 |[39m }
+ [90m 11 |[39m [90m/* cyrillic */[39m
+ [90m 12 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:19:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 17 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 18 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn7ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 19 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0400[39m[33m-[39m[35m045[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0490[39m[33m-[39m[35m0491[39m[33m,[39m [33mU[39m[33m+[39m[35m04[39m[33mB0[39m[33m-[39m[35m04[39m[33mB1[39m[33m,[39m [33mU[39m[33m+[39m[35m2116[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 20 |[39m }
+ [90m 21 |[39m [90m/* greek-ext */[39m
+ [90m 22 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:29:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 27 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 28 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 29 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m1[39m[33mF00[39m[33m-[39m[35m1[39m[33mFFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 30 |[39m }
+ [90m 31 |[39m [90m/* greek */[39m
+ [90m 32 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:39:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 37 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 38 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 39 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0370[39m[33m-[39m[35m0377[39m[33m,[39m [33mU[39m[33m+[39m[35m037[39m[33mA[39m[33m-[39m[35m037[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0384[39m[33m-[39m[35m038[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m038[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m038E-03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 40 |[39m }
+ [90m 41 |[39m [90m/* math */[39m
+ [90m 42 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:49:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 47 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 48 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnlufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 49 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0302[39m[33m-[39m[35m0303[39m[33m,[39m [33mU[39m[33m+[39m[35m0305[39m[33m,[39m [33mU[39m[33m+[39m[35m0307[39m[33m-[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0310[39m[33m,[39m [33mU[39m[33m+[39m[35m0312[39m[33m,[39m [33mU[39m[33m+[39m[35m0315[39m[33m,[39m [33mU[39m[33m+[39m[35m031[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0326[39m[33m-[39m[35m0327[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mF[39m[33m-[39m[35m0330[39m[33m,[39m [33mU[39m[33m+[39m[35m0332[39m[33m-[39m[35m0333[39m[33m,[39m [33mU[39m[33m+[39m[35m0338[39m[33m,[39m [33mU[39m[33m+[39m[35m033[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0346[39m[33m,[39m [33mU[39m[33m+[39m[35m034[39m[33mD[39m[33m,[39m [33mU[39m[33m+[39m[35m0391[39m[33m-[39m[35m03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mA9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mB1[39m[33m-[39m[35m03[39m[33mC9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD5[39m[33m-[39m[35m03[39m[33mD6[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF0[39m[33m-[39m[35m03[39m[33mF1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF4[39m[33m-[39m[35m03[39m[33mF5[39m[33m,[39m [33mU[39m[33m+[39m[35m2016[39m[33m-[39m[35m2017[39m[33m,[39m [33mU[39m[33m+[39m[35m2034[39m[33m-[39m[35m2038[39m[33m,[39m [33mU[39m[33m+[39m[35m203[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2040[39m[33m,[39m [33mU[39m[33m+[39m[35m2043[39m[33m,[39m [33mU[39m[33m+[39m[35m2047[39m[33m,[39m [33mU[39m[33m+[39m[35m2050[39m[33m,[39m [33mU[39m[33m+[39m[35m2057[39m[33m,[39m [33mU[39m[33m+[39m[35m205[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2070[39m[33m-[39m[35m2071[39m[33m,[39m [33mU[39m[33m+[39m[35m2074[39m[33m-[39m[35m209[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mD0[39m[33m-[39m[35m20[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m20E1[39m[33m,[39m [33mU[39m[33m+[39m[35m20E5[39m[33m-[39m[35m20[39m[33mEF[39m[33m,[39m [33mU[39m[33m+[39m[35m2100[39m[33m-[39m[35m2112[39m[33m,[39m [33mU[39m[33m+[39m[35m2114[39m[33m-[39m[35m2115[39m[33m,[39m [33mU[39m[33m+[39m[35m2117[39m[33m-[39m[35m2121[39m[33m,[39m [33mU[39m[33m+[39m[35m2123[39m[33m-[39m[35m214[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m21[39m[33mAE[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mB0[39m[33m-[39m[35m21E5[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF1[39m[33m-[39m[35m21[39m[33mF2[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF4[39m[33m-[39m[35m2211[39m[33m,[39m [33mU[39m[33m+[39m[35m2213[39m[33m-[39m[35m2214[39m[33m,[39m [33mU[39m[33m+[39m[35m2216[39m[33m-[39m[35m22[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2308[39m[33m-[39m[35m230[39m[33mB[39m[33m,[39m [33mU[39m[33m+[39m[35m2310[39m[33m,[39m [33mU[39m[33m+[39m[35m2319[39m[33m,[39m [33mU[39m[33m+[39m[35m231[39m[33mC[39m[33m-[39m[35m2321[39m[33m,[39m [33mU[39m[33m+[39m[35m2336[39m[33m-[39m[35m237[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m237[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2395[39m[33m,[39m [33mU[39m[33m+[39m[35m239[39m[33mB[39m[33m-[39m[35m23[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mD0[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mDC[39m[33m-[39m[35m23E1[39m[33m,[39m [33mU[39m[33m+[39m[35m2474[39m[33m-[39m[35m2475[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB3[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mBD[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mC1[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCA[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m266[39m[33mD[39m[33m-[39m[35m266[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m27[39m[33mC0[39m[33m-[39m[35m27[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2900[39m[33m-[39m[35m2[39m[33mAFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB0E[39m[33m-[39m[35m2[39m[33mB11[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB30[39m[33m-[39m[35m2[39m[33mB4C[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mBFE[39m[33m,[39m [33mU[39m[33m+[39m[35m3030[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5B[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD400[39m[33m-[39m[35m1[39m[33mD7FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEE00[39m[33m-[39m[35m1[39m[33mEEFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 50 |[39m }
+ [90m 51 |[39m [90m/* symbols */[39m
+ [90m 52 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:59:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 57 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 58 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnhOfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 59 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0001[39m[33m-[39m[35m000[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m000E-001[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m007[39m[33mF[39m[33m-[39m[35m009[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mDD[39m[33m-[39m[35m20E0[39m[33m,[39m [33mU[39m[33m+[39m[35m20E2[39m[33m-[39m[35m20E4[39m[33m,[39m [33mU[39m[33m+[39m[35m2150[39m[33m-[39m[35m218[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m2199[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m21E6[39m[33m-[39m[35m21[39m[33mF0[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF3[39m[33m,[39m [33mU[39m[33m+[39m[35m2218[39m[33m-[39m[35m2219[39m[33m,[39m [33mU[39m[33m+[39m[35m2299[39m[33m,[39m [33mU[39m[33m+[39m[35m22[39m[33mC4[39m[33m-[39m[35m22[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m2300[39m[33m-[39m[35m243[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2440[39m[33m-[39m[35m244[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m2460[39m[33m-[39m[35m24[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mA0[39m[33m-[39m[35m27[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m2800[39m[33m-[39m[35m28[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2921[39m[33m-[39m[35m2922[39m[33m,[39m [33mU[39m[33m+[39m[35m2981[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mEB[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB00[39m[33m-[39m[35m2[39m[33mBFF[39m[33m,[39m [33mU[39m[33m+[39m[35m4[39m[33mDC0[39m[33m-[39m[35m4[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFF9[39m[33m-[39m[33mFFFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10140[39m[33m-[39m[35m1018[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m10190[39m[33m-[39m[35m1019[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mA0[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mD0[39m[33m-[39m[35m101[39m[33mFD[39m[33m,[39m [33mU[39m[33m+[39m[35m102E0[39m[33m-[39m[35m102[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10E60[39m[33m-[39m[35m10E7[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2C0[39m[33m-[39m[35m1[39m[33mD2D3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2E0[39m[33m-[39m[35m1[39m[33mD37F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF000[39m[33m-[39m[35m1[39m[33mF0FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF100[39m[33m-[39m[35m1[39m[33mF1AE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF1E6[39m[33m-[39m[35m1[39m[33mF1FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF30D[39m[33m-[39m[35m1[39m[33mF30F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF315[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF320[39m[33m-[39m[35m1[39m[33mF32C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF336[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF378[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF37D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF382[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF393[39m[33m-[39m[35m1[39m[33mF39F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3A7[39m[33m-[39m[35m1[39m[33mF3A8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3AC[39m[33m-[39m[35m1[39m[33mF3AF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C4[39m[33m-[39m[35m1[39m[33mF3C6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3CA[39m[33m-[39m[35m1[39m[33mF3CE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3D4[39m[33m-[39m[35m1[39m[33mF3E0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F1[39m[33m-[39m[35m1[39m[33mF3F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F5[39m[33m-[39m[35m1[39m[33mF3F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF408[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF415[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF41F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF426[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF43F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF441[39m[33m-[39m[35m1[39m[33mF442[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF444[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF446[39m[33m-[39m[35m1[39m[33mF449[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF44C[39m[33m-[39m[35m1[39m[33mF44E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF453[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF46A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF47D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4A3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4C8[39m[33m-[39m[35m1[39m[33mF4CB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4D6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4E3[39m[33m-[39m[35m1[39m[33mF4E6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4EA[39m[33m-[39m[35m1[39m[33mF4ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F9[39m[33m-[39m[35m1[39m[33mF4FB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4FD[39m[33m-[39m[35m1[39m[33mF4FE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF503[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF507[39m[33m-[39m[35m1[39m[33mF50B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF50D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF512[39m[33m-[39m[35m1[39m[33mF513[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF53E[39m[33m-[39m[35m1[39m[33mF54A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF54F[39m[33m-[39m[35m1[39m[33mF5FA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF610[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF650[39m[33m-[39m[35m1[39m[33mF67F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF687[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF68D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF691[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF694[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF698[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B9[39m[33m-[39m[35m1[39m[33mF6BA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6BC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6C6[39m[33m-[39m[35m1[39m[33mF6CF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6D3[39m[33m-[39m[35m1[39m[33mF6D7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6E0[39m[33m-[39m[35m1[39m[33mF6EA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F0[39m[33m-[39m[35m1[39m[33mF6F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F7[39m[33m-[39m[35m1[39m[33mF6FC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF700[39m[33m-[39m[35m1[39m[33mF80B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF810[39m[33m-[39m[35m1[39m[33mF847[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF850[39m[33m-[39m[35m1[39m[33mF859[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF860[39m[33m-[39m[35m1[39m[33mF887[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF890[39m[33m-[39m[35m1[39m[33mF8AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8B0[39m[33m-[39m[35m1[39m[33mF8BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8C0[39m[33m-[39m[35m1[39m[33mF8C1[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8D0[39m[33m-[39m[35m1[39m[33mF8D8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF900[39m[33m-[39m[35m1[39m[33mF90B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF93B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF946[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF984[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF996[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF9E9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA00[39m[33m-[39m[35m1[39m[33mFA6F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA70[39m[33m-[39m[35m1[39m[33mFA7C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA80[39m[33m-[39m[35m1[39m[33mFAC6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAC8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFACC[39m[33m-[39m[35m1[39m[33mFADD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFADF[39m[33m-[39m[35m1[39m[33mFAEB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAEF[39m[33m-[39m[35m1[39m[33mFAFA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFB00[39m[33m-[39m[35m1[39m[33mFBFF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 60 |[39m }
+ [90m 61 |[39m [90m/* vietnamese */[39m
+ [90m 62 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:69:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 67 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 68 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 69 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0102[39m[33m-[39m[35m0103[39m[33m,[39m [33mU[39m[33m+[39m[35m0110[39m[33m-[39m[35m0111[39m[33m,[39m [33mU[39m[33m+[39m[35m0128[39m[33m-[39m[35m0129[39m[33m,[39m [33mU[39m[33m+[39m[35m0168[39m[33m-[39m[35m0169[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mA0[39m[33m-[39m[35m01[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mAF[39m[33m-[39m[35m01[39m[33mB0[39m[33m,[39m [33mU[39m[33m+[39m[35m0300[39m[33m-[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0303[39m[33m-[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m-[39m[35m0309[39m[33m,[39m [33mU[39m[33m+[39m[35m0323[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEA0[39m[33m-[39m[35m1[39m[33mEF9[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAB[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 70 |[39m }
+ [90m 71 |[39m [90m/* latin-ext */[39m
+ [90m 72 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:79:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 77 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 78 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5OfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 79 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0100[39m[33m-[39m[35m02[39m[33mBA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBD[39m[33m-[39m[35m02[39m[33mC5[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC7[39m[33m-[39m[35m02[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mCE[39m[33m-[39m[35m02[39m[33mD7[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDD[39m[33m-[39m[35m02[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD00[39m[33m-[39m[35m1[39m[33mDBF[39m[33m,[39m [33mU[39m[33m+[39m[35m1E00[39m[33m-[39m[35m1E9[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEF2[39m[33m-[39m[35m1[39m[33mEFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2020[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mA0[39m[33m-[39m[35m20[39m[33mAB[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAD[39m[33m-[39m[35m20[39m[33mC4[39m[33m,[39m [33mU[39m[33m+[39m[35m2113[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mC60[39m[33m-[39m[35m2[39m[33mC7F[39m[33m,[39m [33mU[39m[33m+[39m[33mA720[39m[33m-[39m[33mA7FF[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 80 |[39m }
+ [90m 81 |[39m [90m/* latin */[39m
+ [90m 82 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:89:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 87 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 88 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 89 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0000[39m[33m-[39m[35m00[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0131[39m[33m,[39m [33mU[39m[33m+[39m[35m0152[39m[33m-[39m[35m0153[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBB[39m[33m-[39m[35m02[39m[33mBC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m2000[39m[33m-[39m[35m206[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAC[39m[33m,[39m [33mU[39m[33m+[39m[35m2122[39m[33m,[39m [33mU[39m[33m+[39m[35m2191[39m[33m,[39m [33mU[39m[33m+[39m[35m2193[39m[33m,[39m [33mU[39m[33m+[39m[35m2212[39m[33m,[39m [33mU[39m[33m+[39m[35m2215[39m[33m,[39m [33mU[39m[33m+[39m[33mFEFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFFD[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 90 |[39m }
+ [90m 91 |[39m [90m/* cyrillic-ext */[39m
+ [90m 92 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:99:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m  97 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m  98 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5[33m-[39mfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m  99 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0460[39m[33m-[39m[35m052[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mC80[39m[33m-[39m[35m1[39m[33mC8A[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mB4[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mDE0[39m[33m-[39m[35m2[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mA640[39m[33m-[39m[33mA69F[39m[33m,[39m [33mU[39m[33m+[39m[33mFE2E[39m[33m-[39m[33mFE2F[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 100 |[39m }
+ [90m 101 |[39m [90m/* cyrillic */[39m
+ [90m 102 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:109:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 107 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 108 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn7ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 109 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0400[39m[33m-[39m[35m045[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0490[39m[33m-[39m[35m0491[39m[33m,[39m [33mU[39m[33m+[39m[35m04[39m[33mB0[39m[33m-[39m[35m04[39m[33mB1[39m[33m,[39m [33mU[39m[33m+[39m[35m2116[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 110 |[39m }
+ [90m 111 |[39m [90m/* greek-ext */[39m
+ [90m 112 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:119:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 117 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 118 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 119 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m1[39m[33mF00[39m[33m-[39m[35m1[39m[33mFFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 120 |[39m }
+ [90m 121 |[39m [90m/* greek */[39m
+ [90m 122 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:129:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 127 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 128 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 129 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0370[39m[33m-[39m[35m0377[39m[33m,[39m [33mU[39m[33m+[39m[35m037[39m[33mA[39m[33m-[39m[35m037[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m0384[39m[33m-[39m[35m038[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m038[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m038E-03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 130 |[39m }
+ [90m 131 |[39m [90m/* math */[39m
+ [90m 132 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:139:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 137 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 138 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnlufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 139 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0302[39m[33m-[39m[35m0303[39m[33m,[39m [33mU[39m[33m+[39m[35m0305[39m[33m,[39m [33mU[39m[33m+[39m[35m0307[39m[33m-[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0310[39m[33m,[39m [33mU[39m[33m+[39m[35m0312[39m[33m,[39m [33mU[39m[33m+[39m[35m0315[39m[33m,[39m [33mU[39m[33m+[39m[35m031[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0326[39m[33m-[39m[35m0327[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m032[39m[33mF[39m[33m-[39m[35m0330[39m[33m,[39m [33mU[39m[33m+[39m[35m0332[39m[33m-[39m[35m0333[39m[33m,[39m [33mU[39m[33m+[39m[35m0338[39m[33m,[39m [33mU[39m[33m+[39m[35m033[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m0346[39m[33m,[39m [33mU[39m[33m+[39m[35m034[39m[33mD[39m[33m,[39m [33mU[39m[33m+[39m[35m0391[39m[33m-[39m[35m03[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mA3[39m[33m-[39m[35m03[39m[33mA9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mB1[39m[33m-[39m[35m03[39m[33mC9[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mD5[39m[33m-[39m[35m03[39m[33mD6[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF0[39m[33m-[39m[35m03[39m[33mF1[39m[33m,[39m [33mU[39m[33m+[39m[35m03[39m[33mF4[39m[33m-[39m[35m03[39m[33mF5[39m[33m,[39m [33mU[39m[33m+[39m[35m2016[39m[33m-[39m[35m2017[39m[33m,[39m [33mU[39m[33m+[39m[35m2034[39m[33m-[39m[35m2038[39m[33m,[39m [33mU[39m[33m+[39m[35m203[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2040[39m[33m,[39m [33mU[39m[33m+[39m[35m2043[39m[33m,[39m [33mU[39m[33m+[39m[35m2047[39m[33m,[39m [33mU[39m[33m+[39m[35m2050[39m[33m,[39m [33mU[39m[33m+[39m[35m2057[39m[33m,[39m [33mU[39m[33m+[39m[35m205[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2070[39m[33m-[39m[35m2071[39m[33m,[39m [33mU[39m[33m+[39m[35m2074[39m[33m-[39m[35m209[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mD0[39m[33m-[39m[35m20[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m20E1[39m[33m,[39m [33mU[39m[33m+[39m[35m20E5[39m[33m-[39m[35m20[39m[33mEF[39m[33m,[39m [33mU[39m[33m+[39m[35m2100[39m[33m-[39m[35m2112[39m[33m,[39m [33mU[39m[33m+[39m[35m2114[39m[33m-[39m[35m2115[39m[33m,[39m [33mU[39m[33m+[39m[35m2117[39m[33m-[39m[35m2121[39m[33m,[39m [33mU[39m[33m+[39m[35m2123[39m[33m-[39m[35m214[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m21[39m[33mAE[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mB0[39m[33m-[39m[35m21E5[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF1[39m[33m-[39m[35m21[39m[33mF2[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF4[39m[33m-[39m[35m2211[39m[33m,[39m [33mU[39m[33m+[39m[35m2213[39m[33m-[39m[35m2214[39m[33m,[39m [33mU[39m[33m+[39m[35m2216[39m[33m-[39m[35m22[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2308[39m[33m-[39m[35m230[39m[33mB[39m[33m,[39m [33mU[39m[33m+[39m[35m2310[39m[33m,[39m [33mU[39m[33m+[39m[35m2319[39m[33m,[39m [33mU[39m[33m+[39m[35m231[39m[33mC[39m[33m-[39m[35m2321[39m[33m,[39m [33mU[39m[33m+[39m[35m2336[39m[33m-[39m[35m237[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m237[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m2395[39m[33m,[39m [33mU[39m[33m+[39m[35m239[39m[33mB[39m[33m-[39m[35m23[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mD0[39m[33m,[39m [33mU[39m[33m+[39m[35m23[39m[33mDC[39m[33m-[39m[35m23E1[39m[33m,[39m [33mU[39m[33m+[39m[35m2474[39m[33m-[39m[35m2475[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB3[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mB7[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mBD[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mC1[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCA[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m266[39m[33mD[39m[33m-[39m[35m266[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m27[39m[33mC0[39m[33m-[39m[35m27[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2900[39m[33m-[39m[35m2[39m[33mAFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB0E[39m[33m-[39m[35m2[39m[33mB11[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB30[39m[33m-[39m[35m2[39m[33mB4C[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mBFE[39m[33m,[39m [33mU[39m[33m+[39m[35m3030[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5B[39m[33m,[39m [33mU[39m[33m+[39m[33mFF5D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD400[39m[33m-[39m[35m1[39m[33mD7FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEE00[39m[33m-[39m[35m1[39m[33mEEFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 140 |[39m }
+ [90m 141 |[39m [90m/* symbols */[39m
+ [90m 142 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:149:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 147 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 148 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThnhOfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 149 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0001[39m[33m-[39m[35m000[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m000E-001[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m007[39m[33mF[39m[33m-[39m[35m009[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mDD[39m[33m-[39m[35m20E0[39m[33m,[39m [33mU[39m[33m+[39m[35m20E2[39m[33m-[39m[35m20E4[39m[33m,[39m [33mU[39m[33m+[39m[35m2150[39m[33m-[39m[35m218[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2190[39m[33m,[39m [33mU[39m[33m+[39m[35m2192[39m[33m,[39m [33mU[39m[33m+[39m[35m2194[39m[33m-[39m[35m2199[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mAF[39m[33m,[39m [33mU[39m[33m+[39m[35m21E6[39m[33m-[39m[35m21[39m[33mF0[39m[33m,[39m [33mU[39m[33m+[39m[35m21[39m[33mF3[39m[33m,[39m [33mU[39m[33m+[39m[35m2218[39m[33m-[39m[35m2219[39m[33m,[39m [33mU[39m[33m+[39m[35m2299[39m[33m,[39m [33mU[39m[33m+[39m[35m22[39m[33mC4[39m[33m-[39m[35m22[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m2300[39m[33m-[39m[35m243[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m2440[39m[33m-[39m[35m244[39m[33mA[39m[33m,[39m [33mU[39m[33m+[39m[35m2460[39m[33m-[39m[35m24[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m25[39m[33mA0[39m[33m-[39m[35m27[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m2800[39m[33m-[39m[35m28[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2921[39m[33m-[39m[35m2922[39m[33m,[39m [33mU[39m[33m+[39m[35m2981[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mBF[39m[33m,[39m [33mU[39m[33m+[39m[35m29[39m[33mEB[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mB00[39m[33m-[39m[35m2[39m[33mBFF[39m[33m,[39m [33mU[39m[33m+[39m[35m4[39m[33mDC0[39m[33m-[39m[35m4[39m[33mDFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFF9[39m[33m-[39m[33mFFFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10140[39m[33m-[39m[35m1018[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m10190[39m[33m-[39m[35m1019[39m[33mC[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mA0[39m[33m,[39m [33mU[39m[33m+[39m[35m101[39m[33mD0[39m[33m-[39m[35m101[39m[33mFD[39m[33m,[39m [33mU[39m[33m+[39m[35m102E0[39m[33m-[39m[35m102[39m[33mFB[39m[33m,[39m [33mU[39m[33m+[39m[35m10E60[39m[33m-[39m[35m10E7[39m[33mE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2C0[39m[33m-[39m[35m1[39m[33mD2D3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD2E0[39m[33m-[39m[35m1[39m[33mD37F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF000[39m[33m-[39m[35m1[39m[33mF0FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF100[39m[33m-[39m[35m1[39m[33mF1AE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF1E6[39m[33m-[39m[35m1[39m[33mF1FF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF30D[39m[33m-[39m[35m1[39m[33mF30F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF315[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF31E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF320[39m[33m-[39m[35m1[39m[33mF32C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF336[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF378[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF37D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF382[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF393[39m[33m-[39m[35m1[39m[33mF39F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3A7[39m[33m-[39m[35m1[39m[33mF3A8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3AC[39m[33m-[39m[35m1[39m[33mF3AF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3C4[39m[33m-[39m[35m1[39m[33mF3C6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3CA[39m[33m-[39m[35m1[39m[33mF3CE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3D4[39m[33m-[39m[35m1[39m[33mF3E0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F1[39m[33m-[39m[35m1[39m[33mF3F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF3F5[39m[33m-[39m[35m1[39m[33mF3F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF408[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF415[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF41F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF426[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF43F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF441[39m[33m-[39m[35m1[39m[33mF442[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF444[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF446[39m[33m-[39m[35m1[39m[33mF449[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF44C[39m[33m-[39m[35m1[39m[33mF44E[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF453[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF46A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF47D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4A3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B0[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4B9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4BF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4C8[39m[33m-[39m[35m1[39m[33mF4CB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4D6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4DF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4E3[39m[33m-[39m[35m1[39m[33mF4E6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4EA[39m[33m-[39m[35m1[39m[33mF4ED[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4F9[39m[33m-[39m[35m1[39m[33mF4FB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF4FD[39m[33m-[39m[35m1[39m[33mF4FE[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF503[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF507[39m[33m-[39m[35m1[39m[33mF50B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF50D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF512[39m[33m-[39m[35m1[39m[33mF513[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF53E[39m[33m-[39m[35m1[39m[33mF54A[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF54F[39m[33m-[39m[35m1[39m[33mF5FA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF610[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF650[39m[33m-[39m[35m1[39m[33mF67F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF687[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF68D[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF691[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF694[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF698[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B2[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6B9[39m[33m-[39m[35m1[39m[33mF6BA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6BC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6C6[39m[33m-[39m[35m1[39m[33mF6CF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6D3[39m[33m-[39m[35m1[39m[33mF6D7[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6E0[39m[33m-[39m[35m1[39m[33mF6EA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F0[39m[33m-[39m[35m1[39m[33mF6F3[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF6F7[39m[33m-[39m[35m1[39m[33mF6FC[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF700[39m[33m-[39m[35m1[39m[33mF80B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF810[39m[33m-[39m[35m1[39m[33mF847[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF850[39m[33m-[39m[35m1[39m[33mF859[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF860[39m[33m-[39m[35m1[39m[33mF887[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF890[39m[33m-[39m[35m1[39m[33mF8AD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8B0[39m[33m-[39m[35m1[39m[33mF8BB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8C0[39m[33m-[39m[35m1[39m[33mF8C1[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF8D0[39m[33m-[39m[35m1[39m[33mF8D8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF900[39m[33m-[39m[35m1[39m[33mF90B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF93B[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF946[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF984[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF996[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mF9E9[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA00[39m[33m-[39m[35m1[39m[33mFA6F[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA70[39m[33m-[39m[35m1[39m[33mFA7C[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFA80[39m[33m-[39m[35m1[39m[33mFAC6[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAC8[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFACC[39m[33m-[39m[35m1[39m[33mFADD[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFADF[39m[33m-[39m[35m1[39m[33mFAEB[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFAEF[39m[33m-[39m[35m1[39m[33mFAFA[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mFB00[39m[33m-[39m[35m1[39m[33mFBFF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 150 |[39m }
+ [90m 151 |[39m [90m/* vietnamese */[39m
+ [90m 152 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:159:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 157 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 158 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5efFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 159 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0102[39m[33m-[39m[35m0103[39m[33m,[39m [33mU[39m[33m+[39m[35m0110[39m[33m-[39m[35m0111[39m[33m,[39m [33mU[39m[33m+[39m[35m0128[39m[33m-[39m[35m0129[39m[33m,[39m [33mU[39m[33m+[39m[35m0168[39m[33m-[39m[35m0169[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mA0[39m[33m-[39m[35m01[39m[33mA1[39m[33m,[39m [33mU[39m[33m+[39m[35m01[39m[33mAF[39m[33m-[39m[35m01[39m[33mB0[39m[33m,[39m [33mU[39m[33m+[39m[35m0300[39m[33m-[39m[35m0301[39m[33m,[39m [33mU[39m[33m+[39m[35m0303[39m[33m-[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m-[39m[35m0309[39m[33m,[39m [33mU[39m[33m+[39m[35m0323[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEA0[39m[33m-[39m[35m1[39m[33mEF9[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAB[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 160 |[39m }
+ [90m 161 |[39m [90m/* latin-ext */[39m
+ [90m 162 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:169:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 167 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 168 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn5OfFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mfalse[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 169 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0100[39m[33m-[39m[35m02[39m[33mBA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBD[39m[33m-[39m[35m02[39m[33mC5[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC7[39m[33m-[39m[35m02[39m[33mCC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mCE[39m[33m-[39m[35m02[39m[33mD7[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDD[39m[33m-[39m[35m02[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mD00[39m[33m-[39m[35m1[39m[33mDBF[39m[33m,[39m [33mU[39m[33m+[39m[35m1E00[39m[33m-[39m[35m1E9[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m1[39m[33mEF2[39m[33m-[39m[35m1[39m[33mEFF[39m[33m,[39m [33mU[39m[33m+[39m[35m2020[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mA0[39m[33m-[39m[35m20[39m[33mAB[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAD[39m[33m-[39m[35m20[39m[33mC4[39m[33m,[39m [33mU[39m[33m+[39m[35m2113[39m[33m,[39m [33mU[39m[33m+[39m[35m2[39m[33mC60[39m[33m-[39m[35m2[39m[33mC7F[39m[33m,[39m [33mU[39m[33m+[39m[33mA720[39m[33m-[39m[33mA7FF[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 170 |[39m }
+ [90m 171 |[39m [90m/* latin */[39m
+ [90m 172 |[39m [33m@[39mfont[33m-[39mface {[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[next]/internal/font/google/roboto_b5d03dfe.module.css:179:9
+Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'
+[0m [90m 177 |[39m   font[33m-[39mdisplay[33m:[39m swap[33m;[39m
+ [90m 178 |[39m   src[33m:[39m url([33m@[39mvercel[33m/[39mturbopack[33m-[39mnext[33m/[39minternal[33m/[39mfont[33m/[39mgoogle[35m/font?{%22url%22:%22https:/[39m[33m/[39mfonts[33m.[39mgstatic[33m.[39mcom[33m/[39ml[33m/[39mfont[33m%[39m[35m3[39m[33mFkit[39m[33m=[39m[33mKFOBCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbQuYoPsOC[39m[33m-[39mchym82KThn6ufFb_LiQw[33m&[39mskey[33m=[39ma0a0114a1dcab3ac[33m&[39mv[33m=[39mv51[33m%[39m[35m22[39m[33m,[39m[33m%[39m[35m22[39mpreload[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m[33m,[39m[33m%[39m[35m22[39mhas_size_adjust[33m%[39m[35m22[39m[33m:[39m[36mtrue[39m}) format([32m'woff2'[39m)[33m;[39m
+[31m[1m>[22m[39m[90m 179 |[39m   unicode[33m-[39mrange[33m:[39m [33mU[39m[33m+[39m[35m0000[39m[33m-[39m[35m00[39m[33mFF[39m[33m,[39m [33mU[39m[33m+[39m[35m0131[39m[33m,[39m [33mU[39m[33m+[39m[35m0152[39m[33m-[39m[35m0153[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mBB[39m[33m-[39m[35m02[39m[33mBC[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mC6[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDA[39m[33m,[39m [33mU[39m[33m+[39m[35m02[39m[33mDC[39m[33m,[39m [33mU[39m[33m+[39m[35m0304[39m[33m,[39m [33mU[39m[33m+[39m[35m0308[39m[33m,[39m [33mU[39m[33m+[39m[35m0329[39m[33m,[39m [33mU[39m[33m+[39m[35m2000[39m[33m-[39m[35m206[39m[33mF[39m[33m,[39m [33mU[39m[33m+[39m[35m20[39m[33mAC[39m[33m,[39m [33mU[39m[33m+[39m[35m2122[39m[33m,[39m [33mU[39m[33m+[39m[35m2191[39m[33m,[39m [33mU[39m[33m+[39m[35m2193[39m[33m,[39m [33mU[39m[33m+[39m[35m2212[39m[33m,[39m [33mU[39m[33m+[39m[35m2215[39m[33m,[39m [33mU[39m[33m+[39m[33mFEFF[39m[33m,[39m [33mU[39m[33m+[39m[33mFFFD[39m[33m;[39m
+ [90m     |[39m         [31m[1m^[22m[39m
+ [90m 180 |[39m }
+ [90m 181 |[39m [33m@[39mfont[33m-[39mface {
+ [90m 182 |[39m     font[33m-[39mfamily[33m:[39m [32m'Roboto Fallback'[39m[33m;[39m[0m
+
+next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of *AssetContext::process_resolve_result failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+Error while looking up import map: next/font/google queries have exactly one entry
+
+Debug info:
+- Execution of <NextFontGoogleFontFileReplacer as ImportMappingReplacement>::result failed
+- next/font/google queries have exactly one entry
+
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/roboto_b5d03dfe.module.css
+    [next]/internal/font/google/roboto_b5d03dfe.js
+    ./src/app/layout.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:9:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:19:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:29:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:39:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:49:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:59:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:69:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:79:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:89:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:99:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:109:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:119:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:129:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:139:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:149:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:159:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:169:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> ([next]/internal/font/google/roboto_b5d03dfe.module.css:179:9)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 80s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 2.3s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,8 @@
+timestamp: 2026-10-30T15:51:17.231Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+command: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/07-themes.mjs
+node: v24.22.1
+scope: G1 all seven theme choices in their concrete combinations (light, dark, midnight/slate/oled with data-palette, custom on light+dark from a saved editor theme, system resolved both ways with the palette attribute stripped)
+custom theme content: the app's own Custom seed (accent #6EA8FE, background #10151C, surface #E8EAEE) written to aics_custom_theme exactly as the editor saves it

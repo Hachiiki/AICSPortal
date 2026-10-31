@@ -1,0 +1,9 @@
+timestamp: 2026-10-31T01:29:23.287Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 0c9f8819630bffda509df232b001d0d61171f56a
+worktree: C:\Projects\loginAICSPortal
+command: GATE_WT=C:\Projects\loginAICSPortal GATE_MONGO_BIN=C:\Users\Hp\.aics-gate\tools\node_modules\.cache\mongodb-memory-server\mongod-x64-win32-8.2.6.exe GATE_MONGO_DATA=C:\Users\Hp\.aics-gate\mongo-data GATE_MONGO_LOG=C:\Users\Hp\.aics-gate\mongod.log bun scripts/onboarding/13-quality-gates.mjs
+node: v24.22.1
+HEAD: 0c9f8819630bffda509df232b001d0d61171f56a
+baseline: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+scope: J1 lint/typecheck/build green; J2 bun test suites; J3 automation coverage inventory with manifest; A2 boundary diff vs pinned baseline + authz suites

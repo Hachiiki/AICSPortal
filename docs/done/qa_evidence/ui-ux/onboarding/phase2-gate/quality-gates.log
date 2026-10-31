@@ -1,0 +1,2185 @@
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:40:21.109Z
+
+$ npm run lint
+
+ERROR: spawnSync npm ENOENT
+$ npm run typecheck
+
+ERROR: spawnSync npm ENOENT
+$ npm run build
+
+ERROR: spawnSync npm ENOENT
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [12.26ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [1036.00ms]
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:43:26.210Z
+
+$ npm run lint
+
+ERROR: spawnSync npm.cmd EINVAL
+$ npm run typecheck
+
+ERROR: spawnSync npm.cmd EINVAL
+$ npm run build
+
+ERROR: spawnSync npm.cmd EINVAL
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [16.09ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [1.86s]
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:44:28.598Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+ERROR: Command failed: cmd /d /s /c npm run lintquality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:46:46.505Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+ERROR: Command failed: cmd /d /s /c npm run typecheck
+$ npm run build
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:48:52.946Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+.next/dev/types/validator.ts(215,61): error TS1005: '?' expected.
+.next/dev/types/validator.ts(220,1): error TS1128: Declaration or statement expected.
+
+ERROR: Command failed: cmd /d /s /c npm run typecheck
+$ npm run build
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:51:01.837Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+.next/dev/types/validator.ts(215,61): error TS1005: '?' expected.
+.next/dev/types/validator.ts(220,1): error TS1128: Declaration or statement expected.
+
+ERROR: Command failed: cmd /d /s /c npm run typecheck
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 108s
+  Running TypeScript ...
+
+ERROR: Failed to compile.
+
+.next/dev/types/validator.ts:215:1
+Type error: Cannot find name 'ted'.
+
+[0m [90m 213 |[39m   type __Unused [33m=[39m __Check
+ [90m 214 |[39m }
+[31m[1m>[22m[39m[90m 215 |[39m ted[33m<[39m[33mSpecific[39m [36mextends[39m [33mRouteHandlerConfig[39m[33m<[39m[32m"/api/auth/session"[39m[33m>>[39m [33m=[39m [33mSpecific[39m
+ [90m     |[39m [31m[1m^[22m[39m
+ [90m 216 |[39m   [36mconst[39m handler [33m=[39m {} [36mas[39m [36mtypeof[39m [36mimport[39m([32m"../../../src/app/api/auth/session/route.js"[39m)
+ [90m 217 |[39m   type __Check [33m=[39m __IsExpected[33m<[39m[36mtypeof[39m handler[33m>[39m
+ [90m 218 |[39m   [90m// @ts-ignore[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [5.13ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [1213.00ms]
+
+--- boundary diff name-status vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+M	CLAUDE.md
+A	docs/onboarding-phase0-plan.md
+A	docs/onboarding-phase2-gate-plan.md
+M	docs/recovery.md
+A	scripts/onboarding/01-targets.mjs
+A	scripts/onboarding/02-positioning.mjs
+A	scripts/onboarding/03-keyboard.mjs
+A	scripts/onboarding/04-sr.mjs
+A	scripts/onboarding/05-motion.mjs
+A	scripts/onboarding/06-mobile.mjs
+A	scripts/onboarding/07-themes.mjs
+A	scripts/onboarding/08-stability.mjs
+A	scripts/onboarding/09-persistence.mjs
+A	scripts/onboarding/10-perf.mjs
+A	scripts/onboarding/11-prod-smoke.mjs
+A	scripts/onboarding/12-regression.mjs
+A	scripts/onboarding/lib.mjs
+M	scripts/seed-mongodb.ts
+A	src/app/api/onboarding/state/route.ts
+M	src/app/page.tsx
+A	src/components/onboarding/OnboardingDev.tsx
+A	src/components/onboarding/OnboardingDevMount.tsx
+A	src/components/onboarding/TourOverlay.tsx
+M	src/components/portal/EventsPage.tsx
+M	src/components/portal/Sidebar.tsx
+M	src/components/portal/Topbar.tsx
+A	src/lib/authz/onboarding-state-write.test.ts
+M	src/lib/authz/policies.test.ts
+M	src/lib/authz/policies.ts
+M	src/lib/authz/types.test.ts
+M	src/lib/authz/types.ts
+M	src/lib/mongodb/types.ts
+A	src/lib/onboarding/registry.test.ts
+A	src/lib/onboarding/registry.ts
+A	src/lib/onboarding/tour/engine.test.ts
+A	src/lib/onboarding/tour/geometry.ts
+A	src/lib/onboarding/tour/steps.ts
+--- boundary files (pure-additive enforced) ---
+scripts/seed-mongodb.ts
+src/lib/authz/onboarding-state-write.test.ts
+src/lib/authz/policies.test.ts
+src/lib/authz/policies.ts
+src/lib/authz/types.test.ts
+src/lib/authz/types.ts
+src/lib/mongodb/types.ts
+--- authz direct-collection references ---
+(none)
+--- diff stat ---
+CLAUDE.md                                        |   3 +-
+ docs/onboarding-phase0-plan.md                   | 287 +++++++++++
+ docs/onboarding-phase2-gate-plan.md              | 282 +++++++++++
+ docs/recovery.md                                 | 117 ++++-
+ scripts/onboarding/01-targets.mjs                | 315 ++++++++++++
+ scripts/onboarding/02-positioning.mjs            | 298 ++++++++++++
+ scripts/onboarding/03-keyboard.mjs               | 232 +++++++++
+ scripts/onboarding/04-sr.mjs                     | 213 ++++++++
+ scripts/onboarding/05-motion.mjs                 | 164 +++++++
+ scripts/onboarding/06-mobile.mjs                 | 177 +++++++
+ scripts/onboarding/07-themes.mjs                 | 234 +++++++++
+ scripts/onboarding/08-stability.mjs              | 142 ++++++
+ scripts/onboarding/09-persistence.mjs            | 260 ++++++++++
+ scripts/onboarding/10-perf.mjs                   | 272 +++++++++++
+ scripts/onboarding/11-prod-smoke.mjs             | 188 +++++++
+ scripts/onboarding/12-regression.mjs             | 175 +++++++
+ scripts/onboarding/lib.mjs                       | 596 +++++++++++++++++++++++
+ scripts/seed-mongodb.ts                          |   4 +
+ src/app/api/onboarding/state/route.ts            | 146 ++++++
+ src/app/page.tsx                                 |   9 +
+ src/components/onboarding/OnboardingDev.tsx      | 265 ++++++++++
+ src/components/onboarding/OnboardingDevMount.tsx |  33 ++
+ src/components/onboarding/TourOverlay.tsx        | 384 +++++++++++++++
+ src/components/portal/EventsPage.tsx             |   2 +-
+ src/components/portal/Sidebar.tsx                |   1 +
+ src/components/portal/Topbar.tsx                 |   3 +
+ src/lib/authz/onboarding-state-write.test.ts     | 369 ++++++++++++++
+ src/lib/authz/policies.test.ts                   |  24 +
+ src/lib/authz/policies.ts                        |  19 +
+ src/lib/authz/types.test.ts                      |   1 +
+ src/lib/authz/types.ts                           |   5 +
+ src/lib/mongodb/types.ts                         |  20 +
+ src/lib/onboarding/registry.test.ts              | 203 ++++++++
+ src/lib/onboarding/registry.ts                   | 145 ++++++
+ src/lib/onboarding/tour/engine.test.ts           | 133 +++++
+ src/lib/onboarding/tour/geometry.ts              | 132 +++++
+ src/lib/onboarding/tour/steps.ts                 |  64 +++
+ 37 files changed, 5894 insertions(+), 23 deletions(-)
+--- gate scripts ---
+01-targets.mjs
+02-positioning.mjs
+03-keyboard.mjs
+04-sr.mjs
+05-motion.mjs
+06-mobile.mjs
+07-themes.mjs
+08-stability.mjs
+09-persistence.mjs
+10-perf.mjs
+11-prod-smoke.mjs
+12-regression.mjs
+13-quality-gates.mjs
+lib.mjs
+--- manifests ---
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\motion\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\performance\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\persistence\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\prod-smoke\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\quality-gates\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\regression\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\stability\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\targets\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\theme\manifest.txtquality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T14:59:11.270Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+[environment deviation] removed generated artifact dir .next/dev/types before typecheck (stale dev-tooling output regenerated by compiler tooling; not source code)
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T15:04:32.299Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 51s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1681.8ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [1.95ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [642.00ms]
+quality gates run @ HEAD 1c035a7beede0e8bc545eff04b4acc76cf69c4cd baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T15:08:24.714Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 36.0s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1663.1ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [2.40ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [705.00ms]
+
+--- boundary diff name-status vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+M	CLAUDE.md
+A	docs/onboarding-phase0-plan.md
+A	docs/onboarding-phase2-gate-plan.md
+M	docs/recovery.md
+A	scripts/onboarding/01-targets.mjs
+A	scripts/onboarding/02-positioning.mjs
+A	scripts/onboarding/03-keyboard.mjs
+A	scripts/onboarding/04-sr.mjs
+A	scripts/onboarding/05-motion.mjs
+A	scripts/onboarding/06-mobile.mjs
+A	scripts/onboarding/07-themes.mjs
+A	scripts/onboarding/08-stability.mjs
+A	scripts/onboarding/09-persistence.mjs
+A	scripts/onboarding/10-perf.mjs
+A	scripts/onboarding/11-prod-smoke.mjs
+A	scripts/onboarding/12-regression.mjs
+A	scripts/onboarding/lib.mjs
+M	scripts/seed-mongodb.ts
+A	src/app/api/onboarding/state/route.ts
+M	src/app/page.tsx
+A	src/components/onboarding/OnboardingDev.tsx
+A	src/components/onboarding/OnboardingDevMount.tsx
+A	src/components/onboarding/TourOverlay.tsx
+M	src/components/portal/EventsPage.tsx
+M	src/components/portal/Sidebar.tsx
+M	src/components/portal/Topbar.tsx
+A	src/lib/authz/onboarding-state-write.test.ts
+M	src/lib/authz/policies.test.ts
+M	src/lib/authz/policies.ts
+M	src/lib/authz/types.test.ts
+M	src/lib/authz/types.ts
+M	src/lib/mongodb/types.ts
+A	src/lib/onboarding/registry.test.ts
+A	src/lib/onboarding/registry.ts
+A	src/lib/onboarding/tour/engine.test.ts
+A	src/lib/onboarding/tour/geometry.ts
+A	src/lib/onboarding/tour/steps.ts
+--- boundary files (pure-additive enforced) ---
+scripts/seed-mongodb.ts
+src/lib/authz/onboarding-state-write.test.ts
+src/lib/authz/policies.test.ts
+src/lib/authz/policies.ts
+src/lib/authz/types.test.ts
+src/lib/authz/types.ts
+src/lib/mongodb/types.ts
+--- authz direct-collection references ---
+(none)
+--- diff stat ---
+CLAUDE.md                                        |   3 +-
+ docs/onboarding-phase0-plan.md                   | 287 +++++++++++
+ docs/onboarding-phase2-gate-plan.md              | 282 +++++++++++
+ docs/recovery.md                                 | 117 ++++-
+ scripts/onboarding/01-targets.mjs                | 315 ++++++++++++
+ scripts/onboarding/02-positioning.mjs            | 298 ++++++++++++
+ scripts/onboarding/03-keyboard.mjs               | 232 +++++++++
+ scripts/onboarding/04-sr.mjs                     | 213 ++++++++
+ scripts/onboarding/05-motion.mjs                 | 164 +++++++
+ scripts/onboarding/06-mobile.mjs                 | 177 +++++++
+ scripts/onboarding/07-themes.mjs                 | 234 +++++++++
+ scripts/onboarding/08-stability.mjs              | 142 ++++++
+ scripts/onboarding/09-persistence.mjs            | 260 ++++++++++
+ scripts/onboarding/10-perf.mjs                   | 272 +++++++++++
+ scripts/onboarding/11-prod-smoke.mjs             | 188 +++++++
+ scripts/onboarding/12-regression.mjs             | 175 +++++++
+ scripts/onboarding/lib.mjs                       | 596 +++++++++++++++++++++++
+ scripts/seed-mongodb.ts                          |   4 +
+ src/app/api/onboarding/state/route.ts            | 146 ++++++
+ src/app/page.tsx                                 |   9 +
+ src/components/onboarding/OnboardingDev.tsx      | 265 ++++++++++
+ src/components/onboarding/OnboardingDevMount.tsx |  33 ++
+ src/components/onboarding/TourOverlay.tsx        | 384 +++++++++++++++
+ src/components/portal/EventsPage.tsx             |   2 +-
+ src/components/portal/Sidebar.tsx                |   1 +
+ src/components/portal/Topbar.tsx                 |   3 +
+ src/lib/authz/onboarding-state-write.test.ts     | 369 ++++++++++++++
+ src/lib/authz/policies.test.ts                   |  24 +
+ src/lib/authz/policies.ts                        |  19 +
+ src/lib/authz/types.test.ts                      |   1 +
+ src/lib/authz/types.ts                           |   5 +
+ src/lib/mongodb/types.ts                         |  20 +
+ src/lib/onboarding/registry.test.ts              | 203 ++++++++
+ src/lib/onboarding/registry.ts                   | 145 ++++++
+ src/lib/onboarding/tour/engine.test.ts           | 133 +++++
+ src/lib/onboarding/tour/geometry.ts              | 132 +++++
+ src/lib/onboarding/tour/steps.ts                 |  64 +++
+ 37 files changed, 5894 insertions(+), 23 deletions(-)
+--- gate scripts ---
+01-targets.mjs
+02-positioning.mjs
+03-keyboard.mjs
+04-sr.mjs
+05-motion.mjs
+06-mobile.mjs
+07-themes.mjs
+08-stability.mjs
+09-persistence.mjs
+10-perf.mjs
+11-prod-smoke.mjs
+12-regression.mjs
+13-quality-gates.mjs
+lib.mjs
+--- manifests ---
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\motion\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\performance\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\persistence\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\prod-smoke\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\quality-gates\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\regression\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\stability\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\targets\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\theme\manifest.txt
+--- S2 dependency comparison vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+runtime.now: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+runtime.base: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+dev.now: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+dev.base: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+quality gates run @ HEAD be6b73c67df04bc2252b4cd18c37ca936f269fbe baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T15:28:46.465Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+[environment deviation] removed generated artifact dir .next/dev/types before typecheck (stale dev-tooling output regenerated by compiler tooling; not source code)
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 34.4s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1621.4ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [0.86ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [504.00ms]
+
+--- boundary diff name-status vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+M	CLAUDE.md
+A	docs/onboarding-phase0-plan.md
+A	docs/onboarding-phase2-gate-plan.md
+M	docs/recovery.md
+A	scripts/onboarding/01-targets.mjs
+A	scripts/onboarding/02-positioning.mjs
+A	scripts/onboarding/03-keyboard.mjs
+A	scripts/onboarding/04-sr.mjs
+A	scripts/onboarding/05-motion.mjs
+A	scripts/onboarding/06-mobile.mjs
+A	scripts/onboarding/07-themes.mjs
+A	scripts/onboarding/08-stability.mjs
+A	scripts/onboarding/09-persistence.mjs
+A	scripts/onboarding/10-perf.mjs
+A	scripts/onboarding/11-prod-smoke.mjs
+A	scripts/onboarding/12-regression.mjs
+A	scripts/onboarding/13-quality-gates.mjs
+A	scripts/onboarding/lib.mjs
+M	scripts/seed-mongodb.ts
+A	src/app/api/onboarding/state/route.ts
+M	src/app/page.tsx
+A	src/components/onboarding/OnboardingDev.tsx
+A	src/components/onboarding/OnboardingDevMount.tsx
+A	src/components/onboarding/TourOverlay.tsx
+M	src/components/portal/EventsPage.tsx
+M	src/components/portal/Sidebar.tsx
+M	src/components/portal/Topbar.tsx
+A	src/lib/authz/onboarding-state-write.test.ts
+M	src/lib/authz/policies.test.ts
+M	src/lib/authz/policies.ts
+M	src/lib/authz/types.test.ts
+M	src/lib/authz/types.ts
+M	src/lib/mongodb/types.ts
+A	src/lib/onboarding/registry.test.ts
+A	src/lib/onboarding/registry.ts
+A	src/lib/onboarding/tour/engine.test.ts
+A	src/lib/onboarding/tour/geometry.ts
+A	src/lib/onboarding/tour/steps.ts
+--- boundary files (pure-additive enforced) ---
+scripts/seed-mongodb.ts
+src/lib/authz/onboarding-state-write.test.ts
+src/lib/authz/policies.test.ts
+src/lib/authz/policies.ts
+src/lib/authz/types.test.ts
+src/lib/authz/types.ts
+src/lib/mongodb/types.ts
+--- authz direct-collection references ---
+(none)
+--- diff stat ---
+CLAUDE.md                                        |   3 +-
+ docs/onboarding-phase0-plan.md                   | 287 +++++++++++
+ docs/onboarding-phase2-gate-plan.md              | 282 +++++++++++
+ docs/recovery.md                                 | 117 ++++-
+ scripts/onboarding/01-targets.mjs                | 315 ++++++++++++
+ scripts/onboarding/02-positioning.mjs            | 298 ++++++++++++
+ scripts/onboarding/03-keyboard.mjs               | 232 +++++++++
+ scripts/onboarding/04-sr.mjs                     | 213 ++++++++
+ scripts/onboarding/05-motion.mjs                 | 164 +++++++
+ scripts/onboarding/06-mobile.mjs                 | 177 +++++++
+ scripts/onboarding/07-themes.mjs                 | 234 +++++++++
+ scripts/onboarding/08-stability.mjs              | 142 ++++++
+ scripts/onboarding/09-persistence.mjs            | 260 ++++++++++
+ scripts/onboarding/10-perf.mjs                   | 272 +++++++++++
+ scripts/onboarding/11-prod-smoke.mjs             | 188 +++++++
+ scripts/onboarding/12-regression.mjs             | 175 +++++++
+ scripts/onboarding/13-quality-gates.mjs          | 319 ++++++++++++
+ scripts/onboarding/lib.mjs                       | 596 +++++++++++++++++++++++
+ scripts/seed-mongodb.ts                          |   4 +
+ src/app/api/onboarding/state/route.ts            | 146 ++++++
+ src/app/page.tsx                                 |   9 +
+ src/components/onboarding/OnboardingDev.tsx      | 265 ++++++++++
+ src/components/onboarding/OnboardingDevMount.tsx |  33 ++
+ src/components/onboarding/TourOverlay.tsx        | 384 +++++++++++++++
+ src/components/portal/EventsPage.tsx             |   2 +-
+ src/components/portal/Sidebar.tsx                |   1 +
+ src/components/portal/Topbar.tsx                 |   3 +
+ src/lib/authz/onboarding-state-write.test.ts     | 369 ++++++++++++++
+ src/lib/authz/policies.test.ts                   |  24 +
+ src/lib/authz/policies.ts                        |  19 +
+ src/lib/authz/types.test.ts                      |   1 +
+ src/lib/authz/types.ts                           |   5 +
+ src/lib/mongodb/types.ts                         |  20 +
+ src/lib/onboarding/registry.test.ts              | 203 ++++++++
+ src/lib/onboarding/registry.ts                   | 145 ++++++
+ src/lib/onboarding/tour/engine.test.ts           | 133 +++++
+ src/lib/onboarding/tour/geometry.ts              | 132 +++++
+ src/lib/onboarding/tour/steps.ts                 |  64 +++
+ 38 files changed, 6213 insertions(+), 23 deletions(-)
+--- gate scripts ---
+01-targets.mjs
+02-positioning.mjs
+03-keyboard.mjs
+04-sr.mjs
+05-motion.mjs
+06-mobile.mjs
+07-themes.mjs
+08-stability.mjs
+09-persistence.mjs
+10-perf.mjs
+11-prod-smoke.mjs
+12-regression.mjs
+13-quality-gates.mjs
+lib.mjs
+--- manifests ---
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\keyboard\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\mobile\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\motion\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\performance\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\persistence\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\positioning\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\prod-smoke\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\quality-gates\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\regression\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\sr\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\stability\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\targets\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\theme\manifest.txt
+--- S2 dependency comparison vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+runtime.now: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+runtime.base: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+dev.now: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+dev.base: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+quality gates run @ HEAD 0c9f8819630bffda509df232b001d0d61171f56a baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-30T16:01:15.467Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+[environment deviation] removed generated artifact dir .next/dev/types before typecheck (stale dev-tooling output regenerated by compiler tooling; not source code)
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 55s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1699.8ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [0.64ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [541.00ms]
+
+--- boundary diff name-status vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+M	CLAUDE.md
+A	docs/onboarding-phase0-plan.md
+A	docs/onboarding-phase2-gate-plan.md
+M	docs/recovery.md
+A	scripts/onboarding/01-targets.mjs
+A	scripts/onboarding/02-positioning.mjs
+A	scripts/onboarding/03-keyboard.mjs
+A	scripts/onboarding/04-sr.mjs
+A	scripts/onboarding/05-motion.mjs
+A	scripts/onboarding/06-mobile.mjs
+A	scripts/onboarding/07-themes.mjs
+A	scripts/onboarding/08-stability.mjs
+A	scripts/onboarding/09-persistence.mjs
+A	scripts/onboarding/10-perf.mjs
+A	scripts/onboarding/11-prod-smoke.mjs
+A	scripts/onboarding/12-regression.mjs
+A	scripts/onboarding/13-quality-gates.mjs
+A	scripts/onboarding/lib.mjs
+M	scripts/seed-mongodb.ts
+A	src/app/api/onboarding/state/route.ts
+M	src/app/page.tsx
+A	src/components/onboarding/OnboardingDev.tsx
+A	src/components/onboarding/OnboardingDevMount.tsx
+A	src/components/onboarding/TourOverlay.tsx
+M	src/components/portal/EventsPage.tsx
+M	src/components/portal/Sidebar.tsx
+M	src/components/portal/Topbar.tsx
+A	src/lib/authz/onboarding-state-write.test.ts
+M	src/lib/authz/policies.test.ts
+M	src/lib/authz/policies.ts
+M	src/lib/authz/types.test.ts
+M	src/lib/authz/types.ts
+M	src/lib/mongodb/types.ts
+A	src/lib/onboarding/registry.test.ts
+A	src/lib/onboarding/registry.ts
+A	src/lib/onboarding/tour/engine.test.ts
+A	src/lib/onboarding/tour/geometry.ts
+A	src/lib/onboarding/tour/steps.ts
+--- boundary files (pure-additive enforced) ---
+scripts/seed-mongodb.ts
+src/lib/authz/onboarding-state-write.test.ts
+src/lib/authz/policies.test.ts
+src/lib/authz/policies.ts
+src/lib/authz/types.test.ts
+src/lib/authz/types.ts
+src/lib/mongodb/types.ts
+--- authz direct-collection references ---
+(none)
+--- diff stat ---
+CLAUDE.md                                        |   3 +-
+ docs/onboarding-phase0-plan.md                   | 287 +++++++++++
+ docs/onboarding-phase2-gate-plan.md              | 282 +++++++++++
+ docs/recovery.md                                 | 117 ++++-
+ scripts/onboarding/01-targets.mjs                | 331 +++++++++++++
+ scripts/onboarding/02-positioning.mjs            | 298 ++++++++++++
+ scripts/onboarding/03-keyboard.mjs               | 232 +++++++++
+ scripts/onboarding/04-sr.mjs                     | 213 ++++++++
+ scripts/onboarding/05-motion.mjs                 | 164 +++++++
+ scripts/onboarding/06-mobile.mjs                 | 177 +++++++
+ scripts/onboarding/07-themes.mjs                 | 234 +++++++++
+ scripts/onboarding/08-stability.mjs              | 142 ++++++
+ scripts/onboarding/09-persistence.mjs            | 260 ++++++++++
+ scripts/onboarding/10-perf.mjs                   | 278 +++++++++++
+ scripts/onboarding/11-prod-smoke.mjs             | 188 +++++++
+ scripts/onboarding/12-regression.mjs             | 175 +++++++
+ scripts/onboarding/13-quality-gates.mjs          | 319 ++++++++++++
+ scripts/onboarding/lib.mjs                       | 596 +++++++++++++++++++++++
+ scripts/seed-mongodb.ts                          |   4 +
+ src/app/api/onboarding/state/route.ts            | 146 ++++++
+ src/app/page.tsx                                 |   9 +
+ src/components/onboarding/OnboardingDev.tsx      | 265 ++++++++++
+ src/components/onboarding/OnboardingDevMount.tsx |  33 ++
+ src/components/onboarding/TourOverlay.tsx        | 384 +++++++++++++++
+ src/components/portal/EventsPage.tsx             |   2 +-
+ src/components/portal/Sidebar.tsx                |   1 +
+ src/components/portal/Topbar.tsx                 |   3 +
+ src/lib/authz/onboarding-state-write.test.ts     | 369 ++++++++++++++
+ src/lib/authz/policies.test.ts                   |  24 +
+ src/lib/authz/policies.ts                        |  19 +
+ src/lib/authz/types.test.ts                      |   1 +
+ src/lib/authz/types.ts                           |   5 +
+ src/lib/mongodb/types.ts                         |  20 +
+ src/lib/onboarding/registry.test.ts              | 203 ++++++++
+ src/lib/onboarding/registry.ts                   | 145 ++++++
+ src/lib/onboarding/tour/engine.test.ts           | 133 +++++
+ src/lib/onboarding/tour/geometry.ts              | 132 +++++
+ src/lib/onboarding/tour/steps.ts                 |  64 +++
+ 38 files changed, 6235 insertions(+), 23 deletions(-)
+--- gate scripts ---
+01-targets.mjs
+02-positioning.mjs
+03-keyboard.mjs
+04-sr.mjs
+05-motion.mjs
+06-mobile.mjs
+07-themes.mjs
+08-stability.mjs
+09-persistence.mjs
+10-perf.mjs
+11-prod-smoke.mjs
+12-regression.mjs
+13-quality-gates.mjs
+lib.mjs
+--- manifests ---
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\keyboard\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\mobile\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\motion\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\performance\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\persistence\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\positioning\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\prod-smoke\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\quality-gates\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\regression\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\sr\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\stability\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\targets\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\theme\manifest.txt
+--- S2 dependency comparison vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+runtime.now: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+runtime.base: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+dev.now: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+dev.base: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+quality gates run @ HEAD 0c9f8819630bffda509df232b001d0d61171f56a baseline 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f 2026-10-31T01:29:23.197Z
+
+$ npm run lint
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx
+  317:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Projects\loginAICSPortal\src\components\portal\GlobalSearch.tsx:317:5
+  315 |   // Keep the active index in range as the result set changes.
+  316 |   useEffect(() => {
+> 317 |     setActiveIndex(0)
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  318 |   }, [query])
+  319 |
+  320 |   // Close on outside pointer interaction  react-hooks/set-state-in-effect
+
+✖ 3 problems (0 errors, 3 warnings)
+
+[environment deviation] removed generated artifact dir .next/dev/types before typecheck (stale dev-tooling output regenerated by compiler tooling; not source code)
+
+$ npm run typecheck
+
+> nextjs_tailwind_shadcn_ts@0.2.1 typecheck
+> tsc --noEmit
+
+
+$ npm run build
+
+> nextjs_tailwind_shadcn_ts@0.2.1 build
+> next build
+
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 89s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43) 
+  Generating static pages using 3 workers (21/43) 
+  Generating static pages using 3 workers (32/43) 
+✓ Generating static pages using 3 workers (43/43) in 1529.3ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+$ bun test
+bun test v1.3.14 (0d9b296a)
+
+ERROR: 
+src\lib\authz\onboarding-state-write.test.ts:
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:92:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:129:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:217:36)
+
+Onboarding state save failed: 79 |       filter: Record<string, unknown>,
+80 |       update: Record<string, unknown>,
+81 |       options: Record<string, unknown>
+82 |     ) {
+83 |       state.updateOneCalls.push({ filter, update, options })
+84 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:84:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:129:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:331:36)
+
+Onboarding state read failed: 70 | 
+71 | function fakeOnboardingStates() {
+72 |   return {
+73 |     async findOne(query: Record<string, unknown>) {
+74 |       state.findOneQueries.push(query)
+75 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:75:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:66:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:118:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:134:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:342:36)
+
+
+src\lib\authz\permissions.test.ts:
+29 |     expect(PERMISSIONS.viewReleaseQueue).toBe('grade.releaseQueue.read')
+30 |     expect(PERMISSIONS.takeAttendance).toBe('attendance.update')
+31 |   })
+32 | 
+33 |   it('import-lint: the module source has no imports and no server references', () => {
+34 |     const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+                     ^
+error: ENOENT: no such file or directory, open '/C:/Projects/loginAICSPortal/src/lib/authz/permissions.ts'
+      at <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\permissions.test.ts:34:17)
+(fail) permissions mirror > import-lint: the module source has no imports and no server references [0.72ms]
+
+ 156 pass
+ 1 fail
+ 777 expect() calls
+Ran 157 tests across 11 files. [815.00ms]
+
+--- boundary diff name-status vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+M	CLAUDE.md
+A	docs/onboarding-phase0-plan.md
+A	docs/onboarding-phase2-gate-plan.md
+M	docs/recovery.md
+A	scripts/onboarding/01-targets.mjs
+A	scripts/onboarding/02-positioning.mjs
+A	scripts/onboarding/03-keyboard.mjs
+A	scripts/onboarding/04-sr.mjs
+A	scripts/onboarding/05-motion.mjs
+A	scripts/onboarding/06-mobile.mjs
+A	scripts/onboarding/07-themes.mjs
+A	scripts/onboarding/08-stability.mjs
+A	scripts/onboarding/09-persistence.mjs
+A	scripts/onboarding/10-perf.mjs
+A	scripts/onboarding/11-prod-smoke.mjs
+A	scripts/onboarding/12-regression.mjs
+A	scripts/onboarding/13-quality-gates.mjs
+A	scripts/onboarding/lib.mjs
+M	scripts/seed-mongodb.ts
+A	src/app/api/onboarding/state/route.ts
+M	src/app/page.tsx
+A	src/components/onboarding/OnboardingDev.tsx
+A	src/components/onboarding/OnboardingDevMount.tsx
+A	src/components/onboarding/TourOverlay.tsx
+M	src/components/portal/EventsPage.tsx
+M	src/components/portal/Sidebar.tsx
+M	src/components/portal/Topbar.tsx
+A	src/lib/authz/onboarding-state-write.test.ts
+M	src/lib/authz/policies.test.ts
+M	src/lib/authz/policies.ts
+M	src/lib/authz/types.test.ts
+M	src/lib/authz/types.ts
+M	src/lib/mongodb/types.ts
+A	src/lib/onboarding/registry.test.ts
+A	src/lib/onboarding/registry.ts
+A	src/lib/onboarding/tour/engine.test.ts
+A	src/lib/onboarding/tour/geometry.ts
+A	src/lib/onboarding/tour/steps.ts
+--- boundary files (pure-additive enforced) ---
+scripts/seed-mongodb.ts
+src/lib/authz/onboarding-state-write.test.ts
+src/lib/authz/policies.test.ts
+src/lib/authz/policies.ts
+src/lib/authz/types.test.ts
+src/lib/authz/types.ts
+src/lib/mongodb/types.ts
+--- authz direct-collection references ---
+(none)
+--- diff stat ---
+CLAUDE.md                                        |   3 +-
+ docs/onboarding-phase0-plan.md                   | 287 +++++++++++
+ docs/onboarding-phase2-gate-plan.md              | 282 +++++++++++
+ docs/recovery.md                                 | 117 ++++-
+ scripts/onboarding/01-targets.mjs                | 331 +++++++++++++
+ scripts/onboarding/02-positioning.mjs            | 298 ++++++++++++
+ scripts/onboarding/03-keyboard.mjs               | 232 +++++++++
+ scripts/onboarding/04-sr.mjs                     | 213 ++++++++
+ scripts/onboarding/05-motion.mjs                 | 164 +++++++
+ scripts/onboarding/06-mobile.mjs                 | 177 +++++++
+ scripts/onboarding/07-themes.mjs                 | 234 +++++++++
+ scripts/onboarding/08-stability.mjs              | 142 ++++++
+ scripts/onboarding/09-persistence.mjs            | 260 ++++++++++
+ scripts/onboarding/10-perf.mjs                   | 278 +++++++++++
+ scripts/onboarding/11-prod-smoke.mjs             | 188 +++++++
+ scripts/onboarding/12-regression.mjs             | 175 +++++++
+ scripts/onboarding/13-quality-gates.mjs          | 319 ++++++++++++
+ scripts/onboarding/lib.mjs                       | 596 +++++++++++++++++++++++
+ scripts/seed-mongodb.ts                          |   4 +
+ src/app/api/onboarding/state/route.ts            | 146 ++++++
+ src/app/page.tsx                                 |   9 +
+ src/components/onboarding/OnboardingDev.tsx      | 265 ++++++++++
+ src/components/onboarding/OnboardingDevMount.tsx |  33 ++
+ src/components/onboarding/TourOverlay.tsx        | 384 +++++++++++++++
+ src/components/portal/EventsPage.tsx             |   2 +-
+ src/components/portal/Sidebar.tsx                |   1 +
+ src/components/portal/Topbar.tsx                 |   3 +
+ src/lib/authz/onboarding-state-write.test.ts     | 369 ++++++++++++++
+ src/lib/authz/policies.test.ts                   |  24 +
+ src/lib/authz/policies.ts                        |  19 +
+ src/lib/authz/types.test.ts                      |   1 +
+ src/lib/authz/types.ts                           |   5 +
+ src/lib/mongodb/types.ts                         |  20 +
+ src/lib/onboarding/registry.test.ts              | 203 ++++++++
+ src/lib/onboarding/registry.ts                   | 145 ++++++
+ src/lib/onboarding/tour/engine.test.ts           | 133 +++++
+ src/lib/onboarding/tour/geometry.ts              | 132 +++++
+ src/lib/onboarding/tour/steps.ts                 |  64 +++
+ 38 files changed, 6235 insertions(+), 23 deletions(-)
+--- gate scripts ---
+01-targets.mjs
+02-positioning.mjs
+03-keyboard.mjs
+04-sr.mjs
+05-motion.mjs
+06-mobile.mjs
+07-themes.mjs
+08-stability.mjs
+09-persistence.mjs
+10-perf.mjs
+11-prod-smoke.mjs
+12-regression.mjs
+13-quality-gates.mjs
+lib.mjs
+--- manifests ---
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\keyboard\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\mobile\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\motion\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\performance\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\persistence\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\positioning\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\prod-smoke\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\quality-gates\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\regression\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\sr\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\stability\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\targets\manifest.txt
+C:\Projects\loginAICSPortal\docs\done\qa_evidence\ui-ux\onboarding\phase2-gate\theme\manifest.txt
+--- S2 dependency comparison vs 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f ---
+runtime.now: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+runtime.base: @radix-ui/react-dialog,@radix-ui/react-dropdown-menu,@radix-ui/react-slot,@radix-ui/react-toast,@vercel/analytics,@vercel/speed-insights,class-variance-authority,clsx,framer-motion,jose,jspdf,jspdf-autotable,lucide-react,mongodb,next,next-themes,obscenity,react,react-dom,sonner,tailwind-merge,zod
+dev.now: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
+dev.base: @tailwindcss/postcss,@types/react,@types/react-dom,bun-types,dotenv,eslint,eslint-config-next,playwright,tailwindcss,tw-animate-css,typescript
