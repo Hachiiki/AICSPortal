@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from 'bun:test'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { PERMISSIONS, type PermissionId } from './permissions'
 
 const ids: PermissionId[] = Object.values(PERMISSIONS)
@@ -31,7 +32,7 @@ describe('permissions mirror', () => {
   })
 
   it('import-lint: the module source has no imports and no server references', () => {
-    const src = readFileSync(new URL('./permissions.ts', import.meta.url).pathname, 'utf8')
+    const src = readFileSync(fileURLToPath(new URL('./permissions.ts', import.meta.url)), 'utf8')
     // No import statements at all (pure constants module).
     expect(src).not.toMatch(/^import\s/m)
     expect(src).not.toMatch(/^export\s+.*from\s/m)
