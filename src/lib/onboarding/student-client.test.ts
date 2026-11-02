@@ -5,6 +5,24 @@ const values = { password: false, profile: false, photo: false, tour: false, ann
 const response = (extra = {}) => Response.json({ ok: true, role: 'student', version: 1, values, persisted: true, preferences: { welcomeSeen: false, checklistDismissed: false, tourSkipped: false }, ...extra })
 
 describe('student onboarding journey through its state API', () => {
+  it('uses the password action receipt without writing through the revoked session', async () => {
+    const writes: unknown[] = []
+    const client = new StudentOnboardingClient(async (_url, init) => { if (init) writes.push(init); return response() })
+    await client.load()
+    client.passwordChanged(true)
+    await client.retry()
+    expect(client.getSnapshot().values.password).toBe(true)
+    expect(client.getSnapshot().persisted).toBe(true)
+    expect(writes).toHaveLength(0)
+  })
+
+  it('reports unsaved password progress when the authorized action could not persist it', async () => {
+    const client = new StudentOnboardingClient(async () => response())
+    await client.load()
+    client.passwordChanged(false)
+    expect(client.getSnapshot().values.password).toBe(true)
+    expect(client.getSnapshot().persisted).toBe(false)
+  })
   it('welcomes a new eligible student after portal readiness, then remembers exploration', async () => {
     const requests: unknown[] = []
     const client = new StudentOnboardingClient(async (_url, init) => { if (init?.body) requests.push(JSON.parse(String(init.body))); return response() })

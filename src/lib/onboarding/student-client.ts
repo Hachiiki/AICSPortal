@@ -47,6 +47,11 @@ export class StudentOnboardingClient {
     if (this.snapshot.values[key]) return this.queue
     return this.update({ [key]: true })
   }
+  passwordChanged(persisted: boolean) {
+    if (this.snapshot.status !== 'ready') return
+    if (!persisted) this.pendingValues.password = true
+    this.publish({ values: { ...this.snapshot.values, password: true }, persisted: persisted && !Object.keys(this.pendingValues).length && !Object.keys(this.pendingPreferences).length })
+  }
   update(updates: OnboardingValues = {}, preferences: Partial<OnboardingPreferences> = {}) {
     if (this.snapshot.status !== 'ready') return Promise.resolve()
     const allowed = Object.fromEntries(Object.entries(updates).filter(([key]) => spec.dimensions.some(d => d.key === key)))

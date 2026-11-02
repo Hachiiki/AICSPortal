@@ -312,7 +312,7 @@ export interface MongoOnboardingState {
   // current DB role, and a role change re-normalizes on the next write.
   role: Role
   version: number
-  values: Record<string, boolean>
+  values?: Record<string, boolean>
   preferences?: { welcomeSeen: boolean; checklistDismissed: boolean; tourSkipped: boolean }
   updatedAt: Date
 }

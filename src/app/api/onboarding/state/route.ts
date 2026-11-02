@@ -127,12 +127,19 @@ export async function PATCH(request: NextRequest) {
     if (readPersisted) {
       try {
         const col = await getCollection<MongoOnboardingState>('onboarding_states')
-        // Whole-map $set is last-write-wins between concurrent self
-        // PATCHes; the surface is one user's own progress, so the race
-        // is benign (worst case: a step re-marks).
+        // Touch only requested keys so another session's password or profile
+        // completion is not overwritten by a concurrent welcome preference.
+        const changes: Record<string, unknown> = { role: ctx.actor.role, version: state.version, updatedAt: new Date() }
+        if (stored && stored.role !== ctx.actor.role) {
+          changes.values = values
+          changes.preferences = preferences
+        } else {
+          for (const [key, value] of Object.entries(updates)) changes[`values.${key}`] = value
+          for (const [key, value] of Object.entries(preferenceUpdates ?? {})) changes[`preferences.${key}`] = value
+        }
         await col.updateOne(
           { branch: ctx.actor.branch, username: ctx.actor.username },
-          { $set: { role: ctx.actor.role, version: state.version, values, preferences, updatedAt: new Date() } },
+          { $set: changes },
           { upsert: true }
         )
       } catch (err) {

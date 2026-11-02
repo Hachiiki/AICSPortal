@@ -21,7 +21,7 @@
 // explicit convention decision, like every non-production suite).
 
 import { beforeEach, describe, expect, it, mock } from 'bun:test'
-import type { NextRequest } from 'next/server'
+import { NextRequest } from 'next/server'
 import type { SessionClaims } from '@/lib/session'
 
 // ---- fixtures (seed-shaped: juan.santos, commonwealth student) ----
@@ -56,10 +56,15 @@ const state = {
     update: Record<string, unknown>
     options: Record<string, unknown>
   }[],
+  passwordUpdates: [] as { filter: Record<string, unknown>; update: Record<string, any> }[],
 }
 
 function fakeStudents() {
   return {
+    async updateOne(filter: Record<string, unknown>, update: Record<string, any>) {
+      state.passwordUpdates.push({ filter, update })
+      return { acknowledged: true, matchedCount: 1, modifiedCount: 1 }
+    },
     async findOne(query: Record<string, unknown>) {
       return Object.entries(query).every(([k, v]) => (state.actor as Record<string, unknown>)[k] === v)
         ? { ...state.actor }
@@ -104,6 +109,8 @@ mock.module('@/lib/mongodb/connection', () => ({
 // Imported AFTER the mocks are registered, so the route's module graph
 // resolves the substituted seams.
 const { GET, PATCH } = await import('@/app/api/onboarding/state/route')
+const { POST: changePassword } = await import('@/app/api/auth/change-password/route')
+const { hashPassword, verifyPassword } = await import('@/lib/password')
 
 // ---- helpers ----------------------------------------------------------
 
@@ -144,12 +151,20 @@ const allFalseStudent = {
 }
 
 describe('onboarding display preferences', () => {
+  it('carries shared dimensions and resets display preferences when the stored role changes', async () => {
+    state.doc = { role: 'faculty', version: 1, values: { roster: true, password: true }, preferences: { welcomeSeen: true } }
+    const result = await callPatch({ updates: { profile: true } })
+    expect(result.body.values).toEqual({ ...allFalseStudent, password: true, profile: true })
+    expect(state.updateOneCalls[0].update.$set).toMatchObject({ values: { ...allFalseStudent, password: true, profile: true }, preferences: { welcomeSeen: false, tourSkipped: false, checklistDismissed: false } })
+  })
   it('persists welcome and checklist preferences only for the session actor', async () => {
     const result = await callPatch({ updates: {}, preferences: { welcomeSeen: true, checklistDismissed: true } })
     expect(result.status).toBe(200)
     expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false })
     expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
-    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false })
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.welcomeSeen']).toBe(true)
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.checklistDismissed']).toBe(true)
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>).preferences).toBeUndefined()
   })
 
   it('returns saved display preferences without completing a checklist step', async () => {
@@ -174,6 +189,34 @@ beforeEach(() => {
   state.writeFails = false
   state.findOneQueries = []
   state.updateOneCalls = []
+  state.passwordUpdates = []
+})
+
+describe('password onboarding after session revocation', () => {
+  async function change() {
+    state.actor = { ...baseActor, password: await hashPassword('old-test-password') } as typeof state.actor
+    return changePassword(new NextRequest('http://localhost/api/auth/change-password?username=juan.santos', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ currentPassword: 'old-test-password', newPassword: 'new-test-password' }),
+    }))
+  }
+  it('records only the successful password step for the authorized branch and preserves revocation', async () => {
+    const res = await change()
+    expect(res.status).toBe(200)
+    expect((await res.json()).onboardingPersisted).toBe(true)
+    expect(state.passwordUpdates[0].filter).toEqual({ username: 'juan.santos', branch: 'commonwealth' })
+    expect(state.passwordUpdates[0].update.$inc).toEqual({ tokenVersion: 1 })
+    expect((await verifyPassword('new-test-password', state.passwordUpdates[0].update.$set.password)).ok).toBe(true)
+    expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['values.password']).toBe(true)
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>).values).toBeUndefined()
+  })
+  it('keeps a successful password change successful when progress cannot be saved', async () => {
+    state.writeFails = true
+    const res = await change()
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ ok: true, onboardingPersisted: false })
+    expect(state.passwordUpdates).toHaveLength(1)
+  })
 })
 
 // ---- GET: session-stamped read wiring ---------------------------------
@@ -280,7 +323,9 @@ describe('PATCH /api/onboarding/state — self-stamped upsert wiring', () => {
     const set = write.update.$set as Record<string, unknown>
     expect(set.role).toBe('student')
     expect(set.version).toBe(1)
-    expect(set.values).toEqual({ ...allFalseStudent, password: true })
+    expect(set['values.password']).toBe(true)
+    expect(set.values).toBeUndefined()
+    expect(set['values.tour']).toBeUndefined()
     expect(set.updatedAt).toBeInstanceOf(Date)
   })
 

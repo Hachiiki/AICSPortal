@@ -6,6 +6,7 @@ import { hashPassword, verifyPassword } from '@/lib/password'
 import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import { ONBOARDING_REGISTRY } from '@/lib/onboarding/registry'
 
 // ---- Zod input schema (the only place password-change input is shaped) ----
 const changePasswordSchema = z.object({
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
     const { currentPassword, newPassword } = await parseBody(request, changePasswordSchema)
 
     const col = await getCollection('students')
-    const student = await col.findOne({ username })
+    const student = await col.findOne({ username, branch: actor.branch })
 
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
@@ -72,9 +73,30 @@ export async function POST(request: NextRequest) {
     // BUG-003: always store scrypt hash for new passwords.
     // Phase 6.5: bump tokenVersion so every pre-change token dies with the old password.
     const hashed = await hashPassword(newPassword)
-    await col.updateOne({ username }, { $set: { password: hashed }, $inc: { tokenVersion: 1 } })
+    const result = await col.updateOne({ username, branch: actor.branch }, { $set: { password: hashed }, $inc: { tokenVersion: 1 } })
+    if (result.matchedCount !== 1) {
+      return NextResponse.json({ ok: false, error: 'Account changed. Please sign in again.' }, { status: 409 })
+    }
 
-    return NextResponse.json({ ok: true, message: 'Password changed successfully.' })
+    // The old session has just been revoked. Record the actual successful
+    // action here, using the already-authorized actor, rather than relying
+    // on a later client PATCH with an invalid token. This never blocks auth.
+    let onboardingPersisted: boolean | undefined
+    if (actor.role === 'student') {
+      try {
+        const progress = await getCollection('onboarding_states')
+        await progress.updateOne(
+          { branch: actor.branch, username: actor.username },
+          { $set: { role: actor.role, version: ONBOARDING_REGISTRY.student.version, 'values.password': true, updatedAt: new Date() } },
+          { upsert: true }
+        )
+        onboardingPersisted = true
+      } catch {
+        onboardingPersisted = false
+        console.warn('Password changed; onboarding progress could not be saved.')
+      }
+    }
+    return NextResponse.json({ ok: true, message: 'Password changed successfully.', onboardingPersisted })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Change password error:', err)
