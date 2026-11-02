@@ -6,7 +6,7 @@ import type { Student, View } from '@/lib/aics/types'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { ONBOARDING_REGISTRY } from '@/lib/onboarding/registry'
 import { StudentOnboardingClient, shouldWelcomeStudent, type StudentOnboardingSnapshot } from '@/lib/onboarding/student-client'
-import { STUDENT_TOUR_STEPS } from '@/lib/onboarding/student-tour'
+import { STUDENT_TOUR_STEPS, TASKS_TOUR_STEPS } from '@/lib/onboarding/student-tour'
 import { Button } from '@/components/ui/button'
 import { DialogPanel } from '@/components/portal/DialogPanel'
 import { TourOverlay } from './TourOverlay'
@@ -16,6 +16,9 @@ interface Journey {
   state: StudentOnboardingSnapshot
   client: StudentOnboardingClient
   start: (trigger: HTMLElement) => void
+  startTasks: (trigger: HTMLElement) => void
+  busy: boolean
+  openChecklistItem: (key: string) => void
   navigate: (view: View) => void
 }
 const Context = createContext<Journey | null>(null)
@@ -26,11 +29,11 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
   const client = useMemo(() => new StudentOnboardingClient(), [student?.username, student?.branch])
   const state = useSyncExternalStore(client.subscribe, client.getSnapshot, client.getSnapshot)
   const [welcome, setWelcome] = useState(false)
-  const [running, setRunning] = useState(false)
+  const [running, setRunning] = useState<'overview' | 'tasks' | null>(null)
   const [announcement, setAnnouncement] = useState('')
   const offered = useRef(false)
   const trigger = useRef<HTMLElement | null>(null)
-  const { navigate } = usePortalRoute()
+  const { navigate, route } = usePortalRoute()
   const active = enabled && !!student && (student.role ?? 'student') === 'student'
 
   useEffect(() => {
@@ -59,28 +62,56 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
     navigate({ view: view as 'dashboard' | 'academics' | 'events' | 'profile' | 'settings' | 'help', branch: student.branch, username: student.username, role: 'student' })
   }, [student, navigate])
   const start = useCallback((element: HTMLElement) => {
+    if (running) return
     trigger.current = element
     setWelcome(false)
     setAnnouncement('')
     void client.update({}, { welcomeSeen: true })
-    setRunning(true)
-  }, [client])
+    setRunning('overview')
+  }, [client, running])
+  const startTasks = useCallback((element: HTMLElement) => {
+    if (running || welcome || !student) return
+    trigger.current = element
+    setAnnouncement('')
+    void client.update({}, { tasksGuideSeen: true })
+    navigate({ view: 'academics', tab: 'tasks', branch: student.branch, username: student.username, role: 'student' })
+    setRunning('tasks')
+  }, [client, running, welcome, student, navigate])
+  const openChecklistItem = useCallback((key: string) => {
+    if (!student) return
+    const identity = { branch: student.branch, username: student.username, role: 'student' as const }
+    if (key === 'password') navigate({ ...identity, view: 'settings', section: 'security', focus: 'password' })
+    if (key === 'photo') navigate({ ...identity, view: 'settings', section: 'profile', focus: 'photo' })
+    if (key === 'profile') navigate({ ...identity, view: 'profile', focus: 'profile' })
+    if (key === 'announcements') navigate({ ...identity, view: 'dashboard', focus: 'announcements' })
+  }, [student, navigate])
   const closeWelcome = () => {
     setWelcome(false)
     void client.update({}, { tourSkipped: true })
     requestAnimationFrame(() => document.querySelector<HTMLElement>('#main-content')?.focus())
   }
   const finish = useCallback((completed: boolean) => {
-    setRunning(false)
-    void client.update(completed ? { tour: true } : {}, { welcomeSeen: true, tourSkipped: !completed })
-    setAnnouncement(completed ? 'Guided tour completed. You can replay it from Help & Support.' : 'Guided tour closed. You can resume from Getting started or replay from Help & Support.')
+    setRunning(null)
+    if (running === 'tasks') {
+      void client.tasksGuideFinished(completed)
+      setAnnouncement(completed ? 'Tasks guide completed. Replay it from the Tasks tab anytime.' : 'Tasks guide closed. Replay it from the Tasks tab anytime.')
+    } else {
+      void client.update(completed ? { tour: true } : {}, { welcomeSeen: true, tourSkipped: !completed })
+      setAnnouncement(completed ? 'Guided tour completed. You can replay it from Help & Support.' : 'Guided tour closed. You can resume from Getting started or replay from Help & Support.')
+    }
     requestAnimationFrame(() => {
       const target = trigger.current?.isConnected ? trigger.current
-        : document.querySelector<HTMLElement>('[data-student-onboarding-replay]') ?? document.querySelector<HTMLElement>('#main-content')
+        : document.querySelector<HTMLElement>(running === 'tasks' ? '[data-tasks-guide-replay]' : '[data-student-onboarding-replay]') ?? document.querySelector<HTMLElement>('#main-content')
       target?.focus()
     })
-  }, [client])
-  const journey = active && state.status === 'ready' ? { state, client, start, navigate: navigateView } : null
+  }, [client, running])
+  const tasksRoute = route.view === 'academics' && route.tab === 'tasks'
+  useEffect(() => {
+    if (running !== 'tasks' || tasksRoute) return
+    const frame = requestAnimationFrame(() => finish(false))
+    return () => cancelAnimationFrame(frame)
+  }, [running, tasksRoute, finish])
+  const journey = active && state.status === 'ready' ? { state, client, start, startTasks, busy: welcome || running !== null, openChecklistItem, navigate: navigateView } : null
   return <Context.Provider value={journey}>
     {children}
     <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
@@ -95,10 +126,10 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
           <Button className={ACTION} onClick={event => start(event.currentTarget)}>Show me around</Button>
           <Button variant="outline" onClick={closeWelcome}>I&apos;ll explore on my own</Button>
         </div>
-        <p className="mt-4 text-xs text-muted-fg">You can start the tour later in Getting started or Help &amp; Support.</p>
+        <p className="mt-4 text-xs text-muted-fg">Use Next and Back to move through the tour, then Finish on the last step. Skip or press Escape anytime. Replay later from Help &amp; Support.</p>
       </DialogPanel>
     </div>}
-    {active && running && <TourOverlay steps={STUDENT_TOUR_STEPS} onFinish={finish} onNavigate={navigateView} />}
+    {active && running && <TourOverlay key={running} steps={running === 'tasks' ? TASKS_TOUR_STEPS : STUDENT_TOUR_STEPS} onFinish={finish} onNavigate={running === 'overview' ? navigateView : undefined} />}
   </Context.Provider>
 }
 
@@ -109,7 +140,6 @@ export function StudentGettingStarted() {
   const dimensions = ONBOARDING_REGISTRY.student.dimensions
   const done = dimensions.filter(d => state.values[d.key]).length
   if (state.preferences.checklistDismissed || done === dimensions.length) return null
-  const destinations: Record<string, View> = { password: 'settings', profile: 'profile', photo: 'settings', announcements: 'dashboard' }
   return <section aria-labelledby="getting-started-title" className="rounded-xl border border-border bg-surface p-5 text-ink shadow-sm" data-tour="student-getting-started">
     <div className="flex items-start justify-between gap-4">
       <div><h2 id="getting-started-title" className="text-base font-semibold">Getting started</h2><p className="mt-1 text-sm text-muted-fg">A few steps to make the portal yours. You can return to this list from Help &amp; Support.</p></div>
@@ -119,16 +149,23 @@ export function StudentGettingStarted() {
     <ul className="divide-y divide-border">{dimensions.map(d => <li key={d.key} className="flex items-center gap-3 py-3">
       <span className="grid size-6 shrink-0 place-items-center rounded-full border border-border" aria-hidden>{state.values[d.key] && <Check className="size-4" />}</span>
       <span className="min-w-0 flex-1 text-sm font-medium">{d.label}{state.values[d.key] && <span className="ml-2 text-xs font-normal text-muted-fg">Complete</span>}</span>
-      {!state.values[d.key] && <Button variant="ghost" size="sm" aria-label={d.key === 'tour' ? 'Start student guided tour' : d.label} onClick={event => d.key === 'tour' ? journey.start(event.currentTarget) : journey.navigate(destinations[d.key])}>{d.key === 'tour' ? 'Start tour' : 'Open'}<ChevronRight className="size-4" aria-hidden /></Button>}
+      {!state.values[d.key] && <Button variant="ghost" size="sm" aria-label={d.key === 'tour' ? 'Start student guided tour' : d.label} onClick={event => d.key === 'tour' ? journey.start(event.currentTarget) : journey.openChecklistItem(d.key)}>{d.key === 'tour' ? 'Start tour' : 'Open'}<ChevronRight className="size-4" aria-hidden /></Button>}
     </li>)}</ul>
     {!state.persisted && <p role="status" className="mt-3 text-sm text-muted-fg">Your progress is kept for this session. <button type="button" className="font-semibold text-link underline" onClick={() => void client.retry()}>Retry saving</button></p>}
   </section>
 }
 
-export function StudentReviewAction({ dimension, children }: { dimension: 'profile' | 'announcements'; children: ReactNode }) {
+export function StudentTasksGuide() {
   const journey = useStudentOnboarding()
-  if (!journey || journey.state.values[dimension]) return null
-  return <Button variant="outline" size="sm" className="mt-3" onClick={() => void journey.client.complete(dimension)}>{children}</Button>
+  if (!journey) return null
+  const offer = !journey.state.preferences.tasksGuideSeen && !journey.busy
+  return <section aria-label="Tasks guide" data-tour="tasks-guide-entry" className={offer ? 'rounded-xl border border-border bg-surface p-4 text-ink' : 'flex justify-end'}>
+    {offer && <><h3 className="text-sm font-semibold">Want a quick tour of Tasks?</h3><p className="mt-1 text-sm text-muted-fg">Find filters, deadlines and submission status. You can explore on your own or take a short guide.</p></>}
+    <div className={offer ? 'mt-3 flex flex-wrap gap-2' : 'flex gap-2'}>
+      <Button variant={offer ? 'default' : 'outline'} className={offer ? ACTION : undefined} size="sm" disabled={journey.busy} data-tasks-guide-replay onClick={event => journey.startTasks(event.currentTarget)}>{offer ? 'Show Tasks guide' : 'Replay Tasks guide'}</Button>
+      {offer && <Button variant="ghost" size="sm" onClick={() => void journey.client.tasksGuideFinished(false)}>Not now</Button>}
+    </div>
+  </section>
 }
 
 export function StudentOnboardingHelp() {

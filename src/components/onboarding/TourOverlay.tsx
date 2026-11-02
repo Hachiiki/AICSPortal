@@ -149,7 +149,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     if (disposition === 'skipped' && !advancedRef.current) {
       advancedRef.current = true
       pendingNoteRef.current = `Step skipped: ${current.title} target is not available.`
-      if (indexRef.current >= steps.length - 1) onFinish(true)
+      if (indexRef.current >= steps.length - 1) onFinish(false)
       else setIndex(indexRef.current + 1)
       return
     }

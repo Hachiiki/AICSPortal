@@ -19,6 +19,7 @@ import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { ACADEMICS_TAB_TITLES, setPageTitle } from '@/lib/aics/page-titles'
+import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
 // One-shot focus handoff for bell deep-links (refs #37-review): the
 // Topbar stores { tab:'tasks', subjectCode, taskId } when a task
@@ -196,9 +197,9 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 
 export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
   const [academicsFocus] = useState(readAcademicsFocus)
-  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks' | 'materials'>(
-    academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades'
-  )
+  const { route, navigate } = usePortalRoute()
+  const activeTab = route.view === 'academics' ? route.tab ?? (academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades') : 'grades'
+  const setActiveTab = (tab: AcademicsTab) => { if (route.view === 'academics') navigate({ ...route, tab }) }
   const focusTask = academicsFocus.tab === 'tasks' && academicsFocus.taskId
     ? { subjectCode: academicsFocus.subjectCode || '', taskId: academicsFocus.taskId }
     : null

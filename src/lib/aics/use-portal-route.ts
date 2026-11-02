@@ -23,16 +23,18 @@ import { useCallback, useEffect, useSyncExternalStore } from 'react'
 // ============================================================
 
 export type PortalRole = 'student' | 'faculty' | 'admin'
+export type SettingsSection = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearance'
+export type AcademicsTab = 'grades' | 'subjects' | 'tasks' | 'materials'
 
 export type PortalRoute =
   | { view: 'login' }
-  | { view: 'dashboard'; branch: string; username: string; role: PortalRole }
-  | { view: 'profile'; branch: string; username: string; role: PortalRole }
-  | { view: 'academics'; branch: string; username: string; role: PortalRole }
+  | { view: 'dashboard'; branch: string; username: string; role: PortalRole; focus?: 'announcements' }
+  | { view: 'profile'; branch: string; username: string; role: PortalRole; focus?: 'profile' }
+  | { view: 'academics'; branch: string; username: string; role: PortalRole; tab?: AcademicsTab }
   | { view: 'events'; branch: string; username: string; role: PortalRole }
   | { view: 'professors'; branch: string; username: string; role: PortalRole }
   | { view: 'enrollment'; branch: string; username: string; role: PortalRole }
-  | { view: 'settings'; branch: string; username: string; role: PortalRole }
+  | { view: 'settings'; branch: string; username: string; role: PortalRole; section?: SettingsSection; focus?: 'photo' | 'password' }
   | { view: 'my-students'; branch: string; username: string; role: PortalRole }
   | { view: 'grade-encoding'; branch: string; username: string; role: PortalRole }
   | { view: 'previous-records'; branch: string; username: string; role: PortalRole }
@@ -51,7 +53,8 @@ export type PortalRoute =
  *  page-title system (and any future path-derived concern) so URL
  *  parsing stays defined in exactly one place. */
 export function parsePath(path: string): PortalRoute {
-  const parts = path.replace(/^\/+|\/+$/g, '').split('/')
+  const location = new URL(path, 'http://portal.local')
+  const parts = location.pathname.replace(/^\/+|\/+$/g, '').split('/')
   if (parts[0] !== 'portal') return { view: 'login' }
   if (parts[1] === 'login') return { view: 'login' }
 
@@ -89,10 +92,11 @@ export function parsePath(path: string): PortalRoute {
     }
 
     if (parts[4] === 'profile') {
-      return { view: 'profile', branch, username, role }
+      return { view: 'profile', branch, username, role, ...(location.hash === '#profile' ? { focus: 'profile' as const } : {}) }
     }
     if (parts[4] === 'academics') {
-      return { view: 'academics', branch, username, role }
+      const tab = location.searchParams.get('tab')
+      return { view: 'academics', branch, username, role, ...(['grades', 'subjects', 'tasks', 'materials'].includes(tab ?? '') ? { tab: tab as AcademicsTab } : {}) }
     }
     if (parts[4] === 'events') {
       return { view: 'events', branch, username, role }
@@ -104,7 +108,11 @@ export function parsePath(path: string): PortalRoute {
       return { view: 'enrollment', branch, username, role }
     }
     if (parts[4] === 'settings') {
-      return { view: 'settings', branch, username, role }
+      const section = location.searchParams.get('section')
+      const focus = location.hash.slice(1)
+      return { view: 'settings', branch, username, role,
+        ...(['profile', 'security', 'notifications', 'privacy', 'appearance'].includes(section ?? '') ? { section: section as SettingsSection } : {}),
+        ...(['photo', 'password'].includes(focus) ? { focus: focus as 'photo' | 'password' } : {}) }
     }
     if (parts[4] === 'my-students') {
       return { view: 'my-students', branch, username, role }
@@ -127,22 +135,22 @@ export function parsePath(path: string): PortalRoute {
     if (parts[4] === 'help') {
       return { view: 'help', branch, username, role }
     }
-    return { view: 'dashboard', branch, username, role }
+    return { view: 'dashboard', branch, username, role, ...(location.hash === '#announcements' ? { focus: 'announcements' as const } : {}) }
   }
   return { view: 'login' }
 }
 
 /** Convert a PortalRoute into a URL pathname. */
-function routeToPath(route: PortalRoute): string {
+export function routeToPath(route: PortalRoute): string {
   switch (route.view) {
     case 'login':
       return '/portal/login'
     case 'dashboard':
-      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}${route.focus ? '#announcements' : ''}`
     case 'profile':
-      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/profile`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/profile${route.focus ? '#profile' : ''}`
     case 'academics':
-      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/academics`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/academics${route.tab ? `?tab=${route.tab}` : ''}`
     case 'events':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
     case 'professors':
@@ -150,7 +158,7 @@ function routeToPath(route: PortalRoute): string {
     case 'enrollment':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/enrollment`
     case 'settings':
-      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/settings`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/settings${route.section ? `?section=${route.section}` : ''}${route.focus ? `#${route.focus}` : ''}`
     case 'my-students':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/my-students`
     case 'grade-encoding':
@@ -188,7 +196,7 @@ let cachedPath: string | null = null
 let cachedPathKey = ''
 
 function getSnapshot(): string {
-  const path = window.location.pathname
+  const path = window.location.pathname + window.location.search + window.location.hash
   if (path !== cachedPathKey) {
     cachedPath = path
     cachedPathKey = path
@@ -203,9 +211,11 @@ function getServerSnapshot(): string {
 function subscribe(callback: () => void): () => void {
   window.addEventListener('popstate', callback)
   window.addEventListener('pushstate', callback)
+  window.addEventListener('hashchange', callback)
   return () => {
     window.removeEventListener('popstate', callback)
     window.removeEventListener('pushstate', callback)
+    window.removeEventListener('hashchange', callback)
   }
 }
 

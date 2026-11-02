@@ -1,8 +1,10 @@
 'use client'
 
-import { StudentReviewAction } from '@/components/onboarding/StudentOnboarding'
+import { useProfileReview } from '@/components/onboarding/use-profile-review'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { useDestinationFocus } from '@/lib/aics/use-destination-focus'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -73,6 +75,11 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
   const [showCOE, setShowCOE] = useState(false)
   const [showIDDialog, setShowIDDialog] = useState(false)
   const isFaculty = student.role === 'faculty'
+  const [contentReady, setContentReady] = useState(false)
+  const reviewEnd = useRef<HTMLDivElement>(null)
+  const { route } = usePortalRoute()
+  useDestinationFocus('profile-review-start', route.view === 'profile' && !isFaculty)
+  useProfileReview(reviewEnd, contentReady && !isFaculty && !showCOE && !showIDDialog)
 
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
   const submittedDocs = student.documents.filter((d) => d.submitted).length
@@ -122,8 +129,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </button>
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900 mt-3">My Profile</h1>
-              <StudentReviewAction dimension="profile">I&apos;ve reviewed my profile</StudentReviewAction>
+              <h1 id="profile-review-start" tabIndex={-1} className="scroll-mt-32 text-2xl font-bold tracking-tight text-balance text-slate-900 mt-3">My Profile</h1>
               <p className="text-sm text-slate-500 mt-1">
                 {isFaculty
                   ? 'Manage your faculty information and identification.'
@@ -412,7 +418,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
             )}
 
             {/* ===================== BOTTOM BANNER ===================== */}
-            <motion.div variants={sectionVariants} transition={{ duration: 0.35 }}>
+            <motion.div ref={reviewEnd} data-profile-review-end variants={sectionVariants} transition={{ duration: 0.35 }} onAnimationComplete={() => setContentReady(true)}>
               <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="size-9 rounded-full bg-surface border border-blue-200 text-link flex items-center justify-center flex-shrink-0">
                   <Info className="w-4 h-4" />
