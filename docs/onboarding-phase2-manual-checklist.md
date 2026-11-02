@@ -4,6 +4,22 @@ Scope update, 2026-11-02: Phase 3 student development is now explicitly authoriz
 
 Status: **NOT EXECUTED**. Automated assertions do not complete this checklist. Record reviewer, date, browser, operating system, screen-reader version, source identity and the evidence directory used.
 
+## Local student preview
+
+Open `http://onboarding.localhost:4341/` in Edge or Chrome. Sign in with the existing approved synthetic student credentials for `juan.santos`. Wait for Route Trail and Workspace Assemble to finish. The welcome then offers **Show me around** and **I'll explore on my own**.
+
+This is the existing verified production-compiled student interface. A separate development script guards the sole HTTP listener before Next receives requests. Onboarding GET/PATCH use a process-local fixture, separate for each browser cookie. Password changes, uploads, account edits, server actions and other mutations are blocked; logout clears only this preview's cookie. Real student data reads and the already-verified synthetic account login use local MongoDB. No environment files, account data or production source are patched. Browser network policy restricts resources and connections to this origin.
+
+1. Use **Show me around** and Next through dashboard, announcements, Academics, Tasks, Events, account menu and Help. Try Back, Skip and Escape.
+2. Choose Explore to inspect Getting started. Review profile and announcements, hide the checklist, then use Help & Support > **Resume Getting started**. Finish the tour and try **Replay guided tour**. Refresh to check simulated progress survives within this preview process.
+3. Open `http://onboarding.localhost:4341/__preview` in the same browser. **Reset welcome and return to sign-in** clears only that browser's fixture and preview login, so you can repeat the first-login experience. **Simulate completed password and photo steps** supplies those two prior-action fixtures without changing a password or uploading a photo.
+4. For mobile, open DevTools and press Ctrl+Shift+M, then select a phone width. For themes, use Settings > Appearance. For reduced motion, use DevTools > Rendering > Emulate CSS media feature prefers-reduced-motion > reduce, then replay the tour.
+5. When finished, open the controls URL and select **Stop preview**, then close the browser tab. This stops only the local preview process and discards its fixtures. Closing a tab alone does not stop the server.
+
+To restart after stopping, run `node scripts/onboarding/manual-preview.mjs` from `C:\Projects\loginAICSPortal`. It verifies branch and build/source equivalence before serving. It requires the existing local build evidence at `.phase2-local/phase3-quality/result.json`; it refuses a stale/missing build or unexpected environment files. Another service occupying the port is left alone. Preview verification logs are under `.phase2-local/manual-preview*`; temporary data and credentials are not committed.
+
+## Human review
+
 Use only a verified local fixture session supplied for review. Confirm the address is loopback and onboarding PATCH requests are fulfilled locally instead of forwarded to MongoDB. The synthetic failure fixture reports `persisted:false`; the healthy real-student fixture reports `persisted:true` for simulated storage only. Neither permits a database write. Keep the screen reader's speech viewer or a short recording as evidence. Never include cookies, passwords or other account data in recordings.
 
 | Check | Action | Expected outcome |
