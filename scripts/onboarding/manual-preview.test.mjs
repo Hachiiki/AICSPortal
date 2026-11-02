@@ -44,9 +44,9 @@ test('simulated progress survives refresh and stays separate for another browser
   expect(first.status).toBe(200)
   const fixtureCookie = first.headers.getSetCookie()[0].split(';')[0]
   const headers = { cookie: 'aics_session=test-session; ' + fixtureCookie, 'content-type': 'application/json' }
-  expect((await p.request('/api/onboarding/state', { method: 'PATCH', headers, body: JSON.stringify({ updates: { tour: true }, preferences: { welcomeSeen: true, checklistDismissed: true } }) })).status).toBe(200)
+  expect((await p.request('/api/onboarding/state', { method: 'PATCH', headers, body: JSON.stringify({ updates: { tour: true }, preferences: { welcomeSeen: true, checklistDismissed: true, tasksGuideSeen: true, tasksGuideCompleted: true } }) })).status).toBe(200)
   const refreshed = await (await p.request('/api/onboarding/state', { headers })).json()
-  expect(refreshed).toMatchObject({ values: { tour: true, password: false }, preferences: { welcomeSeen: true, checklistDismissed: true }, persisted: true })
+  expect(refreshed).toMatchObject({ values: { tour: true, password: false }, preferences: { welcomeSeen: true, checklistDismissed: true, tasksGuideSeen: true, tasksGuideCompleted: true }, persisted: true })
   const another = await (await p.request('/api/onboarding/state')).json()
   expect(another.values.tour).toBe(false)
   expect(p.reached).toEqual([])

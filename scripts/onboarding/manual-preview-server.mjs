@@ -100,7 +100,7 @@ export function createManualPreviewServer({ handleApp, authenticate, onStop, hos
           const updates = input.updates, prefs = input.preferences ?? {}
           if (!updates || Array.isArray(updates) || typeof updates !== 'object' || !prefs || Array.isArray(prefs) || typeof prefs !== 'object'
             || Object.entries(updates).some(([k, v]) => !SPEC.dimensions.some(d => d.key === k) || typeof v !== 'boolean')
-            || Object.entries(prefs).some(([k, v]) => !['welcomeSeen', 'checklistDismissed', 'tourSkipped'].includes(k) || typeof v !== 'boolean')) return json(400, { ok: false, error: 'Invalid preview progress.' })
+            || Object.entries(prefs).some(([k, v]) => !Object.keys(onboardingPreferences(null)).includes(k) || typeof v !== 'boolean')) return json(400, { ok: false, error: 'Invalid preview progress.' })
           Object.assign(state.values, updates); Object.assign(state.preferences, prefs); stats.simulatedWrites++
         }
         return json(200, envelope())
