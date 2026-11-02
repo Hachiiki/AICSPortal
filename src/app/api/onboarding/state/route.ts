@@ -37,7 +37,7 @@ import {
 // ---- Zod input schemas (the only place update input is shaped) ----
 
 const patchSchema = z.object({
-  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional() }).strict().optional(),
+  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional(), tasksGuideSeen: z.boolean().optional(), tasksGuideCompleted: z.boolean().optional() }).strict().optional(),
   updates: z.record(
     z.string(),
     z.boolean({ error: 'Step values must be true or false.' }),

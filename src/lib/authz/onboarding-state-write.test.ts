@@ -151,16 +151,25 @@ const allFalseStudent = {
 }
 
 describe('onboarding display preferences', () => {
+  it('persists Tasks guide preferences without touching the overview or another account', async () => {
+    const result = await callPatch({ updates: {}, preferences: { tasksGuideSeen: true, tasksGuideCompleted: true } })
+    expect(result.status).toBe(200)
+    expect(result.body.values).toEqual(allFalseStudent)
+    expect((result.body as unknown as { preferences: unknown }).preferences).toMatchObject({ tasksGuideSeen: true, tasksGuideCompleted: true })
+    expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
+    expect(state.updateOneCalls[0].update.$set).toMatchObject({ 'preferences.tasksGuideSeen': true, 'preferences.tasksGuideCompleted': true })
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>).values).toBeUndefined()
+  })
   it('carries shared dimensions and resets display preferences when the stored role changes', async () => {
     state.doc = { role: 'faculty', version: 1, values: { roster: true, password: true }, preferences: { welcomeSeen: true } }
     const result = await callPatch({ updates: { profile: true } })
     expect(result.body.values).toEqual({ ...allFalseStudent, password: true, profile: true })
-    expect(state.updateOneCalls[0].update.$set).toMatchObject({ values: { ...allFalseStudent, password: true, profile: true }, preferences: { welcomeSeen: false, tourSkipped: false, checklistDismissed: false } })
+    expect(state.updateOneCalls[0].update.$set).toMatchObject({ values: { ...allFalseStudent, password: true, profile: true }, preferences: { welcomeSeen: false, tourSkipped: false, checklistDismissed: false, tasksGuideSeen: false, tasksGuideCompleted: false } })
   })
   it('persists welcome and checklist preferences only for the session actor', async () => {
     const result = await callPatch({ updates: {}, preferences: { welcomeSeen: true, checklistDismissed: true } })
     expect(result.status).toBe(200)
-    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false })
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false })
     expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
     expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.welcomeSeen']).toBe(true)
     expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.checklistDismissed']).toBe(true)
@@ -170,7 +179,7 @@ describe('onboarding display preferences', () => {
   it('returns saved display preferences without completing a checklist step', async () => {
     state.doc = { role: 'student', version: 1, values: allFalseStudent, preferences: { welcomeSeen: true, checklistDismissed: false } }
     const result = await callGet()
-    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: false, tourSkipped: false })
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: false, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false })
     expect(result.body.values).toEqual(allFalseStudent)
     expect(state.updateOneCalls).toHaveLength(0)
   })

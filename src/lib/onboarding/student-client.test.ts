@@ -5,6 +5,22 @@ const values = { password: false, profile: false, photo: false, tour: false, ann
 const response = (extra = {}) => Response.json({ ok: true, role: 'student', version: 1, values, persisted: true, preferences: { welcomeSeen: false, checklistDismissed: false, tourSkipped: false }, ...extra })
 
 describe('student onboarding journey through its state API', () => {
+  it('remembers Tasks dismissal and completion separately from the portal overview', async () => {
+    const writes: { preferences: Record<string, boolean>; updates: Record<string, boolean> }[] = []
+    const client = new StudentOnboardingClient(async (_url, init) => { if (init) writes.push(JSON.parse(String(init.body))); return response() })
+    await client.load()
+    await client.tasksGuideFinished(false)
+    expect(client.getSnapshot().preferences.tasksGuideSeen).toBe(true)
+    expect(client.getSnapshot().preferences.tasksGuideCompleted).toBe(false)
+    expect(client.getSnapshot().values.tour).toBe(false)
+    await client.tasksGuideFinished(true)
+    await client.tasksGuideFinished(false)
+    expect(client.getSnapshot().preferences.tasksGuideCompleted).toBe(true)
+    expect(writes).toEqual([
+      { updates: {}, preferences: { tasksGuideSeen: true } },
+      { updates: {}, preferences: { tasksGuideCompleted: true } },
+    ])
+  })
   it('uses the password action receipt without writing through the revoked session', async () => {
     const writes: unknown[] = []
     const client = new StudentOnboardingClient(async (_url, init) => { if (init) writes.push(init); return response() })

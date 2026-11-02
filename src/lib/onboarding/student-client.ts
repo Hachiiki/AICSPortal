@@ -47,6 +47,9 @@ export class StudentOnboardingClient {
     if (this.snapshot.values[key]) return this.queue
     return this.update({ [key]: true })
   }
+  tasksGuideFinished(completed: boolean) {
+    return this.update({}, { tasksGuideSeen: true, ...(completed ? { tasksGuideCompleted: true } : {}) })
+  }
   passwordChanged(persisted: boolean) {
     if (this.snapshot.status !== 'ready') return
     if (!persisted) this.pendingValues.password = true
@@ -54,7 +57,9 @@ export class StudentOnboardingClient {
   }
   update(updates: OnboardingValues = {}, preferences: Partial<OnboardingPreferences> = {}) {
     if (this.snapshot.status !== 'ready') return Promise.resolve()
-    const allowed = Object.fromEntries(Object.entries(updates).filter(([key]) => spec.dimensions.some(d => d.key === key)))
+    const allowed = Object.fromEntries(Object.entries(updates).filter(([key, value]) => spec.dimensions.some(d => d.key === key) && this.snapshot.values[key] !== value))
+    preferences = Object.fromEntries(Object.entries(preferences).filter(([key, value]) => this.snapshot.preferences[key as keyof OnboardingPreferences] !== value))
+    if (!Object.keys(allowed).length && !Object.keys(preferences).length) return this.queue
     Object.assign(this.pendingValues, allowed)
     Object.assign(this.pendingPreferences, preferences)
     this.publish({ values: { ...this.snapshot.values, ...allowed }, preferences: { ...this.snapshot.preferences, ...preferences } })
