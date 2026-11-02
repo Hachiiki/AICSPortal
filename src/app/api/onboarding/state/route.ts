@@ -25,6 +25,7 @@ import { requireCan } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import type { MongoOnboardingState } from '@/lib/mongodb/types'
+import { onboardingPreferences, type OnboardingPreferences } from '@/lib/onboarding/preferences'
 import {
   applyUpdates,
   carryForward,
@@ -36,6 +37,7 @@ import {
 // ---- Zod input schemas (the only place update input is shaped) ----
 
 const patchSchema = z.object({
+  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional() }).strict().optional(),
   updates: z.record(
     z.string(),
     z.boolean({ error: 'Step values must be true or false.' }),
@@ -71,7 +73,7 @@ async function findStored(actor: { branch: string; username: string }): Promise<
   }
 }
 
-function stateResponse(role: string, spec: OnboardingRoleSpec, state: OnboardingState, persisted: boolean) {
+function stateResponse(role: string, spec: OnboardingRoleSpec, state: OnboardingState, persisted: boolean, preferences: OnboardingPreferences) {
   return NextResponse.json({
     ok: true,
     role,
@@ -79,6 +81,7 @@ function stateResponse(role: string, spec: OnboardingRoleSpec, state: Onboarding
     dimensions: spec.dimensions,
     values: state.values,
     persisted,
+    preferences,
   })
 }
 
@@ -91,7 +94,7 @@ export async function GET(request: NextRequest) {
     const spec = specOr403(ctx.actor.role)
     const { stored, persisted } = await findStored(ctx.actor)
     const state = carryForward(spec, stored)
-    return stateResponse(ctx.actor.role, spec, state, persisted)
+    return stateResponse(ctx.actor.role, spec, state, persisted, onboardingPreferences(stored?.role === ctx.actor.role ? stored.preferences : null))
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Onboarding state read error:', err)
@@ -105,7 +108,7 @@ export async function GET(request: NextRequest) {
 // client's mistake and answer 400 with the offending key.
 export async function PATCH(request: NextRequest) {
   try {
-    const { updates } = await parseBody(request, patchSchema)
+    const { updates, preferences: preferenceUpdates } = await parseBody(request, patchSchema)
     const { ctx } = await requireCan(request, { kind: 'onboarding.state' }, 'update')
     const spec = specOr403(ctx.actor.role)
 
@@ -118,6 +121,7 @@ export async function PATCH(request: NextRequest) {
     const { stored, persisted: readPersisted } = await findStored(ctx.actor)
     const state = carryForward(spec, stored)
     const values = applyUpdates(spec, state.values, updates)
+    const preferences = { ...onboardingPreferences(stored?.role === ctx.actor.role ? stored.preferences : null), ...preferenceUpdates }
 
     let persisted = readPersisted
     if (readPersisted) {
@@ -128,7 +132,7 @@ export async function PATCH(request: NextRequest) {
         // is benign (worst case: a step re-marks).
         await col.updateOne(
           { branch: ctx.actor.branch, username: ctx.actor.username },
-          { $set: { role: ctx.actor.role, version: state.version, values, updatedAt: new Date() } },
+          { $set: { role: ctx.actor.role, version: state.version, values, preferences, updatedAt: new Date() } },
           { upsert: true }
         )
       } catch (err) {
@@ -137,7 +141,7 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    return stateResponse(ctx.actor.role, spec, { version: state.version, values }, persisted)
+    return stateResponse(ctx.actor.role, spec, { version: state.version, values }, persisted, preferences)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Onboarding state update error:', err)

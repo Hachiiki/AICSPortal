@@ -143,6 +143,29 @@ const allFalseStudent = {
   announcements: false,
 }
 
+describe('onboarding display preferences', () => {
+  it('persists welcome and checklist preferences only for the session actor', async () => {
+    const result = await callPatch({ updates: {}, preferences: { welcomeSeen: true, checklistDismissed: true } })
+    expect(result.status).toBe(200)
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false })
+    expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
+    expect((state.updateOneCalls[0].update.$set as Record<string, unknown>).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false })
+  })
+
+  it('returns saved display preferences without completing a checklist step', async () => {
+    state.doc = { role: 'student', version: 1, values: allFalseStudent, preferences: { welcomeSeen: true, checklistDismissed: false } }
+    const result = await callGet()
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: false, tourSkipped: false })
+    expect(result.body.values).toEqual(allFalseStudent)
+    expect(state.updateOneCalls).toHaveLength(0)
+  })
+
+  it('rejects unsupported preference fields', async () => {
+    expect((await callPatch({ updates: {}, preferences: { username: 'someone.else' } })).status).toBe(400)
+    expect(state.updateOneCalls).toHaveLength(0)
+  })
+})
+
 beforeEach(() => {
   state.actor = { ...baseActor }
   state.session = 'ok'

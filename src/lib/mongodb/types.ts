@@ -313,6 +313,7 @@ export interface MongoOnboardingState {
   role: Role
   version: number
   values: Record<string, boolean>
+  preferences?: { welcomeSeen: boolean; checklistDismissed: boolean; tourSkipped: boolean }
   updatedAt: Date
 }
 
