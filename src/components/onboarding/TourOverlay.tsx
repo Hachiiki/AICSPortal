@@ -59,6 +59,9 @@ import {
 
 const SHEET_QUERY = '(min-width: 640px)'
 const DEFAULT_CARD_SIZE = { width: 320, height: 200 }
+// Use the card's tested ink/surface pair for actions too. Custom accent
+// colors can have insufficient contrast with the app's primary foreground.
+const ACTION_COLORS = 'bg-ink text-surface hover:bg-ink hover:text-surface'
 
 /** Viewport for first paint; real values arrive on the first rAF pass. */
 function safeVpt() {
@@ -362,13 +365,14 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
                 Back
               </Button>
               {isLast ? (
-                <Button type="button" size="sm" onClick={() => onFinish(true)} aria-label="Finish the guided tour">
+                <Button type="button" size="sm" className={ACTION_COLORS} onClick={() => onFinish(true)} aria-label="Finish the guided tour">
                   Finish
                 </Button>
               ) : (
                 <Button
                   type="button"
                   size="sm"
+                  className={ACTION_COLORS}
                   onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))}
                   aria-label="Go to the next tour step"
                 >

@@ -148,26 +148,30 @@ const run = async () => {
     })
     step('D4: the decorative spotlight is hidden from AT (everything exposed is named)', decoratives?.ariaHidden === 'true', JSON.stringify(decoratives))
 
-    // Automation accessibility snapshot: the card subtree is fully
-    // named. The snapshot API is deprecated in newer Playwright; fall
-    // back to the DOM audit result if unavailable.
-    let snapInfo = 'snapshot API unavailable'
+    // Inspect Chromium's actual accessibility tree. A DOM label attribute
+    // alone cannot establish what assistive technology receives.
+    const ax = await ctx.newCDPSession(page)
     try {
-      const snap = await page.accessibility.snapshot({ interestingOnly: true })
-      const flat = []
-      const walk = (node) => {
+      const { nodes } = await ax.send('Accessibility.getFullAXTree')
+      const exposed = nodes.filter((node) => !node.ignored)
+      const dialog = exposed.find((node) => node.role?.value === 'dialog' && node.name?.value === card?.heading)
+      const byId = new Map(nodes.map((node) => [node.nodeId, node]))
+      const descendants = []
+      const visit = (node) => {
         if (!node) return
-        flat.push({ role: node.role, name: node.name ?? '' })
-        node.children?.forEach(walk)
+        if (!node.ignored) descendants.push(node)
+        for (const id of node.childIds ?? []) visit(byId.get(id))
       }
-      walk(snap)
-      const dialogNodes = flat.filter((n) => n.role === 'dialog')
-      const unnamedButtons = flat.filter((n) => /button/.test(String(n.role)) && !String(n.name).trim())
-      snapInfo = `dialogs=${dialogNodes.length}, unnamedButtons=${unnamedButtons.length}`
-      step('D4: the automation snapshot sees the dialog with named controls, zero unnamed buttons', dialogNodes.length >= 1 && unnamedButtons.length === 0, snapInfo)
+      visit(dialog)
+      const buttons = descendants.filter((node) => node.role?.value === 'button')
+      const names = buttons.map((node) => String(node.name?.value ?? '').trim())
+      const required = ['Skip the guided tour', 'Go back to the previous tour step', 'Go to the next tour step']
+      step('D4: Chromium accessibility tree exposes the named tour dialog and all three named controls',
+        !!dialog && buttons.length === 3 && names.every(Boolean) && required.every((name) => names.includes(name)),
+        JSON.stringify({ dialog: dialog?.name?.value ?? null, controls: names }))
     } catch {
-      step('D4: the automation snapshot audit (fallback: the DOM name audit above)', (card?.unnamedControls?.length ?? 1) === 0, snapInfo)
-    }
+      step('D4: Chromium accessibility tree audit executed', false, 'Accessibility tree unavailable; DOM labels do not substitute for this assertion')
+    } finally { await ax.detach() }
     await page.screenshot({ path: resolve(OUT, 'd4-named-controls.png') })
 
     // End the tour: with the launcher's label already captured pre-tour

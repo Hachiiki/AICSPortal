@@ -7,12 +7,8 @@
 // The tour must stay readable in every combination: the card's own text
 // rides the theme's surface/ink tokens (contrast-checked against the
 // computed colors of the live card), the scrim stays visible, and the
-// spotlight keeps framing. The card's primary action button rides the
-// APP-standard --primary/--primary-foreground tokens (the same tokens
-// every primary button in the portal uses); under the saved custom theme
-// that app-level ratio is recorded as an observation row, not a tour
-// pass/fail — the tour did not choose those tokens (disclosed, not
-// hidden; see the report).
+// spotlight keeps framing. Next and Finish must also meet 4.5:1 in their
+// normal and hovered states, including the saved custom theme.
 //
 // Evidence: theme-matrix.md, screenshots under theme/screenshots/, and
 // the run manifest. Run: node scripts/onboarding/07-themes.mjs (Windows)
@@ -20,7 +16,7 @@
 
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { EVID, ensureMongod, ensureDevServer, launchBrowser, gateContext, openPortal, startTour, settledState, step, failures, writeReport, writeManifest, invocationLine, stopDevServer, results } from './lib.mjs'
+import { EVID, ensureMongod, ensureDevServer, launchBrowser, gateContext, openPortal, startTour, settledState, waitForStep, clickNext, step, failures, writeReport, writeManifest, invocationLine, stopDevServer } from './lib.mjs'
 import { DEFAULT_CUSTOM_COLORS, customThemeToVars } from '../../src/lib/aics/theme-palette.ts'
 
 const OUT = resolve(EVID, 'theme')
@@ -28,9 +24,8 @@ const SHOTS = resolve(OUT, 'screenshots')
 
 // The saved custom theme content the gate writes (device-local storage,
 // exactly what the Custom editor saves). Colors are the app's own Custom
-// seed defaults: the observation class this measures is white foreground
-// on the seed accent -- the same --primary/--primary-foreground calibration
-// every app primary button uses under a Custom theme.
+// seed defaults. The seed accent previously made tour actions fail contrast;
+// keep this fixture to detect regressions in the rendered controls.
 const CUSTOM = {
   base: 'dark',
   colors: DEFAULT_CUSTOM_COLORS,
@@ -114,7 +109,7 @@ const read = async (page) =>
       results.cardBg = cardBg ? hex(cardBg) : null
     }
     const next = Array.from(document.querySelectorAll('button')).find(
-      (b) => b.getAttribute('aria-label') === 'Go to the next tour step'
+      (b) => ['Go to the next tour step', 'Finish the guided tour'].includes(b.getAttribute('aria-label'))
     )
     if (next) {
       const btnBgString = (() => {
@@ -145,8 +140,6 @@ const read = async (page) =>
       results.btnColor = hex(col)
       results.btnBg = btnBg ? hex(btnBg) : null
       results.btnRatio = btnBg ? ratio(col, btnBg) : null
-      results.btnPrimaryVar = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
-      results.btnPrimaryFgVar = getComputedStyle(document.documentElement).getPropertyValue('--primary-foreground').trim()
     }
     const ov = document.querySelector('[data-tour-overlay]')
     results.scrimVisible = ov
@@ -201,13 +194,30 @@ const run = async () => {
     const bodyOk = th.bodyRatio !== null && th.bodyRatio >= 4.5
     step(`${row.id}: card body text >= 4.5:1 against the card surface — ${th.bodyRatio != null ? th.bodyRatio.toFixed(2) : 'n/a'}`, bodyOk, `bg=${th.cardBg}`)
     step(`${row.id}: scrim layer visible over the page`, th.scrimVisible === true)
-    // App-standard primary button observation (same --primary tokens as
-    // every app primary button): recorded, never counted as a tour pass
-    // row and never hidden. The tour did not calibrate these tokens.
-    const btnObs = th.btnRatio !== null ? `${th.btnRatio.toFixed(2)}:1 (fg ${th.btnColor} on bg ${th.btnBg}; --primary ${th.btnPrimaryVar}, --primary-foreground ${th.btnPrimaryFgVar})` : 'n/a'
-    results.push({ desc: `OBSERVATION ${row.id}: app-standard primary action button contrast — app token level, not tour-controlled`, ok: true, detail: btnObs })
-    console.log(`  OBS   ${row.id}: app primary button ${btnObs}`)
+    const assertActionContrast = (name, sample) => {
+      const ratio = sample.btnRatio
+      step(`${row.id}: ${name} text >= 4.5:1`, Number.isFinite(ratio) && ratio >= 4.5,
+        `${ratio?.toFixed(2) ?? 'n/a'}:1 (fg ${sample.btnColor} on bg ${sample.btnBg})`)
+    }
+    assertActionContrast('Next', th)
+    await page.hover('button[aria-label="Go to the next tour step"]')
+    await page.waitForTimeout(250) // let the button's CSS color transition settle
+    assertActionContrast('Next hovered', await read(page))
     await page.screenshot({ path: resolve(SHOTS, row.id + '.png') })
+    // Read Finish as rendered on the real last step; do not complete the
+    // tour, so this contrast check needs no progress write.
+    for (let index = 2; index <= 7; index++) {
+      await clickNext(page)
+      await waitForStep(page, `dev-${index}`)
+    }
+    await waitForStep(page, 'dev-8') // absent target deliberately auto-skips
+    await settledState(page)
+    await page.mouse.move(0, 0)
+    await page.waitForTimeout(250)
+    assertActionContrast('Finish', await read(page))
+    await page.hover('button[aria-label="Finish the guided tour"]')
+    await page.waitForTimeout(250)
+    assertActionContrast('Finish hovered', await read(page))
     await page.close()
     await ctx.close()
   }
@@ -215,10 +225,10 @@ const run = async () => {
   writeReport(
     OUT,
     'theme-matrix',
-    'G1: all seven theme choices in their concrete combinations, with the tour card text contrast-checked from the live computed styles and the app-standard primary button ratio recorded as an observation. The saved custom theme is the app Custom editor seed; the app-level primary button ratio under it reproduces the custom-theme contrast class flagged at review, and belongs to the portal tokens, not the tour.',
+    'G1: all seven theme choices in their concrete combinations. Card title, body, Next, and Finish text must meet 4.5:1 against their rendered surfaces. Actions are checked in normal and hovered states. The saved custom theme uses the app Custom editor seed.',
     [
-      ['Method', 'Per row: a fresh context writes the theme storage keys the way the Settings UI writes them (aics_theme, aics_palette, and for Custom the aics_custom_theme object with the precomputed vars map), the tour opens on dev-1 at 1280x800, and the assertions read the live computed styles: html.dark class, html[data-palette], the opaque resolved background of the card, the heading and muted-body text colors, the scrim layer opacity, and the primary action button (the app-standard --primary/--primary-foreground pair). CONTRAST is the WCAG formula on the exact resolved rgb values; no hardcoded theme data.'],
-      ['Observation', `The app-standard primary action button under the saved custom seed measures white on accent at the value row-specific recorded above (the seed accent is ${DEFAULT_CUSTOM_COLORS.accent}). This is the SAME --primary/--primary-foreground calibration every primary button in the portal uses under this custom theme; it is an app-level priority-token calibration inherited by the tour card, not a token the tour chose. The tour-controlled text (title and body on the card surface) passes 4.5:1 in every combination. Whether this app-level observation blocks the gate is a review decision; the evidence refuses to hide it and refuses to misattribute it.`],
+      ['Method', 'Per row: a fresh context writes the theme storage keys the way the Settings UI writes them. The tour opens on dev-1 at 1280x800. Assertions read html.dark, html[data-palette], resolved card and text colors, scrim visibility, and Next colors. The real tour then advances to dev-8 to measure Finish without completing or persisting progress. Both actions are measured with the pointer outside and over the button after its color transition settles. Contrast uses the WCAG formula on browser-resolved sRGB colors. Missing measurements fail.'],
+      ['Scope', 'The actions use the card ink/surface pair. This fixes the tour controls only; it does not recalibrate the portal custom accent tokens. A failed action contrast assertion blocks G1.'],
     ]
   )
 
