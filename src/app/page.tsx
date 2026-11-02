@@ -11,6 +11,7 @@ import { LoginView } from '@/components/auth/LoginView'
 import { PostLoginTransition } from '@/components/auth/post-login/PostLoginTransition'
 import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
 import { OnboardingDevMount } from '@/components/onboarding/OnboardingDevMount'
+import { StudentOnboardingProvider } from '@/components/onboarding/StudentOnboarding'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
@@ -91,6 +92,7 @@ export default function AICSLoginPage() {
   usePortalPageTitle(!authLoading && !!username)
 
   const [redirecting, setRedirecting] = useState(false)
+  const [onboardingReady, setOnboardingReady] = useState(true)
   const [redirectBranch, setRedirectBranch] = useState<string>('')
   const [redirectRole, setRedirectRole] = useState<string>('')
 
@@ -232,6 +234,7 @@ export default function AICSLoginPage() {
         setRedirectRole(result.role || 'student')
         setAssembleReveal(false)
         setRedirecting(true)
+        setOnboardingReady(false)
       }
       return result
     },
@@ -247,6 +250,7 @@ export default function AICSLoginPage() {
         setRedirectRole(result.role || 'student')
         setAssembleReveal(false)
         setRedirecting(true)
+        setOnboardingReady(false)
       }
       return result
     },
@@ -304,6 +308,7 @@ export default function AICSLoginPage() {
         <AssembleRevealProvider
           revealing={redirecting ? assembleReveal : null}
         >
+          <StudentOnboardingProvider key={`${branch}:${username}`} student={student} enabled={portalReady && !redirecting && onboardingReady && role === 'student'}>
           <StudentDataWrapper
             username={username}
             route={route}
@@ -328,9 +333,10 @@ export default function AICSLoginPage() {
             mount renders nothing outside development and nothing on
             the login route (no unauthenticated onboarding, D10). */}
           <OnboardingDevMount />
+          </StudentOnboardingProvider>
         </AssembleRevealProvider>
       )}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={() => setOnboardingReady(true)}>
         {redirecting ? (
           <PostLoginTransition
             key="post-login-overlay"

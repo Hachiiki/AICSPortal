@@ -1,5 +1,7 @@
 'use client'
 
+import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
+
 import { useEffect, useRef, useState } from 'react'
 import {
   ChevronLeft,
@@ -84,6 +86,7 @@ type Section = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearanc
 const PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
+  const onboarding = useStudentOnboarding()
   const [activeSection, setActiveSection] = useState<Section>('profile')
 
   // Appearance selector state (dark-theme plan §6, Phase 1 control 2).
@@ -240,6 +243,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
       onStudentPatch?.({ photoUrl: up.secure_url as string })
       toast.success('Profile photo updated.')
+      void onboarding?.client.complete('photo')
 
       // 5. Fire-and-forget: destroy the replaced asset so it does not
       //    orphan in Cloudinary. Server validates it is the user's own.
@@ -357,6 +361,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       const data = await res.json()
       if (data.ok) {
         toast.success('Password changed successfully.')
+        onboarding?.client.passwordChanged(data.onboardingPersisted === true)
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')

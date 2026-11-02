@@ -1,5 +1,7 @@
 'use client'
 
+import { StudentReviewAction } from '@/components/onboarding/StudentOnboarding'
+
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -121,6 +123,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </button>
               <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900 mt-3">My Profile</h1>
+              <StudentReviewAction dimension="profile">I&apos;ve reviewed my profile</StudentReviewAction>
               <p className="text-sm text-slate-500 mt-1">
                 {isFaculty
                   ? 'Manage your faculty information and identification.'
