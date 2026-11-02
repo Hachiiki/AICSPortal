@@ -2,7 +2,7 @@
 
 Scope update, 2026-11-02: Phase 3 student development is now explicitly authorized. This checklist still records outstanding human review and does not accept Phase 2 or authorize deployment. Review the real student welcome, checklist and Help replay as well as the synthetic engine when a safe local review session is available. For welcome dismissal, focus should return to a usable portal control or main content; for a tour crossing views, an unmounted opener should fall back to Help replay or main content.
 
-Status: **NOT EXECUTED**. Automated assertions do not complete this checklist. Record reviewer, date, browser, operating system, screen-reader version, source identity and the evidence directory used.
+Status: **PENDING formal review**. The owner reported a positive first visual review of the welcome, overview and checklist, then requested the UX refinements below. This does not sign off the full checklist or a screen-reader pass. Record reviewer, date, browser, operating system, screen-reader version, source identity and the evidence directory used.
 
 ## Local student preview
 
@@ -16,7 +16,14 @@ This is the existing verified production-compiled student interface. A separate 
 4. For mobile, open DevTools and press Ctrl+Shift+M, then select a phone width. For themes, use Settings > Appearance. For reduced motion, use DevTools > Rendering > Emulate CSS media feature prefers-reduced-motion > reduce, then replay the tour.
 5. When finished, open the controls URL and select **Stop preview**, then close the browser tab. This stops only the local preview process and discards its fixtures. Closing a tab alone does not stop the server.
 
-To restart after stopping, run `node scripts/onboarding/manual-preview.mjs` from `C:\Projects\loginAICSPortal`. It verifies branch and build/source equivalence before serving. It requires the existing local build evidence at `.phase2-local/phase3-quality/result.json`; it refuses a stale/missing build or unexpected environment files. Another service occupying the port is left alone. Preview verification logs are under `.phase2-local/manual-preview*`; temporary data and credentials are not committed.
+After the November 3 refinements, also check:
+
+- Open Profile from Getting started. Opening alone should not complete it. Read to the final information banner and keep it at least half visible for 1.5 seconds after loading; profile progress should then update without a confirmation button. Briefly passing it, loading placeholders, or a background tab should not count.
+- Use **Read announcement** to open the full notice, then Escape to close and restore focus. This should complete onboarding without marking the notice read or dismissing it. Swiping alone should not complete onboarding. The deck's existing checkmark and snooze semantics remain separate.
+- Open the password checklist item. Security should already be selected, with focus at Change password. Refresh and use Back/Forward. Open the photo item and confirm its photo area is selected while upload consent is still required.
+- Visit Academics > Tasks. The optional inline guide should offer **Show Tasks guide** and **Not now**, without opening a modal automatically. Dismiss and revisit, then replay the five-step guide. Skip/Escape must not complete it; Finish must preserve the separate seven-step overview progress. Check its mobile sheet and saved theme too.
+
+To restart the refined preview after stopping, run `node scripts/onboarding/manual-preview.mjs --evidence=.phase2-local/refinement-quality-1/result.json` from `C:\Projects\loginAICSPortal`. It verifies branch and build/source equivalence before serving. It requires that local evidence and its production build; it refuses a stale/missing build or unexpected environment files. The earlier default `phase3-quality` build predates these refinements and is correctly rejected. Another service occupying the port is left alone. Preview verification logs are under `.phase2-local/manual-preview*` and `.phase2-local/refinement-preview*`; temporary data and credentials are not committed.
 
 ## Human review
 
@@ -32,4 +39,4 @@ Use only a verified local fixture session supplied for review. Confirm the addre
 | Mobile, F1 | At a phone width, start the tour and open/close the mobile navigation dialog. | A readable bottom sheet fits the screen. Controls remain usable. The navigation dialog and sheet do not fight for focus or obscure essential controls. |
 | Visual themes, G1 | Review the fresh theme screenshots and, where needed, the local session for Light, Dark, Midnight, Slate, OLED Black, saved Custom in light/dark, and System resolved light/dark. Inspect card, sheet, scrim, focus indicators and Next/Finish normal/hover states. | Text, boundaries and focus remain readable in every combination, without clipping or hidden controls. Automated contrast values remain attached to the corresponding images; visual review does not replace numerical contrast assertions. |
 
-Record each row as PASS, FAIL or NOT EXECUTED, with a screenshot/recording or concise observation. A failed or missing accessibility, stability or theme-readability check blocks acceptance; these cannot become conditional polish items. Owner review of the cost memo and provisional performance thresholds is a separate approval requirement. Completing this checklist does not authorize Phase 3.
+Record each row as PASS, FAIL or NOT EXECUTED, with a screenshot/recording or concise observation. A failed or missing accessibility, stability or theme-readability check blocks acceptance; these cannot become conditional polish items. Owner review of the cost memo and provisional performance thresholds is a separate approval requirement. Phase 3 development is already authorized; completing this checklist does not authorize deployment.
