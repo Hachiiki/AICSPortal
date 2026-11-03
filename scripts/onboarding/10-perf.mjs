@@ -48,6 +48,7 @@ import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { measureAdvance } from './settle-timing.mjs'
+import { verifyA1V3Gate } from './a1-v3-evidence.mjs'
 import {
   EVID, WT, STUDENT, mintSession, git, headSha,
   ensureMongod, gateContext,
@@ -247,6 +248,12 @@ const rule4aEvidence = () => {
   const dir = resolve(EVID, 'prod-smoke')
   const head = headSha()
   try {
+    if (existsSync(resolve(dir, 'result.json'))) {
+      const result = JSON.parse(readFileSync(resolve(dir, 'result.json')))
+      if (result.schema !== 'aics-student-a1/v3') throw new Error('Unrecognized A1 result schema; no legacy fallback')
+      const verified = verifyA1V3Gate(dir, WT, head)
+      return { status: 'verified', head, dir, detail: JSON.stringify(verified) }
+    }
     const manifest = readFileSync(resolve(dir, 'manifest.txt'), 'utf8')
     const report = readFileSync(resolve(dir, 'prod-smoke-report.md'), 'utf8')
     const scan = JSON.parse(readFileSync(resolve(dir, 'chunk-scan.json'), 'utf8'))
