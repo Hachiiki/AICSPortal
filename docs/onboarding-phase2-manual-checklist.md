@@ -2,7 +2,19 @@
 
 Scope update, 2026-11-02: Phase 3 student development is now explicitly authorized. This checklist still records outstanding human review and does not accept Phase 2 or authorize deployment. Review the real student welcome, checklist and Help replay as well as the synthetic engine when a safe local review session is available. For welcome dismissal, focus should return to a usable portal control or main content; for a tour crossing views, an unmounted opener should fall back to Help replay or main content.
 
-Status: **PENDING formal review**. The owner reported a positive first visual review of the welcome, overview and checklist, then requested the UX refinements below. This does not sign off the full checklist or a screen-reader pass. Record reviewer, date, browser, operating system, screen-reader version, source identity and the evidence directory used.
+Status: **Owner-reported manual review received**, recorded 2026-11-03 from the owner's final-verification request. These observations concern the updated student onboarding preview and are separate from automated results and Phase 2 technical acceptance.
+
+| Owner's reported category | Reported result |
+|---|---|
+| Visual design and overall student experience | APPROVED |
+| Keyboard navigation and focus | PASS |
+| Screen-reader announcements | PASS |
+| Tour targets, dropdowns and overlays | PASS |
+| Reduced-motion behavior | PASS |
+| Mobile accessibility | PASS |
+| Visual themes and readability | PASS |
+
+Reviewer attribution is the repository owner who supplied the message. No reviewer name, execution date, browser/OS, screen-reader product/version, exact reviewed source identity, recording, screenshot or detailed per-scenario observations were supplied. The recording date above is not an invented test date. These reported categories do not establish that every detailed action or synthetic edge case listed below was executed. Existing automated screenshots/results retain their own source identities and do not become human recordings. Technical gate reconciliation remains pending.
 
 ## Local student preview
 
@@ -27,7 +39,7 @@ To restart the refined preview after stopping, run `node scripts/onboarding/manu
 
 ## Human review
 
-Use only a verified local fixture session supplied for review. Confirm the address is loopback and onboarding PATCH requests are fulfilled locally instead of forwarded to MongoDB. The synthetic failure fixture reports `persisted:false`; the healthy real-student fixture reports `persisted:true` for simulated storage only. Neither permits a database write. Keep the screen reader's speech viewer or a short recording as evidence. Never include cookies, passwords or other account data in recordings.
+The table above is the received human evidence. The following actions and expected outcomes remain the detailed review procedure, not additional observations attributed to the owner. For any further review, use only a verified local fixture session. Confirm the address is loopback and onboarding PATCH requests are fulfilled locally instead of forwarded to MongoDB. The synthetic failure fixture reports `persisted:false`; the healthy real-student fixture reports `persisted:true` for simulated storage only. Neither permits a database write. If further recordings are supplied, never include cookies, passwords or other account data.
 
 | Check | Action | Expected outcome |
 |---|---|---|
