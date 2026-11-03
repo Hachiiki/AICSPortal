@@ -488,7 +488,9 @@ export async function openPortal(ctx, view = '', { launcherRequired = true, orig
 
 export async function startTour(page, { toDisposition = 'spot' } = {}) {
   await page.click('[data-tour="dev-tour-launcher"]')
-  await page.waitForSelector('[data-tour-overlay]', { timeout: 10000 })
+  // Locator.waitFor returns no ElementHandle. An unused selector handle keeps
+  // each closed overlay alive in DevTools and contaminates repeated GC samples.
+  await page.locator('[data-tour-overlay]').waitFor({ state: 'visible', timeout: 10000 })
   if (toDisposition) {
     await page.waitForFunction(
       (d) => document.querySelector('[data-tour-overlay]')?.dataset.disposition === d,
