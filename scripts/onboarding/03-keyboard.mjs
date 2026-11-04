@@ -182,16 +182,26 @@ const run = async () => {
       await page.click('button[aria-label="Go to the next tour step"]')
       await waitForStep(page, `dev-${i + 1}`)
       // The step's own rAF focuses the heading one frame after the id
-      // flips; wait for it before reading focus.
+      // flips. The clicked Next button also sits inside the card, so a
+      // "any card element" wait resolves on the button frame and raced
+      // the heading focus (observed: probe0 still on the button, heading
+      // focused one frame later). Wait for the documented per-step
+      // target itself - the card heading - which is the stronger read.
       await page
         .waitForFunction(
-          () => document.activeElement?.closest('[data-tour-card]') != null,
+          () => {
+            const a = document.activeElement
+            return !!a && a.closest('[data-tour-card]') != null && a.matches('h2')
+          },
           null,
           { timeout: 5000 }
         )
         .catch(() => {})
       const name = await activeName(page)
-      const inCard = await page.evaluate(() => !!document.activeElement?.closest('[data-tour-card]'))
+      const inCard = await page.evaluate(() => {
+        const a = document.activeElement
+        return !!a && a.closest('[data-tour-card]') != null && a.matches('h2')
+      })
       if (!inCard) focusOk = false
       if (!name?.includes(`Synthetic ${i + 1}`)) focusOk = false
     }
