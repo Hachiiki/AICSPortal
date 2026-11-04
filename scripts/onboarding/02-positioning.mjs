@@ -225,8 +225,13 @@ const run = async () => {
     step('C5: closing the modal leaves the tour intact and operable', afterModal.overlay && afterModal.modals === 0, JSON.stringify(afterModal))
 
     // Toast: the settings data export fires a sonner toast at z-50 above
-    // the tour (a deterministic in-app trigger). The settings route may
-    // cold-compile on first visit, so wait for the button, not a timer.
+    // the tour (a deterministic in-app trigger). The toast fires only
+    // when the export fetch settles (success and failure both toast), so
+    // wait for that settlement event first: the attempt-3 Windows run
+    // kept seeing "Preparing export..." past its fixed 10s window while
+    // the route's first dev compile was still in flight, which measured
+    // the compile, not the toast. The layering assertion itself is
+    // unchanged and still runs in a normal 10s window afterwards.
     await page.click('[data-tour="nav-settings"]')
     let toastAbove = false
     try {
@@ -235,7 +240,27 @@ const run = async () => {
       await page.click('button:has-text("Privacy & Data")')
       await page.waitForSelector('button:has-text("Download my data")', { timeout: 20000 })
       await page.click('button:has-text("Download my data")')
+      await page.waitForResponse(
+        (r) => { try { return new URL(r.url()).pathname === '/api/student/export' } catch { return false } },
+        { timeout: 60000 }
+      )
       await page.waitForSelector('[data-sonner-toast]', { timeout: 10000 })
+      // The toast slides up from below the viewport on entry; mid-slide
+      // its center sits off-screen and elementFromPoint legitimately
+      // returns null (observed: center y 803 on an 800px viewport with a
+      // null hit, settled center y 749 with the hit inside the toast).
+      // The layering read is only meaningful for a toast inside the
+      // viewport, so wait for that geometric settle first.
+      await page.waitForFunction(
+        () => {
+          const t = document.querySelector('[data-sonner-toast]')
+          if (!t) return false
+          const r = t.getBoundingClientRect()
+          return r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth
+        },
+        null,
+        { timeout: 5000 }
+      ).catch(() => {})
       toastAbove = await page.evaluate(() => {
         const t = document.querySelector('[data-sonner-toast]')
         const r = t?.getBoundingClientRect()
