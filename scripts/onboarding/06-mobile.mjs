@@ -117,21 +117,38 @@ const run = async () => {
     step('F1: Escape closes the navigation dialog, not the tour', afterDialog.overlay && !afterDialog.navDialog, JSON.stringify(afterDialog))
 
     // The sheet still works after the dialog interlude. Documented focus
-    // rule: the engine never fights for focus, so after the drawer
-    // closes (focus falls to body) keyboard users reach the card again
-    // through the tab order. The card sits near the end of the DOM, so
-    // the reverse path (Shift+Tab) is the short one; Escape then ends
-    // the tour cleanly.
-    let tabbed = -1
-    for (let i = 1; i <= 12; i++) {
-      await page.keyboard.press('Shift+Tab')
-      const inCard = await page.evaluate(() => !!document.activeElement?.closest('[data-tour-card]'))
-      if (inCard) {
-        tabbed = i
-        break
+    // rule (H1 repair, 2026-11-04): the engine repairs genuinely
+    // stranded focus back into the open tour card. The drawer restores
+    // no focus of its own when it unmounts, so the card regains the
+    // heading focus instead of focus stranding on body - the usable
+    // surface the user was in. Where focus lands elsewhere (connected
+    // portal content), the card must still be reachable through the tab
+    // order. Escape then ends the tour cleanly.
+    const afterClose = await page.evaluate(() => {
+      const a = document.activeElement
+      const card = document.querySelector('[data-tour-card]')
+      return {
+        isBody: !a || a === document.body || a === document.documentElement,
+        connected: !!a?.isConnected,
+        inCard: !!a && !!card?.contains(a),
+        desc: `${a?.tagName ?? 'null'}${a?.getAttribute('aria-label') ? `[${a.getAttribute('aria-label')}]` : ''}`,
       }
+    })
+    step('F1: after the drawer closes, focus is usable (connected, not body)', !afterClose.isBody && afterClose.connected, JSON.stringify(afterClose))
+    let tabbed = 0
+    if (!afterClose.inCard) {
+      for (let i = 1; i <= 12; i++) {
+        await page.keyboard.press('Shift+Tab')
+        const inCard = await page.evaluate(() => !!document.activeElement?.closest('[data-tour-card]'))
+        if (inCard) {
+          tabbed = i
+          break
+        }
+      }
+      step('F1: the card is reachable through the tab order when focus landed elsewhere', tabbed > 0, `reached at Shift+Tab ${tabbed}`)
+    } else {
+      step('F1: the card is reachable through the tab order when focus landed elsewhere', true, `focus already in the card (${afterClose.desc}); no walk needed`)
     }
-    step('F1: the card is reachable again through the tab order after the dialog closes', tabbed > 0, `reached at Shift+Tab ${tabbed}`)
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !document.querySelector('[data-tour-overlay]'), null, { timeout: 5000 })
     const restored = await page.evaluate(() => document.activeElement?.getAttribute('data-tour'))
@@ -159,7 +176,7 @@ const run = async () => {
     'F1: at 375x667 the tour falls back to the documented bottom-sheet presentation — the spotlight ring collapses to a plain scrim, the card pins to the bottom of the viewport, Next and Back operate the tour, and the mobile navigation dialog opens above the sheet at z-50, takes the click and the focus, and closes on Escape without ending the tour. The tour then ends cleanly with focus restored to the launcher. The gate contexts run with cookie consent pre-decided; in a fresh profile the legal consent banner (z-50, bottom-docked) overlays the dev launcher corner until decided, a dev-only cosmetic note recorded here for completeness.',
     [
       ['F1 sheet presentation', 'Sheet pinned at the bottom (card bottom within 24px of the viewport edge), spotlight collapsed, plain scrim.'],
-      ['F1 nav-dialog coexistence', 'The mobile navigation dialog (z-50) paints above the sheet, receives Escape first, and the tour continues; no focus fight in either direction. After the drawer closes, keyboard focus falls to body and the engine deliberately does not steal it back; keyboard users reach the card again through the normal tab order, and Escape then ends the tour with focus restored to the launcher.'],
+      ['F1 nav-dialog coexistence', 'The mobile navigation dialog (z-50) paints above the sheet, receives Escape first, and the tour continues; no focus fight in either direction. When the drawer closes it restores no focus itself, so the H1 repair (2026-11-04) returns focus to the open tour card heading instead of stranding it on body; where focus lands elsewhere, the card stays reachable through the tab order. Escape then ends the tour with focus restored to the launcher.'],
       ['F1 operability', 'Next advances, Back returns, Escape ends the tour from the sheet with focus restored to the launcher; zero page errors.'],
     ]
   )
