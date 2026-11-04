@@ -32,6 +32,23 @@ export async function measureAdvance(page, { completionTarget = 'dev-tour-launch
   }, { completionTarget })
 }
 
+// Rule 2 per-run aggregation for i2r3-linux-timing: advances, p95, max and
+// median come from one run's samples only. Pooling earlier runs into a later
+// run's summary shifts its percentiles and inflates its advance count, which
+// is the aggregation defect this function replaced (see the Phase 2 report's
+// owner decision package, 2026-11-05).
+export function summarizeTimingRun(samples, { draftLimitMs = 100 } = {}) {
+  const sorted = samples.map((t) => t.ms).sort((x, y) => x - y)
+  const n = sorted.length
+  return {
+    advances: n,
+    p95Ms: n ? sorted[Math.min(n - 1, Math.ceil(n * 0.95) - 1)] : null,
+    maxMs: n ? sorted[n - 1] : null,
+    medianMs: n ? sorted[Math.floor(n / 2)] : null,
+    draftLimitMs,
+  }
+}
+
 export async function measurePerformance(browser, lib) {
   const runs = []
   for (let run = 1; run <= 3; run++) {

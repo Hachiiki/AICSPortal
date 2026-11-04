@@ -1,10 +1,14 @@
 // I2 Rules 2 and 3 - Linux environment-specific timing measurements.
 // Rule 2: step-advance timing p95 (click to new spotlight settled), 21
 // measured advances per run after a complete disclosed warm-up tour,
-// three runs. Rule 3: long tasks during a scripted resize/scroll series,
-// recorded window-level with the Long Tasks API (attribution beyond the
-// window is not claimed). No thresholds are adjusted; the draft 100 ms
-// limit and the 50 ms long-task boundary are recorded as they stand.
+// three runs. Each run's measurements and percentiles come from that
+// run's 21 samples only; runs are never pooled (2026-11-05 correction:
+// the first Linux run pooled the runs, so its recorded per-run aggregates
+// are historical evidence, not per-run values). Rule 3: long tasks during
+// a scripted resize/scroll series, recorded window-level with the Long
+// Tasks API (attribution beyond the window is not claimed). No thresholds
+// are adjusted; the draft 100 ms limit and the 50 ms long-task boundary
+// are recorded as they stand.
 import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { createConnection } from 'node:net'
@@ -25,6 +29,7 @@ const res = {
     'Environment-specific: Linux cloud sandbox, production compiler profile via the probe-flagged worktree build.',
     'Rule 2 timings are full student-visible transitions inside the synthetic tour (click to new spotlight settled twice two frames apart); they are not an isolated pure-handler CPU measurement.',
     'Rule 3 long tasks are window-level Long Tasks API entries; ownership attribution beyond "occurred while the tour was open" is not claimed.',
+    'Rule 2 per-run aggregates (advances, p95, median, max) are computed from that run\'s 21 samples only; runs are never pooled.',
     'Draft thresholds recorded unchanged: Rule 2 p95 100 ms; Rule 3 long task 50 ms.',
   ],
   rule2: [], rule3: {}, cleanup: null,
@@ -93,12 +98,14 @@ async function main() {
   // --- Rule 2: three runs, one complete warm-up tour before each, 21 measured advances after it.
   // Each tour contributes 7 measured advances (six Next advances plus the
   // Finish advance; measureAdvance resolves on the new settled spotlight,
-  // or on completed for Finish), so three tours make 21.
-  const { measureAdvance } = await import(resolve(WT_MAIN, 'scripts/onboarding/settle-timing.mjs'))
-  const times = []
+  // or on completed for Finish), so three tours make 21. `times` is reset
+  // per run and each run's summary is computed from that run's samples
+  // only, so no earlier run can shift a later run's percentiles.
+  const { measureAdvance, summarizeTimingRun } = await import(resolve(WT_MAIN, 'scripts/onboarding/settle-timing.mjs'))
   for (let run = 1; run <= 3; run++) {
     progress(`rule2 run ${run}: warm-up tour (disclosed) then 21 measured advances`)
     await walkTour()
+    const times = []
     for (let a = 0; a < 3; a++) {
       await page.locator('[data-tour="dev-tour-launcher"]').click()
       await page.locator('[data-tour-overlay]').waitFor({ state: 'visible', timeout: 10000 })
@@ -110,10 +117,9 @@ async function main() {
       }
       await page.waitForFunction(() => !document.querySelector('[data-tour-overlay]'), null, { timeout: 15000 })
     }
-    const sorted = times.map((t) => t.ms).sort((x, y) => x - y)
-    const p95 = sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1)]
-    res.rule2.push({ run, advances: times.length, p95Ms: p95, maxMs: sorted[sorted.length - 1], medianMs: sorted[Math.floor(sorted.length / 2)], draftLimitMs: 100, samples: times })
-    progress(`rule2 run ${run}: p95=${p95}ms over ${times.length} advances`)
+    const summary = summarizeTimingRun(times)
+    res.rule2.push({ run, ...summary, samples: times })
+    progress(`rule2 run ${run}: p95=${summary.p95Ms}ms over ${summary.advances} advances`)
   }
 
   // --- Rule 3: long tasks during a scripted resize/scroll series ----------
