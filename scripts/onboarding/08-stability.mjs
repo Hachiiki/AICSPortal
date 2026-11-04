@@ -36,11 +36,23 @@ const run = async () => {
   const stateOf = (page) =>
     page.evaluate(() => {
       const ov = document.querySelector('[data-tour-overlay]')
+      const a = document.activeElement
       return {
         overlay: !!ov,
         disposition: ov ? ov.getAttribute('data-disposition') : null,
-        stepId: ov?.querySelector('[data-tour-card]')?.dataset.tourStep || null,
-        activeIsBody: document.activeElement === document.body,
+        // The overlay root carries the step id (data-step-id); the card
+        // never had a tourStep dataset entry, so the old diagnostic was
+        // always null.
+        stepId: ov?.getAttribute('data-step-id') ?? null,
+        activeIsBody: !a || a === document.body || a === document.documentElement,
+        activeConnected: !!a && a.isConnected,
+        activeDescription: a
+          ? a === document.body
+            ? 'body'
+            : a === document.documentElement
+              ? 'html'
+              : `${a.tagName.toLowerCase()}${a.id ? '#' + a.id : ''}${a.getAttribute('aria-label') ? `[${a.getAttribute('aria-label')}]` : ''}`
+          : 'null',
       }
     })
 
@@ -82,12 +94,28 @@ const run = async () => {
       (!after.overlay && !after.activeIsBody === false) ||
       (after.overlay && ['spot', 'waiting', 'mobile', 'plain'].includes(after.disposition))
     step('H1: mid-step navigation leaves a sane engine state (overlay disposed or a valid disposition)', sane, JSON.stringify(after))
+    // H1 focus contract (the old suite accepted activeIsBody while the
+    // overlay stayed open, which is exactly the stranded-focus case the
+    // gate plan names as a blocker): while the tour card remains open,
+    // focus must sit on connected tour or portal content — never on
+    // body, the root, or a dead node. This runs before any Next click
+    // so it measures the view swap itself, not the recovery click.
+    step('H1: focus is not stranded on body/root after the mid-step view swap', !after.activeIsBody, `active=${after.activeDescription} overlay=${after.overlay} disposition=${after.disposition}`)
+    step('H1: the active element after navigation is connected (no dead focus target)', !after.activeIsBody && after.activeConnected, `active=${after.activeDescription} connected=${after.activeConnected}`)
     step('H1: no orphaned overlay on the new view', !after.overlay || !!(await page.$('[data-tour-card]')))
     step('H1: no page errors during mid-step navigation', pageErrors.length === 0, `errors=${JSON.stringify(pageErrors)}`)
     step('H1: no window dialogs fired', dialogs.length === 0, `dialogs=${JSON.stringify(dialogs)}`)
-    // The step stays operable afterwards.
+    // The step stays operable afterwards, and advancing keeps focus in
+    // the card rather than dropping it back out.
     await clickNext(page)
+    await page.waitForTimeout(500)
+    const afterNext = await stateOf(page)
+    const focusInCard = await page.evaluate(() => {
+      const card = document.querySelector('[data-tour-card]')
+      return !!card && !!document.activeElement && card.contains(document.activeElement)
+    })
     step('H1: the step stays operable after the user navigated away mid-step', true, 'Next click after nav accepted without error')
+    step('H1: focus re-enters the tour card after the post-navigation advance', focusInCard, JSON.stringify({ active: afterNext.activeDescription, overlay: afterNext.overlay, stepId: afterNext.stepId }))
     await page.screenshot({ path: resolve(OUT, 'h1-nav-mid-step.png') })
     await page.close()
     await ctx.close()
@@ -114,6 +142,8 @@ const run = async () => {
     const st = await stateOf(page)
     const okEarly = !st.overlay || ['spot', 'waiting', 'plain', 'mobile'].includes(st.disposition)
     step('H1: navigation on the first step (+rapid second nav) ends calmly or follows', okEarly, JSON.stringify(st))
+    step('H1: focus is not stranded on body/root after early/rapid navigation', !st.activeIsBody, `active=${st.activeDescription} overlay=${st.overlay} disposition=${st.disposition}`)
+    step('H1: the active element after early navigation is connected', !st.activeIsBody && st.activeConnected, `active=${st.activeDescription} connected=${st.activeConnected}`)
     step('H1: no page errors under rapid navigation', pageErrors.length === 0, `errors=${JSON.stringify(pageErrors)}`)
     await page.screenshot({ path: resolve(OUT, 'h1-early-nav.png') })
     await page.close()

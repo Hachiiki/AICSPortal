@@ -127,6 +127,24 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     const current = steps[indexRef.current]
     if (!current) return
 
+    // H1 focus guard. An unplanned mid-tour navigation can unmount the
+    // element the user was interacting with (the click that swapped the
+    // view), and focus then silently falls to <body> while this
+    // aria-modal card stays open. Overlays that open above the tour keep
+    // their own focus (C5), so the guard repairs only genuinely stranded
+    // focus - body, the root, or a disconnected node - and never touches
+    // a live element elsewhere. It runs in the same rAF pass as the
+    // layout so the repair lands with the repositioned frame.
+    const active = document.activeElement
+    const stranded =
+      !active ||
+      active === document.body ||
+      active === document.documentElement ||
+      !(active as HTMLElement).isConnected
+    if (stranded && cardWrapRef.current?.isConnected) {
+      headingRef.current?.focus({ preventScroll: true })
+    }
+
     const el = document.querySelector<HTMLElement>(`[data-tour="${CSS.escape(current.target)}"]`)
     const found = !!el && el.getClientRects().length > 0
     if (found) everFoundRef.current = true
@@ -241,6 +259,10 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     })
     window.addEventListener('resize', schedule, { passive: true })
     window.addEventListener('scroll', schedule, { capture: true, passive: true })
+    // Focus changes without a DOM mutation (clicking empty page space
+    // blurs to body). Captured focusout schedules the same rAF pass so
+    // the H1 guard sees the post-blur active element one frame later.
+    document.addEventListener('focusout', schedule, true)
     const mql = window.matchMedia(SHEET_QUERY)
     const onSheet = (e: MediaQueryListEvent) => {
       setSheet(!e.matches)
@@ -252,6 +274,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       observer.disconnect()
       window.removeEventListener('resize', schedule)
       window.removeEventListener('scroll', schedule, { capture: true } as EventListenerOptions)
+      document.removeEventListener('focusout', schedule, true)
       mql.removeEventListener('change', onSheet)
       // StrictMode dev double-mount cancels the in-flight frame in this
       // cleanup; the guard must be cleared with it or every later
