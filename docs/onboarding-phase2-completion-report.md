@@ -1,6 +1,6 @@
 # Phase 2 completion assessment
 
-Current owner scope, 2026-11-03: Phase 3 student onboarding development and UX refinement are explicitly authorized on `main-full-dev`. Phase 2 remains **NOT READY**. The dated records below describe earlier assignments and their authorization boundaries; their statements that Phase 3 or commits were unauthorized are historical. The final-verification sections at the end supersede earlier outstanding-status tables. Owner-reported manual categories are PASS/APPROVED; production student-scope A1 has committed-source evidence and strict cleanup; corrected cal1/cal2 are valid but miss the unchanged draft limits, which the owner instructed us to keep unresolved. Timing misses its draft limit and long-task attribution remains inconclusive. See the dated sections for exact evidence and limitations.
+Current owner scope, 2026-11-04: Phase 3 student onboarding development and UX refinement are explicitly authorized on `main-full-dev`. Phase 2 remains **NOT READY** pending the owner's threshold decisions, the historical A2 wording interpretation, and cost-proportionality review. The 2026-11-04 cloud-sandbox continuation (final section) repaired the observed unplanned-navigation focus loss behind a red-first regression, completed the target/toast evidence, reran the full scripted interaction matrix green, evidenced H2 without any service outage, and attributed the Rule 4b memory exceedance to saturating V8 code-cache accumulation with zero retained tour memory. The dated records below describe earlier assignments and their authorization boundaries; their statements that Phase 3 or commits were unauthorized are historical. The final-verification sections supersede earlier outstanding-status tables, and the newest continuation supersedes conflicting dispositions where they overlap. Owner-reported manual categories are PASS/APPROVED; production student-scope A1 has committed-source evidence and strict cleanup. See the dated sections for exact evidence and limitations.
 
 Date: 2026-11-02, Asia/Shanghai.
 Branch: `main-full-dev`. Committed HEAD: `e0e688089791e86b539cb98123b04b52bac139dd`.
@@ -484,3 +484,104 @@ Technical work still required is a focus-recovery repair, complete target/toast 
 Verified delivery changes are the safe interaction adapter and persistence fixture, remote-video compatibility and truthful announcement assertions, plus the existing report/checklist/gate index/cost/status documentation. The pending focus-test edit is excluded from commits. Protected `next-env.d.ts` retains SHA-256 `7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc`; `.env.local`, the design export and unrelated work were untouched. The resumed local MongoDB service/listener identity matched `mongod.exe`, PID 6260, on 127.0.0.1:27017. No account correction was performed.
 
 The evidence summary is `.phase2-local/final-evidence-summary.json`. Retention uses `.phase2-local/package-final-review.mjs`, `final-retention-manifest.json` and `final-review-package.zip`; the inventory records exact tracking/ignore status and exclusions. These artifacts preserve failures and exact producer bytes rather than changing outcomes. The completion session's prior verified commits are `03d59d0`, `df07b05`, `62d1354` and `75979df`, each immediately pushed and remote-verified. Final delivery commits and their remote confirmation are reported with the handoff; the tested source identities above remain unchanged.
+
+## Cloud-sandbox verification continuation, 2026-11-04
+
+This continuation executed in the isolated Linux cloud sandbox (node v24.22.2, bun 1.3.14, Playwright chromium, a disposable synthetic MongoDB 8.2.6 on 127.0.0.1:27017 seeded from the documented recovery procedure; no Atlas contact, no production system, no shared service touched). It resolves the Priority A blockers in code, reruns the complete scripted interaction matrix, and closes the Rule 4b attribution questions with a Linux measurement. Every Windows-specific finding above stands unchanged; Linux evidence is recorded as environment-specific and never claims to prove Windows process cleanup. Recommendation review below.
+
+### Commits (each pushed to `origin/main-full-dev` and remote-verified)
+
+- `7da5ec0` fix(onboarding): restore card focus after an unplanned mid-tour navigation
+- `30b2a70` test(onboarding): wait for the step heading in the D2 per-step focus check
+- `250d7fa` test(onboarding): fixture the onboarding state for synthetic matrix runs
+- `cbbfe70` test(onboarding): settle the toast before reading its layer
+- `b19366a` test(onboarding): expect usable focus after the mobile drawer closes
+- `528c1f8` test(onboarding): adapter for the safe persistence suite on the standard harness
+- `ba8bc27` test(onboarding): Linux attribution and timing probes for the I2 rules
+
+### H1 focus loss: repaired with a red-first regression
+
+The strengthened `08-stability.mjs` (committed at `7da5ec0`) asserts what the gate plan names: while the overlay stays open after unplanned navigation, focus must not sit on body/root, the active element must be connected, and advancing afterwards must re-enter the card. It also fixes the step-id diagnostic, which read a `tourStep` dataset entry that never existed. First cloud run against the unrepaired engine: **4 failures, focus on BODY with the overlay present in both scenarios** (`phase2-cloud/h1-fail-first`), reproducing the Windows attempt-3 observation exactly.
+
+The repair lives in the shared `TourOverlay` engine: the existing rAF pass now repairs genuinely stranded focus (body, root, disconnected node) back into the step heading, and a captured `focusout` listener brings no-mutation focus losses into the same pass. It never touches focus held by a live element, so overlays above the tour (C5) keep their focus. Rerun: **13/13 PASS** (`h1-green-1`). `03-keyboard.mjs` re-ran green before the repair was committed (14/14 at `kb-3-baseline` without the fix and `kb-4` with it), isolating one unrelated D2 test race that `30b2a70` fixes: the per-step wait accepted the just-clicked Next button and raced the heading-focus frame; it now waits for the documented target itself, which is the stronger assertion.
+
+The repair also changed one documented test premise: after the mobile navigation drawer closes, the engine no longer leaves focus on body; the card regains it (probe evidence in `06-mobile` history at `b19366a`). The F1 scenario now asserts the stronger contract (focus connected and usable, card reachable when focus lands elsewhere) and its report wording is updated. This is a deliberate behavior change from "deliberately does not steal it back" to "repairs stranded focus", made for the H1 acceptance requirement; the owner's reported keyboard/focus category stays the human evidence, and a focused keyboard/assistive-technology re-check of the repaired edge remains appropriate.
+
+### C5 toast: two demonstrated causes, both fixed event-driven
+
+A probe on this sandbox showed the export fetch settling and the toast painting in about one second, so the attempt-3 Windows failure was not a toast-layer defect. Two causes were proven and fixed in `02-positioning.mjs` (`cbbfe70`): the assertion window was fixed while the toast only fires after the export fetch settles (the fixed window measured the route's first dev compile), and the toast slides up from below the viewport, so the layering read mid-entry got a null `elementFromPoint` hit off-screen (center y 803 on an 800px viewport) before the settled read returned the toast itself. The assertion now waits for the export response event, then for the toast to sit fully inside the viewport, then reads the layer. The layering assertion itself is unchanged: the sonner toaster carries z 999999999 above the tour's z-40 and the hit lands inside the toast. Full `02-positioning.mjs`: **12/12 PASS** (`pos-2`), so C5's dropdown, COE-modal and toast coexistence evidence is complete.
+
+### Complete interaction matrix, fresh evidence
+
+All ten suites ran on the current source with the committed state fixture (the Phase 3 student welcome otherwise covers the dev launcher for a fresh account; the fixture serves the same reviewed values the isolated adapter used, with onboarding reads `persisted:false` and completion PATCHes fulfilled locally, so no database completion write occurs):
+
+| Suite | Result | Evidence dir |
+|---|---|---|
+| 01 targets (B1-B4) | 16/16 PASS | `tg-1` |
+| 02 positioning (C1-C5) | 12/12 PASS | `pos-2` |
+| 03 keyboard (D1/D2) | 14/14 PASS | `kb-2`, `kb-4` |
+| 04 announcements/names (D3/D4) | 13/13 PASS | `04-sr-1` |
+| 05 reduced motion (E1) | 6/6 PASS | `05-motion-1` |
+| 06 mobile (F1) | 8/8 PASS | `06-mobile-2` |
+| 07 themes (G1) | 72/72 PASS | `07-themes-1` |
+| 08 stability (H1, strengthened) | 13/13 PASS | `h1-green-1` |
+| 09 safe persistence (H2) | 8/8 PASS | `09-safe-1` |
+| 12 portal regressions (J2) | 8/8 PASS | `12-regression-1` |
+
+One infrastructure flake (a walk-loop navigation timeout) occurred once in `kb-2` and did not recur across `kb-3-baseline` and `kb-4`; that run is retained. B1 covered multi-width present targets (1280x800, 1100x700, 1024x640) with flip/clamp assertions; B2 covered the absent-target wait, budget skip, live-region announcement and no stranded focus; B3 held waiting with no spotlight before a late mount and framed it after; B4 released the spotlight and kept the step operable after a mid-step removal. H2 exercised real read aborts and PATCH 500s through both clients with the actual student replay, without stopping any MongoDB service. All artifacts, manifests and screenshots are under `.phase2-cloud/` (untracked, like `.phase2-local/` on the Windows checkout).
+
+### Rule 4b investigation: the growth is the V8 code cache, saturating, with zero retained tour memory
+
+A Linux probe (`i2r4-linux-attribution.mjs`, committed) reproduces the Windows measurement methodology: a disposable worktree at HEAD with the build-time `NEXT_PUBLIC_ONBOARDING_PROBE` mount patch confined to it (never committed, main tree verified clean), a production webpack build, `next start` with `APP_ENV=development` demo login, the minted-session fallback disclosed, progress writes intercepted, reduced-motion synthetic tour, one discarded verified warm-up, GC-stable baseline, forced GC before each recorded sample, snapshots outside the series, and nodes/listeners guards. The first strict attempt hit an unstable dual-GC baseline (70 KB drift between two GCs after one warm-up) and is retained; the disclosed settle-loop variant (repeated GC rounds to a 15 KB-stable pair, attribution runs only) produced:
+
+| Trial | End drift | OLS slope | Nodes/listeners delta | Finalization |
+|---|---|---|---|---|
+| 10 cycles, `i2r4-linux-attrib-3` | 669 KB | 47.48 KB/cycle | +31 / +3 | snapshots parsed, supported-lifecycle cleanup, no chrome/next process left |
+| 30 cycles, `i2r4-linux-30c` | 843 KB | 18.30 KB/cycle | +31 / +3 | same |
+
+The 10-cycle drift and slope reproduce the corrected Windows cal1/cal2 values almost exactly (549/525 KB, 47.47/42.30 KB per cycle), so the mechanism is cross-platform. Attribution from the snapshot pair, read with each snapshot's own field layout:
+
+- Per-type self-size: `code` +556 KB (of a 669 KB drift); `object` +3 KB, `object shape` +6 KB, strings flat, **detached DOM 0 -> 0** (snapshot `detachedness` field).
+- Constructor-level: `system / InstructionStream` +365 KB (953 -> 1354 compiled code objects), `system / TrustedByteArray` +90 KB, `system / Code` +28 KB, `system / FeedbackVector` +23 KB. No tour object constructor grows; the second run's snapshot pair reproduces the same signature (+548 KB code).
+- Onboarding fingerprints are identical baseline vs final (`data-tour-card` 2, step title 2, `data-tour-overlay` 2, `OnboardingDev` 5, completion message 3): zero retained tour data, zero retained listeners.
+- Saturation: per-cycle deltas decelerate from 49.3 KB/cycle (first third) to 3.2 KB/cycle (last third) over 30 cycles - a one-time compilation plateau, not a per-cycle leak. The verification-GC sample disclosed an 88 KB snapshot disturbance; it is recorded, never silently absorbed.
+
+Conclusion for the owner's threshold decision (no threshold changed, no verdict issued): the retained memory attributable to the tour engine is zero to measurement precision - no detached DOM, no listener growth, no retained tour objects, mount/unmount cleanup verified every cycle (30/30 completed tours with the completion PATCH observed and the overlay detached each time). The draft-limit exceedance is V8 lazy-compilation cache accumulation that saturates; the OLS slope over the first ten cycles measures compiler warm-up, not steady-state retention. A technically grounded options list for the owner: keep the draft limits and record the exceedance as compiler-cache behavior with the attribution evidence attached; or set the memory rule on retained tour memory (nodes/listeners/detached/fingerprints), which the engine passes on both platforms; or require a longer fixed-cycle series with a plateau criterion. The decision remains the owner's alone.
+
+### Rules 2 and 3, Linux measurements
+
+`i2r3-linux-timing.mjs` (committed) measured the production-profile probe build. Rule 2: three runs, each after a complete disclosed warm-up tour, 21 measured advances per run (63 total), full click-to-new-spotlight-settled transitions including route/data waits; no sample discarded. Per run: p95 1648.1-1648.2 ms, median 81.6 ms, max 1648.7 ms. The step breakdown locates every p95 miss in the gate's own fixtures: the dev-6 advance waits out the absent-target step's full 1500 ms budget before the auto-skip, and the dev-2 advance includes the late-target fixture's designed ~800 ms mount delay; every other advance measures 15-88 ms, under the 100 ms draft limit. Rule 3: **zero long tasks** (Long Tasks API) during the scripted six-stop resize and scroll series with the overlay open on a spotted step, so there is nothing to attribute on this platform; the Windows window-level 15-long-task observation and its inconclusive attribution stand unchanged.
+
+### A2 verification and cost facts at the current HEAD
+
+A2 remains an owner-interpretation item and nothing here waives the literal wording. Verified read-only on the current source: the `onboarding.state` policy is session-derived self-only and denies corrupt roles; no access decision consults onboarding state (the only non-onboarding route touching `onboarding_states` is the password route, which best-effort records a completed step after a successful change and never reads progress for authorization); the password route keeps branch-stamped filters (`{username, branch: actor.branch}`), a `matchedCount !== 1` guard, and the tokenVersion revocation. Dependencies are unchanged from baseline (`git diff 46c33a5 HEAD -- package.json` is empty).
+
+A fresh clean production webpack build at the current HEAD (explicit `--webpack`, the default Turbopack was NOT executed) measured 76 client chunk files, 2,602,524 raw bytes, 756,675 gzip (level 9), with zero prohibited synthetic markers and only the permitted student-engine markers present (targeted scan, not exhaustive byte exclusion). A same-platform build of the pinned baseline `46c33a5` in the disposable worktree measured 75 files, 2,574,713 raw, 747,922 gzip: **cumulative delta +27,811 raw / +8,753 gzip bytes, +1 chunk**, consistent with the Windows-measured +27,780 / +8,464 and including the new focus guard. Evidence: `.phase2-cloud/i1-linux-bundle-comparison.json`. The owner-reviewed cost memo keeps its Windows numbers as recorded.
+
+### Regression and static gates
+
+Final full Bun suite on the current source: **181 tests, 887 assertions, 0 failures** across 15 files. `npm run lint` and `npm run typecheck` pass; the production build above exits 0. The three pre-existing lint warnings in unchanged files are unchanged.
+
+### Updated criterion dispositions (this continuation only; earlier rows keep their evidence)
+
+| Criterion | Updated disposition | Basis |
+|---|---|---|
+| A1 | PASS unchanged | No application source changed beyond the focus guard; the fresh build and marker scan above agree with the approved scope |
+| A2 | FAIL under literal wording, owner interpretation item | Documented verification above; no waiver applied |
+| A3 | INCONCLUSIVE for formal acceptance | Fresh scripted evidence now exists for the full matrix, but formal completeness still requires the owner's threshold decision and the human checks below |
+| B1-B4 | PASS (fresh scripted evidence) | Complete targets matrix, `tg-1` |
+| C1-C4 | PASS (fresh scripted evidence) | `pos-2` |
+| C5 | PASS (fresh scripted evidence) | Toast/dropdown/modal coexistence, `pos-2` |
+| D1/D2 | PASS for executed scope | Keyboard suites plus the repaired unplanned-navigation focus contract; owner manual category already recorded |
+| D3/D4 | PASS for recorded scope | `04-sr-1` plus owner-reported categories |
+| E1/F1/G1 | PASS (fresh scripted evidence plus owner categories) | `05-motion-1`, `06-mobile-2`, `07-themes-1` |
+| H1 | PASS for executed scope (repaired) | Red-first strengthened regression, green after the repair, `h1-fail-first`/`h1-green-1`; a focused owner keyboard/AT re-check remains appropriate |
+| H2 | PASS (fresh scripted evidence) | `09-safe-1`, real read aborts/PATCH 500s, no service outage |
+| I1 | INCONCLUSIVE pending owner review | Cost memo facts refreshed with same-platform bundle deltas; proportionality judgment remains the owner's |
+| I2 | INCONCLUSIVE acceptance; attribution now recorded | Draft limits unchanged; growth attributed to saturating V8 code-cache accumulation with zero retained tour memory; Rule 2 median under the draft limit with p95 misses located in designed fixture waits; Rule 3 zero long tasks here |
+| J1/J2 | PASS | Fresh lint/typecheck/build and the 181-test suite plus browser regressions |
+| J3 | PASS for the scripted channel | The complete matrix re-runs reproducibly from a fresh clone with manifests; the Windows harness evidence remains separate |
+
+### Recommendation
+
+Phase 2 remains the owner's decision. This continuation resolves the identified engineering blockers: the observed focus loss is repaired behind a red-first regression, the target/toast evidence is complete, the interaction matrix passes fresh on two scenario families, H2 is evidenced without any service outage, and the memory exceedance is now explained (saturating compiler-cache accumulation, zero retained tour memory) rather than open. What remains genuinely open for acceptance: the owner's threshold decisions (Rule 2 p95 wording versus designed fixture waits; Rule 4b memory rule basis), the historical A2 wording interpretation, cost proportionality review, and - if wanted - a short human keyboard/screen-reader pass over the repaired unplanned-navigation edge in the safe preview. The draft limits were never adjusted and no criterion was waived.
