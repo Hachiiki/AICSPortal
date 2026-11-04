@@ -1,6 +1,6 @@
 # Phase 2 completion assessment
 
-Current owner scope, 2026-11-03: Phase 3 student onboarding development and UX refinement are explicitly authorized on `main-full-dev`. Phase 2 remains **NOT READY**. The dated records below describe earlier assignments and their authorization boundaries; their statements that Phase 3 or commits were unauthorized are historical. See the November 3 UX refinement section at the end for current behavior, verification and preview instructions.
+Current owner scope, 2026-11-03: Phase 3 student onboarding development and UX refinement are explicitly authorized on `main-full-dev`. Phase 2 remains **NOT READY**. The dated records below describe earlier assignments and their authorization boundaries; their statements that Phase 3 or commits were unauthorized are historical. The final-verification sections at the end supersede earlier outstanding-status tables. Owner-reported manual categories are PASS/APPROVED; production student-scope A1 has committed-source evidence and strict cleanup; corrected cal1/cal2 are valid but miss the unchanged draft limits, which the owner instructed us to keep unresolved. Timing misses its draft limit and long-task attribution remains inconclusive. See the dated sections for exact evidence and limitations.
 
 Date: 2026-11-02, Asia/Shanghai.
 Branch: `main-full-dev`. Committed HEAD: `e0e688089791e86b539cb98123b04b52bac139dd`.
@@ -390,3 +390,97 @@ The gate wrapper preserves the actual tested HEAD and separately checks equivale
 The production smoke also recorded three real-student timing runs with 21 measured advances each, after a separately disclosed complete warm-up tour per run. Click-to-new-spotlight-settled p95 was 368.6 ms, 626 ms and 1052.4 ms. Each misses the draft 100 ms limit. These are full student transitions including route/data waits and the harness's request-ownership checks, not an isolated pure-handler CPU measurement; no slow sample was discarded. Raw cycles and durations remain in `student-performance.json`.
 
 The scripted production resize/scroll observation recorded 15 long tasks, from 54 to 512 ms. The Long Tasks API reported window-level, unknown ownership and cannot establish attribution to tour handlers. Rule 3 is therefore INCONCLUSIVE, not PASS and not a proven tour-handler regression. No threshold was changed. These fresh numbers supersede no historical artifact and do not imply production performance acceptance. The final gate remains NOT READY while memory is unresolved and the remaining interaction/cost checks complete.
+
+## Final-verification continuation, 2026-11-04
+
+The owner reaffirmed keeping the draft memory limits unresolved. No further calibration or threshold changes were made. This continuation changes verification tools and existing documentation only; application files under `src/`, dependencies, student records and credentials are unchanged.
+
+The final Bun regression command was:
+
+```powershell
+bun test src/lib/authz/ src/lib/onboarding/ src/lib/aics/theme-palette.test.ts src/lib/aics/use-portal-route.test.ts scripts/lib/ scripts/onboarding/manual-preview.test.mjs scripts/onboarding/settle-timing.test.mjs
+```
+
+It passed 181 tests with zero failures and 887 assertions across 15 files. Evidence is `.phase2-local/final-verification-1/unit-final.log`. The earlier restricted-network failure remains preserved separately. Targeted ESLint and Node syntax checks for the interaction adapter, target/positioning/announcement tests and safe persistence fixture passed with no new warnings in `.phase2-local/final-verification-1/interaction-tools-lint.log`.
+
+The current cost memo replaces stale synthetic-only claims with measured source groups, the full 38-file application diff scope, unchanged dependencies, actual student harness reuse, a source-backed maintenance estimate and the owner-approved runtime retirement interpretation. The baseline and student webpack builds measured 2,468,842 and 2,496,622 raw client-chunk bytes, and 716,797 and 725,261 per-file gzip bytes at level 9. The cumulative revision delta is 27,780 raw / 8,464 gzip bytes. These are all-chunk totals, not initial-route payload or engine-only attribution. Both builds finalized their owned jobs successfully. Evidence is `.phase2-local/final-bundle-baseline-1/` and `final-bundle-comparison.json`; the memo's cost-proportionality judgment remains for owner review.
+
+### Interaction safety and preserved failures
+
+`isolated-interactions.mjs` runs the existing scenarios from a committed application export with a local synthetic login, recorded producer bytes, isolated server/browser jobs and blocked external requests. Progress GET/PATCH are simulated. The original `09-persistence.mjs` is deliberately not executed because it stops MongoDB and writes a positive-control record. `09-persistence-safe.mjs` instead exercises read aborts and PATCH 500 responses through both synthetic and real student clients. No shared service outage or database write is authorized or needed.
+
+Attempt 1 stopped before browser assertions when the first development login-route request exceeded 30 seconds. Its server cleanup passed; the overall run remains FAIL. Attempt 2 allowed 90 seconds and recorded a successful login in 46,020 ms, supporting the cold-route-readiness diagnosis. That saved run has 14 keyboard, 12 announcement/name, 6 motion, 7 mobile and 72 theme assertions passing, alongside a target failure, positioning navigation timeout and the old single-host announcement-count failure. It ended without a final cleanup record. Its root was absent when work resumed, but that does not establish successful cleanup; the run remains incomplete and cannot be an overall PASS.
+
+The adapter now waits for the real portal shell and visible desktop navigation before target assertions, and closes this owned browser's scenario contexts even after a failure. The announcement test now checks exactly one speaking host with the exact dismissal text while the other mounted development host stays empty. It retains the one-overlay-region check and actual Chromium accessibility-tree audit; an empty student live region is not duplicate speech. Remote recordings use Playwright's `video.saveAs` rather than a remote-incompatible `video.path` plus local rename. These are focused test/harness corrections, not production behavior changes.
+
+### Completed matrix and bounded final attempt
+
+Attempt 3, `.phase2-local/final-interactions-attempt3/`, finished with **147 passing assertions, one failed assertion and one scenario that exited before assertions**. Its overall exit was 1. Both browser and server cleanup passed: confirmed retained roots, empty jobs, supervisor exit 0, no remaining recorded browser PIDs, and unchanged producer/protected-file hashes. No unexpected mutation requests were observed. The two progress PATCH requests seen by the outer guard were fulfilled locally; H2's forced failures were also intercepted locally.
+
+| Script | Actual attempt-3 result |
+|---|---|
+| 01 targets | NOT EXECUTED beyond setup; `spawnSync powershell.exe ETIMEDOUT` during startup inspection |
+| 02 positioning | 11 PASS, 1 FAIL; resize, scroll, skeleton/layout shift, cross-route navigation/recording and dropdown/modal coexistence passed. The toast did not appear within the wait; the actual button still said `Preparing export...`. This does not establish a toast-layer implementation failure. |
+| 03 keyboard/focus | PASS, 14 assertions |
+| 04 announcements/names | PASS, 13 assertions, including the actual accessibility tree and one speaking host |
+| 05 reduced motion | PASS, 6 assertions |
+| 06 mobile | PASS, 7 assertions |
+| 07 themes | PASS, 72 assertions across the nine concrete combinations |
+| 08 stability | Eight original assertions PASS, but insufficient for H1 focus acceptance; see below |
+| 09 safe persistence | PASS, 8 assertions, including real student Finish/replay/navigation with rejected writes |
+| 12 portal regressions | PASS, 8 assertions for skip link, notification and cookie controls/coexistence |
+
+The cross-route video actually exists at `final-interactions-attempt3/positioning/c4-cross-route.webm`, 6,477,863 bytes. It is automated evidence, not a human recording. `02-positioning.mjs` now matches the exact successfully executed attempt-3 producer bytes. Its failed toast observation remains failed.
+
+Attempt 4 was the last focused retry, selecting `01-targets.mjs,02-positioning.mjs,08-stability.mjs`. It preserved a proposed longer functional toast-readiness wait and stronger focus assertions. Static checks and local login passed, but the server's ownership protocol timed out during the first page load. The protocol then correctly refused further use. No selected browser assertions completed. Overall exit was 1, and cleanup also FAILED: browser close timed out and the immediate process query still observed two recorded PIDs, while server job-empty acknowledgement was unavailable after the poisoned protocol. Source and producer bytes remained unchanged. No retry or stale inspection response was used to manufacture ownership evidence.
+
+A separate bounded read-only native process probe followed. The recorded Edge root returned exit code 0 and a signalled process handle, wait result 0. The other recorded browser PID, server root/supervisors, browser worker and runner had no CIM row and native open returned error 87. This later observation is retained in `.phase2-local/final-verification-1/attempt4-post-cleanup-process-state.json`; it does not repair the missing timely cleanup evidence. No unknown process was terminated. The native-pipe workflow has genuine passing lifecycle evidence in A1, both corrected calibrations and attempt 3, but Windows inspection/cleanup reliability is still not universally resolved. Further controller work or repeated retries were stopped after this bounded attempt.
+
+### Focus finding and unfinished verification edits
+
+Both original H1 scenarios recorded `activeIsBody:true` while the tour overlay remained present after manual navigation. The original assertions accepted a valid overlay disposition without requiring useful focus. Therefore their printed `ALL PASS` cannot satisfy H1's no-lost-focus requirement. This is an observed focus-contract failure, separate from the owner's reported successful manual categories and from the infrastructure failures. No assertion is being reinterpreted as having tested what it did not test.
+
+The strengthened `08-stability.mjs` adds connected/non-body focus checks and corrects its step-ID diagnostic. It passed syntax/lint checks, but its browser execution was blocked in attempt 4. It is retained **uncommitted for review**, with `.phase2-local/final-pending-focus-test.patch` and the exact attempt-4 producer copy. The proposed 90-second toast wait was likewise not executed; its patch and attempt-4 source are preserved locally. The working positioning script was returned to the verified attempt-3 version, retaining the tested remote-video fix. No application focus repair or new feature was introduced during this verification continuation. H1 needs a focus-recovery repair and affected regression/production verification before acceptance.
+
+### Formal disposition of all 26 criteria
+
+PASS below applies only to the named executed check. Historical results, owner-reported categories and fresh automated evidence remain distinct. The actual committed A1 application HEAD is `62d1354fe374cf12a7641878c24c87d8750ed99c`; the strict reader separately verifies later app/build byte equivalence without claiming another build. The corrected cal1/cal2 application HEAD was `df07b05bde7fbc9ba7104a35581347f34d7b84e5`. No application/build input changed in this continuation.
+
+| Criterion | Final disposition | Evidence or remaining requirement |
+|---|---|---|
+| A1 | PASS under the explicit owner amendment | Actual committed-source production build/login, 17 smoke assertions, raw targeted chunk rescan, reviewed producer and strict cleanup. Real student engine permitted; synthetic/testing controls excluded. |
+| A2 | FAIL under literal historical wording; integrated-scope interpretation unresolved | No access decision consults onboarding state and security suites PASS. The authorized student integration nevertheless changed the existing password route: branch-stamped filters, matched-count handling and best-effort progress recording. This is not the original no-auth-behavior-change diff. Do not waive that wording or undo branch hardening merely to claim a clean comparison. |
+| A3 | INCONCLUSIVE | Executed and failed artifacts are retained and indexed; mandatory target/toast, attribution and complete lifecycle evidence remain incomplete. |
+| B1 | INCONCLUSIVE | Present targets frame in production/timing and positioning cases, but the fresh complete multi-width target matrix did not finish. |
+| B2 | INCONCLUSIVE | Missing-target auto-skip is verified by calibration/SR scenarios; the complete dedicated missing-at-start matrix was blocked. |
+| B3 | INCONCLUSIVE | Delayed targets have unit/cycle evidence; the fresh dedicated no-wrong-flash recording did not complete. |
+| B4 | INCONCLUSIVE | Fresh removal-mid-step scenario NOT EXECUTED successfully. |
+| C1 | PASS | Attempt-3 resize series. |
+| C2 | PASS | Attempt-3 scroll tracking. |
+| C3 | PASS | Attempt-3 skeleton resolution and deterministic 320px layout shift. |
+| C4 | PASS | Actual pushState view transition and saved cross-route video. |
+| C5 | INCONCLUSIVE | Dropdown and modal hit tests PASS; toast creation/layering proof is incomplete. |
+| D1 | PASS for executed scope | 14 keyboard/focus assertions plus the owner's reported keyboard category. Unplanned navigation is H1 below. |
+| D2 | PASS for executed scope | Step focus and Finish/Escape restoration verified. This does not cover H1's manual-route focus loss. |
+| D3 | PASS for recorded scope | Scripted start/change/skip/end and duplicate-speech checks; owner reports screen-reader announcements PASS. No AT version or detailed human scenario notes were supplied. |
+| D4 | PASS for automated scope | Actual Chromium tree exposes the named dialog/three controls; decorative spotlight hidden. No additional detailed manual name-audit observations are invented. |
+| E1 | PASS | Six reduced-motion assertions and owner-reported category. |
+| F1 | PASS | Seven phone-sheet/nav/focus assertions and owner-reported category. |
+| G1 | PASS | 72 theme/contrast assertions and owner-reported themes/readability category. |
+| H1 | FAIL, observed focus loss | Overlay survived and navigation worked, but focus fell to BODY in both observed manual-route scenarios. Strengthened browser regression NOT EXECUTED successfully. |
+| H2 | PASS | Eight safe transport-failure assertions, including actual student flow, plus mocked route persistence tests. No real completion writes. |
+| I1 | INCONCLUSIVE pending owner review | Updated factual cost memo; S2 zero new runtime dependencies PASS. S1/S3/S4/S5 proportionality remains owner judgment. S5 runtime interpretation is approved, not an executed retirement. |
+| I2 | INCONCLUSIVE acceptance | Rules 1/4a PASS under amended A1. Rule 2 draft comparison FAIL in all three runs. Rule 3 attribution INCONCLUSIVE. Valid cal1/cal2 both miss unchanged draft memory limits; owner explicitly keeps memory unresolved. No full memory-gate PASS is claimed. |
+| J1 | PASS | Lint/typecheck and actual webpack production build, with only three existing lint warnings. Default Turbopack NOT EXECUTED. |
+| J2 | PASS for named regressions | 181 Bun tests/887 assertions and eight portal browser regressions. No claim that this clears H1. |
+| J3 | INCONCLUSIVE for complete gate | Real scripts/producer copies/manifests exist, but the fresh complete target matrix and strengthened focus scenario were blocked. |
+
+### Remaining actions and acceptance recommendation
+
+Recommendation: **NOT READY**, not CONDITIONAL ACCEPT. Mandatory focus and evidence requirements remain unmet; a conditional outcome cannot waive them. The owner's manual observations are recorded as supplied, without turning them into detailed synthetic-edge-case results. Screen-reader pacing and subjective visual judgment require human evidence; the reported categories supply that evidence at their stated scope. The unplanned-route focus edge and uncompleted synthetic target cases are not asserted to have been reviewed manually. After repair, a focused keyboard/assistive-technology check of that edge remains appropriate.
+
+Technical work still required is a focus-recovery repair, complete target/toast evidence with trustworthy finalization, and handler-level long-task attribution. Memory and timing remain unresolved against the retained draft limits; no further calibration was run after the owner's decision. Owner interpretation of the historical A2 boundary and review of the updated cost memo remain separate acceptance decisions. No additional student feature, Faculty/Admin onboarding, database change, credential correction, PR, merge or deployment occurred.
+
+Verified delivery changes are the safe interaction adapter and persistence fixture, remote-video compatibility and truthful announcement assertions, plus the existing report/checklist/gate index/cost/status documentation. The pending focus-test edit is excluded from commits. Protected `next-env.d.ts` retains SHA-256 `7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc`; `.env.local`, the design export and unrelated work were untouched. The resumed local MongoDB service/listener identity matched `mongod.exe`, PID 6260, on 127.0.0.1:27017. No account correction was performed.
+
+The evidence summary is `.phase2-local/final-evidence-summary.json`. Retention uses `.phase2-local/package-final-review.mjs`, `final-retention-manifest.json` and `final-review-package.zip`; the inventory records exact tracking/ignore status and exclusions. These artifacts preserve failures and exact producer bytes rather than changing outcomes. The completion session's prior verified commits are `03d59d0`, `df07b05`, `62d1354` and `75979df`, each immediately pushed and remote-verified. Final delivery commits and their remote confirmation are reported with the handoff; the tested source identities above remain unchanged.

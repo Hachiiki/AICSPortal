@@ -8,7 +8,7 @@
 // Evidence: positioning-report.md plus screenshots and a cross-route
 // recording under positioning/.
 
-import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs'
+import { mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
   EVID,
@@ -158,7 +158,7 @@ const run = async () => {
     await page.waitForTimeout(600)
     await page.close()
     await ctx.close()
-    renameSync(await video.path(), resolve(OUT, 'c4-cross-route.webm'))
+    await video.saveAs(resolve(OUT, 'c4-cross-route.webm'))
     for (const f of readdirSync(videoDir)) rmSync(resolve(videoDir, f))
     rmSync(videoDir, { recursive: true, force: true })
     step('C4: cross-route clip recorded (c4-cross-route.webm)', true)

@@ -1,5 +1,23 @@
 # AICS Portal onboarding — Phase 2 gate evidence package
 
+## Current verification index, 2026-11-04
+
+The latest report gives all 26 dispositions. Attempt 3's native browser/server cleanup passed, but its overall runner failed. The final focused attempt 4 failed ownership inspection and cleanup, and no complete target matrix or strengthened focus assertions executed. Late native exit observations do not turn that attempt into PASS. H1 focus loss, incomplete target/toast evidence, performance decisions/attribution and A2/cost review keep the gate NOT READY. The pending `08-stability.mjs` edit remains uncommitted and is retained with the final evidence package.
+
+Phase 2 remains NOT READY. The completion report and gate-plan amendments supersede the historical instructions and criterion mappings below. Do not run the old PID-file/port-kill helpers or the original `09-persistence.mjs`, which stops MongoDB and performs a positive-control write. Current local-only interaction verification uses `node scripts/onboarding/isolated-interactions.mjs` with a fresh `GATE_EVID`, the safe `09-persistence-safe.mjs` transport fixture and owned-process supervision. Selected assertion sources and the adapted helper are archived per run. No real completion writes are permitted.
+
+- Owner manual categories: `docs/onboarding-phase2-manual-checklist.md`. They are reported observations, without invented scenario details or execution metadata.
+- Current A1: `.phase2-local/final-a1-attempt2/prod-smoke/`, tested application HEAD `62d1354fe374cf12a7641878c24c87d8750ed99c`. Replay with `node scripts/onboarding/student-a1-observer.mjs` using a fresh `GATE_EVID` and free local ports. The runner executes lint, typecheck and a real webpack production build. It permits real student tours and forbids synthetic/testing controls under the explicit owner amendment. Never relabel the tested HEAD after documentation commits; use the strict `verifyA1V3Gate` byte-equivalence check.
+- Reader checks: `node scripts/onboarding/a1-v3-evidence-check.mjs`; the actual successful invocation and negative-case results are retained in `.phase2-local/final-a1-reader-check.json`.
+- Rule 4b: corrected independent `.phase2-local/final-cal1-attempt2/` and `final-cal2-attempt2/`; exact executed producer bytes are archived in each `producer/`. Measurements are valid, cleanup is confirmed, both draft comparisons FAIL, and the owner keeps memory unresolved. Initial contaminated and failed lifecycle runs remain separate. No additional calibration is required to acknowledge that decision.
+- Timing/resize observations: current A1 `student-performance.json`; draft timing comparison FAIL and handler attribution INCONCLUSIVE. These are not a clean performance PASS.
+- Source and bundle cost: updated `cost-memo.md`, `.phase2-local/final-verification-1/cost-facts.json`, `final-bundle-baseline-1/result.json` and `final-bundle-comparison.json`. Targeted marker scans never prove exhaustive absence of bytes/modules.
+- Reproducibility/retention: `docs/onboarding-phase2-delivery-inventory.md`. Use the current report for exact commands, source and producer identities, PASS/FAIL/INCONCLUSIVE/NOT EXECUTED distinctions and remote-verified commits.
+
+## Historical package and instructions
+
+The remainder records the earlier synthetic-only gate. Its old source identity, zero-engine production wording, status claims and cleanup commands are not the current procedure.
+
 Gate HEAD: the pinned baseline for all diffs is `baseline-sha.txt`
 (`46c33a53c5a502c4a6e5937bdeb7b81e2a82622f`); the exact gate HEAD that
 produced the final artifacts is recorded in every artifact's `manifest.txt`

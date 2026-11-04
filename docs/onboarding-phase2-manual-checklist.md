@@ -16,6 +16,8 @@ Status: **Owner-reported manual review received**, recorded 2026-11-03 from the 
 
 Reviewer attribution is the repository owner who supplied the message. No reviewer name, execution date, browser/OS, screen-reader product/version, exact reviewed source identity, recording, screenshot or detailed per-scenario observations were supplied. The recording date above is not an invented test date. These reported categories do not establish that every detailed action or synthetic edge case listed below was executed. Existing automated screenshots/results retain their own source identities and do not become human recordings. Technical gate reconciliation remains pending.
 
+Technical continuation, 2026-11-04: automation observed focus on BODY after unplanned manual navigation while a tour remained open. The old stability test did not assert that focus requirement; its strengthened rerun was blocked by ownership inspection. This is separate from the owner's supplied categories. No new human result is claimed. After a focus repair, manually navigate away mid-tour and confirm focus lands on useful tour or portal content and that Tab/Shift+Tab and screen-reader orientation remain usable. Missing/delayed/removed synthetic-target cases below also lack detailed owner observations; their expected outcomes are instructions, not retrospective claims.
+
 ## Local student preview
 
 Open `http://onboarding.localhost:4341/` in Edge or Chrome. Sign in with the existing approved synthetic student credentials for `juan.santos`. Wait for Route Trail and Workspace Assemble to finish. The welcome then offers **Show me around** and **I'll explore on my own**.

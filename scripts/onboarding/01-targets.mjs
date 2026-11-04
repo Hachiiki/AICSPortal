@@ -8,7 +8,7 @@
 // Evidence: targets-matrix.md, screenshots under targets/, and the
 // run manifest at <evidence-root>/manifest.txt.
 
-import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs'
+import { mkdirSync, readdirSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
   EVID,
@@ -259,8 +259,7 @@ const run = async () => {
     await page.screenshot({ path: resolve(OUT, 'b3-late-target-framed.png') })
     await page.close()
     await ctx.close()
-    const vidPath = await video.path()
-    renameSync(vidPath, resolve(OUT, 'b3-delayed-target.webm'))
+    await video.saveAs(resolve(OUT, 'b3-delayed-target.webm'))
     for (const f of readdirSync(videoDir)) rmSync(resolve(videoDir, f))
     rmSync(videoDir, { recursive: true, force: true })
   }

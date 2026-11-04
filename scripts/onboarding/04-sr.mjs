@@ -92,12 +92,16 @@ const run = async () => {
     const skippedEnd = await page.evaluate(() => [...document.querySelectorAll('p[role="status"][aria-live="polite"]')].map((p) => p.textContent).join(' | '))
     step('D3: skipping announces through the host region', /guided tour skipped/i.test(skippedEnd), `"${skippedEnd}"`)
 
-    // No chatty duplicates: exactly one overlay region, one host region.
+    // Development mounts both tour hosts. The inactive student host is
+    // empty; only the synthetic host may announce this dismissal.
     const regionCount = await page.evaluate(
       () => document.querySelectorAll('[data-tour-overlay] > p[aria-live="polite"]').length
     )
-    const hostRegionCount = await page.evaluate(() => document.querySelectorAll('p[role="status"][aria-live="polite"].sr-only').length)
-    step('D3: no duplicate live regions (one overlay region while touring, one host region)', regionCount === 0 && hostRegionCount === 1, `overlay=${regionCount}, host=${hostRegionCount}`)
+    const hostRegions = await page.evaluate(() => [...document.querySelectorAll('p[role="status"][aria-live="polite"].sr-only')].map(p => p.textContent.trim()))
+    const speakingHosts = hostRegions.filter(Boolean)
+    step('D3: only the active tour host announces dismissal, without duplicate speech',
+      regionCount === 0 && hostRegions.length === 2 && speakingHosts.length === 1 && speakingHosts[0] === 'Guided tour skipped.',
+      `overlay=${regionCount}, host=${JSON.stringify(hostRegions)}`)
     await ctx.close()
   }
 

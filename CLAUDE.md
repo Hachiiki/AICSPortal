@@ -27,7 +27,7 @@ Core flows:
 
 > Update this section on every phase change. Keep 3-5 lines max.
 
-- Student onboarding Phase 3 is implemented and verified locally on `main-full-dev`, with fixture-based progress tests and real local login. Phase 2 remains NOT READY; human UX/accessibility review and the remaining formal gates stay open. Read `@docs/onboarding-phase2-completion-report.md` before onboarding work for source identities, evidence and limitations. Existing portal status remains in `@TODO.md`. Development pushes authorize no production port or deployment.
+- Student onboarding Phase 3 is implemented on `main-full-dev`; the owner's manual UX/accessibility categories are reported PASS. Phase 2 remains NOT READY. Student-production A1 scope and S5 runtime interpretation are owner-approved. Valid cal1/cal2 and timing miss retained draft limits; unplanned-route focus loss, incomplete target/toast evidence, Windows finalization reliability and remaining gate judgments stay open. Read `@docs/onboarding-phase2-completion-report.md` for all 26 dispositions, exact identities and evidence. Existing portal status remains in `@TODO.md`. Development pushes authorize no production port or deployment.
 - Infra hardening done: session auth + revocation, scrypt hashing, tiered rate limits, Zod on every route, error boundaries, CI (lint + typecheck + whitelist guard). Remaining: in-memory rate limiter → Redis at scale.
 - Sign-in flow: Route Trail progress animation + workspace-assemble post-login flow in production (PRs #53/#54, 2026-10-20); `/dev/auth-preview` retired, no dev-only auth surfaces remain.
 - Content moderation live (English + Filipino) on every persisting write; Filipino reviewer sign-off still open (owner action, `@TODO.md`).
