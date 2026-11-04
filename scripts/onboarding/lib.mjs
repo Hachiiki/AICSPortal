@@ -447,6 +447,44 @@ export async function gateContext(browser, opts = {}) {
   for (const [k, v] of Object.entries(storage)) {
     await ctx.addInitScript(`localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)})`)
   }
+  // Synthetic-engine matrix fixture (GATE_STATE_FIXTURE=1). The Phase 3
+  // student provider shows its real welcome dialog for a fresh account,
+  // which covers the z-30 dev launcher and blocks the dev-board scenarios.
+  // When the flag is set, serve the same reviewed fixture the isolated
+  // adapter used (scripts/onboarding/isolated-interactions.mjs): onboarding
+  // reads return a completed state with persisted:false and completion
+  // PATCHes are fulfilled locally, so the synthetic matrix runs without
+  // touching the database. Off by default: the student journey, H2
+  // persistence failure behavior and the real API keep their live paths.
+  if (process.env.GATE_STATE_FIXTURE === '1') {
+    await ctx.route('**/*', async (route) => {
+      const request = route.request()
+      const u = new URL(request.url())
+      try {
+        if (!['localhost', '127.0.0.1'].includes(u.hostname) || Number(u.port) !== GATE_PORT) return route.abort()
+        if (request.method() === 'GET' && u.pathname === '/api/onboarding/state') {
+          return route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              ok: true, role: 'student', version: 1, persisted: false,
+              values: { password: true, profile: true, photo: true, tour: true, announcements: true },
+              preferences: { welcomeSeen: true, checklistDismissed: true, tourSkipped: false, tasksGuideSeen: true, tasksGuideCompleted: true },
+            }),
+          })
+        }
+        if (!['GET', 'HEAD'].includes(request.method())) {
+          if (request.method() === 'PATCH' && u.pathname === '/api/onboarding/state') {
+            return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, persisted: false }) })
+          }
+          return route.abort()
+        }
+        return route.continue()
+      } catch {
+        return route.abort()
+      }
+    })
+  }
   return ctx
 }
 
