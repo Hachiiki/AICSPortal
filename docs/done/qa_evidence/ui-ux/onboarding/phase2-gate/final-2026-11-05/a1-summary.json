@@ -1,0 +1,330 @@
+{
+  "raw": {
+    "path": ".phase2-local/closure-20261105-a1-unrestricted/prod-smoke/result.json",
+    "sha256": "e1884dc79a786b5bb59410d50381e94623d65f2fb910a9f7d3671c6de47695e0",
+    "bytes": 650554
+  },
+  "baseline": "46c33a53c5a502c4a6e5937bdeb7b81e2a82622f",
+  "testedHead": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+  "runId": "7d52d977-edd7-4754-9ed0-e5b7d218998b",
+  "sourceDir": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-student-a1-q90pTE\\source",
+  "startedAt": "2026-11-05T11:27:32.354Z",
+  "finishedAt": "2026-11-05T11:38:15.324Z",
+  "producer": [
+    {
+      "name": "10-perf.mjs",
+      "sha256": "1ab48542668841fba1837803139ee6441a811179c12ae70058f3b4e8432c991a"
+    },
+    {
+      "name": "account-preflight.mjs",
+      "sha256": "5d9f4d8d0ca30008eaff9f2dc8ef2a57a69add3e10a204c84fa5a5a92a71b428"
+    },
+    {
+      "name": "isolated-build.mjs",
+      "sha256": "fe460ae0747079dc478e65587c3f893844c42b3904a14b895c8aa623b7d5905d"
+    },
+    {
+      "name": "isolated-source.mjs",
+      "sha256": "b15329ddb2df07d906db5a4f9d5a37f4ea880e860b034678c88592a8b9f79a41"
+    },
+    {
+      "name": "lib.mjs",
+      "sha256": "880aa2e8409e89bdee74b90c7c1d7c74a418ad0ae038c48325d2646bb5009714"
+    },
+    {
+      "name": "owned-browser-task.mjs",
+      "sha256": "60892ddf0bd8f1227ff03a07c35b0490742f2b19a60450703765751904f38460"
+    },
+    {
+      "name": "settle-timing.mjs",
+      "sha256": "14f206d3d4e698f75d3b2a50344288bec6fae1f8dee71c6e474cbfe9bee302b3"
+    },
+    {
+      "name": "student-a1-observer.mjs",
+      "sha256": "4183ee0a3cab58dbe4243b75a26d5cab45da446a3c4694c894d6f528c7845eff"
+    },
+    {
+      "name": "student-prod-smoke.mjs",
+      "sha256": "fb62696e61fec74bdb834f671a519dffa769de50dc75661a2812d2b5e6c3fc69"
+    }
+  ],
+  "producerFingerprint": "eff10ad5670996354784839ab953bc135a8553c9eeafa55485b51dce4a359e4f",
+  "assertions": [
+    {
+      "id": "account-preflight",
+      "ok": true
+    },
+    {
+      "id": "committed-source",
+      "ok": true
+    },
+    {
+      "id": "build-result-present",
+      "ok": true
+    },
+    {
+      "id": "production-build",
+      "ok": true
+    },
+    {
+      "id": "static-gates",
+      "ok": true
+    },
+    {
+      "id": "targeted-synthetic-marker-scan",
+      "ok": true
+    },
+    {
+      "id": "owned-production-server",
+      "ok": true
+    },
+    {
+      "id": "demo-route-disabled",
+      "ok": true
+    },
+    {
+      "id": "real-production-login",
+      "ok": true
+    },
+    {
+      "id": "synthetic-controls-absent",
+      "ok": true
+    },
+    {
+      "id": "real-student-tour",
+      "ok": true
+    },
+    {
+      "id": "replay-preserves-progress",
+      "ok": true
+    },
+    {
+      "id": "production-navigation",
+      "ok": true
+    },
+    {
+      "id": "request-safety",
+      "ok": true
+    },
+    {
+      "id": "repository-integrity",
+      "ok": true
+    },
+    {
+      "id": "owned-process-cleanup",
+      "ok": true
+    },
+    {
+      "id": "producer-unchanged",
+      "ok": true
+    }
+  ],
+  "observations": {
+    "blockedExternal": 0,
+    "blockedMutations": 0,
+    "simulatedProgressWrites": 5,
+    "accountPreflight": {
+      "unique": true,
+      "role": "student",
+      "branch": "commonwealth",
+      "modernHash": true,
+      "credentialMatches": true,
+      "photoAbsent": true,
+      "writesAttempted": 0
+    },
+    "build": {
+      "exitCode": 0,
+      "signal": null,
+      "compiler": "webpack",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--",
+        "--webpack"
+      ]
+    },
+    "quality": [
+      {
+        "name": "lint",
+        "command": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "startedAt": "2026-11-05T11:28:43.145Z",
+        "exitCode": 0,
+        "finishedAt": "2026-11-05T11:31:23.352Z"
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "startedAt": "2026-11-05T11:31:23.357Z",
+        "exitCode": 0,
+        "finishedAt": "2026-11-05T11:32:29.139Z"
+      },
+      {
+        "name": "build",
+        "command": [
+          "npm",
+          "run",
+          "build",
+          "--",
+          "--webpack"
+        ],
+        "startedAt": "2026-11-05T11:32:29.142Z",
+        "exitCode": 0,
+        "finishedAt": "2026-11-05T11:36:19.745Z"
+      }
+    ],
+    "scan": {
+      "hits": [],
+      "historicalHits": [
+        {
+          "file": ".next/static/chunks/2030-b9fe7dcd03cd3787.js",
+          "marker": "data-tour-overlay"
+        },
+        {
+          "file": ".next/static/chunks/2030-b9fe7dcd03cd3787.js",
+          "marker": "data-tour-card"
+        },
+        {
+          "file": ".next/static/chunks/2030-b9fe7dcd03cd3787.js",
+          "marker": "data-tour-spotlight"
+        },
+        {
+          "file": ".next/static/chunks/2030-b9fe7dcd03cd3787.js",
+          "marker": "Guided tour completed."
+        }
+      ],
+      "totalClientChunkFiles": 78,
+      "totalBytesScanned": 2496866,
+      "limitation": "Targeted marker scan, not exhaustive proof of zero related bytes or modules. Historical engine hits are retained and permitted only by the explicit student-production amendment."
+    },
+    "server": {
+      "ready": true,
+      "ownedListener": true,
+      "port": 4320,
+      "origin": "http://127.0.0.1:4320"
+    },
+    "demoStatus": 404,
+    "login": {
+      "status": 200,
+      "cookieIssued": true,
+      "username": "juan.santos",
+      "role": "student",
+      "branch": "commonwealth"
+    },
+    "dom": {
+      "launcher": false,
+      "board": false,
+      "removeTarget": false,
+      "navOk": true
+    },
+    "studentTour": {
+      "steps": [
+        "student-overview",
+        "student-announcements",
+        "student-academics",
+        "student-tasks",
+        "student-events",
+        "student-account",
+        "student-help"
+      ],
+      "completedInFixture": true,
+      "otherValuesUnchanged": true
+    },
+    "replayPreserved": true,
+    "navigation": {
+      "pathname": "/portal/commonwealth/student/juan.santos/academics",
+      "academicsReached": true
+    },
+    "routeError": null
+  },
+  "cleanup": {
+    "records": [
+      {
+        "name": "chromium",
+        "supervisorPid": 1508,
+        "rootPid": 2364,
+        "cleanupAttempted": true,
+        "cleanupFailed": false,
+        "terminationConfirmed": true,
+        "jobEmpty": true,
+        "stopped": true,
+        "fallbackAttempted": false,
+        "browserPids": [
+          8804,
+          15184,
+          12616,
+          8172,
+          11212
+        ],
+        "remainingBrowserProcesses": [],
+        "supervisorExit": {
+          "code": 0,
+          "signal": null
+        },
+        "errors": []
+      },
+      {
+        "name": "production-server",
+        "supervisorPid": 17240,
+        "rootPid": 13332,
+        "cleanupAttempted": true,
+        "cleanupFailed": false,
+        "terminationConfirmed": true,
+        "jobEmpty": true,
+        "stopped": true,
+        "fallbackAttempted": false,
+        "browserPids": [],
+        "remainingBrowserProcesses": null,
+        "supervisorExit": {
+          "code": 0,
+          "signal": null
+        },
+        "errors": []
+      },
+      {
+        "name": "production-build",
+        "supervisorPid": 16332,
+        "rootPid": 5152,
+        "cleanupAttempted": true,
+        "cleanupFailed": false,
+        "terminationConfirmed": true,
+        "jobEmpty": true,
+        "stopped": true,
+        "fallbackAttempted": false,
+        "browserPids": [],
+        "remainingBrowserProcesses": null,
+        "supervisorExit": {
+          "code": 0,
+          "signal": null
+        },
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "integrity": {
+    "before": {
+      "branch": "main-full-dev",
+      "head": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+      "nextEnvSHA256": "7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc",
+      "diffSHA256": "58c64b38f0bcff65ae9be664e20944ad5b24c4c24b3c847cd16aa767cbd32b60",
+      "worktrees": "worktree C:/Projects/loginAICSPortal\nHEAD b579d003eff44779e8e8bf5f8e145776cddf6efe\nbranch refs/heads/main-full-dev\n\n"
+    },
+    "after": {
+      "branch": "main-full-dev",
+      "head": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+      "nextEnvSHA256": "7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc",
+      "diffSHA256": "58c64b38f0bcff65ae9be664e20944ad5b24c4c24b3c847cd16aa767cbd32b60",
+      "worktrees": "worktree C:/Projects/loginAICSPortal\nHEAD b579d003eff44779e8e8bf5f8e145776cddf6efe\nbranch refs/heads/main-full-dev\n\n"
+    }
+  },
+  "exitCode": 0
+}

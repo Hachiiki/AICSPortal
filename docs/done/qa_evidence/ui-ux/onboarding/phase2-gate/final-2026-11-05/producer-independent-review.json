@@ -1,0 +1,57 @@
+{
+  "fingerprint": "eff10ad5670996354784839ab953bc135a8553c9eeafa55485b51dce4a359e4f",
+  "independentPowerShellHashes": [
+    {
+      "name": "10-perf.mjs",
+      "sha256": "1ab48542668841fba1837803139ee6441a811179c12ae70058f3b4e8432c991a",
+      "matches": true
+    },
+    {
+      "name": "account-preflight.mjs",
+      "sha256": "5d9f4d8d0ca30008eaff9f2dc8ef2a57a69add3e10a204c84fa5a5a92a71b428",
+      "matches": true
+    },
+    {
+      "name": "isolated-build.mjs",
+      "sha256": "fe460ae0747079dc478e65587c3f893844c42b3904a14b895c8aa623b7d5905d",
+      "matches": true
+    },
+    {
+      "name": "isolated-source.mjs",
+      "sha256": "b15329ddb2df07d906db5a4f9d5a37f4ea880e860b034678c88592a8b9f79a41",
+      "matches": true
+    },
+    {
+      "name": "lib.mjs",
+      "sha256": "880aa2e8409e89bdee74b90c7c1d7c74a418ad0ae038c48325d2646bb5009714",
+      "matches": true
+    },
+    {
+      "name": "owned-browser-task.mjs",
+      "sha256": "60892ddf0bd8f1227ff03a07c35b0490742f2b19a60450703765751904f38460",
+      "matches": true
+    },
+    {
+      "name": "settle-timing.mjs",
+      "sha256": "14f206d3d4e698f75d3b2a50344288bec6fae1f8dee71c6e474cbfe9bee302b3",
+      "matches": true
+    },
+    {
+      "name": "student-a1-observer.mjs",
+      "sha256": "4183ee0a3cab58dbe4243b75a26d5cab45da446a3c4694c894d6f528c7845eff",
+      "matches": true
+    },
+    {
+      "name": "student-prod-smoke.mjs",
+      "sha256": "fb62696e61fec74bdb834f671a519dffa769de50dc75661a2812d2b5e6c3fc69",
+      "matches": true
+    }
+  ],
+  "allMatch": true,
+  "review": "The nine current and archived producer files were source-reviewed, including ownership/request guards, fixture seams and corrected timing aggregation. Node execution hashes independently match PowerShell/.NET byte hashes. This registers identity only, never an outcome.",
+  "priorReviewedFingerprint": "10ce67cf38447f0a8fc3aa337d78ffe6d56c76ab87acdbe152bdf69c0410fbc1",
+  "changedSincePriorReviewed": [
+    "lib.mjs",
+    "settle-timing.mjs"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "observerPid": 11344,
+  "workerPid": 1736,
+  "workerExit": {
+    "code": 0,
+    "signal": null
+  },
+  "invocation": {
+    "executable": "C:\\nvm4w\\nodejs\\node.exe",
+    "argv": [
+      "C:\\nvm4w\\nodejs\\node.exe",
+      "C:\\Projects\\loginAICSPortal\\scripts\\onboarding\\student-a1-observer.mjs"
+    ],
+    "execArgv": [],
+    "version": "v24.22.1"
+  },
+  "observedAt": "2026-11-05T11:38:15.440Z",
+  "queryExitCode": 0,
+  "remaining": [],
+  "runId": "7d52d977-edd7-4754-9ed0-e5b7d218998b",
+  "sourceHEAD": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+  "queriedPids": [
+    1508,
+    2364,
+    8804,
+    15184,
+    12616,
+    8172,
+    11212,
+    17240,
+    13332,
+    16332,
+    5152
+  ],
+  "pass": true
+}

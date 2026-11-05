@@ -1,0 +1,454 @@
+{
+  "schema": "aics-ordinary-transition-timing/v1",
+  "input": "C:\\Projects\\loginAICSPortal\\.phase2-local\\final-a1-attempt2\\prod-smoke\\student-performance.json",
+  "inputSHA256": "9178849401f19d5da4901a9d689b45acc10fb606d81077e0f75158852335618e",
+  "measuredAt": "2026-11-05T11:35:35.793Z",
+  "limitMs": 100,
+  "minimumOrdinaryAdvancesPerRun": 20,
+  "independentRuns": 3,
+  "definition": "All genuine route/data transitions retained. Only the exact two artificial fixture transitions are excluded. Original raw input and warm-ups remain untouched. Uses corrected summarizeTimingRun from 221df1a.",
+  "status": "FAIL",
+  "runs": [
+    {
+      "run": 1,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 368.6000000005588,
+        "maxMs": 1398.0999999996275,
+        "medianMs": 72.30000000074506,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 368.6000000005588,
+        "maxMs": 1398.0999999996275,
+        "medianMs": 72.30000000074506,
+        "draftLimitMs": 100
+      },
+      "excluded": [],
+      "samples": [
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 79.20000000018626,
+          "run": 1
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 68.30000000074506,
+          "run": 1
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 66.79999999981374,
+          "run": 1
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 322.59999999962747,
+          "run": 1
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 59.799999999813735,
+          "run": 1
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 69.29999999981374,
+          "run": 1
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 7.2999999998137355,
+          "run": 1
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 72.70000000018626,
+          "run": 1
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 65.79999999981374,
+          "run": 1
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 368.6000000005588,
+          "run": 1
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 78.5,
+          "run": 1
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 82.90000000037253,
+          "run": 1
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 48.799999999813735,
+          "run": 1
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 7.2000000001862645,
+          "run": 1
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 77.20000000018626,
+          "run": 1
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 1398.0999999996275,
+          "run": 1
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 85.5,
+          "run": 1
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 243.3999999994412,
+          "run": 1
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 72.30000000074506,
+          "run": 1
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 62,
+          "run": 1
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 13.5,
+          "run": 1
+        }
+      ],
+      "status": "FAIL"
+    },
+    {
+      "run": 2,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 626,
+        "maxMs": 887.3999999994412,
+        "medianMs": 78.5,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 626,
+        "maxMs": 887.3999999994412,
+        "medianMs": 78.5,
+        "draftLimitMs": 100
+      },
+      "excluded": [],
+      "samples": [
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 68.09999999962747,
+          "run": 2
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 326.3999999994412,
+          "run": 2
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 25,
+          "run": 2
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 400.59999999962747,
+          "run": 2
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 28.90000000037253,
+          "run": 2
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 79.90000000037253,
+          "run": 2
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 8.299999999813735,
+          "run": 2
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 40.90000000037253,
+          "run": 2
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 94.6000000005588,
+          "run": 2
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 77,
+          "run": 2
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 88.1000000005588,
+          "run": 2
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 74,
+          "run": 2
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 626,
+          "run": 2
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 288.09999999962747,
+          "run": 2
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 78.5,
+          "run": 2
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 102.70000000018626,
+          "run": 2
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 66.5,
+          "run": 2
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 77,
+          "run": 2
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 78.69999999925494,
+          "run": 2
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 887.3999999994412,
+          "run": 2
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 16.90000000037253,
+          "run": 2
+        }
+      ],
+      "status": "FAIL"
+    },
+    {
+      "run": 3,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 1052.4000000003725,
+        "maxMs": 1131.3999999994412,
+        "medianMs": 72.70000000018626,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 1052.4000000003725,
+        "maxMs": 1131.3999999994412,
+        "medianMs": 72.70000000018626,
+        "draftLimitMs": 100
+      },
+      "excluded": [],
+      "samples": [
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 75.09999999962747,
+          "run": 3
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 71,
+          "run": 3
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 76,
+          "run": 3
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 1131.3999999994412,
+          "run": 3
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 433.20000000018626,
+          "run": 3
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 72.70000000018626,
+          "run": 3
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 10.100000000558794,
+          "run": 3
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 62.799999999813735,
+          "run": 3
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 69.20000000018626,
+          "run": 3
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 74.29999999981374,
+          "run": 3
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 164.09999999962747,
+          "run": 3
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 1052.4000000003725,
+          "run": 3
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 144.09999999962747,
+          "run": 3
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 13.600000000558794,
+          "run": 3
+        },
+        {
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 68.70000000018626,
+          "run": 3
+        },
+        {
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 65.5,
+          "run": 3
+        },
+        {
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 79.59999999962747,
+          "run": 3
+        },
+        {
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 72.19999999925494,
+          "run": 3
+        },
+        {
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 79.1000000005588,
+          "run": 3
+        },
+        {
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 63.40000000037253,
+          "run": 3
+        },
+        {
+          "from": "student-help",
+          "to": "completed",
+          "ms": 16.899999999441206,
+          "run": 3
+        }
+      ],
+      "status": "FAIL"
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # Phase 2 cost memo
 
+Final owner decision, 2026-11-05: **I1 PASS under I1-1**. The owner accepts proportionality on the reported approximately 8.8 KB cumulative extra gzip client chunks, zero new runtime dependencies, demonstrated reuse and the maintenance touch points below. The 2026-11-05 source review at `b579d003eff44779e8e8bf5f8e145776cddf6efe` confirms `git diff 46c33a5 HEAD -- package.json` is empty. No dependency or engine change was made for closure.
+
+The completion report's owner package records the Linux same-platform comparison at application identity `0dc476d`: +27,811 raw / +8,753 gzip bytes and one chunk. Its raw `.phase2-cloud` file is absent from this Windows checkout, so this closure labels those figures **reported historical measurements**, not newly reproduced measurements. The retained Windows comparison below is +27,780 raw / +8,464 gzip at `62d1354`; its source-size table also predates the focus guard. The two platforms/builds must not be pooled or described as the same execution. The owner's acceptance is a judgment on this disclosed evidence. Future maintenance time, Faculty/Admin adaptation and operational/hosting costs remain estimates or unmeasured. Historical timing and memory failures below remain failures of their historical criteria; the final approved criteria and new Windows results are in the final closure ledger.
+
 Updated during final verification on 2026-11-03. Facts use application commit `62d1354fe374cf12a7641878c24c87d8750ed99c` and pinned baseline `46c33a53c5a502c4a6e5937bdeb7b81e2a82622f`. Later tooling/documentation commits do not change these application inputs. Exact counts and hashes are in `.phase2-local/final-verification-1/cost-facts.json` and `.phase2-local/final-bundle-comparison.json`. This replaces the earlier synthetic-only cost assessment. Owner review of cost proportionality remains required.
 
 ## Measured facts

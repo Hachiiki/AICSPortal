@@ -1,0 +1,10 @@
+{
+  "status": "verified-committed-run",
+  "head": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+  "producerFingerprint": "eff10ad5670996354784839ab953bc135a8553c9eeafa55485b51dce4a359e4f",
+  "detail": "Owner-approved student scope: actual production build, real local login/navigation, seven-step student tour, absent synthetic controls, raw built-chunk rescan, source/producer/artifact identity and independent process absence. Targeted scans do not prove exhaustive zero related bytes or modules.",
+  "currentHead": "8c4a8f61fa7f4c59ea0f71db59b18ffdf7862bb2",
+  "testedHead": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+  "committedInputsEquivalent": true,
+  "sourceDisclosure": "Executed at testedHead; every application/build input is unchanged, and all executed producer bytes match the current commit and checkout. This is byte equivalence, not a claimed new build."
+}

@@ -1,0 +1,18 @@
+bun test v1.3.14 (0d9b296a)
+
+scripts\onboarding\ordinary-timing.test.mjs:
+(pass) ordinary Rule 2 excludes only the two named fixtures and keeps a slow genuine route transition [51.76ms]
+(pass) ordinary Rule 2 fails slow genuine transitions and insufficient ordinary samples [63.12ms]
+(pass) ordinary Rule 2 rejects pooled runs and invalid samples [2.55ms]
+
+scripts\onboarding\settle-timing.test.mjs:
+(pass) an absent spotlight cannot settle before the new target appears [213.44ms]
+(pass) Finish settles against the real host replay entry without a synthetic launcher [70.25ms]
+(pass) Rule 2 summary comes from each run own samples, never a cross-run pool [3.66ms]
+(pass) pooling runs reproduces the pre-fix i2r3 aggregation defect [0.40ms]
+(pass) p95 index convention holds at the boundary sizes Rule 2 specifies [2.73ms]
+
+ 8 pass
+ 0 fail
+ 33 expect() calls
+Ran 8 tests across 2 files. [3.27s]

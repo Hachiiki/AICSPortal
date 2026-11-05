@@ -1,0 +1,464 @@
+{
+  "schema": "aics-saved-heap-summary/v1",
+  "capturedAt": "2026-11-05T12:04:26.739Z",
+  "command": [
+    "C:\\Projects\\loginAICSPortal\\scripts\\onboarding\\retained-memory-summary.mjs",
+    "C:/Users/Hp/AppData/Local/Temp/aics-closure-heaps-20261105/rule-4b-cal1-base.heapsnapshot",
+    "C:/Users/Hp/AppData/Local/Temp/aics-closure-heaps-20261105/rule-4b-cal1-final.heapsnapshot",
+    ".phase2-local/closure-20261105-current-snapshot-attribution.json"
+  ],
+  "base": {
+    "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-base.heapsnapshot",
+    "bytes": 20969840,
+    "sha256": "57fa93faa0b5d29cebf22533b510fe6e7e302f9d4b99bc74608abcd16cae32b2",
+    "types": {
+      "synthetic": 0,
+      "native": 12781758,
+      "string": 1021368,
+      "object shape": 485960,
+      "code": 2979476,
+      "array": 425792,
+      "number": 2004,
+      "symbol": 672,
+      "object": 377728,
+      "closure": 280572,
+      "concatenated string": 48040,
+      "sliced string": 1900,
+      "regexp": 672
+    },
+    "fingerprints": {
+      "[\"string\",\"data-tour-spotlight\"]": 1,
+      "[\"string\",\"data-tour-card\"]": 1,
+      "[\"string\",\"Guided tour completed.\"]": 1,
+      "[\"string\",\"data-tour-overlay\"]": 1,
+      "[\"string\",\"OnboardingDev\"]": 1,
+      "[\"closure\",\"OnboardingDev\"]": 1
+    },
+    "detachedNodes": 3
+  },
+  "final": {
+    "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-final.heapsnapshot",
+    "bytes": 21220854,
+    "sha256": "0eaa932eb52dd121ba67117ab4c38a8067dd304655bbdd7cd891b0b8cd0eb4ac",
+    "types": {
+      "synthetic": 0,
+      "native": 12660188,
+      "string": 1020772,
+      "object shape": 491064,
+      "code": 3513128,
+      "array": 426052,
+      "number": 2064,
+      "symbol": 672,
+      "object": 386624,
+      "closure": 280572,
+      "concatenated string": 44140,
+      "sliced string": 740,
+      "regexp": 672
+    },
+    "fingerprints": {
+      "[\"string\",\"data-tour-spotlight\"]": 1,
+      "[\"string\",\"data-tour-card\"]": 1,
+      "[\"string\",\"Guided tour completed.\"]": 1,
+      "[\"string\",\"data-tour-overlay\"]": 1,
+      "[\"string\",\"OnboardingDev\"]": 1,
+      "[\"closure\",\"OnboardingDev\"]": 1
+    },
+    "detachedNodes": 3
+  },
+  "typeDeltas": {
+    "synthetic": 0,
+    "native": -121570,
+    "string": -596,
+    "object shape": 5104,
+    "code": 533652,
+    "array": 260,
+    "number": 60,
+    "symbol": 0,
+    "object": 8896,
+    "closure": 0,
+    "concatenated string": -3900,
+    "sliced string": -1160,
+    "regexp": 0
+  },
+  "topGrowth": [
+    {
+      "type": "code",
+      "name": "system / InstructionStream",
+      "baseCount": 889,
+      "finalCount": 1259,
+      "deltaCount": 370,
+      "deltaSelfBytes": 350848
+    },
+    {
+      "type": "code",
+      "name": "system / TrustedByteArray",
+      "baseCount": 1998,
+      "finalCount": 2784,
+      "deltaCount": 786,
+      "deltaSelfBytes": 87004
+    },
+    {
+      "type": "code",
+      "name": "system / ProtectedFixedArray",
+      "baseCount": 94,
+      "finalCount": 231,
+      "deltaCount": 137,
+      "deltaSelfBytes": 32020
+    },
+    {
+      "type": "native",
+      "name": "blink::HeapHashTableBacking<blink::HashTable<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, blink::KeyValuePair<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, v8::TracedReference<v8::Object>>, blink::KeyValuePairExtractor, blink::HashMapValueTraits<blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HashTraits<v8::TracedReference<v8::Object>>>, blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HeapAllocator>>",
+      "baseCount": 1,
+      "finalCount": 1,
+      "deltaCount": 0,
+      "deltaSelfBytes": 28672
+    },
+    {
+      "type": "code",
+      "name": "system / Code",
+      "baseCount": 889,
+      "finalCount": 1259,
+      "deltaCount": 370,
+      "deltaSelfBytes": 26640
+    },
+    {
+      "type": "code",
+      "name": "system / FeedbackVector",
+      "baseCount": 787,
+      "finalCount": 1011,
+      "deltaCount": 224,
+      "deltaSelfBytes": 22140
+    },
+    {
+      "type": "native",
+      "name": "LayoutShift",
+      "baseCount": 25,
+      "finalCount": 150,
+      "deltaCount": 125,
+      "deltaSelfBytes": 19000
+    },
+    {
+      "type": "native",
+      "name": "system / WeakArrayList",
+      "baseCount": 221,
+      "finalCount": 412,
+      "deltaCount": 191,
+      "deltaSelfBytes": 18996
+    },
+    {
+      "type": "native",
+      "name": "DOMRectReadOnly",
+      "baseCount": 62,
+      "finalCount": 354,
+      "deltaCount": 292,
+      "deltaSelfBytes": 16352
+    },
+    {
+      "type": "native",
+      "name": "LargestContentfulPaint",
+      "baseCount": 10,
+      "finalCount": 86,
+      "deltaCount": 76,
+      "deltaSelfBytes": 10336
+    },
+    {
+      "type": "native",
+      "name": "PerformanceEventTiming",
+      "baseCount": 73,
+      "finalCount": 106,
+      "deltaCount": 33,
+      "deltaSelfBytes": 8448
+    },
+    {
+      "type": "native",
+      "name": "InteractionContentfulPaint",
+      "baseCount": 8,
+      "finalCount": 84,
+      "deltaCount": 76,
+      "deltaSelfBytes": 7904
+    },
+    {
+      "type": "native",
+      "name": "LayoutShiftAttribution",
+      "baseCount": 31,
+      "finalCount": 177,
+      "deltaCount": 146,
+      "deltaSelfBytes": 5840
+    },
+    {
+      "type": "code",
+      "name": "system / TrustedWeakFixedArray",
+      "baseCount": 94,
+      "finalCount": 231,
+      "deltaCount": 137,
+      "deltaSelfBytes": 4328
+    },
+    {
+      "type": "code",
+      "name": "system / AllocationSite",
+      "baseCount": 255,
+      "finalCount": 374,
+      "deltaCount": 119,
+      "deltaSelfBytes": 3328
+    },
+    {
+      "type": "object shape",
+      "name": "system / Map",
+      "baseCount": 5490,
+      "finalCount": 5567,
+      "deltaCount": 77,
+      "deltaSelfBytes": 3080
+    },
+    {
+      "type": "code",
+      "name": "system / CodeWrapper",
+      "baseCount": 3621,
+      "finalCount": 3991,
+      "deltaCount": 370,
+      "deltaSelfBytes": 2960
+    },
+    {
+      "type": "native",
+      "name": "blink::NetworkResourcesData::ResourceData",
+      "baseCount": 37,
+      "finalCount": 47,
+      "deltaCount": 10,
+      "deltaSelfBytes": 2880
+    },
+    {
+      "type": "code",
+      "name": "system / LoadHandler",
+      "baseCount": 931,
+      "finalCount": 1088,
+      "deltaCount": 157,
+      "deltaSelfBytes": 2604
+    },
+    {
+      "type": "native",
+      "name": "blink::HeapHashTableBacking<blink::HashTable<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, blink::KeyValuePair<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, cppgc::internal::BasicMember<blink::SoftNavigationPaintAttributionTracker::NodeState, cppgc::internal::StrongMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::KeyValuePairExtractor, blink::HashMapValueTraits<blink::HashTraits<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HashTraits<cppgc::internal::BasicMember<blink::SoftNavigationPaintAttributionTracker::NodeState, cppgc::internal::StrongMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>>, blink::HashTraits<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HeapAllocator>>",
+      "baseCount": 2,
+      "finalCount": 2,
+      "deltaCount": 0,
+      "deltaSelfBytes": 2304
+    },
+    {
+      "type": "object",
+      "name": "Object",
+      "baseCount": 6959,
+      "finalCount": 7047,
+      "deltaCount": 88,
+      "deltaSelfBytes": 2080
+    },
+    {
+      "type": "native",
+      "name": "system / ProtectedFixedArray",
+      "baseCount": 95,
+      "finalCount": 232,
+      "deltaCount": 137,
+      "deltaSelfBytes": 1936
+    },
+    {
+      "type": "native",
+      "name": "NavigationHistoryEntry",
+      "baseCount": 3,
+      "finalCount": 13,
+      "deltaCount": 10,
+      "deltaSelfBytes": 1920
+    },
+    {
+      "type": "native",
+      "name": "system / ExternalStringData",
+      "baseCount": 806,
+      "finalCount": 811,
+      "deltaCount": 5,
+      "deltaSelfBytes": 1870
+    },
+    {
+      "type": "object",
+      "name": "HTMLDivElement",
+      "baseCount": 9,
+      "finalCount": 113,
+      "deltaCount": 104,
+      "deltaSelfBytes": 1664
+    }
+  ],
+  "objectConstructorGrowth": [
+    {
+      "type": "object",
+      "name": "Object",
+      "baseCount": 6959,
+      "finalCount": 7047,
+      "deltaCount": 88,
+      "deltaSelfBytes": 2080
+    },
+    {
+      "type": "object",
+      "name": "HTMLDivElement",
+      "baseCount": 9,
+      "finalCount": 113,
+      "deltaCount": 104,
+      "deltaSelfBytes": 1664
+    },
+    {
+      "type": "object",
+      "name": "HTMLSpanElement",
+      "baseCount": 2,
+      "finalCount": 81,
+      "deltaCount": 79,
+      "deltaSelfBytes": 1264
+    },
+    {
+      "type": "object",
+      "name": "HTMLButtonElement",
+      "baseCount": 4,
+      "finalCount": 72,
+      "deltaCount": 68,
+      "deltaSelfBytes": 1088
+    },
+    {
+      "type": "object",
+      "name": "SVGPathElement",
+      "baseCount": 2,
+      "finalCount": 48,
+      "deltaCount": 46,
+      "deltaSelfBytes": 736
+    },
+    {
+      "type": "object",
+      "name": "HTMLParagraphElement",
+      "baseCount": 2,
+      "finalCount": 31,
+      "deltaCount": 29,
+      "deltaSelfBytes": 464
+    },
+    {
+      "type": "object",
+      "name": "Array",
+      "baseCount": 1709,
+      "finalCount": 1736,
+      "deltaCount": 27,
+      "deltaSelfBytes": 432
+    },
+    {
+      "type": "object",
+      "name": "SVGSVGElement",
+      "baseCount": 2,
+      "finalCount": 25,
+      "deltaCount": 23,
+      "deltaSelfBytes": 368
+    },
+    {
+      "type": "object",
+      "name": "HTMLScriptElement",
+      "baseCount": 2,
+      "finalCount": 16,
+      "deltaCount": 14,
+      "deltaSelfBytes": 224
+    },
+    {
+      "type": "object",
+      "name": "HTMLElement",
+      "baseCount": 3,
+      "finalCount": 11,
+      "deltaCount": 8,
+      "deltaSelfBytes": 128
+    },
+    {
+      "type": "object",
+      "name": "HTMLMetaElement",
+      "baseCount": 2,
+      "finalCount": 7,
+      "deltaCount": 5,
+      "deltaSelfBytes": 80
+    },
+    {
+      "type": "object",
+      "name": "HTMLAnchorElement",
+      "baseCount": 2,
+      "finalCount": 7,
+      "deltaCount": 5,
+      "deltaSelfBytes": 80
+    },
+    {
+      "type": "object",
+      "name": "HTMLLinkElement",
+      "baseCount": 2,
+      "finalCount": 6,
+      "deltaCount": 4,
+      "deltaSelfBytes": 64
+    },
+    {
+      "type": "object",
+      "name": "SVGCircleElement",
+      "baseCount": 2,
+      "finalCount": 6,
+      "deltaCount": 4,
+      "deltaSelfBytes": 64
+    },
+    {
+      "type": "object",
+      "name": "HTMLHeadingElement",
+      "baseCount": 2,
+      "finalCount": 5,
+      "deltaCount": 3,
+      "deltaSelfBytes": 48
+    },
+    {
+      "type": "object",
+      "name": "HTMLHeadElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLStyleElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLTitleElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "ShadowRoot",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLInputElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "SVGRectElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLImageElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    }
+  ],
+  "limitation": "Shallow size and constructor counts only. Fingerprint string counts do not prove object ownership or zero retained tour memory. This script does not issue a memory acceptance verdict."
+}

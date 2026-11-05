@@ -1,0 +1,24 @@
+date: 2026-11-05 Asia/Shanghai
+scope: final focused Phase 2 closure, no application changes
+branch: main-full-dev
+remote HEAD verified before work: b579d003eff44779e8e8bf5f8e145776cddf6efe
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+A1 actually executed SHA: b579d003eff44779e8e8bf5f8e145776cddf6efe
+evidence tools SHA: 8c4a8f61fa7f4c59ea0f71db59b18ffdf7862bb2
+runtime: v24.22.1 win32
+A1 command: GATE_EVID=.phase2-local/closure-20261105-a1-unrestricted node scripts/onboarding/student-a1-observer.mjs
+A1: worker exit 0, observer PASS, 17 assertions PASS; webpack production build, lint/typecheck exit 0; three pre-existing lint warnings
+unit command: bun test src/lib/authz/ src/lib/onboarding/ src/lib/aics/theme-palette.test.ts src/lib/aics/use-portal-route.test.ts scripts/lib/ scripts/onboarding/
+unit result before adding closure evaluator: 184 tests, 905 assertions, 0 failures
+focused timing-unit command: bun test scripts/onboarding/ordinary-timing.test.mjs scripts/onboarding/settle-timing.test.mjs
+focused timing-unit result: 8 tests, 33 assertions, 0 failures; 3 new tests / 10 assertions are additional to the 184-test suite
+ordinary timing command: node scripts/onboarding/ordinary-timing.mjs .phase2-local/closure-20261105-a1-unrestricted/prod-smoke/student-performance.json .phase2-local/closure-20261105-current-timing.json
+ordinary timing result: FAIL; 21 ordinary advances per run, no exclusions; p95 244.8 / 136.8 / 131.4 ms
+Rule 3 Windows result: INCONCLUSIVE; 21 window-level long tasks, 56-535 ms, no tour-handler ownership attribution
+focused browser command: GATE_EVID=.phase2-local/closure-20261105-focus GATE_SCRIPTS=01-targets.mjs,02-positioning.mjs,03-keyboard.mjs,06-mobile.mjs,08-stability.mjs node scripts/onboarding/isolated-interactions.mjs
+focused browser result: exit 1 before scenario assertions, Owned endpoint HTTP request failed; contexts 0; owned cleanup PASS
+memory command and result: see memory-console.log and memory-result-summary.json if present
+limitations: cloud raw artifacts are absent; historical published failures retained; no new manual accessibility PASS; no Turbopack execution
+preservation: next-env.d.ts SHA256 7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc, credentials and protected design export untouched
+Raw heap snapshots and browser profiles stay outside Git. Raw A1 chunks remain in the local evidence directory; this compact package is not itself a complete input to the strict A1 reader.
+log preservation: .log files are normalized readable projections; corresponding .log.gz files preserve the original raw bytes exactly. log-preservation.json records raw/view hashes and verified decompression. Original local logs are unchanged.

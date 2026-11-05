@@ -1,0 +1,111 @@
+{
+  "raw": {
+    "path": ".phase2-local/closure-20261105-focus/interaction-result.json",
+    "sha256": "9283ecb6e79ba63063ffbaaefc35cd31a58e6a66c2415523f3cc941b2dc5b5b5",
+    "bytes": 600834
+  },
+  "testedHead": "b579d003eff44779e8e8bf5f8e145776cddf6efe",
+  "selected": [
+    "01-targets.mjs",
+    "02-positioning.mjs",
+    "03-keyboard.mjs",
+    "06-mobile.mjs",
+    "08-stability.mjs"
+  ],
+  "startedAt": "2026-11-05T11:40:08.076Z",
+  "finishedAt": "2026-11-05T11:49:48.214Z",
+  "lint": {
+    "exitCode": 0
+  },
+  "typecheck": {
+    "exitCode": 0
+  },
+  "stage": "local-login-first-route-compilation",
+  "error": "Owned endpoint HTTP request failed",
+  "tests": [],
+  "safety": {
+    "externalBlocked": 0,
+    "writesBlocked": 0,
+    "completionSimulated": 0,
+    "errors": []
+  },
+  "cleanup": {
+    "records": [
+      {
+        "name": "isolated-next-dev",
+        "supervisorPid": 4632,
+        "rootPid": 18172,
+        "cleanupAttempted": true,
+        "cleanupFailed": false,
+        "terminationConfirmed": true,
+        "jobEmpty": true,
+        "stopped": true,
+        "fallbackAttempted": false,
+        "browserPids": [],
+        "remainingBrowserProcesses": null,
+        "supervisorExit": {
+          "code": 0,
+          "signal": null
+        },
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "contexts": 0,
+  "protectedBefore": "7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc",
+  "protectedAfter": "7ad303e40d4fddf44f156129e397511953a71481c5cfd86b1862649aaaf240cc",
+  "producerFingerprint": "fc5092939aedfaccf3da454e67dff2574b9082646a617e173492896d19259d03",
+  "producer": [
+    {
+      "name": "01-targets.mjs",
+      "sha256": "894f40c22d9ff67fdf03e0ae6aafe29da36c61fd74820fc0b18896e8edb3804d"
+    },
+    {
+      "name": "02-positioning.mjs",
+      "sha256": "bc8947a73007685eac259707521303d89b153a493cf499c8219969afff9201aa"
+    },
+    {
+      "name": "03-keyboard.mjs",
+      "sha256": "9fe6298fc03056c011b3164f4ba9a232bb214c80d212e868313be4941d4dd5f0"
+    },
+    {
+      "name": "06-mobile.mjs",
+      "sha256": "852c2fd8289562160fd024b160a410050cfaa935e5ec9f1de69cfc8b5c81884c"
+    },
+    {
+      "name": "08-stability.mjs",
+      "sha256": "3a20d574862a11c1badb9e2ec11e4e733f3a43b7a7b5e3ebdf2136c27bff7841"
+    },
+    {
+      "name": "10-perf.mjs",
+      "sha256": "1ab48542668841fba1837803139ee6441a811179c12ae70058f3b4e8432c991a"
+    },
+    {
+      "name": "account-preflight.mjs",
+      "sha256": "5d9f4d8d0ca30008eaff9f2dc8ef2a57a69add3e10a204c84fa5a5a92a71b428"
+    },
+    {
+      "name": "isolated-interactions.mjs",
+      "sha256": "4338ba7f1c9f8b70afe5b10762a3b457bcc81204cca1025af75a3e616b98e375"
+    },
+    {
+      "name": "isolated-source.mjs",
+      "sha256": "b15329ddb2df07d906db5a4f9d5a37f4ea880e860b034678c88592a8b9f79a41"
+    },
+    {
+      "name": "lib.mjs",
+      "sha256": "880aa2e8409e89bdee74b90c7c1d7c74a418ad0ae038c48325d2646bb5009714"
+    },
+    {
+      "name": "owned-browser-task.mjs",
+      "sha256": "60892ddf0bd8f1227ff03a07c35b0490742f2b19a60450703765751904f38460"
+    },
+    {
+      "name": "settle-timing.mjs",
+      "sha256": "14f206d3d4e698f75d3b2a50344288bec6fae1f8dee71c6e474cbfe9bee302b3"
+    }
+  ],
+  "producerUnchanged": true,
+  "exitCode": 1
+}

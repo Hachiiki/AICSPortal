@@ -1,0 +1,37 @@
+[
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "startedAt": "2026-11-05T11:28:43.145Z",
+    "exitCode": 0,
+    "finishedAt": "2026-11-05T11:31:23.352Z"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "startedAt": "2026-11-05T11:31:23.357Z",
+    "exitCode": 0,
+    "finishedAt": "2026-11-05T11:32:29.139Z"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build",
+      "--",
+      "--webpack"
+    ],
+    "startedAt": "2026-11-05T11:32:29.142Z",
+    "exitCode": 0,
+    "finishedAt": "2026-11-05T11:36:19.745Z"
+  }
+]

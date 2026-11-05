@@ -1,0 +1,65 @@
+{
+  "reviewedAt": "2026-11-05T12:07:14.842Z",
+  "head": "8c4a8f61fa7f4c59ea0f71db59b18ffdf7862bb2",
+  "baseline": "46c33a53c5a502c4a6e5937bdeb7b81e2a82622f",
+  "files": [
+    {
+      "path": "src/app/api/onboarding/state/route.ts",
+      "sha256": "5a39a094d11e8c6b72ef646fa317d4b6d852678c378733eeeb4c10296a5c9254",
+      "bytes": 6868
+    },
+    {
+      "path": "src/app/api/auth/change-password/route.ts",
+      "sha256": "9eb7667cbb88e478fd3d152249ccffa1310f5987cfe31c2d182b2c4c6fd8f05a",
+      "bytes": 4972
+    },
+    {
+      "path": "src/lib/authz/policies.ts",
+      "sha256": "c0ac3b58530a47c229a2d2784e6d60207e883bdda381fc81a44192c13c0bdeba",
+      "bytes": 21847
+    },
+    {
+      "path": "src/lib/authz/context.ts",
+      "sha256": "223f8ad2b507dd1effd9590a2e7d3c0ce939d542b5a06bb1eb39ffbcefad7e14",
+      "bytes": 2785
+    },
+    {
+      "path": "src/lib/authz/guards.ts",
+      "sha256": "1ca11c9cca321376333d8c09b3bc45747b31c11c18acdf36987ca0300a56271f",
+      "bytes": 2836
+    },
+    {
+      "path": "src/lib/session-auth.ts",
+      "sha256": "f4d80897282eb2d9104d5f3c62b796df6d5fc7da160cf3ca52d2ee9756402f99",
+      "bytes": 1522
+    },
+    {
+      "path": "src/lib/session.ts",
+      "sha256": "264403341ad5dbc5d60c651b337320fcf035bc4ac1527060e42963625e825340",
+      "bytes": 3248
+    },
+    {
+      "path": "src/proxy.ts",
+      "sha256": "0a9a83e3054fbd955d8b3a7053511f1c44de6a455727e6f091dba0cd0fa2ff35",
+      "bytes": 4692
+    },
+    {
+      "path": "src/components/onboarding/TourOverlay.tsx",
+      "sha256": "8fd7b53eeb8b13315e203f2c70ab20c730c67ecb69e1d07a343a7549c5080e2a",
+      "bytes": 16414
+    },
+    {
+      "path": "package.json",
+      "sha256": "ae0f6512a25958b8c69cb4a8bbc0f2d7156d155665c69b45a5ae227e757b39c2",
+      "bytes": 1486
+    }
+  ],
+  "unchangedBoundaryInputs": true,
+  "review": [
+    "GET/PATCH identity is only ctx.actor; all onboarding reads and upserts use branch and username from the resolved DB actor.",
+    "The onboarding policy supports read/update only and denies corrupt roles. Context is resolved through token-version verification and a DB actor projection that contains no onboarding progress.",
+    "No authz guard, relation or existing access policy reads onboarding progress. Source collection touch points are the state API and successful-password completion write.",
+    "Password changes preserve the old-password check, new scrypt hash, branch-stamped read/write, matchedCount guard and tokenVersion increment. The student-only progress write follows the successful update and cannot change its outcome.",
+    "The 184-test suite includes mocked route/policy/guard tests; it is not a live database authorization run. No production or Atlas access occurred."
+  ]
+}

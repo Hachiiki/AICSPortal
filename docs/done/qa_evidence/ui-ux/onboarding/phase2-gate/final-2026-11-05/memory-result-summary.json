@@ -1,0 +1,1463 @@
+{
+  "schema": "aics-final-memory-assessment/v1",
+  "testedHead": "8c4a8f61fa7f4c59ea0f71db59b18ffdf7862bb2",
+  "measurementValid": true,
+  "raw": {
+    "path": ".phase2-local/closure-20261105-a1-unrestricted/performance/calibration-cal1/heap-probe.json",
+    "sha256": "10ed5fe95fc0aff4f461726683c45ca561874a562291067bfb5761b90862e20d",
+    "bytes": 3405068
+  },
+  "command": [
+    "C:\\nvm4w\\nodejs\\node.exe",
+    "C:\\Projects\\loginAICSPortal\\scripts\\onboarding\\10-perf.mjs"
+  ],
+  "runtime": {
+    "executable": "C:\\nvm4w\\nodejs\\node.exe",
+    "name": "node",
+    "version": "v24.22.1",
+    "nodeCompatibilityVersion": "24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "thresholds": {
+    "nodes": 50,
+    "listeners": 10,
+    "retainedTourObjects": "no continuing growth",
+    "detachedDOM": "no unexplained growth"
+  },
+  "originalDiagnosticBenchmarks": {
+    "endDriftKB": 150,
+    "slopeKBPerCycle": 25,
+    "result": "FAIL, preserved as diagnostics, not the amended acceptance criterion"
+  },
+  "baseline": {
+    "base1": {
+      "usedKB": 6142,
+      "totalKB": 7048,
+      "nodes": 6553,
+      "listeners": 406
+    },
+    "base2": {
+      "usedKB": 6142,
+      "totalKB": 6792,
+      "nodes": 6553,
+      "listeners": 406
+    },
+    "stable": true,
+    "disclosure": "dual-GC within 15KB (0KB); base2 is the baseline"
+  },
+  "cycles": [
+    {
+      "cycle": "warm-up-discarded",
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 1,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 3,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 4,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 5,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 6,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 7,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 8,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 9,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    },
+    {
+      "cycle": 10,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "title": "Synthetic 1: live navigation target",
+          "target": "nav-dashboard",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-2",
+          "title": "Synthetic 2: second nav target",
+          "target": "nav-academics",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-3",
+          "title": "Synthetic 3: a target that mounts late",
+          "target": "board-late-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-4",
+          "title": "Synthetic 4: a removable target",
+          "target": "board-volatile-target",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-5",
+          "title": "Synthetic 5: crossing views",
+          "target": "events-page",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-6",
+          "title": "Synthetic 6: topbar target",
+          "target": "topbar-notifications",
+          "disposition": "spot",
+          "transition": "next"
+        },
+        {
+          "id": "dev-7",
+          "title": "Synthetic 7: target absent",
+          "target": "board-never-present",
+          "disposition": "waiting",
+          "transition": "automatic absent-target skip"
+        },
+        {
+          "id": "dev-8",
+          "title": "Synthetic 8: last step",
+          "target": "nav-help",
+          "disposition": "spot",
+          "transition": "finish"
+        }
+      ]
+    }
+  ],
+  "series": {
+    "baseline": {
+      "usedKB": 6142,
+      "totalKB": 6792,
+      "nodes": 6553,
+      "listeners": 406
+    },
+    "samples": [
+      {
+        "cycle": 1,
+        "usedKB": 6261,
+        "totalKB": 6792,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 2,
+        "usedKB": 6358,
+        "totalKB": 6792,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 3,
+        "usedKB": 6429,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 4,
+        "usedKB": 6472,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 5,
+        "usedKB": 6502,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 6,
+        "usedKB": 6545,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 7,
+        "usedKB": 6612,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 8,
+        "usedKB": 6668,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 9,
+        "usedKB": 6684,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      },
+      {
+        "cycle": 10,
+        "usedKB": 6693,
+        "totalKB": 7304,
+        "nodes": 6553,
+        "listeners": 406
+      }
+    ],
+    "endDriftKB": 551,
+    "slopeKBPerCycle": 47.44242,
+    "decidingSignals": "post-GC JSHeapUsedSize end-drift and regression slope decide; nodes/listeners never decide"
+  },
+  "gc": [
+    {
+      "stage": "baseline-1",
+      "valid": true
+    },
+    {
+      "stage": "baseline-2",
+      "valid": true
+    },
+    {
+      "stage": "baseline-snapshot",
+      "valid": true
+    },
+    {
+      "stage": "sample-1",
+      "valid": true
+    },
+    {
+      "stage": "sample-2",
+      "valid": true
+    },
+    {
+      "stage": "sample-3",
+      "valid": true
+    },
+    {
+      "stage": "sample-4",
+      "valid": true
+    },
+    {
+      "stage": "sample-5",
+      "valid": true
+    },
+    {
+      "stage": "sample-6",
+      "valid": true
+    },
+    {
+      "stage": "sample-7",
+      "valid": true
+    },
+    {
+      "stage": "sample-8",
+      "valid": true
+    },
+    {
+      "stage": "sample-9",
+      "valid": true
+    },
+    {
+      "stage": "sample-10",
+      "valid": true
+    },
+    {
+      "stage": "final-snapshot",
+      "valid": true
+    },
+    {
+      "stage": "verification",
+      "valid": true
+    }
+  ],
+  "guards": {
+    "nodesDelta": 0,
+    "listenersDelta": 0,
+    "nodesThreshold": 50,
+    "listenersThreshold": 10,
+    "role": "escalate only - a guard trip never fails the rule; it triggers the snapshot diff",
+    "tripped": false,
+    "finalApprovedRole": "mandatory guards under the 2026-11-05 retained-memory criterion"
+  },
+  "snapshots": {
+    "baseline": {
+      "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-base.heapsnapshot",
+      "bytes": 20969840,
+      "valid": true
+    },
+    "final": {
+      "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-final.heapsnapshot",
+      "bytes": 21220854,
+      "valid": true
+    },
+    "dir": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105",
+    "baseBytes": 20969840,
+    "finalBytes": 21220854
+  },
+  "snapshotIdentities": {
+    "base": {
+      "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-base.heapsnapshot",
+      "bytes": 20969840,
+      "sha256": "57fa93faa0b5d29cebf22533b510fe6e7e302f9d4b99bc74608abcd16cae32b2",
+      "types": {
+        "synthetic": 0,
+        "native": 12781758,
+        "string": 1021368,
+        "object shape": 485960,
+        "code": 2979476,
+        "array": 425792,
+        "number": 2004,
+        "symbol": 672,
+        "object": 377728,
+        "closure": 280572,
+        "concatenated string": 48040,
+        "sliced string": 1900,
+        "regexp": 672
+      },
+      "fingerprints": {
+        "[\"string\",\"data-tour-spotlight\"]": 1,
+        "[\"string\",\"data-tour-card\"]": 1,
+        "[\"string\",\"Guided tour completed.\"]": 1,
+        "[\"string\",\"data-tour-overlay\"]": 1,
+        "[\"string\",\"OnboardingDev\"]": 1,
+        "[\"closure\",\"OnboardingDev\"]": 1
+      },
+      "detachedNodes": 3
+    },
+    "final": {
+      "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-closure-heaps-20261105\\rule-4b-cal1-final.heapsnapshot",
+      "bytes": 21220854,
+      "sha256": "0eaa932eb52dd121ba67117ab4c38a8067dd304655bbdd7cd891b0b8cd0eb4ac",
+      "types": {
+        "synthetic": 0,
+        "native": 12660188,
+        "string": 1020772,
+        "object shape": 491064,
+        "code": 3513128,
+        "array": 426052,
+        "number": 2064,
+        "symbol": 672,
+        "object": 386624,
+        "closure": 280572,
+        "concatenated string": 44140,
+        "sliced string": 740,
+        "regexp": 672
+      },
+      "fingerprints": {
+        "[\"string\",\"data-tour-spotlight\"]": 1,
+        "[\"string\",\"data-tour-card\"]": 1,
+        "[\"string\",\"Guided tour completed.\"]": 1,
+        "[\"string\",\"data-tour-overlay\"]": 1,
+        "[\"string\",\"OnboardingDev\"]": 1,
+        "[\"closure\",\"OnboardingDev\"]": 1
+      },
+      "detachedNodes": 3
+    }
+  },
+  "parser": {
+    "status": {
+      "required": true,
+      "reason": "explicit-request",
+      "status": "complete"
+    },
+    "caps": {
+      "clusters": 10,
+      "nodesPerCluster": 200,
+      "arrivalsPerTarget": 200,
+      "chains": 3
+    },
+    "clusters": [
+      {
+        "name": "system / InstructionStream",
+        "type": "code",
+        "deltaCount": 370,
+        "deltaSelfBytes": 350848,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "system / TrustedByteArray",
+        "type": "code",
+        "deltaCount": 786,
+        "deltaSelfBytes": 87004,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "system / ProtectedFixedArray",
+        "type": "code",
+        "deltaCount": 137,
+        "deltaSelfBytes": 32020,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "blink::HeapHashTableBacking<blink::HashTable<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, blink::KeyValuePair<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, v8::TracedReference<v8::Object>>, blink::KeyValuePairExtractor, blink::HashMapValueTraits<blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HashTraits<v8::TracedReference<v8::Object>>>, blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HeapAllocator>>",
+        "type": "native",
+        "deltaCount": 0,
+        "deltaSelfBytes": 28672,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "system / Code",
+        "type": "code",
+        "deltaCount": 370,
+        "deltaSelfBytes": 26640,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "system / FeedbackVector",
+        "type": "code",
+        "deltaCount": 224,
+        "deltaSelfBytes": 22140,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "LayoutShift",
+        "type": "native",
+        "deltaCount": 125,
+        "deltaSelfBytes": 19000,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "system / WeakArrayList",
+        "type": "native",
+        "deltaCount": 191,
+        "deltaSelfBytes": 18996,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "DOMRectReadOnly",
+        "type": "native",
+        "deltaCount": 292,
+        "deltaSelfBytes": 16352,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      },
+      {
+        "name": "LargestContentfulPaint",
+        "type": "native",
+        "deltaCount": 76,
+        "deltaSelfBytes": 10336,
+        "label": "unknown",
+        "attributionScope": "per sampled final-snapshot node; aggregate growth is not itself attributed",
+        "fingerprintsFound": []
+      }
+    ]
+  },
+  "typeDeltas": {
+    "synthetic": 0,
+    "native": -121570,
+    "string": -596,
+    "object shape": 5104,
+    "code": 533652,
+    "array": 260,
+    "number": 60,
+    "symbol": 0,
+    "object": 8896,
+    "closure": 0,
+    "concatenated string": -3900,
+    "sliced string": -1160,
+    "regexp": 0
+  },
+  "objectConstructorGrowth": [
+    {
+      "type": "object",
+      "name": "Object",
+      "baseCount": 6959,
+      "finalCount": 7047,
+      "deltaCount": 88,
+      "deltaSelfBytes": 2080
+    },
+    {
+      "type": "object",
+      "name": "HTMLDivElement",
+      "baseCount": 9,
+      "finalCount": 113,
+      "deltaCount": 104,
+      "deltaSelfBytes": 1664
+    },
+    {
+      "type": "object",
+      "name": "HTMLSpanElement",
+      "baseCount": 2,
+      "finalCount": 81,
+      "deltaCount": 79,
+      "deltaSelfBytes": 1264
+    },
+    {
+      "type": "object",
+      "name": "HTMLButtonElement",
+      "baseCount": 4,
+      "finalCount": 72,
+      "deltaCount": 68,
+      "deltaSelfBytes": 1088
+    },
+    {
+      "type": "object",
+      "name": "SVGPathElement",
+      "baseCount": 2,
+      "finalCount": 48,
+      "deltaCount": 46,
+      "deltaSelfBytes": 736
+    },
+    {
+      "type": "object",
+      "name": "HTMLParagraphElement",
+      "baseCount": 2,
+      "finalCount": 31,
+      "deltaCount": 29,
+      "deltaSelfBytes": 464
+    },
+    {
+      "type": "object",
+      "name": "Array",
+      "baseCount": 1709,
+      "finalCount": 1736,
+      "deltaCount": 27,
+      "deltaSelfBytes": 432
+    },
+    {
+      "type": "object",
+      "name": "SVGSVGElement",
+      "baseCount": 2,
+      "finalCount": 25,
+      "deltaCount": 23,
+      "deltaSelfBytes": 368
+    },
+    {
+      "type": "object",
+      "name": "HTMLScriptElement",
+      "baseCount": 2,
+      "finalCount": 16,
+      "deltaCount": 14,
+      "deltaSelfBytes": 224
+    },
+    {
+      "type": "object",
+      "name": "HTMLElement",
+      "baseCount": 3,
+      "finalCount": 11,
+      "deltaCount": 8,
+      "deltaSelfBytes": 128
+    },
+    {
+      "type": "object",
+      "name": "HTMLMetaElement",
+      "baseCount": 2,
+      "finalCount": 7,
+      "deltaCount": 5,
+      "deltaSelfBytes": 80
+    },
+    {
+      "type": "object",
+      "name": "HTMLAnchorElement",
+      "baseCount": 2,
+      "finalCount": 7,
+      "deltaCount": 5,
+      "deltaSelfBytes": 80
+    },
+    {
+      "type": "object",
+      "name": "HTMLLinkElement",
+      "baseCount": 2,
+      "finalCount": 6,
+      "deltaCount": 4,
+      "deltaSelfBytes": 64
+    },
+    {
+      "type": "object",
+      "name": "SVGCircleElement",
+      "baseCount": 2,
+      "finalCount": 6,
+      "deltaCount": 4,
+      "deltaSelfBytes": 64
+    },
+    {
+      "type": "object",
+      "name": "HTMLHeadingElement",
+      "baseCount": 2,
+      "finalCount": 5,
+      "deltaCount": 3,
+      "deltaSelfBytes": 48
+    },
+    {
+      "type": "object",
+      "name": "HTMLHeadElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLStyleElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLTitleElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "ShadowRoot",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLInputElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "SVGRectElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    },
+    {
+      "type": "object",
+      "name": "HTMLImageElement",
+      "baseCount": 2,
+      "finalCount": 3,
+      "deltaCount": 1,
+      "deltaSelfBytes": 16
+    }
+  ],
+  "wrapperAttribution": {
+    "counts": {
+      "all native targets existed in baseline": 399
+    },
+    "wrappers": 399,
+    "examples": [
+      {
+        "wrapper": "HTMLDivElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLDivElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLDivElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLDivElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLButtonElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLSpanElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLButtonElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLSpanElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLButtonElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      },
+      {
+        "wrapper": "HTMLSpanElement",
+        "edges": [
+          {
+            "type": "property",
+            "targetType": "object",
+            "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "object shape",
+            "targetName": "system / Map",
+            "existed": true
+          },
+          {
+            "type": "internal",
+            "targetType": "native",
+            "targetName": "<DOM element>",
+            "existed": true
+          }
+        ]
+      }
+    ],
+    "limitation": "Direct outgoing edge attribution only; absence of a direct native edge is unresolved, not proof of tour ownership or absence."
+  },
+  "cleanup": {
+    "equal": true,
+    "isolationOk": true,
+    "isolationErrors": [],
+    "worktreesPreserved": true
+  },
+  "assessment": "INCONCLUSIVE retained-tour-object ownership; other observed subchecks pass",
+  "exactMissingProof": "Attribute the retained generic Object +88 and Array +27 remainder to verified strong retainers, or otherwise establish that it does not represent continuing tour-specific growth. The capped top-10 attribution did not cover these aggregates. Stable fingerprint strings and zero closure growth do not alone establish object ownership.",
+  "minimumAction": "Use the saved current-source baseline/final snapshots for focused retainer analysis first. No additional calibration or broader verification is required merely to inspect this existing pair."
+}

@@ -1,0 +1,23 @@
+{
+  "source": "Filesystem review in the closure assignment",
+  "cloudRawPresent": false,
+  "missingCloudArtifacts": [
+    "tg-1",
+    "pos-2",
+    "kb-4",
+    "06-mobile-2",
+    "h1-fail-first",
+    "h1-green-1",
+    "i2r3-linux-timing-2",
+    "i2r4-linux-attrib-3",
+    "i2r4-linux-30c",
+    "i1-linux-bundle-comparison.json"
+  ],
+  "retainedWindows": [
+    "final-a1-attempt2",
+    "final-cal1-attempt2",
+    "final-cal2-attempt2",
+    "final-interactions-attempt3"
+  ],
+  "disposition": "Historical executed results stay as recorded. Missing cloud raw files prevent independent review of those results here; a failed fresh setup does not become a runtime assertion result."
+}

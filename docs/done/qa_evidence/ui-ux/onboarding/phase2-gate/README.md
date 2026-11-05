@@ -1,6 +1,16 @@
 # AICS Portal onboarding — Phase 2 gate evidence package
 
-## Current verification index, 2026-11-04
+## Final focused closure index, 2026-11-05
+
+Verdict: **PHASE 2 NOT ACCEPTED**. The owner approved A2-1, I1-1, I2-2 and qualified I2-3. The final 26-row ledger and exact outstanding work are in the completion report's final section; the gate plan now records the approved requirements without rewriting the historical wording.
+
+The compact [final evidence package](final-2026-11-05/manifest.txt) records an actual production A1 PASS with 17 assertions and independent cleanup, 184 passing tests/905 assertions, and three additional timing-evaluator tests. Current ordinary production transitions FAIL at p95 244.8/136.8/131.4 ms, 21 ordinary samples per run and no exclusions. Windows Rule 3 remains INCONCLUSIVE with 21 unattributed window-level long tasks. A new valid 10-cycle probe passes node/listener/detached-DOM/cleanup subchecks, but generic-object retention ownership remains INCONCLUSIVE. Its 551 KB drift and 47.44242 KB/cycle slope remain failed historical-limit diagnostic comparisons, not automatic failures or passes of the amended retained-memory criterion. The focused corrected-UI attempt failed at endpoint readiness before assertions, with clean cleanup. H1's owner recheck remains pending.
+
+Start with `a1-summary.json`, `a1-binding.json`, `student-performance-complete.json`, `ordinary-timing-current.json`, `memory-result-summary.json`, `focused-interaction-summary.json`, and `evidence-availability.json` in that directory. The package preserves exact hashes and identities; it is a compact review package, not a substitute for the complete local raw A1 reader inputs. Current raw A1 artifacts remain in `.phase2-local/closure-20261105-a1-unrestricted/prod-smoke/`; current heap snapshots remain at the paths and SHA-256 identities recorded in the memory summary. Raw snapshots, cookies, browser profiles and credentials are not committed.
+
+The `.phase2-cloud` raw files cited by the cloud continuation are absent from this checkout. Their executed results stay recorded below and in the completion report, with their source identities. The lack of those files is explicitly tracked by A3 and is not repaired by inventing raw data, claiming a fresh runtime PASS or replacing Windows evidence with Linux evidence. The older complete timing failures and original 150 KB/25 KB-per-cycle benchmark failures remain intact.
+
+## Historical verification index, 2026-11-04
 
 The latest report gives all 26 dispositions. Attempt 3's native browser/server cleanup passed, but its overall runner failed. The final focused attempt 4 failed ownership inspection and cleanup, and no complete target matrix or strengthened focus assertions executed. Late native exit observations do not turn that attempt into PASS. H1 focus loss, incomplete target/toast evidence, performance decisions/attribution and A2/cost review keep the gate NOT READY. The pending `08-stability.mjs` edit remains uncommitted and is retained with the final evidence package.
 

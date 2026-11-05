@@ -1,0 +1,304 @@
+{
+  "schema": "aics-saved-heap-summary/v1",
+  "capturedAt": "2026-11-05T11:33:24.911Z",
+  "command": [
+    "C:\\Projects\\loginAICSPortal\\scripts\\onboarding\\retained-memory-summary.mjs",
+    "C:/Users/Hp/AppData/Local/Temp/aics-final-cal2-heaps-20261103-2/rule-4b-cal2-base.heapsnapshot",
+    "C:/Users/Hp/AppData/Local/Temp/aics-final-cal2-heaps-20261103-2/rule-4b-cal2-final.heapsnapshot",
+    ".phase2-local/closure-20261105-cal2-attribution.json"
+  ],
+  "base": {
+    "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-final-cal2-heaps-20261103-2\\rule-4b-cal2-base.heapsnapshot",
+    "bytes": 21240291,
+    "sha256": "ca47535a7c8b70decba1b93e9d6725e016ef110eb5bafd545c4abddad1d9d63d",
+    "types": {
+      "synthetic": 0,
+      "native": 12830525,
+      "string": 1021824,
+      "object shape": 489016,
+      "code": 3275364,
+      "array": 426148,
+      "number": 2016,
+      "symbol": 672,
+      "object": 387648,
+      "closure": 280568,
+      "concatenated string": 48160,
+      "sliced string": 1900,
+      "regexp": 672
+    },
+    "fingerprints": {
+      "[\"string\",\"data-tour-spotlight\"]": 1,
+      "[\"string\",\"data-tour-card\"]": 1,
+      "[\"string\",\"Guided tour completed.\"]": 1,
+      "[\"string\",\"data-tour-overlay\"]": 1,
+      "[\"string\",\"OnboardingDev\"]": 1,
+      "[\"closure\",\"OnboardingDev\"]": 1
+    },
+    "detachedNodes": 6
+  },
+  "final": {
+    "file": "C:\\Users\\Hp\\AppData\\Local\\Temp\\aics-final-cal2-heaps-20261103-2\\rule-4b-cal2-final.heapsnapshot",
+    "bytes": 21426138,
+    "sha256": "125a60e0bcf5a030bb3bcc9dde65d300749ffb0e91b7e8e9b8b043ef6a7683c9",
+    "types": {
+      "synthetic": 0,
+      "native": 12708695,
+      "string": 1021228,
+      "object shape": 493212,
+      "code": 3794728,
+      "array": 426352,
+      "number": 2088,
+      "symbol": 672,
+      "object": 389000,
+      "closure": 280568,
+      "concatenated string": 44200,
+      "regexp": 672,
+      "sliced string": 740
+    },
+    "fingerprints": {
+      "[\"string\",\"data-tour-spotlight\"]": 1,
+      "[\"string\",\"data-tour-card\"]": 1,
+      "[\"string\",\"Guided tour completed.\"]": 1,
+      "[\"string\",\"data-tour-overlay\"]": 1,
+      "[\"string\",\"OnboardingDev\"]": 1,
+      "[\"closure\",\"OnboardingDev\"]": 1
+    },
+    "detachedNodes": 6
+  },
+  "typeDeltas": {
+    "synthetic": 0,
+    "native": -121830,
+    "string": -596,
+    "object shape": 4196,
+    "code": 519364,
+    "array": 204,
+    "number": 72,
+    "symbol": 0,
+    "object": 1352,
+    "closure": 0,
+    "concatenated string": -3960,
+    "sliced string": -1160,
+    "regexp": 0
+  },
+  "topGrowth": [
+    {
+      "type": "code",
+      "name": "system / InstructionStream",
+      "baseCount": 1129,
+      "finalCount": 1452,
+      "deltaCount": 323,
+      "deltaSelfBytes": 343168
+    },
+    {
+      "type": "code",
+      "name": "system / TrustedByteArray",
+      "baseCount": 2521,
+      "finalCount": 3215,
+      "deltaCount": 694,
+      "deltaSelfBytes": 89288
+    },
+    {
+      "type": "code",
+      "name": "system / ProtectedFixedArray",
+      "baseCount": 221,
+      "finalCount": 355,
+      "deltaCount": 134,
+      "deltaSelfBytes": 33808
+    },
+    {
+      "type": "native",
+      "name": "blink::HeapHashTableBacking<blink::HashTable<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, blink::KeyValuePair<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, v8::TracedReference<v8::Object>>, blink::KeyValuePairExtractor, blink::HashMapValueTraits<blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HashTraits<v8::TracedReference<v8::Object>>>, blink::HashTraits<cppgc::internal::BasicMember<const blink::ScriptWrappable, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HeapAllocator>>",
+      "baseCount": 1,
+      "finalCount": 1,
+      "deltaCount": 0,
+      "deltaSelfBytes": 32776
+    },
+    {
+      "type": "code",
+      "name": "system / Code",
+      "baseCount": 1129,
+      "finalCount": 1452,
+      "deltaCount": 323,
+      "deltaSelfBytes": 23256
+    },
+    {
+      "type": "native",
+      "name": "LayoutShift",
+      "baseCount": 25,
+      "finalCount": 150,
+      "deltaCount": 125,
+      "deltaSelfBytes": 19000
+    },
+    {
+      "type": "code",
+      "name": "system / FeedbackVector",
+      "baseCount": 900,
+      "finalCount": 1080,
+      "deltaCount": 180,
+      "deltaSelfBytes": 17464
+    },
+    {
+      "type": "native",
+      "name": "DOMRectReadOnly",
+      "baseCount": 62,
+      "finalCount": 354,
+      "deltaCount": 292,
+      "deltaSelfBytes": 16352
+    },
+    {
+      "type": "native",
+      "name": "system / WeakArrayList",
+      "baseCount": 514,
+      "finalCount": 668,
+      "deltaCount": 154,
+      "deltaSelfBytes": 15392
+    },
+    {
+      "type": "native",
+      "name": "LargestContentfulPaint",
+      "baseCount": 10,
+      "finalCount": 86,
+      "deltaCount": 76,
+      "deltaSelfBytes": 10336
+    },
+    {
+      "type": "native",
+      "name": "InteractionContentfulPaint",
+      "baseCount": 8,
+      "finalCount": 84,
+      "deltaCount": 76,
+      "deltaSelfBytes": 7904
+    },
+    {
+      "type": "native",
+      "name": "PerformanceEventTiming",
+      "baseCount": 87,
+      "finalCount": 110,
+      "deltaCount": 23,
+      "deltaSelfBytes": 5888
+    },
+    {
+      "type": "native",
+      "name": "LayoutShiftAttribution",
+      "baseCount": 31,
+      "finalCount": 177,
+      "deltaCount": 146,
+      "deltaSelfBytes": 5840
+    },
+    {
+      "type": "code",
+      "name": "system / TrustedWeakFixedArray",
+      "baseCount": 221,
+      "finalCount": 355,
+      "deltaCount": 134,
+      "deltaSelfBytes": 4528
+    },
+    {
+      "type": "object shape",
+      "name": "system / Map",
+      "baseCount": 5515,
+      "finalCount": 5588,
+      "deltaCount": 73,
+      "deltaSelfBytes": 2920
+    },
+    {
+      "type": "native",
+      "name": "blink::NetworkResourcesData::ResourceData",
+      "baseCount": 37,
+      "finalCount": 47,
+      "deltaCount": 10,
+      "deltaSelfBytes": 2880
+    },
+    {
+      "type": "code",
+      "name": "system / CodeWrapper",
+      "baseCount": 3861,
+      "finalCount": 4184,
+      "deltaCount": 323,
+      "deltaSelfBytes": 2584
+    },
+    {
+      "type": "native",
+      "name": "blink::HeapHashTableBacking<blink::HashTable<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, blink::KeyValuePair<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>, cppgc::internal::BasicMember<blink::SoftNavigationPaintAttributionTracker::NodeState, cppgc::internal::StrongMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::KeyValuePairExtractor, blink::HashMapValueTraits<blink::HashTraits<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HashTraits<cppgc::internal::BasicMember<blink::SoftNavigationPaintAttributionTracker::NodeState, cppgc::internal::StrongMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>>, blink::HashTraits<cppgc::internal::BasicMember<blink::Node, cppgc::internal::WeakMemberTag, cppgc::internal::DijkstraWriteBarrierPolicy>>, blink::HeapAllocator>>",
+      "baseCount": 2,
+      "finalCount": 2,
+      "deltaCount": 0,
+      "deltaSelfBytes": 2304
+    },
+    {
+      "type": "code",
+      "name": "system / LoadHandler",
+      "baseCount": 1006,
+      "finalCount": 1131,
+      "deltaCount": 125,
+      "deltaSelfBytes": 2092
+    },
+    {
+      "type": "native",
+      "name": "system / ProtectedFixedArray",
+      "baseCount": 222,
+      "finalCount": 356,
+      "deltaCount": 134,
+      "deltaSelfBytes": 1920
+    },
+    {
+      "type": "native",
+      "name": "NavigationHistoryEntry",
+      "baseCount": 3,
+      "finalCount": 13,
+      "deltaCount": 10,
+      "deltaSelfBytes": 1920
+    },
+    {
+      "type": "native",
+      "name": "system / ExternalStringData",
+      "baseCount": 805,
+      "finalCount": 810,
+      "deltaCount": 5,
+      "deltaSelfBytes": 1870
+    },
+    {
+      "type": "code",
+      "name": "system / AllocationSite",
+      "baseCount": 341,
+      "finalCount": 401,
+      "deltaCount": 60,
+      "deltaSelfBytes": 1676
+    },
+    {
+      "type": "native",
+      "name": "PerformanceResourceTiming",
+      "baseCount": 36,
+      "finalCount": 46,
+      "deltaCount": 10,
+      "deltaSelfBytes": 1360
+    },
+    {
+      "type": "object",
+      "name": "Object",
+      "baseCount": 7037,
+      "finalCount": 7086,
+      "deltaCount": 49,
+      "deltaSelfBytes": 1192
+    }
+  ],
+  "objectConstructorGrowth": [
+    {
+      "type": "object",
+      "name": "Object",
+      "baseCount": 7037,
+      "finalCount": 7086,
+      "deltaCount": 49,
+      "deltaSelfBytes": 1192
+    },
+    {
+      "type": "object",
+      "name": "Array",
+      "baseCount": 1740,
+      "finalCount": 1750,
+      "deltaCount": 10,
+      "deltaSelfBytes": 160
+    }
+  ],
+  "limitation": "Shallow size and constructor counts only. Fingerprint string counts do not prove object ownership or zero retained tour memory. This script does not issue a memory acceptance verdict."
+}

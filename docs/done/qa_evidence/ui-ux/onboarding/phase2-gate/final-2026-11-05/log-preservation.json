@@ -1,0 +1,61 @@
+{
+  "scope": "Raw log bytes preserved in gzip archives. Readable .log views use LF, trim trailing horizontal whitespace and have one final newline. Original local run logs remain untouched.",
+  "logs": [
+    {
+      "view": "a1-build.log",
+      "rawArchive": "a1-build.log.gz",
+      "rawBytes": 1881,
+      "rawSHA256": "81f4f5e2c575d10496ed32fdc6a2dcce411a675af36e46b84cb3b6a38dca093f",
+      "viewSHA256": "41212a67d85f927552fc188a9f3df36db189e4067a8b044e59c84a19b7be784e",
+      "roundTripVerified": true
+    },
+    {
+      "view": "a1-lint.log",
+      "rawArchive": "a1-lint.log.gz",
+      "rawBytes": 3892,
+      "rawSHA256": "05f3be2e95f5eeb5dd3817f506936ace286f6505145e3fb3258192e44f044e4e",
+      "viewSHA256": "8024b3f514e4df587765f238e83dd6b689cad039398bc94eed3ebe570b1c8d72",
+      "roundTripVerified": true
+    },
+    {
+      "view": "a1-typecheck.log",
+      "rawArchive": "a1-typecheck.log.gz",
+      "rawBytes": 61,
+      "rawSHA256": "a02bfa95bfa0b738b86acdc6808533a429a0d370467b48fef9e89ab41cfb199e",
+      "viewSHA256": "85372a29e3bee5dc4f755cd386e77539e625a9262b4ec3ec8e9438482b7dfbdf",
+      "roundTripVerified": true
+    },
+    {
+      "view": "focused-interaction-console.log",
+      "rawArchive": "focused-interaction-console.log.gz",
+      "rawBytes": 588,
+      "rawSHA256": "5eea6fc623a1bf65af20ecab518fec97aaded10203856a0e935b3d053087239f",
+      "viewSHA256": "e1fefcf42020e1add452e242bb31d0b12f5d86ed39eeac962f217d2b38e5da57",
+      "roundTripVerified": true
+    },
+    {
+      "view": "memory-console.log",
+      "rawArchive": "memory-console.log.gz",
+      "rawBytes": 5606,
+      "rawSHA256": "70393526892c076c14f02fe12627a924694a3cd672b80f53b2d136fef9a67b1d",
+      "viewSHA256": "932c59ec911a3ecdcf00d093e2aa3fd97affc18fb6c7b52d720ffb81199d0cce",
+      "roundTripVerified": true
+    },
+    {
+      "view": "timing-unit-8.log",
+      "rawArchive": "timing-unit-8.log.gz",
+      "rawBytes": 913,
+      "rawSHA256": "fec886d258e5b97a9c48c29af6b118bfbda7d61401da018163446cfedc01dd49",
+      "viewSHA256": "e8b724478e8f97474befb449e7edb4c0f44a0d4d3990513aa4c0d5e0422ddcf5",
+      "roundTripVerified": true
+    },
+    {
+      "view": "unit-184.log",
+      "rawArchive": "unit-184.log.gz",
+      "rawBytes": 23213,
+      "rawSHA256": "9887031e90cf287bfb84901e7e5f09b919c86bd6f9ae3c9bad079686d7b427dc",
+      "viewSHA256": "093b30d2006d732f520366368a498508e901eced02b6fc27213c61bde0e63f16",
+      "roundTripVerified": true
+    }
+  ]
+}

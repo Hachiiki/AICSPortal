@@ -1,0 +1,193 @@
+{
+  "counts": {
+    "all native targets existed in baseline": 399
+  },
+  "wrappers": 399,
+  "examples": [
+    {
+      "wrapper": "HTMLDivElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLDivElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLDivElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLDivElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLButtonElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLSpanElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLButtonElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLSpanElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLButtonElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLButtonElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    },
+    {
+      "wrapper": "HTMLSpanElement",
+      "edges": [
+        {
+          "type": "property",
+          "targetType": "object",
+          "targetName": "HTMLSpanElement (prototype) / http://127.0.0.1:4321",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "object shape",
+          "targetName": "system / Map",
+          "existed": true
+        },
+        {
+          "type": "internal",
+          "targetType": "native",
+          "targetName": "<DOM element>",
+          "existed": true
+        }
+      ]
+    }
+  ],
+  "limitation": "Direct outgoing edge attribution only; absence of a direct native edge is unresolved, not proof of tour ownership or absence."
+}

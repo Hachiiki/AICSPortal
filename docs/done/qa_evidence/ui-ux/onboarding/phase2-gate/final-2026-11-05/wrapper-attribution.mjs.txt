@@ -1,0 +1,28 @@
+import { readFileSync, writeFileSync } from 'node:fs'
+const dir = 'C:/Users/Hp/AppData/Local/Temp/aics-closure-heaps-20261105/'
+function parse(file) {
+  const s = JSON.parse(readFileSync(file)), m = s.snapshot.meta, nf = m.node_fields, ef = m.edge_fields
+  const nodes = [], ids = new Set()
+  let edge = 0
+  for (let offset = 0; offset < s.nodes.length; offset += nf.length) {
+    const n = { id: s.nodes[offset + nf.indexOf('id')], type: m.node_types[nf.indexOf('type')][s.nodes[offset + nf.indexOf('type')]], name: s.strings[s.nodes[offset + nf.indexOf('name')]], start: edge, count: s.nodes[offset + nf.indexOf('edge_count')] }
+    nodes.push(n); ids.add(n.id); edge += n.count * ef.length
+  }
+  const outgoing = n => Array.from({length: n.count}, (_, i) => {
+    const p = n.start + i * ef.length
+    return { type: m.edge_types[ef.indexOf('type')][s.edges[p + ef.indexOf('type')]], target: nodes[s.edges[p + ef.indexOf('to_node')] / nf.length] }
+  })
+  return {nodes,ids,outgoing}
+}
+const base = parse(dir + 'rule-4b-cal1-base.heapsnapshot'), final = parse(dir + 'rule-4b-cal1-final.heapsnapshot')
+const wrappers = final.nodes.filter(n => n.type === 'object' && /^(HTML|SVG)|^ShadowRoot$/.test(n.name) && !base.ids.has(n.id))
+const counts = {}, examples = []
+for (const n of wrappers) {
+  const native = final.outgoing(n).filter(e => e.target.type === 'native')
+  const key = native.length ? native.every(e => base.ids.has(e.target.id)) ? 'all native targets existed in baseline' : 'some native targets new' : 'no direct native edge'
+  counts[key] = (counts[key] || 0) + 1
+  if (examples.length < 8) examples.push({wrapper:n.name, edges:final.outgoing(n).map(e=>({type:e.type,targetType:e.target.type,targetName:e.target.type === 'native' ? e.target.name.replace(/<[^>]*>/g,'<DOM element>') : e.target.name,existed:base.ids.has(e.target.id)})).slice(0,8)})
+}
+const result = {counts,wrappers:wrappers.length,examples,limitation:'Direct outgoing edge attribution only; absence of a direct native edge is unresolved, not proof of tour ownership or absence.'}
+writeFileSync('.phase2-local/closure-20261105-wrapper-attribution.json',JSON.stringify(result,null,2))
+console.log(JSON.stringify(result))

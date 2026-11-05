@@ -1,5 +1,15 @@
 # Phase 2 manual review
 
+## Required H1 recheck after the focus repair
+
+Status on 2026-11-05: **AWAITING OWNER VERIFICATION**. The prior reported manual PASS predates the repair at `7da5ec0`. No new manual result has been supplied. Use a source-verified local fixture preview containing that repair; this checklist does not claim that an old preview URL is currently running or current.
+
+1. Enable the screen reader and start the student tour with the keyboard. Advance to a step that will remain open while its current view is replaced.
+2. Navigate unexpectedly using a portal navigation link, then repeat using browser Back/Forward during a new active tour. Do not use the tour's Next button to cause these view changes. If the active view or focused control disappears while the tour stays open, focus must return to the useful tour heading/card, not BODY, a removed element or an invisible control. If a live portal control retains useful focus, the engine must leave that focus intact.
+3. Confirm the screen reader identifies the current tour content and position without duplicate speech. Use Tab and Shift+Tab to reach named controls, then Next and Back. Confirm visible focus, useful speech and no trap. Escape/Skip must dismiss cleanly and return focus to a usable opener, Help replay or main content if the opener unmounted.
+
+Record the actual PASS/FAIL and a brief observation. Include the tested commit and browser/OS/screen-reader where available. A problem in any step remains a mandatory H1/accessibility blocker. This is a small recheck of repaired behavior; the previously supplied manual categories are preserved below.
+
 Scope update, 2026-11-02: Phase 3 student development is now explicitly authorized. This checklist still records outstanding human review and does not accept Phase 2 or authorize deployment. Review the real student welcome, checklist and Help replay as well as the synthetic engine when a safe local review session is available. For welcome dismissal, focus should return to a usable portal control or main content; for a tour crossing views, an unmounted opener should fall back to Help replay or main content.
 
 Status: **Owner-reported manual review received**, recorded 2026-11-03 from the owner's final-verification request. These observations concern the updated student onboarding preview and are separate from automated results and Phase 2 technical acceptance.

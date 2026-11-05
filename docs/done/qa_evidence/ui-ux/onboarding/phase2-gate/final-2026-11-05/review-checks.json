@@ -1,0 +1,58 @@
+{
+  "checkedAt": "2026-11-05T12:14:18.542Z",
+  "checks": [
+    {
+      "name": "Genuine A1 has all 17 passing assertions and independent cleanup",
+      "pass": true
+    },
+    {
+      "name": "All genuine timing failures and 63 ordinary samples preserved",
+      "pass": true
+    },
+    {
+      "name": "Failed focused setup is not represented as executed assertions",
+      "pass": true
+    },
+    {
+      "name": "Valid current memory samples and cleanup retained",
+      "pass": true
+    },
+    {
+      "name": "Mandatory observed memory guards pass without waiving unknown ownership",
+      "pass": true
+    },
+    {
+      "name": "DOM wrappers attributed only to existing baseline native elements",
+      "pass": true
+    },
+    {
+      "name": "All 26 final ledger rows are present exactly once",
+      "pass": true
+    },
+    {
+      "name": "No report placeholder remains",
+      "pass": true
+    },
+    {
+      "name": "Original suite result accurately preserved",
+      "pass": true
+    },
+    {
+      "name": "Focused timing regression result accurately preserved",
+      "pass": true
+    },
+    {
+      "name": "No application/build inputs changed during closure",
+      "pass": true
+    },
+    {
+      "name": "Protected next-env.d.ts hash preserved",
+      "pass": true
+    },
+    {
+      "name": "Compact evidence contains no session-cookie value, Atlas URI or private key",
+      "pass": true
+    }
+  ],
+  "pass": true
+}
