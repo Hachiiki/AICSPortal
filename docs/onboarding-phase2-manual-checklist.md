@@ -2,7 +2,13 @@
 
 ## Required H1 recheck after the focus repair
 
-Status on 2026-11-05: **AWAITING OWNER VERIFICATION**. The prior reported manual PASS predates the repair at `7da5ec0`. No new manual result has been supplied. Use a source-verified local fixture preview containing that repair; this checklist does not claim that an old preview URL is currently running or current.
+Status recorded on 2026-11-05: **H1 MANUAL RECHECK PASS, OWNER-REPORTED**. The owner supplied the following observations after the focus repair, superseding the earlier awaiting-verification status:
+
+- Navigating during the guided tour worked correctly.
+- Tab and Shift+Tab keyboard focus worked correctly.
+- Windows Narrator announced the tour controls correctly.
+
+Source: the owner's post-repair H1 recheck message in this chat. The owner explicitly reported **H1 manual recheck: PASS**, based on these observations. The recording date is not a claimed execution date. No exact tested commit, browser, Narrator version, recording or additional scenario details were supplied. The detailed procedure below remains a procedure; this report does not claim that every listed action was separately observed. Other Phase 2 criteria and the overall non-acceptance verdict remain unchanged.
 
 1. Enable the screen reader and start the student tour with the keyboard. Advance to a step that will remain open while its current view is replaced.
 2. Navigate unexpectedly using a portal navigation link, then repeat using browser Back/Forward during a new active tour. Do not use the tour's Next button to cause these view changes. If the active view or focused control disappears while the tour stays open, focus must return to the useful tour heading/card, not BODY, a removed element or an invisible control. If a live portal control retains useful focus, the engine must leave that focus intact.
