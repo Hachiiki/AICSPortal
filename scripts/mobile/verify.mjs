@@ -22,11 +22,10 @@ const save = () => writeFileSync(resolve(out, 'result.json'), JSON.stringify(res
 const check = (name, pass, detail) => { result.checks.push({ name, pass: !!pass, ...(detail ? { detail } : {}) }); save(); console.log(`${pass ? 'PASS' : 'FAIL'} ${name}`) }
 const contexts = []
 async function open(options = {}) {
-  const fixture = await fixtureContext(browser, { touch: true, ...options })
+  const fixture = await fixtureContext(browser, { touch: true, referenceTime: '2026-11-06T01:15:00Z', ...options })
   contexts.push(fixture.context)
   const page = await fixture.context.newPage()
   page.on('pageerror', error => { result.errors.push(error.message); save() })
-  await page.clock.install({ time: new Date('2026-11-06T01:15:00+00:00') })
   await page.goto(origin, { waitUntil: 'load', timeout: 600000 })
   if (options.role === 'faculty') await page.getByRole('button', { name: 'My Students', exact: true }).first().waitFor({ timeout: 60000 })
   else await page.getByRole('heading', { name: 'Welcome back, Alexandra!' }).waitFor({ timeout: 60000 })
@@ -162,8 +161,22 @@ try {
   await page.getByRole('button', { name: 'Submit', exact: true }).first().click()
   const submit = page.getByRole('dialog', { name: 'Confirm task submission' })
   await submit.waitFor()
+  await page.waitForTimeout(350)
+  const submitBox = await submit.boundingBox()
+  check('Submission confirmation is inside the visible viewport', submitBox.y >= 0 && submitBox.y + submitBox.height <= 721, submitBox)
+  const opacity = await submit.evaluate(el => {
+    let value = 1
+    for (let node = el; node; node = node.parentElement) value *= Number(getComputedStyle(node).opacity)
+    return value
+  })
+  check('Submission confirmation is painted at full opacity', opacity >= 0.99, opacity)
   await page.screenshot({ path: resolve(out, 'submission-320.png') })
-  await submit.getByRole('button', { name: 'I passed the paper · Submit', exact: true }).click()
+  const [submissionResponse] = await Promise.all([
+    page.waitForResponse(response => /\/api\/tasks\/[^/]+\/submit/.test(response.url())),
+    submit.getByRole('button', { name: 'I passed the paper · Submit', exact: true }).click(),
+  ])
+  result.submissionEvidence = { status: submissionResponse.status(), body: await submissionResponse.json(), writes: structuredClone(writes) }
+  save()
   await submit.waitFor({ state: 'hidden' })
   check('Task submission completes through the confirmation', writes.some(w => w.simulated && w.path.endsWith('/submit')))
   await page.locator('[data-task-id="mobile-task-4"]:visible').getByRole('button', { name: 'View details', exact: true }).click()
@@ -207,6 +220,7 @@ try {
   check('Mobile checklist expands on request', await page.getByRole('button', { name: 'Start student guided tour', exact: true }).isVisible())
   await page.getByRole('button', { name: 'Start student guided tour', exact: true }).click()
   await page.locator('[data-tour-spotlight]').waitFor()
+  await page.waitForTimeout(400)
   check('Mobile guide identifies its target', true)
   const guide = page.locator('[data-tour-card]')
   check('Interactive tour exposes nonmodal semantics', await guide.getAttribute('aria-modal') === 'false')
@@ -279,6 +293,23 @@ try {
   })
   check('Short-screen guide steps restart at their heading and count', position.count.top >= position.panel.top && position.count.bottom <= position.panel.bottom, position)
   await fresh.page.screenshot({ path: resolve(out, 'guide-320x420.png') })
+  await shortGuide.getByRole('button', { name: 'Hide guide to explore the page', exact: true }).click()
+  const readNotice = fresh.page.getByRole('button', { name: 'Read announcement: Midterm examination schedule', exact: true })
+  await readNotice.scrollIntoViewIfNeeded()
+  const exposed = await readNotice.evaluate(button => {
+    const b = button.getBoundingClientRect()
+    return b.top >= 0 && b.bottom <= innerHeight && button.contains(document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2))
+  })
+  check('Short-screen guide can expose the announcement action', exposed)
+  await fresh.page.screenshot({ path: resolve(out, 'guide-minimized-320x420.png') })
+  await readNotice.click()
+  const notice = fresh.page.getByRole('dialog').filter({ hasText: 'Midterm examination schedule' })
+  await notice.waitFor()
+  check('Highlighted announcement opens while the guide is minimized', true)
+  await fresh.page.keyboard.press('Escape')
+  await notice.waitFor({ state: 'hidden' })
+  await fresh.page.getByRole('button', { name: 'Show guide · 2 of 7', exact: true }).click()
+  check('Guide restores its instructions after exploring the page', await shortGuide.getByRole('heading', { name: 'Keep up with announcements', exact: true }).isVisible())
   await fresh.page.keyboard.press('Escape')
   await fresh.context.close()
 

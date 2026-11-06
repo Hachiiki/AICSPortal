@@ -16,8 +16,19 @@ const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1)
 export const tasks = Array.from({ length: 6 }, (_, i) => ({ _id: `mobile-task-${i}`, subjectCode: subjects[i % 3].code, term, title: ['Implement a linked list and explain its time complexity', 'Object-oriented design: library management system', 'Applications of mathematical models', 'Algorithm analysis practice', 'Inheritance and interfaces quiz', 'Problem-solving reflection'][i], type: ['Activity', 'Project', 'Quiz', 'Test', 'Activity', 'Project'][i], description: 'Read the instructions and discuss your approach with your professor. '.repeat(i === 4 ? 40 : 2), dueDate: (i === 3 ? yesterday : tomorrow).toISOString(), postedDate: yesterday.toISOString(), submitted: i === 4 || i === 5, submittedAt: i === 4 || i === 5 ? yesterday.toISOString() : null, score: i === 4 ? 27 : null, maxScore: i === 4 ? 30 : null, feedback: i === 4 ? 'Good explanation. Review the feedback before the next activity. '.repeat(18) : null, submissionsClosed: i === 2 }))
 export const announcements = [{ _id: 'mobile-notice', title: 'Midterm examination schedule', body: 'Check your subject schedules and bring your school ID. Contact your professor if you have a schedule conflict.', category: 'academic', priority: 'normal', author: 'Registrar', postedBy: 'Registrar', createdAt: yesterday.toISOString(), publishedAt: yesterday.toISOString(), expiresAt: null, branch: 'commonwealth' }]
 
-export async function fixtureContext(browser, { width = 390, height = 844, fresh = false, role = 'student', failTasksOnce = false, touch = false } = {}) {
+export async function fixtureContext(browser, { width = 390, height = 844, fresh = false, role = 'student', failTasksOnce = false, touch = false, referenceTime = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, hasTouch: touch, reducedMotion: 'reduce', serviceWorkers: 'block', locale: 'en-US', timezoneId: 'Asia/Manila' })
+  if (referenceTime) await context.addInitScript(timestamp => {
+    // Only offset calendar dates. Native performance, timers and animation
+    // frames must survive a real reload without Playwright clock reinjection.
+    const NativeDate = Date
+    const offset = timestamp - NativeDate.now()
+    globalThis.Date = new Proxy(NativeDate, {
+      construct(target, args) { return Reflect.construct(target, args.length ? args : [target.now() + offset]) },
+      apply(target) { return new target(target.now() + offset).toString() },
+      get(target, key, receiver) { return key === 'now' ? () => target.now() + offset : Reflect.get(target, key, receiver) },
+    })
+  }, new Date(referenceTime).getTime())
   if (['localhost', '127.0.0.1'].includes(new URL(origin).hostname)) {
     const token = await new SignJWT({ role, branch: student.branch, tv: 0 }).setProtectedHeader({ alg: 'HS256' }).setSubject(student.username).setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(localEnv().AUTH_SECRET))
     await context.addCookies([{ name: 'aics_session', value: token, url: origin, httpOnly: true, sameSite: 'Lax' }])

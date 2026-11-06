@@ -30,8 +30,8 @@
 //     topbar/sidebar so nav targets can be framed, below the z-50
 //     drawers, modals, dropdowns and toasts, which therefore paint
 //     above the tour (C5).
-//   - Below the sm breakpoint the card renders as a bottom sheet and
-//     the spotlight collapses to a plain scrim (F1).
+//   - Below the sm breakpoint the card is a collapsible bottom sheet,
+//     so students can expose and use the highlighted page controls.
 //   - Scrim color and card surfaces come from the theme tokens
 //     (--scrim, --surface, --ink, --muted-fg, --border), so all seven
 //     theme choices ride the same classes (G1).
@@ -96,6 +96,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     typeof window === 'undefined' ? false : !window.matchMedia(SHEET_QUERY).matches
   )
   const [announcement, setAnnouncement] = useState('')
+  const [minimizedStep, setMinimizedStep] = useState<string | null>(null)
   const [layout, setLayout] = useState<LayoutState>(() => ({
     disposition: 'waiting',
     spot: null,
@@ -303,7 +304,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       if (otherOverlay && !cardWrapRef.current?.contains(otherOverlay)) return
       if (event.altKey && event.key.toLowerCase() === 'g') {
         event.preventDefault()
-        headingRef.current?.focus({ preventScroll: true })
+        setMinimizedStep(null)
+        requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }))
       } else if (event.key === 'Escape') {
         event.preventDefault()
         onFinish(false)
@@ -316,6 +318,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
   if (!step) return null
 
   const isLast = index === total - 1
+  const minimized = sheet && minimizedStep === step.id
   const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
   const showSpotlight = layout.disposition === 'spot'
 
@@ -372,7 +375,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? 'fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'absolute',
+          sheet ? minimized ? 'fixed right-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >
@@ -380,22 +383,33 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           onClose={() => onFinish(false)}
           trapFocus={false}
           aria-modal={false}
-          aria-labelledby={headingId}
-          aria-describedby={bodyId}
+          aria-label={minimized ? 'Guided tour minimized' : undefined}
+          aria-labelledby={minimized ? undefined : headingId}
+          aria-describedby={minimized ? undefined : bodyId}
           data-tour-card=""
+          data-minimized={minimized}
           className={cn(
-            'max-h-[calc(100dvh-24px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface p-4 text-ink shadow-xl',
+            'max-h-[calc(100dvh-24px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface text-ink shadow-xl',
+            minimized ? 'p-1' : 'p-4',
             sheet ? 'max-h-[min(55dvh,calc(100dvh-24px))]' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
-          <p className="text-xs font-medium text-muted-fg">
-            Step {index + 1} of {total}
-          </p>
+          {minimized ? (
+            <Button type="button" variant="ghost" className="min-h-11" onClick={() => {
+              setMinimizedStep(null)
+              requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }))
+            }}>Show guide · {index + 1} of {total}</Button>
+          ) : (
+          <>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-muted-fg">Step {index + 1} of {total}</p>
+            {sheet && <Button type="button" variant="ghost" size="sm" className="min-h-11" aria-label="Hide guide to explore the page" onClick={() => setMinimizedStep(step.id)}>Hide guide</Button>}
+          </div>
           <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-sm font-bold outline-none">
             {step.title}
           </h2>
           <p id={bodyId} className="mt-1.5 text-sm text-muted-fg">{step.body}</p>
-          <p className="mt-2 text-xs text-muted-fg">Explore the highlighted area. Press Alt+G to return to this guide.</p>
+          <p className="mt-2 text-xs text-muted-fg">{sheet ? 'Hide guide to explore this area. Show guide brings these instructions back.' : 'Explore the highlighted area. Press Alt+G to return to this guide.'}</p>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 [&_button]:min-h-11 sm:[&_button]:min-h-8">
             <Button
               type="button"
@@ -412,7 +426,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
                 variant="outline"
                 size="sm"
                 disabled={index === 0}
-                onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                onClick={() => { setMinimizedStep(null); setIndex((i) => Math.max(0, i - 1)) }}
                 aria-label="Go back to the previous tour step"
               >
                 Back
@@ -426,7 +440,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
                   type="button"
                   size="sm"
                   className={ACTION_COLORS}
-                  onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))}
+                  onClick={() => { setMinimizedStep(null); setIndex((i) => Math.min(steps.length - 1, i + 1)) }}
                   aria-label="Go to the next tour step"
                 >
                   Next
@@ -434,6 +448,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
               )}
             </div>
           </div>
+          </>
+          )}
         </DialogPanel>
       </div>
     </div>
