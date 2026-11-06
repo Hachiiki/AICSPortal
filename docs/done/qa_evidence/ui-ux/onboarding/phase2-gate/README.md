@@ -1,6 +1,18 @@
 # AICS Portal onboarding — Phase 2 gate evidence package
 
-## Final focused closure index, 2026-11-05
+## Owner acceptance index, 2026-11-06
+
+Overall status: **Phase 2 complete, accepted by the owner with deferred follow-ups**. The explicit owner amendment defers I2 Rule 2 timing, I2 Rule 3 Windows long-task attribution, I2 Rule 4b corrected retained-memory attribution and A3 remaining evidence-package corrections. These follow-ups remain open in [TODO.md](../../../../../../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups) and no longer block Phase 2. See the [gate-plan amendment](../../../../../onboarding-phase2-gate-plan.md#owner-acceptance-amendment-2026-11-06) and [completion decision](../../../../../onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06).
+
+Read the preserved technical evidence by date:
+
+- [2026-11-05 manifest](final-2026-11-05/manifest.txt) and raw-measurement summaries preserve Windows Rule 2 FAIL, Rule 3 INCONCLUSIVE and the Windows retained-object attribution limits.
+- [2026-11-06 replacement mapping](cloud-2026-11-06/evidence-availability.json) records the cloud replacement basis for A3. Its PASS claim and the earlier missing-original records remain separate. Remaining package corrections are deferred.
+- [Cloud ordinary timing](cloud-2026-11-06/timing-student/i2r2-student-cloud-timing.json), [long-task attribution](cloud-2026-11-06/rule3-attribution/i2r2-rule3-attribution.json) and [corrected retainer analysis](cloud-2026-11-06/memory-attribution/i2r4-retainer-attribution.json) retain their source/platform scope. Cloud timing remains FAIL; Linux findings do not attribute the Windows tasks or Windows Object/Array remainder.
+
+The manual trace comparison remains supporting evidence with the limitations recorded in the completion decision. It supplies no new technical PASS. All recorded results, raw measurements, hashes, manifests and historical failures remain unchanged. H1's post-repair owner-reported manual recheck is PASS at the reported scope, as recorded on 2026-11-05. Phase 3 student development is authorized on `main-full-dev`; this acceptance record authorizes no PR, merge to `main` or deployment.
+
+## Historical focused closure index, 2026-11-05
 
 Verdict: **PHASE 2 NOT ACCEPTED**. The owner approved A2-1, I1-1, I2-2 and qualified I2-3. The final 26-row ledger and exact outstanding work are in the completion report's final section; the gate plan now records the approved requirements without rewriting the historical wording.
 

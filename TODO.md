@@ -1,5 +1,15 @@
 # AICS Portal: Project TODO
 
+## Onboarding Phase 2 acceptance and deferred follow-ups
+
+- [x] Phase 2 milestone. **Phase 2 complete, accepted by the owner with deferred follow-ups**, by explicit owner acceptance-criteria amendment on 2026-11-06. [Decision and technical ledger](docs/onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06). Phase 3 student development may proceed on `main-full-dev`; PRs, merges to `main` and deployment remain outside this instruction.
+- [ ] I2 Rule 2 transition timing. Deferred from Phase 2 completion. Preserve the 100 ms target and FAIL results, including Windows p95 244.8/136.8/131.4 ms and cloud 97.4/98.1/113.8 ms. Review timing and any justified future resolution without removing slow ordinary samples or changing the gate environment implicitly.
+- [ ] I2 Rule 3 Windows long-task attribution. Deferred from Phase 2 completion. Preserve INCONCLUSIVE ownership for the 21 current and 15 historical Windows tasks. Any future resolution needs Windows-specific attribution; Linux observations and the manual trace comparison remain supporting evidence only.
+- [ ] I2 Rule 4b corrected retained-memory attribution. Deferred from Phase 2 completion. Review/correct the claims against actual source/snapshot/platform scope, including the historical Windows Object +88 / Array +27 remainder, the cloud Object +103 / Array +32 analysis, representative-chain limits and disclosed baseline deviation. Preserve the cloud completion record and earlier Windows INCONCLUSIVE result, parser-error evidence and failed diagnostic drift/slope comparisons.
+- [ ] A3 remaining evidence-package corrections. Deferred from Phase 2 completion. Reconcile remaining package wording, replacement mappings and source/coverage limitations. Preserve the A3 PASS on the 2026-11-06 replacement basis, earlier INCONCLUSIVE results and unavailable originals; replacements do not recover destroyed artifacts or expand their tested scope.
+
+These four follow-ups are open and non-blocking for Phase 2. The owner assigned no due dates or implementers. Overall acceptance is the owner's amended decision; every recorded technical PASS, FAIL and INCONCLUSIVE remains unchanged. No additional tests are required to record the decision. GitHub inspection on 2026-11-06 found no onboarding issues or milestones, so tracking stays in this existing TODO and the completion report rather than creating a new tracker.
+
 ## Student Portal (current state: functional)
 
 ### Done

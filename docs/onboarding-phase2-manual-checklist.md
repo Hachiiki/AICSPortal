@@ -1,5 +1,7 @@
 # Phase 2 manual review
 
+Overall status, 2026-11-06: **Phase 2 complete, accepted by the owner with deferred follow-ups**. The [owner decision](onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06) amends acceptance for the four I2/A3 follow-ups in [TODO.md](../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups). H1's owner-reported PASS and all manual observations/limitations below remain unchanged. The manual trace comparison remains supporting evidence only, within the compared traces' recorded scope; it proves no compliant timing series, Windows task ownership or complete memory attribution. Earlier references below to overall non-acceptance describe the pre-amendment state. Phase 3 student development may proceed on `main-full-dev`; no PR, merge to `main` or deployment is authorized.
+
 ## Required H1 recheck after the focus repair
 
 Status recorded on 2026-11-05: **H1 MANUAL RECHECK PASS, OWNER-REPORTED**. The owner supplied the following observations after the focus repair, superseding the earlier awaiting-verification status:

@@ -4,7 +4,7 @@
 
 **Branch:** `main-full-dev` @ `46c33a5` (remote-verified)
 
-**Status:** Phases 1 and 2 are authorized for implementation on `main-full-dev` as of 2026-10-29, per my explicit authorization recorded in sections 2.5 and 13. Phase 3 onward, porting to `main`, merging, and deployment are not authorized. The Phase 2 gate outcome stays my decision alone.
+**Status, 2026-11-06:** **Phase 2 complete, accepted by the owner with deferred follow-ups**. The owner explicitly amended the acceptance criteria and authorized proceeding with Phase 3 student onboarding on `main-full-dev`. The [gate amendment](onboarding-phase2-gate-plan.md#owner-acceptance-amendment-2026-11-06) defers I2 Rule 2 timing, Rule 3 Windows long-task attribution, Rule 4b corrected retained-memory attribution and A3 remaining evidence-package corrections into [TODO.md](../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups). All recorded technical results and historical evidence stand. Earlier authorization and stop statements below are dated planning history. Porting to `main`, PRs, merges and deployment remain outside this decision.
 
 **What this is:** The canonical Phase 0 plan and decision register for the onboarding and guided-tour work, consolidated from my reviewed and confirmed decision update, `AICS_Onboarding_Decision_Register_Update.md` (2026-10-29). That update is the source of truth for every decision recorded here. Section 1 explains why a consolidation was needed at all.
 
@@ -225,6 +225,9 @@ This is the proposed delivery order. It keeps the original sequence with one re-
 Build the onboarding state store and its server API: per-user, per-role, version-keyed documents behind the existing authenticated session and authorization stack. Acceptance: every query is branch-scoped, every user touches only their own record, the non-blocking failure behavior from section 5 is demonstrated for both read and write failures, no existing collection schema or environment variable changes, lint, typecheck, and build pass, and the routes follow the repo's authorization conventions without onboarding state influencing any access decision.
 
 **Phase 2: Synthetic tour engine and the mandatory review gate.**
+
+Milestone done on 2026-11-06 by explicit owner acceptance amendment, with the four I2/A3 follow-ups retained in TODO.md. The original acceptance description below is historical; the linked gate amendment governs completion.
+
 Build the engine and exercise it with a dev-only synthetic tour, then package the evidence described in section 4.1. Acceptance: the evidence exists, is reviewable without me re-running anything, and the stop holds. I review and either approve continuation, send it back, or call the engine off. Phase 3 waits for that decision.
 
 **Phase 3: Student experience end to end.**

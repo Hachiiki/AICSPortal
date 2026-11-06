@@ -10,10 +10,15 @@ uncommitted files or session history survived.
 
 ## Checkpoint status
 
+Current owner decision, 2026-11-06: **Phase 2 complete, accepted by the owner with deferred follow-ups**. Phase 3 student development may proceed on `main-full-dev`. The explicit [acceptance amendment](onboarding-phase2-gate-plan.md#owner-acceptance-amendment-2026-11-06) defers I2 Rule 2 timing, Rule 3 Windows long-task attribution, Rule 4b corrected retained-memory attribution and A3 remaining evidence-package corrections. All four stay open in [TODO.md](../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups) and no longer block Phase 2. Read the [completion decision](onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06) before resuming follow-up work. Preserve every technical result and the manual trace comparison's supporting-evidence limitations. No PR, merge to `main` or deployment is authorized.
+
+This documentation checkpoint follows remote-verified `f21d486acdc76a7459f503e3253722c96c8fd3c7`, fetched and fast-forwarded before editing. Its own commit SHA is supplied after push in the delivery response; verify the actual remote tip on recovery. No additional test run is required for this owner decision. The pre-existing `next-env.d.ts` edit and untracked local evidence/design-export folders were outside this checkpoint and preserved. The technical checkpoint table below retains the preceding cloud closure's evidence and source identities.
+
 | Field | Value |
 |---|---|
 | Updated | 2026-11-06 (UTC+8) |
 | Branch | main-full-dev |
+| Acceptance status | Phase 2 complete, accepted by the owner with deferred follow-ups; four open I2/A3 items in TODO.md; Phase 3 student development authorized on main-full-dev |
 | Last verified checkpoint | Phase 2 cloud closure (A3 + I2 assignment) complete and remote-verified at tip 9fa3160 + the docs commit: all ten named missing `.phase2-cloud` artifacts replaced by committed evidence under `docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/cloud-2026-11-06/` (interaction matrix green, H1 red-first pair, corrected synthetic timing, Rule 2 real-student cloud series p95 97.4/98.1/113.8 ms FAIL with full attribution, Rule 3 zero window-level long tasks + GC-attributed traced task, Rule 4b retainer attribution of the Object/Array remainder, bundle comparison, quality gates 187/915/0). See the completion report's 2026-11-06 section. Local gate env: mongod 8.2.6 (ubuntu2204 build) at `/home/z/my-project/scripts/mmserver/mongod-bin/mongod`, dbpath `/home/z/my-project/scripts/mongo-data`, reseed `node --experimental-strip-types scripts/seed-mongodb.ts` |
 | Latest push | 2026-11-06 cloud closure commits: 2aa9bcd (interaction matrix + H1 red-first), 846f12b (Rule 2/3 evidence), ffca646 (layout-driven snapshot parser fix + retainer attribution), 4434972 (bundle comparison), 9fa3160 (quality gates), plus the documentation commit |
 | Onboarding plan baseline | `46c33a5` (read-only baseline the onboarding plans were verified against, 2026-10-29, remote-verified) |
@@ -475,6 +480,8 @@ were re-run at the final commit `9bbcdda` before pushing (the amended
   committed with this evidence bundle).
 
 ## Pending / exact next step
+
+Current onboarding next step, 2026-11-06: Phase 2 milestone is done by owner amendment. Proceed within the authorized Phase 3 student scope; keep the four non-blocking I2/A3 follow-ups in TODO.md. The earlier onboarding Phase 2 stop below is historical and superseded for onboarding by this decision. The separate dark-theme stop remains in effect.
 
 - **Onboarding Phase 2 is the exact next step (authorized 2026-10-29):
   the in-house tour engine, the dev-only synthetic tour, and the

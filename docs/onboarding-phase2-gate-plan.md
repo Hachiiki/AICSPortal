@@ -1,5 +1,24 @@
 # AICS Portal - Onboarding Phase 2 Gate - Plan of Record
 
+## Owner acceptance amendment, 2026-11-06
+
+Overall status: **Phase 2 complete, accepted by the owner with deferred follow-ups**.
+
+The project owner explicitly authorized Phase 2 completion and proceeding with Phase 3 in this chat on 2026-11-06, Asia/Shanghai. The owner amended the acceptance criteria to defer these four requirements from the Phase 2 completion gate:
+
+1. I2 Rule 2 transition timing, including all recorded failures against the 100 ms target.
+2. I2 Rule 3 attribution of Windows long tasks.
+3. I2 Rule 4b corrected retained-memory attribution and its remaining review/corrections.
+4. A3 remaining evidence-package corrections.
+
+These four items no longer block Phase 2 completion. Track them as open follow-ups in [TODO.md](../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups), with the technical detail retained in the [completion report](onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06). No due date or implementer was assigned by this decision.
+
+This explicit owner amendment supersedes the earlier mandatory-completion and fail/stop rules for these four items only, including the three-item conditional-pass cap in sections 6 and 9. The outcome is owner acceptance under amended criteria. It does not assert that all technical criteria passed or use the earlier conditional-pass mechanism. All other requirements and recorded PASS, FAIL and INCONCLUSIVE results remain intact. The 100 ms target and historical memory benchmarks are unchanged; no sample, raw measurement, manifest or historical failure is rewritten.
+
+The manual trace comparison remains supporting evidence, limited to the compared traces and their recorded conditions. It does not establish Windows task ownership, a compliant three-run timing PASS or complete retained-object attribution. No additional trace metadata or observations were supplied with this decision.
+
+Phase 3 student onboarding may proceed on `main-full-dev`. This recording task changes acceptance documentation and follow-up tracking only and requires no additional test runs. PRs, merges to `main`, deployment and Faculty/Admin onboarding remain outside this authorization. Dated decisions and outcome statements below describe the earlier gate state.
+
 ## Final owner amendments, 2026-11-05
 
 The owner selected A2-1, I1-1, I2-2 and qualified I2-3 in the final Phase 2 closure assignment. These are approved requirement changes and a cost judgment, not passing executions of the historical requirements. The original wording, measurements and failures below remain historical evidence. The final 26-row acceptance ledger is in the completion report's **Final focused closure, 2026-11-05** section. Phase 2 is NOT ACCEPTED while mandatory results there remain failed or inconclusive.
