@@ -1,5 +1,28 @@
 # Phase 2 completion assessment
 
+## Student Phase 3 completion, 2026-11-06
+
+**Student onboarding Phase 3 complete on main-full-dev.** The owner approved the welcome panel and tour content, checklist/replay controls and desktop usability in this chat. The owner explicitly deferred mobile acceptance to the planned mobile UI overhaul, then requested completion of the remaining student onboarding work. Those statements are owner-reported observations; they do not supply additional browser, device or per-scenario execution details. Mobile verification is tracked in TODO.md and does not block this milestone. The four deferred Phase 2 I2/A3 items keep their separate dispositions.
+
+The missing student version-update handling is implemented. Tour content revisions are independent of the five-dimension registry version. The existing separate Tasks guide qualifies as a new taught workflow under the approved major-revision rule, so student tour revision 2 carries the major update while the checklist registry stays at version 1. Returning students keep completed steps and see a Help & Support notification dot. Opening Help marks the notice read and clears the dot. The notice remains available until dismissed; reading or dismissing it starts no tour. The sidebar label and polite status messages identify availability/read state to assistive technology. A fresh student begins at the current content revision and receives only the welcome flow. Minor content revisions leave the last-major revision unchanged and stay silent. Faculty/admin registry and notice versions stay independent.
+
+Two optional numeric preference fields preserve read/dismissal per account and version, including legacy documents with missing fields. The server derives identity from the authenticated actor, rejects future release acknowledgments, and uses MongoDB $max for monotonic acknowledgment writes. Completion keys remain separate. An unsuccessful write keeps the session choice and exposes the existing retry behavior.
+
+New verification evidence is under `docs/done/qa_evidence/ui-ux/onboarding/phase3-closure-2026-11-06/`:
+
+| Check | Executed result |
+|---|---|
+| Existing regression suites plus six focused update-notice regressions | 193 PASS, 0 FAIL, 933 assertions across 16 files |
+| ESLint | Exit 0, three existing warnings in unchanged app files |
+| TypeScript | Exit 0 |
+| Production compiler | `npm run build -- --webpack`, exit 0; font network retries are preserved in build.log |
+| Real MongoDB and desktop browser acceptance runner | 22 assertions PASS, zero page errors, Edge 156.0.4314.58, 1280x800, reduced motion |
+| Cleanup | Browser closed, owned server terminated, kernel job empty, supervisor exit 0, and this run's synthetic database removed |
+
+The real run used a newly generated database named `aics_onboarding_acceptance_<random identifier>` on 127.0.0.1:27017, with three disposable synthetic students and generated credentials. The normal local portal database was outside the run. Actual HTTP requests exercised login, MongoDB progress writes, direct stored-document checks, same-branch account separation, cross-branch separation, injected identity fields, anonymous denial, logout revocation and a new login restoring saved progress. Native Edge exercised the update dot, read/dismiss behavior, reload persistence, replay/escape, fresh welcome and exploration with real onboarding API writes. Source identity is the pre-change baseline cd971a9 plus the working application/script SHA-256 identities in result.json, followed by the completed commit. The final production chunk was checked for the final notice markup. This evidence makes no new Phase 2 performance/memory claim.
+
+Existing fixture-based evidence for the original welcome choices, tour navigation, checklist hide/restore and non-blocking persistence failures stays historical. The earlier 46-assertion browser run and current unit/route failure simulations retain their stated scope. The owner supplied desktop UX approval; mobile acceptance is deferred. Faculty/admin onboarding and release/deployment remain separately scoped.
+
 ## Owner acceptance decision, 2026-11-06
 
 Overall status: **Phase 2 complete, accepted by the owner with deferred follow-ups**.

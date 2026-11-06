@@ -231,6 +231,8 @@ Milestone done on 2026-11-06 by explicit owner acceptance amendment, with the fo
 Build the engine and exercise it with a dev-only synthetic tour, then package the evidence described in section 4.1. Acceptance: the evidence exists, is reviewable without me re-running anything, and the stop holds. I review and either approve continuation, send it back, or call the engine off. Phase 3 waits for that decision.
 
 **Phase 3: Student experience end to end.**
+Completed on 2026-11-06 under the owner's desktop approval and explicit mobile deferral. The student completion section in the completion report records the implemented update-notice behavior, real persistence/isolation checks, quality gates and evidence package. Mobile acceptance transfers to the planned mobile UI overhaul in TODO.md. Phase 2's four deferred technical follow-ups remain separate.
+
 The student welcome panel, the student tour with its step draft reviewed by me, replay from Help & Support, the student Getting Started checklist with its shortcut to the replay entry, and student versioning wired per section 6. Acceptance: a fresh student account sees the welcome panel once, both choices work, the tour is skippable at every step, replay works after completion, a simulated save failure leaves the portal fully usable, the checklist is dismissible and reopenable with dismissal never read as completion, and the states record correctly with checklist state distinct from tour state.
 
 **Phase 4: Faculty and admin tours.**

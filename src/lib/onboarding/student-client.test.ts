@@ -1,8 +1,28 @@
 import { describe, expect, it } from 'bun:test'
-import { StudentOnboardingClient, shouldWelcomeStudent } from './student-client'
+import { StudentOnboardingClient, shouldWelcomeStudent, getStudentTourUpdate } from './student-client'
+import { onboardingPreferences } from './preferences'
 
 const values = { password: false, profile: false, photo: false, tour: false, announcements: false }
 const response = (extra = {}) => Response.json({ ok: true, role: 'student', version: 1, values, persisted: true, preferences: { welcomeSeen: false, checklistDismissed: false, tourSkipped: false }, ...extra })
+
+describe('student tour updates', () => {
+  const returning = { status: 'ready' as const, values: { ...values, tour: true }, persisted: true, preferences: onboardingPreferences({ welcomeSeen: true }) }
+  it('offers a major update to returning students while preserving completion', () => {
+    expect(getStudentTourUpdate(returning, { version: 2, majorVersion: 2 })).toEqual({ version: 2, pending: true, visible: true })
+    expect(returning.values.tour).toBe(true)
+  })
+  it('keeps minor revisions silent and gives fresh students only their welcome', () => {
+    expect(getStudentTourUpdate(returning, { version: 2, majorVersion: 1 }).pending).toBe(false)
+    expect(getStudentTourUpdate({ ...returning, values, preferences: onboardingPreferences(null, 2) }, { version: 2, majorVersion: 2 }).visible).toBe(false)
+  })
+  it('clears the dot on read, persists dismissal, and offers a subsequent major revision', () => {
+    const read = { ...returning, preferences: onboardingPreferences({ welcomeSeen: true, tourNoticeReadVersion: 2 }) }
+    expect(getStudentTourUpdate(read, { version: 2, majorVersion: 2 })).toEqual({ version: 2, pending: false, visible: true })
+    const dismissed = { ...read, preferences: onboardingPreferences({ welcomeSeen: true, tourNoticeReadVersion: 2, tourNoticeDismissedVersion: 2 }) }
+    expect(getStudentTourUpdate(dismissed, { version: 2, majorVersion: 2 }).visible).toBe(false)
+    expect(getStudentTourUpdate(dismissed, { version: 3, majorVersion: 3 }).pending).toBe(true)
+  })
+})
 
 describe('student onboarding journey through its state API', () => {
   it('remembers Tasks dismissal and completion separately from the portal overview', async () => {

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "browser.log",
+    "rawBytes": 1815,
+    "rawSHA256": "45173c2804fcf9a9f4593314684e8f3a7133abecfdfc6fc0dee3d219c52a3b1a",
+    "archive": "browser.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "45173c2804fcf9a9f4593314684e8f3a7133abecfdfc6fc0dee3d219c52a3b1a"
+  },
+  {
+    "name": "build.log",
+    "rawBytes": 2062,
+    "rawSHA256": "e473386687495cd5399945f73e16647f2c62878301f77e046748bfdbfb5bb687",
+    "archive": "build.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "c8c1d5e581ff9901cfeae5d4d7c33c4266ab02198cbc257bdcf218582e1d3ea8"
+  },
+  {
+    "name": "lint.log",
+    "rawBytes": 4223,
+    "rawSHA256": "2525eb4c80d927a34741d6679bbeee7a0c91f682f7acbf1edba196b2bd614c39",
+    "archive": "lint.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "ab3bba20d30119700282dbc508c7b81a7a2869c5c9b8c5ea634ca0d3b488aab2"
+  },
+  {
+    "name": "typecheck.log",
+    "rawBytes": 65,
+    "rawSHA256": "bf5c8b5120991bc2181bb1db5ce9c59474dd16105ced3fed87c8aec10a10f6eb",
+    "archive": "typecheck.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "03f69190820799c6e16a084724c8ec42d830e3569b9f886c16c318f10d6bac26"
+  },
+  {
+    "name": "unit-tests.log",
+    "rawBytes": 25370,
+    "rawSHA256": "b483aa120dd3234317fd2ba559f997cf1559bef3b6c51e5053cfab8c0c4d275f",
+    "archive": "unit-tests.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "72427b4649b3aca616142a63235eb4de620b5ffeb23738af8bdd485a37b79ebb"
+  },
+  {
+    "name": "touched-lint.log",
+    "rawBytes": 0,
+    "rawSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archive": "touched-lint.log.gz",
+    "archiveVerified": true,
+    "readableSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

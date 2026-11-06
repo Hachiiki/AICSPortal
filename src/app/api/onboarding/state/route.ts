@@ -37,7 +37,7 @@ import {
 // ---- Zod input schemas (the only place update input is shaped) ----
 
 const patchSchema = z.object({
-  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional(), tasksGuideSeen: z.boolean().optional(), tasksGuideCompleted: z.boolean().optional() }).strict().optional(),
+  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional(), tasksGuideSeen: z.boolean().optional(), tasksGuideCompleted: z.boolean().optional(), tourNoticeReadVersion: z.number().int().min(1).optional(), tourNoticeDismissedVersion: z.number().int().min(1).optional() }).strict().optional(),
   updates: z.record(
     z.string(),
     z.boolean({ error: 'Step values must be true or false.' }),
@@ -94,7 +94,9 @@ export async function GET(request: NextRequest) {
     const spec = specOr403(ctx.actor.role)
     const { stored, persisted } = await findStored(ctx.actor)
     const state = carryForward(spec, stored)
-    return stateResponse(ctx.actor.role, spec, state, persisted, onboardingPreferences(stored?.role === ctx.actor.role ? stored.preferences : null))
+    const sameRole = stored?.role === ctx.actor.role
+    const initialTourVersion = stored && sameRole ? 1 : spec.tourRevision?.majorVersion ?? 1
+    return stateResponse(ctx.actor.role, spec, state, persisted, onboardingPreferences(sameRole ? stored.preferences : null, initialTourVersion))
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Onboarding state read error:', err)
@@ -112,6 +114,11 @@ export async function PATCH(request: NextRequest) {
     const { ctx } = await requireCan(request, { kind: 'onboarding.state' }, 'update')
     const spec = specOr403(ctx.actor.role)
 
+    const latestMajor = spec.tourRevision?.majorVersion ?? 1
+    for (const key of ['tourNoticeReadVersion', 'tourNoticeDismissedVersion'] as const) {
+      if ((preferenceUpdates?.[key] ?? 1) > latestMajor) throw new HttpError(400, 'Unknown tour update version')
+    }
+
     // Semantic validation against the actor's current registry.
     const known = new Set(spec.dimensions.map((d) => d.key))
     for (const key of Object.keys(updates)) {
@@ -121,7 +128,12 @@ export async function PATCH(request: NextRequest) {
     const { stored, persisted: readPersisted } = await findStored(ctx.actor)
     const state = carryForward(spec, stored)
     const values = applyUpdates(spec, state.values, updates)
-    const preferences = { ...onboardingPreferences(stored?.role === ctx.actor.role ? stored.preferences : null), ...preferenceUpdates }
+    const sameRole = stored?.role === ctx.actor.role
+    const storedPreferences = onboardingPreferences(sameRole ? stored.preferences : null, stored && sameRole ? 1 : latestMajor)
+    const preferences = { ...storedPreferences, ...preferenceUpdates }
+    for (const key of ['tourNoticeReadVersion', 'tourNoticeDismissedVersion'] as const) {
+      preferences[key] = Math.max(preferences[key], storedPreferences[key])
+    }
 
     let persisted = readPersisted
     if (readPersisted) {
@@ -130,16 +142,24 @@ export async function PATCH(request: NextRequest) {
         // Touch only requested keys so another session's password or profile
         // completion is not overwritten by a concurrent welcome preference.
         const changes: Record<string, unknown> = { role: ctx.actor.role, version: state.version, updatedAt: new Date() }
+        const noticeVersions: Record<string, number> = {}
         if (stored && stored.role !== ctx.actor.role) {
           changes.values = values
           changes.preferences = preferences
         } else {
           for (const [key, value] of Object.entries(updates)) changes[`values.${key}`] = value
-          for (const [key, value] of Object.entries(preferenceUpdates ?? {})) changes[`preferences.${key}`] = value
+          for (const [key, value] of Object.entries(preferenceUpdates ?? {})) {
+            if (typeof value === 'number') noticeVersions[`preferences.${key}`] = value
+            else changes[`preferences.${key}`] = value
+          }
+          if (!stored) {
+            noticeVersions['preferences.tourNoticeReadVersion'] = latestMajor
+            noticeVersions['preferences.tourNoticeDismissedVersion'] = latestMajor
+          }
         }
         await col.updateOne(
           { branch: ctx.actor.branch, username: ctx.actor.username },
-          { $set: changes },
+          { $set: changes, ...(Object.keys(noticeVersions).length ? { $max: noticeVersions } : {}) },
           { upsert: true }
         )
       } catch (err) {

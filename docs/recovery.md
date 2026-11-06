@@ -1,5 +1,7 @@
 # Durable Recovery Notes — AICSPortal
 
+Student onboarding checkpoint, 2026-11-06: Phase 3 is complete on main-full-dev, using the owner's desktop approval and explicit mobile deferral. The completion report's student Phase 3 completion section and phase3-closure-2026-11-06 evidence package contain the update-notice implementation, 193 passing regressions, 22 real MongoDB/desktop acceptance assertions and quality gates. Mobile acceptance transfers to the planned mobile UI overhaul in TODO.md. The existing four deferred Phase 2 I2/A3 follow-ups retain their technical states. The original working checkout was preserved by completing this work in a separate checkout.
+
 Single source of truth for resuming after an environment or session
 reset. Mandated by the owner checkpoint workflow (2026-10-24). Update at
 every verified checkpoint and push together with that checkpoint's work.

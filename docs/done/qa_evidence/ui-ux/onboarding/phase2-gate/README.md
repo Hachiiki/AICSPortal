@@ -1,5 +1,9 @@
 # AICS Portal onboarding — Phase 2 gate evidence package
 
+## Student Phase 3 completion, 2026-11-06
+
+Student Phase 3 is complete with the owner's desktop approval and mobile acceptance deferred to the planned mobile UI overhaul. The [student completion section](../../../../../onboarding-phase2-completion-report.md#student-phase-3-completion-2026-11-06) records scope and limitations. The sibling `../phase3-closure-2026-11-06/` package contains the final manifest, 22 passing real MongoDB/desktop assertions, application/script identities, screenshots, 193 passing regressions and production quality logs. Its reproducible runner is `scripts/onboarding/phase3-student-acceptance.mjs`. It creates and removes only a new synthetic database on loopback. The four deferred Phase 2 follow-ups retain their earlier technical results.
+
 ## Owner acceptance index, 2026-11-06
 
 Overall status: **Phase 2 complete, accepted by the owner with deferred follow-ups**. The explicit owner amendment defers I2 Rule 2 timing, I2 Rule 3 Windows long-task attribution, I2 Rule 4b corrected retained-memory attribution and A3 remaining evidence-package corrections. These follow-ups remain open in [TODO.md](../../../../../../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups) and no longer block Phase 2. See the [gate-plan amendment](../../../../../onboarding-phase2-gate-plan.md#owner-acceptance-amendment-2026-11-06) and [completion decision](../../../../../onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06).

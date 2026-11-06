@@ -36,6 +36,8 @@ export interface OnboardingDimension {
 export interface OnboardingRoleSpec {
   /** Registry version for this role; bump when its dimension set changes. */
   version: number
+  /** Tour content revisions are independent of checklist dimension versions. */
+  tourRevision?: { version: number; majorVersion: number }
   dimensions: readonly OnboardingDimension[]
 }
 
@@ -45,6 +47,8 @@ export type OnboardingValues = Record<string, boolean>
 export const ONBOARDING_REGISTRY: Readonly<Record<Role, OnboardingRoleSpec>> = {
   student: {
     version: 1,
+    // The Tasks guide adds a workflow, so returning students receive a notice.
+    tourRevision: { version: 2, majorVersion: 2 },
     dimensions: [
       { key: 'password', label: 'Change your demo password' },
       { key: 'profile', label: 'Review your profile' },

@@ -5,7 +5,7 @@ import { Check, ChevronRight, Compass, RotateCcw, X } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { ONBOARDING_REGISTRY } from '@/lib/onboarding/registry'
-import { StudentOnboardingClient, shouldWelcomeStudent, type StudentOnboardingSnapshot } from '@/lib/onboarding/student-client'
+import { StudentOnboardingClient, shouldWelcomeStudent, getStudentTourUpdate, type StudentOnboardingSnapshot } from '@/lib/onboarding/student-client'
 import { STUDENT_TOUR_STEPS, TASKS_TOUR_STEPS } from '@/lib/onboarding/student-tour'
 import { Button } from '@/components/ui/button'
 import { DialogPanel } from '@/components/portal/DialogPanel'
@@ -112,9 +112,10 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
     return () => cancelAnimationFrame(frame)
   }, [running, tasksRoute, finish])
   const journey = active && state.status === 'ready' ? { state, client, start, startTasks, busy: welcome || running !== null, openChecklistItem, navigate: navigateView } : null
+  const tourUpdate = getStudentTourUpdate(state)
   return <Context.Provider value={journey}>
     {children}
-    <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
+    <p className="sr-only" role="status" aria-live="polite">{announcement || (tourUpdate.pending ? 'A student tour update is available in Help & Support.' : '')}</p>
     {active && welcome && !running && <div className="fixed inset-0 z-50 grid place-items-center bg-scrim/40 p-4">
       <DialogPanel onClose={closeWelcome} aria-labelledby="student-welcome-title" className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 text-ink shadow-xl">
         <Button variant="ghost" size="icon" className="absolute right-3 top-3" aria-label="Close welcome" onClick={closeWelcome}><X aria-hidden /></Button>
@@ -172,6 +173,7 @@ export function StudentOnboardingHelp() {
   const journey = useStudentOnboarding()
   if (!journey) return null
   return <section className="rounded-xl border border-border bg-surface p-5 text-ink shadow-sm" aria-labelledby="student-tour-help-title" data-tour="student-tour-replay">
+    <StudentTourUpdateNotice journey={journey} />
     <h2 id="student-tour-help-title" className="text-base font-semibold">Find your way around</h2>
     <p className="mt-1 text-sm text-muted-fg">Replay the student portal tour whenever you need it. Your completed Getting started steps stay saved.</p>
     <div className="mt-4 flex flex-wrap gap-2">
@@ -179,4 +181,19 @@ export function StudentOnboardingHelp() {
       <Button variant="outline" onClick={() => { void journey.client.update({}, { checklistDismissed: false }); journey.navigate('dashboard') }}>Resume Getting started</Button>
     </div>
   </section>
+}
+
+function StudentTourUpdateNotice({ journey }: { journey: Journey }) {
+  const update = getStudentTourUpdate(journey.state)
+  useEffect(() => {
+    if (update.pending) void journey.client.update({}, { tourNoticeReadVersion: update.version })
+  }, [journey.client, update.pending, update.version])
+  if (!update.visible) return null
+  return <div className="mb-5 rounded-lg border border-border bg-surface-2 p-4" role="region" aria-labelledby="student-tour-update-title">
+    <p className="sr-only" role="status" aria-live="polite">{update.pending ? 'Student tour update available.' : 'Student tour update marked as read. Replay remains optional.'}</p>
+    <h3 id="student-tour-update-title" className="font-semibold text-ink">Your student guides have been updated</h3>
+    <p className="mt-2 text-sm text-muted-fg">The portal tour includes a separate Tasks guide for filters, deadlines and submission status. Your completed Getting started steps stay saved. Replay either guide whenever you need it.</p>
+    <Button variant="outline" size="sm" className="mt-3" onClick={() => void journey.client.update({}, { tourNoticeReadVersion: update.version, tourNoticeDismissedVersion: update.version })}>Dismiss update</Button>
+    {!journey.state.persisted && <p role="status" className="mt-2 text-sm text-muted-fg">Your choice is kept for this session. <button type="button" className="text-link underline" onClick={() => void journey.client.retry()}>Retry saving</button></p>}
+  </div>
 }

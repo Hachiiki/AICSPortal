@@ -1,5 +1,12 @@
 # AICS Portal: Project TODO
 
+## Student onboarding Phase 3 completion
+
+- [x] Student onboarding Phase 3 complete, 2026-11-06. Owner-approved desktop welcome/tour content, checklist/replay controls and usability, plus 193 passing regressions and 22 passing real-database/desktop browser assertions. Evidence and acceptance scope are in the completion report's student Phase 3 completion section.
+- [ ] Mobile onboarding acceptance is deferred by the owner to the planned mobile UI overhaul. Recheck the welcome, tour, checklist, replay, focus and responsive behavior against that implementation. This follow-up does not block the current student onboarding milestone.
+
+The student milestone is closed on main-full-dev. The existing four Phase 2 I2/A3 follow-ups retain their recorded technical states and separate tracking below. Faculty/admin onboarding remains the separately scoped Phase 4 work in the plan.
+
 ## Onboarding Phase 2 acceptance and deferred follow-ups
 
 - [x] Phase 2 milestone. **Phase 2 complete, accepted by the owner with deferred follow-ups**, by explicit owner acceptance-criteria amendment on 2026-11-06. [Decision and technical ledger](docs/onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06). Phase 3 student development may proceed on `main-full-dev`; PRs, merges to `main` and deployment remain outside this instruction.

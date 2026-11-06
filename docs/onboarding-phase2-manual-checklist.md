@@ -1,5 +1,9 @@
 # Phase 2 manual review
 
+## Student Phase 3 owner review, 2026-11-06
+
+The owner approved the welcome panel and tour's explanation of the portal, confirmed that checklist and replay controls make sense, and approved desktop usability in this chat. The owner was unsure about mobile and explicitly agreed to defer mobile acceptance to the planned mobile UI overhaul. Student Phase 3 completion uses those desktop observations and the recorded technical verification. This entry claims no additional manual scenarios, browser/device identity or mobile PASS. The mobile review is tracked in TODO.md.
+
 Overall status, 2026-11-06: **Phase 2 complete, accepted by the owner with deferred follow-ups**. The [owner decision](onboarding-phase2-completion-report.md#owner-acceptance-decision-2026-11-06) amends acceptance for the four I2/A3 follow-ups in [TODO.md](../TODO.md#onboarding-phase-2-acceptance-and-deferred-follow-ups). H1's owner-reported PASS and all manual observations/limitations below remain unchanged. The manual trace comparison remains supporting evidence only, within the compared traces' recorded scope; it proves no compliant timing series, Windows task ownership or complete memory attribution. Earlier references below to overall non-acceptance describe the pre-amendment state. Phase 3 student development may proceed on `main-full-dev`; no PR, merge to `main` or deployment is authorized.
 
 ## Required H1 recheck after the focus repair

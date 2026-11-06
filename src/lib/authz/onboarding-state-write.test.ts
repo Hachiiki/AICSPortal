@@ -169,7 +169,7 @@ describe('onboarding display preferences', () => {
   it('persists welcome and checklist preferences only for the session actor', async () => {
     const result = await callPatch({ updates: {}, preferences: { welcomeSeen: true, checklistDismissed: true } })
     expect(result.status).toBe(200)
-    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false })
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: true, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false, tourNoticeReadVersion: 2, tourNoticeDismissedVersion: 2 })
     expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
     expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.welcomeSeen']).toBe(true)
     expect((state.updateOneCalls[0].update.$set as Record<string, unknown>)['preferences.checklistDismissed']).toBe(true)
@@ -179,13 +179,35 @@ describe('onboarding display preferences', () => {
   it('returns saved display preferences without completing a checklist step', async () => {
     state.doc = { role: 'student', version: 1, values: allFalseStudent, preferences: { welcomeSeen: true, checklistDismissed: false } }
     const result = await callGet()
-    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: false, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false })
+    expect((result.body as unknown as { preferences: unknown }).preferences).toEqual({ welcomeSeen: true, checklistDismissed: false, tourSkipped: false, tasksGuideSeen: false, tasksGuideCompleted: false, tourNoticeReadVersion: 1, tourNoticeDismissedVersion: 1 })
     expect(result.body.values).toEqual(allFalseStudent)
     expect(state.updateOneCalls).toHaveLength(0)
   })
 
   it('rejects unsupported preference fields', async () => {
     expect((await callPatch({ updates: {}, preferences: { username: 'someone.else' } })).status).toBe(400)
+    expect(state.updateOneCalls).toHaveLength(0)
+  })
+  it('starts fresh students at the current tour release without an update prompt', async () => {
+    const initial = await callGet()
+    expect((initial.body as unknown as { preferences: unknown }).preferences).toMatchObject({ tourNoticeReadVersion: 2, tourNoticeDismissedVersion: 2 })
+    const saved = await callPatch({ updates: {}, preferences: { welcomeSeen: true } })
+    expect(saved.status).toBe(200)
+    expect(state.updateOneCalls[0].update.$max).toEqual({ 'preferences.tourNoticeReadVersion': 2, 'preferences.tourNoticeDismissedVersion': 2 })
+  })
+  it('keeps legacy progress and uses monotonic, session-scoped notice acknowledgments', async () => {
+    state.doc = { role: 'student', version: 1, values: { tour: true, profile: true }, preferences: { welcomeSeen: true, tourNoticeReadVersion: 2 } }
+    const result = await callPatch({ updates: {}, preferences: { tourNoticeReadVersion: 1, tourNoticeDismissedVersion: 2 } })
+    expect(result.body.values.tour).toBe(true)
+    expect(result.body.values.profile).toBe(true)
+    expect((result.body as unknown as { preferences: unknown }).preferences).toMatchObject({ tourNoticeReadVersion: 2, tourNoticeDismissedVersion: 2 })
+    expect(state.updateOneCalls[0].filter).toEqual({ branch: 'commonwealth', username: 'juan.santos' })
+    expect(state.updateOneCalls[0].update.$max).toEqual({ 'preferences.tourNoticeReadVersion': 1, 'preferences.tourNoticeDismissedVersion': 2 })
+  })
+  it('rejects acknowledgments for future releases and never changes another role release', async () => {
+    expect((await callPatch({ updates: {}, preferences: { tourNoticeReadVersion: 999 } })).status).toBe(400)
+    state.actor.role = 'faculty'
+    expect((await callPatch({ updates: {}, preferences: { tourNoticeReadVersion: 2 } })).status).toBe(400)
     expect(state.updateOneCalls).toHaveLength(0)
   })
 })

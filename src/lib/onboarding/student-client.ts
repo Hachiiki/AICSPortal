@@ -14,6 +14,12 @@ export function shouldWelcomeStudent(state: StudentOnboardingSnapshot, portalRea
   return portalReady && state.status === 'ready' && !state.preferences.welcomeSeen && !state.values.tour
 }
 
+export function getStudentTourUpdate(state: StudentOnboardingSnapshot, revision = spec.tourRevision ?? { version: 1, majorVersion: 1 }) {
+  const returning = state.status === 'ready' && (state.preferences.welcomeSeen || state.values.tour)
+  const visible = returning && state.preferences.tourNoticeDismissedVersion < revision.majorVersion
+  return { version: revision.majorVersion, visible, pending: visible && state.preferences.tourNoticeReadVersion < revision.majorVersion }
+}
+
 /** One authenticated student's display state; never an authorization source. */
 export class StudentOnboardingClient {
   private snapshot: StudentOnboardingSnapshot = { status: 'loading', values: emptyValues(spec), preferences: onboardingPreferences(null), persisted: false }

@@ -1,0 +1,12 @@
+started: 2026-11-06T04:14:14.551Z
+finished: 2026-11-06T04:15:22.328Z
+baseline HEAD: cd971a978c5205212e98ca68b76e806cea0e628f
+command: node scripts/onboarding/phase3-student-acceptance.mjs
+runtime: v24.22.1
+database: aics_onboarding_acceptance_6733b594c66b4d78ab3d5172cd1f0acd on 127.0.0.1:27017 only
+source: working completion changes; exact application and script hashes in result.json
+scope: real persistence, session/branch isolation, update notices, fresh welcome, replay; desktop only
+result: PASS
+quality: unit suite 193 PASS / 933 assertions; lint exit 0 with 3 existing warnings; typecheck exit 0; production webpack build exit 0
+owner review: desktop approved; mobile acceptance deferred to planned mobile UI overhaul
+logs: readable .log projections normalize line endings and trailing whitespace; .log.gz archives preserve original bytes, verified in log-preservation.json
