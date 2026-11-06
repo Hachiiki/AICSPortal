@@ -226,6 +226,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       const note = pendingNoteRef.current
       pendingNoteRef.current = ''
       setAnnouncement((note ? `${note} ` : '') + stepAnnouncement(current, index, steps.length))
+      cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-card]')?.scrollTo({ top: 0 })
       headingRef.current?.focus({ preventScroll: true })
     })
     // The wait budget ends on its own even when nothing in the DOM

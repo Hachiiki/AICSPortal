@@ -434,7 +434,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
                   <Icon className="w-4 h-4" aria-hidden /> {s.label}

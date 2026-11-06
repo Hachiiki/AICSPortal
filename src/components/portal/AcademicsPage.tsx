@@ -261,7 +261,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('grades')}
               aria-pressed={activeTab === 'grades'}
               className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               Grades
@@ -271,7 +271,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('subjects')}
               aria-pressed={activeTab === 'subjects'}
               className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               Subjects
@@ -282,7 +282,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               aria-pressed={activeTab === 'tasks'}
               data-tour="academics-tab-tasks"
               className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               Tasks
@@ -292,7 +292,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('materials')}
               aria-pressed={activeTab === 'materials'}
               className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
-                activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
               Materials

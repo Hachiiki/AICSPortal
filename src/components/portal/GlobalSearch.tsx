@@ -318,10 +318,24 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
     return searchIndex(index, query)
   }, [index, query, roleLinks])
 
-  // Keep the active index in range as the result set changes.
+  // Group results for display.
+  const grouped = useMemo(() => {
+    const map = new Map<ResultType, SearchItem[]>()
+    for (const r of results) {
+      const arr = map.get(r.type) ?? []
+      arr.push(r)
+      map.set(r.type, arr)
+    }
+    return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({ type: g, items: map.get(g)! }))
+  }, [results])
+
+  // Running flat index so keyboard nav can map activeIndex → item.
+  const flat = useMemo(() => grouped.flatMap(group => group.items), [grouped])
+
+
   useEffect(() => {
-    setActiveIndex(0)
-  }, [query])
+    if (open && flat[activeIndex]) document.getElementById(`search-option-${encodeURIComponent(flat[activeIndex].id)}`)?.scrollIntoView({ block: 'nearest' })
+  }, [open, activeIndex, flat])
 
   // Close on outside pointer interaction.
   useEffect(() => {
@@ -353,6 +367,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
       navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', taskId: item.taskId, subjectCode: item.subjectCode })
     } else onNavigate(item.view)
     setQuery('')
+    setActiveIndex(0)
     setOpen(false)
     inputRef.current?.blur()
   }
@@ -367,30 +382,17 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
       setActiveIndex((i) => Math.max(i - 1, 0))
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      const item = results[activeIndex]
+      const item = flat[activeIndex]
       if (item) choose(item)
     } else if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()
       setOpen(false)
       setQuery('')
+      setActiveIndex(0)
       inputRef.current?.blur()
     }
   }
-
-  // Group results for display.
-  const grouped = useMemo(() => {
-    const map = new Map<ResultType, SearchItem[]>()
-    for (const r of results) {
-      const arr = map.get(r.type) ?? []
-      arr.push(r)
-      map.set(r.type, arr)
-    }
-    return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({ type: g, items: map.get(g)! }))
-  }, [results])
-
-  // Running flat index so keyboard nav can map activeIndex → item.
-  const flat = results
 
   return (
     <div ref={containerRef} className="relative w-full max-w-md" onBlur={event => {
@@ -409,6 +411,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
+            setActiveIndex(0)
             setOpen(true)
           }}
           onFocus={() => setOpen(true)}
@@ -419,7 +422,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           aria-expanded={open}
           aria-autocomplete="list"
           aria-controls="global-search-results"
-          aria-activedescendant={open && results[activeIndex] ? `search-option-${results[activeIndex].id}` : undefined}
+          aria-activedescendant={open && flat[activeIndex] ? `search-option-${encodeURIComponent(flat[activeIndex].id)}` : undefined}
           className="flex-1 min-w-0 bg-transparent text-base sm:text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none"
         />
         {query ? (
@@ -427,6 +430,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
             type="button"
             onClick={() => {
               setQuery('')
+              setActiveIndex(0)
               inputRef.current?.focus()
             }}
             aria-label="Clear search"
@@ -470,7 +474,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                     return (
                       <button
                         key={item.id}
-                        id={`search-option-${item.id}`}
+                        id={`search-option-${encodeURIComponent(item.id)}`}
                         type="button"
                         role="option"
                         tabIndex={-1}
@@ -492,7 +496,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                           <span className="block text-sm font-medium text-slate-900 truncate">
                             {item.label}
                           </span>
-                          <span className="block text-xs text-slate-500 truncate">{item.hint}</span>
+                          <span className="block text-xs text-slate-600 truncate">{item.hint}</span>
                         </span>
                         {isActive && (
                           <CornerDownLeft className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" aria-hidden="true" />

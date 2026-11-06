@@ -162,7 +162,7 @@ export function StudentTasksGuide() {
   const journey = useStudentOnboarding()
   if (!journey) return null
   const offer = !journey.state.preferences.tasksGuideSeen && !journey.busy
-  return <section aria-label="Tasks guide" data-tour="tasks-guide-entry" className={offer ? 'rounded-xl border border-border bg-surface p-4 text-ink' : 'flex justify-end'}>
+  return <section aria-label="Tasks guide" data-tour="tasks-guide-entry" className={`[&_button]:min-h-11 sm:[&_button]:min-h-8 ${offer ? 'rounded-xl border border-border bg-surface p-4 text-ink' : 'flex justify-end'}`}>
     {offer && <><h3 className="text-sm font-semibold">Want a quick tour of Tasks?</h3><p className="mt-1 text-sm text-muted-fg">Find filters, deadlines and submission status. You can explore on your own or take a short guide.</p></>}
     <div className={offer ? 'mt-3 flex flex-wrap gap-2' : 'flex gap-2'}>
       <Button variant={offer ? 'default' : 'outline'} className={offer ? ACTION : undefined} size="sm" disabled={journey.busy} data-tasks-guide-replay onClick={event => journey.startTasks(event.currentTarget)}>{offer ? 'Show Tasks guide' : 'Replay Tasks guide'}</Button>
