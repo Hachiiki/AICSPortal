@@ -417,5 +417,24 @@ export async function can(
       // folder-prefix containment built from session values.
       return allow()
     }
+
+    case 'onboarding.state': {
+      if (action !== 'read' && action !== 'update') return deny('role', 'Not supported.')
+      // Self-only by construction: this resource carries no client-supplied
+      // identity, the route derives the user exclusively from the
+      // authenticated session, and both the read filter and the upsert are
+      // session-stamped {branch, username} from the DB actor — the same
+      // structural self-only pattern as announcement.reads, so there is no
+      // spoofable claimedIdentity and no cross-user path at all.
+      // Corrupt role strings (the issue #67 class) match no registry row,
+      // so they deny here instead of reaching an undefined spec lookup.
+      if (
+        ctx.actor.role !== 'student' &&
+        ctx.actor.role !== 'faculty' &&
+        ctx.actor.role !== 'admin'
+      )
+        return deny('role', 'Unauthorized: unknown role')
+      return allow()
+    }
   }
 }

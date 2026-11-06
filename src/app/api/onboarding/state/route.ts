@@ -1,0 +1,177 @@
+// GET/PATCH /api/onboarding/state — the self-service onboarding surface
+// (onboarding plan, Phase 1).
+//
+// Identity derives EXCLUSIVELY from the authenticated session: the
+// route accepts no username in the query or body, and both the read
+// filter and the upsert are session-stamped {branch, username} from the
+// resolved DB actor (ctx.actor) — the same structural self-only
+// pattern as announcement.reads. The onboarding.state policy gates the
+// surface; a client can only ever touch its own progress doc.
+//
+// Persistence is non-blocking by design: onboarding is progressive
+// enhancement, so a DB read or write failure answers the computed
+// state with persisted:false instead of failing the request. The
+// client keeps working; the next healthy request heals the stored doc.
+// On a failed READ the write is skipped: persisting a map computed off
+// the defaults would wipe steps the failed read could not see.
+//
+// Indexes: {branch, username} unique on onboarding_states, created by
+// the seed tooling (BUG-017 convention: never per request).
+
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { getCollection } from '@/lib/mongodb/connection'
+import { requireCan } from '@/lib/authz'
+import { parseBody, errResponse } from '@/lib/validation'
+import { HttpError } from '@/lib/http'
+import type { MongoOnboardingState } from '@/lib/mongodb/types'
+import { onboardingPreferences, type OnboardingPreferences } from '@/lib/onboarding/preferences'
+import {
+  applyUpdates,
+  carryForward,
+  registryFor,
+  type OnboardingRoleSpec,
+  type OnboardingState,
+} from '@/lib/onboarding/registry'
+
+// ---- Zod input schemas (the only place update input is shaped) ----
+
+const patchSchema = z.object({
+  preferences: z.object({ welcomeSeen: z.boolean().optional(), checklistDismissed: z.boolean().optional(), tourSkipped: z.boolean().optional(), tasksGuideSeen: z.boolean().optional(), tasksGuideCompleted: z.boolean().optional(), tourNoticeReadVersion: z.number().int().min(1).optional(), tourNoticeDismissedVersion: z.number().int().min(1).optional() }).strict().optional(),
+  updates: z.record(
+    z.string(),
+    z.boolean({ error: 'Step values must be true or false.' }),
+    { error: 'Step updates must be an object.' }
+  ),
+})
+
+// ---- helpers ------------------------------------------------------------
+
+/**
+ * The policy denies corrupt role strings, so a missing spec is
+ * unreachable; this is the type-narrowing fallback that keeps the
+ * handler honest if the policy row ever changes.
+ */
+function specOr403(role: string): OnboardingRoleSpec {
+  const spec = registryFor(role)
+  if (!spec) throw new HttpError(403, 'Forbidden.')
+  return spec
+}
+
+/** Best-effort read: never throws; failures answer persisted:false with a null doc. */
+async function findStored(actor: { branch: string; username: string }): Promise<{
+  stored: MongoOnboardingState | null
+  persisted: boolean
+}> {
+  try {
+    const col = await getCollection<MongoOnboardingState>('onboarding_states')
+    const stored = await col.findOne({ branch: actor.branch, username: actor.username })
+    return { stored, persisted: true }
+  } catch (err) {
+    console.error('Onboarding state read failed:', err)
+    return { stored: null, persisted: false }
+  }
+}
+
+function stateResponse(role: string, spec: OnboardingRoleSpec, state: OnboardingState, persisted: boolean, preferences: OnboardingPreferences) {
+  return NextResponse.json({
+    ok: true,
+    role,
+    version: state.version,
+    dimensions: spec.dimensions,
+    values: state.values,
+    persisted,
+    preferences,
+  })
+}
+
+// GET /api/onboarding/state
+// Returns the caller's onboarding state normalized to the current
+// registry (version carry-forward); no request input at all.
+export async function GET(request: NextRequest) {
+  try {
+    const { ctx } = await requireCan(request, { kind: 'onboarding.state' }, 'read')
+    const spec = specOr403(ctx.actor.role)
+    const { stored, persisted } = await findStored(ctx.actor)
+    const state = carryForward(spec, stored)
+    const sameRole = stored?.role === ctx.actor.role
+    const initialTourVersion = stored && sameRole ? 1 : spec.tourRevision?.majorVersion ?? 1
+    return stateResponse(ctx.actor.role, spec, state, persisted, onboardingPreferences(sameRole ? stored.preferences : null, initialTourVersion))
+  } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
+    console.error('Onboarding state read error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to load onboarding state.' }, { status: 500 })
+  }
+}
+
+// PATCH /api/onboarding/state
+// Body: { updates: { [dimensionKey]: true | false } } — keys are
+// validated against the actor's CURRENT registry; unknown keys are the
+// client's mistake and answer 400 with the offending key.
+export async function PATCH(request: NextRequest) {
+  try {
+    const { updates, preferences: preferenceUpdates } = await parseBody(request, patchSchema)
+    const { ctx } = await requireCan(request, { kind: 'onboarding.state' }, 'update')
+    const spec = specOr403(ctx.actor.role)
+
+    const latestMajor = spec.tourRevision?.majorVersion ?? 1
+    for (const key of ['tourNoticeReadVersion', 'tourNoticeDismissedVersion'] as const) {
+      if ((preferenceUpdates?.[key] ?? 1) > latestMajor) throw new HttpError(400, 'Unknown tour update version')
+    }
+
+    // Semantic validation against the actor's current registry.
+    const known = new Set(spec.dimensions.map((d) => d.key))
+    for (const key of Object.keys(updates)) {
+      if (!known.has(key)) throw new HttpError(400, `Unknown onboarding step: ${key}`)
+    }
+
+    const { stored, persisted: readPersisted } = await findStored(ctx.actor)
+    const state = carryForward(spec, stored)
+    const values = applyUpdates(spec, state.values, updates)
+    const sameRole = stored?.role === ctx.actor.role
+    const storedPreferences = onboardingPreferences(sameRole ? stored.preferences : null, stored && sameRole ? 1 : latestMajor)
+    const preferences = { ...storedPreferences, ...preferenceUpdates }
+    for (const key of ['tourNoticeReadVersion', 'tourNoticeDismissedVersion'] as const) {
+      preferences[key] = Math.max(preferences[key], storedPreferences[key])
+    }
+
+    let persisted = readPersisted
+    if (readPersisted) {
+      try {
+        const col = await getCollection<MongoOnboardingState>('onboarding_states')
+        // Touch only requested keys so another session's password or profile
+        // completion is not overwritten by a concurrent welcome preference.
+        const changes: Record<string, unknown> = { role: ctx.actor.role, version: state.version, updatedAt: new Date() }
+        const noticeVersions: Record<string, number> = {}
+        if (stored && stored.role !== ctx.actor.role) {
+          changes.values = values
+          changes.preferences = preferences
+        } else {
+          for (const [key, value] of Object.entries(updates)) changes[`values.${key}`] = value
+          for (const [key, value] of Object.entries(preferenceUpdates ?? {})) {
+            if (typeof value === 'number') noticeVersions[`preferences.${key}`] = value
+            else changes[`preferences.${key}`] = value
+          }
+          if (!stored) {
+            noticeVersions['preferences.tourNoticeReadVersion'] = latestMajor
+            noticeVersions['preferences.tourNoticeDismissedVersion'] = latestMajor
+          }
+        }
+        await col.updateOne(
+          { branch: ctx.actor.branch, username: ctx.actor.username },
+          { $set: changes, ...(Object.keys(noticeVersions).length ? { $max: noticeVersions } : {}) },
+          { upsert: true }
+        )
+      } catch (err) {
+        persisted = false
+        console.error('Onboarding state save failed:', err)
+      }
+    }
+
+    return stateResponse(ctx.actor.role, spec, { version: state.version, values }, persisted, preferences)
+  } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
+    console.error('Onboarding state update error:', err)
+    return NextResponse.json({ ok: false, error: 'Failed to save onboarding state.' }, { status: 500 })
+  }
+}

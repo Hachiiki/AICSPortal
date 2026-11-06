@@ -78,6 +78,10 @@ export type AuthzResource =
   // self-service account
   | { kind: 'account.password' }
   | { kind: 'account.photo'; username: string }
+  // onboarding (Phase 1): self-only by construction, identity derives
+  // exclusively from the authenticated session (no client-supplied
+  // username exists on this resource)
+  | { kind: 'onboarding.state' }
 
 export type ResourceKind = AuthzResource['kind']
 
@@ -128,6 +132,7 @@ export const RESOURCE_KINDS: readonly ResourceKind[] = [
   'faculty.history',
   'account.password',
   'account.photo',
+  'onboarding.state',
 ] as const
 
 export const ACTIONS: readonly Action[] = [

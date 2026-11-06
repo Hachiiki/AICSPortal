@@ -16,6 +16,8 @@ import {
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
+import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
+import { getStudentTourUpdate } from '@/lib/onboarding/student-client'
 
 interface SidebarProps {
   active: View
@@ -37,6 +39,8 @@ function NavButton({
   onClick: () => void
 }) {
   const Icon = item.icon
+  const onboarding = useStudentOnboarding()
+  const pendingUpdate = item.view === 'help' && onboarding && getStudentTourUpdate(onboarding.state).pending
 
   // --- Disabled / "coming soon" state ---
   // Colors keep the exact pre-Stage-2B light values (v3 hex literals:
@@ -67,6 +71,8 @@ function NavButton({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
+      aria-label={pendingUpdate ? `${item.label}, student tour update available` : undefined}
+      data-tour={`nav-${item.view}`}
       className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
         active
           ? 'bg-blue-800 text-white'
@@ -75,6 +81,7 @@ function NavButton({
     >
       <Icon className="w-4 h-4 flex-shrink-0" />
       <span className="truncate">{item.label}</span>
+      {pendingUpdate && <span aria-hidden="true" className="ml-auto size-2 rounded-full bg-current" />}
     </button>
   )
 }

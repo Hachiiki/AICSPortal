@@ -23,6 +23,7 @@ import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
 import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
 import { DialogPanel } from './DialogPanel'
 import { EmptyState } from './EmptyState'
+import { StudentTasksGuide } from '@/components/onboarding/StudentOnboarding'
 
 // ============================================================
 //  TasksTab — the "Tasks" mini-tab inside the Academics page.
@@ -197,7 +198,8 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* TASK OVERVIEW CARD */}
-      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+      <StudentTasksGuide />
+      <div data-tour="tasks-overview" className="bg-surface rounded-xl border border-slate-200 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
         </div>
@@ -224,7 +226,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* FILTER CARD */}
-      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-4">
+      <div data-tour="tasks-filters" className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-4">
         <div className="flex flex-wrap gap-6 items-center">
           {/* Subject (custom dropdown — shared SelectMenu) */}
           <SelectMenu
@@ -267,7 +269,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* NEEDS ATTENTION CARD */}
-      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div data-tour="tasks-attention" className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 className="text-base font-semibold text-slate-900">Needs Attention</h3>
           <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
@@ -320,6 +322,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
       </div>
 
       {/* COURSE ACCORDION CARDS */}
+      <div data-tour="tasks-courses">
       {filteredTasks.length === 0 ? (
         <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={ClipboardList} message="No tasks for this term." hint="When a teacher posts a task, it shows up here." />
@@ -479,6 +482,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask }
         </div>
       )}
 
+      </div>
       {/* Submit warning modal */}
       <AnimatePresence>
         {submitTask && (

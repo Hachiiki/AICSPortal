@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import type { Student } from '@/lib/aics/types'
 import type { Announcement } from '@/lib/aics/announcements'
 import { AnnouncementsDeck } from './AnnouncementsDeck'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { useDestinationFocus } from '@/lib/aics/use-destination-focus'
 
 interface AcademicHeaderProps {
   student: Student
@@ -19,8 +21,11 @@ interface AcademicHeaderProps {
  * Below lg breakpoint, the deck stacks full-width under the stats.
  */
 export function AcademicHeader({ student, totalUnits, announcements, announcementReadIds }: AcademicHeaderProps) {
+  const { route } = usePortalRoute()
+  useDestinationFocus('student-announcements', route.view === 'dashboard' && route.focus === 'announcements')
   return (
     <motion.section
+      data-tour="student-overview"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -54,10 +59,11 @@ export function AcademicHeader({ student, totalUnits, announcements, announcemen
         </div>
       </div>
 
-      {/* Right column: announcements deck (hidden if no announcements) */}
-      {announcements && announcements.length > 0 && (
+      <div id="student-announcements" tabIndex={-1} data-tour="student-announcements" className="scroll-mt-32 w-full lg:w-[470px] shrink-0">
+      {announcements && announcements.length > 0 ? (
         <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
-      )}
+      ) : <div className="rounded-xl border border-border bg-surface p-5 text-ink"><h2 className="text-sm font-semibold">Announcements</h2><p className="mt-2 text-sm text-muted-fg">No announcements right now. Check here for campus updates.</p></div>}
+      </div>
     </motion.section>
   )
 }
