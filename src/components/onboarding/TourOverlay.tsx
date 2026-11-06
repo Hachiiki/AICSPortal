@@ -132,7 +132,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     // H1 focus guard. An unplanned mid-tour navigation can unmount the
     // element the user was interacting with (the click that swapped the
     // view), and focus then silently falls to <body> while this
-    // aria-modal card stays open. Overlays that open above the tour keep
+    // guide stays open. Overlays that open above the tour keep
     // their own focus (C5), so the guard repairs only genuinely stranded
     // focus - body, the root, or a disconnected node - and never touches
     // a live element elsewhere. It runs in the same rAF pass as the
@@ -228,6 +228,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       pendingNoteRef.current = ''
       setAnnouncement((note ? `${note} ` : '') + stepAnnouncement(current, index, steps.length))
       cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-card]')?.scrollTo({ top: 0 })
+      cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-instructions]')?.scrollTo({ top: 0 })
       headingRef.current?.focus({ preventScroll: true })
     })
     // The wait budget ends on its own even when nothing in the DOM
@@ -366,10 +367,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         />
       )}
 
-      {/* Step card: one DialogPanel for the whole tour, so the focus
-          contract is exactly the portal's — focus in on open, Tab
-          inside, Escape ends the tour, focus returns to the launcher.
-          The mobile sheet pins to the bottom (F1). */}
+      {/* One nonmodal panel preserves focus restoration across steps.
+          The phone sheet keeps navigation visible while instructions scroll. */}
       <div
         ref={cardWrapRef}
         style={cardStyle}
@@ -389,9 +388,9 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           data-tour-card=""
           data-minimized={minimized}
           className={cn(
-            'max-h-[calc(100dvh-24px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface text-ink shadow-xl',
+            'flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink shadow-xl',
             minimized ? 'p-1' : 'p-4',
-            sheet ? 'max-h-[min(55dvh,calc(100dvh-24px))]' : 'w-72 max-w-[calc(100vw-24px)]'
+            sheet ? 'max-h-[min(65dvh,calc(100dvh-24px))]' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
           {minimized ? (
@@ -401,16 +400,23 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
             }}>Show guide · {index + 1} of {total}</Button>
           ) : (
           <>
+          <div className="shrink-0">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-medium text-muted-fg">Step {index + 1} of {total}</p>
-            {sheet && <Button type="button" variant="ghost" size="sm" className="min-h-11" aria-label="Hide guide to explore the page" onClick={() => setMinimizedStep(step.id)}>Hide guide</Button>}
+            {sheet && <Button type="button" variant="ghost" size="sm" className="min-h-11" aria-label="Hide guide to explore the page" onClick={() => {
+              setMinimizedStep(step.id)
+              requestAnimationFrame(() => cardWrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true }))
+            }}>Hide guide</Button>}
           </div>
           <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-sm font-bold outline-none">
             {step.title}
           </h2>
-          <p id={bodyId} className="mt-1.5 text-sm text-muted-fg">{step.body}</p>
+          </div>
+          <div data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className="mt-1.5 min-h-0 overflow-y-auto overscroll-contain rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link">
+          <p id={bodyId} className="text-sm text-muted-fg">{step.body}</p>
           <p className="mt-2 text-xs text-muted-fg">{sheet ? 'Hide guide to explore this area. Show guide brings these instructions back.' : 'Explore the highlighted area. Press Alt+G to return to this guide.'}</p>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 [&_button]:min-h-11 sm:[&_button]:min-h-8">
+          </div>
+          <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-3 [&_button]:min-h-11 sm:[&_button]:min-h-8">
             <Button
               type="button"
               variant="ghost"

@@ -28,6 +28,7 @@ async function open(options = {}) {
   page.on('pageerror', error => { result.errors.push(error.message); save() })
   await page.goto(origin, { waitUntil: 'load', timeout: 600000 })
   if (options.role === 'faculty') await page.getByRole('button', { name: 'My Students', exact: true }).first().waitFor({ timeout: 60000 })
+  else if (options.role === 'admin') await page.getByRole('heading', { name: 'Admin Dashboard', exact: true }).waitFor({ timeout: 60000 })
   else await page.getByRole('heading', { name: 'Welcome back, Alexandra!' }).waitFor({ timeout: 60000 })
   await page.waitForTimeout(600)
   return { ...fixture, page }
@@ -202,6 +203,13 @@ try {
   await page.getByRole('button', { name: 'Preview Certificate', exact: true }).click()
   const certificate = page.getByRole('dialog', { name: 'Certificate of Enrollment', exact: true })
   await certificate.waitFor()
+  await page.waitForTimeout(350)
+  const certificateOpacity = await certificate.evaluate(el => {
+    let value = 1
+    for (let node = el; node; node = node.parentElement) value *= Number(getComputedStyle(node).opacity)
+    return value
+  })
+  check('Certificate preview is painted at full opacity', certificateOpacity >= 0.99, { opacity: certificateOpacity })
   await measure(page, 'certificate-320x420')
   const certificateClose = await certificate.getByRole('button', { name: 'Close certificate preview', exact: true }).boundingBox()
   check('Certificate actions remain inside the phone viewport', certificateClose.x >= 0 && certificateClose.x + certificateClose.width <= 320 && certificateClose.y >= 0 && certificateClose.y + certificateClose.height <= 420, certificateClose)
@@ -216,6 +224,8 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await go(page)
+  const checklistHeight = (await page.getByRole('region', { name: 'Getting started', exact: true }).boundingBox()).height
+  check('Collapsed phone checklist leaves room for daily work', checklistHeight <= 190, { height: checklistHeight })
   await page.getByRole('button', { name: 'Show setup steps', exact: true }).click()
   check('Mobile checklist expands on request', await page.getByRole('button', { name: 'Start student guided tour', exact: true }).isVisible())
   await page.getByRole('button', { name: 'Start student guided tour', exact: true }).click()
@@ -292,8 +302,15 @@ try {
     return { panel: { top: bounds.top, bottom: bounds.bottom }, count: { top: count.top, bottom: count.bottom } }
   })
   check('Short-screen guide steps restart at their heading and count', position.count.top >= position.panel.top && position.count.bottom <= position.panel.bottom, position)
+  const navigation = await shortGuide.getByRole('button', { name: /Skip the guided tour|Go back to the previous tour step|Go to the next tour step/ }).evaluateAll(buttons => buttons.map(button => {
+    const b = button.getBoundingClientRect()
+    return { top: b.top, bottom: b.bottom, height: b.height }
+  }))
+  check('Short-screen guide navigation stays visible without scrolling', navigation.length === 3 && navigation.every(button => button.top >= 0 && button.bottom <= 420 && button.height >= 44), navigation)
   await fresh.page.screenshot({ path: resolve(out, 'guide-320x420.png') })
   await shortGuide.getByRole('button', { name: 'Hide guide to explore the page', exact: true }).click()
+  await fresh.page.waitForTimeout(40)
+  check('Minimizing the guide moves keyboard focus to Show guide', await fresh.page.getByRole('button', { name: 'Show guide · 2 of 7', exact: true }).evaluate(button => button === document.activeElement))
   const readNotice = fresh.page.getByRole('button', { name: 'Read announcement: Midterm examination schedule', exact: true })
   await readNotice.scrollIntoViewIfNeeded()
   const exposed = await readNotice.evaluate(button => {
@@ -326,6 +343,20 @@ try {
   await facultyDrawer.waitFor({ state: 'hidden' })
   check('Faculty drawer closes with Escape', await facultyDrawer.count() === 0)
   await faculty.context.close()
+
+  const admin = await open({ width: 1280, role: 'admin' })
+  check('Admin desktop chrome retains directory navigation', await admin.page.getByRole('button', { name: 'Students & Faculty', exact: true }).isVisible())
+  await admin.page.setViewportSize({ width: 320, height: 720 })
+  await admin.page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
+  const adminDrawer = admin.page.getByRole('dialog', { name: 'Navigation menu' })
+  check('Admin mobile drawer retains its own navigation', await adminDrawer.getByRole('button', { name: 'Students & Faculty', exact: true }).isVisible())
+  check('Admin drawer does not expose student academics', await adminDrawer.getByRole('button', { name: 'Academics', exact: true }).count() === 0)
+  await admin.page.screenshot({ path: resolve(out, 'admin-drawer-320.png') })
+  await admin.page.keyboard.press('Escape')
+  const adminSearch = admin.page.getByRole('combobox', { name: 'Search the portal' })
+  await adminSearch.fill('CS201')
+  check('Admin search does not expose the student subject/task index', await admin.page.getByRole('option').count() === 0)
+  await admin.context.close()
 
   const signedOut = await fixtureContext(browser, { width: 320, height: 720 })
   contexts.push(signedOut.context)

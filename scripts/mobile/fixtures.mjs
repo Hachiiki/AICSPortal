@@ -49,6 +49,13 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
     if (p === '/api/auth/session') data = { ok: true, username: student.username, role, branch: student.branch }
     else if (p === '/api/student') data = { ok: true, student: { ...student, role }, courses, sessions }
     else if (p === '/api/faculty') data = role === 'faculty' ? { ok: true, faculty: { ...student, role }, subjects, students: [] } : { ok: false }
+    else if (p === '/api/admin/stats') data = { ok: true, stats: {
+      totals: { students: 3, faculty: 2, admins: 1, branches: 1, programs: 1, courses: 3, events: 0, announcements: 0, pendingReleaseGroups: 0, pendingReleaseRows: 0, upcomingEvents: 0 },
+      enrollment: { byStatus: [], byYearLevel: [], byProgram: [] },
+      gpa: { buckets: [], deanListers: 0, withGpa: 0, withoutGpa: 3, average: null },
+      finances: { totalAssessment: 0, totalPaid: 0, totalBalance: 0, paid: 0, partial: 0, unpaid: 3 },
+      branches: [], upcomingEvents: [], recentAnnouncements: [],
+    } }
     else if (p === '/api/onboarding/state') {
       if (request.method() === 'PATCH') { const patch = request.postDataJSON(); values = { ...values, ...patch.updates }; preferences = { ...preferences, ...patch.preferences }; writes.push({ path: p, patch }) }
       data = { ok: true, persisted: true, role, version: 1, values, preferences }
