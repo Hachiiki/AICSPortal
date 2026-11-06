@@ -58,6 +58,8 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
   const courseRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const rowRefs = useRef<Record<string, HTMLElement | null>>({})
   const [highlightId, setHighlightId] = useState<string | null>(null)
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
+  const [attentionExpanded, setAttentionExpanded] = useState(false)
 
   // Bell deep-link: expand the course, scroll the row into view, flash it once.
   // Waits for the task list to finish loading — rows do not exist before that.
@@ -159,10 +161,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       const data = await res.json()
       if (data.ok) {
         setTasks((prev) => prev.map((t) => t._id === submitTask._id ? { ...t, submitted: true, submittedAt: new Date().toISOString() } : t))
-        toast.success('Submitted. Awaiting grade.')
+        toast.success('Submitted. Awaiting grade.', { style: { pointerEvents: 'none' } })
         setSubmitTask(null)
-      } else { toast.error(data.error || 'Failed to submit task.') }
-    } catch { toast.error('Network error. Please try again.') }
+      } else { toast.error(data.error || 'Failed to submit task.', { style: { pointerEvents: 'none' } }) }
+    } catch { toast.error('Network error. Please try again.', { style: { pointerEvents: 'none' } }) }
     finally { setSubmitting(false) }
   }, [submitTask, student.username, setTasks])
 
@@ -198,86 +200,11 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
   const clearFilters = () => { setSubjectFilter('all'); setTypeFilter('all'); setStatusFilter('all') }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-5 sm:gap-6">
       {/* Heading */}
       <div>
         <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
         <p className="text-xs text-slate-500 mt-0.5">Current term activities, quizzes, tests and projects</p>
-      </div>
-
-      {/* TASK OVERVIEW CARD */}
-      <StudentTasksGuide />
-      <div data-tour="tasks-overview" className="bg-surface rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
-          <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
-        </div>
-        <div className="px-4 sm:px-6 py-5">
-          <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 gap-y-4 sm:divide-x divide-slate-100">
-            {/* Tone classes keep the exact pre-Stage-2B light hexes (v4
-                oklch palette shades render differently); the dark:
-                variants re-theme via the tokens/bridge. */}
-            <OverviewStat label="Total" value={summary.total} tone="text-[#2563EB] dark:text-link" />
-            <OverviewStat label="Graded" value={summary.graded} tone="text-[#15803D] dark:text-green-700" />
-            <OverviewStat label="Pending" value={summary.pending} tone="text-[#B45309] dark:text-amber-700" />
-            <OverviewStat label="Needs attention" value={summary.needs} tone="text-[#2563EB] dark:text-link" />
-            <OverviewStat label="Missing" value={summary.missing} tone="text-[#DC2626] dark:text-red-600" />
-          </div>
-          <div className="mt-4">
-            <p className="text-xs text-slate-500 mb-1.5">
-              {summary.graded} of {summary.total} {summary.total === 1 ? 'task' : 'tasks'} graded &bull; {pct}% completed
-            </p>
-            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-              <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* FILTER CARD */}
-      <div data-tour="tasks-filters" className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 sm:px-6 py-4">
-        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-6 sm:items-center">
-          {/* Subject (custom dropdown — shared SelectMenu) */}
-          <SelectMenu
-            label="Subject"
-            value={subjectFilter}
-            onChange={setSubjectFilter}
-            placeholder="All Subjects"
-            options={[
-              { value: 'all', label: 'All Subjects' },
-              ...currentSubjects.map((s) => ({ value: s.code, label: `${s.code} * ${s.title}` })),
-            ]}
-          />
-          <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
-          {/* Type */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</span>
-            <div role="group" aria-label="Filter by task type" className="flex flex-wrap gap-1.5">
-              {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
-                <button key={t} type="button" onClick={() => setTypeFilter(t)} aria-pressed={typeFilter === t}
-                  className={`min-h-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
-                  {t === 'all' ? 'All' : t}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
-          {/* Status */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</span>
-            <div role="group" aria-label="Filter by task status" className="flex flex-wrap gap-1.5">
-              {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
-                <button key={s} type="button" onClick={() => setStatusFilter(s)} aria-pressed={statusFilter === s}
-                  className={`min-h-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
-                  {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2">
-          <p role="status" className="text-xs text-slate-600">{filteredTasks.length} of {tasks.length} tasks match</p>
-          {hasFilters && <button type="button" onClick={clearFilters} className="min-h-11 px-2 text-sm font-semibold text-link hover:underline">Clear filters</button>}
-        </div>
       </div>
 
       {/* NEEDS ATTENTION CARD */}
@@ -290,14 +217,14 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
           <EmptyState icon={CheckCircle} message="All caught up." hint="Nothing needs your action right now." />
         ) : (
           <div className="divide-y divide-slate-100">
-            {needsAttentionTasks.map((task) => {
+            {needsAttentionTasks.map((task, attentionIndex) => {
               const { variant, sub } = computeStatus(task)
               const subject = currentSubjects.find((s) => s.code === task.subjectCode)
               return (
                 <button key={task._id}
                   type="button"
                   onClick={() => handleAttentionRowClick(task)}
-                  className="w-full text-left px-4 sm:px-6 py-3 grid grid-cols-[32px_minmax(0,1fr)] sm:flex sm:items-center gap-x-3 gap-y-2 hover:bg-slate-50 transition-colors">
+                  className={`w-full text-left px-4 sm:px-6 py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[32px_minmax(0,1fr)] sm:flex sm:items-center gap-x-3 gap-y-2 hover:bg-slate-50 transition-colors`}>
                   {/* Circular status icon */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
                     {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
@@ -319,22 +246,71 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                 </button>
               )
             })}
+            {needsAttentionTasks.length > 3 && <button type="button" className="sm:hidden min-h-11 w-full px-4 py-3 text-sm font-semibold text-link hover:bg-slate-50" onClick={() => setAttentionExpanded(!attentionExpanded)}>{attentionExpanded ? 'Show fewer tasks' : `Show all ${needsAttentionTasks.length} tasks that need attention`}</button>}
           </div>
         )}
       </div>
 
-      {/* COURSES SECTION */}
+            {/* FILTER CARD */}
+      <div data-tour="tasks-filters" className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 sm:px-6 py-4">
+        <button type="button" aria-expanded={filtersExpanded} aria-controls="student-task-filter-controls" onClick={() => setFiltersExpanded(!filtersExpanded)} className="sm:hidden flex min-h-11 w-full items-center justify-between text-sm font-semibold text-slate-900">Filter tasks<ChevronDown className={`size-4 transition-transform ${filtersExpanded ? 'rotate-180' : ''}`} aria-hidden /></button>
+        <div id="student-task-filter-controls" className={`${filtersExpanded ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-6 sm:items-center`}>
+          {/* Subject (custom dropdown — shared SelectMenu) */}
+          <SelectMenu
+            label="Subject"
+            value={subjectFilter}
+            onChange={setSubjectFilter}
+            placeholder="All Subjects"
+            options={[
+              { value: 'all', label: 'All Subjects' },
+              ...currentSubjects.map((s) => ({ value: s.code, label: `${s.code} * ${s.title}` })),
+            ]}
+          />
+          <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
+          {/* Type */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</span>
+            <div role="group" aria-label="Filter by task type" className="flex flex-wrap gap-1.5">
+              {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
+                <button key={t} type="button" onClick={() => setTypeFilter(t)} aria-pressed={typeFilter === t}
+                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
+                  {t === 'all' ? 'All' : t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
+          {/* Status */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</span>
+            <div role="group" aria-label="Filter by task status" className="flex flex-wrap gap-1.5">
+              {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
+                <button key={s} type="button" onClick={() => setStatusFilter(s)} aria-pressed={statusFilter === s}
+                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
+                  {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2">
+          <p role="status" className="text-xs text-slate-600">{filteredTasks.length} of {tasks.length} tasks match</p>
+          {hasFilters && <button type="button" onClick={clearFilters} className="min-h-11 px-2 text-sm font-semibold text-link hover:underline">Clear filters</button>}
+        </div>
+      </div>
+
+            {/* COURSES SECTION */}
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-slate-900">Courses</h3>
         <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
-          className="inline-flex items-center gap-1 text-xs font-medium text-link hover:text-link-strong">
+          className="inline-flex min-h-11 px-2 items-center gap-1 text-xs font-medium text-link hover:text-link-strong">
           {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
           {expandedCourses.size === currentSubjects.length ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>
 
-      {/* COURSE ACCORDION CARDS */}
-      <div data-tour="tasks-courses">
+            {/* COURSE ACCORDION CARDS */}
+      <div data-tour="tasks-courses" className="order-4 sm:order-6">
       {filteredTasks.length === 0 ? (
         <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={ClipboardList} message={hasFilters ? 'No matching tasks.' : 'No tasks for this term.'} hint={hasFilters ? 'Try another subject, type or status.' : 'When a teacher posts a task, it shows up here.'} />
@@ -399,7 +375,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                                 {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
                                 {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
                                 {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
-                                {sub}
+                                {variant === 'NEEDS_ATTENTION' ? 'Not submitted' : sub}
                               </span>
                             </div>
                             <div className="flex-shrink-0">
@@ -460,7 +436,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                                   {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
                                   {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" />}
                                   {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" />}
-                                  {sub}
+                                  {variant === 'NEEDS_ATTENTION' ? 'Not submitted' : sub}
                                 </span>
                               </td>
                               <td className="px-4 py-3 pr-6 w-32">
@@ -496,7 +472,35 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       )}
 
       </div>
-      {/* Submit warning modal */}
+            {/* TASK OVERVIEW CARD */}
+      <div data-tour="tasks-overview" className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
+          <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
+        </div>
+        <div className="px-4 sm:px-6 py-5">
+          <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 gap-y-4 sm:divide-x divide-slate-100">
+            {/* Tone classes keep the exact pre-Stage-2B light hexes (v4
+                oklch palette shades render differently); the dark:
+                variants re-theme via the tokens/bridge. */}
+            <OverviewStat label="Total" value={summary.total} tone="text-[#2563EB] dark:text-link" />
+            <OverviewStat label="Graded" value={summary.graded} tone="text-[#15803D] dark:text-green-700" />
+            <OverviewStat label="Pending" value={summary.pending} tone="text-[#B45309] dark:text-amber-700" />
+            <OverviewStat label="Needs attention" value={summary.needs} tone="text-[#2563EB] dark:text-link" />
+            <OverviewStat label="Missing" value={summary.missing} tone="text-[#DC2626] dark:text-red-600" />
+          </div>
+          <div className="mt-4">
+            <p className="text-xs text-slate-500 mb-1.5">
+              {summary.graded} of {summary.total} {summary.total === 1 ? 'task' : 'tasks'} graded &bull; {pct}% completed
+            </p>
+            <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+                  <div className="empty:hidden"><StudentTasksGuide /></div>
+{/* Submit warning modal */}
       <AnimatePresence>
         {submitTask && (
           <SubmitWarningModal task={submitTask} onCancel={() => setSubmitTask(null)} onConfirm={handleConfirmSubmit} submitting={submitting} />

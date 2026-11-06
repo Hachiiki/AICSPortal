@@ -393,7 +393,9 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
   const flat = results
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md">
+    <div ref={containerRef} className="relative w-full max-w-md" onBlur={event => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+    }}>
       {/* Search field */}
       <div
         className={`flex items-center gap-2 h-11 sm:h-9 px-3 rounded-lg border bg-slate-50 transition-colors ${
@@ -411,13 +413,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder={
-            student.role === 'faculty'
-              ? 'Search pages, students, subjects, tasks…'
-              : student.role === 'admin'
-                ? 'Search pages…'
-                : 'Search pages, subjects, professors, events…'
-          }
+          placeholder="Search the portal"
           aria-label="Search the portal"
           role="combobox"
           aria-expanded={open}

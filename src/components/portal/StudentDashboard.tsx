@@ -103,7 +103,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
 
           <div className="flex flex-col lg:flex-row gap-4">
             <ScheduleGrid courses={courses} sessions={sessions} />
-            <TodaysClasses courses={courses} sessions={sessions} />
+            <div className="order-first lg:order-last lg:w-[320px] lg:shrink-0"><TodaysClasses courses={courses} sessions={sessions} /></div>
           </div>
         </main>
     </PortalShell>

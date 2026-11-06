@@ -102,7 +102,7 @@ export function Topbar({
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
       <div className="h-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1 px-4 pb-3 pt-1 sm:py-0 sm:gap-3 sm:px-6 lg:px-8">
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <button
             type="button"
             onClick={onOpenMobileNav}
@@ -199,7 +199,7 @@ export function Topbar({
                   <DropdownMenuItem
                     key={n._id}
                     onClick={() => openNotification(n)}
-                    className="cursor-pointer items-start"
+                    className="min-h-11 sm:min-h-0 cursor-pointer items-start"
                   >
                     <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-200' : 'bg-blue-600'}`} />
                     <span className="min-w-0">
@@ -261,13 +261,13 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Profile — navigates to profile page */}
-              <DropdownMenuItem onClick={onProfile} className="cursor-pointer">
+              <DropdownMenuItem onClick={onProfile} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <User className="w-4 h-4 mr-2" />
                 <span>Profile</span>
               </DropdownMenuItem>
 
               {/* Theme — full selector lives in Settings → Appearance */}
-              <DropdownMenuItem onClick={() => onNavigate('settings')} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => onNavigate('settings')} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
                 <span>Theme settings</span>
               </DropdownMenuItem>
@@ -275,7 +275,7 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Sign out */}
-              <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600 focus:text-red-600">
+              <DropdownMenuItem onClick={onLogout} className="min-h-11 sm:min-h-0 cursor-pointer text-red-600 focus:text-red-600">
                 <LogOut className="w-4 h-4 mr-2" />
                 <span>Sign out</span>
               </DropdownMenuItem>

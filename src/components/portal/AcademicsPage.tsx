@@ -243,7 +243,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
@@ -260,7 +260,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('grades')}
               aria-pressed={activeTab === 'grades'}
-              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
+              className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -270,7 +270,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('subjects')}
               aria-pressed={activeTab === 'subjects'}
-              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
+              className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -281,7 +281,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('tasks')}
               aria-pressed={activeTab === 'tasks'}
               data-tour="academics-tab-tasks"
-              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
+              className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -291,7 +291,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('materials')}
               aria-pressed={activeTab === 'materials'}
-              className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
+              className={`min-h-11 sm:min-h-0 px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >

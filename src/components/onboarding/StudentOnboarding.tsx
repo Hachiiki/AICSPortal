@@ -118,14 +118,14 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
     <p className="sr-only" role="status" aria-live="polite">{announcement || (tourUpdate.pending ? 'A student tour update is available in Help & Support.' : '')}</p>
     {active && welcome && !running && <div className="fixed inset-0 z-50 grid place-items-center bg-scrim/40 p-4">
       <DialogPanel onClose={closeWelcome} aria-labelledby="student-welcome-title" className="relative w-full max-w-md max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface p-5 sm:p-6 text-ink shadow-xl">
-        <Button variant="ghost" size="icon" className="absolute right-3 top-3" aria-label="Close welcome" onClick={closeWelcome}><X aria-hidden /></Button>
+        <Button variant="ghost" size="icon" className="absolute right-3 top-3 size-11" aria-label="Close welcome" onClick={closeWelcome}><X aria-hidden /></Button>
         <Compass className="mb-4 size-8 text-link" aria-hidden />
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-fg">Your student portal</p>
         <h2 id="student-welcome-title" className="mt-2 text-2xl font-bold tracking-tight">Welcome to AICS, {student?.firstName}.</h2>
         <p className="mt-3 text-sm leading-6 text-muted-fg">Find your academic record, coursework and campus updates in one place. Take a short tour, or explore at your own pace.</p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-          <Button className={ACTION} onClick={event => start(event.currentTarget)}>Show me around</Button>
-          <Button variant="outline" onClick={closeWelcome}>I&apos;ll explore on my own</Button>
+          <Button className={`${ACTION} min-h-11 sm:min-h-9`} onClick={event => start(event.currentTarget)}>Show me around</Button>
+          <Button variant="outline" className="min-h-11 sm:min-h-9" onClick={closeWelcome}>I&apos;ll explore on my own</Button>
         </div>
         <p className="mt-4 text-xs text-muted-fg">Use Next and Back to move through the tour, then Finish on the last step. Skip or press Escape anytime. Replay later from Help &amp; Support.</p>
       </DialogPanel>
@@ -152,7 +152,7 @@ export function StudentGettingStarted() {
     <ul id="student-checklist-items" className={expanded ? 'divide-y divide-border' : 'hidden sm:block divide-y divide-border'}>{dimensions.map(d => <li key={d.key} className="flex items-center gap-3 py-3">
       <span className="grid size-6 shrink-0 place-items-center rounded-full border border-border" aria-hidden>{state.values[d.key] && <Check className="size-4" />}</span>
       <span className="min-w-0 flex-1 text-sm font-medium">{d.label}{state.values[d.key] && <span className="ml-2 text-xs font-normal text-muted-fg">Complete</span>}</span>
-      {!state.values[d.key] && <Button variant="ghost" size="sm" aria-label={d.key === 'tour' ? 'Start student guided tour' : d.label} onClick={event => d.key === 'tour' ? journey.start(event.currentTarget) : journey.openChecklistItem(d.key)}>{d.key === 'tour' ? 'Start tour' : 'Open'}<ChevronRight className="size-4" aria-hidden /></Button>}
+      {!state.values[d.key] && <Button variant="ghost" size="sm" className="min-h-11 sm:min-h-8" aria-label={d.key === 'tour' ? 'Start student guided tour' : d.label} onClick={event => d.key === 'tour' ? journey.start(event.currentTarget) : journey.openChecklistItem(d.key)}>{d.key === 'tour' ? 'Start tour' : 'Open'}<ChevronRight className="size-4" aria-hidden /></Button>}
     </li>)}</ul>
     {!state.persisted && <p role="status" className="mt-3 text-sm text-muted-fg">Your progress is kept for this session. <button type="button" className="font-semibold text-link underline" onClick={() => void client.retry()}>Retry saving</button></p>}
   </section>

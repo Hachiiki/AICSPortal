@@ -590,7 +590,7 @@ export function EnrollmentPage({
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>

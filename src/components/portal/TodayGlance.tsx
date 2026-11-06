@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { Clock, Megaphone } from 'lucide-react'
 import type { Task } from '@/lib/aics/tasks'
+import { canSubmit, computeStatus } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
 import {
   getSessionsForDay,
@@ -69,7 +70,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
   // ---- Pending tasks + nearest due date
   const pending = useMemo(() => {
     if (!tasks) return null
-    const open = tasks.filter((t) => !t.submitted && !t.submissionsClosed)
+    const open = tasks.filter(canSubmit)
     if (open.length === 0) return { count: 0, nextDue: null as string | null }
     const next = open
       .slice()
@@ -77,9 +78,11 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
     const due = new Date(next.dueDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const days = Math.round((due.getTime() - today.getTime()) / 86400000)
+    const dueDay = new Date(due)
+    dueDay.setHours(0, 0, 0, 0)
+    const days = Math.round((dueDay.getTime() - today.getTime()) / 86400000)
     let label: string
-    if (days < 0) label = 'overdue'
+    if (computeStatus(next).variant === 'MISSING_OPEN') label = 'overdue'
     else if (days === 0) label = 'due today'
     else if (days === 1) label = 'due tomorrow'
     else label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -135,11 +138,11 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         {pending === null ? (
           <p className="mt-2 text-sm text-slate-500">Tasks loading…</p>
         ) : pending.count === 0 ? (
-          <p className="mt-2 text-sm font-semibold text-slate-900">All caught up</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">Nothing to submit</p>
         ) : (
           <>
             <p className="mt-2 text-sm font-semibold text-slate-900">
-              {pending.count} pending
+              {pending.count} to submit
             </p>
             <p className="text-xs text-slate-500 mt-1 break-words line-clamp-2">{pending.nextDue}</p>
           </>

@@ -406,7 +406,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden /> Back to Dashboard
             </button>
