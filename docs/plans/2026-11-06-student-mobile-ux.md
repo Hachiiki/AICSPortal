@@ -23,6 +23,7 @@
 - Verify drawer Tab/Shift+Tab/Escape/focus restoration; search keyboard selection and task handoff; academics tab state; task filter reset, error recovery and dialog actions; welcome/tour/checklist/replay.
 - Run existing relevant onboarding regressions, meaningful mobile browser assertions, lint, typecheck and the production build. Verify shared faculty/desktop chrome.
 - Preserve unrelated local changes. Commit and push only this plan, intended UI changes, relevant verification scripts/evidence and authorized tracking updates. Keep this PR aimed at `main-full-dev`; merging and production release need a separate request.
+- Publish a Markdown comment for every implementation commit with exact parent/commit screenshots, numbered change explanations and actual validation. Capture historical app inputs in an isolated temporary export so comparisons do not disturb the checkout.
 
 ## Skills
 
@@ -32,6 +33,8 @@ Use project-orchestrator, graphify, redesign-existing-projects, webdesign-ui, co
 
 - [x] Read project instructions and check baseline branch/local changes.
 - [x] Start two independent council reviews.
-- [ ] Capture runtime baseline and implement fixes.
-- [ ] Complete browser and quality checks, then council reassessment.
-- [ ] Commit, push and update the PR for review.
+- [x] Capture runtime baseline and implement fixes.
+- [x] Complete browser and quality checks, then council reassessment.
+- [x] Commit and push the implementation through the feature PR.
+
+Final application source is `a3e1f33`. Acceptance-r10 passed 314 browser checks with no failures or client errors, and 154 relevant unit tests passed. Lint, typecheck and the production webpack build passed. Both independent council reviewers consider the examined version ready for PR review. The exact commit comparisons, honest score tables and remaining coverage limits are recorded in `docs/done/qa_evidence/ui-ux/mobile-2026-11-06/README.md`; GitHub Conversation comments carry the per-commit before/after explanations.

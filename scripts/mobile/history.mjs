@@ -45,11 +45,16 @@ async function capture(out, report) {
     await page.getByRole('heading', { name: 'Welcome back, Alexandra!' }).waitFor({ timeout: 120000 })
     await page.waitForTimeout(650)
     await shot('dashboard-390')
+    await page.getByRole('region', { name: 'Getting started', exact: true }).scrollIntoViewIfNeeded()
+    await page.waitForTimeout(150)
+    await shot('setup-390')
+    await page.evaluate(() => window.scrollTo(0, 0))
     await page.setViewportSize({ width: 320, height: 844 })
     await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
     await page.getByRole('dialog', { name: 'Navigation menu' }).waitFor()
     await shot('drawer-320')
     await page.keyboard.press('Escape')
+    await page.getByRole('dialog', { name: 'Navigation menu' }).waitFor({ state: 'hidden' })
     await route('/academics?tab=tasks')
     await page.getByRole('heading', { name: 'Task Overview', exact: true }).waitFor()
     // Historical Tasks versions already support the tab query, but settling the
@@ -70,6 +75,7 @@ async function capture(out, report) {
     await page.waitForTimeout(150)
     await shot('coe-320')
     await page.keyboard.press('Escape')
+    await page.getByRole('dialog').waitFor({ state: 'hidden' })
     const search = page.getByRole('combobox')
     await search.fill('CS201')
     await page.getByRole('option').first().waitFor()
@@ -108,7 +114,7 @@ for (const ref of refs) {
   const sha = git(['rev-parse', ref]).trim()
   const out = resolve(base, sha.slice(0, 7))
   mkdirSync(out, { recursive: true })
-  if (existsSync(resolve(out, 'result.json')) && JSON.parse(readFileSync(resolve(out, 'result.json'))).finishedAt) { console.log(`Already captured ${sha}`); continue }
+  if (existsSync(resolve(out, 'result.json')) && JSON.parse(readFileSync(resolve(out, 'result.json'))).finishedAt && process.env.MOBILE_CAPTURE_REFRESH !== '1') { console.log(`Already captured ${sha}`); continue }
   // The only removed paths belong to the fresh temp export created above.
   for (const entry of inputs) {
     const target = resolve(source, entry)
@@ -135,7 +141,7 @@ for (const ref of refs) {
   const verified = JSON.parse(readFileSync(resolve(root, '.phase2-local/mobile-ux/quality.json')))
   const quality = JSON.parse(readFileSync(resolve(verified.output, 'result.json')))
   const appRecords = records.filter(record => /^(src|public)\//.test(record.path))
-  const reuse = sha === git(['rev-parse', 'HEAD']).trim() && quality.commands.length === 3 && quality.commands.every(command => command.exitCode === 0) && appRecords.length === quality.records.length && appRecords.every(record => quality.records.some(input => input.path === record.path && input.sha256 === record.sha256)) && inputs.filter(file => !['src', 'public', 'next-env.d.ts'].includes(file)).every(file => readFileSync(resolve(source, file)).equals(readFileSync(resolve(verified.source, file))))
+  const reuse = quality.commands.length === 3 && quality.commands.every(command => command.exitCode === 0) && appRecords.length === quality.records.length && appRecords.every(record => quality.records.some(input => input.path === record.path && input.sha256 === record.sha256)) && inputs.filter(file => !['src', 'public', 'next-env.d.ts'].includes(file)).every(file => readFileSync(resolve(source, file)).equals(readFileSync(resolve(verified.source, file))))
   const servedSource = reuse ? verified.source : source
   report.servedSource = servedSource
   report.reusedVerifiedBuild = reuse
