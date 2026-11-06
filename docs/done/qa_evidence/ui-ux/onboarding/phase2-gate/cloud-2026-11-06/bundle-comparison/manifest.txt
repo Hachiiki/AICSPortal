@@ -1,0 +1,6 @@
+timestamp: 2026-11-06T01:49:37.433Z
+HEAD SHA: ffca64640de61a5481098922d5ba894d961e3ea2
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+command: node scripts/onboarding/i1-bundle-comparison.mjs (builds: node node_modules/next/dist/bin/next build --webpack (NEXT_TELEMETRY_DISABLED=1, no .env.local, committed source))
+node: v24.22.2
+scope: I1 bundle cost facts at the current HEAD vs the onboarding baseline; no threshold or decision revisited
