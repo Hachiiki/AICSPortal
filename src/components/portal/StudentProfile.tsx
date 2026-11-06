@@ -317,7 +317,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-lg flex-shrink-0"
+                    className="min-h-11 sm:min-h-8 rounded-lg flex-shrink-0"
                     onClick={handleViewAllDocuments}
                   >
                     <FileText className="w-4 h-4 mr-1.5" /> View All Documents
@@ -454,7 +454,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
           disclaimer mirrors the card subtitle so the enlarged view
           can never be mistaken for an official school ID. */}
       <Dialog open={showIDDialog} onOpenChange={setShowIDDialog}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85dvh] overflow-y-auto [&>button]:size-11 [&>button]:grid [&>button]:place-items-center">
           <DialogHeader>
             <DialogTitle>Digital ID</DialogTitle>
           </DialogHeader>

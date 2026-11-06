@@ -35,7 +35,7 @@ for (const [name, args] of [['lint', ['run', 'lint']], ['typecheck', ['run', 'ty
   const fd = openSync(resolve(output, `${name}.log`), 'wx')
   const command = { name, command: ['npm', ...args], startedAt: new Date().toISOString(), exitCode: null }
   result.commands.push(command)
-  const child = spawn('cmd.exe', ['/d', '/s', '/c', 'npm', ...args], { cwd: source, env: { ...localEnv(), NEXT_FONT_GOOGLE_MOCKED_RESPONSES: resolve(root, 'scripts/mobile/cached-fonts.cjs') }, stdio: ['ignore', fd, fd], windowsHide: true })
+  const child = spawn('cmd.exe', ['/d', '/s', '/c', 'npm', ...args], { cwd: source, env: { ...localEnv(), NEXT_FONT_GOOGLE_MOCKED_RESPONSES: resolve(root, 'scripts/mobile/cached-fonts.js') }, stdio: ['ignore', fd, fd], windowsHide: true })
   command.pid = child.pid; save()
   command.exitCode = await new Promise((resolve, reject) => { child.on('exit', code => resolve(code)); child.on('error', reject) })
   closeSync(fd)

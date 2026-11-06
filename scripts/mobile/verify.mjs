@@ -53,7 +53,7 @@ try {
   await page.getByRole('button', { name: /Review tasks/ }).click()
   check('Review tasks opens the Tasks section', new URL(page.url()).searchParams.get('tab') === 'tasks')
   await page.getByRole('heading', { name: 'Task Overview', exact: true }).waitFor()
-  const routes = ['', '/academics?tab=grades', '/academics?tab=subjects', '/academics?tab=tasks', '/academics?tab=materials', '/events', '/enrollment', '/professors', '/profile', '/settings', '/help']
+  const routes = ['', '/academics?tab=grades', '/academics?tab=subjects', '/academics?tab=tasks', '/academics?tab=materials', '/events', '/enrollment', '/professors', '/profile', '/settings', '/settings?section=security', '/settings?section=notifications', '/settings?section=privacy', '/settings?section=appearance', '/help']
   for (const width of process.env.MOBILE_SKIP_MATRIX === '1' ? [] : [320, 360, 390, 430, 768, 1024, 1280]) {
     await page.setViewportSize({ width, height: 844 })
     for (const route of routes) {
@@ -65,6 +65,10 @@ try {
         const account = await page.getByRole('button', { name: 'Account menu', exact: true }).boundingBox()
         check(`header-${width}: primary controls share one row`, Math.abs(bar.y - account.y) <= 1, { menu: bar, account })
         check(`header-${width}: primary controls have 44px hit areas`, Math.min(bar.height, bar.width, account.height, account.width) >= 44)
+      }
+      if (width < 640 && ['/settings', '/settings?section=security'].includes(route)) {
+        const sizes = await page.locator('main input:not([type="file"]), main textarea').evaluateAll(inputs => inputs.filter(input => input.getClientRects().length > 0).map(input => parseFloat(getComputedStyle(input).fontSize)))
+        check(`${name}: readable 16px mobile form text`, sizes.length > 0 && sizes.every(size => size >= 16), sizes)
       }
       if ([320, 390, 1280].includes(width)) await page.screenshot({ path: resolve(out, `${name}.png`) })
       if (width === 390 && ['profile', 'enrollment', 'professors'].some(view => route === '/' + view)) await page.screenshot({ path: resolve(out, `${name}-full.png`), fullPage: true })
@@ -145,6 +149,30 @@ try {
   await detail.getByRole('button', { name: 'Close', exact: true }).click()
   await detail.waitFor({ state: 'hidden' })
   check('Details close action remains reachable', await detail.count() === 0)
+
+  await go(page, '/profile')
+  await page.getByRole('button', { name: 'View Digital ID', exact: true }).click()
+  const idDialog = page.getByRole('dialog', { name: 'Digital ID', exact: true })
+  await idDialog.waitFor()
+  await measure(page, 'digital-id-320x420')
+  await page.screenshot({ path: resolve(out, 'digital-id-320x420.png') })
+  await idDialog.getByRole('button', { name: 'Close', exact: true }).click()
+  await idDialog.waitFor({ state: 'hidden' })
+  check('Digital ID remains operable on a short phone screen', true)
+  await page.getByRole('button', { name: 'Preview Certificate', exact: true }).click()
+  const certificate = page.getByRole('dialog', { name: 'Certificate of Enrollment', exact: true })
+  await certificate.waitFor()
+  await measure(page, 'certificate-320x420')
+  const certificateClose = await certificate.getByRole('button', { name: 'Close certificate preview', exact: true }).boundingBox()
+  check('Certificate actions remain inside the phone viewport', certificateClose.x >= 0 && certificateClose.x + certificateClose.width <= 320 && certificateClose.y >= 0 && certificateClose.y + certificateClose.height <= 420, certificateClose)
+  await page.screenshot({ path: resolve(out, 'certificate-320x420.png') })
+  await page.emulateMedia({ media: 'print' })
+  const minimum = await page.getByRole('region', { name: 'Certificate document, scroll to read' }).locator(':scope > div').evaluate(el => getComputedStyle(el).minWidth)
+  check('Certificate preview width does not constrain printing', minimum === '0px', minimum)
+  await page.emulateMedia({ media: 'screen' })
+  await certificate.getByRole('button', { name: 'Close certificate preview', exact: true }).click()
+  await certificate.waitFor({ state: 'hidden' })
+  check('Certificate preview closes normally on mobile', true)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await go(page)

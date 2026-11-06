@@ -14,7 +14,7 @@ for (const file of ['src', 'public', '.gitignore', 'package.json', 'tsconfig.jso
 }
 symlinkSync(resolve(root, 'node_modules'), resolve(source, 'node_modules'), 'junction')
 const server = spawn(process.execPath, [resolve(root, 'node_modules/next/dist/bin/next'), 'dev', '--webpack', '-H', 'localhost', '-p', '4350'], {
-  cwd: source, env: { ...localEnv('development'), NEXT_FONT_GOOGLE_MOCKED_RESPONSES: resolve(root, 'scripts/mobile/cached-fonts.cjs') }, stdio: 'inherit', windowsHide: true,
+  cwd: source, env: { ...localEnv('development'), NEXT_FONT_GOOGLE_MOCKED_RESPONSES: resolve(root, 'scripts/mobile/cached-fonts.js') }, stdio: 'inherit', windowsHide: true,
 })
 writeFileSync(resolve(root, '.phase2-local/mobile-ux/preview.json'), JSON.stringify({ source, port: 4350, pid: server.pid, startedAt: new Date().toISOString() }, null, 2))
 console.log(`Isolated source: ${source}`)

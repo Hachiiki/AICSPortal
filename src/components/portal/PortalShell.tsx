@@ -68,7 +68,7 @@ export function PortalShell({
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="min-h-dvh bg-slate-50 font-sans">
+    <div className="min-h-dvh bg-slate-50 font-sans [&_input]:text-base [&_textarea]:text-base [&_select]:text-base lg:[&_input]:text-sm lg:[&_textarea]:text-sm lg:[&_select]:text-sm">
       {/* Skip link — first tab stop on every portal page. Jumps past the
           sidebar and topbar to the page content wrapper below. */}
       <a

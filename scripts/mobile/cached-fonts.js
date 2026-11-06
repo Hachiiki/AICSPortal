@@ -1,4 +1,4 @@
-// Offline build input: reuse the exact font bytes from the checkout's prior build.
+// CommonJS offline build input: reuse exact font bytes from the prior build.
 // This affects local verification only, never application source or deployment.
 const { readFileSync, readdirSync } = require('node:fs')
 const { resolve } = require('node:path')

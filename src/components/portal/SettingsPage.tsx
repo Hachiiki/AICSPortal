@@ -433,7 +433,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`min-h-11 sm:min-h-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
