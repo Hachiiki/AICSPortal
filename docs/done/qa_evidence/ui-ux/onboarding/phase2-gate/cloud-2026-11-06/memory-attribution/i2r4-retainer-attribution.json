@@ -1,0 +1,307 @@
+{
+  "schema": "aics-i2r4-retainer-attribution/v1",
+  "generatedAt": "2026-11-06T01:41:15.984Z",
+  "inputs": {
+    "baseline": "/tmp/i2r4-snapshots/linux-baseline-1793928925251.heapsnapshot",
+    "final": "/tmp/i2r4-snapshots/linux-final-1793928958026-c10.heapsnapshot"
+  },
+  "method": {
+    "parsing": "field indices derived from each snapshot meta (node_fields/edge_fields); self_size and name never read from fixed offsets",
+    "ownership": "every object- and array-type node is classified by a bounded upward retainer walk (depth 10, visited cap 4000, chain cap 6 steps recorded); first marker class along the chain wins; marker order tour > instrumentation > v8-compilation > react-runtime > dom-window",
+    "identity": "no cross-snapshot node identity is assumed; growth is attributed by diffing retainer-class bucket multisets, with representative chains recorded per bucket"
+  },
+  "typeSelfSizeDeltaBytes": {
+    "synthetic": 0,
+    "native": -191822,
+    "string": -596,
+    "object shape": 5632,
+    "code": 567044,
+    "array": 320,
+    "number": -12,
+    "symbol": 0,
+    "object": 2988,
+    "closure": 0,
+    "concatenated string": -4000,
+    "regexp": 0,
+    "sliced string": -1160
+  },
+  "detachedObjectNodes": {
+    "baseline": 0,
+    "final": 0
+  },
+  "objectConstructorDeltas": [
+    {
+      "name": "Object",
+      "baseCount": 7353,
+      "finalCount": 7456,
+      "deltaCount": 103,
+      "baseSelfKB": 182,
+      "finalSelfKB": 185,
+      "deltaSelfKB": 2
+    },
+    {
+      "name": "Array",
+      "baseCount": 1777,
+      "finalCount": 1809,
+      "deltaCount": 32,
+      "baseSelfKB": 28,
+      "finalSelfKB": 28,
+      "deltaSelfKB": 1
+    }
+  ],
+  "genericObjectCtorDelta": {
+    "name": "Object",
+    "baseCount": 7353,
+    "finalCount": 7456,
+    "deltaCount": 103,
+    "baseSelfKB": 182,
+    "finalSelfKB": 185,
+    "deltaSelfKB": 2
+  },
+  "objectOwnershipBuckets": [
+    {
+      "key": "object|react-runtime",
+      "baseCount": 4408,
+      "finalCount": 4583,
+      "deltaCount": 175,
+      "deltaSelfKB": 4,
+      "representativeChain": null
+    },
+    {
+      "key": "object|dom-window",
+      "baseCount": 107,
+      "finalCount": 238,
+      "deltaCount": 131,
+      "deltaSelfKB": 4,
+      "representativeChain": null
+    },
+    {
+      "key": "object|tour",
+      "baseCount": 20,
+      "finalCount": 26,
+      "deltaCount": 6,
+      "deltaSelfKB": 0,
+      "representativeChain": [
+        {
+          "node": "code",
+          "via": "195"
+        },
+        {
+          "node": "code",
+          "via": "instruction_stream"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "native",
+          "via": "8"
+        },
+        {
+          "node": "OnboardingDev",
+          "via": "__proto__"
+        }
+      ]
+    },
+    {
+      "key": "object|unattributed",
+      "baseCount": 1273,
+      "finalCount": 1256,
+      "deltaCount": -17,
+      "deltaSelfKB": 0,
+      "representativeChain": [
+        {
+          "node": "code",
+          "via": "value"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "value"
+        }
+      ]
+    },
+    {
+      "key": "object|instrumentation",
+      "baseCount": 269,
+      "finalCount": 194,
+      "deltaCount": -75,
+      "deltaSelfKB": -2,
+      "representativeChain": [
+        {
+          "node": "queryAll",
+          "via": "__proto__"
+        },
+        {
+          "node": "Object",
+          "via": "queryAll"
+        },
+        {
+          "node": "array",
+          "via": "83"
+        },
+        {
+          "node": "Map",
+          "via": "table"
+        },
+        {
+          "node": "InjectedScript",
+          "via": "_engines"
+        }
+      ]
+    },
+    {
+      "key": "object|v8-compilation",
+      "baseCount": 7822,
+      "finalCount": 7737,
+      "deltaCount": -85,
+      "deltaSelfKB": -3,
+      "representativeChain": null
+    }
+  ],
+  "arrayOwnershipBuckets": [
+    {
+      "key": "array|v8-compilation",
+      "baseCount": 2356,
+      "finalCount": 2419,
+      "deltaCount": 63,
+      "deltaSelfKB": -8,
+      "representativeChain": null
+    },
+    {
+      "key": "array|dom-window",
+      "baseCount": 22,
+      "finalCount": 83,
+      "deltaCount": 61,
+      "deltaSelfKB": -1,
+      "representativeChain": null
+    },
+    {
+      "key": "array|root",
+      "baseCount": 79,
+      "finalCount": 109,
+      "deltaCount": 30,
+      "deltaSelfKB": 1,
+      "representativeChain": null
+    },
+    {
+      "key": "array|react-runtime",
+      "baseCount": 554,
+      "finalCount": 573,
+      "deltaCount": 19,
+      "deltaSelfKB": 16,
+      "representativeChain": null
+    },
+    {
+      "key": "array|tour",
+      "baseCount": 8,
+      "finalCount": 9,
+      "deltaCount": 1,
+      "deltaSelfKB": 0,
+      "representativeChain": [
+        {
+          "node": "Array",
+          "via": "elements"
+        },
+        {
+          "node": "Array",
+          "via": "map"
+        },
+        {
+          "node": "Array",
+          "via": "[element]"
+        },
+        {
+          "node": "Object",
+          "via": "memoizedState"
+        },
+        {
+          "node": "\"Tasks due\"",
+          "via": "2 / backing_store"
+        },
+        {
+          "node": "synthetic",
+          "via": "8617"
+        }
+      ]
+    },
+    {
+      "key": "array|instrumentation",
+      "baseCount": 49,
+      "finalCount": 44,
+      "deltaCount": -5,
+      "deltaSelfKB": -3,
+      "representativeChain": [
+        {
+          "node": "HTMLElement",
+          "via": "properties"
+        },
+        {
+          "node": "testIdAttributeNameForStrictErrorAndConsoleCodegen",
+          "via": "__proto__"
+        },
+        {
+          "node": "Object",
+          "via": "testIdAttributeNameForStrictErrorAndConsoleCodegen"
+        },
+        {
+          "node": "InjectedScript",
+          "via": "__proto__"
+        }
+      ]
+    },
+    {
+      "key": "array|unattributed",
+      "baseCount": 1010,
+      "finalCount": 871,
+      "deltaCount": -139,
+      "deltaSelfKB": -4,
+      "representativeChain": [
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "[hidden]"
+        },
+        {
+          "node": "code",
+          "via": "11"
+        },
+        {
+          "node": "code",
+          "via": "value"
+        },
+        {
+          "node": "sz",
+          "via": "feedback_cell"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "baselineNodes": 265237,
+    "finalNodes": 266391
+  }
+}

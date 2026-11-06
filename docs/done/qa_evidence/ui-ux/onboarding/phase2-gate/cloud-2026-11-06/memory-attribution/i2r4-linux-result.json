@@ -1,0 +1,738 @@
+{
+  "schema": "aics-i2r4-linux-attribution/v1",
+  "startedAt": "2026-11-06T01:35:18.738Z",
+  "disclosures": [
+    "Environment-specific diagnostic: Linux cloud sandbox, supported Playwright chromium lifecycle; the Windows kernel-job ownership protocol does not run here.",
+    "Settle-loop baseline in use (I2R4_SETTLE=1): repeated GC rounds until a 15KB-stable pair, recorded as a deviation from the strict single-warm-up dual-GC procedure; attribution only.",
+    "Not a formal cal1/cal2 trial; no gate verdicts; draft thresholds (150KB drift, 25KB/cycle slope, nodes +50, listeners +10) are recorded unchanged and never adjusted.",
+    "Raw heap snapshots are written outside the repository and are not committed.",
+    "Retainer walks record the first retainer per node to a bounded depth; adjacent self-size sums are approximate and are not retained-size estimates."
+  ],
+  "gc": [
+    {
+      "stage": "settle-1",
+      "valid": true
+    },
+    {
+      "stage": "settle-2",
+      "valid": true
+    },
+    {
+      "stage": "settle-3",
+      "valid": true
+    },
+    {
+      "stage": "baseline-1",
+      "valid": true
+    },
+    {
+      "stage": "baseline-2",
+      "valid": true
+    },
+    {
+      "stage": "baseline-snapshot",
+      "valid": true
+    },
+    {
+      "stage": "sample-1",
+      "valid": true
+    },
+    {
+      "stage": "sample-2",
+      "valid": true
+    },
+    {
+      "stage": "sample-3",
+      "valid": true
+    },
+    {
+      "stage": "sample-4",
+      "valid": true
+    },
+    {
+      "stage": "sample-5",
+      "valid": true
+    },
+    {
+      "stage": "sample-6",
+      "valid": true
+    },
+    {
+      "stage": "sample-7",
+      "valid": true
+    },
+    {
+      "stage": "sample-8",
+      "valid": true
+    },
+    {
+      "stage": "sample-9",
+      "valid": true
+    },
+    {
+      "stage": "sample-10",
+      "valid": true
+    },
+    {
+      "stage": "final-snapshot",
+      "valid": true
+    },
+    {
+      "stage": "verification",
+      "valid": true
+    }
+  ],
+  "cycles": [
+    {
+      "cycle": "warm-up-discarded",
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 1,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 3,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 4,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 5,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 6,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 7,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 8,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 9,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    },
+    {
+      "cycle": 10,
+      "completed": true,
+      "steps": [
+        {
+          "id": "dev-1",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-2",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-3",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-4",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-5",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-6",
+          "disposition": "spot"
+        },
+        {
+          "id": "dev-7",
+          "disposition": "waiting"
+        },
+        {
+          "id": "dev-8",
+          "disposition": "spot"
+        }
+      ]
+    }
+  ],
+  "worktree": {
+    "head": "3e40a2d7f5043a050c8a5f8ae7c72570fc170fba",
+    "mainHead": "3e40a2d7f5043a050c8a5f8ae7c72570fc170fba",
+    "list": "worktree /home/z/my-project/AICSPortal\nHEAD 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba\nbranch refs/heads/main-full-dev\n\nworktree /tmp/i2r4-probe\nHEAD 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba\ndetached\n\nworktree /tmp/student-src\nHEAD 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba\ndetached\n\n"
+  },
+  "server": {
+    "origin": "http://127.0.0.1:4321",
+    "mode": "next start (production compiler profile), APP_ENV=development for demo login"
+  },
+  "series": {
+    "baseline": {
+      "usedKB": 6369,
+      "totalKB": 7304,
+      "nodes": 6570,
+      "listeners": 425
+    },
+    "samples": [
+      {
+        "cycle": 1,
+        "usedKB": 6559,
+        "totalKB": 7560,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 2,
+        "usedKB": 6575,
+        "totalKB": 7560,
+        "nodes": 6570,
+        "listeners": 425
+      },
+      {
+        "cycle": 3,
+        "usedKB": 6724,
+        "totalKB": 8072,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 4,
+        "usedKB": 6772,
+        "totalKB": 7816,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 5,
+        "usedKB": 6822,
+        "totalKB": 7816,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 6,
+        "usedKB": 6859,
+        "totalKB": 7816,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 7,
+        "usedKB": 6942,
+        "totalKB": 7816,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 8,
+        "usedKB": 7010,
+        "totalKB": 8072,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 9,
+        "usedKB": 7036,
+        "totalKB": 8072,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "cycle": 10,
+        "usedKB": 7053,
+        "totalKB": 8328,
+        "nodes": 6601,
+        "listeners": 428
+      }
+    ],
+    "endDriftKB": 684,
+    "slopeKBPerCycle": 58.484848484848484,
+    "earlyThirdDeltaKB": 165,
+    "lateThirdDeltaKB": 111,
+    "cycles": 10,
+    "draftLimits": {
+      "endDriftKB": 150,
+      "slopeKBPerCycle": 25
+    },
+    "verdict": "measurement only - draft limits unchanged; the owner decides their final acceptance",
+    "decidingSignals": "post-GC JSHeapUsedSize end-drift and regression slope decide; nodes/listeners never decide"
+  },
+  "guards": {
+    "nodesDelta": 31,
+    "listenersDelta": 3,
+    "nodesThreshold": 50,
+    "listenersThreshold": 10,
+    "tripped": false,
+    "role": "escalate only"
+  },
+  "attribution": {
+    "status": "corrected-offline",
+    "correction": "The inline snapshot parser in i2r4-linux-attribution.mjs read node field index 2 as self_size and the type index as the constructor name. In this Chromium build the layout is node_fields=[type, name, id, self_size, edge_count, detachedness], so those reads hit id and type instead; the typeSelfSizeDeltaKB and topObjectConstructorDeltas below this replacement were therefore wrong (implausible multi-GB string/number deltas, no Object/Array rows). The committed script now derives every index from meta.node_fields/edge_fields (2026-11-06 correction). The corrected, layout-driven attribution including full retainer-chain ownership buckets is i2r4-retainer-attribution.json next to this file; its headline values: code +554 KB, object +3 KB, object shape +6 KB, closure 0, array 0, detached 0 to 0, generic Object +103 / Array +32 attributed via retainer buckets (react-runtime, dom-window, v8-compilation, single-digit tour-classified nodes whose chains resolve to the probe-mounted onboarding module code/prototype machinery and React hook state, not retained tour data).",
+    "priorBuggyParseSummary": {
+      "typeSelfSizeDeltaKB": {
+        "synthetic": 119,
+        "native": -40148,
+        "string": 2617677,
+        "object shape": 48326,
+        "code": 1005191,
+        "array": 20645,
+        "number": 2270202,
+        "symbol": 0,
+        "object": 80233,
+        "closure": 2198,
+        "concatenated string": -48410,
+        "regexp": 0,
+        "sliced string": -14116
+      },
+      "note": "retained as evidence of the defect this correction fixes"
+    },
+    "correctedArtifact": "i2r4-retainer-attribution.json"
+  },
+  "cleanup": {
+    "browserLifecycle": "supported chromium.launch/close; no orphan observed",
+    "chromeProcessesAfterClose": "none",
+    "nextProcessesAfterStop": "none",
+    "disclosure": "Supported-lifecycle cleanup on Linux; this never substitutes for the Windows job-ownership cleanup evidence."
+  },
+  "build": {
+    "log": "/tmp/probe-build.log",
+    "exit": 0
+  },
+  "session": {
+    "via": "demo login",
+    "cookieLogged": false
+  },
+  "requestPolicy": {
+    "externalBlocked": 0,
+    "completionSimulated": 0,
+    "unexpectedMutations": [],
+    "seam": "PATCH fulfilled locally with persisted:false; GET fixture prevents the real welcome from obscuring the synthetic measurement tour; no database completion write"
+  },
+  "settle": {
+    "mode": "I2R4_SETTLE=1 (disclosed deviation for the attribution run only)",
+    "readings": [
+      {
+        "usedKB": 6448,
+        "totalKB": 7560,
+        "nodes": 6601,
+        "listeners": 428
+      },
+      {
+        "usedKB": 6369,
+        "totalKB": 7304,
+        "nodes": 6570,
+        "listeners": 425
+      },
+      {
+        "usedKB": 6369,
+        "totalKB": 7304,
+        "nodes": 6570,
+        "listeners": 425
+      }
+    ]
+  },
+  "baseline": {
+    "base1": {
+      "usedKB": 6369,
+      "totalKB": 7304,
+      "nodes": 6570,
+      "listeners": 425
+    },
+    "base2": {
+      "usedKB": 6369,
+      "totalKB": 7304,
+      "nodes": 6570,
+      "listeners": 425
+    },
+    "stable": true,
+    "disclosure": "dual-GC within 15KB (0KB); base2 is the baseline"
+  },
+  "snapshots": {
+    "baseline": {
+      "file": "/tmp/i2r4-snapshots/linux-baseline-1793928925251.heapsnapshot",
+      "bytes": 21679225,
+      "valid": true
+    },
+    "final": {
+      "file": "/tmp/i2r4-snapshots/linux-final-1793928958026-c10.heapsnapshot",
+      "bytes": 21925977,
+      "valid": true
+    }
+  },
+  "verif": {
+    "sample": {
+      "usedKB": 6946,
+      "totalKB": 7816,
+      "nodes": 6570,
+      "listeners": 425
+    },
+    "deltaVsFinalKB": -107,
+    "disclosure": "|-107KB| > 15KB after the final snapshot - snapshot disturbance DISCLOSED"
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-11-06T01:36:00.095Z",
+  "snapshotIdentities": {
+    "baseline": {
+      "path": "/tmp/i2r4-snapshots/linux-baseline-1793928925251.heapsnapshot",
+      "sha256": "b1c1f224356d0dfce10153f15defb0bfab1e26913e35abbd97b80a48a8930bfa",
+      "bytes": 21679225,
+      "committed": false
+    },
+    "final": {
+      "path": "/tmp/i2r4-snapshots/linux-final-1793928958026-c10.heapsnapshot",
+      "sha256": "29948228c4091a2fb686b8ff0ca4eade978eb07484ccdba1b7a9ef27196871de",
+      "bytes": 21925977,
+      "committed": false
+    },
+    "disclosure": "Raw heap snapshots stay outside the repository (size); identities recorded here. Parsed attribution artifacts are committed."
+  },
+  "scripts": {
+    "i2r4-linux-attribution.mjs_sha256": "7d79d3051e712b2d7f9d91d11c1c38900e51cf5827895c357fc3a9566b2804ec",
+    "i2r4-retainer-attribution.mjs_sha256": "163603e1cc079b1af23e45cab554a10f9c108c37e9cd27f43b9919e85d41e1a3"
+  }
+}

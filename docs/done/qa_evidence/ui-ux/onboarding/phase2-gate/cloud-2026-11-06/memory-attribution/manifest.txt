@@ -1,0 +1,7 @@
+timestamp: 2026-11-06T01:35:18.738Z
+baseline SHA: 46c33a53c5a502c4a6e5937bdeb7b81e2a82622f
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+command: node scripts/onboarding/i2r4-linux-attribution.mjs
+node: v24.22.2
+probe worktree: /tmp/i2r4-probe (patched OnboardingDevMount, never committed)
+scope: I2 rule 4b attribution diagnostic - Linux environment-specific; no gate verdicts; draft limits unchanged

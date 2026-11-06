@@ -394,6 +394,12 @@ async function aggregateSnapshot(file, withStrings) {
   const raw = JSON.parse(readFileSync(file, 'utf8'))
   const meta = raw.snapshot.meta
   const nodeFields = meta.node_fields.length
+  // Layout-driven indices (2026-11-06 correction): node_fields in this build
+  // are [type, name, id, self_size, edge_count, detachedness]. The prior
+  // parser read index 2 (id) as self_size and the type index as the name;
+  // every field offset is now derived from meta.node_fields instead.
+  const FIELD = Object.fromEntries(meta.node_fields.map((f, i) => [f, i]))
+  const iType = FIELD.type, iName = FIELD.name, iSelf = FIELD.self_size, iEdgeCount = FIELD.edge_count, iDetached = FIELD.detachedness
   const typeNames = meta.node_types[0]
   const nodes = raw.nodes
   const count = raw.snapshot.node_count
@@ -401,11 +407,11 @@ async function aggregateSnapshot(file, withStrings) {
   const byCtor = new Map()
   for (let i = 0; i < count; i++) {
     const b = i * nodeFields
-    const type = typeNames[nodes[b]]
-    const self = nodes[b + 2]
+    const type = typeNames[nodes[b + iType]]
+    const self = nodes[b + iSelf]
     byType[type] = (byType[type] || 0) + self
     if (type === 'object') {
-      const name = raw.strings[nodes[b]]
+      const name = raw.strings[nodes[b + iName]]
       const e = byCtor.get(name) || { count: 0, self: 0 }
       e.count++; e.self += self
       byCtor.set(name, e)
@@ -416,7 +422,7 @@ async function aggregateSnapshot(file, withStrings) {
     const markers = ['data-tour-card', 'data-tour-overlay', 'Synthetic 1: live navigation target', 'Guided tour completed.', 'TourOverlay', 'OnboardingDev', 'onboarding-state']
     for (const s of raw.strings) for (const m of markers) if (s === m || s.includes(m)) fingerprints[m] = (fingerprints[m] || 0) + 1
     // Sampled instances of the key retained object constructors.
-    fingerprints.sampledObjects = await sampleRetainers(raw, meta, nodeFields, typeNames)
+    fingerprints.sampledObjects = await sampleRetainers(raw, meta, nodeFields, typeNames, FIELD)
   }
   const result = { byType, objects: byCtor, fingerprints }
   raw.nodes = null; raw.edges = null; raw.strings = null
@@ -426,9 +432,11 @@ async function aggregateSnapshot(file, withStrings) {
 // First-retainer walk for selected object constructors: for up to N
 // instances per constructor, record the chain of first retainers to a
 // bounded depth. Approximate by design; not a retained-size estimate.
-async function sampleRetainers(raw, meta, nodeFields, typeNames) {
+async function sampleRetainers(raw, meta, nodeFields, typeNames, FIELD) {
   const edgeFields = meta.edge_fields.length
   const edgeTypes = meta.edge_types[0]
+  const EFIELD = Object.fromEntries(meta.edge_fields.map((f, i) => [f, i]))
+  const eName = EFIELD.name_or_index, eTo = EFIELD.to_node
   const nodes = raw.nodes
   const edges = raw.edges
   const strings = raw.strings
@@ -438,8 +446,8 @@ async function sampleRetainers(raw, meta, nodeFields, typeNames) {
   const targets = new Map()
   for (let i = 0; i < count; i++) {
     const b = i * nodeFields
-    if (typeNames[nodes[b]] !== 'object') continue
-    const name = strings[nodes[b]]
+    if (typeNames[nodes[b + FIELD.type]] !== 'object') continue
+    const name = strings[nodes[b + FIELD.name]]
     if (wanted.has(name)) { if (!targets.has(name)) targets.set(name, []); if (targets.get(name).length < 5) targets.get(name).push(i) }
   }
   // First retainer: the smallest-edge-index incoming edge. Build lazily
@@ -449,11 +457,11 @@ async function sampleRetainers(raw, meta, nodeFields, typeNames) {
   let edgeBase = 0
   for (let i = 0; i < count; i++) {
     const b = i * nodeFields
-    const ec = nodes[b + 3]
+    const ec = nodes[b + FIELD.edge_count]
     for (let e = 0; e < ec; e++) {
       const eb = (edgeBase + e) * edgeFields
-      const toNode = edges[eb + 1] / nodeFields
-      if (firstRetainer[toNode] === -1) { firstRetainer[toNode] = i; firstRetainerEdgeName[toNode] = edges[eb] }
+      const toNode = edges[eb + eTo] / nodeFields
+      if (firstRetainer[toNode] === -1) { firstRetainer[toNode] = i; firstRetainerEdgeName[toNode] = edges[eb + eName] }
     }
     edgeBase += ec
   }
@@ -463,7 +471,7 @@ async function sampleRetainers(raw, meta, nodeFields, typeNames) {
     for (let d = 0; d < depth && cur >= 0; d++) {
       const b = cur * nodeFields
       chain.push({
-        node: `${typeNames[nodes[b]]}:${strings[nodes[b]]}`.slice(0, 80),
+        node: `${typeNames[nodes[b + FIELD.type]]}:${strings[nodes[b + FIELD.name]]}`.slice(0, 80),
         via: firstRetainerEdgeName[cur] >= 0 ? String(strings[firstRetainerEdgeName[cur]]).slice(0, 60) : '(root)',
       })
       cur = firstRetainer[cur]
