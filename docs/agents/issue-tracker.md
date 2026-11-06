@@ -12,8 +12,16 @@ Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all o
 
 Infer the repo from `git remote -v`; `gh` does this automatically when run inside a clone.
 
+## Feature pull requests
+
+Follow `CLAUDE.md` §6b for feature work. Open the draft PR after the initial planning commit and before implementation, then update that same PR throughout the work. Target `main-full-dev` for dev feature branches. Production ports follow §6a and require an explicit release request.
+
+Use `gh pr create --draft --base main-full-dev --head codex/<short-name> --title "..." --body-file <plan-file>`. Keep the description current with `gh pr edit <number> --body-file <description-file>`. After verification passes, use `gh pr ready <number>`.
+
 ## Pull requests as a triage surface
 **PRs as a request surface: no.** _(Set to `yes` if this repo treats external PRs as feature requests; `/triage` reads this flag.)_
+
+This flag governs external PR triage only. Feature implementation uses the draft PR workflow above.
 
 When set to `yes`, PRs run through the same labels and states as issues, using the `gh pr` equivalents:
 - **Read a PR**: `gh pr view <number> --comments` and `gh pr diff <number>` for the diff.

@@ -106,27 +106,34 @@ CI runs both on every pull request, plus a production whitelist guard and the au
 
 ## Making Changes
 
-1. **Create a branch** off `main`:
+1. **Create a feature branch** off `main-full-dev` before implementation:
    ```bash
-   git checkout main
-   git pull upstream main
-   git checkout -b <feature-branch-name>
+   git checkout main-full-dev
+   git pull upstream main-full-dev
+   git checkout -b codex/<short-name>
    ```
 
-2. **Make your changes.** Keep commits focused and atomic.
+   Feature PRs target `main-full-dev`. Production ports use a separate branch cut from `main` and follow the whitelist above. Agents follow `CLAUDE.md` on the dev branch for the full branch and release rules.
 
-3. **Test your changes**: verify the dev server still runs, the linter passes, types check, and (if you have Bun installed — CI uses it) the focused authorization suite passes:
+2. **Open a draft PR before implementation.** For every new feature or addition to an existing feature, commit a short plan, push your branch, and open a draft PR against `main-full-dev`. Describe the scope, link any related issue, and list the checks you plan to run.
+
+3. **Make your changes.** Keep commits focused and atomic. Push commits to the same branch and update the existing draft PR as work progresses.
+
+4. **Test your changes**: verify the dev server still runs, the linter passes, types check, the production build succeeds, and (if you have Bun installed) the focused authorization suite passes:
    ```bash
    npm run lint
    npm run typecheck
+   npm run build
    bun test src/lib/authz/
    ```
 
-4. **Sync with upstream** before opening a PR:
+5. **Sync with upstream** before requesting review. Use your PR's base branch, shown here as `main-full-dev`:
    ```bash
    git fetch upstream
-   git rebase upstream/main
+   git merge upstream/main-full-dev
    ```
+
+6. Update the draft PR with the final changes and verification results, then mark it ready for review.
 
 ---
 
@@ -164,7 +171,7 @@ refactor(schedule): extract grid constants to lib/schedule.ts
 
 ## Pull Requests
 
-1. Open a PR against the `main` branch from your feature branch.
+1. Open the draft PR at the start of feature work as described above, then keep it current until it is ready for review. Target `main` for production changes or `main-full-dev` for work containing dev artifacts.
 2. Give the PR a clear, descriptive title (use the same convention as commit messages).
 3. In the PR description, explain:
    - **What** the change does

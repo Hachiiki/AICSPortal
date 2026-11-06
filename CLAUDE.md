@@ -43,7 +43,7 @@ Core flows:
 ```bash
 npm install
 npm run dev          # next dev -p 3000 → http://localhost:3000
-npm run build        # next build (must pass before PR)
+npm run build        # next build (must pass before marking a PR ready for review)
 npm start            # next start (prod preview)
 npm run lint         # eslint . (eslint-config-next core-web-vitals + typescript)
 npm run typecheck    # tsc --noEmit (CI runs lint + typecheck on every PR/push)
@@ -133,9 +133,10 @@ Architecture rules:
 ## 6. Workflow and Boundaries
 
 - Plan before code: `Request -> Plan -> Execute -> Verify -> Deliver`. Break large work into testable chunks, small PRs.
+- Feature work: follow §6b before implementing any new feature or extending an existing one. Create the branch and open a draft PR at the start of the work.
 - Orchestration: on complex tasks use `project-orchestrator` to analyze, map to best skill(s), announce `To accomplish this, I will use: [...]`, always include `unslop`.
 - Commits: ALWAYS commit every change made (standing user instruction). Before commit inspect `git status/diff/log --oneline -10`, stage only intended files, never commit secrets/`.env.local`/`.next/`. Never `--force`, `--no-verify`, or config changes unless asked.
-- Pushes (standing user instruction, updated 2026-10-30): every completed commit is pushed immediately to `origin/main-full-dev`. Before pushing, verify the active branch is `main-full-dev` and the commit contains only authorized changes. Push only to `origin/main-full-dev`; never push `main` or any other branch autonomously (the feature-branch push in the 6a port flow happens only on explicit request). After pushing, verify the remote branch contains the commit. If a push fails, preserve the local commit and report the exact error; never force-push or rewrite history. Commit and push incrementally so environment resets cannot erase completed work. A push never authorizes a PR, merge, or deployment; PRs stay explicit-request only.
+- Pushes (standing user instruction, updated 2026-11-06): push every completed commit immediately to the matching branch on `origin`. For feature work, push the dedicated branch from §6b; other work on `main-full-dev` continues to push to `origin/main-full-dev`. Before pushing, verify the active branch, destination and authorized diff. After pushing, verify the remote branch contains the commit. If a push fails, preserve the local commit and report the exact error; never force-push or rewrite history. Feature requests authorize the branch push and early draft PR in §6b without another permission request. Other PRs, merges and production releases require an explicit request. Never push directly to `main`.
 - Never: modify `.env.local`, rotate keys, edit `src/components/ui/` primitives by hand, create `*.md` docs unless asked, ` subjects.section` writes, unchecked `Select All` on faculty notify (default nothing checked).
 - Sensitive: credentials are never logged or exposed to the client; passwords are scrypt-hashed with legacy upgrade-on-login. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
 
@@ -148,14 +149,24 @@ Architecture rules:
 **Golden rule.** Port dev work onto main, never merge dev into main:
 
 1. `git checkout main && git pull`
-2. `git checkout -b feature/<short-name>`: cut FROM MAIN, so dev files do not exist on it
-3. Port ONLY the changed files: `git checkout main-full-dev -- <explicit paths>`, list every path, never bare `-- .`
+2. `git checkout -b codex/<short-name>-main`: cut FROM MAIN, so dev files do not exist on it
+3. Port ONLY the changed production files from the completed dev branch: `git checkout <dev-source-branch> -- <explicit paths>`, list every path, never bare `-- .`. The source is the feature branch, or `main-full-dev` after its feature PR has merged. Commit and push the first production slice, then open a draft PR into `main` before continuing the port. This release flow requires an explicit production release request.
 4. Review `git status`. The PR carries exactly the paths you list, nothing else
 5. Local gate (optional, runs from any branch): `git show main-full-dev:scripts/check-pr-whitelist.sh | bash`
-6. Push and open the PR into `main`. CI (`.github/workflows/ci.yml` on main) enforces lint + typecheck + a full-tree whitelist guard. The PR fails if ANY tracked file sits outside the whitelist, which catches even branches cut from an old main (how the PR #39 leak happened).
+6. Push the remaining port commits to the same branch and update the existing draft PR. Mark it ready for review after verification passes. CI (`.github/workflows/ci.yml` on main) enforces lint + typecheck + a full-tree whitelist guard. The PR fails if ANY tracked file sits outside the whitelist, which catches even branches cut from an old main (how the PR #39 leak happened).
 7. After the PR merges, sync the safe direction only: `git checkout main-full-dev && git pull && git merge main && git push`. Main -> dev merges never delete dev files.
 
 Forbidden moves: PR, merge, or rebase FROM `main-full-dev` INTO `main`. CI notes: GitHub only recognizes workflow files that sit DIRECTLY in `.github/workflows/` (a `docs/` subfolder there is dead weight); the source of truth is parked at `docs/ci-workflow.yml` on main-full-dev; API tokens without `workflow` scope cannot touch `.github/workflows/**`, that file is created or changed only through the GitHub web UI by the repo owner.
+
+### 6b. Start feature work with a branch and draft PR
+
+For every new feature or addition to an existing feature:
+
+1. Before editing implementation files, create a dedicated `codex/<short-name>` branch from the current `origin/main-full-dev`. Keep unrelated local changes out of its commits.
+2. Commit a short feature plan with the scope and intended verification, then push the branch. This planning document is authorized as part of feature work and stays on the dev branch. GitHub needs a commit with a file change to open a PR against the base branch.
+3. Open a draft PR into `main-full-dev` immediately after that planning commit, before implementation. Include the scope, related issue if any, and planned checks. Verify the draft PR exists and report its link. If push or PR creation fails, report the blocker and establish the draft PR before proceeding with implementation.
+4. Implement on that branch. Commit and push incrementally to keep the same draft PR current, and update its description as scope or verification results change.
+5. After implementation and required verification pass, update the PR with the final behavior and actual checks, then mark it ready for review. Merge and production release still require an explicit request. Use §6a for an authorized production port.
 
 ## 7. Behavioral Guardrails & Rules (hard constraints)
 
@@ -226,7 +237,7 @@ Source-of-truth hierarchy (when sources disagree, the higher one wins):
 - `@TODO.md`: phase status, remaining gaps
 - `@README.md`: setup, API table, roadmap
 - `@docs/authz/`: `enforcement-map.md` (phase-1 audit — historical, see its banner), `phase-2-design.md`, `phase-3-plan.md`, `phase-5-verification.md` (close-out + addenda), `backfill-runbook.md`, `credential-rotation-runbook.md` (current rotation state: proposed, not executed)
-- `@docs/agents/issue-tracker.md`: gh conventions, PR policy (no), wayfinding ops
+- `@docs/agents/issue-tracker.md`: gh conventions, early feature PR workflow, external PR triage flag, wayfinding ops
 - `@docs/agents/domain.md`: single-context layout, ADR/glossary rules
 - `@docs/agents/triage-labels.md`: canonical roles → label strings
 - `@docs/adr/`: 0001 branch-as-field, 0002 per-period-grade-status, 0003 inc-as-zero, 0004 grade-audit-log, 0005 student-section-source, 0006 auth-on-grade-writes, 0007 centralized-authorization, 0008 grade-write-state-machine, 0009 faculty-identity-username-key (executed 2026-10-22)
