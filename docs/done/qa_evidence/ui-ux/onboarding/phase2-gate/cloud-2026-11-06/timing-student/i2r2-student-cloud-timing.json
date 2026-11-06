@@ -1,0 +1,878 @@
+{
+  "schema": "aics-i2r2-student-cloud-timing/v1",
+  "startedAt": "2026-11-06T01:24:06.419Z",
+  "disclosures": [
+    "Cloud reproduction of the approved ordinary-transition test: committed-source production webpack build in a disposable worktree, real login, real seeded synthetic database, onboarding progress simulated by the A1 fixture seam.",
+    "Rule 2 per-run aggregates come from that run's 21 samples only; the warm-up tour is discarded whole; no sample is ever removed by duration.",
+    "The student tour has no synthetic fixtures, so the approved exclusion list excludes nothing.",
+    "The Windows kernel-job ownership protocol does not run on this sandbox; supervision is process-group signals plus pgrep absence checks (environment-specific limitation, disclosed).",
+    "The Rule 3 attribution series is a second pass with CDP tracing; the committed window-level series is recorded unchanged for parity.",
+    "Draft thresholds recorded unchanged: Rule 2 p95 100 ms; Rule 3 long task 50 ms."
+  ],
+  "environment": {
+    "os": "Linux 5.10.134-013.15.kangaroo.al8.x86_64 x64",
+    "platform": "linux",
+    "hostname": "c-6aed18d6-14127d0f-97128c484dd1",
+    "cpuModel": "Intel(R) Xeon(R) Processor",
+    "cores": 2,
+    "memTotalMB": 4160,
+    "cgroupCPULimit": null,
+    "node": "v24.22.2",
+    "playwrightChromium": "chromium"
+  },
+  "preflight": {
+    "unique": true,
+    "role": "student",
+    "branch": "commonwealth",
+    "modernHash": true,
+    "credentialMatches": true,
+    "photoAbsent": true,
+    "writesAttempted": 0
+  },
+  "server": {
+    "origin": "http://127.0.0.1:4322",
+    "port": 4322,
+    "envKeys": [
+      "NODE_ENV",
+      "APP_ENV",
+      "NEXT_TELEMETRY_DISABLED",
+      "MONGODB_URI",
+      "MONGODB_DB",
+      "AUTH_SECRET"
+    ],
+    "mode": "next start (production compiler profile, committed source)"
+  },
+  "login": {
+    "status": 200,
+    "cookieIssued": true,
+    "username": "juan.santos",
+    "role": "student",
+    "branch": "commonwealth",
+    "demoRouteStatus": 404
+  },
+  "loadSamples": [
+    {
+      "at": "2026-11-06T01:24:07.871Z",
+      "label": "rule2 run 1 before",
+      "loadavg": [
+        0.08,
+        0.13,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:09.871Z",
+      "label": "rule2 run 1 during",
+      "loadavg": [
+        0.08,
+        0.13,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:11.871Z",
+      "label": "rule2 run 1 during",
+      "loadavg": [
+        0.08,
+        0.13,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:13.871Z",
+      "label": "rule2 run 1 during",
+      "loadavg": [
+        0.07,
+        0.13,
+        0.19
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:15.544Z",
+      "label": "rule2 run 1 after",
+      "loadavg": [
+        0.07,
+        0.13,
+        0.19
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:15.544Z",
+      "label": "rule2 run 2 before",
+      "loadavg": [
+        0.07,
+        0.13,
+        0.19
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:17.545Z",
+      "label": "rule2 run 2 during",
+      "loadavg": [
+        0.15,
+        0.15,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:19.545Z",
+      "label": "rule2 run 2 during",
+      "loadavg": [
+        0.15,
+        0.15,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:21.545Z",
+      "label": "rule2 run 2 during",
+      "loadavg": [
+        0.15,
+        0.15,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:23.311Z",
+      "label": "rule2 run 2 after",
+      "loadavg": [
+        0.14,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:23.311Z",
+      "label": "rule2 run 3 before",
+      "loadavg": [
+        0.14,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:25.311Z",
+      "label": "rule2 run 3 during",
+      "loadavg": [
+        0.14,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:27.312Z",
+      "label": "rule2 run 3 during",
+      "loadavg": [
+        0.14,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:29.311Z",
+      "label": "rule2 run 3 during",
+      "loadavg": [
+        0.12,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:31.094Z",
+      "label": "rule2 run 3 after",
+      "loadavg": [
+        0.12,
+        0.14,
+        0.2
+      ]
+    },
+    {
+      "at": "2026-11-06T01:24:40.648Z",
+      "label": "after cleanup",
+      "loadavg": [
+        0.18,
+        0.15,
+        0.2
+      ]
+    }
+  ],
+  "rule2": [
+    {
+      "run": 1,
+      "wallMs": 7673,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 97.4,
+        "maxMs": 98.4,
+        "medianMs": 51.5,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 97.4,
+        "maxMs": 98.4,
+        "medianMs": 51.5,
+        "status": "PASS",
+        "excluded": []
+      },
+      "samples": [
+        {
+          "run": 1,
+          "advance": 1,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 45.4
+        },
+        {
+          "run": 1,
+          "advance": 2,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 98.4
+        },
+        {
+          "run": 1,
+          "advance": 3,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 81.6
+        },
+        {
+          "run": 1,
+          "advance": 4,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 34
+        },
+        {
+          "run": 1,
+          "advance": 5,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 76.9
+        },
+        {
+          "run": 1,
+          "advance": 6,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 30.7
+        },
+        {
+          "run": 1,
+          "advance": 7,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14.1,
+          "completesTour": true
+        },
+        {
+          "run": 1,
+          "advance": 8,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 51.5
+        },
+        {
+          "run": 1,
+          "advance": 9,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 94.9
+        },
+        {
+          "run": 1,
+          "advance": 10,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.9
+        },
+        {
+          "run": 1,
+          "advance": 11,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 35.3
+        },
+        {
+          "run": 1,
+          "advance": 12,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 75.4
+        },
+        {
+          "run": 1,
+          "advance": 13,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 33.4
+        },
+        {
+          "run": 1,
+          "advance": 14,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 11.8,
+          "completesTour": true
+        },
+        {
+          "run": 1,
+          "advance": 15,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 50.7
+        },
+        {
+          "run": 1,
+          "advance": 16,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 97.4
+        },
+        {
+          "run": 1,
+          "advance": 17,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.4
+        },
+        {
+          "run": 1,
+          "advance": 18,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 34.7
+        },
+        {
+          "run": 1,
+          "advance": 19,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 77.8
+        },
+        {
+          "run": 1,
+          "advance": 20,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 80.5
+        },
+        {
+          "run": 1,
+          "advance": 21,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14.3,
+          "completesTour": true
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "wallMs": 7767,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 98.1,
+        "maxMs": 112,
+        "medianMs": 77.2,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 98.1,
+        "maxMs": 112,
+        "medianMs": 77.2,
+        "status": "PASS",
+        "excluded": []
+      },
+      "samples": [
+        {
+          "run": 2,
+          "advance": 1,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 62.8
+        },
+        {
+          "run": 2,
+          "advance": 2,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 97.5
+        },
+        {
+          "run": 2,
+          "advance": 3,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.7
+        },
+        {
+          "run": 2,
+          "advance": 4,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 34.3
+        },
+        {
+          "run": 2,
+          "advance": 5,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 77.1
+        },
+        {
+          "run": 2,
+          "advance": 6,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 80.4
+        },
+        {
+          "run": 2,
+          "advance": 7,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14.4,
+          "completesTour": true
+        },
+        {
+          "run": 2,
+          "advance": 8,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 38.7
+        },
+        {
+          "run": 2,
+          "advance": 9,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 112
+        },
+        {
+          "run": 2,
+          "advance": 10,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.1
+        },
+        {
+          "run": 2,
+          "advance": 11,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 33.6
+        },
+        {
+          "run": 2,
+          "advance": 12,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 77.2
+        },
+        {
+          "run": 2,
+          "advance": 13,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 80.3
+        },
+        {
+          "run": 2,
+          "advance": 14,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14.1,
+          "completesTour": true
+        },
+        {
+          "run": 2,
+          "advance": 15,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 52.5
+        },
+        {
+          "run": 2,
+          "advance": 16,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 98.1
+        },
+        {
+          "run": 2,
+          "advance": 17,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.8
+        },
+        {
+          "run": 2,
+          "advance": 18,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 34.1
+        },
+        {
+          "run": 2,
+          "advance": 19,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 77.3
+        },
+        {
+          "run": 2,
+          "advance": 20,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 81.3
+        },
+        {
+          "run": 2,
+          "advance": 21,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 15.7,
+          "completesTour": true
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "wallMs": 7783,
+      "complete": {
+        "advances": 21,
+        "p95Ms": 113.8,
+        "maxMs": 115,
+        "medianMs": 72.5,
+        "draftLimitMs": 100
+      },
+      "ordinary": {
+        "advances": 21,
+        "p95Ms": 113.8,
+        "maxMs": 115,
+        "medianMs": 72.5,
+        "status": "FAIL",
+        "excluded": []
+      },
+      "samples": [
+        {
+          "run": 3,
+          "advance": 1,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 52.4
+        },
+        {
+          "run": 3,
+          "advance": 2,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 115
+        },
+        {
+          "run": 3,
+          "advance": 3,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 80.2
+        },
+        {
+          "run": 3,
+          "advance": 4,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 34.2
+        },
+        {
+          "run": 3,
+          "advance": 5,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 77.8
+        },
+        {
+          "run": 3,
+          "advance": 6,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 80.4
+        },
+        {
+          "run": 3,
+          "advance": 7,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14,
+          "completesTour": true
+        },
+        {
+          "run": 3,
+          "advance": 8,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 44
+        },
+        {
+          "run": 3,
+          "advance": 9,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 97.3
+        },
+        {
+          "run": 3,
+          "advance": 10,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 79.8
+        },
+        {
+          "run": 3,
+          "advance": 11,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 39.6
+        },
+        {
+          "run": 3,
+          "advance": 12,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 71
+        },
+        {
+          "run": 3,
+          "advance": 13,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 81.6
+        },
+        {
+          "run": 3,
+          "advance": 14,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 13.8,
+          "completesTour": true
+        },
+        {
+          "run": 3,
+          "advance": 15,
+          "from": "student-overview",
+          "to": "student-announcements",
+          "ms": 50.4
+        },
+        {
+          "run": 3,
+          "advance": 16,
+          "from": "student-announcements",
+          "to": "student-academics",
+          "ms": 113.8
+        },
+        {
+          "run": 3,
+          "advance": 17,
+          "from": "student-academics",
+          "to": "student-tasks",
+          "ms": 79.8
+        },
+        {
+          "run": 3,
+          "advance": 18,
+          "from": "student-tasks",
+          "to": "student-events",
+          "ms": 38.1
+        },
+        {
+          "run": 3,
+          "advance": 19,
+          "from": "student-events",
+          "to": "student-account",
+          "ms": 72.5
+        },
+        {
+          "run": 3,
+          "advance": 20,
+          "from": "student-account",
+          "to": "student-help",
+          "ms": 80.9
+        },
+        {
+          "run": 3,
+          "advance": 21,
+          "from": "student-help",
+          "to": "completed",
+          "ms": 14.5,
+          "completesTour": true
+        }
+      ]
+    }
+  ],
+  "rule2Summary": {
+    "status": "FAIL",
+    "limitMs": 100,
+    "minimumOrdinaryAdvancesPerRun": 20,
+    "independentRuns": 3,
+    "note": "summarizeOrdinaryTimingRun applies the approved exclusion list; the student tour defines no synthetic fixtures, so excluded is empty by construction"
+  },
+  "rule3WindowLevel": {
+    "status": "PASS",
+    "supported": true,
+    "series": "eight viewport stops (1100/1024/900/800/700/390/800/1280) at 700px height, then 8x +400px and 8x -400px wheel scrolls, tour overlay open on a spotted step, reduced motion",
+    "longTasks": [],
+    "count": 0,
+    "maxMs": 0,
+    "boundaryMs": 50,
+    "attribution": "window-level entries only; ownership attribution not claimed in this series"
+  },
+  "rule3Attribution": {
+    "schema": "aics-i2r2-rule3-trace-attribution/v1",
+    "mainThread": {
+      "pid": 4344,
+      "tid": 4344,
+      "identified": true
+    },
+    "runTaskCount": 3887,
+    "longTaskCount": 1,
+    "longTasks": [
+      {
+        "startUs": 4993214944,
+        "durationMs": 134.35,
+        "timelineMs": {
+          "PrePaint": 0.01,
+          "HitTest": 0.04,
+          "EventDispatch": 0.12,
+          "FunctionCall": 0.05,
+          "FireAnimationFrame": 0.4,
+          "UpdateLayoutTree": 0.15,
+          "Layout": 0.1,
+          "Paint": 0.09
+        },
+        "topFunctions": [
+          {
+            "name": "(idle)",
+            "url": "",
+            "sampleMs": 13354
+          },
+          {
+            "name": "(program)",
+            "url": "",
+            "sampleMs": 1944
+          },
+          {
+            "name": "requestAnimationFrame",
+            "url": "",
+            "sampleMs": 90
+          },
+          {
+            "name": "getClientRects",
+            "url": "",
+            "sampleMs": 54
+          },
+          {
+            "name": "requestAnimationFrame",
+            "url": "",
+            "sampleMs": 44
+          },
+          {
+            "name": "(garbage collector)",
+            "url": "",
+            "sampleMs": 16
+          }
+        ],
+        "jsSampleCount": 15650
+      }
+    ],
+    "tourHandlerFrameHits": [],
+    "conclusion": "No cpu_profiler sample inside any over-50 ms task resolves to a tour-engine function or URL; recorded hits are empty.",
+    "limitation": "Function attribution covers JS self-time samples; C++-side work (layout, paint, raster) is attributed through the per-task timeline event sums. Long Tasks API container attribution remains window-level by design.",
+    "boundaryMs": 50,
+    "trace": {
+      "path": "/tmp/i2r2-rule3-trace.json",
+      "bytes": 5694770,
+      "sha256": "6b5388886db58481d7b08b6d474cabc38b82c5678839a77a3a03d27ec359ff98",
+      "committed": false,
+      "disclosure": "Raw trace kept outside the repository (size); identity recorded here. Parsed attribution committed."
+    },
+    "reparse": {
+      "disclosure": "Attribution re-parsed offline from the SAME recorded trace after a profile thread-matching fix (Profile/ProfileChunk events match by process, not main-thread tid). The measured series was not recomputed.",
+      "priorLongTaskCount": 1,
+      "priorTourHandlerFrameHits": []
+    }
+  },
+  "decomposition": {
+    "disclosure": "Non-official diagnostic: same settle contract, extra in-page pushState/MutationObserver instrumentation on its own cycle; never merged into the Rule 2 series.",
+    "samples": [
+      {
+        "from": "student-overview",
+        "to": "student-announcements",
+        "ms": 46.1
+      },
+      {
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 114.4
+      },
+      {
+        "from": "student-academics",
+        "to": "student-tasks",
+        "ms": 79
+      },
+      {
+        "from": "student-tasks",
+        "to": "student-events",
+        "ms": 39.5
+      },
+      {
+        "from": "student-events",
+        "to": "student-account",
+        "ms": 69.2
+      },
+      {
+        "from": "student-account",
+        "to": "student-help",
+        "ms": 80.9
+      },
+      {
+        "from": "student-help",
+        "to": "completed",
+        "ms": 14.7
+      }
+    ],
+    "routeChangesRecorded": 7,
+    "note": "Route changes land inside the click window (same React commit); the remainder is the incoming view mount plus the settle frames. Per-bucket ms are derived below when routeChange timestamps align with sample walls."
+  },
+  "cleanup": {
+    "chromeAfterClose": "none",
+    "nextAfterStop": "none",
+    "browserLifecycle": "supported chromium.launch/close",
+    "serverSupervision": "process-group SIGTERM then SIGKILL; pgrep absence recorded"
+  },
+  "sourceIdentity": {
+    "head": "3e40a2d7f5043a050c8a5f8ae7c72570fc170fba",
+    "worktree": "/tmp/student-src",
+    "clean": true,
+    "buildLog": "/tmp/student-build.log",
+    "buildExit": 0
+  },
+  "browser": {
+    "version": "158.0.8127.18",
+    "executable": "/home/z/.cache/ms-playwright/chromium-1254/chrome-linux64/chrome"
+  },
+  "fixtureSeam": {
+    "blockedExternal": 0,
+    "simulatedWritesAtOpen": 0,
+    "disclosure": "GET/PATCH of /api/onboarding state served by the A1 in-memory fixture; no database completion write occurs",
+    "simulatedWrites": 4
+  },
+  "measurementOverhead": {
+    "msPer2000Ticks": 5.4,
+    "positiveRects": 2000,
+    "disclosure": "The settle poller performs the same querySelector/getBoundingClientRect pair per frame; 2000 iterations bound its per-frame cost."
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-11-06T01:24:40.648Z"
+}

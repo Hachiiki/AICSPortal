@@ -1,0 +1,6 @@
+timestamp: 2026-11-06T01:46:11.534Z
+baseline SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+command: node scripts/onboarding/i2r3-linux-timing.mjs (probe-flagged worktree build served with next start)
+node: v24.22.2
+scope: I2 rules 2 and 3 Linux environment-specific measurements; thresholds unchanged

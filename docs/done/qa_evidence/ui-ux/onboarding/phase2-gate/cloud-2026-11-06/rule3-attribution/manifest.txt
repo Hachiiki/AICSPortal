@@ -1,0 +1,6 @@
+timestamp: 2026-11-06T01:34:12.504Z
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+command: node scripts/onboarding/i2r2-rule3-attribution.mjs
+node: v24.22.2
+browser: chromium 158.0.8127.18
+scope: Rule 3 long-task attribution (observer + CDP profiler) and the heavy-transition diagnostic; thresholds unchanged

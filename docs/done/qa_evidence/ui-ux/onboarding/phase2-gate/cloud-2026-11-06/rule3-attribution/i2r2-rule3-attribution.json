@@ -1,0 +1,654 @@
+{
+  "schema": "aics-i2r2-rule3-attribution/v1",
+  "startedAt": "2026-11-06T01:34:12.504Z",
+  "disclosures": [
+    "Dedicated cpu-profiler attribution pass; complements the traced pass in i2r2-student-cloud-timing (whose per-task timeline sums remain valid; its per-task sample alignment is superseded by this run).",
+    "Long-task windows come from the in-page Long Tasks API observer; profiler correlation uses the page time origin (Date.now() - performance.now()) mapped to the profiler epoch-microsecond timebase.",
+    "Draft thresholds unchanged: Rule 2 p95 100 ms; Rule 3 long task 50 ms."
+  ],
+  "server": {
+    "origin": "http://127.0.0.1:4322",
+    "mode": "next start (production compiler profile, committed source /tmp/student-src at HEAD)"
+  },
+  "profiler": null,
+  "rule3": {
+    "series": "eight viewport stops (1100/1024/900/800/700/390/800/1280) at 700px height, then 8x +400px and 8x -400px wheel scrolls, tour overlay open on a spotted step, reduced motion, cpu profiler at 250 us sampling",
+    "longTaskCount": 0,
+    "longTasks": [],
+    "tourHandlerFrameHits": [],
+    "seriesProfile": {
+      "totalSamples": 8224,
+      "samplingDisclosure": "This CDP build reported no usable timeDeltas, so self time is recorded as sample counts at the nominal 1 kHz interval (1 ms per sample); the relative distribution across functions is the attribution evidence, not absolute milliseconds.",
+      "byFunction": [
+        {
+          "name": "(idle)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 7667,
+          "nominalSelfMs": 7667
+        },
+        {
+          "name": "(program)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 459,
+          "nominalSelfMs": 459
+        },
+        {
+          "name": "getClientRects",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 8,
+          "nominalSelfMs": 8
+        },
+        {
+          "name": "e1",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 5,
+          "nominalSelfMs": 5
+        },
+        {
+          "name": "n",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 4,
+          "nominalSelfMs": 4
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 4,
+          "nominalSelfMs": 4
+        },
+        {
+          "name": "(garbage collector)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 4,
+          "nominalSelfMs": 4
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 4,
+          "nominalSelfMs": 4
+        },
+        {
+          "name": "v",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 3,
+          "nominalSelfMs": 3
+        },
+        {
+          "name": "requestAnimationFrame",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 3,
+          "nominalSelfMs": 3
+        },
+        {
+          "name": "l",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "t.useEffect",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/3794-7f7b4709fc32c932.js",
+          "bucket": "chunk:3794-7f7b4709fc32c932",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "lu",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "postMessage",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "np",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "oC",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "nR",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "az",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "iy",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 2,
+          "nominalSelfMs": 2
+        },
+        {
+          "name": "r7",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "od",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "tZ",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "cancel",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "now",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 1,
+          "nominalSelfMs": 1
+        }
+      ],
+      "byBucket": {
+        "(native)": 8145,
+        "chunk:8357-519ecbf214c80795": 21,
+        "chunk:4bd1b696-8cd12253b448cc13": 42,
+        "chunk:6490-1d1418c0f54ee449": 11,
+        "chunk:3794-7f7b4709fc32c932": 3,
+        "chunk:8409-6373923c44c3aac5": 2
+      }
+    },
+    "conclusion": "No long task over 50 ms occurred during the series; there is nothing to attribute on this platform.",
+    "boundaryMs": 50
+  },
+  "transition": {
+    "disclosure": "Diagnostic only: the same settle contract on repeated Back/Next alternations between student-announcements (dashboard) and student-academics (academics route); never merged into the Rule 2 series.",
+    "transitions": [
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 93.4
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 39.1
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 33.1
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 106
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 110.5
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 114.9
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 110.7
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 114.1
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 104.2
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 43.6
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 99.6
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 106.9
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 64.1
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 80
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 64.2
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 75
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 138.1
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 113.4
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 63.3
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 71
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 103
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 147.1
+      },
+      {
+        "dir": "next",
+        "from": "student-announcements",
+        "to": "student-academics",
+        "ms": 136.3
+      },
+      {
+        "dir": "back",
+        "from": "student-academics",
+        "to": "student-announcements",
+        "ms": 110.1
+      }
+    ],
+    "nextMs": [
+      93.4,
+      33.1,
+      110.5,
+      110.7,
+      104.2,
+      99.6,
+      64.1,
+      64.2,
+      138.1,
+      63.3,
+      103,
+      136.3
+    ],
+    "backMs": [
+      39.1,
+      106,
+      114.9,
+      114.1,
+      43.6,
+      106.9,
+      80,
+      75,
+      113.4,
+      71,
+      147.1,
+      110.1
+    ],
+    "profile": {
+      "totalSamples": 8830,
+      "samplingDisclosure": "This CDP build reported no usable timeDeltas, so self time is recorded as sample counts at the nominal 1 kHz interval (1 ms per sample); the relative distribution across functions is the attribution evidence, not absolute milliseconds.",
+      "byFunction": [
+        {
+          "name": "(idle)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 6980,
+          "nominalSelfMs": 6980
+        },
+        {
+          "name": "(program)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 768,
+          "nominalSelfMs": 768
+        },
+        {
+          "name": "getBoundingClientRect",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 126,
+          "nominalSelfMs": 126
+        },
+        {
+          "name": "tJ",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 87,
+          "nominalSelfMs": 87
+        },
+        {
+          "name": "(garbage collector)",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 59,
+          "nominalSelfMs": 59
+        },
+        {
+          "name": "getBoundingClientRect",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 47,
+          "nominalSelfMs": 47
+        },
+        {
+          "name": "removeChild",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 32,
+          "nominalSelfMs": 32
+        },
+        {
+          "name": "pushState",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 27,
+          "nominalSelfMs": 27
+        },
+        {
+          "name": "setAttribute",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 25,
+          "nominalSelfMs": 25
+        },
+        {
+          "name": "getClientRects",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 23,
+          "nominalSelfMs": 23
+        },
+        {
+          "name": "replaceState",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 22,
+          "nominalSelfMs": 22
+        },
+        {
+          "name": "tJ",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 18,
+          "nominalSelfMs": 18
+        },
+        {
+          "name": "setAttribute",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 16,
+          "nominalSelfMs": 16
+        },
+        {
+          "name": "appendChild",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 14,
+          "nominalSelfMs": 14
+        },
+        {
+          "name": "e5",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 14,
+          "nominalSelfMs": 14
+        },
+        {
+          "name": "(anonymous)",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 9,
+          "nominalSelfMs": 9
+        },
+        {
+          "name": "iy",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 9,
+          "nominalSelfMs": 9
+        },
+        {
+          "name": "iA",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 8,
+          "nominalSelfMs": 8
+        },
+        {
+          "name": "animate",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 7,
+          "nominalSelfMs": 7
+        },
+        {
+          "name": "cm",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 7,
+          "nominalSelfMs": 7
+        },
+        {
+          "name": "uO",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "e1",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/8357-519ecbf214c80795.js",
+          "bucket": "chunk:8357-519ecbf214c80795",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "tick",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "createElementNS",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "az",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "createElement",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "nP",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/4bd1b696-8cd12253b448cc13.js",
+          "bucket": "chunk:4bd1b696-8cd12253b448cc13",
+          "selfSamples": 6,
+          "nominalSelfMs": 6
+        },
+        {
+          "name": "setAttribute",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 5,
+          "nominalSelfMs": 5
+        },
+        {
+          "name": "t",
+          "url": "http://127.0.0.1:4322/_next/static/chunks/6490-1d1418c0f54ee449.js",
+          "bucket": "chunk:6490-1d1418c0f54ee449",
+          "selfSamples": 5,
+          "nominalSelfMs": 5
+        },
+        {
+          "name": "insertBefore",
+          "url": "",
+          "bucket": "(native)",
+          "selfSamples": 5,
+          "nominalSelfMs": 5
+        }
+      ],
+      "byBucket": {
+        "(native)": 8243,
+        "chunk:6490-1d1418c0f54ee449": 155,
+        "chunk:4bd1b696-8cd12253b448cc13": 277,
+        "chunk:8357-519ecbf214c80795": 103,
+        "chunk:3794-7f7b4709fc32c932": 38,
+        "chunk:8965-0fe5c45266026f5d": 10,
+        "chunk:8409-6373923c44c3aac5": 4
+      }
+    }
+  },
+  "cleanup": {
+    "chromeAfterClose": "none",
+    "nextAfterStop": "none",
+    "browserLifecycle": "supported chromium.launch/close"
+  },
+  "finishedAt": "2026-11-06T01:34:22.177Z"
+}

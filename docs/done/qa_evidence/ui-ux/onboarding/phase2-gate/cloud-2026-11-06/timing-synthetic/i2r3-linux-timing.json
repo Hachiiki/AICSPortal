@@ -1,0 +1,498 @@
+{
+  "schema": "aics-i2r3-linux-timing/v1",
+  "startedAt": "2026-11-06T01:46:11.534Z",
+  "disclosures": [
+    "Environment-specific: Linux cloud sandbox, production compiler profile via the probe-flagged worktree build.",
+    "Rule 2 timings are full student-visible transitions inside the synthetic tour (click to new spotlight settled twice two frames apart); they are not an isolated pure-handler CPU measurement.",
+    "Rule 3 long tasks are window-level Long Tasks API entries; ownership attribution beyond \"occurred while the tour was open\" is not claimed.",
+    "Rule 2 per-run aggregates (advances, p95, median, max) are computed from that run's 21 samples only; runs are never pooled.",
+    "Draft thresholds recorded unchanged: Rule 2 p95 100 ms; Rule 3 long task 50 ms."
+  ],
+  "rule2": [
+    {
+      "run": 1,
+      "advances": 21,
+      "p95Ms": 1648.5,
+      "maxMs": 1648.6,
+      "medianMs": 81.5,
+      "draftLimitMs": 100,
+      "samples": [
+        {
+          "run": 1,
+          "advance": 1,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 51.6
+        },
+        {
+          "run": 1,
+          "advance": 2,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 881.6
+        },
+        {
+          "run": 1,
+          "advance": 3,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.1
+        },
+        {
+          "run": 1,
+          "advance": 4,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.3
+        },
+        {
+          "run": 1,
+          "advance": 5,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.9
+        },
+        {
+          "run": 1,
+          "advance": 6,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.5
+        },
+        {
+          "run": 1,
+          "advance": 7,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.1
+        },
+        {
+          "run": 1,
+          "advance": 8,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 56.5
+        },
+        {
+          "run": 1,
+          "advance": 9,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 880.9
+        },
+        {
+          "run": 1,
+          "advance": 10,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.2
+        },
+        {
+          "run": 1,
+          "advance": 11,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.6
+        },
+        {
+          "run": 1,
+          "advance": 12,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81
+        },
+        {
+          "run": 1,
+          "advance": 13,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.3
+        },
+        {
+          "run": 1,
+          "advance": 14,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.2
+        },
+        {
+          "run": 1,
+          "advance": 15,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 57.4
+        },
+        {
+          "run": 1,
+          "advance": 16,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882
+        },
+        {
+          "run": 1,
+          "advance": 17,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.5
+        },
+        {
+          "run": 1,
+          "advance": 18,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.8
+        },
+        {
+          "run": 1,
+          "advance": 19,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.9
+        },
+        {
+          "run": 1,
+          "advance": 20,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.6
+        },
+        {
+          "run": 1,
+          "advance": 21,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 14.9
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "advances": 21,
+      "p95Ms": 1648.5,
+      "maxMs": 1648.6,
+      "medianMs": 81.7,
+      "draftLimitMs": 100,
+      "samples": [
+        {
+          "run": 2,
+          "advance": 1,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 56.7
+        },
+        {
+          "run": 2,
+          "advance": 2,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 881.8
+        },
+        {
+          "run": 2,
+          "advance": 3,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.7
+        },
+        {
+          "run": 2,
+          "advance": 4,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.9
+        },
+        {
+          "run": 2,
+          "advance": 5,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 82
+        },
+        {
+          "run": 2,
+          "advance": 6,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.6
+        },
+        {
+          "run": 2,
+          "advance": 7,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.4
+        },
+        {
+          "run": 2,
+          "advance": 8,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 57.4
+        },
+        {
+          "run": 2,
+          "advance": 9,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882.2
+        },
+        {
+          "run": 2,
+          "advance": 10,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.4
+        },
+        {
+          "run": 2,
+          "advance": 11,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.8
+        },
+        {
+          "run": 2,
+          "advance": 12,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.8
+        },
+        {
+          "run": 2,
+          "advance": 13,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.5
+        },
+        {
+          "run": 2,
+          "advance": 14,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 14.4
+        },
+        {
+          "run": 2,
+          "advance": 15,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 56.8
+        },
+        {
+          "run": 2,
+          "advance": 16,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882.2
+        },
+        {
+          "run": 2,
+          "advance": 17,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.5
+        },
+        {
+          "run": 2,
+          "advance": 18,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.6
+        },
+        {
+          "run": 2,
+          "advance": 19,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.6
+        },
+        {
+          "run": 2,
+          "advance": 20,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.2
+        },
+        {
+          "run": 2,
+          "advance": 21,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.1
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "advances": 21,
+      "p95Ms": 1648.4,
+      "maxMs": 1648.7,
+      "medianMs": 81.7,
+      "draftLimitMs": 100,
+      "samples": [
+        {
+          "run": 3,
+          "advance": 1,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 56.3
+        },
+        {
+          "run": 3,
+          "advance": 2,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882.1
+        },
+        {
+          "run": 3,
+          "advance": 3,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.5
+        },
+        {
+          "run": 3,
+          "advance": 4,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.9
+        },
+        {
+          "run": 3,
+          "advance": 5,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.9
+        },
+        {
+          "run": 3,
+          "advance": 6,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.2
+        },
+        {
+          "run": 3,
+          "advance": 7,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.2
+        },
+        {
+          "run": 3,
+          "advance": 8,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 58
+        },
+        {
+          "run": 3,
+          "advance": 9,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882
+        },
+        {
+          "run": 3,
+          "advance": 10,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 80.8
+        },
+        {
+          "run": 3,
+          "advance": 11,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.2
+        },
+        {
+          "run": 3,
+          "advance": 12,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.8
+        },
+        {
+          "run": 3,
+          "advance": 13,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.4
+        },
+        {
+          "run": 3,
+          "advance": 14,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.3
+        },
+        {
+          "run": 3,
+          "advance": 15,
+          "from": "dev-1",
+          "to": "dev-2",
+          "ms": 57.6
+        },
+        {
+          "run": 3,
+          "advance": 16,
+          "from": "dev-2",
+          "to": "dev-3",
+          "ms": 882
+        },
+        {
+          "run": 3,
+          "advance": 17,
+          "from": "dev-3",
+          "to": "dev-4",
+          "ms": 81.4
+        },
+        {
+          "run": 3,
+          "advance": 18,
+          "from": "dev-4",
+          "to": "dev-5",
+          "ms": 81.8
+        },
+        {
+          "run": 3,
+          "advance": 19,
+          "from": "dev-5",
+          "to": "dev-6",
+          "ms": 81.7
+        },
+        {
+          "run": 3,
+          "advance": 20,
+          "from": "dev-6",
+          "to": "dev-8",
+          "ms": 1648.7
+        },
+        {
+          "run": 3,
+          "advance": 21,
+          "from": "dev-8",
+          "to": "completed",
+          "ms": 15.4
+        }
+      ]
+    }
+  ],
+  "rule3": {
+    "series": "six viewport-width stops (1280/1100/1024/1180/900/1280), each with a 600px scroll down and back at reduced motion, tour overlay open on a spotted step",
+    "longTasks": [],
+    "count": 0,
+    "maxMs": 0,
+    "boundaryMs": 50,
+    "attribution": "window-level entries only; the Long Tasks API reports no script ownership, so attribution to tour handlers is NOT claimed"
+  },
+  "cleanup": {
+    "chromeAfterClose": "none",
+    "nextAfterStop": "none",
+    "browserLifecycle": "supported chromium.launch/close"
+  },
+  "finishedAt": "2026-11-06T01:46:45.187Z"
+}

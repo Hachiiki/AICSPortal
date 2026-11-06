@@ -1,0 +1,9 @@
+timestamp: 2026-11-06T01:24:06.419Z
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+command: node scripts/onboarding/i2r2-student-cloud-timing.mjs
+node: v24.22.2
+browser: chromium 158.0.8127.18 (/home/z/.cache/ms-playwright/chromium-1254/chrome-linux64/chrome)
+cpu: Intel(R) Xeon(R) Processor x2 (cgroup null), mem 4160 MB
+source worktree: /tmp/student-src (clean, committed-source production webpack build)
+raw trace: /tmp/i2r2-rule3-trace.json sha256 6b5388886db58481d7b08b6d474cabc38b82c5678839a77a3a03d27ec359ff98 (not committed; parsed attribution committed)
+scope: I2 Rule 2 approved ordinary-transition test (real student tour) + Rule 3 window-level and CDP-attributed series; thresholds unchanged
