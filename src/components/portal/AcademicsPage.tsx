@@ -19,6 +19,7 @@ import { MaterialsTab } from './MaterialsTab'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { ACADEMICS_TAB_TITLES, setPageTitle } from '@/lib/aics/page-titles'
+import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
 // One-shot focus handoff for bell deep-links (refs #37-review): the
 // Topbar stores { tab:'tasks', subjectCode, taskId } when a task
@@ -196,9 +197,9 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
 
 export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
   const [academicsFocus] = useState(readAcademicsFocus)
-  const [activeTab, setActiveTab] = useState<'grades' | 'subjects' | 'tasks' | 'materials'>(
-    academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades'
-  )
+  const { route, navigate } = usePortalRoute()
+  const activeTab = route.view === 'academics' ? route.tab ?? (academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades') : 'grades'
+  const setActiveTab = (tab: AcademicsTab) => { if (route.view === 'academics') navigate({ ...route, tab }) }
   const focusTask = academicsFocus.tab === 'tasks' && academicsFocus.taskId
     ? { subjectCode: academicsFocus.subjectCode || '', taskId: academicsFocus.taskId }
     : null
@@ -251,7 +252,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
 
           {/* Mini-tab switcher — scrolls horizontally when tabs exceed the
               container width (phones), no visible scrollbar */}
-          <div className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div data-tour="academics-tabs" className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               type="button"
               onClick={() => setActiveTab('grades')}
@@ -273,6 +274,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('tasks')}
+              data-tour="academics-tab-tasks"
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}

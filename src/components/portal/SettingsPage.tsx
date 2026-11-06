@@ -1,5 +1,9 @@
 'use client'
 
+import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
+import { usePortalRoute, type SettingsSection } from '@/lib/aics/use-portal-route'
+import { useDestinationFocus } from '@/lib/aics/use-destination-focus'
+
 import { useEffect, useRef, useState } from 'react'
 import {
   ChevronLeft,
@@ -78,13 +82,18 @@ interface SettingsPageProps {
   onStudentPatch?: (patch: Partial<Student>) => void
 }
 
-type Section = 'profile' | 'security' | 'notifications' | 'privacy' | 'appearance'
+type Section = SettingsSection
 
 // Matches PHOTO_MAX_BYTES on the server (POST /api/student/photo).
 const PHOTO_MAX_BYTES = 5 * 1024 * 1024
 
 export function SettingsPage({ student, onNavigate, onLogout, events, professors, tasks, facultyData, inbox, onStudentPatch }: SettingsPageProps) {
-  const [activeSection, setActiveSection] = useState<Section>('profile')
+  const onboarding = useStudentOnboarding()
+  const { route, navigate } = usePortalRoute()
+  const activeSection = route.view === 'settings' ? route.section ?? 'profile' : 'profile'
+  const setActiveSection = (section: Section) => { if (route.view === 'settings') navigate({ ...route, section, focus: undefined }) }
+  useDestinationFocus('settings-password', route.view === 'settings' && route.focus === 'password' && activeSection === 'security')
+  useDestinationFocus('settings-photo', route.view === 'settings' && route.focus === 'photo' && activeSection === 'profile')
 
   // Appearance selector state (dark-theme plan §6, Phase 1 control 2).
   // `theme` is the stored preference (light/dark/system); the mounted
@@ -240,6 +249,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
 
       onStudentPatch?.({ photoUrl: up.secure_url as string })
       toast.success('Profile photo updated.')
+      void onboarding?.client.complete('photo')
 
       // 5. Fire-and-forget: destroy the replaced asset so it does not
       //    orphan in Cloudinary. Server validates it is the user's own.
@@ -357,6 +367,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       const data = await res.json()
       if (data.ok) {
         toast.success('Password changed successfully.')
+        onboarding?.client.passwordChanged(data.onboardingPersisted === true)
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')
@@ -443,7 +454,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 {/* Photo — direct browser→Cloudinary upload, signed server-side.
                     The upload button stays disabled until the storage consent
                     checkbox is ticked (third-party transfer disclosure). */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div id="settings-photo" tabIndex={-1} className="scroll-mt-32 flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="relative w-20 h-20 flex-shrink-0">
                     {photoPreview || student.photoUrl ? (
                       <img
@@ -596,7 +607,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           {activeSection === 'security' && (
             <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
-                <h2 className="text-base font-semibold text-slate-900">Change password</h2>
+                <h2 id="settings-password" tabIndex={-1} className="scroll-mt-32 text-base font-semibold text-slate-900">Change password</h2>
                 <p className="text-xs text-slate-500 mt-0.5">Use at least 6 characters. Mix letters and numbers for stronger security.</p>
               </div>
               <div className="px-6 py-5 space-y-4">

@@ -8,6 +8,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import { PortalShell } from './PortalShell'
+import { StudentOnboardingHelp } from '@/components/onboarding/StudentOnboarding'
 
 interface HelpSupportPageProps {
   student: Student
@@ -86,6 +87,7 @@ export function HelpSupportPage({ student, onNavigate, onLogout, events, profess
           </p>
         </div>
 
+        <StudentOnboardingHelp />
         <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
             <CircleHelp className="w-4 h-4 text-link" />
