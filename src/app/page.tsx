@@ -438,6 +438,20 @@ function StudentDataWrapper({
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksLoading, setTasksLoading] = useState(true)
   const [tasksError, setTasksError] = useState<string | null>(null)
+  const retryTasks = useCallback(async () => {
+    setTasksLoading(true)
+    setTasksError(null)
+    try {
+      const res = await fetch(`/api/tasks?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to load tasks')
+      setTasks(data.tasks)
+    } catch (error) {
+      setTasksError(error instanceof Error ? error.message : 'Network error')
+    } finally {
+      setTasksLoading(false)
+    }
+  }, [username])
 
   const [events, setEvents] = useState<PortalEvent[]>([])
   const [eventsLoading, setEventsLoading] = useState(true)
@@ -963,6 +977,7 @@ function StudentDataWrapper({
         tasksLoading={tasksLoading}
         tasksError={tasksError}
         setTasks={setTasks}
+        onRetryTasks={retryTasks}
         events={events}
         professors={professors}
       />

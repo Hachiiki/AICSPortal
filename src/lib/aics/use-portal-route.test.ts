@@ -18,3 +18,14 @@ test('unknown tabs and focus targets never become executable navigation', () => 
   expect(parsePath('/portal/commonwealth/student/juan.santos/settings?section=unknown#other')).toEqual({ ...identity, view: 'settings' })
   expect(parsePath('/portal/commonwealth/student/juan.santos/academics?tab=other')).toEqual({ ...identity, view: 'academics' })
 })
+
+test('task links preserve the selected task across navigation and reload', () => {
+  const task = { ...identity, view: 'academics' as const, tab: 'tasks' as const, taskId: 'task-42', subjectCode: 'CS 201' }
+  expect(parsePath(routeToPath(task))).toEqual(task)
+  expect(routeToPath(task)).not.toBe(routeToPath({ ...task, taskId: 'task-43' }))
+  expect(routeToPath(task)).toContain('subject=CS+201')
+})
+
+test('task focus is ignored outside the Tasks section', () => {
+  expect(parsePath('/portal/commonwealth/student/juan.santos/academics?tab=grades&task=task-42&subject=CS201')).toEqual({ ...identity, view: 'academics', tab: 'grades' })
+})

@@ -47,6 +47,7 @@ interface AcademicsPageProps {
   tasksLoading: boolean
   tasksError: string | null
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+  onRetryTasks?: () => void
   inbox?: NotificationInbox
   // Search index collections — lifted in the parent so the
   // Topbar's global search works the same on every screen.
@@ -195,12 +196,14 @@ function exportAllSubjectsPDF(student: Student, allSubjects: Subject[], cumulati
   })
 }
 
-export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, events, professors, inbox }: AcademicsPageProps) {
+export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoading, tasksError, setTasks, onRetryTasks, events, professors, inbox }: AcademicsPageProps) {
   const [academicsFocus] = useState(readAcademicsFocus)
   const { route, navigate } = usePortalRoute()
   const activeTab = route.view === 'academics' ? route.tab ?? (academicsFocus.tab === 'tasks' ? 'tasks' : academicsFocus.tab === 'materials' ? 'materials' : 'grades') : 'grades'
   const setActiveTab = (tab: AcademicsTab) => { if (route.view === 'academics') navigate({ ...route, tab }) }
-  const focusTask = academicsFocus.tab === 'tasks' && academicsFocus.taskId
+  const focusTask = route.view === 'academics' && route.tab === 'tasks' && route.taskId
+    ? { subjectCode: route.subjectCode || '', taskId: route.taskId }
+    : academicsFocus.tab === 'tasks' && academicsFocus.taskId
     ? { subjectCode: academicsFocus.subjectCode || '', taskId: academicsFocus.taskId }
     : null
 
@@ -252,10 +255,11 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
 
           {/* Mini-tab switcher — scrolls horizontally when tabs exceed the
               container width (phones), no visible scrollbar */}
-          <div data-tour="academics-tabs" className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div data-tour="academics-tabs" role="group" aria-label="Academic sections" className="grid grid-cols-2 min-[380px]:grid-cols-4 sm:inline-flex gap-1 p-1 rounded-xl bg-slate-100 max-w-full">
             <button
               type="button"
               onClick={() => setActiveTab('grades')}
+              aria-pressed={activeTab === 'grades'}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
@@ -265,6 +269,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('subjects')}
+              aria-pressed={activeTab === 'subjects'}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
@@ -274,6 +279,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('tasks')}
+              aria-pressed={activeTab === 'tasks'}
               data-tour="academics-tab-tasks"
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -284,6 +290,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             <button
               type="button"
               onClick={() => setActiveTab('materials')}
+              aria-pressed={activeTab === 'materials'}
               className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
                 activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
@@ -437,6 +444,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               loading={tasksLoading}
               error={tasksError}
               setTasks={setTasks}
+              onRetry={onRetryTasks}
               focusTask={focusTask}
             />
           )}

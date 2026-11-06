@@ -117,7 +117,7 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
     {children}
     <p className="sr-only" role="status" aria-live="polite">{announcement || (tourUpdate.pending ? 'A student tour update is available in Help & Support.' : '')}</p>
     {active && welcome && !running && <div className="fixed inset-0 z-50 grid place-items-center bg-scrim/40 p-4">
-      <DialogPanel onClose={closeWelcome} aria-labelledby="student-welcome-title" className="relative w-full max-w-md rounded-xl border border-border bg-surface p-6 text-ink shadow-xl">
+      <DialogPanel onClose={closeWelcome} aria-labelledby="student-welcome-title" className="relative w-full max-w-md max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface p-5 sm:p-6 text-ink shadow-xl">
         <Button variant="ghost" size="icon" className="absolute right-3 top-3" aria-label="Close welcome" onClick={closeWelcome}><X aria-hidden /></Button>
         <Compass className="mb-4 size-8 text-link" aria-hidden />
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-fg">Your student portal</p>
@@ -135,6 +135,7 @@ export function StudentOnboardingProvider({ student, enabled, children }: { stud
 }
 
 export function StudentGettingStarted() {
+  const [expanded, setExpanded] = useState(false)
   const journey = useStudentOnboarding()
   if (!journey) return null
   const { state, client } = journey
@@ -142,12 +143,13 @@ export function StudentGettingStarted() {
   const done = dimensions.filter(d => state.values[d.key]).length
   if (state.preferences.checklistDismissed || done === dimensions.length) return null
   return <section aria-labelledby="getting-started-title" className="rounded-xl border border-border bg-surface p-5 text-ink shadow-sm" data-tour="student-getting-started">
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-wrap sm:flex-nowrap items-start justify-between gap-2 sm:gap-4">
       <div><h2 id="getting-started-title" className="text-base font-semibold">Getting started</h2><p className="mt-1 text-sm text-muted-fg">A few steps to make the portal yours. You can return to this list from Help &amp; Support.</p></div>
-      <Button variant="ghost" size="sm" onClick={() => void client.update({}, { checklistDismissed: true })}>Hide checklist</Button>
+      <Button variant="ghost" size="sm" className="min-h-11 sm:min-h-8" onClick={() => void client.update({}, { checklistDismissed: true })}>Hide checklist</Button>
     </div>
     <div className="my-4 flex items-center gap-3"><progress className="h-2 w-full accent-current" value={done} max={dimensions.length} aria-label="Getting started progress" /><span className="shrink-0 text-xs text-muted-fg">{done} of {dimensions.length} complete</span></div>
-    <ul className="divide-y divide-border">{dimensions.map(d => <li key={d.key} className="flex items-center gap-3 py-3">
+    <button type="button" aria-expanded={expanded} aria-controls="student-checklist-items" onClick={() => setExpanded(!expanded)} className="sm:hidden mb-1 flex min-h-11 w-full items-center justify-between rounded-lg border border-border px-3 text-sm font-semibold text-link">{expanded ? 'Collapse setup steps' : 'Show setup steps'}<ChevronRight className={expanded ? 'size-4 -rotate-90' : 'size-4 rotate-90'} aria-hidden /></button>
+    <ul id="student-checklist-items" className={expanded ? 'divide-y divide-border' : 'hidden sm:block divide-y divide-border'}>{dimensions.map(d => <li key={d.key} className="flex items-center gap-3 py-3">
       <span className="grid size-6 shrink-0 place-items-center rounded-full border border-border" aria-hidden>{state.values[d.key] && <Check className="size-4" />}</span>
       <span className="min-w-0 flex-1 text-sm font-medium">{d.label}{state.values[d.key] && <span className="ml-2 text-xs font-normal text-muted-fg">Complete</span>}</span>
       {!state.values[d.key] && <Button variant="ghost" size="sm" aria-label={d.key === 'tour' ? 'Start student guided tour' : d.label} onClick={event => d.key === 'tour' ? journey.start(event.currentTarget) : journey.openChecklistItem(d.key)}>{d.key === 'tour' ? 'Start tour' : 'Open'}<ChevronRight className="size-4" aria-hidden /></Button>}

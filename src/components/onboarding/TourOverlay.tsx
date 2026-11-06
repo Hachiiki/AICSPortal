@@ -104,6 +104,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
   const reduced = useReducedMotion()
   const headingId = useId()
+  const bodyId = useId()
   const headingRef = useRef<HTMLHeadingElement | null>(null)
   const cardWrapRef = useRef<HTMLDivElement | null>(null)
   const everFoundRef = useRef(false)
@@ -174,7 +175,11 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
     if (disposition === 'spot' && el && !ensuredVisibleRef.current) {
       ensuredVisibleRef.current = true
-      el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
+      const mobile = !window.matchMedia(SHEET_QUERY).matches
+      if (mobile && !el.closest('header')) {
+        const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
+        window.scrollBy({ top: el.getBoundingClientRect().top - Math.max(headerBottom, 0) - 16, behavior: reduced ? 'instant' : 'smooth' })
+      } else el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
     }
 
     const vpt = { width: window.innerWidth, height: window.innerHeight }
@@ -287,11 +292,31 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     }
   }, [schedule])
 
+  // The guide is non-modal, so keyboard users can explore the same page as
+  // pointer users. Escape leaves the guide unless a menu/dialog above it owns it.
+  useEffect(() => {
+    const handleGuideKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      const active = document.activeElement as HTMLElement | null
+      const otherOverlay = active?.closest('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')
+      if (otherOverlay && !cardWrapRef.current?.contains(otherOverlay)) return
+      if (event.altKey && event.key.toLowerCase() === 'g') {
+        event.preventDefault()
+        headingRef.current?.focus({ preventScroll: true })
+      } else if (event.key === 'Escape') {
+        event.preventDefault()
+        onFinish(false)
+      }
+    }
+    document.addEventListener('keydown', handleGuideKey)
+    return () => document.removeEventListener('keydown', handleGuideKey)
+  }, [onFinish])
+
   if (!step) return null
 
   const isLast = index === total - 1
   const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
-  const showSpotlight = layout.disposition === 'spot' && !sheet
+  const showSpotlight = layout.disposition === 'spot'
 
   return (
     <div
@@ -346,17 +371,20 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? 'fixed inset-x-3 bottom-3' : 'absolute',
+          sheet ? 'fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >
         <DialogPanel
           onClose={() => onFinish(false)}
+          trapFocus={false}
+          aria-modal={false}
           aria-labelledby={headingId}
+          aria-describedby={bodyId}
           data-tour-card=""
           className={cn(
-            'rounded-xl border border-border bg-surface p-4 text-ink shadow-xl',
-            sheet ? 'rounded-b-sm' : 'w-72 max-w-[calc(100vw-24px)]'
+            'max-h-[calc(100dvh-24px)] overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface p-4 text-ink shadow-xl',
+            sheet ? 'max-h-[min(55dvh,calc(100dvh-24px))]' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
           <p className="text-xs font-medium text-muted-fg">
@@ -365,8 +393,9 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-sm font-bold outline-none">
             {step.title}
           </h2>
-          <p className="mt-1.5 text-sm text-muted-fg">{step.body}</p>
-          <div className="mt-4 flex items-center justify-between gap-2">
+          <p id={bodyId} className="mt-1.5 text-sm text-muted-fg">{step.body}</p>
+          <p className="mt-2 text-xs text-muted-fg">Explore the highlighted area. Press Alt+G to return to this guide.</p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 [&_button]:min-h-11 sm:[&_button]:min-h-8">
             <Button
               type="button"
               variant="ghost"

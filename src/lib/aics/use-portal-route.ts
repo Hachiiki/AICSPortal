@@ -30,7 +30,7 @@ export type PortalRoute =
   | { view: 'login' }
   | { view: 'dashboard'; branch: string; username: string; role: PortalRole; focus?: 'announcements' }
   | { view: 'profile'; branch: string; username: string; role: PortalRole; focus?: 'profile' }
-  | { view: 'academics'; branch: string; username: string; role: PortalRole; tab?: AcademicsTab }
+  | { view: 'academics'; branch: string; username: string; role: PortalRole; tab?: AcademicsTab; taskId?: string; subjectCode?: string }
   | { view: 'events'; branch: string; username: string; role: PortalRole }
   | { view: 'professors'; branch: string; username: string; role: PortalRole }
   | { view: 'enrollment'; branch: string; username: string; role: PortalRole }
@@ -96,7 +96,9 @@ export function parsePath(path: string): PortalRoute {
     }
     if (parts[4] === 'academics') {
       const tab = location.searchParams.get('tab')
-      return { view: 'academics', branch, username, role, ...(['grades', 'subjects', 'tasks', 'materials'].includes(tab ?? '') ? { tab: tab as AcademicsTab } : {}) }
+      return { view: 'academics', branch, username, role,
+        ...(['grades', 'subjects', 'tasks', 'materials'].includes(tab ?? '') ? { tab: tab as AcademicsTab } : {}),
+        ...(tab === 'tasks' && location.searchParams.get('task') ? { taskId: location.searchParams.get('task')!, subjectCode: location.searchParams.get('subject') ?? '' } : {}) }
     }
     if (parts[4] === 'events') {
       return { view: 'events', branch, username, role }
@@ -149,8 +151,15 @@ export function routeToPath(route: PortalRoute): string {
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}${route.focus ? '#announcements' : ''}`
     case 'profile':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/profile${route.focus ? '#profile' : ''}`
-    case 'academics':
-      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/academics${route.tab ? `?tab=${route.tab}` : ''}`
+    case 'academics': {
+      const query = new URLSearchParams()
+      if (route.tab) query.set('tab', route.tab)
+      if (route.tab === 'tasks' && route.taskId) {
+        query.set('task', route.taskId)
+        if (route.subjectCode) query.set('subject', route.subjectCode)
+      }
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/academics${query.size ? `?${query}` : ''}`
+    }
     case 'events':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
     case 'professors':

@@ -84,7 +84,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className="lg:pl-60">
+      <div className="min-w-0 lg:pl-60" inert={mobileNavOpen}>
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}

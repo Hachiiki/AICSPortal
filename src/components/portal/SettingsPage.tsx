@@ -419,7 +419,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           {/* Section tabs — scroll horizontally when they exceed the
               container width (phones), no visible scrollbar */}
           <div
-            className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full"
             role="tablist"
             aria-label="Settings sections"
           >

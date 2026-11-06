@@ -29,9 +29,11 @@ const FOCUSABLE =
 interface DialogPanelProps extends HTMLMotionProps<'div'> {
   /** Called when the user presses Escape. */
   onClose: () => void
+  /** Interactive guides allow access to the page; ordinary dialogs trap focus. */
+  trapFocus?: boolean
 }
 
-export function DialogPanel({ onClose, children, ...rest }: DialogPanelProps) {
+export function DialogPanel({ onClose, trapFocus = true, children, ...rest }: DialogPanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null)
   const onCloseRef = useRef(onClose)
   const restoreRef = useRef<HTMLElement | null>(null)
@@ -56,7 +58,7 @@ export function DialogPanel({ onClose, children, ...rest }: DialogPanelProps) {
         onCloseRef.current()
         return
       }
-      if (e.key === 'Tab') {
+      if (e.key === 'Tab' && trapFocus) {
         const nodes = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
           (el) => el.getClientRects().length > 0
         )
@@ -82,7 +84,7 @@ export function DialogPanel({ onClose, children, ...rest }: DialogPanelProps) {
       panel.removeEventListener('keydown', handleKey)
       restoreRef.current?.focus?.()
     }
-  }, [])
+  }, [trapFocus])
 
   return (
     <motion.div

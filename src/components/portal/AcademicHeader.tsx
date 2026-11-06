@@ -20,16 +20,14 @@ interface AcademicHeaderProps {
  *
  * Below lg breakpoint, the deck stacks full-width under the stats.
  */
-export function AcademicHeader({ student, totalUnits, announcements, announcementReadIds }: AcademicHeaderProps) {
-  const { route } = usePortalRoute()
-  useDestinationFocus('student-announcements', route.view === 'dashboard' && route.focus === 'announcements')
+export function AcademicHeader({ student, totalUnits }: AcademicHeaderProps) {
   return (
     <motion.section
       data-tour="student-overview"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start"
+      className="min-w-0"
     >
       {/* Left column: hero text + stats */}
       <div className="flex-1 min-w-0">
@@ -40,11 +38,11 @@ export function AcademicHeader({ student, totalUnits, announcements, announcemen
           Welcome back, {student.firstName}!
         </h1>
         <p className="mt-1.5 text-sm text-slate-600">
-          {student.program} &bull; {student.yearLevel} &bull; {student.section}
+          <span className="sm:hidden">{student.programShort}</span><span className="hidden sm:inline">{student.program}</span> &bull; {student.yearLevel} &bull; {student.section}
         </p>
 
         {/* Stats row */}
-        <div className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
+        <div className="mt-4 sm:mt-6 grid grid-cols-2 min-[380px]:grid-cols-4 sm:flex sm:flex-wrap items-end gap-x-4 sm:gap-x-8 gap-y-3">
           <Stat label="GPA" value={student.gpa} />
           <Divider />
           <Stat label="Units Enrolled" value={String(totalUnits)} />
@@ -59,19 +57,26 @@ export function AcademicHeader({ student, totalUnits, announcements, announcemen
         </div>
       </div>
 
-      <div id="student-announcements" tabIndex={-1} data-tour="student-announcements" className="scroll-mt-32 w-full lg:w-[470px] shrink-0">
+    </motion.section>
+  )
+}
+
+export function AcademicAnnouncements({ student, announcements, announcementReadIds }: Omit<AcademicHeaderProps, 'totalUnits'>) {
+  const { route } = usePortalRoute()
+  useDestinationFocus('student-announcements', route.view === 'dashboard' && route.focus === 'announcements')
+  return (
+      <section id="student-announcements" tabIndex={-1} data-tour="student-announcements" aria-label="Campus announcements" className="scroll-mt-36 min-w-0 lg:order-2">
       {announcements && announcements.length > 0 ? (
         <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
       ) : <div className="rounded-xl border border-border bg-surface p-5 text-ink"><h2 className="text-sm font-semibold">Announcements</h2><p className="mt-2 text-sm text-muted-fg">No announcements right now. Check here for campus updates.</p></div>}
-      </div>
-    </motion.section>
+      </section>
   )
 }
 
 function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+      <p className="text-[11px] font-medium text-slate-500">
         {label}
       </p>
       {/* Exact pre-Stage-2B light hexes (v4 oklch palette shades render

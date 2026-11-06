@@ -21,6 +21,7 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
 import { formatNotifTime } from '@/lib/aics/notifications'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 
 interface TopbarProps {
   student: Student
@@ -56,6 +57,7 @@ export function Topbar({
   taskGroups,
   inbox,
 }: TopbarProps) {
+  const { navigate } = usePortalRoute()
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
@@ -75,10 +77,8 @@ export function Topbar({
   const openNotification = (n: Notification) => {
     inbox?.onMark(n._id)
     if (n.taskId) {
-      try {
-        window.sessionStorage.setItem('aics_academics_focus', JSON.stringify({ tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId }))
-      } catch {}
-      onNavigate('academics')
+      if (student.role === 'faculty') onNavigate('tasks')
+      else if (student.role !== 'admin') navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId })
     }
   }
 
@@ -94,13 +94,13 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 h-16 bg-surface border-b border-slate-200"
+      className="sticky top-0 z-20 bg-surface border-b border-slate-200 sm:h-16"
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="h-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1 px-4 pb-3 pt-1 sm:py-0 sm:gap-3 sm:px-6 lg:px-8">
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <button
@@ -108,10 +108,13 @@ export function Topbar({
             onClick={onOpenMobileNav}
             aria-label="Open navigation menu"
             data-tour="topbar-mobile-nav"
-            className="lg:hidden p-2 -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-haspopup="dialog"
+            aria-controls="mobile-navigation"
+            className="lg:hidden size-11 grid place-items-center -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <Menu className="w-5 h-5" />
           </button>
+          <span className="sm:hidden text-sm font-semibold text-slate-900">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
@@ -122,7 +125,7 @@ export function Topbar({
         </div>
 
         {/* Center — global search */}
-        <div className="flex-1 flex justify-center min-w-0">
+        <div className="order-last basis-full sm:order-none sm:basis-0 flex-1 flex justify-center min-w-0">
           <GlobalSearch
             student={student}
             events={events}
@@ -135,14 +138,14 @@ export function Topbar({
         </div>
 
         {/* Right — theme toggle + notifications + profile dropdown + logout */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-0.5 sm:gap-3 flex-shrink-0">
           {/* Theme quick toggle. First in the right cluster so the
               pre-existing controls keep their exact positions. */}
           <button
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="size-11 sm:size-9 grid place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -161,7 +164,7 @@ export function Topbar({
                 type="button"
                 aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
                 data-tour="topbar-notifications"
-                className="relative p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="relative size-11 sm:size-9 grid place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <Bell className="w-5 h-5" aria-hidden />
                 {unread > 0 && (
@@ -173,7 +176,7 @@ export function Topbar({
                 )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-128px)] overflow-y-auto">
               <div className="px-2 py-1.5 flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900">Notifications</p>
                 {unread > 0 && (

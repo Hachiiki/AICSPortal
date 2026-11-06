@@ -89,23 +89,23 @@ export function CalendarGrid({
   return (
     <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Calendar header */}
-      <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-between sm:justify-start">
           <button
             type="button"
             onClick={onPrev}
             aria-label="Previous month"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="size-11 sm:size-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={onToday}
-            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50"
+            className="min-h-11 sm:min-h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50"
           >
             Today
           </button>
@@ -113,7 +113,7 @@ export function CalendarGrid({
             type="button"
             onClick={onNext}
             aria-label="Next month"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="size-11 sm:size-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
