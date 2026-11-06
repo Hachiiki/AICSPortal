@@ -1,0 +1,137 @@
+{
+  "startedAt": "2026-11-06T05:15:12.880Z",
+  "sourceHead": "e4b24089428c86321aa6f27a27b26627f340b674",
+  "database": "aics_onboarding_acceptance_b220f1cac06f472bae2b84a9ae08f8ba",
+  "origin": "http://127.0.0.1:4318",
+  "runtime": "v24.22.1",
+  "assertions": [
+    {
+      "name": "production server is ready and its listener belongs to this run",
+      "pass": true
+    },
+    {
+      "name": "real synthetic login for phase3.returning",
+      "pass": true
+    },
+    {
+      "name": "real synthetic login for phase3.fresh",
+      "pass": true
+    },
+    {
+      "name": "real synthetic login for phase3.other",
+      "pass": true
+    },
+    {
+      "name": "fresh student starts at the current tour release",
+      "pass": true
+    },
+    {
+      "name": "legacy student keeps completed steps and has an unread update",
+      "pass": true
+    },
+    {
+      "name": "real API confirms the database progress write",
+      "pass": true
+    },
+    {
+      "name": "MongoDB contains completed progress and checklist dismissal",
+      "pass": true
+    },
+    {
+      "name": "injected identity fields still update only the session student",
+      "pass": true
+    },
+    {
+      "name": "another student cannot change the returning student photo progress",
+      "pass": true
+    },
+    {
+      "name": "another branch starts with independent progress",
+      "pass": true
+    },
+    {
+      "name": "unauthenticated progress access is denied",
+      "pass": true
+    },
+    {
+      "name": "opening Help reads the update and clears its notification dot",
+      "pass": true
+    },
+    {
+      "name": "reading the update leaves the tour closed",
+      "pass": true
+    },
+    {
+      "name": "dismissal survives a real page reload",
+      "pass": true
+    },
+    {
+      "name": "fresh student sees welcome without an old-update prompt",
+      "pass": true
+    },
+    {
+      "name": "real saved exploration suppresses welcome after reload",
+      "pass": true
+    },
+    {
+      "name": "logout succeeds",
+      "pass": true
+    },
+    {
+      "name": "logout revokes the original session",
+      "pass": true
+    },
+    {
+      "name": "real synthetic login for phase3.returning",
+      "pass": true
+    },
+    {
+      "name": "new login restores progress, dismissal and update acknowledgment from MongoDB",
+      "pass": true
+    },
+    {
+      "name": "desktop browser produced no page errors",
+      "pass": true
+    }
+  ],
+  "cleanup": {
+    "browserClosed": true,
+    "processes": {
+      "records": [
+        {
+          "name": "student-acceptance-server",
+          "supervisorPid": 16208,
+          "rootPid": 12528,
+          "cleanupAttempted": true,
+          "cleanupFailed": false,
+          "terminationConfirmed": true,
+          "jobEmpty": true,
+          "stopped": true,
+          "fallbackAttempted": false,
+          "browserPids": [],
+          "remainingBrowserProcesses": null,
+          "supervisorExit": {
+            "code": 0,
+            "signal": null
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    },
+    "syntheticDatabaseRemoved": true
+  },
+  "sourceHashes": {
+    "src/components/onboarding/StudentOnboarding.tsx": "8b14aee456751eb62a6fa6f9f3a7b3becbcc2a90465d6ae5b4a12f2fa139483b",
+    "src/components/portal/Sidebar.tsx": "d4bdc2739d326c5913ff613ee0fdd63b5f8c459604b9a91d1358fb8e16a7a95c",
+    "src/lib/onboarding/student-client.ts": "1aeac529793861df69311a8d530741eef5bf69b1cdf842f87d53b7b4379e22ae",
+    "src/lib/onboarding/preferences.ts": "012d0048943142657fcfe58cf3dd355ec3f3531c853e6c63a15dae99d56a55de",
+    "src/lib/onboarding/registry.ts": "d0d11cba0d9c2f8259a69b3c0b2a37063b85f472379cc16db2b83ceec9abccab",
+    "src/app/api/onboarding/state/route.ts": "5d7a4bf998149bdef2e81e0e464a25268ec13b9a8ed7250844e63a205742dc90",
+    "scripts/onboarding/phase3-student-acceptance.mjs": "8e546a23866e96022c30344b86d5c446322762873c7cea9b334a17eb8a7c0957"
+  },
+  "browserVersion": "156.0.4314.58",
+  "pageErrors": [],
+  "pass": true,
+  "finishedAt": "2026-11-06T05:17:24.397Z"
+}
