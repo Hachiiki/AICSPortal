@@ -1,0 +1,8 @@
+timestamp: 2026-11-06T01:04:59.257Z
+baseline SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+worktree: /home/z/my-project/AICSPortal
+invocation: GATE_EVID=docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/cloud-2026-11-06 GATE_MONGO_BIN=/home/z/my-project/scripts/mmserver/mongod-bin/mongod bun scripts/onboarding/01-targets.mjs
+scope: B1 present targets (full walk 1280x800, spot+clamp at 1024x700 and 800x600), B2 missing at open, B3 delayed mount (800ms board timer), B4 removed mid-step
+deviations: B1 widths 1024/800 verify three representative targets each instead of the full eight-step walk (time budget); the full walk at 1280x800 covers every step
+exit: 0

@@ -1,0 +1,7 @@
+timestamp: 2026-11-06T01:06:41.949Z
+baseline SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+worktree: /home/z/my-project/AICSPortal
+command: GATE_EVID=docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/cloud-2026-11-06 GATE_MONGO_BIN=/home/z/my-project/scripts/mmserver/mongod-bin/mongod bun scripts/onboarding/08-stability.mjs
+node: v24.3.0
+scope: H1 unplanned mid-tour navigation - scripted user navigation away mid-step through usePortalRoute from several surfaces; documented behavior (follow the user or end calmly) demonstrated; crash, orphaned overlay, and lost focus are the blockers

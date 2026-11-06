@@ -1,0 +1,8 @@
+timestamp: 2026-11-06T01:06:29.500Z
+baseline SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+HEAD SHA: 3e40a2d7f5043a050c8a5f8ae7c72570fc170fba
+worktree: /home/z/my-project/AICSPortal
+invocation: GATE_EVID=docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/cloud-2026-11-06 GATE_MONGO_BIN=/home/z/my-project/scripts/mmserver/mongod-bin/mongod bun scripts/onboarding/06-mobile.mjs
+scope: F1 at 375x667 (sheet pinned, spotlight collapsed, Next/Back operable, mobile nav dialog opens above and Escape closes the dialog not the tour, clean end with focus restore, zero page errors)
+deviations: none
+exit: 0
