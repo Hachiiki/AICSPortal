@@ -1,6 +1,8 @@
 // CommonJS offline build input: reuse exact font bytes from the prior build.
 // This affects local verification only, never application source or deployment.
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Next's synchronous font loader requires CommonJS.
 const { readFileSync, readdirSync } = require('node:fs')
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- This fixture must be loaded synchronously by Next.
 const { resolve } = require('node:path')
 const root = resolve(__dirname, '../..')
 const dir = resolve(root, '.next/static/chunks')

@@ -267,6 +267,20 @@ try {
   await faculty.page.keyboard.press('Escape')
   await facultyDrawer.waitFor({ state: 'hidden' })
   check('Faculty drawer closes with Escape', await facultyDrawer.count() === 0)
+  await faculty.context.close()
+
+  const signedOut = await fixtureContext(browser, { width: 320, height: 720 })
+  contexts.push(signedOut.context)
+  await signedOut.context.clearCookies()
+  await signedOut.context.route('**/api/auth/session', route => route.fulfill({ status: 401, json: { ok: false } }))
+  const loginPage = await signedOut.context.newPage()
+  loginPage.on('pageerror', error => { result.errors.push(error.message); save() })
+  await loginPage.goto(origin, { waitUntil: 'load', timeout: 180000 })
+  await loginPage.locator('input[type="password"]').waitFor()
+  await measure(loginPage, 'sign-in-320')
+  const loginText = await loginPage.locator('input[type="text"], input[type="password"]').evaluateAll(inputs => inputs.filter(input => input.getClientRects().length > 0).map(input => parseFloat(getComputedStyle(input).fontSize)))
+  check('Mobile sign-in fields use readable 16px text', loginText.length >= 2 && loginText.every(size => size >= 16), loginText)
+  await loginPage.screenshot({ path: resolve(out, 'sign-in-320.png') })
   check('No unexpected client errors', result.errors.length === 0, result.errors)
 } catch (error) {
   result.failure = { message: error.message, stack: error.stack }
