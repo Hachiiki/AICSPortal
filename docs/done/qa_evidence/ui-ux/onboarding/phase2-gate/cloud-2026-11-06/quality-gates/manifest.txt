@@ -1,5 +1,5 @@
 quality gates at HEAD 44349723f29f057dbc1266f04ef05a7ff3141d4c
-lint: exit 0 (3 pre-existing warnings in unchanged files expected)
+lint: exit 0 with 24 pre-existing setState-in-effect warnings, all in unchanged app files; a clean checkout of the pre-closure HEAD 3e40a2d shows the identical count, so no touched file adds a warning (the historical "three warnings" figure came from the A1 isolated lint scope)
 typecheck: exit 0
 unit suite: bun test src/ scripts/ -> 187 tests, 915 assertions, 0 failures across 16 files
 production build: next build --webpack exit 0 (default Turbopack not executed)

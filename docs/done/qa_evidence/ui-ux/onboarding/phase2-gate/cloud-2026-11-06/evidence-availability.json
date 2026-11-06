@@ -1,0 +1,26 @@
+{
+  "source": "Cloud closure assignment, 2026-11-06 (A3 evidence completeness + I2 rules 2, 3, 4b)",
+  "context": "The 2026-11-04 cloud continuation wrote its raw artifacts to the untracked .phase2-cloud directory on a sandbox that no longer exists. The originals listed in final-2026-11-05/evidence-availability.json are therefore unrecoverable. Per the assignment, each named artifact was replaced by reproducing only the specific test needed, on a fresh cloud sandbox, at HEAD 3e40a2d (main-full-dev), with committed scripts, manifests, source identities, execution metadata and logs. The retained Windows artifacts are untouched.",
+  "replacements": [
+    { "missing": "tg-1", "replacedBy": "targets/ (01 targets, 16/16 PASS)" },
+    { "missing": "pos-2", "replacedBy": "positioning/ (02 positioning, 12/12 PASS)" },
+    { "missing": "kb-4", "replacedBy": "keyboard/ (03 keyboard, 14/14 PASS)" },
+    { "missing": "06-mobile-2", "replacedBy": "mobile/ (06 mobile, 8/8 PASS)" },
+    { "missing": "h1-green-1", "replacedBy": "stability/ (08 stability on the repaired engine, 13/13 PASS)" },
+    { "missing": "h1-fail-first", "replacedBy": "stability-red-first/ (08 stability against the pre-repair TourOverlay in a disposable worktree, 4 expected failures, focus on body in both scenarios, worktree removed after the run)" },
+    { "missing": "i2r3-linux-timing-2", "replacedBy": "timing-synthetic/ (corrected per-run aggregation, current HEAD: per-run p95 1648.5/1648.5/1648.4 ms with only the six designed fixture advances over the limit per run; ordinary 15-sample p95 81.9/82/81.9 ms; Rule 3 zero long tasks)" },
+    { "missing": "i2r4-linux-attrib-3", "replacedBy": "memory-attribution/ (10-cycle probe at the current HEAD, settle-loop baseline disclosed: 684 KB end drift, 58.48 KB/cycle slope, nodes +31, listeners +3, corrected layout-driven attribution plus full retainer-chain ownership analysis in i2r4-retainer-attribution.json)" },
+    { "missing": "i2r4-linux-30c", "replacedBy": "memory-attribution/ (the 10-cycle rerun plus retainer attribution supersedes the missing 30-cycle run's role; the 30-cycle saturation evidence stays as a dated historical result in the completion report)" },
+    { "missing": "i1-linux-bundle-comparison.json", "replacedBy": "bundle-comparison/ (committed-source webpack builds at HEAD ffca646 vs baseline 46c33a5: +27,807 raw / +8,693 gzip bytes, +1 chunk, package.json diff empty)" }
+  ],
+  "newEvidenceBeyondTheMissingList": [
+    "timing-student/ (the approved ordinary-transition test against the real student tour in a production build: 3 runs x 21 advances, hardware/browser/load/samples recorded, p95 97.4/98.1/113.8 ms - recorded FAIL, no sample removed)",
+    "rule3-attribution/ (window-level long tasks plus CDP cpu-profiler attribution of the resize/scroll series and of 24 repeated announcements <-> academics transitions)",
+    "quality-gates/ (lint, typecheck, 187-test unit suite, production webpack build at the closure HEAD)"
+  ],
+  "keptOutsideRepository": [
+    "raw heap snapshots (2 x ~21 MB) and the CDP trace (~5.7 MB): SHA-256 identities recorded in their artifacts, parsed analyses committed"
+  ],
+  "parserCorrection": "The 2026-11-06 run found and fixed a field-offset defect in the i2r4 snapshot parser (id read as self_size, type index read as name); the committed script now derives every index from the snapshot's own meta, and the correction plus the prior wrong values are disclosed inside memory-attribution/i2r4-linux-result.json.",
+  "disposition": "A3's named gaps are closed by dated replacement evidence that re-runs reproducibly from committed scripts. The original 2026-11-04 raw files remain lost with their sandbox; the historical record keeps their dated results and manifests. The Windows gate-box reruns named in the I2 ledger remain the owner's environment."
+}

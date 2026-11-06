@@ -12,10 +12,10 @@ uncommitted files or session history survived.
 
 | Field | Value |
 |---|---|
-| Updated | 2026-10-30 (UTC+8) |
+| Updated | 2026-11-06 (UTC+8) |
 | Branch | main-full-dev |
-| Last verified checkpoint | Onboarding Phase 1 complete and remote-verified: 7a01482 (authz onboarding.state policy), aa99733 (registry + onboarding_states + seed index), 314c23f (GET/PATCH /api/onboarding/state + wiring suite), tip == origin/main-full-dev; the five registry dimension identities approved as the baseline (onboarding plan section 2.6); see the Onboarding section below. Dark-theme history: Phase 2 Stage 2D remains its last verified checkpoint (2026-10-26) |
-| Latest push | 2026-10-30 onboarding approval record + this checkpoint (the recovered Phase 0 plan and the Phase 2 gate plan become tracked docs), on top of the 42208e5 CLAUDE.md push-rule update and the three Phase 1 commits (tip 314c23f) |
+| Last verified checkpoint | Phase 2 cloud closure (A3 + I2 assignment) complete and remote-verified at tip 9fa3160 + the docs commit: all ten named missing `.phase2-cloud` artifacts replaced by committed evidence under `docs/done/qa_evidence/ui-ux/onboarding/phase2-gate/cloud-2026-11-06/` (interaction matrix green, H1 red-first pair, corrected synthetic timing, Rule 2 real-student cloud series p95 97.4/98.1/113.8 ms FAIL with full attribution, Rule 3 zero window-level long tasks + GC-attributed traced task, Rule 4b retainer attribution of the Object/Array remainder, bundle comparison, quality gates 187/915/0). See the completion report's 2026-11-06 section. Local gate env: mongod 8.2.6 (ubuntu2204 build) at `/home/z/my-project/scripts/mmserver/mongod-bin/mongod`, dbpath `/home/z/my-project/scripts/mongo-data`, reseed `node --experimental-strip-types scripts/seed-mongodb.ts` |
+| Latest push | 2026-11-06 cloud closure commits: 2aa9bcd (interaction matrix + H1 red-first), 846f12b (Rule 2/3 evidence), ffca646 (layout-driven snapshot parser fix + retainer attribution), 4434972 (bundle comparison), 9fa3160 (quality gates), plus the documentation commit |
 | Onboarding plan baseline | `46c33a5` (read-only baseline the onboarding plans were verified against, 2026-10-29, remote-verified) |
 | Onboarding Phase 1 tip | `314c23f` == `origin/main-full-dev` (verified 2026-10-30) |
 | Phase 0 baseline SHA | `822a5cfdd0871cf6ae98452e0d8c42a15910e2ce` (pinned before the first edit, per owner directive; NEVER rewrite) |
