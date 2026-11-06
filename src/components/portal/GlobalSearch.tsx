@@ -304,6 +304,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
   const [activeIndex, setActiveIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   const roleLinks = useMemo(() => quickLinksFor(student.role), [student.role])
 
@@ -334,7 +335,14 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
 
 
   useEffect(() => {
-    if (open && flat[activeIndex]) document.getElementById(`search-option-${encodeURIComponent(flat[activeIndex].id)}`)?.scrollIntoView({ block: 'nearest' })
+    const list = resultsRef.current
+    const option = flat[activeIndex] && document.getElementById(`search-option-${encodeURIComponent(flat[activeIndex].id)}`)
+    if (!open || !list || !option) return
+    const bounds = list.getBoundingClientRect()
+    const item = option.getBoundingClientRect()
+    // Scroll the results only, keeping the sticky search and the page still.
+    if (item.top < bounds.top) list.scrollTop -= bounds.top - item.top
+    else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom
   }, [open, activeIndex, flat])
 
   // Close on outside pointer interaction.
@@ -449,6 +457,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           so screen readers hear result changes without hunting the list. */}
       {open && (
         <div
+          ref={resultsRef}
           id="global-search-results"
           role="listbox"
           className="absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[min(70vh,calc(100dvh-140px))] overflow-y-auto"

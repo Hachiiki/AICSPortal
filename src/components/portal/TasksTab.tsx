@@ -74,6 +74,9 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       })
     }
     const t = setTimeout(() => {
+      // A later search or edit takes priority over this delayed destination focus.
+      const active = document.activeElement
+      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || active instanceof HTMLElement && active.isContentEditable) return
       const el = Array.from(document.querySelectorAll<HTMLElement>(`[data-task-id="${CSS.escape(focusTaskId)}"]`)).find(row => row.getClientRects().length > 0)
       if (!el) return
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -310,7 +313,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       </div>
 
             {/* COURSE ACCORDION CARDS */}
-      <div data-tour="tasks-courses" className="order-4 sm:order-6">
+      <div data-tour="tasks-courses">
       {filteredTasks.length === 0 ? (
         <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={ClipboardList} message={hasFilters ? 'No matching tasks.' : 'No tasks for this term.'} hint={hasFilters ? 'Try another subject, type or status.' : 'When a teacher posts a task, it shows up here.'} />

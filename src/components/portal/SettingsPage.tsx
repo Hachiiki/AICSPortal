@@ -416,10 +416,9 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             </p>
           </div>
 
-          {/* Section tabs — scroll horizontally when they exceed the
-              container width (phones), no visible scrollbar */}
+          {/* Keep every section visible in a compact phone grid. */}
           <div
-            className="flex flex-wrap gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full"
+            className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full"
             role="tablist"
             aria-label="Settings sections"
           >
@@ -433,7 +432,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
-                  className={`min-h-11 sm:min-h-0 px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`min-h-11 sm:min-h-0 px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >

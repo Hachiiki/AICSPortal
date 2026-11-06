@@ -22,7 +22,7 @@ const save = () => writeFileSync(resolve(out, 'result.json'), JSON.stringify(res
 const check = (name, pass, detail) => { result.checks.push({ name, pass: !!pass, ...(detail ? { detail } : {}) }); save(); console.log(`${pass ? 'PASS' : 'FAIL'} ${name}`) }
 const contexts = []
 async function open(options = {}) {
-  const fixture = await fixtureContext(browser, options)
+  const fixture = await fixtureContext(browser, { touch: true, ...options })
   contexts.push(fixture.context)
   const page = await fixture.context.newPage()
   page.on('pageerror', error => { result.errors.push(error.message); save() })
@@ -60,6 +60,23 @@ try {
       await go(page, route)
       const name = (route || 'dashboard').replaceAll(/[^a-z0-9]/g, '-') + '-' + width
       await measure(page, name)
+      if (route === '/academics?tab=tasks') {
+        const order = await page.evaluate(() => {
+          const courses = document.querySelector('[data-tour="tasks-courses"]').getBoundingClientRect()
+          const overview = Array.from(document.querySelectorAll('h3')).find(heading => heading.textContent === 'Task Overview')?.getBoundingClientRect()
+          return { coursesTop: courses.top, overviewTop: overview?.top }
+        })
+        check(`${name}: course cards precede the task overview`, order.coursesTop < order.overviewTop, order)
+      }
+      if (route === '/events' && width < 640) {
+        const toggle = page.getByRole('switch', { name: 'Show task due dates on the calendar' })
+        const hit = await toggle.boundingBox()
+        check(`${name}: task toggle has a 44px target and visible label`, hit.height >= 44 && hit.width >= 44 && (await toggle.innerText()).includes('Show my task due dates'), hit)
+        await toggle.click()
+        check(`${name}: task toggle switches off`, await toggle.getAttribute('aria-checked') === 'false')
+        await toggle.click()
+        check(`${name}: task toggle switches on`, await toggle.getAttribute('aria-checked') === 'true')
+      }
       if (width < 640 && !route) {
         const bar = await page.getByRole('button', { name: 'Open navigation menu', exact: true }).boundingBox()
         const account = await page.getByRole('button', { name: 'Account menu', exact: true }).boundingBox()
@@ -111,9 +128,19 @@ try {
   await page.locator('[data-task-id="mobile-task-0"]:visible').waitFor()
   check('Search opens the selected task', new URL(page.url()).searchParams.get('task') === 'mobile-task-0')
   await search.fill('inheritance')
+  await page.waitForTimeout(350)
+  check('A second search keeps editing focus after the previous task destination', await search.evaluate(input => input === document.activeElement))
   await page.getByRole('option', { name: /Inheritance and interfaces quiz/ }).click()
   await page.locator('[data-task-id="mobile-task-4"]:visible').waitFor()
   check('Search selects a different task while Academics stays mounted', new URL(page.url()).searchParams.get('task') === 'mobile-task-4')
+  await search.fill('linked list')
+  await page.getByRole('option', { name: /Implement a linked list/ }).tap()
+  check('Touch search selection opens its task', new URL(page.url()).searchParams.get('task') === 'mobile-task-0')
+  await search.fill('inheritance')
+  await page.getByRole('option', { name: /Inheritance and interfaces quiz/ }).tap()
+  await search.focus()
+  await page.keyboard.press('Tab')
+  check('Tabbing away from search closes the result popup', await search.getAttribute('aria-expanded') === 'false')
   await page.reload({ waitUntil: 'load', timeout: 180000 })
   await page.locator('[data-task-id="mobile-task-4"]:visible').waitFor()
   check('A task destination survives a real page reload', new URL(page.url()).searchParams.get('task') === 'mobile-task-4')
