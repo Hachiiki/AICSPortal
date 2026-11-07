@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
@@ -13,6 +13,8 @@ import { AssembleRevealProvider } from '@/components/portal/assemble-entrance'
 import { OnboardingDevMount } from '@/components/onboarding/OnboardingDevMount'
 import { StudentOnboardingProvider } from '@/components/onboarding/StudentOnboarding'
 import { StudentDashboard } from '@/components/portal/StudentDashboard'
+import { PortalShell } from '@/components/portal/PortalShell'
+import { NotificationsPage } from '@/components/portal/NotificationsPage'
 import { FacultyDashboard } from '@/components/faculty/FacultyDashboard'
 import { FacultyStudentsPage } from '@/components/faculty/FacultyStudentsPage'
 import { FacultyGradeEncodingPage } from '@/components/faculty/FacultyGradeEncodingPage'
@@ -474,19 +476,36 @@ function StudentDataWrapper({
   // in the shell, so per-page fetching would refetch on every tab.
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
+  const [notificationsError, setNotificationsError] = useState<string | null>(null)
+  const [notificationsMarkError, setNotificationsMarkError] = useState<string | null>(null)
+  const [notificationsMarking, setNotificationsMarking] = useState(false)
+  const pendingNotificationWrites = useRef(new Set<string>())
+  const notificationRefreshVersion = useRef(0)
 
   const refreshNotifications = useCallback(async () => {
+    const version = ++notificationRefreshVersion.current
+    setNotificationsLoading(true)
+    setNotificationsError(null)
     try {
       const res = await fetch(`/api/notifications?username=${encodeURIComponent(username)}`)
       const data = await res.json()
-      if (data.ok) setNotifications(data.notifications || [])
-    } catch {}
+      if (!res.ok || !data.ok) throw new Error('Notifications unavailable')
+      if (version === notificationRefreshVersion.current) setNotifications(data.notifications || [])
+    } catch {
+      if (version === notificationRefreshVersion.current) setNotificationsError('Could not load notifications.')
+    }
     finally {
-      setNotificationsLoading(false)
+      if (version === notificationRefreshVersion.current) setNotificationsLoading(false)
     }
   }, [username])
 
   const markNotificationRead = useCallback(async (id?: string, all?: boolean) => {
+    const key = all ? 'all' : id
+    const pending = pendingNotificationWrites.current
+    if (!key || pending.has(key) || pending.has('all') || (all && pending.size > 0)) return
+    pending.add(key)
+    setNotificationsMarking(true)
+    setNotificationsMarkError(null)
     try {
       const res = await fetch('/api/notifications', {
         method: 'PATCH',
@@ -494,8 +513,15 @@ function StudentDataWrapper({
         body: JSON.stringify({ username, id, all }),
       })
       const data = await res.json()
-      if (data.ok) refreshNotifications()
-    } catch {}
+      if (!res.ok || !data.ok) throw new Error('Notification update failed')
+      setNotifications(items => items.map(item => all || item._id === id ? { ...item, read: true } : item))
+      await refreshNotifications()
+    } catch {
+      setNotificationsMarkError('Could not mark notifications as read. Try again.')
+    } finally {
+      pending.delete(key)
+      setNotificationsMarking(pending.size > 0)
+    }
   }, [username, refreshNotifications])
 
   // Single inbox object for the shell. Memoized so the Topbar bell
@@ -503,9 +529,12 @@ function StudentDataWrapper({
   const inbox = useMemo<NotificationInbox>(() => ({
     notifications,
     loading: notificationsLoading,
+    error: notificationsError,
+    markError: notificationsMarkError,
+    marking: notificationsMarking,
     onRefresh: refreshNotifications,
     onMark: markNotificationRead,
-  }), [notifications, notificationsLoading, refreshNotifications, markNotificationRead])
+  }), [notifications, notificationsLoading, notificationsError, notificationsMarkError, notificationsMarking, refreshNotifications, markNotificationRead])
 
   // Faculty roster state lives in the page component (lifted like
   // the student data) so the post-login readiness gate can include
@@ -963,6 +992,15 @@ function StudentDataWrapper({
         inbox={inbox}
         facultyData={facultyData}
       />
+    )
+  }
+
+  if (route.view === 'notifications') {
+    return (
+      <PortalShell student={student} active="notifications" onNavigate={handleNavigate} onLogout={onLogout}
+        events={events} professors={professors} tasks={tasks} inbox={inbox}>
+        <NotificationsPage student={student} inbox={inbox} onHome={() => handleNavigate('dashboard')} />
+      </PortalShell>
     )
   }
 

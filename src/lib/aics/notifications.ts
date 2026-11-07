@@ -24,6 +24,9 @@ export interface Notification {
 export interface NotificationInbox {
   notifications: Notification[]
   loading: boolean
+  error?: string | null
+  markError?: string | null
+  marking?: boolean
   onRefresh: () => void
   onMark: (id?: string, all?: boolean) => void
 }

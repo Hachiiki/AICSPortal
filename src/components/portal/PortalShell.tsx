@@ -94,6 +94,7 @@ export function PortalShell({
       <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(4rem+1px+env(safe-area-inset-bottom)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
+          active={active}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}

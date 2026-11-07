@@ -32,6 +32,7 @@ export type PortalRoute =
   | { view: 'profile'; branch: string; username: string; role: PortalRole; focus?: 'profile' }
   | { view: 'academics'; branch: string; username: string; role: PortalRole; tab?: AcademicsTab; taskId?: string; subjectCode?: string }
   | { view: 'events'; branch: string; username: string; role: PortalRole }
+  | { view: 'notifications'; branch: string; username: string; role: 'student' }
   | { view: 'professors'; branch: string; username: string; role: PortalRole }
   | { view: 'enrollment'; branch: string; username: string; role: PortalRole }
   | { view: 'settings'; branch: string; username: string; role: PortalRole; section?: SettingsSection; focus?: 'photo' | 'password' }
@@ -103,6 +104,9 @@ export function parsePath(path: string): PortalRoute {
     if (parts[4] === 'events') {
       return { view: 'events', branch, username, role }
     }
+    if (parts[4] === 'notifications' && role === 'student') {
+      return { view: 'notifications', branch, username, role }
+    }
     if (parts[4] === 'professors') {
       return { view: 'professors', branch, username, role }
     }
@@ -162,6 +166,8 @@ export function routeToPath(route: PortalRoute): string {
     }
     case 'events':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
+    case 'notifications':
+      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/notifications`
     case 'professors':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/professors`
     case 'enrollment':

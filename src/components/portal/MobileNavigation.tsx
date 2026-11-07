@@ -37,7 +37,7 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
       document.removeEventListener('focusout', update)
     }
   }, [])
-  const primary = active === 'dashboard' || active === 'academics' || active === 'events'
+  const primary = active === 'dashboard' || active === 'academics' || active === 'events' || active === 'notifications'
   return <nav data-student-mobile-nav="" aria-label="Student mobile navigation" aria-hidden={keyboardOpen || undefined}
     className={`fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(15_23_42/0.04)] sm:hidden ${keyboardOpen ? 'invisible pointer-events-none' : ''}`}>
     <div className={MOBILE_NAV_GRID}>

@@ -26,6 +26,7 @@ import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface TopbarProps {
   student: Student
+  active: View
   onOpenMobileNav: () => void
   onProfile: () => void
   onLogout: () => void
@@ -47,6 +48,7 @@ interface TopbarProps {
 
 export function Topbar({
   student,
+  active,
   onOpenMobileNav,
   onProfile,
   onLogout,
@@ -63,6 +65,16 @@ export function Topbar({
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
+  const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
+  const bellIcon = <>
+    <Bell className="size-5" aria-hidden="true" />
+    {unread > 0 && (
+      <span aria-hidden="true" className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+        {unread > 9 ? '9+' : unread}
+      </span>
+    )}
+  </>
+  const bellClass = 'relative grid size-11 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9'
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
@@ -159,7 +171,16 @@ export function Topbar({
             )}
           </button>
 
-          <DropdownMenu
+          {compact ? (
+            <button type="button" aria-label={bellLabel} aria-current={active === 'notifications' ? 'page' : undefined}
+              data-tour="topbar-notifications" className={`${bellClass} ${active === 'notifications' ? 'bg-blue-50 text-link-strong' : ''}`}
+              onClick={() => {
+                inbox?.onRefresh()
+                if (active !== 'notifications') onNavigate('notifications')
+              }}>
+              {bellIcon}
+            </button>
+          ) : <DropdownMenu
             onOpenChange={(open) => {
               if (open) inbox?.onRefresh()
             }}
@@ -167,18 +188,11 @@ export function Topbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
+                aria-label={bellLabel}
                 data-tour="topbar-notifications"
-                className="relative size-11 sm:size-9 grid place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className={bellClass}
               >
-                <Bell className="w-5 h-5" aria-hidden />
-                {unread > 0 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold grid place-items-center">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
-                )}
+                {bellIcon}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-128px)] overflow-y-auto">
@@ -220,7 +234,7 @@ export function Topbar({
                 ))
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
 
           <div className="w-px h-6 bg-slate-200" aria-hidden="true" />
 
