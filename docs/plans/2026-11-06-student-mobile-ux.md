@@ -54,3 +54,9 @@ Sign-in uses a compact normal-flow identity and form on phones. Campus imagery a
 - [x] Obtain both independent council reassessments and prepare the commit-specific comparisons and score tables.
 
 The reviewed app source is `b7cbc33`. All 413 portal checks, 47 sign-in checks, 45 content clearance checks and 154 relevant unit tests passed. Lint, typecheck and the production build passed. Both council reviewers considered the source ready for PR review. [Verification and before/after evidence](../done/qa_evidence/ui-ux/mobile-composition-2026-11-07/README.md) accompanies the commit-by-commit [GitHub discussion](https://github.com/Hachiiki/AICSPortal/pull/95).
+
+## Owner feedback follow-up
+
+Keep the phone header on one line. Move labeled Search to the right side of the bottom bar, keep the existing destinations, and give press and selection states short motion with reduced-motion support. More opens the navigation drawer with an X close control at the same thumb position. The student phone bell opens a scrollable Notifications page using the existing inbox and task links. The sign-in welcome and campus photo move above the form in a compact layout that avoids overlapping text.
+
+Check 320px and common phone widths, a short viewport, dark mode, keyboard focus and dismissal, browser Back, notification read actions, task links and the desktop/staff fallback. Post exact before-and-after captures and change notes for the implementation commits on PR #95.
