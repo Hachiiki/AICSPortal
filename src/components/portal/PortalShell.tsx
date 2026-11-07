@@ -11,7 +11,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { MobileNavigation, MOBILE_NAV_ACTION } from './MobileNavigation'
+import { MobileNavigation } from './MobileNavigation'
 import { MobileSearch } from './MobileSearch'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
@@ -91,7 +91,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-controls-height,125px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
           active={active}
@@ -140,7 +140,7 @@ export function PortalShell({
             menuOpen={mobileNavOpen}
             onOpenMenu={() => setMobileNavOpen(true)}
             onNavigate={onNavigate}
-            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className={`${MOBILE_NAV_ACTION} text-muted-fg hover:bg-slate-100 data-[state=open]:bg-blue-50 data-[state=open]:text-link-strong`} />}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="inline-flex min-h-[48px] min-w-[48px] items-center gap-2 rounded-full border border-white/30 bg-[#153357] px-3 py-2 text-sm font-semibold text-white shadow-md shadow-slate-900/20 hover:bg-[#21466a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
           />
         )}
       </div>

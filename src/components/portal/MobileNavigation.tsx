@@ -6,7 +6,7 @@ import type { Student, View } from '@/lib/aics/types'
 import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
-export const MOBILE_NAV_GRID = 'student-dock-grid grid h-16 grid-cols-[1fr_1fr_1.45fr_1fr_1fr_1fr] px-1'
+export const MOBILE_NAV_GRID = 'student-dock-grid grid h-16 grid-cols-[1fr_1fr_1.2fr_1fr_1fr] px-1'
 export const MOBILE_NAV_ACTION = 'my-1 flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-0.5 text-center text-xs font-medium leading-tight [overflow-wrap:anywhere] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 
 export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
@@ -19,19 +19,26 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
   search: ReactNode
 }) {
   const { navigate } = usePortalRoute()
-  const dock = useRef<HTMLElement>(null)
+  const dock = useRef<HTMLDivElement>(null)
+  const floatingSearch = useRef<HTMLDivElement>(null)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
   useEffect(() => {
-    if (!dock.current) return
+    if (!dock.current || !floatingSearch.current) return
     const element = dock.current
+    const searchButton = floatingSearch.current
     const root = document.documentElement.style
-    const updateHeight = () => root.setProperty('--portal-mobile-nav-height', `${element.offsetHeight}px`)
+    const updateHeight = () => {
+      root.setProperty('--portal-mobile-nav-height', `${element.offsetHeight}px`)
+      root.setProperty('--portal-mobile-controls-height', `${element.offsetHeight + searchButton.offsetHeight + 12}px`)
+    }
     const observer = new ResizeObserver(updateHeight)
     updateHeight()
     observer.observe(element)
+    observer.observe(searchButton)
     return () => {
       observer.disconnect()
       root.removeProperty('--portal-mobile-nav-height')
+      root.removeProperty('--portal-mobile-controls-height')
     }
   }, [])
   useEffect(() => {
@@ -56,9 +63,9 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
     }
   }, [])
   const primary = active === 'dashboard' || active === 'academics' || active === 'events' || active === 'notifications'
-  return <nav ref={dock} data-student-mobile-nav="" aria-label="Student mobile navigation" aria-hidden={keyboardOpen || undefined}
+  return <div ref={dock} data-student-mobile-nav="" aria-hidden={keyboardOpen || undefined}
     className={`student-dock-container fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(15_23_42/0.04)] sm:hidden ${keyboardOpen ? 'invisible pointer-events-none' : ''}`}>
-    <div className={MOBILE_NAV_GRID}>
+    <nav aria-label="Student mobile navigation" className={MOBILE_NAV_GRID}>
       {STUDENT_MOBILE_NAV.map(item => {
         const selected = !menuOpen && active === item.view && (item.view !== 'academics' || (item.tab === 'tasks' ? academicTab === 'tasks' : academicTab !== 'tasks'))
         const Icon = item.icon
@@ -69,12 +76,14 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
           <span className="max-w-full">{item.label}</span>
         </button>
       })}
-      {search}
       <button type="button" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded={menuOpen} aria-controls="mobile-navigation"
         aria-current={!primary && !menuOpen ? 'page' : undefined} data-tour="topbar-mobile-nav"
         className={`${MOBILE_NAV_ACTION} ${menuOpen || !primary ? 'bg-blue-50 text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`} onClick={onOpenMenu}>
         <Menu className="size-[20px] shrink-0" aria-hidden="true" /><span className="max-w-full">More</span>
       </button>
+    </nav>
+    <div ref={floatingSearch} data-mobile-floating-search="" className="absolute bottom-[calc(100%+12px)] left-[max(12px,env(safe-area-inset-left))]">
+      {search}
     </div>
-  </nav>
+  </div>
 }
