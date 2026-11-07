@@ -91,7 +91,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(4rem+1px+env(safe-area-inset-bottom)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
           active={active}
@@ -140,7 +140,7 @@ export function PortalShell({
             menuOpen={mobileNavOpen}
             onOpenMenu={() => setMobileNavOpen(true)}
             onNavigate={onNavigate}
-            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className={`${MOBILE_NAV_ACTION} text-link-strong hover:bg-blue-50`} />}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className={`${MOBILE_NAV_ACTION} text-muted-fg hover:bg-slate-100 data-[state=open]:bg-blue-50 data-[state=open]:text-link-strong`} />}
           />
         )}
       </div>

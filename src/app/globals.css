@@ -12,6 +12,22 @@
   :root:has([data-student-mobile-nav]) #main-content {
     scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
   }
+
+  .student-dock-container {
+    container: student-dock / inline-size;
+  }
+
+  @container student-dock (width < 19rem) {
+    .student-dock-grid {
+      grid-template-columns: 1fr 1fr 1.4fr;
+      grid-auto-rows: minmax(3rem, auto);
+      height: auto;
+    }
+
+    .student-dock-close {
+      grid-column-start: 3;
+    }
+  }
 }
 
 @theme inline {

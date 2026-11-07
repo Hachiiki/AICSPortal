@@ -50,7 +50,7 @@ export function MobileSearch({ className, ...searchProps }: MobileSearchProps) {
     }}>
       <DialogTrigger asChild>
         <button ref={trigger} type="button" aria-label="Open portal search" className={className}>
-          <Search className="size-5" aria-hidden="true" />
+          <Search className="size-[20px] shrink-0" aria-hidden="true" />
           <span className="max-w-full">Search</span>
         </button>
       </DialogTrigger>

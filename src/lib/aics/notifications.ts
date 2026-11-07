@@ -28,7 +28,7 @@ export interface NotificationInbox {
   markError?: string | null
   marking?: boolean
   onRefresh: () => void
-  onMark: (id?: string, all?: boolean) => void
+  onMark: (id?: string, all?: boolean) => Promise<boolean>
 }
 
 // ============================================================

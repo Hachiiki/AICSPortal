@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { ArrowLeft, ArrowUpRight, Bell } from 'lucide-react'
+import { toast } from 'sonner'
 import { formatNotifTime, type NotificationInbox } from '@/lib/aics/notifications'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import type { Student } from '@/lib/aics/types'
@@ -65,7 +66,11 @@ export function NotificationsPage({ student, inbox, onHome }: {
               </p>
               {item.taskId ? (
                 <button type="button" onClick={() => {
-                  if (!item.read) inbox.onMark(item._id)
+                  if (!item.read) {
+                    void inbox.onMark(item._id).then(marked => {
+                      if (!marked) toast.error('Could not mark this notification as read.')
+                    })
+                  }
                   navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', subjectCode: item.subjectCode, taskId: item.taskId! })
                 }} className="mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-md text-sm font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link">
                   Open task <ArrowUpRight className="size-4" aria-hidden="true" />

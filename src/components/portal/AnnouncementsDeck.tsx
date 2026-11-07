@@ -188,9 +188,9 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           className="bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
         >
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Megaphone className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-semibold text-slate-700">Announcements</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <Megaphone className="size-4 shrink-0 text-slate-400" />
+              <span className="min-w-0 break-words text-sm font-semibold text-slate-700">Announcements</span>
             </div>
           </div>
           <EmptyState compact icon={Check} message="You're all caught up" hint="No new announcements to read." className="flex-1 flex flex-col items-center justify-center" />
@@ -222,9 +222,9 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-link" />
-            <span className="text-sm font-semibold text-slate-900">Announcements</span>
+          <div className="flex min-w-0 items-center gap-2">
+            <Megaphone className="size-4 shrink-0 text-link" />
+            <span className="min-w-0 break-words text-sm font-semibold text-slate-900">Announcements</span>
           </div>
         </div>
         {/* Body */}

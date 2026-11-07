@@ -502,7 +502,8 @@ function StudentDataWrapper({
   const markNotificationRead = useCallback(async (id?: string, all?: boolean) => {
     const key = all ? 'all' : id
     const pending = pendingNotificationWrites.current
-    if (!key || pending.has(key) || pending.has('all') || (all && pending.size > 0)) return
+    if (!key || (all && pending.size > 0)) return false
+    if (pending.has(key) || pending.has('all')) return true
     pending.add(key)
     setNotificationsMarking(true)
     setNotificationsMarkError(null)
@@ -516,8 +517,10 @@ function StudentDataWrapper({
       if (!res.ok || !data.ok) throw new Error('Notification update failed')
       setNotifications(items => items.map(item => all || item._id === id ? { ...item, read: true } : item))
       await refreshNotifications()
+      return true
     } catch {
       setNotificationsMarkError('Could not mark notifications as read. Try again.')
+      return false
     } finally {
       pending.delete(key)
       setNotificationsMarking(pending.size > 0)

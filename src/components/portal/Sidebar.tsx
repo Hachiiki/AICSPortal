@@ -255,12 +255,14 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
                 />
               </div>
               {phoneSheet && (
-                <div className={`${MOBILE_NAV_GRID} shrink-0 border-t border-line`}>
-                  <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
-                    className={`${MOBILE_NAV_ACTION} col-start-6 bg-blue-50 text-link-strong`}>
-                    <X className="size-5 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
-                    <span className="max-w-full">Close</span>
-                  </button>
+                <div className="student-dock-container shrink-0 border-t border-line">
+                  <div className={MOBILE_NAV_GRID}>
+                    <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
+                      className={`${MOBILE_NAV_ACTION} student-dock-close col-start-6 bg-blue-50 text-link-strong`}>
+                      <X className="size-[20px] shrink-0 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
+                      <span className="max-w-full">Close</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </DialogPanel>

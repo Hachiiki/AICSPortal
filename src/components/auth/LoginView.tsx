@@ -129,7 +129,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
             <p className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2.75rem]">
               <span className="lg:block">Welcome to your</span>{' '}
               <span
-                className="lg:block"
+                className="inline-block max-w-full break-words lg:block"
                 style={{
                   backgroundImage: PORTAL_TEXT_GRADIENT,
                   WebkitBackgroundClip: 'text',
@@ -141,7 +141,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                 AICS Portal.
               </span>
             </p>
-            <p className="mt-1 max-w-md text-[13px] leading-snug text-white sm:text-sm lg:mt-4 lg:text-[15px] lg:leading-relaxed">
+            <p className="mt-1 max-w-md text-[0.8125rem] leading-snug text-white sm:text-sm lg:mt-4 lg:text-[15px] lg:leading-relaxed">
               Access your academic resources, schedules, grades, and enrollment information in one
               place.
             </p>
