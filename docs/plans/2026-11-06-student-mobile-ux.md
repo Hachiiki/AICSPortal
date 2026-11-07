@@ -48,7 +48,9 @@ The selected direction is a compact student phone header with a labeled Search t
 Sign-in uses a compact normal-flow identity and form on phones. Campus imagery and existing welcome content follow the form. Preserve disclosure, help, legal links, theme, remember behavior, password managers, production demo gates and post-login transitions. Improve touch targets, remember/help wrapping and persistent announced errors without changing authentication endpoints or payloads.
 
 - [x] Reopen the existing PR as draft and obtain independent design recommendations.
-- [ ] Record reviewable mobile designs and exact current-source baseline screenshots.
-- [ ] Implement phone navigation/search and sign-in composition in separate commits, pushing each immediately.
-- [ ] Run source-matched viewport, keyboard, error/retry, route, overlay and sign-in checks plus required quality gates.
-- [ ] Reassess with the same council, publish commit-specific before/after comments and honest score tables, and update the PR.
+- [x] Record reviewable mobile designs and exact current-source baseline screenshots.
+- [x] Implement phone navigation/search and sign-in composition in separate commits, pushing each immediately.
+- [x] Run source-matched viewport, keyboard, error/retry, route, overlay and sign-in checks plus required quality gates.
+- [x] Obtain both independent council reassessments and prepare the commit-specific comparisons and score tables.
+
+The reviewed app source is `b7cbc33`. All 413 portal checks, 47 sign-in checks, 45 content clearance checks and 154 relevant unit tests passed. Lint, typecheck and the production build passed. Both council reviewers considered the source ready for PR review. [Verification and before/after evidence](../done/qa_evidence/ui-ux/mobile-composition-2026-11-07/README.md) accompanies the commit-by-commit [GitHub discussion](https://github.com/Hachiiki/AICSPortal/pull/95).

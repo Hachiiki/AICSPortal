@@ -7,6 +7,7 @@ import { resolve, dirname, sep } from 'node:path'
 import { tmpdir } from 'node:os'
 import { localEnv } from '../onboarding/isolated-source.mjs'
 import { fixtureContext, origin, student } from './fixtures.mjs'
+import { settleVisuals } from './visuals.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 if (origin !== 'http://localhost:4351') throw new Error('Set MOBILE_ORIGIN=http://localhost:4351 for the isolated history preview')
@@ -37,8 +38,15 @@ async function capture(out, report) {
     await page.waitForTimeout(650)
   }
   const shot = async name => {
+    const assets = await settleVisuals(page)
+    await page.evaluate(async () => {
+      // Dialogs may be visible before their opening opacity and zoom finish.
+      const animations = document.getAnimations().filter(animation => animation.effect?.getComputedTiming().endTime !== Infinity)
+      await Promise.allSettled(animations.map(animation => animation.finished))
+      await new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))
+    })
     await page.screenshot({ path: resolve(out, name + '.png') })
-    report.screenshots.push({ file: name + '.png', url: page.url(), viewport: page.viewportSize(), ...(await page.evaluate(() => ({ pageWidth: document.documentElement.scrollWidth }))) })
+    report.screenshots.push({ file: name + '.png', url: page.url(), viewport: page.viewportSize(), assets, ...(await page.evaluate(() => ({ pageWidth: document.documentElement.scrollWidth }))) })
   }
   try {
     await page.goto(origin, { waitUntil: 'load', timeout: 300000 })
@@ -76,11 +84,15 @@ async function capture(out, report) {
     await shot('coe-320')
     await page.keyboard.press('Escape')
     await page.getByRole('dialog').waitFor({ state: 'hidden' })
+    const searchTrigger = page.getByRole('button', { name: 'Open portal search', exact: true })
+    if (await searchTrigger.count()) await searchTrigger.click()
     const search = page.getByRole('combobox')
     await search.fill('CS201')
     await page.getByRole('option').first().waitFor()
     await shot('search-320')
     await page.keyboard.press('Escape')
+    const searchDialog = page.getByRole('dialog', { name: 'Search the portal', exact: true })
+    if (await searchDialog.count()) { await page.keyboard.press('Escape'); await searchDialog.waitFor({ state: 'hidden' }) }
     await page.setViewportSize({ width: 320, height: 420 })
     await route('/help')
     await page.getByRole('button', { name: 'Replay guided tour', exact: true }).click()
@@ -104,9 +116,34 @@ async function capture(out, report) {
     const login = await signedOut.context.newPage()
     await login.goto(origin, { waitUntil: 'load', timeout: 180000 })
     await login.locator('input[type="password"]').waitFor()
+    report.signInAssets = await settleVisuals(login)
     await login.waitForTimeout(650)
     await login.screenshot({ path: resolve(out, 'sign-in-320.png') })
     report.screenshots.push({ file: 'sign-in-320.png', url: origin, viewport: login.viewportSize() })
+    for (const [width, height] of [[320, 420], [390, 844]]) {
+      await login.setViewportSize({ width, height })
+      await login.evaluate(() => scrollTo(0, 0))
+      await login.waitForTimeout(350)
+      await settleVisuals(login)
+      const file = `sign-in-${width}x${height}.png`
+      await login.screenshot({ path: resolve(out, file) })
+      report.screenshots.push({ file, url: origin, viewport: login.viewportSize() })
+    }
+    await login.setViewportSize({ width: 320, height: 720 })
+    await login.locator('#password').fill('example-only-password')
+    await login.getByRole('button', { name: 'Show password', exact: true }).focus()
+    await login.keyboard.press('Enter')
+    await settleVisuals(login)
+    const revealFile = 'sign-in-keyboard-reveal-320.png'
+    await login.screenshot({ path: resolve(out, revealFile) })
+    report.screenshots.push({ file: revealFile, url: origin, viewport: login.viewportSize(), focus: await login.evaluate(() => ({ tag: document.activeElement.tagName, id: document.activeElement.id, label: document.activeElement.getAttribute('aria-label') })) })
+    const legal = login.getByRole('navigation', { name: 'Legal', exact: true })
+    if (await legal.count()) {
+      await legal.scrollIntoViewIfNeeded()
+      const file = 'sign-in-legal-320.png'
+      await login.screenshot({ path: resolve(out, file) })
+      report.screenshots.push({ file, url: origin, viewport: login.viewportSize() })
+    }
     await signedOut.context.close()
   } finally { await browser.close() }
 }

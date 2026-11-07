@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "student-mobile": {
+      "targetKind": "existing-ui",
+      "projectId": "f52d3274-980b-4933-8abf-dc900a7b5ba5",
+      "baselineDraftId": "37bafc75-77a4-41d6-ab18-efa8c8363060",
+      "activeDraftId": "62d08684-e70c-4f0a-a5db-72f133d001b5",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-aics-logo.svg",
+        "public-aics-campus.jpg"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-aics-logo.svg",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/f52d3274-980b-4933-8abf-dc900a7b5ba5/brand-assets/public-aics-logo.svg/aics-logo.svg",
+          "sourcePath": "public/aics-logo.svg"
+        }
+      },
+      "contextFiles": [
+        "src/components/portal/PortalShell.tsx",
+        "src/components/portal/Topbar.tsx",
+        "src/components/portal/Sidebar.tsx",
+        "src/components/portal/GlobalSearch.tsx",
+        "src/lib/aics/nav-config.ts",
+        ".superdesign/design-system.md",
+        "src/app/globals.css"
+      ],
+      "fingerprints": {
+        "src/components/portal/PortalShell.tsx": "7591dc590006ce2b87443a92d3963aee8739bd2039cd2c48f4a4dbead8e9aed3",
+        "src/components/portal/Topbar.tsx": "92834516a1d85488e4f237e894d9e77cd200ad97a02f647602919eb271cdc364",
+        "src/components/portal/Sidebar.tsx": "e273b3a5e973fcf2723684d3c4aaf3b1432c4f510470ec9b77f984f2c1abd677",
+        "src/components/portal/GlobalSearch.tsx": "3ef85904ec7dbf179d800a949b3b77fc5784780fbd8091cb36951bc0ed5d3cf4",
+        "src/lib/aics/nav-config.ts": "fcbdc51408d4c6b2c4b9418136f43f544d2444d23beec80f0044cbaeddfcd952",
+        ".superdesign/design-system.md": "87719116ab578927f144e6c140009dbf97c4ccccab2df43feb1ff54a9cc9b23f",
+        "src/app/globals.css": "230d736c35c72c871e8943716e224cdd96067d0a291cc6546b100115eba55b96"
+      },
+      "drafts": {
+        "62d08684-e70c-4f0a-a5db-72f133d001b5": {
+          "title": "Student mobile navigation",
+          "visualDirection": "Institutional student-first mobile composition",
+          "currentVersion": 1,
+          "parentDraftId": "37bafc75-77a4-41d6-ab18-efa8c8363060"
+        }
+      },
+      "updatedAt": "2026-11-07T06:16:52.623Z"
+    },
+    "sign-in-mobile": {
+      "targetKind": "existing-ui",
+      "projectId": "f52d3274-980b-4933-8abf-dc900a7b5ba5",
+      "baselineDraftId": "048e2566-3bb2-434b-bebe-8b4fbab362c4",
+      "activeDraftId": "eb3e9031-3204-462e-86d8-c253167f9dbf",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-aics-logo.svg",
+        "public-aics-campus.jpg"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-aics-logo.svg",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/f52d3274-980b-4933-8abf-dc900a7b5ba5/brand-assets/public-aics-logo.svg/aics-logo.svg",
+          "sourcePath": "public/aics-logo.svg"
+        }
+      },
+      "contextFiles": [
+        "src/components/auth/LoginView.tsx",
+        "src/components/auth/CredentialsForm.tsx",
+        "src/components/auth/login-tokens.ts",
+        ".superdesign/design-system.md",
+        "src/app/globals.css"
+      ],
+      "fingerprints": {
+        "src/components/auth/LoginView.tsx": "76d605ba39c3cfb2da19cc177653c1ea1e2133193eee46723f9b433c2d281214",
+        "src/components/auth/CredentialsForm.tsx": "41c164904957da0016210427533054d7e32894c4209590e97154d4433c62945e",
+        "src/components/auth/login-tokens.ts": "eb55433841204577da31240c94716732296a761a0b2b6b9ede3cae653720927d",
+        ".superdesign/design-system.md": "87719116ab578927f144e6c140009dbf97c4ccccab2df43feb1ff54a9cc9b23f",
+        "src/app/globals.css": "230d736c35c72c871e8943716e224cdd96067d0a291cc6546b100115eba55b96"
+      },
+      "drafts": {
+        "eb3e9031-3204-462e-86d8-c253167f9dbf": {
+          "title": "Mobile sign-in composition",
+          "visualDirection": "Institutional student-first mobile composition",
+          "currentVersion": 1,
+          "parentDraftId": "048e2566-3bb2-434b-bebe-8b4fbab362c4"
+        }
+      },
+      "updatedAt": "2026-11-07T06:16:52.660Z"
+    }
+  }
+}

@@ -9,13 +9,15 @@ import { localEnv } from '../onboarding/isolated-source.mjs'
 const root = resolve(import.meta.dirname, '../..')
 if (process.argv.length > 3 || process.argv[2] && process.argv[2] !== '--reuse') throw new Error('Use --reuse or no arguments')
 const previous = process.argv[2] ? JSON.parse(readFileSync(resolve(root, '.phase2-local/mobile-ux/quality.json'))) : null
+const fontHelperHash = createHash('sha256').update(readFileSync(resolve(root, 'scripts/mobile/cached-fonts.js'))).digest('hex')
+if (previous && JSON.parse(readFileSync(resolve(previous.output, 'result.json'))).fontHelperHash !== fontHelperHash) throw new Error('Font fixture changed. Run without --reuse to avoid stale build assets.')
 const source = previous?.source || mkdtempSync(resolve(tmpdir(), 'aics-mobile-quality-'))
 if (previous && (!source.startsWith(resolve(tmpdir(), 'aics-mobile-quality-')) || !existsSync(resolve(source, '.next/BUILD_ID')))) throw new Error('Invalid previously verified snapshot')
 const output = resolve(root, '.phase2-local/mobile-ux', `quality-${Date.now()}`)
 mkdirSync(output, { recursive: true })
 const inputs = ['src', 'public', '.gitignore', 'package.json', 'tsconfig.json', 'next.config.ts', 'next-env.d.ts', 'postcss.config.mjs', 'eslint.config.mjs']
 for (const file of inputs) if (existsSync(resolve(root, file))) cpSync(resolve(root, file), resolve(source, file), { recursive: true })
-if (!previous) symlinkSync(resolve(root, 'node_modules'), resolve(source, 'node_modules'), 'junction')
+if (!existsSync(resolve(source, 'node_modules'))) symlinkSync(resolve(root, 'node_modules'), resolve(source, 'node_modules'), 'junction')
 const records = []
 function record(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -25,7 +27,7 @@ function record(dir) {
   }
 }
 for (const dir of ['src', 'public']) record(resolve(source, dir))
-const result = { source, output, startedAt: new Date().toISOString(), head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), records, commands: [], fontInput: 'Existing build font CSS and exact local woff2 bytes; no source font substitutions' }
+const result = { source, output, startedAt: new Date().toISOString(), head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), records, commands: [], fontHelperHash, fontInput: 'Existing build font CSS and exact local woff2 bytes; no source font substitutions' }
 const save = () => {
   writeFileSync(resolve(output, 'result.json'), JSON.stringify(result, null, 2))
   writeFileSync(resolve(root, '.phase2-local/mobile-ux/quality.json'), JSON.stringify({ source, output, pid: process.pid }, null, 2))

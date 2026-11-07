@@ -11,5 +11,9 @@ module.exports = new Proxy({}, { get: (_, url) => {
   const family = new URL(url).searchParams.get('family').split(':')[0]
   const selected = faces.filter(face => face.includes(`font-family:${family};`) || face.includes(`font-family:"${family}";`))
   if (!selected.length) throw new Error(`No cached font available for ${family}`)
-  return selected.map(face => '/* latin */\n' + face.replace(/url\((?:\.\.\/media\/)([^)]+)\)/g, (_, file) => `url(${resolve(root, '.next/static/media', file).replaceAll('\\', '/').replace(/^[A-Za-z]:/, '')})`)).join('\n')
+  // Next's Google-font parser expects a separate `src: url(...)` line.
+  // Minified cached CSS otherwise leaves local paths in the browser stylesheet.
+  return selected.map(face => '/* latin */\n' + face
+    .replace(/url\((?:\.\.\/media\/)([^)]+)\)/g, (_, file) => `url(${resolve(root, '.next/static/media', file).replaceAll('\\', '/').replace(/^[A-Za-z]:/, '')})`)
+    .replace(/;/g, ';\n  ').replace(/src:/g, 'src: ')).join('\n')
 } })

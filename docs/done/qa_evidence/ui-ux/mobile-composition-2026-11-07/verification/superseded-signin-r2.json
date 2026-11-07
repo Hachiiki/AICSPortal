@@ -1,0 +1,287 @@
+{
+  "head": "bdde867d4e280cb12f63a2f9fbe2f6429f1b1110",
+  "sourceFilesMatched": 209,
+  "fixtureOnly": true,
+  "checks": [
+    {
+      "name": "sign-in-320x720: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x720: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x720: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x720: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "Phone sign-in action is visible on the initial720px screen",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 545.75,
+        "width": 288,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-320x420: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x420: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x420: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x420: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-360x740: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "name": "sign-in-360x740: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-360x740: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-360x740: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 296,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-390x844: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "sign-in-390x844: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-390x844: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-390x844: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 326,
+        "y": 367,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-430x932: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 430,
+        "scroll": 430
+      }
+    },
+    {
+      "name": "sign-in-430x932: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-430x932: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-430x932: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 359,
+        "y": 367,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-844x390: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 844,
+        "scroll": 844
+      }
+    },
+    {
+      "name": "sign-in-844x390: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-844x390: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-844x390: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 566,
+        "y": 359,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-1280x900: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "name": "sign-in-1280x900: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 1148,
+        "y": 374.4375,
+        "width": 44,
+        "height": 44
+      }
+    },
+    {
+      "name": "Sign-in reflows at200percent text size",
+      "pass": true
+    },
+    {
+      "name": "Pre-auth theme toggle works",
+      "pass": true
+    },
+    {
+      "name": "Empty submission is announced without a network request",
+      "pass": true
+    },
+    {
+      "name": "Missing username receives focus and invalid state",
+      "pass": true
+    },
+    {
+      "name": "Missing password receives focus",
+      "pass": true
+    },
+    {
+      "name": "Reveal preserves password and keyboard focus",
+      "pass": true
+    },
+    {
+      "name": "Remember control toggles with keyboard",
+      "pass": true
+    },
+    {
+      "name": "Authentication error remains visible with entered values",
+      "pass": true
+    },
+    {
+      "name": "Authentication request contract is preserved",
+      "pass": true
+    },
+    {
+      "name": "Network error permits retry without clearing credentials",
+      "pass": true
+    },
+    {
+      "name": "Pending login prevents duplicate requests",
+      "pass": true
+    },
+    {
+      "name": "Keyboard submission reaches the student portal after transition",
+      "pass": true
+    },
+    {
+      "name": "Production sign-in excludes mock demo and Face ID controls",
+      "pass": true
+    },
+    {
+      "name": "No unexpected client errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "signin-320x720.png",
+    "signin-320x420.png",
+    "signin-360x740.png",
+    "signin-390x844.png",
+    "signin-430x932.png",
+    "signin-844x390.png",
+    "signin-1280x900.png",
+    "signin-large-text-390.png",
+    "signin-dark-320x420.png",
+    "signin-invalid-320x420.png",
+    "signin-pending-320x420.png"
+  ],
+  "finishedAt": "2026-11-07T01:33:48.891Z"
+}

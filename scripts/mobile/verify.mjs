@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { fixtureContext, origin, student } from './fixtures.mjs'
+import { settleVisuals } from './visuals.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const label = process.argv[2] || `verify-${Date.now()}`
@@ -45,8 +46,20 @@ async function measure(page, name) {
   const m = await page.evaluate(() => ({ viewport: innerWidth, pageWidth: document.documentElement.scrollWidth, height: innerHeight }))
   result.measurements.push({ name, ...m }); check(`${name}: no page overflow`, m.pageWidth <= m.viewport, m)
 }
+async function openSearch(page) {
+  const button = page.locator('button[aria-label="Open portal search"]')
+  const dialog = page.getByRole('dialog', { name: 'Search the portal', exact: true })
+  if (await dialog.count() && await dialog.getAttribute('data-state') === 'closed') await dialog.waitFor({ state: 'hidden' })
+  if (await button.isVisible() && !await dialog.count()) await button.click()
+}
+async function fillSearch(page, text) {
+  await openSearch(page)
+  await page.getByRole('combobox', { name: 'Search the portal' }).fill(text)
+}
 try {
   const { page, writes, context } = await open()
+  result.visualAssets = await settleVisuals(page)
+  check('Application fonts and visible images loaded', true, result.visualAssets)
   await page.screenshot({ path: resolve(out, 'dashboard-390.png') })
   check('Next class uses hour-based sessions correctly', (await page.getByRole('region', { name: 'Today at a glance' }).innerText()).includes('Data Structures'))
   check('Dashboard overdue wording agrees with Tasks', (await page.getByRole('region', { name: 'Today at a glance' }).innerText()).includes('overdue'))
@@ -60,6 +73,18 @@ try {
       await go(page, route)
       const name = (route || 'dashboard').replaceAll(/[^a-z0-9]/g, '-') + '-' + width
       await measure(page, name)
+      if (width < 640) {
+        const chrome = await page.locator('header').evaluate(el => {
+          const header = el.getBoundingClientRect(), main = document.querySelector('main').getBoundingClientRect()
+          return { top: header.top, bottom: header.bottom, height: header.height, opacity: getComputedStyle(el).opacity, mainTop: main.top }
+        })
+        check(`${name}: header stays visible above content`, chrome.height >= 44 && chrome.top >= 0 && chrome.opacity === '1' && chrome.mainTop >= chrome.bottom - 1, chrome)
+      }
+      if (width < 640 && route.startsWith('/academics')) {
+        const navigation = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
+        const selected = await navigation.locator('[aria-current="page"]').allTextContents()
+        check(`${name}: one academic destination selected`, selected.length === 1 && selected[0].trim() === (route.includes('tab=tasks') ? 'Tasks' : 'Academics'), selected)
+      }
       if (route === '/academics?tab=tasks') {
         const order = await page.evaluate(() => {
           const courses = document.querySelector('[data-tour="tasks-courses"]').getBoundingClientRect()
@@ -78,10 +103,16 @@ try {
         check(`${name}: task toggle switches on`, await toggle.getAttribute('aria-checked') === 'true')
       }
       if (width < 640 && !route) {
-        const bar = await page.getByRole('button', { name: 'Open navigation menu', exact: true }).boundingBox()
+        const bar = await page.getByRole('button', { name: 'Open portal search', exact: true }).boundingBox()
         const account = await page.getByRole('button', { name: 'Account menu', exact: true }).boundingBox()
         check(`header-${width}: primary controls share one row`, Math.abs(bar.y - account.y) <= 1, { menu: bar, account })
         check(`header-${width}: primary controls have 44px hit areas`, Math.min(bar.height, bar.width, account.height, account.width) >= 44)
+        const header = await page.locator('header').boundingBox()
+        check(`header-${width}: compact single-row chrome`, header.height <= 64, header)
+        const nav = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
+        const bounds = await nav.boundingBox()
+        check(`bottom-nav-${width}: five labeled touch targets`, await nav.getByRole('button').count() === 5 && (await nav.getByRole('button').evaluateAll(buttons => buttons.every(b => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44))))
+        check(`bottom-nav-${width}: viewport-safe placement`, bounds.x >= 0 && bounds.y + bounds.height <= 845, bounds)
       }
       if (width < 640 && ['/settings', '/settings?section=security'].includes(route)) {
         const sizes = await page.locator('main input:not([type="file"]), main textarea').evaluateAll(inputs => inputs.filter(input => input.getClientRects().length > 0).map(input => parseFloat(getComputedStyle(input).fontSize)))
@@ -113,31 +144,62 @@ try {
   await drawer.waitFor({ state: 'hidden' })
   check('Drawer restores focus to hamburger', await menu.evaluate(el => el === document.activeElement))
   check('Drawer clears inert state', await page.locator('[inert]').count() === 0)
+  await menu.click()
+  await drawer.getByRole('button', { name: 'Switch to dark theme', exact: true }).click()
+  check('Phone theme action remains available in More', await page.locator('html').evaluate(el => el.classList.contains('dark')))
+  await drawer.getByRole('button', { name: 'Switch to light theme', exact: true }).click()
+  await page.keyboard.press('Escape')
+  await drawer.waitFor({ state: 'hidden' })
+  const mobileNavigation = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
+  await page.getByRole('button', { name: 'Account menu', exact: true }).click()
+  await page.getByRole('menuitem', { name: 'Theme settings', exact: true }).click()
+  check('Account Theme settings opens Appearance', new URL(page.url()).searchParams.get('section') === 'appearance')
+  await mobileNavigation.getByRole('button', { name: 'Tasks', exact: true }).click()
+  check('Bottom Tasks opens the explicit task destination', new URL(page.url()).searchParams.get('tab') === 'tasks')
+  await mobileNavigation.getByRole('button', { name: 'Academics', exact: true }).click()
+  check('Bottom Academics opens a distinct academic record destination', new URL(page.url()).searchParams.get('tab') === 'grades')
+  await page.goBack()
+  check('Browser back restores the Tasks destination', new URL(page.url()).searchParams.get('tab') === 'tasks')
+  await openSearch(page)
+  const searchModal = page.getByRole('dialog', { name: 'Search the portal', exact: true })
+  check('Opening search focuses its input', await page.getByRole('combobox', { name: 'Search the portal' }).evaluate(input => input === document.activeElement))
+  await page.setViewportSize({ width: 320, height: 420 })
+  await page.waitForTimeout(150)
+  const shortSearch = await searchModal.boundingBox()
+  check('Search adapts to a reduced visible viewport', shortSearch.y >= 0 && shortSearch.y + shortSearch.height <= 420, shortSearch)
+  await page.keyboard.press('Escape')
+  await searchModal.waitFor({ state: 'hidden' })
+  check('Closing search returns focus to its trigger', await page.getByRole('button', { name: 'Open portal search', exact: true }).evaluate(button => button === document.activeElement))
+  await page.setViewportSize({ width: 320, height: 720 })
 
+  await openSearch(page)
   const search = page.getByRole('combobox', { name: 'Search the portal' })
+  await searchModal.evaluate(async el => { await Promise.all(el.getAnimations({ subtree: true }).map(animation => animation.finished)) })
   const box = await search.boundingBox()
+  check('Phone search has exactly one active combobox', await page.getByRole('combobox', { name: 'Search the portal' }).count() === 1)
   check('Mobile search has useful entry width', box.width >= 220, box)
-  await search.fill('CS201')
+  await fillSearch(page, 'CS201')
   const firstOption = page.getByRole('option').first()
   await firstOption.waitFor()
   check('Search keyboard selection follows visible result order', await search.getAttribute('aria-activedescendant') === await firstOption.getAttribute('id'))
-  await search.fill('linked list')
+  await fillSearch(page, 'linked list')
   await page.keyboard.press('ArrowDown')
   check('Search exposes a live active option', !!await search.getAttribute('aria-activedescendant'))
   await page.keyboard.press('Enter')
   await page.locator('[data-task-id="mobile-task-0"]:visible').waitFor()
   check('Search opens the selected task', new URL(page.url()).searchParams.get('task') === 'mobile-task-0')
-  await search.fill('inheritance')
+  await fillSearch(page, 'inheritance')
   await page.waitForTimeout(350)
   check('A second search keeps editing focus after the previous task destination', await search.evaluate(input => input === document.activeElement))
   await page.getByRole('option', { name: /Inheritance and interfaces quiz/ }).click()
   await page.locator('[data-task-id="mobile-task-4"]:visible').waitFor()
   check('Search selects a different task while Academics stays mounted', new URL(page.url()).searchParams.get('task') === 'mobile-task-4')
-  await search.fill('linked list')
+  await fillSearch(page, 'linked list')
   await page.getByRole('option', { name: /Implement a linked list/ }).tap()
   check('Touch search selection opens its task', new URL(page.url()).searchParams.get('task') === 'mobile-task-0')
-  await search.fill('inheritance')
+  await fillSearch(page, 'inheritance')
   await page.getByRole('option', { name: /Inheritance and interfaces quiz/ }).tap()
+  await openSearch(page)
   await search.focus()
   await page.keyboard.press('Tab')
   check('Tabbing away from search closes the result popup', await search.getAttribute('aria-expanded') === 'false')
@@ -240,11 +302,14 @@ try {
   await page.keyboard.press('Escape')
   await page.getByRole('menu').waitFor({ state: 'hidden' })
   check('A nested menu closes before the tour', await guide.count() === 1)
-  await search.fill('grades')
+  await fillSearch(page, 'grades')
   await page.keyboard.press('Escape')
   check('Search Escape preserves the tour', await guide.count() === 1)
-  await search.focus()
+  const nestedSearch = page.getByRole('dialog', { name: 'Search the portal', exact: true })
+  if (await nestedSearch.count()) { await page.keyboard.press('Escape'); await nestedSearch.waitFor({ state: 'hidden' }) }
+  await page.getByRole('button', { name: 'Open portal search', exact: true }).focus()
   await page.keyboard.press('Alt+g')
+  await page.waitForFunction(() => document.activeElement?.matches('[data-tour-card] h2'), {}, { timeout: 5000 })
   check('Alt+G returns keyboard focus to the guide', await guide.evaluate(el => el.contains(document.activeElement)))
   for (let i = 0; i < 6; i++) {
     await guide.getByRole('button', { name: 'Go to the next tour step', exact: true }).click()
@@ -307,6 +372,9 @@ try {
     return { top: b.top, bottom: b.bottom, height: b.height }
   }))
   check('Short-screen guide navigation stays visible without scrolling', navigation.length === 3 && navigation.every(button => button.top >= 0 && button.bottom <= 420 && button.height >= 44), navigation)
+  const navTop = (await fresh.page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).boundingBox()).y
+  const guideBounds = await shortGuide.boundingBox()
+  check('Short guide leaves the bottom navigation uncovered', guideBounds.y + guideBounds.height <= navTop, { guide: guideBounds, navTop })
   await fresh.page.screenshot({ path: resolve(out, 'guide-320x420.png') })
   await shortGuide.getByRole('button', { name: 'Hide guide to explore the page', exact: true }).click()
   await fresh.page.waitForTimeout(40)
@@ -366,6 +434,7 @@ try {
   loginPage.on('pageerror', error => { result.errors.push(error.message); save() })
   await loginPage.goto(origin, { waitUntil: 'load', timeout: 180000 })
   await loginPage.locator('input[type="password"]').waitFor()
+  await settleVisuals(loginPage)
   await measure(loginPage, 'sign-in-320')
   const loginText = await loginPage.locator('input[type="text"], input[type="password"]').evaluateAll(inputs => inputs.filter(input => input.getClientRects().length > 0).map(input => parseFloat(getComputedStyle(input).fontSize)))
   check('Mobile sign-in fields use readable 16px text', loginText.length >= 2 && loginText.every(size => size >= 16), loginText)
