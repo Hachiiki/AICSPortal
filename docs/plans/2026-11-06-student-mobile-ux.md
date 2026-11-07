@@ -38,3 +38,17 @@ Use project-orchestrator, graphify, redesign-existing-projects, webdesign-ui, co
 - [x] Commit and push the implementation through the feature PR.
 
 Final application source is `a3e1f33`. Acceptance-r10 passed 314 browser checks with no failures or client errors, and 154 relevant unit tests passed. Lint, typecheck and the production webpack build passed. Both independent council reviewers consider the examined version ready for PR review. The exact commit comparisons, honest score tables and remaining coverage limits are recorded in `docs/done/qa_evidence/ui-ux/mobile-2026-11-06/README.md`; GitHub Conversation comments carry the per-commit before/after explanations.
+
+## Mobile composition pass, 2026-11-07
+
+The owner authorizes a distinct mobile composition, preserving the content and functions, and adds mobile sign-in to scope. Continue on the existing feature branch and PR #95, now draft again. The same two council reviewers compare navigation approaches without a numerical target in their instructions.
+
+The selected direction is a compact student phone header with a labeled Search trigger, notifications and account, plus Home, Tasks, Academics, Events and More at the bottom. More retains the existing complete drawer and phone theme action. Search uses the current role-filtered index in a bounded modal. Tasks and Academics have distinct URL-driven selected states. Staff and desktop chrome retain their existing composition. Reserve the bar's safe-area space in content and the nonmodal guide; verify keyboard, focus, nested overlays and route history.
+
+Sign-in uses a compact normal-flow identity and form on phones. Campus imagery and existing welcome content follow the form. Preserve disclosure, help, legal links, theme, remember behavior, password managers, production demo gates and post-login transitions. Improve touch targets, remember/help wrapping and persistent announced errors without changing authentication endpoints or payloads.
+
+- [x] Reopen the existing PR as draft and obtain independent design recommendations.
+- [ ] Record reviewable mobile designs and exact current-source baseline screenshots.
+- [ ] Implement phone navigation/search and sign-in composition in separate commits, pushing each immediately.
+- [ ] Run source-matched viewport, keyboard, error/retry, route, overlay and sign-in checks plus required quality gates.
+- [ ] Reassess with the same council, publish commit-specific before/after comments and honest score tables, and update the PR.
