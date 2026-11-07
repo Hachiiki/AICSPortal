@@ -87,9 +87,9 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
           {/* Heading */}
           <div className="mb-5 lg:mb-8">
-            <h2 className="text-2xl lg:text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
+            <h1 className="text-2xl lg:text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
               Sign in to AICS Portal
-            </h2>
+            </h1>
             <p className="text-sm mt-2" style={{ color: T.muted }}>
               Use your AICS credentials to access your student or staff portal.
             </p>
@@ -175,15 +175,15 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                 the v4 class would shift it by 1-3 channels (G4 parity
                 caught exactly this), so the literal stays and only the
                 dark variant maps onto the themed slate-500. */}
-            <p className="text-[11px] text-[#64748B] dark:text-slate-500">
+            <p className="text-xs lg:text-[11px] text-[#64748B] dark:text-slate-500">
               &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved
             </p>
-            <nav aria-label="Legal" className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+            <nav aria-label="Legal" className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs lg:text-[11px]">
               {POLICY_PAGES.map((p) => (
                 <Link
                   key={p.href}
                   href={p.href}
-                  className="underline underline-offset-2 hover:text-slate-700"
+                  className="inline-flex min-h-11 items-center underline underline-offset-2 hover:text-slate-700 lg:min-h-0"
                   style={{ color: T.muted }}
                 >
                   {p.label}
@@ -191,7 +191,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               ))}
               <CookieSettingsButton
                 label="Cookie settings"
-                className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700"
+                className="min-h-11 text-xs lg:min-h-0 lg:text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700"
               />
             </nav>
           </div>
@@ -247,7 +247,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
             <p className="text-2xl sm:text-3xl lg:text-[2.75rem] font-bold leading-tight text-white">
               Welcome to your
             </p>
-            <h1
+            <h2
               className="text-2xl sm:text-3xl lg:text-[2.75rem] font-bold leading-tight"
               style={{
                 backgroundImage: PORTAL_TEXT_GRADIENT,
@@ -258,7 +258,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               }}
             >
               AICS Portal.
-            </h1>
+            </h2>
             <p className="mt-4 text-sm sm:text-[15px] text-white max-w-md leading-relaxed">
               Access your academic resources, schedules, grades, and enrollment information in one
               place.

@@ -130,7 +130,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={username}
             onChange={(e) => { setUsername(e.target.value); clearError() }}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-12 lg:h-11 pl-10 pr-3 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="w-full h-12 lg:h-11 pl-10 pr-3 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] placeholder:text-[var(--login-muted)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
         </div>
       </div>
@@ -155,7 +155,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={password}
             onChange={(e) => { setPassword(e.target.value); clearError() }}
             placeholder="Enter your password"
-            className="w-full h-12 lg:h-11 pl-10 pr-12 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="w-full h-12 lg:h-11 pl-10 pr-12 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] placeholder:text-[var(--login-muted)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
           <button
             type="button"
