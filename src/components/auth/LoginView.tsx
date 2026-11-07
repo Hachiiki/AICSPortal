@@ -33,6 +33,8 @@ import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 //  keep this file focused on layout + mode switching.
 // ============================================================
 
+const INDEPENDENT_NOTICE = 'An independent student project. Not affiliated with or endorsed by AICS.'
+
 interface LoginViewProps {
   onLogin: (
     username: string,
@@ -58,33 +60,111 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
     // surface (slides, scanner sweep, mode transitions).
     <MotionConfig reducedMotion="user">
     <main
-      className="w-full min-h-dvh flex flex-col lg:flex-row font-sans"
+      className="relative w-full min-h-dvh flex flex-col lg:flex-row font-sans"
       style={{ background: T.white, color: T.text }}
     >
-      {/* ===================== RIGHT 40% — Login panel ===================== */}
+      <div className="absolute right-4 top-3 z-20 sm:right-5 lg:top-5">
+        <button
+          type="button"
+          onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
+          aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          className="inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-white/45 bg-[#17324D] text-white transition-colors hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:border-[var(--login-border)] lg:bg-[var(--login-bg)] lg:text-[var(--login-muted)] lg:hover:border-[var(--login-primary)] lg:hover:text-[var(--login-text)] lg:focus-visible:ring-[var(--login-accent)]/40"
+        >
+          {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden /> : <Moon className="w-4.5 h-4.5" aria-hidden />}
+        </button>
+      </div>
+
+      {/* ===================== LEFT 60% ===================== */}
+      {/* Campus photograph + navy overlay. Brand-constant in both
+          themes (plan §2): the navy panel and its white text never
+          re-theme; the right-side form panel below does. */}
       <section
-          className="relative order-1 lg:order-2 z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-start lg:items-center justify-center px-4 sm:px-10 pt-5 pb-6 lg:py-12 lg:min-h-dvh lg:-ml-12 lg:rounded-l-[40px]"
-        style={{ background: T.white }}
+        className="relative lg:w-[60%] w-full lg:h-auto lg:min-h-dvh overflow-hidden flex-shrink-0"
+        style={{ background: T.navy }}
       >
-        {/* Theme toggle — top-right corner of the form panel. Pre-auth
-            surface, so it lives here rather than in the portal topbar.
-            Token-driven (var-chained) classes: themes with the cascade. */}
-        <div className="absolute z-20 top-4 right-4 sm:top-5 sm:right-5">
-          <button
-            type="button"
-            onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
-            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40"
-          >
-            {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden /> : <Moon className="w-4.5 h-4.5" aria-hidden />}
-          </button>
+        {/* Campus photograph */}
+        <img
+          src="/aics-campus.jpg"
+          alt="Asian Institute of Computer Studies campus"
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+          }}
+        />
+        {/* Dark navy overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(160deg, rgba(23,50,77,0.78) 0%, rgba(18,77,122,0.92) 100%)',
+          }}
+        />
+
+        <div className="relative flex min-h-11 items-center gap-2.5 px-4 pt-3 pr-16 text-white sm:px-10 sm:pr-20 lg:hidden">
+          <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-9 shrink-0" />
+          <p className="text-xs font-semibold leading-tight">Asian Institute<br />of Computer Studies</p>
         </div>
 
-        <div className="relative w-full max-w-sm lg:py-4">
-          <div className="mb-5 flex items-center gap-3 pr-12 lg:hidden">
-            <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-11 shrink-0" />
-            <p className="text-sm font-semibold leading-snug" style={{ color: T.text }}>Asian Institute<br />of Computer Studies</p>
+        {/* Top brand row — logo + institution name */}
+        <div className="hidden lg:flex absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 items-center gap-4 text-white">
+          <img
+            src="/aics-logo.svg"
+            alt=""
+            aria-hidden="true"
+            className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 object-contain"
+          />
+          <div className="leading-tight">
+            <p className="text-base sm:text-lg font-semibold">Asian Institute</p>
+            <p className="text-base sm:text-lg font-semibold">of Computer Studies</p>
           </div>
+        </div>
+
+        {/* Welcome section — vertically centered */}
+        <div className="relative lg:absolute lg:inset-0 flex flex-col items-start justify-center px-4 pb-4 pt-2 sm:px-10 lg:px-14 lg:py-0 text-white">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <p className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2.75rem]">
+              <span className="lg:block">Welcome to your</span>{' '}
+              <span
+                className="lg:block"
+                style={{
+                  backgroundImage: PORTAL_TEXT_GRADIENT,
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  color: 'transparent',
+                }}
+              >
+                AICS Portal.
+              </span>
+            </p>
+            <p className="mt-1 max-w-md text-[13px] leading-snug text-white sm:text-sm lg:mt-4 lg:text-[15px] lg:leading-relaxed">
+              Access your academic resources, schedules, grades, and enrollment information in one
+              place.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Footer notice — honest project status. The portal is an
+            independent student project; it must never imply an official
+            AICS IT department operates it. */}
+        <div className="absolute inset-x-0 bottom-0 hidden items-center gap-2 px-14 pb-14 text-[11px] text-white/70 lg:flex">
+          <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden />
+          <span>
+            {INDEPENDENT_NOTICE}
+          </span>
+        </div>
+      </section>
+      {/* ===================== RIGHT 40% — Login panel ===================== */}
+      <section
+          className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-start lg:items-center justify-center px-4 sm:px-10 pt-4 pb-6 lg:py-12 lg:min-h-dvh lg:-ml-12 lg:rounded-l-[40px]"
+        style={{ background: T.white }}
+      >
+
+        <div className="relative w-full max-w-sm lg:py-4">
           {/* Heading */}
           <div className="mb-5 lg:mb-8">
             <h1 className="text-2xl lg:text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
@@ -167,6 +247,11 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
             </div>
           </div>
 
+          <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-500 lg:hidden">
+            <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+            {INDEPENDENT_NOTICE}
+          </p>
+
           {/* Footer — matches the repository's documented licensing
               (LICENSE / README: All Rights Reserved, proprietary), plus the
               legal links required for the pre-auth surfaces. */}
@@ -197,85 +282,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
         </div>
       </section>
-      {/* ===================== LEFT 60% ===================== */}
-      {/* Campus photograph + navy overlay. Brand-constant in both
-          themes (plan §2): the navy panel and its white text never
-          re-theme; the right-side form panel below does. */}
-      <section
-        className="relative order-2 lg:order-1 lg:w-[60%] w-full lg:h-auto lg:min-h-dvh overflow-hidden flex-shrink-0"
-        style={{ background: T.navy }}
-      >
-        {/* Campus photograph */}
-        <img
-          src="/aics-campus.jpg"
-          alt="Asian Institute of Computer Studies campus"
-          className="absolute inset-0 w-full h-full object-cover"
-          onError={(e) => {
-            ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-          }}
-        />
-        {/* Dark navy overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(160deg, rgba(23,50,77,0.78) 0%, rgba(18,77,122,0.92) 100%)',
-          }}
-        />
 
-        {/* Top brand row — logo + institution name */}
-        <div className="hidden lg:flex absolute top-0 left-0 right-0 px-6 sm:px-10 lg:px-14 py-7 items-center gap-4 text-white">
-          <img
-            src="/aics-logo.svg"
-            alt=""
-            aria-hidden="true"
-            className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 object-contain"
-          />
-          <div className="leading-tight">
-            <p className="text-base sm:text-lg font-semibold">Asian Institute</p>
-            <p className="text-base sm:text-lg font-semibold">of Computer Studies</p>
-          </div>
-        </div>
-
-        {/* Welcome section — vertically centered */}
-        <div className="relative lg:absolute lg:inset-0 flex flex-col items-start justify-center px-6 py-8 sm:px-10 lg:py-0 lg:px-14 text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          >
-            <p className="text-2xl sm:text-3xl lg:text-[2.75rem] font-bold leading-tight text-white">
-              Welcome to your
-            </p>
-            <h2
-              className="text-2xl sm:text-3xl lg:text-[2.75rem] font-bold leading-tight"
-              style={{
-                backgroundImage: PORTAL_TEXT_GRADIENT,
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                color: 'transparent',
-              }}
-            >
-              AICS Portal.
-            </h2>
-            <p className="mt-4 text-sm sm:text-[15px] text-white max-w-md leading-relaxed">
-              Access your academic resources, schedules, grades, and enrollment information in one
-              place.
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Footer notice — honest project status. The portal is an
-            independent student project; it must never imply an official
-            AICS IT department operates it. */}
-        <div className="relative lg:absolute lg:bottom-0 lg:left-0 lg:right-0 px-6 sm:px-10 lg:px-14 pb-6 lg:pb-14 flex items-center gap-2 text-xs lg:text-[11px] text-white/90 lg:text-white/70">
-          <ShieldCheck className="w-3.5 h-3.5 shrink-0" aria-hidden />
-          <span>
-            An independent student project. Not affiliated with or endorsed by AICS.
-          </span>
-        </div>
-      </section>
 
     </main>
     </MotionConfig>
