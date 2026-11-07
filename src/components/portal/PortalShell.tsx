@@ -11,7 +11,9 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { MobileNavigation } from './MobileNavigation'
+import { MobileNavigation, MOBILE_NAV_ACTION } from './MobileNavigation'
+import { MobileSearch } from './MobileSearch'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
 interface PortalShellProps {
@@ -63,6 +65,7 @@ export function PortalShell({
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const role = student.role ?? 'student'
+  const phone = usePhoneViewport()
   // Workspace-assembly entrance (assemble candidate only): staged
   // while the redirect overlay still covers the portal, animated
   // into place when the reveal flips. Null everywhere else — the
@@ -128,7 +131,17 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
-        {role === 'student' && <MobileNavigation student={student} active={active} academicTab={academicTab} menuOpen={mobileNavOpen} onOpenMenu={() => setMobileNavOpen(true)} onNavigate={onNavigate} />}
+        {role === 'student' && phone && (
+          <MobileNavigation
+            student={student}
+            active={active}
+            academicTab={academicTab}
+            menuOpen={mobileNavOpen}
+            onOpenMenu={() => setMobileNavOpen(true)}
+            onNavigate={onNavigate}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className={`${MOBILE_NAV_ACTION} text-link-strong hover:bg-blue-50`} />}
+          />
+        )}
       </div>
     </div>
     </MotionConfig>

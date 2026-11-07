@@ -24,6 +24,8 @@ import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import { getStudentTourUpdate } from '@/lib/onboarding/student-client'
 import { DialogPanel } from './DialogPanel'
+import { MOBILE_NAV_ACTION, MOBILE_NAV_GRID } from './MobileNavigation'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface SidebarProps {
   active: View
@@ -167,6 +169,8 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
 }
 
 export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
+  const phone = usePhoneViewport()
+  const phoneSheet = role === 'student' && phone
   // Workspace-assembly entrance (assemble candidate only): the real
   // rail slides in from the left when the reveal flips. Inactive —
   // including normal navigation — the aside mounts at rest, exactly
@@ -223,30 +227,41 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
             <DialogPanel
               id="mobile-navigation"
               onClose={onMobileClose}
-              initial={{ x: -264 }}
-              animate={{ x: 0 }}
-              exit={{ x: -264 }}
+              initial={phoneSheet ? { y: '100%' } : { x: -264 }}
+              animate={{ x: 0, y: 0 }}
+              exit={phoneSheet ? { y: '100%' } : { x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="fixed top-0 left-0 h-dvh w-72 max-w-[calc(100vw-32px)] bg-surface border-r border-slate-200 z-50 lg:hidden flex flex-col outline-none pb-[env(safe-area-inset-bottom)]"
+              className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 h-[min(82dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
               aria-label="Navigation menu"
             >
               {/* Close button */}
-              <button
+              {!phoneSheet && <button
                 type="button"
                 onClick={onMobileClose}
                 aria-label="Close navigation menu"
                 className="absolute top-3 right-2 size-11 grid place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <X className="w-5 h-5" />
-              </button>
-              <SidebarContent
-                active={active}
-                onNavigate={(v) => {
-                  onNavigate(v)
-                  onMobileClose()
-                }}
-                role={role}
-              />
+              </button>}
+              <div className="min-h-0 flex-1">
+                <SidebarContent
+                  active={active}
+                  onNavigate={(v) => {
+                    onNavigate(v)
+                    onMobileClose()
+                  }}
+                  role={role}
+                />
+              </div>
+              {phoneSheet && (
+                <div className={`${MOBILE_NAV_GRID} shrink-0 border-t border-line`}>
+                  <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
+                    className={`${MOBILE_NAV_ACTION} col-start-6 bg-blue-50 text-link-strong`}>
+                    <X className="size-5 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
+                    <span>Close</span>
+                  </button>
+                </div>
+              )}
             </DialogPanel>
           </>
         )}

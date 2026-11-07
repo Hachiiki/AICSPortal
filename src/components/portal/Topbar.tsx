@@ -1,7 +1,6 @@
 'use client'
 
-import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon, Search } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
@@ -24,7 +23,6 @@ import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
 import { formatNotifTime } from '@/lib/aics/notifications'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
 interface TopbarProps {
   student: Student
@@ -64,32 +62,6 @@ export function Topbar({
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
-  const [searchOpen, setSearchOpen] = useState(false)
-  const selectedSearch = useRef(false)
-  const searchPanel = useRef<HTMLDivElement>(null)
-  const searchProps = { student, events, professors, tasks, facultyData, taskGroups, onNavigate }
-  useEffect(() => {
-    if (!compact) return
-    const keyboard = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault(); selectedSearch.current = false; setSearchOpen(true)
-      }
-    }
-    window.addEventListener('keydown', keyboard)
-    return () => window.removeEventListener('keydown', keyboard)
-  }, [compact])
-  useEffect(() => {
-    if (!compact || !searchOpen) return
-    const viewport = window.visualViewport
-    const update = () => {
-      searchPanel.current?.style.setProperty('--search-visible-height', `${viewport?.height ?? window.innerHeight}px`)
-      searchPanel.current?.style.setProperty('--search-visible-top', `${viewport?.offsetTop ?? 0}px`)
-    }
-    update()
-    viewport?.addEventListener('resize', update)
-    viewport?.addEventListener('scroll', update)
-    return () => { viewport?.removeEventListener('resize', update); viewport?.removeEventListener('scroll', update) }
-  }, [compact, searchOpen])
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
@@ -132,7 +104,7 @@ export function Topbar({
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className={`h-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1 px-4 sm:py-0 sm:gap-3 sm:px-6 lg:px-8 ${isStudent ? 'min-h-14 py-1' : 'pb-3 pt-1'}`}>
+      <div className={`h-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1 px-4 sm:py-0 sm:gap-3 sm:px-6 lg:px-8 ${isStudent ? 'min-h-14 flex-nowrap py-1' : 'pb-3 pt-1'}`}>
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <button
@@ -147,7 +119,7 @@ export function Topbar({
             <Menu className="w-5 h-5" />
           </button>
           {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-7 sm:hidden" />}
-          <span className={`${isStudent ? 'max-w-14 text-xs leading-tight' : 'text-sm'} sm:hidden font-semibold text-slate-900`}>{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
+          <span className="whitespace-nowrap text-sm font-semibold text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
@@ -172,18 +144,6 @@ export function Topbar({
 
         {/* Right — theme toggle + notifications + profile dropdown + logout */}
         <div className="flex items-center gap-0.5 sm:gap-3 flex-shrink-0">
-          {compact && <Dialog open={searchOpen} onOpenChange={open => { if (open) selectedSearch.current = false; setSearchOpen(open) }}>
-            <DialogTrigger asChild>
-              <button type="button" aria-label="Open portal search" className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-link-strong hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link"><Search className="size-4" aria-hidden="true" />Search</button>
-            </DialogTrigger>
-            <DialogContent ref={searchPanel} className="top-[calc(var(--search-visible-top,0px)+12px)] flex max-h-[calc(var(--search-visible-height,100dvh)-24px)] w-[calc(100%-16px)] max-w-none translate-y-0 flex-col gap-3 p-3 [&>button]:size-11 [&>button]:top-2 [&>button]:right-2"
-              onOpenAutoFocus={event => { event.preventDefault(); searchPanel.current?.querySelector<HTMLInputElement>('input')?.focus() }}
-              onCloseAutoFocus={event => { if (selectedSearch.current) event.preventDefault() }}
-              onEscapeKeyDown={event => { if (document.activeElement?.getAttribute('role') === 'combobox') event.preventDefault() }}>
-              <DialogHeader className="shrink-0 pr-10 text-left"><DialogTitle>Search the portal</DialogTitle><DialogDescription>Find pages, subjects, people and coursework.</DialogDescription></DialogHeader>
-              <GlobalSearch {...searchProps} surface="dialog" onSelect={() => { selectedSearch.current = true; setSearchOpen(false) }} onEscape={() => setSearchOpen(false)} />
-            </DialogContent>
-          </Dialog>}
           {/* Theme quick toggle. First in the right cluster so the
               pre-existing controls keep their exact positions. */}
           <button
