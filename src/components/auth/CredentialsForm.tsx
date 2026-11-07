@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useId } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
@@ -35,46 +35,65 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [missing, setMissing] = useState<'username' | 'password' | null>(null)
+  const usernameRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+  const pendingRef = useRef(false)
+  const errorId = useId()
+  const clearError = useCallback(() => { setError(null); setMissing(null) }, [])
 
   const handleCredentialSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
+      if (pendingRef.current) return
       if (!username.trim() || !password.trim()) {
-        toast.error('Please enter both your username and password.')
+        setError('Please enter both your username and password.')
+        setMissing(!username.trim() ? 'username' : 'password')
+        ;(!username.trim() ? usernameRef : passwordRef).current?.focus()
         return
       }
+      clearError()
+      pendingRef.current = true
       setSubmitting(true)
       try {
         const result = await onLogin(username.trim(), password, remember)
         if (!result.ok) {
           setSubmitting(false)
-          toast.error(result.error || 'Invalid username or password.')
+          pendingRef.current = false
+          setError(result.error || 'Invalid username or password.')
           return
         }
         toast.success('Signed in. Redirecting to your AICS dashboard...')
       } catch {
         setSubmitting(false)
-        toast.error('Network error. Please try again.')
+        pendingRef.current = false
+        setError('Network error. Please try again.')
       }
     },
-    [username, password, remember, onLogin]
+    [username, password, remember, onLogin, clearError]
   )
 
   // Dev-only demo login. No credentials in the bundle — the server
   // issues the demo session (POST /api/auth/demo, 404 in production).
   const handleTestLogin = useCallback(async () => {
+    if (pendingRef.current) return
+    pendingRef.current = true
+    setError(null)
     setSubmitting(true)
     try {
       const result = await onDemoLogin()
       if (!result.ok) {
         setSubmitting(false)
-        toast.error(result.error || 'Test login failed.')
+        pendingRef.current = false
+        setError(result.error || 'Test login failed.')
         return
       }
       toast.success('Test login successful. Welcome!')
     } catch {
       setSubmitting(false)
-      toast.error('Network error. Please try again.')
+      pendingRef.current = false
+      setError('Network error. Please try again.')
     }
   }, [onDemoLogin])
 
@@ -90,7 +109,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
     >
       {/* Username */}
       <div className="space-y-1.5">
-        <label htmlFor="username" className="block text-xs font-medium" style={{ color: T.text }}>
+        <label htmlFor="username" className="block text-sm lg:text-xs font-medium" style={{ color: T.text }}>
           Username
         </label>
         <div className="relative">
@@ -100,19 +119,25 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           />
           <input
             id="username"
+            ref={usernameRef}
             type="text"
             autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={missing === 'username'}
+            aria-describedby={error ? errorId : undefined}
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => { setUsername(e.target.value); clearError() }}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-11 pl-10 pr-3 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="w-full h-12 lg:h-11 pl-10 pr-3 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
         </div>
       </div>
 
       {/* Password */}
       <div className="space-y-1.5">
-        <label htmlFor="password" className="block text-xs font-medium" style={{ color: T.text }}>
+        <label htmlFor="password" className="block text-sm lg:text-xs font-medium" style={{ color: T.text }}>
           Password
         </label>
         <div className="relative">
@@ -122,17 +147,20 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           />
           <input
             id="password"
+            ref={passwordRef}
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
+            aria-invalid={missing === 'password'}
+            aria-describedby={error ? errorId : undefined}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); clearError() }}
             placeholder="Enter your password"
-            className="w-full h-11 pl-10 pr-10 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="w-full h-12 lg:h-11 pl-10 pr-12 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
           />
           <button
             type="button"
-            onClick={() => setShowPassword((s) => !s)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors hover:bg-gray-50"
+            onClick={() => { setShowPassword((s) => !s); passwordRef.current?.focus({ preventScroll: true }) }}
+            className="absolute right-0 top-1/2 -translate-y-1/2 size-12 lg:size-11 grid place-items-center rounded-md transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-primary)]"
             style={{ color: T.muted }}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
@@ -142,17 +170,17 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       </div>
 
       {/* Remember me + Forgot password */}
-      <div className="flex items-center justify-between pt-1">
-        <label className="inline-flex items-center gap-2 py-1 cursor-pointer select-none">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between pt-1">
+        <label className="inline-flex min-h-11 items-center gap-2 py-1 cursor-pointer select-none">
           <input
             type="checkbox"
-            className="sr-only"
+            className="peer sr-only"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
           <span
             aria-hidden
-            className="w-5 h-5 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors pointer-events-none"
+            className="w-5 h-5 rounded-[4px] flex items-center justify-center flex-shrink-0 transition-colors pointer-events-none peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--login-primary)] peer-focus-visible:ring-offset-2"
             style={
               remember
                 ? { background: T.primary, border: `1.5px solid ${T.primary}` }
@@ -161,21 +189,23 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           >
             {remember && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
           </span>
-          <span className="text-xs" style={{ color: T.muted }}>
+          <span className="text-sm lg:text-xs" style={{ color: T.muted }}>
             Remember me for 7 days
           </span>
         </label>
         {/* No self-service reset and no IT desk; branch admins reset passwords. */}
-        <span className="text-xs font-medium" style={{ color: T.muted }}>
+        <span className="text-sm lg:text-xs leading-relaxed" style={{ color: T.muted }}>
           Forgot password? Ask your branch admin.
         </span>
       </div>
+
+      {error && <p id={errorId} role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm leading-relaxed text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">{error}</p>}
 
       {/* Sign In — primary action */}
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-11 rounded-[8px] font-semibold text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+        className="w-full h-12 lg:h-11 rounded-[8px] font-semibold text-base lg:text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] motion-reduce:transform-none transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">
@@ -187,7 +217,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       </button>
 
       {/* Sign-in disclaimer — the legal entry point of the service. */}
-      <p className="text-center text-[11px] leading-relaxed pt-1" style={{ color: T.muted }}>
+      <p className="text-center text-xs lg:text-[11px] leading-relaxed pt-1" style={{ color: T.muted }}>
         By signing in, you agree to our{' '}
         <Link href="/legal/terms" className="underline underline-offset-2 hover:text-slate-700">
           Terms &amp; Conditions
