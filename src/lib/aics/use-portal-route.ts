@@ -32,7 +32,7 @@ export type PortalRoute =
   | { view: 'profile'; branch: string; username: string; role: PortalRole; focus?: 'profile' }
   | { view: 'academics'; branch: string; username: string; role: PortalRole; tab?: AcademicsTab; taskId?: string; subjectCode?: string }
   | { view: 'events'; branch: string; username: string; role: PortalRole }
-  | { view: 'notifications'; branch: string; username: string; role: 'student' }
+  | { view: 'notifications'; branch: string; username: string; role: PortalRole }
   | { view: 'professors'; branch: string; username: string; role: PortalRole }
   | { view: 'enrollment'; branch: string; username: string; role: PortalRole }
   | { view: 'settings'; branch: string; username: string; role: PortalRole; section?: SettingsSection; focus?: 'photo' | 'password' }
