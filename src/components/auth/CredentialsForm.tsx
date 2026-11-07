@@ -159,10 +159,15 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           />
           <button
             type="button"
-            onClick={() => { setShowPassword((s) => !s); passwordRef.current?.focus({ preventScroll: true }) }}
+            onClick={(event) => {
+              setShowPassword((s) => !s)
+              // Keep keyboard and assistive activation on the reveal control.
+              if (event.detail > 0) passwordRef.current?.focus({ preventScroll: true })
+            }}
             className="absolute right-0 top-1/2 -translate-y-1/2 size-12 lg:size-11 grid place-items-center rounded-md transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-primary)]"
             style={{ color: T.muted }}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-controls="password"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
