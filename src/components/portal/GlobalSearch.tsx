@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useId } from 'react'
 import {
   Search,
   Home,
@@ -39,6 +39,9 @@ interface GlobalSearchProps {
   facultyData?: { subjects: any[]; students: any[] } | null
   taskGroups?: { title: string; subjectCode: string }[]
   onNavigate: (view: View) => void
+  surface?: 'inline' | 'dialog'
+  onSelect?: () => void
+  onEscape?: () => void
 }
 
 // A single entry in the searchable index.
@@ -297,7 +300,7 @@ function searchIndex(index: SearchItem[], query: string): SearchItem[] {
   return out
 }
 
-export function GlobalSearch({ student, events, professors, tasks, facultyData, taskGroups, onNavigate }: GlobalSearchProps) {
+export function GlobalSearch({ student, events, professors, tasks, facultyData, taskGroups, onNavigate, surface = 'inline', onSelect, onEscape }: GlobalSearchProps) {
   const { navigate } = usePortalRoute()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -305,6 +308,8 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
+  const searchId = useId()
+  const optionId = (id: string) => `${searchId}-option-${encodeURIComponent(id)}`
 
   const roleLinks = useMemo(() => quickLinksFor(student.role), [student.role])
 
@@ -336,14 +341,14 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
 
   useEffect(() => {
     const list = resultsRef.current
-    const option = flat[activeIndex] && document.getElementById(`search-option-${encodeURIComponent(flat[activeIndex].id)}`)
+    const option = flat[activeIndex] && document.getElementById(`${searchId}-option-${encodeURIComponent(flat[activeIndex].id)}`)
     if (!open || !list || !option) return
     const bounds = list.getBoundingClientRect()
     const item = option.getBoundingClientRect()
     // Scroll the results only, keeping the sticky search and the page still.
     if (item.top < bounds.top) list.scrollTop -= bounds.top - item.top
     else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom
-  }, [open, activeIndex, flat])
+  }, [open, activeIndex, flat, searchId])
 
   // Close on outside pointer interaction.
   useEffect(() => {
@@ -371,6 +376,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
   }, [])
 
   const choose = (item: SearchItem) => {
+    onSelect?.()
     if (item.taskId && item.view === 'academics') {
       navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', taskId: item.taskId, subjectCode: item.subjectCode })
     } else onNavigate(item.view)
@@ -395,15 +401,16 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
     } else if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()
+      if (surface === 'dialog' && (!open || !query.trim())) { onEscape?.(); return }
       setOpen(false)
       setQuery('')
       setActiveIndex(0)
-      inputRef.current?.blur()
+      if (surface === 'inline') inputRef.current?.blur()
     }
   }
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md" onBlur={event => {
+    <div ref={containerRef} className={surface === 'dialog' ? 'flex min-h-0 w-full flex-1 flex-col' : 'relative w-full max-w-md'} onBlur={event => {
       if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
     }}>
       {/* Search field */}
@@ -429,8 +436,8 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"
-          aria-controls="global-search-results"
-          aria-activedescendant={open && flat[activeIndex] ? `search-option-${encodeURIComponent(flat[activeIndex].id)}` : undefined}
+          aria-controls={`${searchId}-results`}
+          aria-activedescendant={open && flat[activeIndex] ? optionId(flat[activeIndex].id) : undefined}
           className="flex-1 min-w-0 bg-transparent text-base sm:text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none"
         />
         {query ? (
@@ -458,9 +465,9 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
       {open && (
         <div
           ref={resultsRef}
-          id="global-search-results"
+          id={`${searchId}-results`}
           role="listbox"
-          className="absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[min(70vh,calc(100dvh-140px))] overflow-y-auto"
+          className={surface === 'dialog' ? 'mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-surface' : 'absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[min(70vh,calc(100dvh-140px))] overflow-y-auto'}
         >
           <p className="sr-only" role="status" aria-live="polite">
             {flat.length === 0
@@ -473,7 +480,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
             <div className="py-2">
               {grouped.map(({ type, items }) => (
                 <div key={type}>
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  <p className={`px-4 pt-2 pb-1 ${surface === 'dialog' ? 'text-xs' : 'text-[10px]'} font-semibold uppercase tracking-wider text-slate-500`}>
                     {GROUP_LABELS[type]}
                   </p>
                   {items.map((item) => {
@@ -483,7 +490,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                     return (
                       <button
                         key={item.id}
-                        id={`search-option-${encodeURIComponent(item.id)}`}
+                        id={optionId(item.id)}
                         type="button"
                         role="option"
                         tabIndex={-1}
@@ -502,10 +509,10 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                           <Icon className="w-4 h-4" />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-medium text-slate-900 truncate">
+                          <span className={`block text-sm font-medium text-slate-900 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>
                             {item.label}
                           </span>
-                          <span className="block text-xs text-slate-600 truncate">{item.hint}</span>
+                          <span className={`block text-xs text-slate-600 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>{item.hint}</span>
                         </span>
                         {isActive && (
                           <CornerDownLeft className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" aria-hidden="true" />

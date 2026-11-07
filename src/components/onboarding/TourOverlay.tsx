@@ -374,7 +374,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? minimized ? 'fixed right-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))]' : 'absolute',
+          sheet ? minimized ? 'fixed right-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >
@@ -390,7 +390,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           className={cn(
             'flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink shadow-xl',
             minimized ? 'p-1' : 'p-4',
-            sheet ? 'max-h-[min(65dvh,calc(100dvh-24px))]' : 'w-72 max-w-[calc(100vw-24px)]'
+            sheet ? 'max-h-[min(65dvh,calc(100dvh-var(--portal-mobile-nav-height,0px)-88px))]' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
           {minimized ? (

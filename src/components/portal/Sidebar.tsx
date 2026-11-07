@@ -4,7 +4,12 @@ import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
+  Moon,
+  Sun,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
+import { useMounted } from '@/lib/aics/use-mounted'
 import type { View } from '@/lib/aics/types'
 import {
   SECONDARY_NAV,
@@ -88,6 +93,9 @@ function NavButton({
 }
 
 function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
+  const { resolvedTheme, setTheme } = useTheme()
+  const mounted = useMounted()
+  const dark = mounted && resolvedTheme === 'dark'
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
   return (
@@ -126,6 +134,9 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
             onClick={() => onNavigate(item.view)}
           />
         ))}
+        {role === 'student' && <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:hidden" onClick={() => quickToggleTheme(resolvedTheme, setTheme)}>
+          {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}<span>{dark ? 'Switch to light theme' : 'Switch to dark theme'}</span>
+        </button>}
       </nav>
 
       {/* Footer — matches the repository's documented licensing

@@ -231,6 +231,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
     <PortalShell
       student={student}
       active="academics"
+      academicTab={activeTab}
       onNavigate={handleNavigate}
       onLogout={onLogout}
       events={events}

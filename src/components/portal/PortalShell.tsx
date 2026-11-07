@@ -11,6 +11,8 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
+import { MobileNavigation } from './MobileNavigation'
+import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
 interface PortalShellProps {
   student: Student
@@ -26,6 +28,7 @@ interface PortalShellProps {
   // Bell inbox bundle.
   inbox?: NotificationInbox
   children: ReactNode
+  academicTab?: AcademicsTab
 }
 
 // Single portal chrome. Sidebar tabs, top bar, and content offset
@@ -56,6 +59,7 @@ export function PortalShell({
   taskGroups,
   inbox,
   children,
+  academicTab,
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const role = student.role ?? 'student'
@@ -84,7 +88,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className="min-w-0 lg:pl-60" inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(4rem+1px+env(safe-area-inset-bottom)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
           onOpenMobileNav={() => setMobileNavOpen(true)}
@@ -124,6 +128,7 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
+        {role === 'student' && <MobileNavigation student={student} active={active} academicTab={academicTab} menuOpen={mobileNavOpen} onOpenMenu={() => setMobileNavOpen(true)} onNavigate={onNavigate} />}
       </div>
     </div>
     </MotionConfig>

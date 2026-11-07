@@ -3,6 +3,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@media (max-width: 639px) {
+  :root:has([data-student-mobile-nav]) {
+    --portal-mobile-nav-height: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
+    scroll-padding-top: 4rem;
+  }
+  :root:has([data-student-mobile-nav]) #main-content {
+    scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
