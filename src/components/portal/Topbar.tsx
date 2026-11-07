@@ -176,7 +176,7 @@ export function Topbar({
             <DialogTrigger asChild>
               <button type="button" aria-label="Open portal search" className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-link-strong hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link"><Search className="size-4" aria-hidden="true" />Search</button>
             </DialogTrigger>
-            <DialogContent ref={searchPanel} className="top-[calc(var(--search-visible-top,0px)+12px)] flex max-h-[calc(var(--search-visible-height,100dvh)-24px)] w-[calc(100%-24px)] translate-y-0 flex-col gap-3 p-4 [&>button]:size-11 [&>button]:top-2 [&>button]:right-2"
+            <DialogContent ref={searchPanel} className="top-[calc(var(--search-visible-top,0px)+12px)] flex max-h-[calc(var(--search-visible-height,100dvh)-24px)] w-[calc(100%-16px)] max-w-none translate-y-0 flex-col gap-3 p-3 [&>button]:size-11 [&>button]:top-2 [&>button]:right-2"
               onOpenAutoFocus={event => { event.preventDefault(); searchPanel.current?.querySelector<HTMLInputElement>('input')?.focus() }}
               onCloseAutoFocus={event => { if (selectedSearch.current) event.preventDefault() }}
               onEscapeKeyDown={event => { if (document.activeElement?.getAttribute('role') === 'combobox') event.preventDefault() }}>
@@ -312,7 +312,7 @@ export function Topbar({
               </DropdownMenuItem>
 
               {/* Theme — full selector lives in Settings → Appearance */}
-              <DropdownMenuItem onClick={() => onNavigate('settings')} className="min-h-11 sm:min-h-0 cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate({ view: 'settings', branch: student.branch, username: student.username, role: student.role ?? 'student', section: 'appearance' })} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
                 <span>Theme settings</span>
               </DropdownMenuItem>

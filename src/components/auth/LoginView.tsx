@@ -69,7 +69,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         {/* Theme toggle — top-right corner of the form panel. Pre-auth
             surface, so it lives here rather than in the portal topbar.
             Token-driven (var-chained) classes: themes with the cascade. */}
-        <div className="absolute top-4 right-4 sm:top-5 sm:right-5">
+        <div className="absolute z-20 top-4 right-4 sm:top-5 sm:right-5">
           <button
             type="button"
             onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
