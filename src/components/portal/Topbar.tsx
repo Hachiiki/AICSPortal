@@ -74,7 +74,7 @@ export function Topbar({
       </span>
     )}
   </>
-  const bellClass = 'relative grid size-11 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9'
+  const bellClass = 'relative grid size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9'
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
@@ -118,7 +118,7 @@ export function Topbar({
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
       <div className={`h-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1 px-4 sm:py-0 sm:gap-3 sm:px-6 lg:px-8 ${isStudent ? 'min-h-14 flex-nowrap py-1' : 'pb-3 pt-1'}`}>
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
-        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+        <div className={`flex items-center gap-1 sm:shrink-0 sm:gap-3 ${isStudent ? 'min-w-0' : 'shrink-0'}`}>
           <button
             type="button"
             onClick={onOpenMobileNav}
@@ -130,8 +130,8 @@ export function Topbar({
           >
             <Menu className="w-5 h-5" />
           </button>
-          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-7 sm:hidden" />}
-          <span className="whitespace-nowrap text-sm font-semibold text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
+          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-[28px] shrink-0 sm:hidden" />}
+          <span className="min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
@@ -244,19 +244,19 @@ export function Topbar({
               <button
                 type="button"
                 data-tour="topbar-profile"
-                className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex size-[44px] items-center justify-center gap-2.5 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-auto sm:py-1 sm:pl-1 sm:pr-2"
                 aria-label="Account menu"
               >
                 {student.photoUrl ? (
                   <img
                     src={student.photoUrl}
                     alt=""
-                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    className="size-[36px] shrink-0 rounded-full object-cover sm:size-9"
                     draggable={false}
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
+                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[var(--avatar-bg)] text-xs font-semibold text-white sm:size-9 dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}

@@ -7,7 +7,7 @@ import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
 export const MOBILE_NAV_GRID = 'grid h-16 grid-cols-[1fr_1fr_1.25fr_1fr_1fr_1fr] px-1'
-export const MOBILE_NAV_ACTION = 'group my-1 flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-0.5 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
+export const MOBILE_NAV_ACTION = 'my-1 flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-0.5 text-center text-xs font-medium leading-tight [overflow-wrap:anywhere] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 
 export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
   student: Student
@@ -24,7 +24,11 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
     const viewport = window.visualViewport
     let baseline = viewport?.height ?? window.innerHeight
     const update = () => {
-      const editing = document.activeElement?.matches('textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])')
+      const focused = document.activeElement
+      // A modal owns focus and covers the dock. Keep its trigger available
+      // for focus restoration while the software keyboard is dismissing.
+      const editing = focused?.matches('textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])')
+        && !focused.closest('[role="dialog"][aria-modal="true"], [data-slot="dialog-content"]')
       if (!editing) baseline = viewport?.height ?? window.innerHeight
       setKeyboardOpen(!!editing && !!viewport && viewport.height < baseline * 0.75)
     }
@@ -48,14 +52,14 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
           className={`${MOBILE_NAV_ACTION} ${selected ? 'bg-blue-50 text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`}
           onClick={() => item.view === 'academics' ? navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: item.tab }) : onNavigate(item.view)}>
           <Icon className={`size-5 motion-safe:transition-transform ${selected ? 'motion-safe:-translate-y-0.5' : ''}`} strokeWidth={selected ? 2.4 : 2} aria-hidden="true" />
-          <span>{item.label}</span>
+          <span className="max-w-full">{item.label}</span>
         </button>
       })}
       {search}
       <button type="button" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded={menuOpen} aria-controls="mobile-navigation"
         aria-current={!primary && !menuOpen ? 'page' : undefined} data-tour="topbar-mobile-nav"
         className={`${MOBILE_NAV_ACTION} ${menuOpen || !primary ? 'bg-blue-50 text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`} onClick={onOpenMenu}>
-        <Menu className="size-5" aria-hidden="true" /><span>More</span>
+        <Menu className="size-5" aria-hidden="true" /><span className="max-w-full">More</span>
       </button>
     </div>
   </nav>

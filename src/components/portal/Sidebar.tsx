@@ -94,16 +94,16 @@ function NavButton({
   )
 }
 
-function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
+function SidebarContent({ active, onNavigate, role = 'student', scrollBody = false }: { active: View; onNavigate: (v: View) => void; role?: string; scrollBody?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme()
   const mounted = useMounted()
   const dark = mounted && resolvedTheme === 'dark'
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className={`flex min-h-0 flex-col ${scrollBody ? '' : 'h-full'}`}>
       {/* Brand */}
-      <div className="px-4 py-5 pr-12 lg:pr-4 flex items-center gap-3 border-b border-slate-100">
+      <div className={`flex items-center gap-3 border-b border-slate-100 px-4 py-5 ${scrollBody ? '' : 'pr-12 lg:pr-4'}`}>
         <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-link-strong">
@@ -116,7 +116,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label={getPortalAria(role)}>
+      <nav className={`space-y-1 px-3 py-4 ${scrollBody ? '' : 'flex-1 overflow-y-auto'}`} aria-label={getPortalAria(role)}>
         {primaryNav.map((item) => (
           <NavButton
             key={item.view}
@@ -243,7 +243,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               >
                 <X className="w-5 h-5" />
               </button>}
-              <div className="min-h-0 flex-1">
+              <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
                 <SidebarContent
                   active={active}
                   onNavigate={(v) => {
@@ -251,6 +251,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
                     onMobileClose()
                   }}
                   role={role}
+                  scrollBody={phoneSheet}
                 />
               </div>
               {phoneSheet && (
@@ -258,7 +259,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
                   <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
                     className={`${MOBILE_NAV_ACTION} col-start-6 bg-blue-50 text-link-strong`}>
                     <X className="size-5 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
-                    <span>Close</span>
+                    <span className="max-w-full">Close</span>
                   </button>
                 </div>
               )}
