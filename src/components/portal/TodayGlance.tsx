@@ -1,8 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { Clock, Megaphone } from 'lucide-react'
 import type { Task } from '@/lib/aics/tasks'
+import { canSubmit, computeStatus } from '@/lib/aics/tasks'
 import type { Announcement } from '@/lib/aics/announcements'
 import {
   getSessionsForDay,
@@ -36,6 +38,7 @@ interface TodayGlanceProps {
  * (placeholder state), then the real clock takes over.
  */
 export function TodayGlance({ courses, sessions, tasks, announcements, announcementReadIds, onNavigate }: TodayGlanceProps) {
+  const { route, navigate } = usePortalRoute()
   const nowMinutes = useMemo(() => {
     if (typeof window === 'undefined') return null
     return new Date().getHours() * 60 + new Date().getMinutes()
@@ -47,12 +50,12 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
     const day = dateToDayIndex(new Date())
     if (day < 0) return null
     const today = getSessionsForDay(day, sessions)
-      .filter((s) => s.end > nowMinutes)
+      .filter((s) => s.end * 60 > nowMinutes)
       .sort((a, b) => a.start - b.start)
     if (today.length === 0) return null
     const s = today[0]
     const course = getCourse(s.code, courses)
-    const minsToStart = s.start - nowMinutes
+    const minsToStart = s.start * 60 - nowMinutes
     let until: string
     if (minsToStart > 0) {
       const h = Math.floor(minsToStart / 60)
@@ -67,7 +70,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
   // ---- Pending tasks + nearest due date
   const pending = useMemo(() => {
     if (!tasks) return null
-    const open = tasks.filter((t) => !t.submitted && !t.submissionsClosed)
+    const open = tasks.filter(canSubmit)
     if (open.length === 0) return { count: 0, nextDue: null as string | null }
     const next = open
       .slice()
@@ -75,9 +78,11 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
     const due = new Date(next.dueDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const days = Math.round((due.getTime() - today.getTime()) / 86400000)
+    const dueDay = new Date(due)
+    dueDay.setHours(0, 0, 0, 0)
+    const days = Math.round((dueDay.getTime() - today.getTime()) / 86400000)
     let label: string
-    if (days < 0) label = 'overdue'
+    if (computeStatus(next).variant === 'MISSING_OPEN') label = 'overdue'
     else if (days === 0) label = 'due today'
     else if (days === 1) label = 'due tomorrow'
     else label = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
@@ -92,9 +97,9 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
   }, [announcements, announcementReadIds])
 
   return (
-    <section aria-label="Today at a glance" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <section aria-label="Today at a glance" className="grid grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
       {/* Next class */}
-      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
+      <div className="min-[380px]:col-span-2 sm:col-span-1 bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Next class</p>
           {nextClass && (
@@ -105,8 +110,8 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         </div>
         {nextClass ? (
           <>
-            <p className="mt-2 text-sm font-semibold text-slate-900 truncate">{nextClass.title}</p>
-            <p className="text-xs text-slate-500 mt-0.5 truncate font-mono">{nextClass.code} • {nextClass.room}</p>
+            <p className="mt-2 break-words text-sm font-semibold text-slate-900 sm:truncate">{nextClass.title}</p>
+            <p className="mt-0.5 break-words font-mono text-xs text-slate-500 sm:truncate">{nextClass.code} • {nextClass.room}</p>
           </>
         ) : (
           <p className="mt-2 text-sm text-slate-500">No more classes today</p>
@@ -116,7 +121,10 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
       {/* Tasks */}
       <button
         type="button"
-        onClick={() => onNavigate('academics')}
+        onClick={() => {
+          if (route.view === 'login') onNavigate('academics')
+          else navigate({ view: 'academics', branch: route.branch, username: route.username, role: route.role, tab: 'tasks' })
+        }}
         className="group text-left bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0 hover:border-blue-200 focus-visible:border-blue-600 outline-none"
       >
         <div className="flex items-center justify-between gap-2">
@@ -130,20 +138,23 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         {pending === null ? (
           <p className="mt-2 text-sm text-slate-500">Tasks loading…</p>
         ) : pending.count === 0 ? (
-          <p className="mt-2 text-sm font-semibold text-slate-900">All caught up</p>
+          <p className="mt-2 text-sm font-semibold text-slate-900">Nothing to submit</p>
         ) : (
           <>
             <p className="mt-2 text-sm font-semibold text-slate-900">
-              {pending.count} pending
+              {pending.count} to submit
             </p>
-            <p className="text-xs text-slate-500 mt-0.5 truncate">{pending.nextDue}</p>
+            <p className="text-xs text-slate-500 mt-1 break-words line-clamp-2">{pending.nextDue}</p>
           </>
         )}
         <p className="mt-3 text-xs font-medium text-link-strong group-hover:underline">Review tasks</p>
       </button>
 
       {/* Announcements */}
-      <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0">
+      <button type="button" onClick={() => {
+        document.getElementById('student-announcements')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        document.getElementById('student-announcements')?.focus({ preventScroll: true })
+      }} className="text-left bg-surface rounded-xl border border-slate-200 shadow-sm p-4 min-w-0 hover:border-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcements</p>
           {unread !== null && unread > 0 && (
@@ -161,15 +172,15 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
             <p className="mt-2 text-sm font-semibold text-slate-900">
               {unread} new for you
             </p>
-            <p className="text-xs text-slate-500 mt-0.5 truncate">
-              Latest: {announcements?.find((a) => !(announcementReadIds ?? []).includes(a._id))?.title ?? 'See the deck above'}
+            <p className="text-xs text-slate-500 mt-1 line-clamp-2 break-words">
+              {announcements?.find((a) => !(announcementReadIds ?? []).includes(a._id))?.title ?? 'Campus updates'}
             </p>
           </>
         )}
-        <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-slate-500">
-          <Megaphone className="w-3.5 h-3.5" /> In the deck above
+        <div className="mt-3 flex items-center gap-1.5 text-xs font-medium text-link-strong">
+          <Megaphone className="w-3.5 h-3.5" /> Read updates
         </div>
-      </div>
+      </button>
     </section>
   )
 }

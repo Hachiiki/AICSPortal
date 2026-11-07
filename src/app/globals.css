@@ -3,6 +3,45 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@media (max-width: 639px) {
+  :root:has([data-student-mobile-nav]) {
+    --portal-mobile-nav-height: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
+    --portal-mobile-controls-height: calc(var(--portal-mobile-nav-height) + 60px);
+    scroll-padding-bottom: calc(var(--portal-mobile-controls-height) + 1rem);
+    scroll-padding-top: 4rem;
+  }
+  :root:has([data-student-mobile-nav]) #main-content {
+    scroll-margin-bottom: calc(var(--portal-mobile-controls-height) + 1rem);
+  }
+
+  .student-dock-container {
+    container: student-dock / inline-size;
+  }
+
+  @container student-dock (width < 19rem) {
+    .student-dock-grid {
+      grid-template-columns: 1fr 1fr 1.6fr;
+      grid-auto-rows: minmax(3rem, auto);
+      height: auto;
+    }
+
+    .student-dock-close,
+    .student-dock-grid > [data-tour="topbar-mobile-nav"] {
+      grid-column-start: 3;
+    }
+  }
+
+  .student-overview {
+    container: student-overview / inline-size;
+  }
+
+  @container student-overview (width < 15rem) {
+    .student-overview-stats {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

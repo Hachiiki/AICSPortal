@@ -30,8 +30,8 @@
 //     topbar/sidebar so nav targets can be framed, below the z-50
 //     drawers, modals, dropdowns and toasts, which therefore paint
 //     above the tour (C5).
-//   - Below the sm breakpoint the card renders as a bottom sheet and
-//     the spotlight collapses to a plain scrim (F1).
+//   - Below the sm breakpoint the card is a collapsible bottom sheet,
+//     so students can expose and use the highlighted page controls.
 //   - Scrim color and card surfaces come from the theme tokens
 //     (--scrim, --surface, --ink, --muted-fg, --border), so all seven
 //     theme choices ride the same classes (G1).
@@ -96,6 +96,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     typeof window === 'undefined' ? false : !window.matchMedia(SHEET_QUERY).matches
   )
   const [announcement, setAnnouncement] = useState('')
+  const [minimizedStep, setMinimizedStep] = useState<string | null>(null)
   const [layout, setLayout] = useState<LayoutState>(() => ({
     disposition: 'waiting',
     spot: null,
@@ -104,6 +105,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
   const reduced = useReducedMotion()
   const headingId = useId()
+  const bodyId = useId()
   const headingRef = useRef<HTMLHeadingElement | null>(null)
   const cardWrapRef = useRef<HTMLDivElement | null>(null)
   const everFoundRef = useRef(false)
@@ -130,7 +132,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     // H1 focus guard. An unplanned mid-tour navigation can unmount the
     // element the user was interacting with (the click that swapped the
     // view), and focus then silently falls to <body> while this
-    // aria-modal card stays open. Overlays that open above the tour keep
+    // guide stays open. Overlays that open above the tour keep
     // their own focus (C5), so the guard repairs only genuinely stranded
     // focus - body, the root, or a disconnected node - and never touches
     // a live element elsewhere. It runs in the same rAF pass as the
@@ -174,7 +176,11 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
     if (disposition === 'spot' && el && !ensuredVisibleRef.current) {
       ensuredVisibleRef.current = true
-      el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
+      const mobile = !window.matchMedia(SHEET_QUERY).matches
+      if (mobile && !el.closest('header')) {
+        const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
+        window.scrollBy({ top: el.getBoundingClientRect().top - Math.max(headerBottom, 0) - 16, behavior: reduced ? 'instant' : 'smooth' })
+      } else el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
     }
 
     const vpt = { width: window.innerWidth, height: window.innerHeight }
@@ -221,6 +227,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       const note = pendingNoteRef.current
       pendingNoteRef.current = ''
       setAnnouncement((note ? `${note} ` : '') + stepAnnouncement(current, index, steps.length))
+      cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-card]')?.scrollTo({ top: 0 })
+      cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-instructions]')?.scrollTo({ top: 0 })
       headingRef.current?.focus({ preventScroll: true })
     })
     // The wait budget ends on its own even when nothing in the DOM
@@ -287,11 +295,33 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     }
   }, [schedule])
 
+  // The guide is non-modal, so keyboard users can explore the same page as
+  // pointer users. Escape leaves the guide unless a menu/dialog above it owns it.
+  useEffect(() => {
+    const handleGuideKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      const active = document.activeElement as HTMLElement | null
+      const otherOverlay = active?.closest('[role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]')
+      if (otherOverlay && !cardWrapRef.current?.contains(otherOverlay)) return
+      if (event.altKey && event.key.toLowerCase() === 'g') {
+        event.preventDefault()
+        setMinimizedStep(null)
+        requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }))
+      } else if (event.key === 'Escape') {
+        event.preventDefault()
+        onFinish(false)
+      }
+    }
+    document.addEventListener('keydown', handleGuideKey)
+    return () => document.removeEventListener('keydown', handleGuideKey)
+  }, [onFinish])
+
   if (!step) return null
 
   const isLast = index === total - 1
+  const minimized = sheet && minimizedStep === step.id
   const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
-  const showSpotlight = layout.disposition === 'spot' && !sheet
+  const showSpotlight = layout.disposition === 'spot'
 
   return (
     <div
@@ -337,36 +367,56 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         />
       )}
 
-      {/* Step card: one DialogPanel for the whole tour, so the focus
-          contract is exactly the portal's — focus in on open, Tab
-          inside, Escape ends the tour, focus returns to the launcher.
-          The mobile sheet pins to the bottom (F1). */}
+      {/* One nonmodal panel preserves focus restoration across steps.
+          The phone sheet keeps navigation visible while instructions scroll. */}
       <div
         ref={cardWrapRef}
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? 'fixed inset-x-3 bottom-3' : 'absolute',
+          sheet ? minimized ? 'fixed right-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-controls-height,0px)+12px)]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >
         <DialogPanel
           onClose={() => onFinish(false)}
-          aria-labelledby={headingId}
+          trapFocus={false}
+          aria-modal={false}
+          aria-label={minimized ? 'Guided tour minimized' : undefined}
+          aria-labelledby={minimized ? undefined : headingId}
+          aria-describedby={minimized ? undefined : bodyId}
           data-tour-card=""
+          data-minimized={minimized}
           className={cn(
-            'rounded-xl border border-border bg-surface p-4 text-ink shadow-xl',
-            sheet ? 'rounded-b-sm' : 'w-72 max-w-[calc(100vw-24px)]'
+            'flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink shadow-xl',
+            minimized ? 'p-1' : 'p-4',
+            sheet ? 'max-h-[min(65dvh,calc(100dvh-var(--portal-mobile-controls-height,0px)-88px))]' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
-          <p className="text-xs font-medium text-muted-fg">
-            Step {index + 1} of {total}
-          </p>
+          {minimized ? (
+            <Button type="button" variant="ghost" className="min-h-11" onClick={() => {
+              setMinimizedStep(null)
+              requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }))
+            }}>Show guide · {index + 1} of {total}</Button>
+          ) : (
+          <>
+          <div className="shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium text-muted-fg">Step {index + 1} of {total}</p>
+            {sheet && <Button type="button" variant="ghost" size="sm" className="min-h-11" aria-label="Hide guide to explore the page" onClick={() => {
+              setMinimizedStep(step.id)
+              requestAnimationFrame(() => cardWrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true }))
+            }}>Hide guide</Button>}
+          </div>
           <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-sm font-bold outline-none">
             {step.title}
           </h2>
-          <p className="mt-1.5 text-sm text-muted-fg">{step.body}</p>
-          <div className="mt-4 flex items-center justify-between gap-2">
+          </div>
+          <div data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className="mt-1.5 min-h-0 overflow-y-auto overscroll-contain rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link">
+          <p id={bodyId} className="text-sm text-muted-fg">{step.body}</p>
+          <p className="mt-2 text-xs text-muted-fg">{sheet ? 'Hide guide to explore this area. Show guide brings these instructions back.' : 'Explore the highlighted area. Press Alt+G to return to this guide.'}</p>
+          </div>
+          <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-3 [&_button]:min-h-11 sm:[&_button]:min-h-8">
             <Button
               type="button"
               variant="ghost"
@@ -382,7 +432,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
                 variant="outline"
                 size="sm"
                 disabled={index === 0}
-                onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                onClick={() => { setMinimizedStep(null); setIndex((i) => Math.max(0, i - 1)) }}
                 aria-label="Go back to the previous tour step"
               >
                 Back
@@ -396,7 +446,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
                   type="button"
                   size="sm"
                   className={ACTION_COLORS}
-                  onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))}
+                  onClick={() => { setMinimizedStep(null); setIndex((i) => Math.min(steps.length - 1, i + 1)) }}
                   aria-label="Go to the next tour step"
                 >
                   Next
@@ -404,6 +454,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
               )}
             </div>
           </div>
+          </>
+          )}
         </DialogPanel>
       </div>
     </div>

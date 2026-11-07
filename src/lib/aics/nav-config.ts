@@ -108,6 +108,14 @@ export const STUDENT_PRIMARY_NAV: NavItem[] = [
   { view: 'enrollment', label: 'Enrollment', icon: Stamp, enabled: true },
 ]
 
+// Phone destinations share the same permitted views and explicit academic tabs.
+export const STUDENT_MOBILE_NAV = [
+  { view: 'dashboard', label: 'Home', icon: Home },
+  { view: 'academics', tab: 'tasks', label: 'Tasks', icon: ClipboardList },
+  { view: 'academics', tab: 'grades', label: 'Academics', icon: GraduationCap },
+  { view: 'events', label: 'Events', icon: CalendarDays },
+] as const
+
 export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'dashboard', label: 'Dashboard', icon: Home, enabled: true },
   // Roster surface feeds both My Students and the Schedule grid; the

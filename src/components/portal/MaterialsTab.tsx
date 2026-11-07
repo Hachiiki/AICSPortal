@@ -87,22 +87,22 @@ export function MaterialsTab({ student }: { student: Student }) {
             const subject = currentSubjects.find((s) => s.code === subjectCode)
             return (
               <div key={subjectCode} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
+                <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                     <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</h3>
+                    <h3 className="text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</h3>
                   </div>
                   {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                 </div>
                 <ul className="divide-y divide-slate-100">
                   {items.map((m) => (
-                    <li key={m._id} className="px-6 py-3 flex items-center gap-3">
+                    <li key={m._id} className="px-4 sm:px-6 py-3 grid grid-cols-[auto_minmax(0,1fr)] sm:flex sm:items-center gap-3">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
                         {m.kind === 'file' ? <FileText className="w-3 h-3" /> : <Link2 className="w-3 h-3" />}
                         {m.kind === 'file' ? 'File' : 'Link'}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-slate-900 truncate">{m.title}</p>
+                        <p className="text-sm font-medium text-slate-900 break-words">{m.title}</p>
                         <p className="text-xs text-slate-500">
                           {new Date(m.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {formatBytes(m.bytes) ? ` • ${formatBytes(m.bytes)}` : ''}
@@ -113,7 +113,8 @@ export function MaterialsTab({ student }: { student: Student }) {
                         href={m.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50 flex-shrink-0"
+                        className="col-start-2 justify-self-end min-h-11 sm:min-h-8 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50 flex-shrink-0"
+                        aria-label={`Open ${m.title} in a new tab`}
                       >
                         <ExternalLink className="w-3.5 h-3.5" /> Open
                       </a>

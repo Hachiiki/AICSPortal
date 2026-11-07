@@ -11,6 +11,10 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
+import { MobileNavigation } from './MobileNavigation'
+import { MobileSearch } from './MobileSearch'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
+import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
 interface PortalShellProps {
   student: Student
@@ -26,6 +30,7 @@ interface PortalShellProps {
   // Bell inbox bundle.
   inbox?: NotificationInbox
   children: ReactNode
+  academicTab?: AcademicsTab
 }
 
 // Single portal chrome. Sidebar tabs, top bar, and content offset
@@ -56,9 +61,11 @@ export function PortalShell({
   taskGroups,
   inbox,
   children,
+  academicTab,
 }: PortalShellProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const role = student.role ?? 'student'
+  const phone = usePhoneViewport()
   // Workspace-assembly entrance (assemble candidate only): staged
   // while the redirect overlay still covers the portal, animated
   // into place when the reveal flips. Null everywhere else — the
@@ -68,7 +75,7 @@ export function PortalShell({
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="min-h-dvh bg-slate-50 font-sans">
+    <div className="min-h-dvh bg-slate-50 font-sans [&_input]:text-base [&_textarea]:text-base [&_select]:text-base lg:[&_input]:text-sm lg:[&_textarea]:text-sm lg:[&_select]:text-sm">
       {/* Skip link — first tab stop on every portal page. Jumps past the
           sidebar and topbar to the page content wrapper below. */}
       <a
@@ -84,9 +91,10 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className="lg:pl-60">
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-controls-height,125px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
+          active={active}
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
@@ -124,6 +132,17 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
+        {role === 'student' && phone && (
+          <MobileNavigation
+            student={student}
+            active={active}
+            academicTab={academicTab}
+            menuOpen={mobileNavOpen}
+            onOpenMenu={() => setMobileNavOpen(true)}
+            onNavigate={onNavigate}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="inline-flex min-h-[48px] min-w-[48px] items-center gap-2 rounded-full border border-white/30 bg-[#153357] px-3 py-2 text-sm font-semibold text-white shadow-md shadow-slate-900/20 hover:bg-[#21466a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
+          />
+        )}
       </div>
     </div>
     </MotionConfig>

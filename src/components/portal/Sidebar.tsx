@@ -1,10 +1,15 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
+  Moon,
+  Sun,
 } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
+import { useMounted } from '@/lib/aics/use-mounted'
 import type { View } from '@/lib/aics/types'
 import {
   SECONDARY_NAV,
@@ -18,6 +23,9 @@ import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import { getStudentTourUpdate } from '@/lib/onboarding/student-client'
+import { DialogPanel } from './DialogPanel'
+import { MOBILE_NAV_ACTION, MOBILE_NAV_GRID } from './MobileNavigation'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface SidebarProps {
   active: View
@@ -73,7 +81,7 @@ function NavButton({
       aria-current={active ? 'page' : undefined}
       aria-label={pendingUpdate ? `${item.label}, student tour update available` : undefined}
       data-tour={`nav-${item.view}`}
-      className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+      className={`w-full min-h-11 lg:min-h-0 flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
         active
           ? 'bg-blue-800 text-white'
           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -86,13 +94,16 @@ function NavButton({
   )
 }
 
-function SidebarContent({ active, onNavigate, role = 'student' }: { active: View; onNavigate: (v: View) => void; role?: string }) {
+function SidebarContent({ active, onNavigate, role = 'student', scrollBody = false }: { active: View; onNavigate: (v: View) => void; role?: string; scrollBody?: boolean }) {
+  const { resolvedTheme, setTheme } = useTheme()
+  const mounted = useMounted()
+  const dark = mounted && resolvedTheme === 'dark'
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex min-h-0 flex-col ${scrollBody ? '' : 'h-full'}`}>
       {/* Brand */}
-      <div className="px-4 py-5 flex items-center gap-3 border-b border-slate-100">
+      <div className={`flex items-center gap-3 border-b border-slate-100 px-4 py-5 ${scrollBody ? '' : 'pr-12 lg:pr-4'}`}>
         <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-link-strong">
@@ -105,7 +116,7 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label={getPortalAria(role)}>
+      <nav className={`space-y-1 px-3 py-4 ${scrollBody ? '' : 'flex-1 overflow-y-auto'}`} aria-label={getPortalAria(role)}>
         {primaryNav.map((item) => (
           <NavButton
             key={item.view}
@@ -125,6 +136,9 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
             onClick={() => onNavigate(item.view)}
           />
         ))}
+        {role === 'student' && <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:hidden" onClick={() => quickToggleTheme(resolvedTheme, setTheme)}>
+          {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}<span>{dark ? 'Switch to light theme' : 'Switch to dark theme'}</span>
+        </button>}
       </nav>
 
       {/* Footer — matches the repository's documented licensing
@@ -155,32 +169,29 @@ function SidebarContent({ active, onNavigate, role = 'student' }: { active: View
 }
 
 export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
+  const phone = usePhoneViewport()
+  const phoneSheet = role === 'student' && phone
   // Workspace-assembly entrance (assemble candidate only): the real
   // rail slides in from the left when the reveal flips. Inactive —
   // including normal navigation — the aside mounts at rest, exactly
   // the element it was before (initial: false renders no entrance).
   const assembleReveal = useAssembleReveal()
   const entrance = assembleEntrance('sidebar', assembleReveal)
-  const drawerRef = useRef<HTMLElement | null>(null)
-
-  // Close the mobile drawer on Escape key
+  // The shared DialogPanel owns focus entry, Tab trapping and restoration.
   useEffect(() => {
     if (!mobileOpen) return
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onMobileClose()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const closeOnDesktop = () => {
+      if (desktop.matches) onMobileClose()
     }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      desktop.removeEventListener('change', closeOnDesktop)
+    }
   }, [mobileOpen, onMobileClose])
-
-  // Move focus into the drawer when it opens so keyboard users land
-  // inside the dialog instead of behind the backdrop.
-  useEffect(() => {
-    if (!mobileOpen) return
-    const drawer = drawerRef.current
-    if (!drawer) return
-    drawer.focus()
-  }, [mobileOpen])
 
   return (
     <>
@@ -213,36 +224,48 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               aria-hidden="true"
             />
             {/* Drawer */}
-            <motion.aside
-              ref={drawerRef}
-              tabIndex={-1}
-              initial={{ x: -264 }}
-              animate={{ x: 0 }}
-              exit={{ x: -264 }}
+            <DialogPanel
+              id="mobile-navigation"
+              onClose={onMobileClose}
+              initial={phoneSheet ? { y: '100%' } : { x: -264 }}
+              animate={{ x: 0, y: 0 }}
+              exit={phoneSheet ? { y: '100%' } : { x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="fixed top-0 left-0 h-screen w-64 bg-surface border-r border-slate-200 z-50 lg:hidden flex flex-col outline-none"
-              role="dialog"
-              aria-modal="true"
+              className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 h-[min(82dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
               aria-label="Navigation menu"
             >
               {/* Close button */}
-              <button
+              {!phoneSheet && <button
                 type="button"
                 onClick={onMobileClose}
                 aria-label="Close navigation menu"
-                className="absolute top-4 right-3 p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="absolute top-3 right-2 size-11 grid place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <X className="w-5 h-5" />
-              </button>
-              <SidebarContent
-                active={active}
-                onNavigate={(v) => {
-                  onNavigate(v)
-                  onMobileClose()
-                }}
-                role={role}
-              />
-            </motion.aside>
+              </button>}
+              <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
+                <SidebarContent
+                  active={active}
+                  onNavigate={(v) => {
+                    onNavigate(v)
+                    onMobileClose()
+                  }}
+                  role={role}
+                  scrollBody={phoneSheet}
+                />
+              </div>
+              {phoneSheet && (
+                <div className="student-dock-container shrink-0 border-t border-line">
+                  <div className={MOBILE_NAV_GRID}>
+                    <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
+                      className={`${MOBILE_NAV_ACTION} student-dock-close col-start-5 bg-blue-50 text-link-strong`}>
+                      <X className="size-[20px] shrink-0 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
+                      <span className="max-w-full">Close</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </DialogPanel>
           </>
         )}
       </AnimatePresence>

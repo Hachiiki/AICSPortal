@@ -394,7 +394,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
       ) : (
         <ul className="divide-y divide-slate-100">
           {docs.map((d) => (
-            <li key={d.name} className="px-6 py-3 flex items-center justify-between gap-3">
+            <li key={d.name} className="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Same Stage 2C treatment as the status text below: the
                     light hexes stay exact, dark rides the bridged status
@@ -414,7 +414,7 @@ function RequirementsChecklist({ student }: { student: Student }) {
                     <AlertCircle className="w-3.5 h-3.5" />
                   )}
                 </div>
-                <p className="text-sm text-slate-700 truncate">{d.name}</p>
+                <p className="text-sm text-slate-700 break-words">{d.name}</p>
               </div>
               {/* Stage 2C: same light hexes as the inline styles, plus the
                   bridged dark status tokens (green-700 / red-700) — the bare
@@ -590,7 +590,7 @@ export function EnrollmentPage({
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>

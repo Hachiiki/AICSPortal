@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useId } from 'react'
 import {
   Search,
   Home,
@@ -27,6 +27,7 @@ import { CATEGORY_LABELS } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import { EmptyState } from './EmptyState'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 
 interface GlobalSearchProps {
   student: Student
@@ -38,6 +39,9 @@ interface GlobalSearchProps {
   facultyData?: { subjects: any[]; students: any[] } | null
   taskGroups?: { title: string; subjectCode: string }[]
   onNavigate: (view: View) => void
+  surface?: 'inline' | 'dialog'
+  onSelect?: () => void
+  onEscape?: () => void
 }
 
 // A single entry in the searchable index.
@@ -50,6 +54,8 @@ interface SearchItem {
   view: View
   // Lowercased haystack used for matching.
   keywords: string
+  taskId?: string
+  subjectCode?: string
 }
 
 type ResultType = 'Page' | 'Subject' | 'Student' | 'Professor' | 'Event' | 'Task' | 'Document'
@@ -228,6 +234,8 @@ function buildIndex(
   for (const t of tasks ?? []) {
     items.push({
       id: `task-${t._id}`,
+      taskId: t._id,
+      subjectCode: t.subjectCode,
       type: 'Task',
       label: t.title,
       hint: `${t.subjectCode} · ${t.type} · due ${formatDate(t.dueDate)}`,
@@ -292,12 +300,16 @@ function searchIndex(index: SearchItem[], query: string): SearchItem[] {
   return out
 }
 
-export function GlobalSearch({ student, events, professors, tasks, facultyData, taskGroups, onNavigate }: GlobalSearchProps) {
+export function GlobalSearch({ student, events, professors, tasks, facultyData, taskGroups, onNavigate, surface = 'inline', onSelect, onEscape }: GlobalSearchProps) {
+  const { navigate } = usePortalRoute()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
+  const searchId = useId()
+  const optionId = (id: string) => `${searchId}-option-${encodeURIComponent(id)}`
 
   const roleLinks = useMemo(() => quickLinksFor(student.role), [student.role])
 
@@ -312,10 +324,31 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
     return searchIndex(index, query)
   }, [index, query, roleLinks])
 
-  // Keep the active index in range as the result set changes.
+  // Group results for display.
+  const grouped = useMemo(() => {
+    const map = new Map<ResultType, SearchItem[]>()
+    for (const r of results) {
+      const arr = map.get(r.type) ?? []
+      arr.push(r)
+      map.set(r.type, arr)
+    }
+    return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({ type: g, items: map.get(g)! }))
+  }, [results])
+
+  // Running flat index so keyboard nav can map activeIndex → item.
+  const flat = useMemo(() => grouped.flatMap(group => group.items), [grouped])
+
+
   useEffect(() => {
-    setActiveIndex(0)
-  }, [query])
+    const list = resultsRef.current
+    const option = flat[activeIndex] && document.getElementById(`${searchId}-option-${encodeURIComponent(flat[activeIndex].id)}`)
+    if (!open || !list || !option) return
+    const bounds = list.getBoundingClientRect()
+    const item = option.getBoundingClientRect()
+    // Scroll the results only, keeping the sticky search and the page still.
+    if (item.top < bounds.top) list.scrollTop -= bounds.top - item.top
+    else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom
+  }, [open, activeIndex, flat, searchId])
 
   // Close on outside pointer interaction.
   useEffect(() => {
@@ -343,8 +376,12 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
   }, [])
 
   const choose = (item: SearchItem) => {
-    onNavigate(item.view)
+    onSelect?.()
+    if (item.taskId && item.view === 'academics') {
+      navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', taskId: item.taskId, subjectCode: item.subjectCode })
+    } else onNavigate(item.view)
     setQuery('')
+    setActiveIndex(0)
     setOpen(false)
     inputRef.current?.blur()
   }
@@ -353,40 +390,32 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       setOpen(true)
-      setActiveIndex((i) => Math.min(i + 1, results.length - 1))
+      setActiveIndex((i) => Math.max(0, Math.min(i + 1, results.length - 1)))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       setActiveIndex((i) => Math.max(i - 1, 0))
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      const item = results[activeIndex]
+      const item = flat[activeIndex]
       if (item) choose(item)
     } else if (e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+      if (surface === 'dialog' && (!open || !query.trim())) { onEscape?.(); return }
       setOpen(false)
       setQuery('')
-      inputRef.current?.blur()
+      setActiveIndex(0)
+      if (surface === 'inline') inputRef.current?.blur()
     }
   }
 
-  // Group results for display.
-  const grouped = useMemo(() => {
-    const map = new Map<ResultType, SearchItem[]>()
-    for (const r of results) {
-      const arr = map.get(r.type) ?? []
-      arr.push(r)
-      map.set(r.type, arr)
-    }
-    return GROUP_ORDER.filter((g) => map.has(g)).map((g) => ({ type: g, items: map.get(g)! }))
-  }, [results])
-
-  // Running flat index so keyboard nav can map activeIndex → item.
-  const flat = results
-
   return (
-    <div ref={containerRef} className="relative w-full max-w-md">
+    <div ref={containerRef} className={surface === 'dialog' ? 'flex min-h-0 w-full flex-1 flex-col' : 'relative w-full max-w-md'} onBlur={event => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
+    }}>
       {/* Search field */}
       <div
-        className={`flex items-center gap-2 h-9 px-3 rounded-lg border bg-slate-50 transition-colors ${
+        className={`flex items-center gap-2 h-11 sm:h-9 px-3 rounded-lg border bg-slate-50 transition-colors ${
           open ? 'border-blue-500 bg-surface ring-2 ring-blue-100' : 'border-slate-200 hover:bg-surface'
         }`}
       >
@@ -397,33 +426,30 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
+            setActiveIndex(0)
             setOpen(true)
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder={
-            student.role === 'faculty'
-              ? 'Search pages, students, subjects, tasks…'
-              : student.role === 'admin'
-                ? 'Search pages…'
-                : 'Search pages, subjects, professors, events…'
-          }
+          placeholder="Search the portal"
           aria-label="Search the portal"
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"
-          aria-controls="global-search-results"
-          className="flex-1 min-w-0 bg-transparent text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none"
+          aria-controls={`${searchId}-results`}
+          aria-activedescendant={open && flat[activeIndex] ? optionId(flat[activeIndex].id) : undefined}
+          className="flex-1 min-w-0 bg-transparent text-base sm:text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none"
         />
         {query ? (
           <button
             type="button"
             onClick={() => {
               setQuery('')
+              setActiveIndex(0)
               inputRef.current?.focus()
             }}
             aria-label="Clear search"
-            className="p-2 -m-1 rounded-md text-slate-500 hover:text-slate-700 flex-shrink-0"
+            className="size-11 sm:size-8 -mr-2 grid place-items-center rounded-md text-slate-500 hover:text-slate-700 flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
@@ -438,9 +464,10 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
           so screen readers hear result changes without hunting the list. */}
       {open && (
         <div
-          id="global-search-results"
+          ref={resultsRef}
+          id={`${searchId}-results`}
           role="listbox"
-          className="absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[70vh] overflow-y-auto"
+          className={surface === 'dialog' ? 'mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-surface' : 'absolute left-0 right-0 mt-2 bg-surface rounded-xl border border-slate-200 shadow-lg shadow-slate-900/5 overflow-hidden z-50 max-h-[min(70vh,calc(100dvh-140px))] overflow-y-auto'}
         >
           <p className="sr-only" role="status" aria-live="polite">
             {flat.length === 0
@@ -453,7 +480,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
             <div className="py-2">
               {grouped.map(({ type, items }) => (
                 <div key={type}>
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  <p className={`px-4 pt-2 pb-1 ${surface === 'dialog' ? 'text-xs' : 'text-[10px]'} font-semibold uppercase tracking-wider text-slate-500`}>
                     {GROUP_LABELS[type]}
                   </p>
                   {items.map((item) => {
@@ -463,8 +490,10 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                     return (
                       <button
                         key={item.id}
+                        id={optionId(item.id)}
                         type="button"
                         role="option"
+                        tabIndex={-1}
                         aria-selected={isActive}
                         onMouseEnter={() => setActiveIndex(flatIdx)}
                         onClick={() => choose(item)}
@@ -480,10 +509,10 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                           <Icon className="w-4 h-4" />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-medium text-slate-900 truncate">
+                          <span className={`block text-sm font-medium text-slate-900 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>
                             {item.label}
                           </span>
-                          <span className="block text-xs text-slate-500 truncate">{item.hint}</span>
+                          <span className={`block text-xs text-slate-600 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>{item.hint}</span>
                         </span>
                         {isActive && (
                           <CornerDownLeft className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" aria-hidden="true" />

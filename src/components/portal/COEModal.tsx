@@ -51,7 +51,7 @@ export function COEModal({ student, onClose }: COEModalProps) {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-surface rounded-2xl shadow-2xl max-w-3xl w-full max-h-[92vh] overflow-hidden flex flex-col"
+        className="bg-surface rounded-2xl shadow-2xl max-w-3xl w-full max-h-[calc(100dvh-32px)] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header — app chrome (not part of the printed document:
@@ -60,7 +60,7 @@ export function COEModal({ student, onClose }: COEModalProps) {
             dark counterparts use the semantic tokens (ink / line / link /
             slate-500 bridge), the Stage-2B idiom. */}
         <div
-          className="px-6 py-4 flex items-center justify-between border-b no-print border-[#D2D2D3] dark:border-line"
+          className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 border-b no-print border-[#D2D2D3] dark:border-line"
         >
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-[#287CBB] dark:text-link" aria-hidden />
@@ -68,24 +68,24 @@ export function COEModal({ student, onClose }: COEModalProps) {
               Certificate of Enrollment
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="inline-flex min-h-11 sm:min-h-8 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               style={{ background: PALETTE.ocean }}
             >
               <Printer className="w-3.5 h-3.5" aria-hidden /> Print
             </button>
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 border border-[#D2D2D3] dark:border-line text-[#153357] dark:text-ink"
+              className="inline-flex min-h-11 sm:min-h-8 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 border border-[#D2D2D3] dark:border-line text-[#153357] dark:text-ink"
             >
               <Download className="w-3.5 h-3.5" aria-hidden /> Save as PDF
             </button>
             <button
               onClick={onClose}
               aria-label="Close certificate preview"
-              className="p-1.5 rounded-lg transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 text-[#6b7280] dark:text-slate-500"
+              className="size-11 sm:size-8 grid place-items-center rounded-lg transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 text-[#6b7280] dark:text-slate-500"
             >
               <X className="w-4 h-4" aria-hidden />
             </button>
@@ -99,8 +99,9 @@ export function COEModal({ student, onClose }: COEModalProps) {
         </p>
 
         {/* COE document */}
-        <div className="overflow-y-auto p-8 coe-print-area">
-          <COEDocument student={student} />
+        <p className="sm:hidden shrink-0 px-4 pb-2 text-xs text-slate-600 no-print">Swipe across to read the full certificate.</p>
+        <div className="overflow-auto min-h-0 p-4 sm:p-8 coe-print-area" tabIndex={0} role="region" aria-label="Certificate document, scroll to read">
+          <div className="min-w-[640px] print:min-w-0"><COEDocument student={student} /></div>
         </div>
       </DialogPanel>
     </motion.div>

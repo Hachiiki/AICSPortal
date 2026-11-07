@@ -21,9 +21,12 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
 import { formatNotifTime } from '@/lib/aics/notifications'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface TopbarProps {
   student: Student
+  active: View
   onOpenMobileNav: () => void
   onProfile: () => void
   onLogout: () => void
@@ -45,6 +48,7 @@ interface TopbarProps {
 
 export function Topbar({
   student,
+  active,
   onOpenMobileNav,
   onProfile,
   onLogout,
@@ -56,7 +60,21 @@ export function Topbar({
   taskGroups,
   inbox,
 }: TopbarProps) {
+  const { navigate } = usePortalRoute()
+  const phone = usePhoneViewport()
+  const isStudent = !student.role || student.role === 'student'
+  const compact = isStudent && phone
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
+  const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
+  const bellIcon = <>
+    <Bell className="size-5" aria-hidden="true" />
+    {unread > 0 && (
+      <span aria-hidden="true" className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+        {unread > 9 ? '9+' : unread}
+      </span>
+    )}
+  </>
+  const bellClass = 'relative grid size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9'
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
@@ -75,10 +93,8 @@ export function Topbar({
   const openNotification = (n: Notification) => {
     inbox?.onMark(n._id)
     if (n.taskId) {
-      try {
-        window.sessionStorage.setItem('aics_academics_focus', JSON.stringify({ tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId }))
-      } catch {}
-      onNavigate('academics')
+      if (student.role === 'faculty') onNavigate('tasks')
+      else if (student.role !== 'admin') navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId })
     }
   }
 
@@ -94,24 +110,28 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 h-16 bg-surface border-b border-slate-200"
+      className="sticky top-0 z-20 bg-surface border-b border-slate-200 sm:h-16"
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+      <div className={`h-full flex items-center justify-between gap-x-2 gap-y-1 px-4 sm:flex-nowrap sm:py-0 sm:gap-3 sm:px-6 lg:px-8 ${isStudent ? 'min-h-14 py-1' : 'flex-wrap pb-3 pt-1'}`}>
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className={`flex items-center gap-1 sm:shrink-0 sm:gap-3 ${isStudent ? 'min-w-0' : 'shrink-0'}`}>
           <button
             type="button"
             onClick={onOpenMobileNav}
             aria-label="Open navigation menu"
             data-tour="topbar-mobile-nav"
-            className="lg:hidden p-2 -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-haspopup="dialog"
+            aria-controls="mobile-navigation"
+            className={`${isStudent ? 'hidden sm:grid lg:hidden' : 'lg:hidden grid'} size-11 place-items-center -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
           >
             <Menu className="w-5 h-5" />
           </button>
+          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-[28px] shrink-0 sm:hidden" />}
+          <span className="min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
@@ -122,8 +142,8 @@ export function Topbar({
         </div>
 
         {/* Center — global search */}
-        <div className="flex-1 flex justify-center min-w-0">
-          <GlobalSearch
+        <div className={`${isStudent ? 'hidden sm:flex' : 'flex'} order-last basis-full sm:order-none sm:basis-0 flex-1 justify-center min-w-0`}>
+          {!compact && <GlobalSearch
             student={student}
             events={events}
             professors={professors}
@@ -131,18 +151,18 @@ export function Topbar({
             facultyData={facultyData}
             taskGroups={taskGroups}
             onNavigate={onNavigate}
-          />
+          />}
         </div>
 
         {/* Right — theme toggle + notifications + profile dropdown + logout */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-0.5 sm:gap-3 flex-shrink-0">
           {/* Theme quick toggle. First in the right cluster so the
               pre-existing controls keep their exact positions. */}
           <button
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className={`${isStudent ? 'hidden sm:grid' : 'grid'} size-11 sm:size-9 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -151,7 +171,16 @@ export function Topbar({
             )}
           </button>
 
-          <DropdownMenu
+          {compact ? (
+            <button type="button" aria-label={bellLabel} aria-current={active === 'notifications' ? 'page' : undefined}
+              data-tour="topbar-notifications" className={`${bellClass} ${active === 'notifications' ? 'bg-blue-50 text-link-strong' : ''}`}
+              onClick={() => {
+                inbox?.onRefresh()
+                if (active !== 'notifications') onNavigate('notifications')
+              }}>
+              {bellIcon}
+            </button>
+          ) : <DropdownMenu
             onOpenChange={(open) => {
               if (open) inbox?.onRefresh()
             }}
@@ -159,21 +188,14 @@ export function Topbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
+                aria-label={bellLabel}
                 data-tour="topbar-notifications"
-                className="relative p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className={bellClass}
               >
-                <Bell className="w-5 h-5" aria-hidden />
-                {unread > 0 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold grid place-items-center">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
-                )}
+                {bellIcon}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-128px)] overflow-y-auto">
               <div className="px-2 py-1.5 flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900">Notifications</p>
                 {unread > 0 && (
@@ -196,7 +218,7 @@ export function Topbar({
                   <DropdownMenuItem
                     key={n._id}
                     onClick={() => openNotification(n)}
-                    className="cursor-pointer items-start"
+                    className="min-h-11 sm:min-h-0 cursor-pointer items-start"
                   >
                     <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-200' : 'bg-blue-600'}`} />
                     <span className="min-w-0">
@@ -212,7 +234,7 @@ export function Topbar({
                 ))
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
 
           <div className="w-px h-6 bg-slate-200" aria-hidden="true" />
 
@@ -222,19 +244,19 @@ export function Topbar({
               <button
                 type="button"
                 data-tour="topbar-profile"
-                className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="flex size-[44px] items-center justify-center gap-2.5 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-auto sm:py-1 sm:pl-1 sm:pr-2"
                 aria-label="Account menu"
               >
                 {student.photoUrl ? (
                   <img
                     src={student.photoUrl}
                     alt=""
-                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    className="size-[36px] shrink-0 rounded-full object-cover sm:size-9"
                     draggable={false}
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
+                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[var(--avatar-bg)] text-xs font-semibold text-white sm:size-9 dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
@@ -258,13 +280,13 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Profile — navigates to profile page */}
-              <DropdownMenuItem onClick={onProfile} className="cursor-pointer">
+              <DropdownMenuItem onClick={onProfile} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <User className="w-4 h-4 mr-2" />
                 <span>Profile</span>
               </DropdownMenuItem>
 
               {/* Theme — full selector lives in Settings → Appearance */}
-              <DropdownMenuItem onClick={() => onNavigate('settings')} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate({ view: 'settings', branch: student.branch, username: student.username, role: student.role ?? 'student', section: 'appearance' })} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
                 <span>Theme settings</span>
               </DropdownMenuItem>
@@ -272,7 +294,7 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Sign out */}
-              <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600 focus:text-red-600">
+              <DropdownMenuItem onClick={onLogout} className="min-h-11 sm:min-h-0 cursor-pointer text-red-600 focus:text-red-600">
                 <LogOut className="w-4 h-4 mr-2" />
                 <span>Sign out</span>
               </DropdownMenuItem>
