@@ -27,7 +27,7 @@ export function AcademicHeader({ student, totalUnits }: AcademicHeaderProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="min-w-0"
+      className="student-overview min-w-0"
     >
       {/* Left column: hero text + stats */}
       <div className="flex-1 min-w-0">
@@ -42,7 +42,7 @@ export function AcademicHeader({ student, totalUnits }: AcademicHeaderProps) {
         </p>
 
         {/* Stats row */}
-        <div className="mt-4 sm:mt-6 grid grid-cols-2 min-[380px]:grid-cols-4 sm:flex sm:flex-wrap items-end gap-x-4 sm:gap-x-8 gap-y-3">
+        <div className="student-overview-stats mt-4 sm:mt-6 grid grid-cols-2 min-[380px]:grid-cols-4 sm:flex sm:flex-wrap items-end gap-x-4 sm:gap-x-8 gap-y-3">
           <Stat label="GPA" value={student.gpa} />
           <Divider />
           <Stat label="Units Enrolled" value={String(totalUnits)} />

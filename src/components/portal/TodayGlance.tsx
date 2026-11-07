@@ -110,8 +110,8 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         </div>
         {nextClass ? (
           <>
-            <p className="mt-2 text-sm font-semibold text-slate-900 truncate">{nextClass.title}</p>
-            <p className="text-xs text-slate-500 mt-0.5 truncate font-mono">{nextClass.code} • {nextClass.room}</p>
+            <p className="mt-2 break-words text-sm font-semibold text-slate-900 sm:truncate">{nextClass.title}</p>
+            <p className="mt-0.5 break-words font-mono text-xs text-slate-500 sm:truncate">{nextClass.code} • {nextClass.room}</p>
           </>
         ) : (
           <p className="mt-2 text-sm text-slate-500">No more classes today</p>

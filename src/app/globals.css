@@ -19,13 +19,23 @@
 
   @container student-dock (width < 19rem) {
     .student-dock-grid {
-      grid-template-columns: 1fr 1fr 1.4fr;
+      grid-template-columns: 1fr 1fr 1.6fr;
       grid-auto-rows: minmax(3rem, auto);
       height: auto;
     }
 
     .student-dock-close {
       grid-column-start: 3;
+    }
+  }
+
+  .student-overview {
+    container: student-overview / inline-size;
+  }
+
+  @container student-overview (width < 15rem) {
+    .student-overview-stats {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }
