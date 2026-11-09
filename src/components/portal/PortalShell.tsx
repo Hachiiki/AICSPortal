@@ -140,7 +140,7 @@ export function PortalShell({
             menuOpen={mobileNavOpen}
             onOpenMenu={() => setMobileNavOpen(true)}
             onNavigate={onNavigate}
-            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="inline-flex min-h-[48px] min-w-[48px] items-center gap-2 rounded-full border border-white/30 bg-[#153357] px-3 py-2 text-sm font-semibold text-white shadow-md shadow-slate-900/20 hover:bg-[#21466a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="grid size-[48px] place-items-center rounded-full border border-white/30 bg-[#153357] text-white shadow-md shadow-slate-900/20 hover:bg-[#21466a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
           />
         )}
       </div>

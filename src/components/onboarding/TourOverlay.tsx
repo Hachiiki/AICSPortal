@@ -374,7 +374,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? minimized ? 'fixed right-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-controls-height,0px)+12px)]' : 'absolute',
+          sheet ? minimized ? 'fixed left-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-controls-height,0px)+12px)]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >

@@ -82,7 +82,7 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         <Menu className="size-[20px] shrink-0" aria-hidden="true" /><span className="max-w-full">More</span>
       </button>
     </nav>
-    <div ref={floatingSearch} data-mobile-floating-search="" className="absolute bottom-[calc(100%+12px)] left-[max(12px,env(safe-area-inset-left))]">
+    <div ref={floatingSearch} data-mobile-floating-search="" className="absolute bottom-[calc(100%+12px)] right-[max(12px,env(safe-area-inset-right))]">
       {search}
     </div>
   </div>
