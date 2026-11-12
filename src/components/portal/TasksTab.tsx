@@ -331,7 +331,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                 className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Accordion header */}
                 <button type="button" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
-                  className="w-full text-left px-4 sm:px-4 sm:px-6 py-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                  className="flex w-full flex-wrap items-center justify-between gap-[12px] px-[16px] py-[16px] text-left transition-colors hover:bg-slate-50 sm:flex-nowrap sm:px-6 sm:py-4">
                   <div className="min-w-0 flex-1 basis-full sm:basis-auto">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                       <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
@@ -339,7 +339,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                     </div>
                     {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="flex min-w-0 max-w-full flex-wrap items-center gap-[8px] sm:shrink-0">
                     <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{taskCountLabel}</span>
                     {hasMissing && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">

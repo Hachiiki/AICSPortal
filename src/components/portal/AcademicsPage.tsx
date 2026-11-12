@@ -239,7 +239,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
       tasks={tasks}
       inbox={inbox}
     >
-        <main className="min-w-0 space-y-3 px-4 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <main className="min-w-0 space-y-3 px-[16px] py-[20px] sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           {/* Page header */}
           <div>
             <button
@@ -331,21 +331,22 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                     </button>
                   </div>
 
-                  {/* Stat chips */}
-                  <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
+                  <dl className="flex flex-wrap items-start gap-x-[24px] gap-y-[10px] border-b border-line bg-slate-50 px-[16px] py-[12px] sm:px-6">
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Term GPA</p>
-                      <p className="text-base font-bold text-link-strong">{term.gpa === '-' ? 'Pending' : term.gpa}</p>
+                      <dt className="text-xs font-medium text-muted-fg">Term GPA</dt>
+                      <dd className="mt-0.5 text-base font-semibold text-ink">
+                        {term.gpa === '-' ? <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">Pending</span> : term.gpa}
+                      </dd>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Units</p>
-                      <p className="text-base font-bold text-slate-900">{term.totalUnits}</p>
+                      <dt className="text-xs font-medium text-muted-fg">Units</dt>
+                      <dd className="mt-0.5 text-base font-semibold text-ink">{term.totalUnits}</dd>
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Subjects</p>
-                      <p className="text-base font-bold text-slate-900">{term.subjects.length}</p>
+                      <dt className="text-xs font-medium text-muted-fg">Subjects</dt>
+                      <dd className="mt-0.5 text-base font-semibold text-ink">{term.subjects.length}</dd>
                     </div>
-                  </div>
+                  </dl>
 
                   {/* Grades — per-subject cards on mobile, scrollable table from md up */}
                   <GradesCards subjects={term.subjects} totalUnits={term.totalUnits} />

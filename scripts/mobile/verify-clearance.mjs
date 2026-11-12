@@ -37,9 +37,14 @@ try {
     '/settings', '/settings?section=security', '/settings?section=notifications',
     '/settings?section=privacy', '/settings?section=appearance', '/help',
   ]
-  for (const width of [320, 390, 430]) {
+  const viewports = [
+    ...[320, 390, 430].map(width => ({ width, fontSize: '', routes })),
+    { width: 320, fontSize: '200%', routes: ['', '/academics?tab=tasks', '/academics?tab=grades', '/events', '/notifications'] },
+  ]
+  for (const { width, fontSize, routes: viewportRoutes } of viewports) {
     await page.setViewportSize({ width, height: 720 })
-    for (const route of routes) {
+    await page.evaluate(size => { document.documentElement.style.fontSize = size }, fontSize)
+    for (const route of viewportRoutes) {
       await page.evaluate(url => {
         history.pushState({}, '', url)
         dispatchEvent(new Event('pushstate'))
@@ -52,11 +57,14 @@ try {
       const bounds = await page.evaluate(() => ({
         contentBottom: document.querySelector('main').getBoundingClientRect().bottom,
         navigationTop: document.querySelector('[data-student-mobile-nav]').getBoundingClientRect().top,
+        contentWidth: document.documentElement.scrollWidth,
+        viewportWidth: innerWidth,
       }))
-      const pass = bounds.contentBottom <= bounds.navigationTop + 1
-      report.checks.push({ name: `${route || 'dashboard'}-${width}: final content clears navigation`, pass, detail: bounds })
+      const name = `${route || 'dashboard'}-${width}${fontSize ? `-${fontSize}` : ''}`
+      report.checks.push({ name: `${name}: final content clears navigation`, pass: bounds.contentBottom <= bounds.navigationTop + 1, detail: bounds })
+      if (fontSize) report.checks.push({ name: `${name}: page fits viewport width`, pass: bounds.contentWidth <= bounds.viewportWidth, detail: bounds })
 
-      if (width === 320 && ['/academics?tab=tasks', '/profile', '/help'].includes(route)) {
+      if (width === 320 && !fontSize && ['/academics?tab=tasks', '/profile', '/help'].includes(route)) {
         const name = route.includes('tasks') ? 'tasks' : route.slice(1)
         const file = `${name}-bottom-320.png`
         await page.screenshot({ path: resolve(out, file) })

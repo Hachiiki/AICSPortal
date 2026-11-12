@@ -29,6 +29,14 @@
     .student-topbar {
       position: relative;
     }
+
+    .student-dashboard-intro {
+      row-gap: 12px;
+    }
+
+    .student-welcome {
+      padding-block: 9px;
+    }
   }
 
   @container student-topbar (width < 19rem) {
@@ -40,7 +48,13 @@
   @container student-dock (width < 19rem) {
     .student-dock-grid {
       grid-template-columns: 1fr 1fr 1.6fr;
-      grid-auto-rows: minmax(52px, auto);
+      grid-auto-rows: minmax(44px, auto);
+      row-gap: 2px;
+      padding-block: 2px;
+    }
+
+    .student-dock-destination {
+      margin-block: 0;
     }
 
     .student-dock-destination > svg {

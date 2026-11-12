@@ -73,7 +73,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       inbox={inbox}
     >
         <main className="min-w-0 space-y-5 px-[16px] py-[16px] sm:space-y-6 sm:px-6 sm:py-6 lg:space-y-8 lg:px-8 lg:py-8">
-          <div className="grid grid-cols-1 gap-[16px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8">
+          <div className="student-dashboard-intro grid grid-cols-1 gap-[16px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8">
           <AcademicHeader student={dashboardStudent} />
 
           {/* Today at a glance — next class, pending tasks, unread announcements */}

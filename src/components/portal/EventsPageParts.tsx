@@ -100,19 +100,19 @@ export function CalendarGrid({
         <h2 className="text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex max-w-full flex-wrap items-center gap-[4px] sm:gap-2">
           <button
             type="button"
             onClick={onPrev}
             aria-label="Previous month"
-            className="size-11 sm:size-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="size-[44px] rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={onToday}
-            className="min-h-11 sm:min-h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50"
+            className="min-h-[44px] rounded-lg border border-slate-200 px-[12px] text-sm font-medium text-link hover:bg-blue-50 sm:min-h-8 sm:px-4"
           >
             Today
           </button>
@@ -120,7 +120,7 @@ export function CalendarGrid({
             type="button"
             onClick={onNext}
             aria-label="Next month"
-            className="size-11 sm:size-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center"
+            className="size-[44px] rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -210,7 +210,7 @@ export function CalendarGrid({
                     ))}
                   </div>
                 )}
-                {itemCount > 0 && <span className="mt-0.5 max-w-full text-[10px] font-semibold leading-tight tabular-nums text-link-strong [overflow-wrap:anywhere]" aria-hidden="true">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>}
+                {itemCount > 0 && <span className="mt-0.5 max-w-full text-[11px] font-semibold leading-tight tabular-nums text-link-strong [overflow-wrap:anywhere]" aria-hidden="true">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>}
               </button>
             )
           })}
