@@ -116,7 +116,7 @@ export function Topbar({
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className={`h-full flex items-center justify-between gap-x-2 gap-y-1 px-4 sm:flex-nowrap sm:py-0 sm:gap-3 sm:px-6 lg:px-8 ${isStudent ? 'min-h-14 py-1' : 'flex-wrap pb-3 pt-1'}`}>
+      <div className={`flex h-full items-center justify-between gap-x-[8px] gap-y-1 px-[16px] sm:flex-nowrap sm:gap-3 sm:px-6 sm:py-0 lg:px-8 ${isStudent ? 'min-h-[56px] py-[4px]' : 'flex-wrap pb-3 pt-1'}`}>
         {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
         <div className={`flex items-center gap-1 sm:shrink-0 sm:gap-3 ${isStudent ? 'min-w-0' : 'shrink-0'}`}>
           <button

@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Clock,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   X,
   AlertTriangle,
@@ -205,16 +206,16 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-5 sm:gap-6">
       {/* Heading */}
-      <div>
+      <div className="hidden sm:block">
         <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
         <p className="text-xs text-slate-500 mt-0.5">Current term activities, quizzes, tests and projects</p>
       </div>
 
       {/* NEEDS ATTENTION CARD */}
-      <div data-tour="tasks-attention" className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
-          <h3 className="text-base font-semibold text-slate-900">Needs Attention</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Tasks that require your action</p>
+      <div data-tour="tasks-attention" className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
+          <h3 className="text-base font-semibold text-ink">Needs attention</h3>
+          {needsAttentionTasks.length > 0 && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-muted-fg">{needsAttentionTasks.length} {needsAttentionTasks.length === 1 ? 'task' : 'tasks'}</span>}
         </div>
         {needsAttentionTasks.length === 0 ? (
           <EmptyState icon={CheckCircle} message="All caught up." hint="Nothing needs your action right now." />
@@ -227,7 +228,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                 <button key={task._id}
                   type="button"
                   onClick={() => handleAttentionRowClick(task)}
-                  className={`w-full text-left px-4 sm:px-6 py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[32px_minmax(0,1fr)] sm:flex sm:items-center gap-x-3 gap-y-2 hover:bg-slate-50 transition-colors`}>
+                  className={`w-full px-4 py-2 text-left sm:px-6 sm:py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:items-center gap-x-3 gap-y-1 hover:bg-slate-50 transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link`}>
                   {/* Circular status icon */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
                     {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
@@ -235,17 +236,13 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                     {variant === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-slate-500">{task.subjectCode} &bull; {subject?.title || ''}</p>
-                    <p className="text-sm font-medium text-slate-900 break-words">{task.title}</p>
+                    <p className="text-xs font-medium text-muted-fg [overflow-wrap:anywhere]">{task.subjectCode}<span className="hidden sm:inline">{subject ? ` · ${subject.title}` : ''}</span></p>
+                    <p className="text-sm font-semibold text-ink [overflow-wrap:anywhere]">{task.title}</p>
                   </div>
-                  <span className={`col-start-2 justify-self-start inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${VARIANT_COLORS[variant]}`}>
-                    {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" aria-hidden />}
-                    {variant === 'PENDING' && <Clock className="w-3 h-3" aria-hidden />}
-                    {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" aria-hidden />}
-                    {variant === 'MISSING_CLOSED' && <Lock className="w-3 h-3" aria-hidden />}
-                    {variant === 'NEEDS_ATTENTION' && <Calendar className="w-3 h-3" aria-hidden />}
-                    {sub}
+                  <span className={`col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_COLORS[variant]}`}>
+                    {variant === 'MISSING_CLOSED' ? 'Missing · Closed' : sub}
                   </span>
+                  <ChevronRight className="col-start-3 row-span-2 row-start-1 size-4 shrink-0 self-center text-muted-fg sm:hidden" aria-hidden="true" />
                 </button>
               )
             })}

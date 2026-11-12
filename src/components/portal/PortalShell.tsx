@@ -91,7 +91,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-controls-height,125px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
           active={active}
@@ -140,7 +140,7 @@ export function PortalShell({
             menuOpen={mobileNavOpen}
             onOpenMenu={() => setMobileNavOpen(true)}
             onNavigate={onNavigate}
-            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="grid size-[48px] place-items-center rounded-full border border-white/30 bg-[#153357] text-white shadow-md shadow-slate-900/20 hover:bg-[#21466a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }} className="grid size-[44px] shrink-0 place-items-center rounded-xl border border-line bg-slate-100 text-ink hover:bg-blue-50 hover:text-link-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-safe:transition-transform motion-safe:active:scale-95" />}
           />
         )}
       </div>

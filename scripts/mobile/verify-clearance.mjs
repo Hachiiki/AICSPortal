@@ -52,10 +52,9 @@ try {
       const bounds = await page.evaluate(() => ({
         contentBottom: document.querySelector('main').getBoundingClientRect().bottom,
         navigationTop: document.querySelector('[data-student-mobile-nav]').getBoundingClientRect().top,
-        searchTop: document.querySelector('[data-mobile-floating-search]').getBoundingClientRect().top,
       }))
-      const pass = bounds.contentBottom <= Math.min(bounds.navigationTop, bounds.searchTop) + 1
-      report.checks.push({ name: `${route || 'dashboard'}-${width}: final content clears navigation and floating Search`, pass, detail: bounds })
+      const pass = bounds.contentBottom <= bounds.navigationTop + 1
+      report.checks.push({ name: `${route || 'dashboard'}-${width}: final content clears navigation`, pass, detail: bounds })
 
       if (width === 320 && ['/academics?tab=tasks', '/profile', '/help'].includes(route)) {
         const name = route.includes('tasks') ? 'tasks' : route.slice(1)

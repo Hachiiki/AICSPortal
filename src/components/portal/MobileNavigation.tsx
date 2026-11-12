@@ -6,8 +6,8 @@ import type { Student, View } from '@/lib/aics/types'
 import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
-export const MOBILE_NAV_GRID = 'student-dock-grid grid h-16 grid-cols-[1fr_1fr_1.2fr_1fr_1fr] px-1'
-export const MOBILE_NAV_ACTION = 'my-1 flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-0.5 text-center text-xs font-medium leading-tight [overflow-wrap:anywhere] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
+export const MOBILE_NAV_GRID = 'student-dock-grid grid min-h-16 grid-cols-[1fr_1fr_1.5fr_1fr_1fr_1fr] items-stretch px-1'
+export const MOBILE_NAV_ACTION = 'my-[4px] flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-[4px] rounded-xl px-[2px] text-center text-xs font-medium leading-tight [overflow-wrap:anywhere] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 
 export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
   student: Student
@@ -20,25 +20,20 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
 }) {
   const { navigate } = usePortalRoute()
   const dock = useRef<HTMLDivElement>(null)
-  const floatingSearch = useRef<HTMLDivElement>(null)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
   useEffect(() => {
-    if (!dock.current || !floatingSearch.current) return
+    if (!dock.current) return
     const element = dock.current
-    const searchButton = floatingSearch.current
     const root = document.documentElement.style
     const updateHeight = () => {
       root.setProperty('--portal-mobile-nav-height', `${element.offsetHeight}px`)
-      root.setProperty('--portal-mobile-controls-height', `${element.offsetHeight + searchButton.offsetHeight + 12}px`)
     }
     const observer = new ResizeObserver(updateHeight)
     updateHeight()
     observer.observe(element)
-    observer.observe(searchButton)
     return () => {
       observer.disconnect()
       root.removeProperty('--portal-mobile-nav-height')
-      root.removeProperty('--portal-mobile-controls-height')
     }
   }, [])
   useEffect(() => {
@@ -70,7 +65,7 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         const selected = !menuOpen && active === item.view && (item.view !== 'academics' || (item.tab === 'tasks' ? academicTab === 'tasks' : academicTab !== 'tasks'))
         const Icon = item.icon
         return <button key={item.label} type="button" aria-current={selected ? 'page' : undefined}
-          className={`${MOBILE_NAV_ACTION} ${selected ? 'bg-blue-50 text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`}
+          className={`${MOBILE_NAV_ACTION} ${selected ? 'bg-blue-50 font-semibold text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`}
           onClick={() => item.view === 'academics' ? navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: item.tab }) : onNavigate(item.view)}>
           <Icon className={`size-[20px] shrink-0 motion-safe:transition-transform ${selected ? 'motion-safe:-translate-y-0.5' : ''}`} strokeWidth={selected ? 2.4 : 2} aria-hidden="true" />
           <span className="max-w-full">{item.label}</span>
@@ -81,9 +76,7 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         className={`${MOBILE_NAV_ACTION} ${menuOpen || !primary ? 'bg-blue-50 text-link-strong' : 'text-muted-fg hover:bg-slate-100'}`} onClick={onOpenMenu}>
         <Menu className="size-[20px] shrink-0" aria-hidden="true" /><span className="max-w-full">More</span>
       </button>
+      <div data-mobile-dock-search="" className="flex min-w-0 items-center justify-center">{search}</div>
     </nav>
-    <div ref={floatingSearch} data-mobile-floating-search="" className="absolute bottom-[calc(100%+12px)] right-[max(12px,env(safe-area-inset-right))]">
-      {search}
-    </div>
   </div>
 }

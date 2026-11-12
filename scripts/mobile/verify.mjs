@@ -62,7 +62,7 @@ try {
   check('Application fonts and visible images loaded', true, result.visualAssets)
   await page.screenshot({ path: resolve(out, 'dashboard-390.png') })
   check('Next class uses hour-based sessions correctly', (await page.getByRole('region', { name: 'Today at a glance' }).innerText()).includes('Data Structures'))
-  check('Dashboard overdue wording agrees with Tasks', (await page.getByRole('region', { name: 'Today at a glance' }).innerText()).includes('overdue'))
+  check('Dashboard overdue wording agrees with Tasks', /overdue/i.test(await page.getByRole('region', { name: 'Today at a glance' }).innerText()))
   await page.getByRole('button', { name: /Review tasks/ }).click()
   check('Review tasks opens the Tasks section', new URL(page.url()).searchParams.get('tab') === 'tasks')
   await page.getByRole('heading', { name: 'Task Overview', exact: true }).waitFor()
@@ -116,16 +116,15 @@ try {
         check(`header-${width}: compact single-row chrome`, header.height <= 64, header)
         const nav = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
         const bounds = await nav.boundingBox()
-        check(`bottom-nav-${width}: five single-line labels and 44px targets`, await nav.getByRole('button').count() === 5 && (await nav.getByRole('button').evaluateAll(buttons => buttons.every(button => {
+        const labelledActions = nav.locator('button').filter({ has: page.locator('span') })
+        check(`bottom-nav-${width}: five single-line labels and 44px targets`, await labelledActions.count() === 5 && (await labelledActions.evaluateAll(buttons => buttons.every(button => {
           const label = document.createRange()
           label.selectNodeContents(button.querySelector('span'))
           return button.getBoundingClientRect().width >= 44 && button.getBoundingClientRect().height >= 44 && label.getClientRects().length === 1
         }))))
-        const searchButton = page.getByRole('button', { name: 'Open portal search', exact: true })
+        const searchButton = nav.getByRole('button', { name: 'Open portal search', exact: true })
         const searchBounds = await searchButton.boundingBox()
-        const searchGap = bounds.y - searchBounds.y - searchBounds.height
-        const rightInset = width - searchBounds.x - searchBounds.width
-        check(`bottom-nav-${width}: icon-only Search floats above the right edge with a 48px target`, rightInset >= 10 && rightInset <= 16 && searchGap >= 10 && searchGap <= 16 && Math.min(searchBounds.width, searchBounds.height) >= 48 && await nav.getByRole('button', { name: 'Open portal search', exact: true }).count() === 0 && (await searchButton.innerText()).trim() === '' && await searchButton.locator('svg.lucide-search').count() === 1, { searchBounds, searchGap, rightInset })
+        check(`bottom-nav-${width}: icon-only Search fits inside the bar near the right edge`, searchBounds.y >= bounds.y && searchBounds.y + searchBounds.height <= bounds.y + bounds.height && width - searchBounds.x - searchBounds.width <= 16 && Math.min(searchBounds.width, searchBounds.height) >= 44 && (await searchButton.innerText()).trim() === '' && await searchButton.locator('svg.lucide-search').count() === 1, { searchBounds, bounds })
         check(`bottom-nav-${width}: viewport-safe placement`, bounds.x >= 0 && bounds.y + bounds.height <= 845, bounds)
       }
       if (width < 640 && ['/settings', '/settings?section=security'].includes(route)) {
@@ -150,15 +149,17 @@ try {
   await measure(page, 'phone-header-and-bar-200-percent-text')
   const enlargedActions = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).getByRole('button')
   check('Phone actions keep their labels inside the bar at enlarged text', await enlargedActions.evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth && button.scrollHeight <= button.clientHeight)))
-  check('Enlarged text uses a two-row dock with visible icons', await enlargedActions.evaluateAll(buttons => new Set(buttons.map(button => button.offsetTop)).size === 2 && buttons.every(button => button.querySelector('svg').getBoundingClientRect().height >= 20)))
+  check('Enlarged text uses a two-row dock with visible icons', await enlargedActions.evaluateAll(buttons => new Set(buttons.filter(button => button.querySelector('span')).map(button => button.offsetTop)).size === 2 && buttons.every(button => button.querySelector('svg').getBoundingClientRect().height >= 20)))
   check('All five bottom labels stay whole at enlarged text', await enlargedActions.evaluateAll(buttons => buttons.every(button => {
     const range = document.createRange()
-    range.selectNodeContents(button.querySelector('span'))
+    const label = button.querySelector('span')
+    if (!label) return true
+    range.selectNodeContents(label)
     return range.getClientRects().length === 1
   })))
   await page.screenshot({ path: resolve(out, 'phone-text-200-percent-320.png') })
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
-  check('Page end clears the enlarged dock and floating Search', await page.evaluate(() => document.querySelector('main').getBoundingClientRect().bottom <= document.querySelector('[data-mobile-floating-search]').getBoundingClientRect().top + 1))
+  check('Page end clears the enlarged dock', await page.evaluate(() => document.querySelector('main').getBoundingClientRect().bottom <= document.querySelector('[data-student-mobile-nav]').getBoundingClientRect().top + 1))
   await page.evaluate(() => { document.documentElement.style.fontSize = '' })
   await page.evaluate(() => scrollTo(0, 0))
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
@@ -170,7 +171,8 @@ try {
   await closeMenu.waitFor()
   await page.waitForTimeout(300)
   const closeMenuBounds = await closeMenu.boundingBox()
-  check('More becomes an X at the same thumb position', await closeMenu.locator('svg.lucide-x').count() === 1 && Math.abs(closeMenuBounds.x - closedMenuBounds.x) <= 1 && Math.abs(closeMenuBounds.y - closedMenuBounds.y) <= 2, { closedMenuBounds, closeMenuBounds })
+  const thumb = { x: closedMenuBounds.x + closedMenuBounds.width / 2, y: closedMenuBounds.y + closedMenuBounds.height / 2 }
+  check('The full-width Close action covers the More thumb position', await closeMenu.locator('svg.lucide-x').count() === 1 && thumb.x >= closeMenuBounds.x && thumb.x <= closeMenuBounds.x + closeMenuBounds.width && thumb.y >= closeMenuBounds.y && thumb.y <= closeMenuBounds.y + closeMenuBounds.height, { closedMenuBounds, closeMenuBounds })
   check('Drawer makes underlying portal inert', await page.locator('[inert]').count() > 0)
   await page.keyboard.press('Shift+Tab')
   check('Drawer Shift+Tab stays inside', await drawer.evaluate(el => el.contains(document.activeElement)))
@@ -476,15 +478,16 @@ try {
   check('Short-screen guide navigation stays visible without scrolling', navigation.length === 3 && navigation.every(button => button.top >= 0 && button.bottom <= 420 && button.height >= 44), navigation)
   const navTop = (await fresh.page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).boundingBox()).y
   const guideBounds = await shortGuide.boundingBox()
-  const floatingSearchTop = (await fresh.page.getByRole('button', { name: 'Open portal search', exact: true }).boundingBox()).y
-  check('Short guide leaves floating Search and bottom navigation uncovered', guideBounds.y + guideBounds.height <= Math.min(navTop, floatingSearchTop), { guide: guideBounds, navTop, floatingSearchTop })
+  check('Short guide leaves the bottom navigation uncovered', guideBounds.y + guideBounds.height <= navTop, { guide: guideBounds, navTop })
+  const instructionsFit = await shortGuide.getByRole('region', { name: 'Tour instructions' }).evaluate(el => el.scrollHeight <= el.clientHeight)
+  check('Short guide shows the full announcement instructions', instructionsFit)
   await fresh.page.screenshot({ path: resolve(out, 'guide-320x420.png') })
   await shortGuide.getByRole('button', { name: 'Hide guide to explore the page', exact: true }).click()
   await fresh.page.waitForTimeout(40)
   check('Minimizing the guide moves keyboard focus to Show guide', await fresh.page.getByRole('button', { name: 'Show guide · 2 of 7', exact: true }).evaluate(button => button === document.activeElement))
   const minimizedGuide = await shortGuide.boundingBox()
   const shortSearchButton = await fresh.page.getByRole('button', { name: 'Open portal search', exact: true }).boundingBox()
-  check('The minimized guide and floating Search have separate touch areas', minimizedGuide.x + minimizedGuide.width <= shortSearchButton.x, { minimizedGuide, shortSearchButton })
+  check('The minimized guide and Search have separate touch areas', minimizedGuide.y + minimizedGuide.height <= shortSearchButton.y, { minimizedGuide, shortSearchButton })
   const readNotice = fresh.page.getByRole('button', { name: 'Read announcement: Midterm examination schedule', exact: true })
   await readNotice.scrollIntoViewIfNeeded()
   const exposed = await readNotice.evaluate(button => {

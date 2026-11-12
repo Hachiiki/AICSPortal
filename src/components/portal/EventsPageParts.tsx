@@ -87,13 +87,13 @@ export function CalendarGrid({
   onPrev, onNext, onToday, onSelectDay, monthHasEvents,
 }: CalendarGridProps) {
   return (
-    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface sm:rounded-xl sm:shadow-sm">
       {/* Calendar header */}
-      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-4">
         <h2 className="text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
-        <div className="flex items-center gap-2 justify-between sm:justify-start">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             type="button"
             onClick={onPrev}
@@ -173,11 +173,11 @@ export function CalendarGrid({
                     : `${dateLabel}, nothing scheduled`
                 })()}
                 aria-current={isSelected ? 'date' : undefined}
-                className={`relative min-h-[88px] sm:min-h-[96px] p-1.5 border-b border-r border-slate-100 text-left transition-colors ${
+                className={`relative min-h-11 min-w-0 border-b border-line p-1 text-center transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:min-h-[96px] sm:border-r sm:p-1.5 sm:text-left ${
                   isOtherMonth ? 'bg-slate-50/40' : 'bg-surface'
                 } hover:bg-blue-50/40 ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-center pb-1 sm:justify-between sm:pb-0">
                   <span
                     className={`inline-flex items-center justify-center text-xs font-medium ${
                       isToday
@@ -193,11 +193,11 @@ export function CalendarGrid({
                 {/* Dots — decorative; the button's accessible name
                     carries the day's item count. */}
                 {visibleDots.length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1" aria-hidden="true">
+                  <div className="absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5 sm:static sm:mt-1 sm:flex-wrap sm:justify-start sm:gap-1" aria-hidden="true">
                     {visibleDots.map((dot, di) => (
                       <span
                         key={di}
-                        className={`w-1.5 h-1.5 rounded-full ${dot.color}`}
+                        className={`size-1.5 shrink-0 ${dot.title === 'Tasks due' ? 'rounded-[2px]' : 'rounded-full'} ${dot.color}`}
                         title={dot.title}
                       />
                     ))}
@@ -392,7 +392,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-wrap gap-2">
+        <div className="flex min-w-0 flex-wrap gap-1.5 sm:gap-2">
           {/* Legend chips — click to toggle category */}
           {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((cat) => {
             const on = enabledCats.has(cat)
@@ -402,7 +402,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 type="button"
                 onClick={() => onToggleCat(cat)}
                 aria-pressed={on}
-                className={`inline-flex min-h-11 items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all sm:min-h-0 ${
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors sm:min-h-0 sm:px-2.5 ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
                     : 'bg-surface text-slate-500 border-slate-200'
@@ -414,7 +414,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
             )
           })}
           {showTasks && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-amber-50 text-amber-700 border-amber-200">
+            <span className="hidden items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 sm:inline-flex">
               <span className={`w-2 h-2 rounded-full ${TASK_DUE_COLOR}`} />
               Tasks due
             </span>
@@ -435,6 +435,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
             <span className={`inline-block h-4 w-4 rounded-full bg-surface transition-transform ${showTasks ? 'translate-x-6' : 'translate-x-1'}`} />
           </span>
           Show my task due dates
+          {showTasks && <span className={`size-2 rounded-[2px] sm:hidden ${TASK_DUE_COLOR}`} aria-hidden="true" />}
         </button>
       </div>
     </>

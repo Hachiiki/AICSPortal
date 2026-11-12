@@ -6,12 +6,11 @@
 @media (max-width: 639px) {
   :root:has([data-student-mobile-nav]) {
     --portal-mobile-nav-height: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
-    --portal-mobile-controls-height: calc(var(--portal-mobile-nav-height) + 60px);
-    scroll-padding-bottom: calc(var(--portal-mobile-controls-height) + 1rem);
+    scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
     scroll-padding-top: 4rem;
   }
   :root:has([data-student-mobile-nav]) #main-content {
-    scroll-margin-bottom: calc(var(--portal-mobile-controls-height) + 1rem);
+    scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
   }
 
   .student-dock-container {
@@ -21,23 +20,39 @@
   @container student-dock (width < 19rem) {
     .student-dock-grid {
       grid-template-columns: 1fr 1fr 1.6fr;
-      grid-auto-rows: minmax(3rem, auto);
-      height: auto;
+      grid-auto-rows: minmax(56px, auto);
     }
 
-    .student-dock-close,
-    .student-dock-grid > [data-tour="topbar-mobile-nav"] {
-      grid-column-start: 3;
-    }
   }
 
   .student-overview {
     container: student-overview / inline-size;
   }
 
+  .student-welcome {
+    container: student-welcome / inline-size;
+  }
+
+  @container student-welcome (width < 15rem) {
+    .student-welcome-heading {
+      font-size: 1.0625rem;
+      line-height: 1.18;
+    }
+  }
+
   @container student-overview (width < 15rem) {
     .student-overview-stats {
       grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  main:has(> .student-academic-tabs) {
+    container: student-academics / inline-size;
+  }
+
+  @container student-academics (width < 17rem) {
+    .student-academic-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }

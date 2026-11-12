@@ -177,12 +177,12 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
       tasks={tasks}
       inbox={inbox}
     >
-        <main data-tour="events-page" className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main data-tour="events-page" className="min-w-0 space-y-4 px-4 py-5 sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           {/* Page header */}
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="mb-3 hidden items-center gap-2 text-sm font-semibold text-link hover:text-link-strong sm:inline-flex"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>

@@ -322,6 +322,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
   const minimized = sheet && minimizedStep === step.id
   const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
   const showSpotlight = layout.disposition === 'spot'
+  const compactGuide = sheet && !minimized
 
   return (
     <div
@@ -342,11 +343,12 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           layers are decorative visuals: aria-hidden keeps them out of
           the accessibility tree (D4 — everything exposed to AT is
           named; the ring carries no semantics of its own). */}
+      {compactGuide && showSpotlight && <div aria-hidden="true" className="absolute inset-0 hidden bg-scrim/40 [@media(max-height:500px)]:block" />}
       {showSpotlight && layout.spot ? (
         <motion.div
           data-tour-spotlight=""
           aria-hidden="true"
-          className="absolute rounded-xl ring-2 ring-blue-500"
+          className={cn('absolute rounded-xl ring-2 ring-blue-500', compactGuide && '[@media(max-height:500px)]:hidden')}
           initial={false}
           animate={{
             top: layout.spot.top,
@@ -374,7 +376,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? minimized ? 'fixed left-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-controls-height,0px)+12px)]' : 'absolute',
+          sheet ? minimized ? 'fixed left-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'absolute',
           sheet ? '' : 'w-fit'
         )}
       >
@@ -390,7 +392,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           className={cn(
             'flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink shadow-xl',
             minimized ? 'p-1' : 'p-4',
-            sheet ? 'max-h-[min(65dvh,calc(100dvh-var(--portal-mobile-controls-height,0px)-88px))]' : 'w-72 max-w-[calc(100vw-24px)]'
+            sheet ? 'max-h-[calc(100dvh-var(--portal-mobile-nav-height,0px)-24px)] rounded-2xl' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
           {minimized ? (
@@ -402,19 +404,19 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           <>
           <div className="shrink-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-medium text-muted-fg">Step {index + 1} of {total}</p>
+            <p className="text-xs font-semibold text-link-strong">Step {index + 1} of {total}</p>
             {sheet && <Button type="button" variant="ghost" size="sm" className="min-h-11" aria-label="Hide guide to explore the page" onClick={() => {
               setMinimizedStep(step.id)
               requestAnimationFrame(() => cardWrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true }))
-            }}>Hide guide</Button>}
+            }}>Hide to explore</Button>}
           </div>
-          <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-sm font-bold outline-none">
+          <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-base font-bold leading-snug outline-none sm:text-sm">
             {step.title}
           </h2>
           </div>
-          <div data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className="mt-1.5 min-h-0 overflow-y-auto overscroll-contain rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link">
-          <p id={bodyId} className="text-sm text-muted-fg">{step.body}</p>
-          <p className="mt-2 text-xs text-muted-fg">{sheet ? 'Hide guide to explore this area. Show guide brings these instructions back.' : 'Explore the highlighted area. Press Alt+G to return to this guide.'}</p>
+          <div key={step.id} data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className="mt-2 min-h-0 overflow-y-auto overscroll-contain rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link">
+          <p id={bodyId} className="text-sm leading-relaxed text-muted-fg">{step.body}</p>
+          {!sheet && <p className="mt-2 text-xs text-muted-fg">Explore the highlighted area. Press Alt+G to return to this guide.</p>}
           </div>
           <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-3 [&_button]:min-h-11 sm:[&_button]:min-h-8">
             <Button

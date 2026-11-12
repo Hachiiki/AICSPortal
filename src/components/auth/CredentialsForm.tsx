@@ -105,7 +105,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       exit={{ opacity: 0, x: -8 }}
       transition={{ duration: 0.2 }}
       onSubmit={handleCredentialSubmit}
-      className="space-y-4"
+      className="space-y-2.5 max-lg:[@media(max-height:500px)]:space-y-2 lg:space-y-4"
     >
       {/* Username */}
       <div className="space-y-1.5">
@@ -130,7 +130,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={username}
             onChange={(e) => { setUsername(e.target.value); clearError() }}
             placeholder="e.g. juan.delacruz"
-            className="w-full h-12 lg:h-11 pl-10 pr-3 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] placeholder:text-[var(--login-muted)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="h-12 w-full rounded-[8px] border border-[var(--login-border)] bg-surface pl-10 pr-3 text-base text-[var(--login-text)] outline-none transition-colors placeholder:text-[var(--login-muted)] focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15 max-lg:[@media(max-height:500px)]:h-11 lg:h-11 lg:text-sm"
           />
         </div>
       </div>
@@ -155,7 +155,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
             value={password}
             onChange={(e) => { setPassword(e.target.value); clearError() }}
             placeholder="Enter your password"
-            className="w-full h-12 lg:h-11 pl-10 pr-12 rounded-[8px] text-base lg:text-sm bg-surface border border-[var(--login-border)] text-[var(--login-text)] placeholder:text-[var(--login-muted)] outline-none transition-colors focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15"
+            className="h-12 w-full rounded-[8px] border border-[var(--login-border)] bg-surface pl-10 pr-12 text-base text-[var(--login-text)] outline-none transition-colors placeholder:text-[var(--login-muted)] focus-visible:border-[var(--login-primary)] focus-visible:ring-[3px] focus-visible:ring-[var(--login-accent)]/15 max-lg:[@media(max-height:500px)]:h-11 lg:h-11 lg:text-sm"
           />
           <button
             type="button"
@@ -164,7 +164,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
               // Keep keyboard and assistive activation on the reveal control.
               if (event.detail > 0) passwordRef.current?.focus({ preventScroll: true })
             }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 size-12 lg:size-11 grid place-items-center rounded-md transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-primary)]"
+            className="absolute right-0 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-md transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-primary)] max-lg:[@media(max-height:500px)]:size-11 lg:size-11"
             style={{ color: T.muted }}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-controls="password"
@@ -175,7 +175,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       </div>
 
       {/* Remember me + Forgot password */}
-      <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between pt-1">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:pt-1">
         <label className="inline-flex min-h-11 items-center gap-2 py-1 cursor-pointer select-none">
           <input
             type="checkbox"
@@ -199,7 +199,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           </span>
         </label>
         {/* No self-service reset and no IT desk; branch admins reset passwords. */}
-        <span className="text-sm lg:text-xs leading-relaxed" style={{ color: T.muted }}>
+        <span className="hidden text-xs leading-relaxed lg:block" style={{ color: T.muted }}>
           Forgot password? Ask your branch admin.
         </span>
       </div>
@@ -210,7 +210,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full h-12 lg:h-11 rounded-[8px] font-semibold text-base lg:text-sm text-white bg-[var(--login-primary)] hover:bg-[var(--login-primary-dark)] active:scale-[0.99] motion-reduce:transform-none transition-all disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+        className="h-12 w-full rounded-[8px] bg-[var(--login-primary)] text-base font-semibold text-white transition-all hover:bg-[var(--login-primary-dark)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none max-lg:[@media(max-height:500px)]:h-11 lg:mt-1 lg:h-11 lg:text-sm"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

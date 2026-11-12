@@ -100,9 +100,12 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           }}
         />
 
-        <div className="relative flex min-h-11 items-center gap-2.5 px-4 pt-3 pr-16 text-white sm:px-10 sm:pr-20 lg:hidden">
+        <div className="relative flex min-h-16 items-center gap-3 px-4 py-4 pr-16 text-white sm:px-10 sm:pr-20 lg:hidden [@media(max-height:500px)]:py-2">
           <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-9 shrink-0" />
-          <p className="text-xs font-semibold leading-tight">Asian Institute<br />of Computer Studies</p>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold leading-tight text-white/85 [@media(max-height:500px)]:sr-only">Asian Institute of Computer Studies</p>
+            <p className="text-lg font-bold leading-tight tracking-tight sm:text-2xl [@media(max-height:500px)]:text-base">Welcome to AICS Portal</p>
+          </div>
         </div>
 
         {/* Top brand row — logo + institution name */}
@@ -120,13 +123,13 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         </div>
 
         {/* Welcome section — vertically centered */}
-        <div className="relative lg:absolute lg:inset-0 flex flex-col items-start justify-center px-4 pb-4 pt-2 sm:px-10 lg:px-14 lg:py-0 text-white">
+        <div className="absolute inset-0 hidden flex-col items-start justify-center px-14 text-white lg:flex">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <p className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2.75rem]">
+            <p className="text-[2.75rem] font-bold leading-tight tracking-tight">
               <span className="lg:block">Welcome to your</span>{' '}
               <span
                 className="inline-block max-w-full break-words lg:block"
@@ -141,7 +144,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
                 AICS Portal.
               </span>
             </p>
-            <p className="mt-1 max-w-md text-[0.8125rem] leading-snug text-white sm:text-sm lg:mt-4 lg:text-[15px] lg:leading-relaxed">
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white">
               Access your academic resources, schedules, grades, and enrollment information in one
               place.
             </p>
@@ -160,17 +163,17 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
       </section>
       {/* ===================== RIGHT 40% — Login panel ===================== */}
       <section
-          className="relative z-10 lg:w-[calc(40%+3rem)] w-full flex-1 flex items-start lg:items-center justify-center px-4 sm:px-10 pt-4 pb-6 lg:py-12 lg:min-h-dvh lg:-ml-12 lg:rounded-l-[40px]"
+          className="relative z-10 flex w-full flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-10 max-lg:[@media(max-height:500px)]:pt-3 lg:-ml-12 lg:min-h-dvh lg:w-[calc(40%+3rem)] lg:items-center lg:rounded-l-[40px] lg:py-12"
         style={{ background: T.white }}
       >
 
         <div className="relative w-full max-w-sm lg:py-4">
           {/* Heading */}
-          <div className="mb-5 lg:mb-8">
+          <div className="mb-3 max-lg:[@media(max-height:500px)]:mb-2 lg:mb-8">
             <h1 className="text-2xl lg:text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
-              Sign in to AICS Portal
+              <span className="lg:hidden">Sign in</span><span className="hidden lg:inline">Sign in to AICS Portal</span>
             </h1>
-            <p className="text-sm mt-2" style={{ color: T.muted }}>
+            <p className="mt-2 hidden text-sm lg:block" style={{ color: T.muted }}>
               Use your AICS credentials to access your student or staff portal.
             </p>
           </div>
@@ -246,11 +249,6 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               </div>
             </div>
           </div>
-
-          <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-500 lg:hidden">
-            <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            {INDEPENDENT_NOTICE}
-          </p>
 
           {/* Footer — matches the repository's documented licensing
               (LICENSE / README: All Rights Reserved, proprietary), plus the

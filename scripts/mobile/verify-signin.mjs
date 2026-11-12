@@ -128,7 +128,7 @@ try {
     if (width < 1024) {
       const form = await page.locator('form').boundingBox()
       const hero = await page.getByRole('img', { name: 'Asian Institute of Computer Studies campus', exact: true }).boundingBox()
-      const welcome = await page.getByText('Welcome to your', { exact: true }).boundingBox()
+      const welcome = await page.getByText('Welcome to AICS Portal', { exact: true }).boundingBox()
       check(`${name}: photo and welcome precede the form`, hero.height > 0 && hero.y + hero.height <= form.y && welcome.y >= hero.y && welcome.y < form.y)
       const fonts = await page.locator('#username,#password').evaluateAll(
         inputs => inputs.map(input => parseFloat(getComputedStyle(input).fontSize)),
@@ -137,9 +137,9 @@ try {
     }
     const reveal = await showPassword.boundingBox()
     check(`${name}: reveal target at least 44px`, reveal.width >= 44 && reveal.height >= 44, reveal)
-    if (width === 320 && height === 720) {
+    if (width === 320 && height <= 720) {
       const submit = await signIn.boundingBox()
-      check('Phone sign-in action is visible on the initial 720px screen', submit.y + submit.height <= height, submit)
+      check(`Phone sign-in action is visible on the initial ${height}px screen`, submit.y + submit.height <= height, submit)
     }
     await shot(`signin-${width}x${height}`)
   }

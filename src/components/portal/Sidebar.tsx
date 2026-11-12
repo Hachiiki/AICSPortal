@@ -13,6 +13,7 @@ import { useMounted } from '@/lib/aics/use-mounted'
 import type { View } from '@/lib/aics/types'
 import {
   SECONDARY_NAV,
+  STUDENT_MOBILE_NAV,
   getPortalAria,
   getPortalLabel,
   getPrimaryNav,
@@ -24,7 +25,6 @@ import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import { getStudentTourUpdate } from '@/lib/onboarding/student-client'
 import { DialogPanel } from './DialogPanel'
-import { MOBILE_NAV_ACTION, MOBILE_NAV_GRID } from './MobileNavigation'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface SidebarProps {
@@ -103,7 +103,7 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
   return (
     <div className={`flex min-h-0 flex-col ${scrollBody ? '' : 'h-full'}`}>
       {/* Brand */}
-      <div className={`flex items-center gap-3 border-b border-slate-100 px-4 py-5 ${scrollBody ? '' : 'pr-12 lg:pr-4'}`}>
+      {!scrollBody && <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-5 pr-12 lg:pr-4">
         <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-link-strong">
@@ -113,11 +113,11 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
             Asian Institute of Computer Studies
           </p>
         </div>
-      </div>
+      </div>}
 
       {/* Navigation */}
-      <nav className={`space-y-1 px-3 py-4 ${scrollBody ? '' : 'flex-1 overflow-y-auto'}`} aria-label={getPortalAria(role)}>
-        {primaryNav.map((item) => (
+      <nav className={`px-3 ${scrollBody ? 'space-y-0.5 py-1.5' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}>
+        {primaryNav.filter(item => !scrollBody || !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view)).map((item) => (
           <NavButton
             key={item.view}
             item={item}
@@ -126,7 +126,7 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
           />
         ))}
 
-        <div className="my-4 border-t border-slate-100" />
+        <div className={`${scrollBody ? 'my-1' : 'my-4'} border-t border-slate-100`} />
 
         {SECONDARY_NAV.map((item) => (
           <NavButton
@@ -146,22 +146,22 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
           the legal pages required in-app. Opens in a new tab so the SPA
           session is not unmounted. */}
       <footer className="px-4 py-4 border-t border-slate-100">
-        <p className="text-[11px] text-slate-500 leading-relaxed">
+        <p className={`${scrollBody ? 'text-xs text-muted-fg' : 'text-[11px] text-slate-500'} leading-relaxed`}>
           &copy; {new Date().getFullYear()} {LEGAL.operatorName} · All Rights Reserved.
         </p>
-        <nav aria-label="Legal" className="mt-2 flex flex-wrap gap-x-2.5 gap-y-1">
+        <nav aria-label="Legal" className={`mt-2 flex flex-wrap gap-x-2.5 gap-y-1 ${scrollBody ? '[&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_button]:min-h-11' : ''}`}>
           {POLICY_PAGES.map((p) => (
             <a
               key={p.href}
               href={p.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700"
+              className={`${scrollBody ? 'text-xs text-muted-fg' : 'text-[11px] text-slate-500'} underline underline-offset-2 hover:text-slate-700`}
             >
               {p.label}
             </a>
           ))}
-          <CookieSettingsButton className="text-[11px] text-slate-500 underline underline-offset-2 hover:text-slate-700" />
+          <CookieSettingsButton className={`${scrollBody ? 'text-xs text-muted-fg' : 'text-[11px] text-slate-500'} underline underline-offset-2 hover:text-slate-700`} />
         </nav>
       </footer>
     </div>
@@ -231,7 +231,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               animate={{ x: 0, y: 0 }}
               exit={phoneSheet ? { y: '100%' } : { x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 h-[min(82dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
+              className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 max-h-[min(90dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
               aria-label="Navigation menu"
             >
               {/* Close button */}
@@ -243,6 +243,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               >
                 <X className="w-5 h-5" />
               </button>}
+              {phoneSheet && <h2 className="shrink-0 border-b border-line px-5 py-3 text-lg font-bold tracking-tight text-ink">More</h2>}
               <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
                 <SidebarContent
                   active={active}
@@ -255,14 +256,11 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
                 />
               </div>
               {phoneSheet && (
-                <div className="student-dock-container shrink-0 border-t border-line">
-                  <div className={MOBILE_NAV_GRID}>
-                    <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
-                      className={`${MOBILE_NAV_ACTION} student-dock-close col-start-5 bg-blue-50 text-link-strong`}>
-                      <X className="size-[20px] shrink-0 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-200" aria-hidden="true" />
-                      <span className="max-w-full">Close</span>
-                    </button>
-                  </div>
+                <div className="shrink-0 border-t border-line p-[8px]">
+                  <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
+                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-50 px-3 py-1 text-sm font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link">
+                    <X className="size-5 shrink-0" aria-hidden="true" /> Close menu
+                  </button>
                 </div>
               )}
             </DialogPanel>
