@@ -96,7 +96,7 @@ export function CalendarGrid({
   return (
     <div id="student-calendar" tabIndex={-1} className="scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
       {/* Calendar header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-4">
+      <div className="flex flex-wrap items-center justify-between gap-[8px] px-[12px] py-[10px] sm:gap-3 sm:px-6 sm:py-4">
         <h2 className="text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
@@ -126,7 +126,7 @@ export function CalendarGrid({
           </button>
         </div>
       </div>
-      <p className="border-b border-line px-3 pb-2 text-xs text-muted-fg sm:px-6">Select a date to see its scheduled items.</p>
+      <p className="border-b border-line px-[12px] pb-2 text-xs text-muted-fg sm:px-6">Select a date to see its scheduled items.</p>
 
       {/* Weekday row */}
       <div className="grid grid-cols-7 border-b border-slate-100">
@@ -178,15 +178,15 @@ export function CalendarGrid({
                     : `${dateLabel}, nothing scheduled`
                 })()}
                 aria-current={isSelected ? 'date' : undefined}
-                className={`relative flex min-h-11 min-w-0 flex-col items-center justify-center border-b border-line px-0.5 py-1 text-center transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:min-h-[96px] sm:items-start sm:border-r sm:p-1.5 sm:text-left ${
+                className={`relative flex min-h-[44px] min-w-0 flex-col items-center justify-center border-b border-line px-[2px] py-[4px] text-center transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:min-h-[96px] sm:items-start sm:border-r sm:p-1.5 sm:text-left ${
                   itemCount > 0 ? 'bg-blue-50 hover:bg-blue-100' : isOtherMonth ? 'bg-slate-50/40 hover:bg-slate-100' : 'bg-surface hover:bg-slate-100'
                 } ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
               >
-                <div className="flex items-center justify-center sm:justify-between">
+                  <div className="flex max-w-full items-center justify-center sm:justify-between">
                   <span
                     className={`inline-flex items-center justify-center text-xs ${
                       isToday
-                        ? 'size-6 rounded-full bg-blue-600 font-semibold text-white'
+                        ? 'min-h-[24px] min-w-[24px] rounded-full bg-blue-600 px-[3px] font-semibold leading-tight text-white'
                         : itemCount > 0
                         ? 'font-bold text-link-strong'
                         : isOtherMonth
@@ -200,11 +200,11 @@ export function CalendarGrid({
                 {/* Dots — decorative; the button's accessible name
                     carries the day's item count. */}
                 {visibleDots.length > 0 && (
-                    <div className="mt-0.5 flex items-center justify-center gap-1.5 sm:mt-1 sm:flex-wrap sm:justify-start" aria-hidden="true">
+                    <div className="mt-0.5 flex max-w-full items-center justify-center gap-[6px] sm:mt-1 sm:flex-wrap sm:justify-start" aria-hidden="true">
                     {visibleDots.map((dot, di) => (
                       <span
                         key={di}
-                          className={`size-2 shrink-0 ${dot.color}`}
+                          className={`size-[8px] shrink-0 ${dot.color}`}
                         title={dot.title}
                       />
                     ))}
@@ -405,7 +405,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-wrap gap-1.5 sm:gap-2">
+        <div className="student-calendar-legend flex min-w-0 flex-wrap gap-[6px] sm:gap-2">
           {/* Legend chips — click to toggle category */}
           {(Object.keys(CATEGORY_LABELS) as EventCategory[]).map((cat) => {
             const on = enabledCats.has(cat)
@@ -415,13 +415,13 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 type="button"
                 onClick={() => onToggleCat(cat)}
                 aria-pressed={on}
-                className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors sm:min-h-0 sm:px-2.5 ${
+                className={`inline-flex min-h-[44px] items-center gap-[6px] rounded-md border px-[8px] py-[4px] text-xs font-medium transition-colors sm:min-h-0 sm:px-2.5 ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
                     : 'bg-surface text-slate-500 border-slate-200'
                 }`}
               >
-                <span className={`size-2 shrink-0 ${CATEGORY_MARKERS[cat]} ${on ? '' : 'opacity-40'}`} aria-hidden="true" />
+                <span className={`size-[8px] shrink-0 ${CATEGORY_MARKERS[cat]} ${on ? '' : 'opacity-40'}`} aria-hidden="true" />
                 {CATEGORY_LABELS[cat]}
               </button>
             )
@@ -439,16 +439,16 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
           role="switch"
           aria-checked={showTasks}
           aria-label="Show task due dates on the calendar"
-          className="inline-flex min-h-11 shrink-0 items-center gap-3 rounded-md text-xs text-slate-600"
+          className="inline-flex min-h-[44px] items-center gap-[12px] rounded-md text-left text-xs text-slate-600"
         >
           <span
             aria-hidden="true"
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${showTasks ? 'bg-blue-600' : 'bg-slate-300'}`}
+            className={`relative inline-flex h-[24px] w-[44px] shrink-0 items-center rounded-full transition-colors ${showTasks ? 'bg-blue-600' : 'bg-slate-300'}`}
           >
-            <span className={`inline-block h-4 w-4 rounded-full bg-surface transition-transform ${showTasks ? 'translate-x-6' : 'translate-x-1'}`} />
+            <span className={`inline-block size-[16px] rounded-full bg-surface transition-transform ${showTasks ? 'translate-x-[24px]' : 'translate-x-[4px]'}`} />
           </span>
           Show my task due dates
-          {showTasks && <span className={`size-2 sm:hidden ${TASK_MARKER}`} aria-hidden="true" />}
+          {showTasks && <span className={`size-[8px] shrink-0 sm:hidden ${TASK_MARKER}`} aria-hidden="true" />}
         </button>
       </div>
     </>

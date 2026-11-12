@@ -37,6 +37,16 @@
     .student-welcome {
       padding-block: 9px;
     }
+
+    .student-calendar-legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-calendar-legend > button {
+      padding-inline: 5px;
+      overflow-wrap: anywhere;
+    }
   }
 
   @container student-topbar (width < 19rem) {

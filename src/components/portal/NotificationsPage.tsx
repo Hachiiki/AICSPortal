@@ -22,13 +22,13 @@ export function NotificationsPage({ student, inbox, onHome }: {
   }, [])
 
   return (
-    <main className="mx-auto max-w-3xl space-y-4 px-4 py-5 sm:px-6">
+    <main className="mx-auto max-w-3xl space-y-4 px-[16px] py-[20px] sm:px-6">
       <button type="button" onClick={onHome} className="hidden min-h-11 items-center gap-2 rounded-md text-sm font-medium text-link-strong focus-visible:ring-2 focus-visible:ring-link sm:inline-flex">
         <ArrowLeft className="size-4" aria-hidden="true" /> Back to dashboard
       </button>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <div>
-          <h1 ref={heading} tabIndex={-1} className="text-2xl font-bold tracking-tight text-ink outline-none">Notifications</h1>
+          <div className="min-w-0">
+            <h1 ref={heading} tabIndex={-1} className="text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
           <p className="mt-1 text-sm text-muted-fg" role="status">{unread ? `${unread} unread` : 'No unread notifications'}</p>
         </div>
         {inbox.notifications.length > 0 && (
