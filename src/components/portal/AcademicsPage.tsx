@@ -248,10 +248,10 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-ink">
+            <h1 className="text-2xl font-bold leading-tight tracking-tight text-ink">
               <span className="sm:hidden">{activeTab === 'tasks' ? 'Tasks' : 'Academics'}</span><span className="hidden sm:inline">Academics</span>
             </h1>
-            <p className="mt-1 text-sm text-muted-fg sm:hidden">{student.semester} &middot; AY {student.academicYear}</p>
+            <p className="student-academic-term mt-1 text-sm text-muted-fg sm:hidden">{student.semester} &middot; AY {student.academicYear}</p>
             <p className="mt-1 hidden text-sm text-slate-500 sm:block">
               {student.fullName} &bull; {student.studentNumber} &bull; {student.program}
             </p>

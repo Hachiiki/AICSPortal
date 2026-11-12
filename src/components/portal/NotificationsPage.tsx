@@ -27,13 +27,13 @@ export function NotificationsPage({ student, inbox, onHome }: {
         <ArrowLeft className="size-4" aria-hidden="true" /> Back to dashboard
       </button>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <div className="min-w-0">
-            <h1 ref={heading} tabIndex={-1} className="student-notifications-title text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
+        <div className="min-w-0">
+          <h1 ref={heading} tabIndex={-1} className="student-notifications-title text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
           <p className="mt-1 text-sm text-muted-fg" role="status">{unread ? `${unread} unread` : 'No unread notifications'}</p>
         </div>
         {inbox.notifications.length > 0 && (
           <button type="button" disabled={!unread || inbox.marking || inbox.loading} onClick={() => inbox.onMark(undefined, true)}
-            className="min-h-11 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-link-strong hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50 disabled:hover:bg-surface">
+            className="min-h-[44px] rounded-lg border border-line bg-surface px-[12px] py-[4px] text-sm font-semibold text-link-strong hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50 disabled:hover:bg-surface">
             {inbox.marking ? 'Updating…' : 'Mark all read'}
           </button>
         )}

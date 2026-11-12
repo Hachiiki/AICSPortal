@@ -213,8 +213,8 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
 
       {/* NEEDS ATTENTION CARD */}
       <div data-tour="tasks-attention" className="overflow-hidden rounded-2xl border border-line bg-surface">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
-          <h3 className="text-base font-semibold text-ink">Needs attention</h3>
+        <div className="flex flex-wrap items-center justify-between gap-[8px] border-b border-line px-[16px] py-[12px] sm:px-6 sm:py-4">
+          <h3 className="text-base font-semibold leading-tight text-ink">Needs attention</h3>
           {needsAttentionTasks.length > 0 && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-ink">{needsAttentionTasks.length - closedCount} open{closedCount > 0 && ` · ${closedCount} closed`}</span>}
         </div>
         {needsAttentionTasks.length === 0 ? (
@@ -228,21 +228,21 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                 <button key={task._id}
                   type="button"
                   onClick={() => handleAttentionRowClick(task)}
-                  className={`w-full px-4 py-2 text-left sm:px-6 sm:py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:items-center gap-x-3 gap-y-1 hover:bg-slate-50 transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link`}>
+                  className={`w-full px-[16px] py-[8px] text-left sm:px-6 sm:py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:items-center gap-x-[12px] gap-y-1 hover:bg-slate-50 transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link`}>
                   {/* Circular status icon */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
+                  <div className={`size-[32px] rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
                     {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
                     {variant === 'MISSING_CLOSED' && <Lock className="w-4 h-4" />}
                     {variant === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="student-task-attention-detail min-w-0 flex-1">
                     <p className="text-xs font-medium text-muted-fg [overflow-wrap:anywhere]">{task.subjectCode}<span className="hidden sm:inline">{subject ? ` · ${subject.title}` : ''}</span></p>
-                    <p className="text-sm font-semibold text-ink [overflow-wrap:anywhere]">{task.title}</p>
+                    <p className="student-task-attention-title text-sm font-semibold text-ink [overflow-wrap:anywhere]">{task.title}</p>
                   </div>
-                  <span className={`col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_COLORS[variant]}`}>
+                  <span className={`student-task-attention-status col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_COLORS[variant]}`}>
                     {variant === 'MISSING_CLOSED' ? 'Missing · Closed' : sub}
                   </span>
-                  <ChevronRight className="col-start-3 row-span-2 row-start-1 size-4 shrink-0 self-center text-muted-fg sm:hidden" aria-hidden="true" />
+                  <ChevronRight className="student-task-attention-arrow col-start-3 row-span-2 row-start-1 size-[16px] shrink-0 self-center text-muted-fg sm:hidden" aria-hidden="true" />
                 </button>
               )
             })}
@@ -303,7 +303,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-slate-900">Courses</h3>
         <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
-          className="inline-flex min-h-11 px-2 items-center gap-1 text-xs font-medium text-link hover:text-link-strong">
+          className="inline-flex min-h-[44px] items-center gap-[4px] px-[8px] text-xs font-medium text-link hover:text-link-strong">
           {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
           {expandedCourses.size === currentSubjects.length ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>

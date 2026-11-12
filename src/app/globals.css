@@ -21,6 +21,16 @@
     container: student-topbar / inline-size;
   }
 
+  .app-notice {
+    container: app-notice / inline-size;
+  }
+
+  @container app-notice (width < 17rem) {
+    .app-notice-icon {
+      display: none;
+    }
+  }
+
   .student-portal-column {
     container: student-portal / inline-size;
   }
@@ -52,11 +62,41 @@
       font-size: 1.375rem;
       line-height: 1.2;
     }
+
+    .student-academic-term {
+      font-size: 0.75rem;
+      line-height: 1.35;
+    }
+
+    .student-material-description {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+
+    .student-task-attention-detail {
+      display: contents;
+    }
+
+    .student-task-attention-title {
+      grid-area: 2 / 1 / 3 / -1;
+    }
+
+    .student-task-attention-status {
+      grid-area: 3 / 1 / 4 / -1;
+    }
+
+    .student-task-attention-arrow {
+      grid-row: 1;
+    }
   }
 
   @container student-topbar (width < 19rem) {
     .student-topbar-logo {
       display: none;
+    }
+
+    .student-topbar-title {
+      font-size: 0.75rem;
     }
   }
 
@@ -145,6 +185,11 @@
   @container student-academics (width < 17rem) {
     .student-academic-tabs {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-academic-tabs > button {
+      min-height: 44px;
+      padding-block: 6px;
     }
 
     .student-academic-tabs > :last-child {

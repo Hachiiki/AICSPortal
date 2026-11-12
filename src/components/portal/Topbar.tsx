@@ -131,7 +131,7 @@ export function Topbar({
             <Menu className="w-5 h-5" />
           </button>
           {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="student-topbar-logo size-[28px] shrink-0 sm:hidden" />}
-          <span className="min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
+          <span className="student-topbar-title min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
