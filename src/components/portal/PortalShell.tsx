@@ -91,7 +91,7 @@ export function PortalShell({
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
         <Topbar
           student={student}
           active={active}

@@ -32,16 +32,18 @@ function GlanceRow({ icon: Icon, label, title, detail, status, urgent, action, o
       <span className="grid size-[36px] shrink-0 place-items-center rounded-lg bg-blue-50 text-link-strong sm:hidden">
         <Icon className="size-[18px]" aria-hidden="true" />
       </span>
-      <span className="block min-w-0">
-        <span className="flex flex-wrap items-baseline justify-between gap-x-2 text-xs font-semibold">
+      <span className="student-glance-content block min-w-0">
+        <span className="student-glance-label col-start-2 row-start-1 flex min-w-0 flex-wrap items-baseline justify-between gap-x-2 text-xs font-semibold">
           <span className="text-muted-fg [overflow-wrap:anywhere] sm:uppercase sm:tracking-wide">{label}</span>
           {status && <span className={urgent ? 'rounded bg-red-50 px-1.5 py-0.5 text-red-700' : 'text-link-strong'}>{status}</span>}
         </span>
-        <span className="mt-0.5 block text-sm font-semibold text-ink [overflow-wrap:anywhere] sm:mt-2">{title}</span>
-        {detail && <span className="mt-0.5 block text-xs leading-normal text-muted-fg [overflow-wrap:anywhere]">{detail}</span>}
-        <span className="sr-only mt-3 text-xs font-medium text-link-strong sm:not-sr-only sm:block">{action}</span>
+        <span className="student-glance-details row-start-2 block min-w-0">
+          <span className="mt-0.5 block text-sm font-semibold text-ink [overflow-wrap:anywhere] sm:mt-2">{title}</span>
+          {detail && <span className="mt-0.5 block text-xs leading-normal text-muted-fg [overflow-wrap:anywhere]">{detail}</span>}
+          <span className="sr-only mt-3 text-xs font-medium text-link-strong sm:not-sr-only sm:block">{action}</span>
+        </span>
       </span>
-      <ChevronRight className="size-[16px] self-center text-muted-fg sm:hidden" aria-hidden="true" />
+      <ChevronRight className="col-start-3 row-start-1 size-[16px] self-center text-muted-fg sm:hidden" aria-hidden="true" />
     </button>
   )
 }
@@ -61,11 +63,12 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
     .filter(session => session.end * 60 > minutes)
     .sort((a, b) => a.start - b.start)[0]
   const minutesToClass = nextClass ? Math.ceil(nextClass.start * 60 - minutes) : 0
-  const classStatus = minutesToClass <= 0 ? 'In progress' : minutesToClass < 60 ? `In ${minutesToClass} min` : undefined
+  const classStatus = minutesToClass > 0 && minutesToClass < 60 ? `In ${minutesToClass} min` : undefined
 
   const openTasks = tasks?.filter(canSubmit).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
   const nextTask = openTasks?.[0]
   const overdue = nextTask && computeStatus(nextTask).variant === 'MISSING_OPEN'
+  const overdueCount = openTasks?.filter(task => computeStatus(task).variant === 'MISSING_OPEN').length ?? 0
   let taskDetail: string | undefined
   if (nextTask) {
     const due = new Date(nextTask.dueDate)
@@ -82,19 +85,19 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
 
   return (
     <section aria-label="Today at a glance">
-      <h2 className="mb-2.5 text-lg font-bold tracking-tight text-ink sm:hidden">Today</h2>
-      <div className="min-w-0 divide-y divide-line rounded-2xl border border-line bg-surface sm:grid sm:grid-cols-3 sm:gap-4 sm:divide-none sm:rounded-none sm:border-0 sm:bg-transparent">
-        <GlanceRow icon={CalendarClock} label="Next class"
+      <h2 className="mb-[10px] text-lg font-bold tracking-tight text-ink sm:hidden">Today</h2>
+      <div className="student-glance-list min-w-0 divide-y divide-line rounded-2xl border border-line bg-surface sm:grid sm:grid-cols-3 sm:gap-4 sm:divide-none sm:rounded-none sm:border-0 sm:bg-transparent">
+        <GlanceRow icon={CalendarClock} label={nextClass && minutesToClass <= 0 ? 'Current class' : 'Next class'}
           title={nextClass ? getCourse(nextClass.code, courses).title : 'No more classes today'}
           detail={nextClass && <span className="flex flex-wrap gap-x-2"><span>{formatRangeTime(nextClass.start, nextClass.end)}</span>{nextClass.room && <span>{nextClass.room}</span>}</span>}
           status={nextClass ? classStatus : undefined} action="View class schedule" onClick={() => focusDashboardSection('student-schedule')} />
         <GlanceRow icon={ClipboardList} label="Tasks"
           title={!openTasks ? 'Loading tasks' : nextTask ? `${openTasks.length} open for submission` : 'Nothing to submit'}
-          detail={taskDetail} status={overdue ? 'Overdue' : undefined} urgent={overdue} action="Review tasks" onClick={() => {
+          detail={taskDetail} status={overdueCount ? `${overdueCount} overdue` : undefined} urgent={overdueCount > 0} action="Review tasks" onClick={() => {
             if (route.view === 'login') onNavigate('academics')
             else navigate({ view: 'academics', branch: route.branch, username: route.username, role: route.role, tab: 'tasks' })
           }} />
-        <GlanceRow icon={Megaphone} label="Announcements"
+        <GlanceRow icon={Megaphone} label="Campus announcements"
           title={!unread ? 'Loading announcements' : unread.length ? `${unread.length} unread` : 'You’re all caught up'}
           detail={unread?.[0]?.title} action="Read updates" onClick={() => focusDashboardSection('student-announcements')} />
       </div>

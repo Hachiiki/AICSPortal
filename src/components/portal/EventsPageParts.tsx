@@ -1,9 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
+import { ArrowUp, CalendarDays, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import type { Task } from '@/lib/aics/tasks'
-import { computeStatus, VARIANT_COLORS } from '@/lib/aics/tasks'
+import { canSubmit, computeStatus, VARIANT_COLORS } from '@/lib/aics/tasks'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import {
   CATEGORY_COLORS,
@@ -24,6 +24,13 @@ const MONTH_LABELS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
 ]
+const CATEGORY_MARKERS: Record<EventCategory, string> = {
+  academic: `${CATEGORY_COLORS.academic} rounded-full`,
+  deadline: `${CATEGORY_COLORS.deadline} rotate-45 rounded-[1px]`,
+  campus: `${CATEGORY_COLORS.campus} rounded-[1px]`,
+  holiday: 'rounded-full border-2 border-green-600',
+}
+const TASK_MARKER = `${TASK_DUE_COLOR} scale-y-50 rounded-full`
 
 /** Strip time — compare dates by day only. */
 export function atMidnight(d: Date): Date {
@@ -87,9 +94,9 @@ export function CalendarGrid({
   onPrev, onNext, onToday, onSelectDay, monthHasEvents,
 }: CalendarGridProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface sm:rounded-xl sm:shadow-sm">
+    <div id="student-calendar" tabIndex={-1} className="scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
       {/* Calendar header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-4">
         <h2 className="text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
@@ -119,6 +126,7 @@ export function CalendarGrid({
           </button>
         </div>
       </div>
+      <p className="border-b border-line px-3 pb-2 text-xs text-muted-fg sm:px-6">Select a date to see its scheduled items.</p>
 
       {/* Weekday row */}
       <div className="grid grid-cols-7 border-b border-slate-100">
@@ -147,18 +155,16 @@ export function CalendarGrid({
               enabledCats.has(ev.category)
             )
             const dayTasks = showTasks ? (tasksByDate.get(key) || []) : []
+            const itemCount = dayEvents.length + dayTasks.length
 
-            // Build up to 3 dots (categories present + amber task dot)
+            // The first two category markers accompany the total item count.
             const dots: { color: string; title: string }[] = []
             const catsPresent = new Set(dayEvents.map((e) => e.category))
             for (const cat of catsPresent) {
-              dots.push({ color: CATEGORY_COLORS[cat], title: CATEGORY_LABELS[cat] })
+              dots.push({ color: CATEGORY_MARKERS[cat], title: CATEGORY_LABELS[cat] })
             }
-            if (dayTasks.length > 0) {
-              dots.push({ color: TASK_DUE_COLOR, title: 'Tasks due' })
-            }
-            const overflow = Math.max(0, dots.length - 3)
-            const visibleDots = dots.slice(0, 3)
+            if (dayTasks.length > 0) dots.unshift({ color: TASK_MARKER, title: 'Tasks due' })
+            const visibleDots = dots.slice(0, 2)
 
             return (
               <button
@@ -167,24 +173,25 @@ export function CalendarGrid({
                 onClick={() => onSelectDay(dayMid)}
                 aria-label={(() => {
                   const dateLabel = dayMid.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-                  const n = dayEvents.length + dayTasks.length
-                  return n > 0
-                    ? `${dateLabel}, ${n} ${n === 1 ? 'item' : 'items'} scheduled`
+                  return itemCount > 0
+                    ? `${dateLabel}, ${itemCount} ${itemCount === 1 ? 'item' : 'items'} scheduled`
                     : `${dateLabel}, nothing scheduled`
                 })()}
                 aria-current={isSelected ? 'date' : undefined}
-                className={`relative min-h-11 min-w-0 border-b border-line p-1 text-center transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:min-h-[96px] sm:border-r sm:p-1.5 sm:text-left ${
-                  isOtherMonth ? 'bg-slate-50/40' : 'bg-surface'
-                } hover:bg-blue-50/40 ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
+                className={`relative flex min-h-11 min-w-0 flex-col items-center justify-center border-b border-line px-0.5 py-1 text-center transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:min-h-[96px] sm:items-start sm:border-r sm:p-1.5 sm:text-left ${
+                  itemCount > 0 ? 'bg-blue-50 hover:bg-blue-100' : isOtherMonth ? 'bg-slate-50/40 hover:bg-slate-100' : 'bg-surface hover:bg-slate-100'
+                } ${isSelected ? 'ring-2 ring-blue-500 ring-inset' : ''}`}
               >
-                <div className="flex items-center justify-center pb-1 sm:justify-between sm:pb-0">
+                <div className="flex items-center justify-center sm:justify-between">
                   <span
-                    className={`inline-flex items-center justify-center text-xs font-medium ${
+                    className={`inline-flex items-center justify-center text-xs ${
                       isToday
-                        ? 'w-6 h-6 rounded-full bg-blue-600 text-white'
+                        ? 'size-6 rounded-full bg-blue-600 font-semibold text-white'
+                        : itemCount > 0
+                        ? 'font-bold text-link-strong'
                         : isOtherMonth
-                        ? 'text-slate-500'
-                        : 'text-slate-700'
+                        ? 'font-medium text-slate-500'
+                        : 'font-medium text-slate-700'
                     }`}
                   >
                     {day.getDate()}
@@ -193,21 +200,17 @@ export function CalendarGrid({
                 {/* Dots — decorative; the button's accessible name
                     carries the day's item count. */}
                 {visibleDots.length > 0 && (
-                  <div className="absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5 sm:static sm:mt-1 sm:flex-wrap sm:justify-start sm:gap-1" aria-hidden="true">
+                    <div className="mt-0.5 flex items-center justify-center gap-1.5 sm:mt-1 sm:flex-wrap sm:justify-start" aria-hidden="true">
                     {visibleDots.map((dot, di) => (
                       <span
                         key={di}
-                        className={`size-1.5 shrink-0 ${dot.title === 'Tasks due' ? 'rounded-[2px]' : 'rounded-full'} ${dot.color}`}
+                          className={`size-2 shrink-0 ${dot.color}`}
                         title={dot.title}
                       />
                     ))}
-                    {overflow > 0 && (
-                      <span className="text-[9px] text-slate-500 font-medium">
-                        +{overflow}
-                      </span>
-                    )}
                   </div>
                 )}
+                {itemCount > 0 && <span className="mt-0.5 max-w-full text-[10px] font-semibold leading-tight tabular-nums text-link-strong [overflow-wrap:anywhere]" aria-hidden="true">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>}
               </button>
             )
           })}
@@ -228,19 +231,28 @@ interface DayDetailsPanelProps {
   events: PortalEvent[]
   tasks: Task[]
   showTasks: boolean
+  onReturn: () => void
+  onOpenTask: (task: Task) => void
 }
 
-export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDetailsPanelProps) {
+export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onReturn, onOpenTask }: DayDetailsPanelProps) {
+  const orderedTasks = [...tasks].sort((first, second) => Number(canSubmit(second)) - Number(canSubmit(first)))
   return (
     <motion.div
+      id="student-calendar-day"
+      tabIndex={-1}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      className="scroll-mt-3 overflow-hidden rounded-xl border border-slate-200 bg-surface shadow-sm outline-none"
     >
-      <div className="px-6 py-4 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-900">
-          Events on {formatFullDate(selectedDay)}
-        </h3>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 border-b border-slate-100 px-4 py-2 sm:px-6 sm:py-4">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900">Events on {formatFullDate(selectedDay)}</h3>
+          <p className="mt-0.5 text-xs text-muted-fg">{events.length} {events.length === 1 ? 'event' : 'events'} &middot; {tasks.length} {tasks.length === 1 ? 'coursework item' : 'coursework items'}</p>
+        </div>
+        <button type="button" onClick={onReturn} className="inline-flex min-h-11 items-center gap-1 rounded-md px-1 text-xs font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link sm:hidden">
+          <ArrowUp className="size-4" aria-hidden="true" /> Calendar
+        </button>
       </div>
       <div className="divide-y divide-slate-100">
         {events.length === 0 && tasks.length === 0 && (
@@ -249,7 +261,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDe
         {events.map((ev) => (
           <div key={ev._id} className="px-6 py-3 flex items-start gap-3">
             <span
-              className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${CATEGORY_COLORS[ev.category]}`}
+                  className={`mt-1 size-2 shrink-0 ${CATEGORY_MARKERS[ev.category]}`}
             />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-slate-900">{ev.title}</p>
@@ -271,38 +283,39 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks }: DayDe
           <>
             <div className="px-6 pt-3 pb-1">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
-                Tasks due
+                Coursework
               </p>
             </div>
-            {tasks.map((task) => {
+            {orderedTasks.map((task) => {
               const { variant, sub } = computeStatus(task)
               return (
-                <div
+                <button
                   key={task._id}
-                  className="px-6 py-3 flex items-center gap-3"
+                  type="button"
+                  onClick={() => onOpenTask(task)}
+                  className="relative grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 px-4 py-3 text-left hover:bg-slate-50 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link sm:px-6"
                 >
                   <span
-                    className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${TASK_DUE_COLOR}`}
+                    className={`mt-1 size-2 shrink-0 ${TASK_MARKER}`}
+                    aria-hidden="true"
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-900">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-slate-900 [overflow-wrap:anywhere]">
                       {task.title}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {task.subjectCode} &bull; Task due
-                    </p>
-                  </div>
-                  {/* Inline status pill for overdue / closed-missing tasks */}
-                  {(variant === 'MISSING_OPEN' || variant === 'MISSING_CLOSED' || variant === 'GRADED' || variant === 'PENDING') && (
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted-fg">
+                      {task.subjectCode}
+                    </span>
+                  </span>
+                  <span
+                      className={`col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${
                         VARIANT_COLORS[variant]
                       }`}
                     >
-                      {sub}
-                    </span>
-                  )}
-                </div>
+                    {variant === 'MISSING_CLOSED' ? 'Missing · Closed' : variant === 'NEEDS_ATTENTION' ? 'Open for submission' : sub}
+                  </span>
+                  <ChevronRight className="col-start-3 row-span-2 row-start-1 size-4 self-center text-muted-fg" aria-hidden="true" />
+                </button>
               )
             })}
           </>
@@ -408,14 +421,14 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                     : 'bg-surface text-slate-500 border-slate-200'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${on ? CATEGORY_COLORS[cat] : 'bg-slate-300'}`} aria-hidden="true" />
+                <span className={`size-2 shrink-0 ${CATEGORY_MARKERS[cat]} ${on ? '' : 'opacity-40'}`} aria-hidden="true" />
                 {CATEGORY_LABELS[cat]}
               </button>
             )
           })}
           {showTasks && (
             <span className="hidden items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 sm:inline-flex">
-              <span className={`w-2 h-2 rounded-full ${TASK_DUE_COLOR}`} />
+              <span className={`size-2 ${TASK_MARKER}`} />
               Tasks due
             </span>
           )}
@@ -435,7 +448,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
             <span className={`inline-block h-4 w-4 rounded-full bg-surface transition-transform ${showTasks ? 'translate-x-6' : 'translate-x-1'}`} />
           </span>
           Show my task due dates
-          {showTasks && <span className={`size-2 rounded-[2px] sm:hidden ${TASK_DUE_COLOR}`} aria-hidden="true" />}
+          {showTasks && <span className={`size-2 sm:hidden ${TASK_MARKER}`} aria-hidden="true" />}
         </button>
       </div>
     </>

@@ -105,7 +105,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       exit={{ opacity: 0, x: -8 }}
       transition={{ duration: 0.2 }}
       onSubmit={handleCredentialSubmit}
-      className="space-y-2.5 max-lg:[@media(max-height:500px)]:space-y-2 lg:space-y-4"
+      className="space-y-2.5 max-lg:[@media(max-height:500px)]:space-y-1.5 lg:space-y-4"
     >
       {/* Username */}
       <div className="space-y-1.5">
@@ -210,7 +210,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
       <button
         type="submit"
         disabled={submitting}
-        className="h-12 w-full rounded-[8px] bg-[var(--login-primary)] text-base font-semibold text-white transition-all hover:bg-[var(--login-primary-dark)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none max-lg:[@media(max-height:500px)]:h-11 lg:mt-1 lg:h-11 lg:text-sm"
+        className="h-12 w-full rounded-[8px] bg-[#1d4ed8] text-base font-semibold text-white transition-all hover:bg-[#1e40af] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transform-none max-lg:[@media(max-height:500px)]:h-11 lg:mt-1 lg:h-11 lg:bg-[var(--login-primary)] lg:text-sm lg:hover:bg-[var(--login-primary-dark)]"
       >
         {submitting ? (
           <span className="inline-flex items-center gap-2">

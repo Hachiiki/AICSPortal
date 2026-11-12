@@ -59,9 +59,8 @@ import {
 
 const SHEET_QUERY = '(min-width: 640px)'
 const DEFAULT_CARD_SIZE = { width: 320, height: 200 }
-// Use the card's tested ink/surface pair for actions too. Custom accent
-// colors can have insufficient contrast with the app's primary foreground.
-const ACTION_COLORS = 'bg-ink text-surface hover:bg-ink hover:text-surface'
+// Keep the primary action legible across standard and custom themes.
+const ACTION_COLORS = 'bg-[#1d4ed8] text-white hover:bg-[#1e40af] hover:text-white'
 
 /** Viewport for first paint; real values arrive on the first rAF pass. */
 function safeVpt() {
@@ -147,8 +146,9 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       headingRef.current?.focus({ preventScroll: true })
     }
 
-    const el = document.querySelector<HTMLElement>(`[data-tour="${CSS.escape(current.target)}"]`)
-    const found = !!el && el.getClientRects().length > 0
+    const targets = document.querySelectorAll<HTMLElement>(`[data-tour="${CSS.escape(current.target)}"]`)
+    const el = Array.from(targets).find(target => target.getClientRects().length > 0)
+    const found = !!el
     if (found) everFoundRef.current = true
 
     const maxWait = current.maxWaitMs ?? MAX_TARGET_WAIT_MS
@@ -177,7 +177,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     if (disposition === 'spot' && el && !ensuredVisibleRef.current) {
       ensuredVisibleRef.current = true
       const mobile = !window.matchMedia(SHEET_QUERY).matches
-      if (mobile && !el.closest('header')) {
+      if (mobile && !el.closest('header, [data-student-mobile-nav]')) {
         const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
         window.scrollBy({ top: el.getBoundingClientRect().top - Math.max(headerBottom, 0) - 16, behavior: reduced ? 'instant' : 'smooth' })
       } else el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
@@ -186,6 +186,12 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     const vpt = { width: window.innerWidth, height: window.innerHeight }
     if (disposition === 'spot' && el) {
       const spot = spotlightRect(el.getBoundingClientRect())
+      if (vpt.width < 640) {
+        const dock = document.querySelector('[data-student-mobile-nav]')
+        if (dock && !dock.contains(el)) {
+          spot.height = Math.max(0, Math.min(spot.height, dock.getBoundingClientRect().top - spot.top - 3))
+        }
+      }
       const measured = cardWrapRef.current
       const cardSize = measured
         ? { width: measured.offsetWidth, height: measured.offsetHeight }
@@ -321,7 +327,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
   const isLast = index === total - 1
   const minimized = sheet && minimizedStep === step.id
   const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
-  const showSpotlight = layout.disposition === 'spot'
+  const showSpotlight = layout.disposition === 'spot' && (layout.spot?.height ?? 0) > 0
   const compactGuide = sheet && !minimized
 
   return (
@@ -396,10 +402,13 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           )}
         >
           {minimized ? (
-            <Button type="button" variant="ghost" className="min-h-11" onClick={() => {
+            <Button type="button" variant="ghost" aria-label={`Resume guide · ${index + 1} of ${total}`} className="min-h-11 [@media(max-height:500px)]:px-2" onClick={() => {
               setMinimizedStep(null)
               requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }))
-            }}>Show guide · {index + 1} of {total}</Button>
+            }}>
+              <span className="[@media(max-height:500px)]:hidden">Resume guide · {index + 1} of {total}</span>
+              <span className="hidden [@media(max-height:500px)]:inline">Resume</span>
+            </Button>
           ) : (
           <>
           <div className="shrink-0">

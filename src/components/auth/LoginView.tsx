@@ -163,16 +163,19 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
       </section>
       {/* ===================== RIGHT 40% — Login panel ===================== */}
       <section
-          className="relative z-10 flex w-full flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-10 max-lg:[@media(max-height:500px)]:pt-3 lg:-ml-12 lg:min-h-dvh lg:w-[calc(40%+3rem)] lg:items-center lg:rounded-l-[40px] lg:py-12"
+          className="relative z-10 flex w-full flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-10 max-lg:[@media(max-height:500px)]:pt-2 lg:-ml-12 lg:min-h-dvh lg:w-[calc(40%+3rem)] lg:items-center lg:rounded-l-[40px] lg:py-12"
         style={{ background: T.white }}
       >
 
         <div className="relative w-full max-w-sm lg:py-4">
           {/* Heading */}
-          <div className="mb-3 max-lg:[@media(max-height:500px)]:mb-2 lg:mb-8">
-            <h1 className="text-2xl lg:text-[22px] font-bold tracking-tight leading-snug" style={{ color: T.text }}>
-              <span className="lg:hidden">Sign in</span><span className="hidden lg:inline">Sign in to AICS Portal</span>
-            </h1>
+          <div className="mb-3 max-lg:[@media(max-height:500px)]:mb-1 lg:mb-8">
+            <div className="flex flex-wrap items-center justify-between gap-x-2">
+              <h1 className="text-2xl font-bold leading-snug tracking-tight lg:text-[22px]" style={{ color: T.text }}>
+                <span className="lg:hidden">Sign in</span><span className="hidden lg:inline">Sign in to AICS Portal</span>
+              </h1>
+              <a href="#signin-help" className="inline-flex min-h-11 items-center rounded-sm text-sm font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link lg:hidden">Need help?</a>
+            </div>
             <p className="mt-2 hidden text-sm lg:block" style={{ color: T.muted }}>
               Use your AICS credentials to access your student or staff portal.
             </p>
@@ -230,6 +233,8 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           {/* Sign-in help notice. No in-house IT desk exists for this portal,
               password resets go through each branch's admin. */}
           <div
+            id="signin-help"
+            tabIndex={-1}
             className="mt-6 rounded-[10px] p-4"
             style={{ background: T.bg, border: `1px solid ${T.border}` }}
           >

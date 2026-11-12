@@ -110,7 +110,7 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 bg-surface border-b border-slate-200 sm:h-16"
+      className={`sticky top-0 z-20 border-b border-slate-200 bg-surface sm:h-16 ${isStudent ? 'student-topbar' : ''}`}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
@@ -130,7 +130,7 @@ export function Topbar({
           >
             <Menu className="w-5 h-5" />
           </button>
-          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-[28px] shrink-0 sm:hidden" />}
+          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="student-topbar-logo size-[28px] shrink-0 sm:hidden" />}
           <span className="min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in

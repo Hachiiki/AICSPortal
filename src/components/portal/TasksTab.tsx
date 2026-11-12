@@ -122,11 +122,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
 
   // Needs attention list — UNSENT tasks only (MISSING_CLOSED,
   // MISSING_OPEN, NEEDS_ATTENTION). PENDING rows are excluded.
-  // Order: MISSING rows first (dueDate asc), then NEEDS_ATTENTION
-  // (dueDate asc).
+  // Keep open submissions above closed work, then sort by due date.
   const needsAttentionTasks = useMemo(() => {
     const order: Record<TaskVariant, number> = {
-      MISSING_CLOSED: 0,
+      MISSING_CLOSED: 2,
       MISSING_OPEN: 0,
       NEEDS_ATTENTION: 1,
       GRADED: 3,
@@ -202,6 +201,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
 
   const hasFilters = subjectFilter !== 'all' || typeFilter !== 'all' || statusFilter !== 'all'
   const clearFilters = () => { setSubjectFilter('all'); setTypeFilter('all'); setStatusFilter('all') }
+  const closedCount = needsAttentionTasks.filter(task => computeStatus(task).variant === 'MISSING_CLOSED').length
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-5 sm:gap-6">
@@ -215,7 +215,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       <div data-tour="tasks-attention" className="overflow-hidden rounded-2xl border border-line bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
           <h3 className="text-base font-semibold text-ink">Needs attention</h3>
-          {needsAttentionTasks.length > 0 && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-muted-fg">{needsAttentionTasks.length} {needsAttentionTasks.length === 1 ? 'task' : 'tasks'}</span>}
+          {needsAttentionTasks.length > 0 && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-ink">{needsAttentionTasks.length - closedCount} open{closedCount > 0 && ` · ${closedCount} closed`}</span>}
         </div>
         {needsAttentionTasks.length === 0 ? (
           <EmptyState icon={CheckCircle} message="All caught up." hint="Nothing needs your action right now." />
@@ -246,7 +246,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                 </button>
               )
             })}
-            {needsAttentionTasks.length > 3 && <button type="button" className="sm:hidden min-h-11 w-full px-4 py-3 text-sm font-semibold text-link hover:bg-slate-50" onClick={() => setAttentionExpanded(!attentionExpanded)}>{attentionExpanded ? 'Show fewer tasks' : `Show all ${needsAttentionTasks.length} tasks that need attention`}</button>}
+            {needsAttentionTasks.length > 3 && <button type="button" className="sm:hidden min-h-11 w-full px-4 py-3 text-sm font-semibold text-link hover:bg-slate-50" onClick={() => setAttentionExpanded(!attentionExpanded)}>{attentionExpanded ? 'Show fewer tasks' : `View all ${needsAttentionTasks.length} tasks`}</button>}
           </div>
         )}
       </div>

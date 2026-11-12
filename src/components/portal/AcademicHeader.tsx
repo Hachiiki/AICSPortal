@@ -23,7 +23,7 @@ export function AcademicHeader({ student }: { student: Student }) {
         <h1 className="student-welcome-heading text-xl font-bold leading-tight tracking-tight text-blue-950 [overflow-wrap:anywhere] max-sm:text-white min-[360px]:text-2xl sm:mt-1.5 sm:text-3xl">
           Welcome back, {student.firstName}!
         </h1>
-        <p className="mt-1.5 text-sm text-slate-600 max-sm:text-white/85">
+        <p className="student-welcome-identity mt-1.5 text-sm text-slate-600 max-sm:text-white/85">
           <span className="sm:hidden">{student.programShort}</span><span className="hidden sm:inline">{student.program}</span> &bull; {student.yearLevel} &bull; {student.section}
         </p>
 
@@ -40,8 +40,9 @@ export function AcademicTermStats({ student, totalUnits }: { student: Student; t
         <h2 className="text-lg font-bold tracking-tight text-ink">Academic summary</h2>
         <p className="text-xs font-medium text-muted-fg">{student.semester} &middot; AY {student.academicYear}</p>
       </div>
-      <dl className="student-overview-stats grid grid-cols-[0.85fr_0.75fr_1.1fr_1.3fr] items-start gap-x-3 gap-y-2 max-sm:rounded-xl max-sm:border max-sm:border-line max-sm:bg-surface max-sm:p-[12px] sm:flex sm:flex-wrap sm:items-end sm:gap-x-6 sm:gap-y-3 sm:[&>div+div]:border-l sm:[&>div+div]:border-line sm:[&>div+div]:pl-6">
-        <Stat label="GPA" value={student.gpa} />
+      <p className="student-term-identity mb-2 hidden text-sm text-muted-fg">{student.programShort} &middot; {student.yearLevel} &middot; {student.section}</p>
+      <dl className="student-overview-stats grid grid-cols-[1.25fr_0.65fr_0.95fr_1.15fr] items-end gap-x-3 gap-y-2 max-sm:rounded-xl max-sm:border max-sm:border-line max-sm:bg-surface max-sm:p-[12px] sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-3 sm:[&>div+div]:border-l sm:[&>div+div]:border-line sm:[&>div+div]:pl-6">
+        <Stat label="Overall GPA" value={student.gpa} />
         <Stat label="Units" value={String(totalUnits)} />
         <Stat label="Subjects" value={String(student.subjects.length)} />
         <Stat label="Standing" value={student.deanLister ? "Dean's Lister" : 'Regular'} accent={student.deanLister} />

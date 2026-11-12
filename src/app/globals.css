@@ -17,12 +17,35 @@
     container: student-dock / inline-size;
   }
 
+  .student-topbar {
+    container: student-topbar / inline-size;
+  }
+
+  .student-portal-column {
+    container: student-portal / inline-size;
+  }
+
+  @container student-portal (width < 19rem) {
+    .student-topbar {
+      position: relative;
+    }
+  }
+
+  @container student-topbar (width < 19rem) {
+    .student-topbar-logo {
+      display: none;
+    }
+  }
+
   @container student-dock (width < 19rem) {
     .student-dock-grid {
       grid-template-columns: 1fr 1fr 1.6fr;
-      grid-auto-rows: minmax(56px, auto);
+      grid-auto-rows: minmax(52px, auto);
     }
 
+    .student-dock-destination > svg {
+      display: none;
+    }
   }
 
   .student-overview {
@@ -38,11 +61,51 @@
       font-size: 1.0625rem;
       line-height: 1.18;
     }
+
+    .student-welcome-identity {
+      display: none;
+    }
+  }
+
+  @container student-overview (width < 17rem) {
+    .student-term-identity {
+      display: block;
+    }
+  }
+
+  .student-glance-list {
+    container: student-glance / inline-size;
+  }
+
+  @container student-glance (width < 16rem) {
+    .student-glance-content {
+      display: contents;
+    }
+
+    .student-glance-label {
+      align-self: center;
+    }
+
+    .student-glance-details {
+      grid-column: 1 / -1;
+    }
   }
 
   @container student-overview (width < 15rem) {
     .student-overview-stats {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .student-overview-stats > div {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) fit-content(60%);
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .student-overview-stats dd {
+      overflow-wrap: break-word;
+      text-align: end;
     }
   }
 
@@ -53,6 +116,10 @@
   @container student-academics (width < 17rem) {
     .student-academic-tabs {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .student-academic-tabs > :last-child {
+      grid-column: 1 / -1;
     }
   }
 }

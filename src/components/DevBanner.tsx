@@ -31,7 +31,7 @@ export function DevBanner({ appEnv }: { appEnv: AppEnv }) {
           <TriangleAlert className="mt-0.5 size-[16px] shrink-0 sm:mt-0" aria-hidden />
         )}
         <p className="text-xs leading-snug sm:hidden">
-          {isStaging ? <><strong>Staging preview.</strong> Test data only.</> : <><strong>In development.</strong> Student project by Willard, unaffiliated with AICS.</>}
+          {isStaging ? <><strong>Staging preview.</strong> Test data only.</> : <><strong>In development.</strong> Willard's student project. Unaffiliated with AICS.</>}
         </p>
         <p className="hidden text-sm font-bold tracking-wide sm:block">
           {isStaging

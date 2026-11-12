@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { PortalShell } from './PortalShell'
 import { EventsSkeleton } from './Skeleton'
 import {
@@ -54,6 +56,15 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const phone = usePhoneViewport()
+  const { navigate } = usePortalRoute()
+
+  useEffect(() => {
+    if (!phone || !selectedDay) return
+    const agenda = document.getElementById('student-calendar-day')
+    agenda?.scrollIntoView({ block: 'start', behavior: 'auto' })
+    agenda?.focus({ preventScroll: true })
+  }, [phone, selectedDay])
 
   // showTasks + enabledCats are now lifted to the parent (StudentDataWrapper)
   // so they persist across route switches.
@@ -225,6 +236,13 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
                   events={selectedDayEvents}
                   tasks={selectedDayTasks}
                   showTasks={showTasks}
+                  onReturn={() => {
+                    const calendar = document.getElementById('student-calendar')
+                    calendar?.scrollIntoView({ block: 'start', behavior: 'auto' })
+                    const target = calendar?.querySelector<HTMLElement>('[aria-current="date"]') ?? calendar
+                    target?.focus({ preventScroll: true })
+                  }}
+                  onOpenTask={task => navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: 'tasks', subjectCode: task.subjectCode, taskId: task._id })}
                 />
               )}
             </div>

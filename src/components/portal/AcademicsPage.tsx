@@ -257,7 +257,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             </p>
           </div>
 
-          <div data-tour="academics-tabs" role="group" aria-label="Academic sections" className="student-academic-tabs grid max-w-full grid-cols-[0.9fr_1.1fr_0.9fr_1.2fr] gap-1 rounded-xl bg-slate-100 p-1 sm:inline-flex">
+          <div data-tour="academics-tabs" role="group" aria-label="Academic sections" className={`student-academic-tabs ${activeTab === 'tasks' ? 'hidden' : 'grid'} max-w-full grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 sm:inline-flex`}>
             <button
               type="button"
               onClick={() => setActiveTab('grades')}
@@ -283,7 +283,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('tasks')}
               aria-pressed={activeTab === 'tasks'}
               data-tour="academics-tab-tasks"
-              className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
+              className={`hidden min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors sm:inline-flex sm:px-5 ${
                 activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -334,8 +334,8 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                   {/* Stat chips */}
                   <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
                     <div>
-                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">GPA</p>
-                      <p className="text-base font-bold text-link-strong">{term.gpa}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Term GPA</p>
+                      <p className="text-base font-bold text-link-strong">{term.gpa === '-' ? 'Pending' : term.gpa}</p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Units</p>

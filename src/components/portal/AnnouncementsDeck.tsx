@@ -259,26 +259,28 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           </div>
         </div>
         {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-          <span className="text-[10px] text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 border-t border-slate-50 pt-2 sm:pt-3">
+          {visible.length > 1 && <span className="text-[10px] text-slate-500">
             {visible.indexOf(a) + 1} of {visible.length}
-          </span>
-          <div className="flex items-center gap-1">
+          </span>}
+          <div className="ml-auto flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => removeTop('left')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Snooze (swipe left)"
             >
               <Clock className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Snooze</span>
             </button>
             <button
               type="button"
               onClick={() => removeTop('right')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Mark as read (swipe right)"
             >
               <Check className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Mark as read</span>
             </button>
           </div>
         </div>
@@ -339,7 +341,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               key={card._id}
               inert={!isTop}
               aria-hidden={!isTop}
-              className="absolute inset-0"
+              className={isTop ? 'relative sm:absolute sm:inset-0' : 'absolute inset-x-0 bottom-7 top-0 sm:bottom-0'}
               style={{
                 zIndex: currentZ,
                 transform: `translateY(${currentY}px) scale(${currentScale}) rotate(${currentRotate}deg)`,

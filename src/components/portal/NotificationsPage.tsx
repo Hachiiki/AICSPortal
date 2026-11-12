@@ -77,7 +77,7 @@ export function NotificationsPage({ student, inbox, onHome }: {
                   Open task <ArrowRight className="size-4" aria-hidden="true" />
                 </button>
               )}
-              {!item.read && <button type="button" disabled={inbox.marking || inbox.loading} onClick={() => inbox.onMark(item._id)} className={`min-h-11 rounded-md text-sm font-semibold focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50 ${item.taskId ? 'text-muted-fg hover:text-ink' : 'text-link-strong'}`}>Mark as read</button>}
+              {!item.read && <button type="button" disabled={inbox.marking || inbox.loading} onClick={() => inbox.onMark(item._id)} className="min-h-11 rounded-md text-sm font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50">Mark as read</button>}
               </div>
             </li>
           ))}

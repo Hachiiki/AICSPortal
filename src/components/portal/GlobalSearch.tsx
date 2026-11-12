@@ -238,7 +238,7 @@ function buildIndex(
       subjectCode: t.subjectCode,
       type: 'Task',
       label: t.title,
-      hint: `${t.subjectCode} · ${t.type} · due ${formatDate(t.dueDate)}`,
+      hint: `${t.subjectCode} · ${t.type} · due\u00a0${formatDate(t.dueDate).replaceAll(' ', '\u00a0')}`,
       icon: ClipboardList,
       view: 'academics',
       keywords: `${t.title} ${t.subjectCode} ${t.type} ${t.description ?? ''} task assignment`.toLowerCase(),
@@ -512,7 +512,7 @@ export function GlobalSearch({ student, events, professors, tasks, facultyData, 
                           <span className={`block text-sm font-medium text-slate-900 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>
                             {item.label}
                           </span>
-                          <span className={`block text-xs text-slate-600 ${surface === 'dialog' ? 'break-words' : 'truncate'}`}>{item.hint}</span>
+                          <span className={`block text-xs text-slate-600 ${surface === 'dialog' ? 'break-words text-pretty' : 'truncate'}`}>{item.hint}</span>
                         </span>
                         {isActive && (
                           <CornerDownLeft className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" aria-hidden="true" />
