@@ -47,6 +47,11 @@
       padding-inline: 5px;
       overflow-wrap: anywhere;
     }
+
+    .student-notifications-title {
+      font-size: 1.375rem;
+      line-height: 1.2;
+    }
   }
 
   @container student-topbar (width < 19rem) {

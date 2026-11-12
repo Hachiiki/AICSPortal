@@ -28,7 +28,7 @@ export function NotificationsPage({ student, inbox, onHome }: {
       </button>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <div className="min-w-0">
-            <h1 ref={heading} tabIndex={-1} className="text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
+            <h1 ref={heading} tabIndex={-1} className="student-notifications-title text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
           <p className="mt-1 text-sm text-muted-fg" role="status">{unread ? `${unread} unread` : 'No unread notifications'}</p>
         </div>
         {inbox.notifications.length > 0 && (

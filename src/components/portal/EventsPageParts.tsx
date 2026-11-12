@@ -133,7 +133,7 @@ export function CalendarGrid({
         {WEEKDAY_LABELS.map((d) => (
           <div
             key={d}
-            className="py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+            className="py-2.5 text-center text-[length:min(0.6875rem,13px)] font-semibold uppercase tracking-wider text-slate-500"
           >
             {d}
           </div>
@@ -210,7 +210,7 @@ export function CalendarGrid({
                     ))}
                   </div>
                 )}
-                {itemCount > 0 && <span className="mt-0.5 max-w-full text-[11px] font-semibold leading-tight tabular-nums text-link-strong [overflow-wrap:anywhere]" aria-hidden="true">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>}
+                {itemCount > 0 && <span className="mt-0.5 max-w-full text-[length:min(0.6875rem,13px)] font-semibold leading-tight tabular-nums text-link-strong [overflow-wrap:anywhere]" aria-hidden="true">{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>}
               </button>
             )
           })}
