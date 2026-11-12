@@ -127,8 +127,9 @@ try {
 
     if (width < 1024) {
       const form = await page.locator('form').boundingBox()
-      const hero = await page.getByText('Welcome to your', { exact: true }).boundingBox()
-      check(`${name}: form precedes supporting welcome`, form.y < hero.y)
+      const hero = await page.getByRole('img', { name: 'Asian Institute of Computer Studies campus', exact: true }).boundingBox()
+      const welcome = await page.getByText('Welcome to your', { exact: true }).boundingBox()
+      check(`${name}: photo and welcome precede the form`, hero.height > 0 && hero.y + hero.height <= form.y && welcome.y >= hero.y && welcome.y < form.y)
       const fonts = await page.locator('#username,#password').evaluateAll(
         inputs => inputs.map(input => parseFloat(getComputedStyle(input).fontSize)),
       )

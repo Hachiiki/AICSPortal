@@ -2,7 +2,7 @@
 import { chromium } from 'playwright'
 import { execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync, openSync, closeSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync, openSync, closeSync } from 'node:fs'
 import { resolve, dirname, sep } from 'node:path'
 import { tmpdir } from 'node:os'
 import { localEnv } from '../onboarding/isolated-source.mjs'
@@ -58,11 +58,22 @@ async function capture(out, report) {
     await shot('setup-390')
     await page.evaluate(() => window.scrollTo(0, 0))
     await page.setViewportSize({ width: 320, height: 844 })
+    await shot('dashboard-320')
     await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
     await page.getByRole('dialog', { name: 'Navigation menu' }).waitFor()
     await shot('drawer-320')
     await page.keyboard.press('Escape')
     await page.getByRole('dialog', { name: 'Navigation menu' }).waitFor({ state: 'hidden' })
+    await page.setViewportSize({ width: 320, height: 420 })
+    await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
+    const shortDrawer = page.getByRole('dialog', { name: 'Navigation menu' })
+    await shortDrawer.waitFor()
+    const theme = shortDrawer.getByRole('button', { name: 'Switch to dark theme', exact: true })
+    if (await theme.count()) await theme.scrollIntoViewIfNeeded()
+    await shot('drawer-320x420')
+    await page.keyboard.press('Escape')
+    await shortDrawer.waitFor({ state: 'hidden' })
+    await page.setViewportSize({ width: 320, height: 844 })
     await route('/academics?tab=tasks')
     await page.getByRole('heading', { name: 'Task Overview', exact: true }).waitFor()
     // Historical Tasks versions already support the tab query, but settling the
@@ -93,6 +104,16 @@ async function capture(out, report) {
     await page.keyboard.press('Escape')
     const searchDialog = page.getByRole('dialog', { name: 'Search the portal', exact: true })
     if (await searchDialog.count()) { await page.keyboard.press('Escape'); await searchDialog.waitFor({ state: 'hidden' }) }
+    await page.getByRole('button', { name: /^Notifications/ }).click()
+    const inboxPage = page.getByRole('heading', { name: 'Notifications', exact: true })
+    const inboxMenu = page.getByRole('menu')
+    await inboxPage.or(inboxMenu).waitFor()
+    await page.getByText('New activity posted', { exact: true }).waitFor()
+    await shot('notifications-320')
+    if (await inboxMenu.count()) {
+      await page.keyboard.press('Escape')
+      await inboxMenu.waitFor({ state: 'hidden' })
+    }
     await page.setViewportSize({ width: 320, height: 420 })
     await route('/help')
     await page.getByRole('button', { name: 'Replay guided tour', exact: true }).click()
@@ -184,7 +205,23 @@ for (const ref of refs) {
   report.reusedVerifiedBuild = reuse
   if (!reuse) {
     console.log(`Building ${sha}`)
-    await run([resolve(root, 'node_modules/next/dist/bin/next'), 'build', '--webpack'], source, resolve(out, 'build.log'))
+    const command = [resolve(root, 'node_modules/next/dist/bin/next'), 'build', '--webpack']
+    if (process.env.MOBILE_HISTORY_RENDER_ONLY === '1') {
+      // Historical UI evidence can be rendered separately from the final quality gate.
+      report.buildMode = 'Next compile and generate phases, historical UI evidence only'
+      await run([...command, '--experimental-build-mode', 'compile'], source, resolve(out, 'compile.log'))
+      // Next 16's webpack compile phase can already rename the generated proxy.
+      // Preserve the identical generated file at the name the generate phase expects.
+      for (const suffix of ['.js', '.js.nft.json']) {
+        const middleware = resolve(source, '.next/server/middleware' + suffix)
+        const proxy = resolve(source, '.next/server/proxy' + suffix)
+        if (existsSync(middleware) && !existsSync(proxy)) copyFileSync(middleware, proxy)
+      }
+      await run([...command, '--experimental-build-mode', 'generate'], source, resolve(out, 'generate.log'))
+    } else {
+      report.buildMode = 'full production build'
+      await run(command, source, resolve(out, 'build.log'))
+    }
   }
   const fd = openSync(resolve(out, 'server.log'), 'w')
   const server = spawn(process.execPath, [resolve(root, 'node_modules/next/dist/bin/next'), 'start', '-H', 'localhost', '-p', '4351'], { cwd: servedSource, env: localEnv(), stdio: ['ignore', 'pipe', fd], windowsHide: true })

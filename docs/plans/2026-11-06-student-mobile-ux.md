@@ -57,6 +57,8 @@ The reviewed app source is `b7cbc33`. All 413 portal checks, 47 sign-in checks, 
 
 ## Owner feedback follow-up
 
-Keep the phone header on one line. Move labeled Search to the right side of the bottom bar, keep the existing destinations, and give press and selection states short motion with reduced-motion support. More opens the navigation drawer with an X close control at the same thumb position. The student phone bell opens a scrollable Notifications page using the existing inbox and task links. The sign-in welcome and campus photo move above the form in a compact layout that avoids overlapping text.
+Keep the phone header on one line. The final Search control is an icon-only floating button at the lower-right corner above the separate five-destination bar. Give press and selection states short motion with reduced-motion support. More opens the navigation drawer with an X close control at the same thumb position. The student phone bell opens a scrollable Notifications page using the existing inbox and task links. The sign-in welcome and campus photo move above the form in a compact layout that avoids overlapping text.
 
 Check 320px and common phone widths, a short viewport, dark mode, keyboard focus and dismissal, browser Back, notification read actions, task links and the desktop/staff fallback. Post exact before-and-after captures and change notes for the implementation commits on PR #95.
+
+The final phone follow-up is implemented in `871e28d`. All 547 browser checks passed, and both council reviewers consider it ready for PR review. [Follow-up evidence and scores](../done/qa_evidence/ui-ux/mobile-owner-feedback-2026-11-07/README.md)

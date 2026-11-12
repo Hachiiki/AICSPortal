@@ -39,6 +39,10 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
   let preferences = { welcomeSeen: !fresh, checklistDismissed: false, tourNoticeReadVersion: 2, tourNoticeDismissedVersion: 2 }
   const writes = []
   const allTasks = structuredClone(tasks)
+  const notifications = [
+    { _id: 'mobile-notification', title: 'New activity posted', body: `${tasks[0].title}. Review the assignment details and submit your work before the deadline.`, fromName: 'Dr. Maria Reyes', read: false, createdAt: yesterday.toISOString(), taskId: tasks[0]._id, subjectCode: tasks[0].subjectCode },
+    { _id: 'mobile-notice-reminder', title: 'Library hours update', body: 'The library is open until 6:00 PM during examination week.', fromName: 'Registrar', read: false, createdAt: yesterday.toISOString(), taskId: null, subjectCode: '' },
+  ]
   let taskReads = 0
   await context.route('**/*', async route => {
     const url = new URL(route.request().url())
@@ -73,7 +77,13 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
     else if (p === '/api/announcements') data = { ok: true, announcements, readIds: [] }
     else if (p === '/api/events') data = { ok: true, events: [{ _id: 'mobile-event', title: 'Midterm examinations', date: tomorrow.toISOString().slice(0,10), category: 'academic', description: 'Refer to your subject schedule.', location: 'Commonwealth campus' }] }
     else if (p === '/api/professors') data = { ok: true, professors: subjects.map((s, i) => ({ _id: `prof-${i}`, name: s.professor, email: s.professorEmail, department: 'Computer Studies', room: s.room, officeHours: 'Mon-Fri, 10:00 AM-12:00 PM' })) }
-    else if (p === '/api/notifications') data = { ok: true, notifications: [{ _id: 'mobile-notification', title: 'New activity posted', message: tasks[0].title, type: 'task', read: false, createdAt: yesterday.toISOString(), taskId: tasks[0]._id, subjectCode: tasks[0].subjectCode }] }
+    else if (p === '/api/notifications') {
+      if (request.method() === 'PATCH') {
+        const patch = request.postDataJSON()
+        for (const item of notifications) if (patch.all || item._id === patch.id) item.read = true
+        writes.push({ path: p, patch })
+      } else data = { ok: true, notifications }
+    }
     else if (p === '/api/enrollment') data = { ok: true, enrollment: { ...term, currentStep: 3, steps: ['Application', 'Documents', 'Assessment', 'Payment', 'Enrollment'].map((label, i) => ({ step: i+1, label, description: `${label} for the current semester`, status: i<2 ? 'completed' : i===2 ? 'current' : 'upcoming', date: i<2 ? '2026-07-12' : null })), assessment: { tuitionPerUnit: 900, totalUnits: 9, tuitionAmount: 8100, miscFees: [{ description: 'Laboratory fee', amount: 1200 }], totalAssessment: 9300, amountPaid: 5000, balance: 4300, paymentStatus: 'partial', paymentDeadline: tomorrow.toISOString(), paymentDate: yesterday.toISOString() }, registrar: { name: 'Registrar Office', room: 'Room 101', officeHours: 'Mon-Fri, 8:00 AM-5:00 PM', email: 'registrar@example.invalid', phone: '(02) 8123-4567' } } }
     else if (p === '/api/materials') data = { ok: true, materials: [
       { _id: 'mobile-material-0', subjectCode: 'CS201', title: 'Week 6 reference: linked lists, memory allocation and algorithm complexity', kind: 'file', url: 'https://example.invalid/reference.pdf', bytes: 384000, format: 'pdf', uploadedAt: yesterday.toISOString(), uploadedBy: 'Dr. Maria Reyes' },
