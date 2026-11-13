@@ -193,6 +193,7 @@ For every new feature or addition to an existing feature:
 - [ ] Student visibility gated on `released` (manual curl as student)
 - [ ] Audit doc written for grade writes (check `grade_audits`)
 - [ ] Role-aware UI verified in browser as student + faculty (+ admin if touched), screenshots for UI changes
+- [ ] Student mobile UI screenshots use the current PR as the first baseline. Compare each iteration with its predecessor using the same viewport, fixture data, and interaction state. Link each comparison in the PR.
 - [ ] No secrets in diff, no `.env.local`/`.next/` committed
 - [ ] TodoWrite items marked `completed` only after above
 
