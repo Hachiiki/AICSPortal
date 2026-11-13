@@ -130,3 +130,46 @@ export function centeredCard(card: { width: number; height: number }, vpt: Vpt):
     left: Math.max(0, (vpt.width - card.width) / 2),
   }
 }
+
+/** Fit the phone guide within the space above the dock. When the target
+ * fills the screen, frame the visible portion outside the guide. */
+export function placePhoneGuide(
+  spot: Rect | null,
+  card: { height: number; minimum: number },
+  bounds: { top: number; bottom: number; spotlightTop?: number; spotlightBottom?: number },
+  preferred: CardSide,
+) {
+  const { top, bottom } = bounds
+  const height = Math.min(card.height, Math.max(0, bottom - top))
+  const minimum = Math.min(height, card.minimum)
+  const clip = (start: number, end: number) => {
+    if (!spot) return null
+    const clippedTop = Math.max(start, spot.top)
+    const clippedHeight = Math.min(end, spot.top + spot.height) - clippedTop
+    return clippedHeight > 0 ? { ...spot, top: clippedTop, height: clippedHeight } : null
+  }
+  const spotlightTop = bounds.spotlightTop ?? top
+  const spotlightBottom = bounds.spotlightBottom ?? bottom
+  const visible = clip(spotlightTop, spotlightBottom)
+  if (!visible) return { top: bottom - height, maxHeight: height, spot: null }
+
+  const visibleEnd = visible.top + visible.height
+  const above = Math.max(0, visible.top - CARD_GAP - top)
+  const below = Math.max(0, bottom - visibleEnd - CARD_GAP)
+  const sides = preferred === 'top' ? ['top', 'bottom'] as const : ['bottom', 'top'] as const
+  for (const needed of [height, minimum]) {
+    for (const side of sides) {
+      const room = side === 'top' ? above : below
+      if (room < needed) continue
+      const maxHeight = Math.min(height, room)
+      return { top: side === 'top' ? visible.top - CARD_GAP - maxHeight : bottom - maxHeight, maxHeight, spot: visible }
+    }
+  }
+
+  const aboveCard = clip(spotlightTop, bottom - minimum - CARD_GAP)
+  const belowCard = clip(Math.max(spotlightTop, top + minimum + CARD_GAP), spotlightBottom)
+  // Keep the target's leading edge in view when the guide has scrolled it
+  // into view. Tall sections often put their title and controls there.
+  const keepTop = aboveCard !== null && (aboveCard.height >= 72 || aboveCard.height >= (belowCard?.height ?? 0))
+  return { top: keepTop ? bottom - minimum : top, maxHeight: minimum, spot: keepTop ? aboveCard : belowCard }
+}

@@ -1,0 +1,4457 @@
+{
+  "startedAt": "2026-11-09T14:50:21.305Z",
+  "origin": "http://localhost:4350",
+  "fixtureOnly": true,
+  "browserVersion": "156.0.8078.4",
+  "scope": "full student viewport matrix and interactions",
+  "sourceEvidence": {
+    "checkoutHead": "871e28d758ee36335c8023bb845531976ad68a41",
+    "buildReport": "C:\\Projects\\loginAICSPortal\\.phase2-local\\mobile-ux\\quality-1794235580862\\result.json",
+    "sourceFilesMatched": 211
+  },
+  "checks": [
+    {
+      "name": "Application fonts and visible images loaded",
+      "pass": true,
+      "detail": {
+        "family": "Geist, \"Geist Fallback\"",
+        "faces": [
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "loaded"
+          },
+          {
+            "family": "Geist Fallback",
+            "weight": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "loaded"
+          },
+          {
+            "family": "Geist Mono Fallback",
+            "weight": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed Fallback",
+            "weight": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Fallback",
+            "weight": "normal",
+            "status": "unloaded"
+          }
+        ],
+        "images": [
+          {
+            "src": "http://localhost:4350/aics-logo.svg",
+            "complete": true,
+            "naturalWidth": 1342
+          }
+        ]
+      }
+    },
+    {
+      "name": "Next class uses hour-based sessions correctly",
+      "pass": true
+    },
+    {
+      "name": "Dashboard overdue wording agrees with Tasks",
+      "pass": true
+    },
+    {
+      "name": "Review tasks opens the Tasks section",
+      "pass": true
+    },
+    {
+      "name": "dashboard-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "header-320: Student portal stays on one line",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "header-320: primary controls have 44px hit areas",
+      "pass": true
+    },
+    {
+      "name": "header-320: compact single-row chrome",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 82,
+        "width": 320,
+        "height": 57
+      }
+    },
+    {
+      "name": "bottom-nav-320: five single-line labels and 44px targets",
+      "pass": true
+    },
+    {
+      "name": "bottom-nav-320: icon-only Search floats above the right edge with a 48px target",
+      "pass": true,
+      "detail": {
+        "searchBounds": {
+          "x": 260,
+          "y": 720,
+          "width": 48,
+          "height": 48
+        },
+        "searchGap": 12,
+        "rightInset": 12
+      }
+    },
+    {
+      "name": "bottom-nav-320: viewport-safe placement",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 780,
+        "width": 320,
+        "height": 64
+      }
+    },
+    {
+      "name": "dashboard-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-grades-320: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-grades-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-320: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-subjects-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-320: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Tasks"
+      ]
+    },
+    {
+      "name": "-academics-tab-tasks-320: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1210,
+        "overviewTop": 1655
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-materials-320: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-materials-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-events-320: task toggle has a 44px target and visible label",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 427,
+        "width": 288,
+        "height": 44
+      }
+    },
+    {
+      "name": "-events-320: task toggle switches off",
+      "pass": true
+    },
+    {
+      "name": "-events-320: task toggle switches on",
+      "pass": true
+    },
+    {
+      "name": "-events-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-enrollment-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-professors-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 74,
+        "bottom": 131,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 131
+      }
+    },
+    {
+      "name": "-profile-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-notifications-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-320: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-security-320: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-section-security-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-notifications-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-privacy-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-appearance-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-320: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-help-320: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "header-360: Student portal stays on one line",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "header-360: primary controls have 44px hit areas",
+      "pass": true
+    },
+    {
+      "name": "header-360: compact single-row chrome",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 82,
+        "width": 360,
+        "height": 57
+      }
+    },
+    {
+      "name": "bottom-nav-360: five single-line labels and 44px targets",
+      "pass": true
+    },
+    {
+      "name": "bottom-nav-360: icon-only Search floats above the right edge with a 48px target",
+      "pass": true,
+      "detail": {
+        "searchBounds": {
+          "x": 300,
+          "y": 720,
+          "width": 48,
+          "height": 48
+        },
+        "searchGap": 12,
+        "rightInset": 12
+      }
+    },
+    {
+      "name": "bottom-nav-360: viewport-safe placement",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 780,
+        "width": 360,
+        "height": 64
+      }
+    },
+    {
+      "name": "dashboard-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-grades-360: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-grades-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-360: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-subjects-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-360: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Tasks"
+      ]
+    },
+    {
+      "name": "-academics-tab-tasks-360: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1142,
+        "overviewTop": 1587
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-academics-tab-materials-360: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-materials-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-events-360: task toggle has a 44px target and visible label",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 407,
+        "width": 328,
+        "height": 44
+      }
+    },
+    {
+      "name": "-events-360: task toggle switches off",
+      "pass": true
+    },
+    {
+      "name": "-events-360: task toggle switches on",
+      "pass": true
+    },
+    {
+      "name": "-events-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-enrollment-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-professors-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 74,
+        "bottom": 131,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 131
+      }
+    },
+    {
+      "name": "-profile-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-notifications-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-360: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-security-360: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-section-security-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-notifications-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-privacy-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-settings-section-appearance-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-360: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 360,
+        "pageWidth": 360,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-360: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 82,
+        "bottom": 139,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 139
+      }
+    },
+    {
+      "name": "-help-360: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "header-390: Student portal stays on one line",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "header-390: primary controls have 44px hit areas",
+      "pass": true
+    },
+    {
+      "name": "header-390: compact single-row chrome",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 66,
+        "width": 390,
+        "height": 57
+      }
+    },
+    {
+      "name": "bottom-nav-390: five single-line labels and 44px targets",
+      "pass": true
+    },
+    {
+      "name": "bottom-nav-390: icon-only Search floats above the right edge with a 48px target",
+      "pass": true,
+      "detail": {
+        "searchBounds": {
+          "x": 330,
+          "y": 720,
+          "width": 48,
+          "height": 48
+        },
+        "searchGap": 12,
+        "rightInset": 12
+      }
+    },
+    {
+      "name": "bottom-nav-390: viewport-safe placement",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 780,
+        "width": 390,
+        "height": 64
+      }
+    },
+    {
+      "name": "dashboard-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-grades-390: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-grades-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-390: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-subjects-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-390: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Tasks"
+      ]
+    },
+    {
+      "name": "-academics-tab-tasks-390: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1078,
+        "overviewTop": 1523
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-materials-390: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-materials-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-events-390: task toggle has a 44px target and visible label",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 391,
+        "width": 358,
+        "height": 44
+      }
+    },
+    {
+      "name": "-events-390: task toggle switches off",
+      "pass": true
+    },
+    {
+      "name": "-events-390: task toggle switches on",
+      "pass": true
+    },
+    {
+      "name": "-events-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-enrollment-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-professors-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-profile-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-notifications-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-390: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-security-390: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-section-security-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-notifications-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-privacy-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-appearance-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-390: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-390: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-help-390: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "header-430: Student portal stays on one line",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "header-430: primary controls have 44px hit areas",
+      "pass": true
+    },
+    {
+      "name": "header-430: compact single-row chrome",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 66,
+        "width": 430,
+        "height": 57
+      }
+    },
+    {
+      "name": "bottom-nav-430: five single-line labels and 44px targets",
+      "pass": true
+    },
+    {
+      "name": "bottom-nav-430: icon-only Search floats above the right edge with a 48px target",
+      "pass": true,
+      "detail": {
+        "searchBounds": {
+          "x": 370,
+          "y": 720,
+          "width": 48,
+          "height": 48
+        },
+        "searchGap": 12,
+        "rightInset": 12
+      }
+    },
+    {
+      "name": "bottom-nav-430: viewport-safe placement",
+      "pass": true,
+      "detail": {
+        "x": 0,
+        "y": 780,
+        "width": 430,
+        "height": 64
+      }
+    },
+    {
+      "name": "dashboard-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-grades-430: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-grades-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-430: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-subjects-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-430: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Tasks"
+      ]
+    },
+    {
+      "name": "-academics-tab-tasks-430: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1078,
+        "overviewTop": 1523
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-academics-tab-materials-430: one academic destination selected",
+      "pass": true,
+      "detail": [
+        "Academics"
+      ]
+    },
+    {
+      "name": "-academics-tab-materials-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-events-430: task toggle has a 44px target and visible label",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 373,
+        "width": 398,
+        "height": 44
+      }
+    },
+    {
+      "name": "-events-430: task toggle switches off",
+      "pass": true
+    },
+    {
+      "name": "-events-430: task toggle switches on",
+      "pass": true
+    },
+    {
+      "name": "-events-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-enrollment-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-professors-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-profile-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-notifications-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-430: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-security-430: readable 16px mobile form text",
+      "pass": true,
+      "detail": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "name": "-settings-section-security-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-notifications-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-privacy-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-settings-section-appearance-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-430: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 430,
+        "pageWidth": 430,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-430: header stays visible above content",
+      "pass": true,
+      "detail": {
+        "top": 66,
+        "bottom": 123,
+        "height": 57,
+        "opacity": "1",
+        "mainTop": 123
+      }
+    },
+    {
+      "name": "-help-430: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-768: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1040,
+        "overviewTop": 1329
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-768: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 768,
+        "pageWidth": 768,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-768: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-1024: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1048,
+        "overviewTop": 1337
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-1024: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1024,
+        "pageWidth": 1024,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-1024: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "dashboard-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "dashboard-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-grades-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-grades-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-subjects-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-subjects-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-tasks-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-1280: course cards precede the task overview",
+      "pass": true,
+      "detail": {
+        "coursesTop": 1028,
+        "overviewTop": 1317
+      }
+    },
+    {
+      "name": "-academics-tab-tasks-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-academics-tab-materials-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-academics-tab-materials-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-events-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-events-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-enrollment-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-enrollment-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-professors-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-professors-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-profile-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-profile-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-notifications-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-notifications-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-security-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-security-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-notifications-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-notifications-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-privacy-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-privacy-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-settings-section-appearance-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-settings-section-appearance-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "-help-1280: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 1280,
+        "pageWidth": 1280,
+        "height": 844
+      }
+    },
+    {
+      "name": "-help-1280: content rendered without error fallback",
+      "pass": true
+    },
+    {
+      "name": "phone-header-and-bar-200-percent-text: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 720
+      }
+    },
+    {
+      "name": "Phone actions keep their labels inside the bar at enlarged text",
+      "pass": true
+    },
+    {
+      "name": "Enlarged text uses a two-row dock with visible icons",
+      "pass": true
+    },
+    {
+      "name": "All five bottom labels stay whole at enlarged text",
+      "pass": true
+    },
+    {
+      "name": "Page end clears the enlarged dock and floating Search",
+      "pass": true
+    },
+    {
+      "name": "More becomes an X at the same thumb position",
+      "pass": true,
+      "detail": {
+        "closedMenuBounds": {
+          "x": 256,
+          "y": 660,
+          "width": 60,
+          "height": 56
+        },
+        "closeMenuBounds": {
+          "x": 256,
+          "y": 660,
+          "width": 60,
+          "height": 56
+        }
+      }
+    },
+    {
+      "name": "Drawer makes underlying portal inert",
+      "pass": true
+    },
+    {
+      "name": "Drawer Shift+Tab stays inside",
+      "pass": true
+    },
+    {
+      "name": "Drawer repeated Tab stays inside",
+      "pass": true
+    },
+    {
+      "name": "Drawer restores focus to More",
+      "pass": true
+    },
+    {
+      "name": "Drawer clears inert state",
+      "pass": true
+    },
+    {
+      "name": "Phone theme action remains available in More",
+      "pass": true
+    },
+    {
+      "name": "The bottom X closes the drawer and returns focus to More",
+      "pass": true
+    },
+    {
+      "name": "More scrolls on a short phone while the X stays in reach",
+      "pass": true
+    },
+    {
+      "name": "Account Theme settings opens Appearance",
+      "pass": true
+    },
+    {
+      "name": "Bottom Tasks opens the explicit task destination",
+      "pass": true
+    },
+    {
+      "name": "Bottom Academics opens a distinct academic record destination",
+      "pass": true
+    },
+    {
+      "name": "Browser back restores the Tasks destination",
+      "pass": true
+    },
+    {
+      "name": "Opening search focuses its input",
+      "pass": true
+    },
+    {
+      "name": "Search adapts to a reduced visible viewport",
+      "pass": true,
+      "detail": {
+        "x": 8,
+        "y": 12,
+        "width": 304,
+        "height": 400.953125
+      }
+    },
+    {
+      "name": "Closing search returns focus to its trigger",
+      "pass": true
+    },
+    {
+      "name": "Phone search has exactly one active combobox",
+      "pass": true
+    },
+    {
+      "name": "Mobile search has useful entry width",
+      "pass": true,
+      "detail": {
+        "x": 58,
+        "y": 113,
+        "width": 228,
+        "height": 24
+      }
+    },
+    {
+      "name": "Search keyboard selection follows visible result order",
+      "pass": true
+    },
+    {
+      "name": "Search exposes a live active option",
+      "pass": true
+    },
+    {
+      "name": "Search opens the selected task",
+      "pass": true
+    },
+    {
+      "name": "A second search keeps editing focus after the previous task destination",
+      "pass": true
+    },
+    {
+      "name": "Search selects a different task while Academics stays mounted",
+      "pass": true
+    },
+    {
+      "name": "Touch search selection opens its task",
+      "pass": true
+    },
+    {
+      "name": "Tabbing away from search closes the result popup",
+      "pass": true
+    },
+    {
+      "name": "A task destination survives a real page reload",
+      "pass": true
+    },
+    {
+      "name": "Phone Notifications opens as a page without an overlay",
+      "pass": true
+    },
+    {
+      "name": "Phone Notifications focuses its heading",
+      "pass": true
+    },
+    {
+      "name": "Browser Back returns from Notifications to the exact task route",
+      "pass": true
+    },
+    {
+      "name": "A failed read update reports the error and still opens the task",
+      "pass": true
+    },
+    {
+      "name": "Notifications open their task and mark it read",
+      "pass": true
+    },
+    {
+      "name": "Mark all disables repeated presses while updating",
+      "pass": true
+    },
+    {
+      "name": "Failed notification update preserves unread status and allows retry",
+      "pass": true
+    },
+    {
+      "name": "Mark all read clears the badge and preserves messages",
+      "pass": true
+    },
+    {
+      "name": "Notifications URL and read status survive a real reload",
+      "pass": true
+    },
+    {
+      "name": "Task status filters have 44px mobile hit areas",
+      "pass": true,
+      "detail": [
+        {
+          "width": 44,
+          "height": 44
+        },
+        {
+          "width": 67.4375,
+          "height": 44
+        },
+        {
+          "width": 69.734375,
+          "height": 44
+        },
+        {
+          "width": 112.90625,
+          "height": 44
+        },
+        {
+          "width": 64.796875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "Filtered empty state explains the filters",
+      "pass": true
+    },
+    {
+      "name": "Reset restores task rows",
+      "pass": true
+    },
+    {
+      "name": "Submission confirmation is inside the visible viewport",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 144.75,
+        "width": 288,
+        "height": 430.5
+      }
+    },
+    {
+      "name": "Submission confirmation is painted at full opacity",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "Task submission completes through the confirmation",
+      "pass": true
+    },
+    {
+      "name": "Long task dialog fits a short viewport",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 16,
+        "width": 288,
+        "height": 388
+      }
+    },
+    {
+      "name": "Details close action remains reachable",
+      "pass": true
+    },
+    {
+      "name": "digital-id-320x420: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 420
+      }
+    },
+    {
+      "name": "Digital ID remains operable on a short phone screen",
+      "pass": true
+    },
+    {
+      "name": "Certificate preview is painted at full opacity",
+      "pass": true,
+      "detail": {
+        "opacity": 1
+      }
+    },
+    {
+      "name": "certificate-320x420: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 420
+      }
+    },
+    {
+      "name": "Certificate actions remain inside the phone viewport",
+      "pass": true,
+      "detail": {
+        "x": 236.828125,
+        "y": 64,
+        "width": 44,
+        "height": 44
+      }
+    },
+    {
+      "name": "Certificate preview width does not constrain printing",
+      "pass": true,
+      "detail": "0px"
+    },
+    {
+      "name": "Certificate preview closes normally on mobile",
+      "pass": true
+    },
+    {
+      "name": "Collapsed phone checklist leaves room for daily work",
+      "pass": true,
+      "detail": {
+        "height": 166
+      }
+    },
+    {
+      "name": "Mobile checklist expands on request",
+      "pass": true
+    },
+    {
+      "name": "Mobile guide identifies its target",
+      "pass": true
+    },
+    {
+      "name": "Interactive tour exposes nonmodal semantics",
+      "pass": true
+    },
+    {
+      "name": "A nested menu closes before the tour",
+      "pass": true
+    },
+    {
+      "name": "Search Escape preserves the tour",
+      "pass": true
+    },
+    {
+      "name": "Alt+G returns keyboard focus to the guide",
+      "pass": true
+    },
+    {
+      "name": "tour-step-2: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tour-step-3: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tour-step-4: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tour-step-5: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tour-step-6: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "tour-step-7: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 390,
+        "pageWidth": 390,
+        "height": 844
+      }
+    },
+    {
+      "name": "Tour completion uses the existing progress contract",
+      "pass": true
+    },
+    {
+      "name": "Help replay closes with Escape",
+      "pass": true
+    },
+    {
+      "name": "Tasks guide completes without submitting coursework",
+      "pass": true
+    },
+    {
+      "name": "Task loading recovers after a failed request",
+      "pass": true
+    },
+    {
+      "name": "Welcome fits a short mobile viewport",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 16,
+        "width": 288,
+        "height": 388
+      }
+    },
+    {
+      "name": "Fresh student can skip the welcome",
+      "pass": true
+    },
+    {
+      "name": "Short-screen guide steps restart at their heading and count",
+      "pass": true,
+      "detail": {
+        "panel": {
+          "top": 76,
+          "bottom": 283
+        },
+        "count": {
+          "top": 107,
+          "bottom": 123
+        }
+      }
+    },
+    {
+      "name": "Short-screen guide navigation stays visible without scrolling",
+      "pass": true,
+      "detail": [
+        {
+          "top": 222,
+          "bottom": 266,
+          "height": 44
+        },
+        {
+          "top": 222,
+          "bottom": 266,
+          "height": 44
+        },
+        {
+          "top": 222,
+          "bottom": 266,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "Short guide leaves floating Search and bottom navigation uncovered",
+      "pass": true,
+      "detail": {
+        "guide": {
+          "x": 12,
+          "y": 76,
+          "width": 296,
+          "height": 207
+        },
+        "navTop": 356,
+        "floatingSearchTop": 296
+      }
+    },
+    {
+      "name": "Minimizing the guide moves keyboard focus to Show guide",
+      "pass": true
+    },
+    {
+      "name": "The minimized guide and floating Search have separate touch areas",
+      "pass": true,
+      "detail": {
+        "minimizedGuide": {
+          "x": 12,
+          "y": 289,
+          "width": 165.125,
+          "height": 54
+        },
+        "shortSearchButton": {
+          "x": 260,
+          "y": 296,
+          "width": 48,
+          "height": 48
+        }
+      }
+    },
+    {
+      "name": "Short-screen guide can expose the announcement action",
+      "pass": true
+    },
+    {
+      "name": "Highlighted announcement opens while the guide is minimized",
+      "pass": true
+    },
+    {
+      "name": "Guide restores its instructions after exploring the page",
+      "pass": true
+    },
+    {
+      "name": "Faculty desktop chrome remains role aware",
+      "pass": true
+    },
+    {
+      "name": "faculty-mobile-dashboard: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 720
+      }
+    },
+    {
+      "name": "Faculty drawer retains its own navigation",
+      "pass": true
+    },
+    {
+      "name": "Faculty drawer closes with Escape",
+      "pass": true
+    },
+    {
+      "name": "Admin desktop chrome retains directory navigation",
+      "pass": true
+    },
+    {
+      "name": "Admin mobile drawer retains its own navigation",
+      "pass": true
+    },
+    {
+      "name": "Admin drawer does not expose student academics",
+      "pass": true
+    },
+    {
+      "name": "Admin search does not expose the student subject/task index",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320: no page overflow",
+      "pass": true,
+      "detail": {
+        "viewport": 320,
+        "pageWidth": 320,
+        "height": 720
+      }
+    },
+    {
+      "name": "Mobile sign-in fields use readable 16px text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "No unexpected client errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "measurements": [
+    {
+      "name": "dashboard-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-events-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-professors-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-profile-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-notifications-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-settings-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "-help-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 844
+    },
+    {
+      "name": "dashboard-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-events-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-professors-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-profile-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-notifications-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-settings-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "-help-360",
+      "viewport": 360,
+      "pageWidth": 360,
+      "height": 844
+    },
+    {
+      "name": "dashboard-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-events-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-professors-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-profile-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-notifications-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-settings-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "-help-390",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "dashboard-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-events-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-professors-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-profile-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-notifications-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-settings-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "-help-430",
+      "viewport": 430,
+      "pageWidth": 430,
+      "height": 844
+    },
+    {
+      "name": "dashboard-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-events-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-professors-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-profile-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-notifications-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-settings-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "-help-768",
+      "viewport": 768,
+      "pageWidth": 768,
+      "height": 844
+    },
+    {
+      "name": "dashboard-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-events-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-professors-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-profile-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-notifications-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-settings-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "-help-1024",
+      "viewport": 1024,
+      "pageWidth": 1024,
+      "height": 844
+    },
+    {
+      "name": "dashboard-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-grades-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-subjects-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-tasks-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-academics-tab-materials-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-events-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-enrollment-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-professors-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-profile-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-notifications-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-settings-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-security-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-notifications-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-privacy-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-settings-section-appearance-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "-help-1280",
+      "viewport": 1280,
+      "pageWidth": 1280,
+      "height": 844
+    },
+    {
+      "name": "phone-header-and-bar-200-percent-text",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 720
+    },
+    {
+      "name": "digital-id-320x420",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 420
+    },
+    {
+      "name": "certificate-320x420",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 420
+    },
+    {
+      "name": "tour-step-2",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "tour-step-3",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "tour-step-4",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "tour-step-5",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "tour-step-6",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "tour-step-7",
+      "viewport": 390,
+      "pageWidth": 390,
+      "height": 844
+    },
+    {
+      "name": "faculty-mobile-dashboard",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 720
+    },
+    {
+      "name": "sign-in-320",
+      "viewport": 320,
+      "pageWidth": 320,
+      "height": 720
+    }
+  ],
+  "visualAssets": {
+    "family": "Geist, \"Geist Fallback\"",
+    "faces": [
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "loaded"
+      },
+      {
+        "family": "Geist Fallback",
+        "weight": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "loaded"
+      },
+      {
+        "family": "Geist Mono Fallback",
+        "weight": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed Fallback",
+        "weight": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Fallback",
+        "weight": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "images": [
+      {
+        "src": "http://localhost:4350/aics-logo.svg",
+        "complete": true,
+        "naturalWidth": 1342
+      }
+    ]
+  },
+  "submissionEvidence": {
+    "status": 200,
+    "body": {
+      "ok": true
+    },
+    "writes": [
+      {
+        "path": "/api/notifications",
+        "patch": {
+          "username": "mobile.student",
+          "id": "mobile-notification"
+        }
+      },
+      {
+        "path": "/api/notifications",
+        "patch": {
+          "username": "mobile.student",
+          "all": true
+        }
+      },
+      {
+        "path": "/api/tasks/mobile-task-0/submit",
+        "simulated": true
+      }
+    ]
+  },
+  "finishedAt": "2026-11-09T14:52:39.560Z"
+}

@@ -28,9 +28,9 @@ export interface MaterialItem {
 
 function formatBytes(bytes: number | null): string | null {
   if (bytes === null || bytes === undefined) return null
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024) return `${bytes}\u00a0B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}\u00a0KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)}\u00a0MB`
 }
 
 export function MaterialsTab({ student }: { student: Student }) {
@@ -71,14 +71,14 @@ export function MaterialsTab({ student }: { student: Student }) {
   if (error) return <div className="text-red-600 text-sm">{error}</div>
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="sm:space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">Materials</h2>
-        <p className="text-xs text-slate-500 mt-0.5">Files and links your teachers posted for this term</p>
+        <h2 className="sr-only text-lg font-semibold text-slate-900 sm:not-sr-only">Materials</h2>
+        <p className="mt-0.5 hidden text-xs text-slate-500 sm:block">Files and links your teachers posted for this term</p>
       </div>
 
       {grouped.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+        <div className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={FolderOpen} message="No materials posted yet." hint="When a teacher shares a file or link, it shows up here." />
         </div>
       ) : (
@@ -86,24 +86,24 @@ export function MaterialsTab({ student }: { student: Student }) {
           {grouped.map(([subjectCode, items]) => {
             const subject = currentSubjects.find((s) => s.code === subjectCode)
             return (
-              <div key={subjectCode} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">{subject?.title || subjectCode}</h3>
+              <div key={subjectCode} className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="border-b border-slate-100 px-[16px] py-[16px] sm:px-6 sm:py-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className="student-course-code font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
+                    <h3 className="student-item-title text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</h3>
                   </div>
-                  {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
+                  {subject && <p className="student-text-detail text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                 </div>
                 <ul className="divide-y divide-slate-100">
                   {items.map((m) => (
-                    <li key={m._id} className="px-6 py-3 flex items-center gap-3">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
-                        {m.kind === 'file' ? <FileText className="w-3 h-3" /> : <Link2 className="w-3 h-3" />}
+                    <li key={m._id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-[12px] px-[16px] py-[12px] sm:flex sm:items-center sm:px-6 sm:py-3">
+                      <span className={`inline-flex shrink-0 items-center gap-[4px] self-center justify-self-start student-badge rounded-md border px-[8px] py-0.5 text-xs font-medium ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
+                        {m.kind === 'file' ? <FileText className="size-[12px]" /> : <Link2 className="size-[12px]" />}
                         {m.kind === 'file' ? 'File' : 'Link'}
                       </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-slate-900 truncate">{m.title}</p>
-                        <p className="text-xs text-slate-500">
+                      <div className="student-material-description min-w-0 flex-1">
+                        <p className="student-item-title text-sm font-medium text-slate-900 break-words">{m.title}</p>
+                        <p className="student-text-detail text-xs text-slate-500">
                           {new Date(m.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {formatBytes(m.bytes) ? ` • ${formatBytes(m.bytes)}` : ''}
                           {m.format ? ` • ${m.format.toUpperCase()}` : ''}
@@ -113,9 +113,10 @@ export function MaterialsTab({ student }: { student: Student }) {
                         href={m.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50 flex-shrink-0"
+                        className="col-start-2 inline-flex min-h-[44px] shrink-0 items-center gap-[6px] justify-self-end student-control rounded-lg border border-slate-200 bg-surface px-[12px] py-1.5 text-xs font-medium hover:bg-slate-50 sm:min-h-8"
+                        aria-label={`Open ${m.title} in a new tab`}
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> Open
+                        <ExternalLink className="size-[14px]" /> Open
                       </a>
                     </li>
                   ))}

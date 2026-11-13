@@ -1,0 +1,698 @@
+{
+  "sourceCommit": "871e28d758ee36335c8023bb845531976ad68a41",
+  "fixtureOnly": true,
+  "browser": "156.0.8078.4",
+  "portalChecks": 452,
+  "signInChecks": 47,
+  "clearanceChecks": 48,
+  "unitsPassed": 155,
+  "refs": [
+    "5211635",
+    "e1f9199",
+    "9145c43",
+    "aba2b65",
+    "6bdf1a3",
+    "f025e27",
+    "8da1611",
+    "871e28d",
+    "5128a32",
+    "ae48427"
+  ],
+  "equivalentBaseline": {
+    "compared": "5211635",
+    "rendered": "b7cbc33",
+    "applicationInputsMatch": true
+  },
+  "moreComparison": {
+    "compared": "6bdf1a3",
+    "rendered": "6bdf1a3",
+    "runtimeInputsMatch": true
+  },
+  "files": [
+    {
+      "file": "commits/5211635/sign-in-320.png",
+      "bytes": 19090,
+      "sha256": "49cb3d1844d16c327fb0b0fcce133d1e0d2f1f1a5133143de2734635677f4c88"
+    },
+    {
+      "file": "commits/5211635/sign-in-320x420.png",
+      "bytes": 14072,
+      "sha256": "1674854fc27cf0380d21f69e77534df5adc3a16aa87c77cd4cca51b091517bb1"
+    },
+    {
+      "file": "commits/5211635/sign-in-390x844.png",
+      "bytes": 22081,
+      "sha256": "69716d80a917950968953fdd03ead5ef153b729917a97c2bac6030b04c15451e"
+    },
+    {
+      "file": "commits/5211635/result.json",
+      "bytes": 104432,
+      "sha256": "53e0f28dafa00998fda9f26eb9604676a59a751ad18bc917b323ac8a2a0622e5"
+    },
+    {
+      "file": "commits/e1f9199/dashboard-320.png",
+      "bytes": 63605,
+      "sha256": "e06ebd8c579e7c6eec135652240412d497ac745057d0c6939c1969b4324acf52"
+    },
+    {
+      "file": "commits/e1f9199/dashboard-390.png",
+      "bytes": 71005,
+      "sha256": "070de0643bc3cf04d7ea86101a0a653c0d00d9e784abe215b854325095ffe7f7"
+    },
+    {
+      "file": "commits/e1f9199/drawer-320.png",
+      "bytes": 37673,
+      "sha256": "2ff942c46dd4c583693a0e0955fce85494e9756e915da078864367331e296a44"
+    },
+    {
+      "file": "commits/e1f9199/drawer-320x420.png",
+      "bytes": 27315,
+      "sha256": "85e14f4312b77b5e998d036a6ce33878987b2cd13d900b507d8813f98825f085"
+    },
+    {
+      "file": "commits/e1f9199/notifications-320.png",
+      "bytes": 107416,
+      "sha256": "7a0e9b7f51b9d2b959727c6becc379658570d6f24fb2f2fa223df0137b31a135"
+    },
+    {
+      "file": "commits/e1f9199/search-320.png",
+      "bytes": 55511,
+      "sha256": "baa724f2b857c7b316bf9d6973a5cc5422fce3f83cc8ac35dd1b8915faf9d1a6"
+    },
+    {
+      "file": "commits/e1f9199/sign-in-320.png",
+      "bytes": 108646,
+      "sha256": "9d753b1c6b46ab20a4f927c77559293c56269459e780c93c4d2ae4a6b04ade67"
+    },
+    {
+      "file": "commits/e1f9199/sign-in-320x420.png",
+      "bytes": 92857,
+      "sha256": "f9a6440d0dd95fefa48e55a342abf1ba17b52579b33e71b77887222b0b99a188"
+    },
+    {
+      "file": "commits/e1f9199/sign-in-390x844.png",
+      "bytes": 123647,
+      "sha256": "66def40b7c1c55448c53a3d253610822d19ac0a56f91361b1b273fe9d45741be"
+    },
+    {
+      "file": "commits/e1f9199/guide-minimized-320x420.png",
+      "bytes": 33920,
+      "sha256": "8067b21448d0cd0d9ddb3f663438d52a00d15a4e41a35e3cae38f33adf3ea155"
+    },
+    {
+      "file": "commits/e1f9199/result.json",
+      "bytes": 121326,
+      "sha256": "bd0af17c44eeeee64ecd153d6728c6464d87ff26b0d10ad8b0274744d6499a53"
+    },
+    {
+      "file": "commits/e1f9199/build.log",
+      "bytes": 1805,
+      "sha256": "3f1c27c0e11517d7507a9987d6f82da5d4997fb6f7c2bf61585cbca636276a36"
+    },
+    {
+      "file": "commits/9145c43/dashboard-320.png",
+      "bytes": 63501,
+      "sha256": "df679a94fe377d2348d1d0461f10b1197018c0531eca2aa86bc39c6e5a2cd7da"
+    },
+    {
+      "file": "commits/9145c43/dashboard-390.png",
+      "bytes": 70936,
+      "sha256": "799f543b37639dfb4294caaa0fb95bfe2fd1ad6de7bae4e2f271c6dcac572188"
+    },
+    {
+      "file": "commits/9145c43/drawer-320.png",
+      "bytes": 53450,
+      "sha256": "7c2c95c2106bcc95bb4b46dcf4450ee079a3a51e6e032feddd04a0f44552aa43"
+    },
+    {
+      "file": "commits/9145c43/drawer-320x420.png",
+      "bytes": 33554,
+      "sha256": "315f9607c9742c069cd93ed1e879faf9b30638f900e2e46cc8cb15b848a80ab5"
+    },
+    {
+      "file": "commits/9145c43/notifications-320.png",
+      "bytes": 59698,
+      "sha256": "a5c992de3cfb85ee97522c94bedab6dfa1aa1136c8de9d1c3b620187fb491889"
+    },
+    {
+      "file": "commits/9145c43/search-320.png",
+      "bytes": 61328,
+      "sha256": "392328066cb8e440c14a03d3c4009ac1b939768304c68415d12fbca4e0a634b8"
+    },
+    {
+      "file": "commits/9145c43/sign-in-320.png",
+      "bytes": 108646,
+      "sha256": "9d753b1c6b46ab20a4f927c77559293c56269459e780c93c4d2ae4a6b04ade67"
+    },
+    {
+      "file": "commits/9145c43/sign-in-320x420.png",
+      "bytes": 92857,
+      "sha256": "f9a6440d0dd95fefa48e55a342abf1ba17b52579b33e71b77887222b0b99a188"
+    },
+    {
+      "file": "commits/9145c43/sign-in-390x844.png",
+      "bytes": 123647,
+      "sha256": "66def40b7c1c55448c53a3d253610822d19ac0a56f91361b1b273fe9d45741be"
+    },
+    {
+      "file": "commits/9145c43/guide-minimized-320x420.png",
+      "bytes": 33955,
+      "sha256": "53dabbbceb34577c26c7e87bc4d54163c35cb43ddaf40f654511f066aedd24f2"
+    },
+    {
+      "file": "commits/9145c43/result.json",
+      "bytes": 121478,
+      "sha256": "89bbbf5ab21d24c55d071e4d2d1db6eadb2a341ce702ab87c0c7ab96405eed0b"
+    },
+    {
+      "file": "commits/9145c43/build.log",
+      "bytes": 1807,
+      "sha256": "d180bd944bde2c83da237b449b727c7c9012ad469eba1d3c095957341aa5f537"
+    },
+    {
+      "file": "commits/aba2b65/dashboard-320.png",
+      "bytes": 63501,
+      "sha256": "df679a94fe377d2348d1d0461f10b1197018c0531eca2aa86bc39c6e5a2cd7da"
+    },
+    {
+      "file": "commits/aba2b65/dashboard-390.png",
+      "bytes": 70936,
+      "sha256": "799f543b37639dfb4294caaa0fb95bfe2fd1ad6de7bae4e2f271c6dcac572188"
+    },
+    {
+      "file": "commits/aba2b65/drawer-320.png",
+      "bytes": 53450,
+      "sha256": "7c2c95c2106bcc95bb4b46dcf4450ee079a3a51e6e032feddd04a0f44552aa43"
+    },
+    {
+      "file": "commits/aba2b65/drawer-320x420.png",
+      "bytes": 33554,
+      "sha256": "315f9607c9742c069cd93ed1e879faf9b30638f900e2e46cc8cb15b848a80ab5"
+    },
+    {
+      "file": "commits/aba2b65/notifications-320.png",
+      "bytes": 57804,
+      "sha256": "40eb7845052512ef41f071247d1e52a26e1a74894610ea9cfdab3212fe9f109a"
+    },
+    {
+      "file": "commits/aba2b65/search-320.png",
+      "bytes": 61328,
+      "sha256": "392328066cb8e440c14a03d3c4009ac1b939768304c68415d12fbca4e0a634b8"
+    },
+    {
+      "file": "commits/aba2b65/sign-in-320.png",
+      "bytes": 108646,
+      "sha256": "9d753b1c6b46ab20a4f927c77559293c56269459e780c93c4d2ae4a6b04ade67"
+    },
+    {
+      "file": "commits/aba2b65/sign-in-320x420.png",
+      "bytes": 92857,
+      "sha256": "f9a6440d0dd95fefa48e55a342abf1ba17b52579b33e71b77887222b0b99a188"
+    },
+    {
+      "file": "commits/aba2b65/sign-in-390x844.png",
+      "bytes": 123647,
+      "sha256": "66def40b7c1c55448c53a3d253610822d19ac0a56f91361b1b273fe9d45741be"
+    },
+    {
+      "file": "commits/aba2b65/guide-minimized-320x420.png",
+      "bytes": 33955,
+      "sha256": "53dabbbceb34577c26c7e87bc4d54163c35cb43ddaf40f654511f066aedd24f2"
+    },
+    {
+      "file": "commits/aba2b65/result.json",
+      "bytes": 121338,
+      "sha256": "310c0cfe544df6ea33215eaaf40e1a17e85f1258495ddee2185064078992ae41"
+    },
+    {
+      "file": "commits/aba2b65/compile.log",
+      "bytes": 1576,
+      "sha256": "5c703a6e348a398c89023ad9d7675570250ec1ec65fed1746be01b597b5d180e"
+    },
+    {
+      "file": "commits/aba2b65/generate.log",
+      "bytes": 1743,
+      "sha256": "dde7846d9393f8dd11a97de9079eee96ae6bd35e6cbd7e000ca8870418f0a5b2"
+    },
+    {
+      "file": "commits/6bdf1a3/dashboard-320.png",
+      "bytes": 64311,
+      "sha256": "3130a38b9e85edf820e76239796f6463cec1ce6971e6b53a6076ce7bf9663880"
+    },
+    {
+      "file": "commits/6bdf1a3/dashboard-390.png",
+      "bytes": 71783,
+      "sha256": "dfeb43e0675f4a76c3794f2bb44dd38c2fc22a70e21e92aef0bc576b98c218d1"
+    },
+    {
+      "file": "commits/6bdf1a3/drawer-320.png",
+      "bytes": 52990,
+      "sha256": "0e0ba1d804e63922393bef38e019136b491b0734cd8d31c41dce114d5b234731"
+    },
+    {
+      "file": "commits/6bdf1a3/drawer-320x420.png",
+      "bytes": 26579,
+      "sha256": "fc748c417c6422c9798023a58c65f5c38428060b786ac7837293677fab256111"
+    },
+    {
+      "file": "commits/6bdf1a3/notifications-320.png",
+      "bytes": 58594,
+      "sha256": "dfbeb32a5c225ca0df5b9e71f86d21c6bce32759f5c344bb59e9d55ab951664a"
+    },
+    {
+      "file": "commits/6bdf1a3/search-320.png",
+      "bytes": 62018,
+      "sha256": "f74ba4402d1c200cd4c79a652efbc04ca14cca715927a996af35809a13ff8e75"
+    },
+    {
+      "file": "commits/6bdf1a3/sign-in-320.png",
+      "bytes": 108646,
+      "sha256": "9d753b1c6b46ab20a4f927c77559293c56269459e780c93c4d2ae4a6b04ade67"
+    },
+    {
+      "file": "commits/6bdf1a3/sign-in-320x420.png",
+      "bytes": 92857,
+      "sha256": "f9a6440d0dd95fefa48e55a342abf1ba17b52579b33e71b77887222b0b99a188"
+    },
+    {
+      "file": "commits/6bdf1a3/sign-in-390x844.png",
+      "bytes": 123647,
+      "sha256": "66def40b7c1c55448c53a3d253610822d19ac0a56f91361b1b273fe9d45741be"
+    },
+    {
+      "file": "commits/6bdf1a3/guide-minimized-320x420.png",
+      "bytes": 34469,
+      "sha256": "4294f2de14ed811c7ada40dfad7d1f023d5dce1417bfb09a9c267ea8860878fe"
+    },
+    {
+      "file": "commits/6bdf1a3/result.json",
+      "bytes": 121342,
+      "sha256": "6fb91aba51fe50bfc5cb095820d71bc8a7d35121911ad2dd62a4e354b4e97c7e"
+    },
+    {
+      "file": "commits/6bdf1a3/compile.log",
+      "bytes": 1574,
+      "sha256": "d776ae428e7e2ad9b83d965cabf800a5a6dacf13a63736c665e5bbebc549434c"
+    },
+    {
+      "file": "commits/6bdf1a3/generate.log",
+      "bytes": 1747,
+      "sha256": "e740c0926b1690ade214db092269e0f144b37fd3b8b17392a523d050b0788e27"
+    },
+    {
+      "file": "commits/f025e27/dashboard-320.png",
+      "bytes": 63745,
+      "sha256": "30982b4c8ab5f64a15912ab5a1dc8cb10787c5ceafe8dfb8a1fa4b70d43250d2"
+    },
+    {
+      "file": "commits/f025e27/dashboard-390.png",
+      "bytes": 71195,
+      "sha256": "2ed71d49f68681432f7931ef29506c90a8ea7703ba15864dbf5935f143160d03"
+    },
+    {
+      "file": "commits/f025e27/drawer-320.png",
+      "bytes": 52838,
+      "sha256": "63fe82186dad01d372fc04f8d71be0f6b3300d2a62da0f2df3602ce324568fbb"
+    },
+    {
+      "file": "commits/f025e27/drawer-320x420.png",
+      "bytes": 26565,
+      "sha256": "abb8a7326ef83b1c6d653e06e8a74178ac2bbbe19dda71108df3d8d9af81d678"
+    },
+    {
+      "file": "commits/f025e27/notifications-320.png",
+      "bytes": 57931,
+      "sha256": "47fe38966f5951a6285f3ead1ea9176f3fe7c55881b1decf10bf6ada89f19f5a"
+    },
+    {
+      "file": "commits/f025e27/search-320.png",
+      "bytes": 61745,
+      "sha256": "75ab05124dce5f96347b0090975d671f7f488ec45494c0a947108aeb1109e95b"
+    },
+    {
+      "file": "commits/f025e27/sign-in-320.png",
+      "bytes": 108750,
+      "sha256": "ef3d96369eb7352aefff69ecdec0dcfca2cf5fd45554cd29c17002287a0f9c83"
+    },
+    {
+      "file": "commits/f025e27/sign-in-320x420.png",
+      "bytes": 92963,
+      "sha256": "8220a70b022d282bfa225e3a71151d86d81f71880333faf8f265dc0ee50ffbfc"
+    },
+    {
+      "file": "commits/f025e27/sign-in-390x844.png",
+      "bytes": 123677,
+      "sha256": "cbef40bb907d7f357df770e7408008576ce184d32589fa90739df5bdf6bc6cef"
+    },
+    {
+      "file": "commits/f025e27/guide-minimized-320x420.png",
+      "bytes": 33911,
+      "sha256": "2bd3e146a1d5327c5c5addf2f3d0fec434be38b12c938dd0ac3bfa8a0a060ffd"
+    },
+    {
+      "file": "commits/f025e27/result.json",
+      "bytes": 121257,
+      "sha256": "aa43367249d1e217241a5ff8b98e928a8ac3b6526dfd7880d57c6480ca9f2645"
+    },
+    {
+      "file": "commits/8da1611/dashboard-320.png",
+      "bytes": 64945,
+      "sha256": "7865d2a0c79e2bf3945050f90b62c943394bc177a4cec4d13a7d2cbd5efea204"
+    },
+    {
+      "file": "commits/8da1611/dashboard-390.png",
+      "bytes": 73884,
+      "sha256": "a0f425a26430fec3f3728ebf3274fbbcc4767ca01be824bc9aefad22474e11ae"
+    },
+    {
+      "file": "commits/8da1611/drawer-320.png",
+      "bytes": 52834,
+      "sha256": "05972795e628b8b684507443b1a14e3e9a71adce0e969f3ae55ba0d4c8ed42ed"
+    },
+    {
+      "file": "commits/8da1611/drawer-320x420.png",
+      "bytes": 26568,
+      "sha256": "6f7a3c4bb399e5747e8bc9b7a652604e7990d1c4391511036b2c042aec4f9718"
+    },
+    {
+      "file": "commits/8da1611/notifications-320.png",
+      "bytes": 60830,
+      "sha256": "5281d27806fd3a9928a2e9a6e2f654f71cc83c6382c4e59c7a8a353e7888b7d6"
+    },
+    {
+      "file": "commits/8da1611/search-320.png",
+      "bytes": 61868,
+      "sha256": "811e2d31d044c9e5ae465e8d1514af8eda584fe3e652400d563dff89d66fa194"
+    },
+    {
+      "file": "commits/8da1611/sign-in-320.png",
+      "bytes": 108750,
+      "sha256": "ef3d96369eb7352aefff69ecdec0dcfca2cf5fd45554cd29c17002287a0f9c83"
+    },
+    {
+      "file": "commits/8da1611/sign-in-320x420.png",
+      "bytes": 92963,
+      "sha256": "8220a70b022d282bfa225e3a71151d86d81f71880333faf8f265dc0ee50ffbfc"
+    },
+    {
+      "file": "commits/8da1611/sign-in-390x844.png",
+      "bytes": 123677,
+      "sha256": "cbef40bb907d7f357df770e7408008576ce184d32589fa90739df5bdf6bc6cef"
+    },
+    {
+      "file": "commits/8da1611/guide-minimized-320x420.png",
+      "bytes": 36621,
+      "sha256": "954091ca1bc6e35043f73cb687389a0f4bcbdbf7c5563e356244d0f8a06b3c2c"
+    },
+    {
+      "file": "commits/8da1611/result.json",
+      "bytes": 121257,
+      "sha256": "c9dd5ecc2839af2ed8e40576d30c6c4d06d6cef81d3fd496ee88a3658dc8ac02"
+    },
+    {
+      "file": "commits/871e28d/dashboard-320.png",
+      "bytes": 65577,
+      "sha256": "2217ac0fc079becad038af566d6a402fe0c94d86d906b555081aafd8e50783d7"
+    },
+    {
+      "file": "commits/871e28d/dashboard-390.png",
+      "bytes": 72816,
+      "sha256": "96132da141de8e5a5ffa54d34d0a79751e77eea60e328108280e6b7ee32d909d"
+    },
+    {
+      "file": "commits/871e28d/drawer-320.png",
+      "bytes": 52834,
+      "sha256": "05972795e628b8b684507443b1a14e3e9a71adce0e969f3ae55ba0d4c8ed42ed"
+    },
+    {
+      "file": "commits/871e28d/drawer-320x420.png",
+      "bytes": 26568,
+      "sha256": "6f7a3c4bb399e5747e8bc9b7a652604e7990d1c4391511036b2c042aec4f9718"
+    },
+    {
+      "file": "commits/871e28d/notifications-320.png",
+      "bytes": 59653,
+      "sha256": "4981f21655518423d25e31ad6ab40603c87119549f0b1c48604d2c765add5ecf"
+    },
+    {
+      "file": "commits/871e28d/search-320.png",
+      "bytes": 60940,
+      "sha256": "9fa4e380b9db599116a250f20c201d1c053e638bae52932c515c94f6d6c8efc0"
+    },
+    {
+      "file": "commits/871e28d/sign-in-320.png",
+      "bytes": 108750,
+      "sha256": "ef3d96369eb7352aefff69ecdec0dcfca2cf5fd45554cd29c17002287a0f9c83"
+    },
+    {
+      "file": "commits/871e28d/sign-in-320x420.png",
+      "bytes": 92963,
+      "sha256": "8220a70b022d282bfa225e3a71151d86d81f71880333faf8f265dc0ee50ffbfc"
+    },
+    {
+      "file": "commits/871e28d/sign-in-390x844.png",
+      "bytes": 123677,
+      "sha256": "cbef40bb907d7f357df770e7408008576ce184d32589fa90739df5bdf6bc6cef"
+    },
+    {
+      "file": "commits/871e28d/guide-minimized-320x420.png",
+      "bytes": 36397,
+      "sha256": "45ca14e88b509d5e9b574dd5519fb5baab82eae077f2d26c96043b271e623e3c"
+    },
+    {
+      "file": "commits/871e28d/result.json",
+      "bytes": 121257,
+      "sha256": "a002dd064d856b7bccd13b7422772f1b7b166ead346c61d5545918950d2813db"
+    },
+    {
+      "file": "commits/5128a32/dashboard-320.png",
+      "bytes": 64311,
+      "sha256": "3130a38b9e85edf820e76239796f6463cec1ce6971e6b53a6076ce7bf9663880"
+    },
+    {
+      "file": "commits/5128a32/phone-text-200-percent-320.png",
+      "bytes": 46613,
+      "sha256": "23d6b838318bb0ccd6aa5ba596fe83a64be9686742d286bd8d71b43b4f51fc13"
+    },
+    {
+      "file": "commits/5128a32/sign-in-320.png",
+      "bytes": 108646,
+      "sha256": "9d753b1c6b46ab20a4f927c77559293c56269459e780c93c4d2ae4a6b04ade67"
+    },
+    {
+      "file": "commits/5128a32/portal-run.json",
+      "bytes": 96835,
+      "sha256": "ec133b0d130058579c20e381a3142039a3faeb8679114b93bb5d06a50ef1486d"
+    },
+    {
+      "file": "commits/5128a32/signin-run.json",
+      "bytes": 17139,
+      "sha256": "1ee95b48cadcdfb268e62bdd70d1a6d9d2b8cfd02a20891359631e0fd97e469b"
+    },
+    {
+      "file": "commits/ae48427/dashboard-320.png",
+      "bytes": 63745,
+      "sha256": "30982b4c8ab5f64a15912ab5a1dc8cb10787c5ceafe8dfb8a1fa4b70d43250d2"
+    },
+    {
+      "file": "commits/ae48427/phone-text-200-percent-320.png",
+      "bytes": 43650,
+      "sha256": "c6bcbc55e245f7ad03461e4877d6290d332dce942cb9a53f7fbbffc409982825"
+    },
+    {
+      "file": "commits/ae48427/sign-in-320.png",
+      "bytes": 108750,
+      "sha256": "ef3d96369eb7352aefff69ecdec0dcfca2cf5fd45554cd29c17002287a0f9c83"
+    },
+    {
+      "file": "commits/ae48427/portal-run.json",
+      "bytes": 97180,
+      "sha256": "6eaf482437738d9ee810b1c3cd3f1f03d4d54e4e5bb547be5cf9c50fb9f68224"
+    },
+    {
+      "file": "commits/ae48427/signin-run.json",
+      "bytes": 17135,
+      "sha256": "f8770d1e4c76fdc40e5356391a1e28f61c93041861d2c73128b5f9d12ceade43"
+    },
+    {
+      "file": "commits/871e28d/phone-text-200-percent-320.png",
+      "bytes": 44206,
+      "sha256": "d55c93abc836c4041948af1949884d7b372a037beebd87596facc6722894c378"
+    },
+    {
+      "file": "commits/f025e27/phone-text-200-percent-320.png",
+      "bytes": 43776,
+      "sha256": "523b8a6e6604558dc82a03e28d966b477d9ef72205660ffbda460968b7467d98"
+    },
+    {
+      "file": "final/portal/dashboard-390.png",
+      "bytes": 72816,
+      "sha256": "96132da141de8e5a5ffa54d34d0a79751e77eea60e328108280e6b7ee32d909d"
+    },
+    {
+      "file": "final/portal/dashboard-320.png",
+      "bytes": 65577,
+      "sha256": "2217ac0fc079becad038af566d6a402fe0c94d86d906b555081aafd8e50783d7"
+    },
+    {
+      "file": "final/portal/phone-text-200-percent-320.png",
+      "bytes": 44206,
+      "sha256": "d55c93abc836c4041948af1949884d7b372a037beebd87596facc6722894c378"
+    },
+    {
+      "file": "final/portal/more-320x420.png",
+      "bytes": 26263,
+      "sha256": "4068bdf0e7abd4c48b4aa9abb51f984bd444a64b18c6ec0f0464e8b05869c1e2"
+    },
+    {
+      "file": "final/portal/notifications-320.png",
+      "bytes": 57715,
+      "sha256": "6da229b49a11a47243c96e217efc5f3bff66cce97780c3798168b29bc9bf3037"
+    },
+    {
+      "file": "final/portal/notifications-dark-320.png",
+      "bytes": 58866,
+      "sha256": "87e3e794e4d74cdbdcb3f02f8027a1e2de5d271a31ce17ad01e984bd8a67b67a"
+    },
+    {
+      "file": "final/portal/tour-390.png",
+      "bytes": 81950,
+      "sha256": "7c4ccf5a02939212eafc51f4e56a08c2b2eed861cfb3a8ab33130120393f797c"
+    },
+    {
+      "file": "final/portal/guide-320x420.png",
+      "bytes": 32720,
+      "sha256": "ee1c03e3222108b4c04c1bbbc48c945c9daf95665f0a82475c67932a1cdccd46"
+    },
+    {
+      "file": "final/portal/guide-minimized-320x420.png",
+      "bytes": 36397,
+      "sha256": "45ca14e88b509d5e9b574dd5519fb5baab82eae077f2d26c96043b271e623e3c"
+    },
+    {
+      "file": "final/signin/signin-1280x900.png",
+      "bytes": 520655,
+      "sha256": "8c3762308e85362169c2b5653fe3040eda8b9ab67299864b9d3b45216a89b13e"
+    },
+    {
+      "file": "final/signin/signin-320x420.png",
+      "bytes": 92965,
+      "sha256": "6defe3c9337d96e942a5bcd25e5a30f3fdf7b4bdcb92988847e0144df5aa11e3"
+    },
+    {
+      "file": "final/signin/signin-320x720.png",
+      "bytes": 108757,
+      "sha256": "1ef88fb2333837a05a7e0e3662b7fc422d39274cd5d0615de5f17e2002a8d3c1"
+    },
+    {
+      "file": "final/signin/signin-360x740.png",
+      "bytes": 109969,
+      "sha256": "4f286edd9e288efbbaf36240c4fec3e66d5979b583a1fb6e6af1f6bae38d8280"
+    },
+    {
+      "file": "final/signin/signin-390x844.png",
+      "bytes": 123677,
+      "sha256": "cbef40bb907d7f357df770e7408008576ce184d32589fa90739df5bdf6bc6cef"
+    },
+    {
+      "file": "final/signin/signin-430x932.png",
+      "bytes": 135950,
+      "sha256": "5b912fae2bc955fe2d559f02f7e363e8bec7052697191311afe67ff13e36689f"
+    },
+    {
+      "file": "final/signin/signin-844x390.png",
+      "bytes": 149792,
+      "sha256": "43bc3ea7bf677e61bd4186bce7c9377e24f380c023b0f0d0bc27f9345a660c9a"
+    },
+    {
+      "file": "final/signin/signin-dark-320x420.png",
+      "bytes": 94588,
+      "sha256": "82568f5fab3c32e48ae3d3e678e9528b3a8c4b364b15908dddc0608d4893c239"
+    },
+    {
+      "file": "final/signin/signin-invalid-320x420.png",
+      "bytes": 21995,
+      "sha256": "b02000b7e7bfb0bde811d040bd1768dd9f4c4869bb19924e6d1547c41a00d078"
+    },
+    {
+      "file": "final/signin/signin-large-text-390.png",
+      "bytes": 204210,
+      "sha256": "bac4a52df5f1cdf871e75cef672205025ff3844284ff3ebd8d5f07d77390b41c"
+    },
+    {
+      "file": "final/signin/signin-legal-320x420.png",
+      "bytes": 30854,
+      "sha256": "fd62f4a9bcb16899e76cae64dc1b0515e9968fd8b51e1549152964cdd65fc92e"
+    },
+    {
+      "file": "final/signin/signin-pending-320x420.png",
+      "bytes": 27163,
+      "sha256": "c72c2802d7d3337089ed08ee2106d0af1230b7aec9fc16cc9fb75b77e6001967"
+    },
+    {
+      "file": "final/clearance/help-bottom-320.png",
+      "bytes": 45305,
+      "sha256": "2fa39663eb19fe477d3c1988251dc96ee1dbf58c5bfdd1d89273792636621722"
+    },
+    {
+      "file": "final/clearance/profile-bottom-320.png",
+      "bytes": 40288,
+      "sha256": "1d77ea1597cfc1cf8dea53562b74b6be4b38745244ef6fdf74e7cca80094302d"
+    },
+    {
+      "file": "final/clearance/tasks-bottom-320.png",
+      "bytes": 41428,
+      "sha256": "dff0775db442377da0f9e71e6292a946d56a5529be366ac20268098df4ec9709"
+    },
+    {
+      "file": "verification/portal.json",
+      "bytes": 98648,
+      "sha256": "d3aa3faea55b50b4e89379f5d1be44e28fae47ea502b4dd3853756c14655d52f"
+    },
+    {
+      "file": "verification/signin.json",
+      "bytes": 17135,
+      "sha256": "e40fb41366168fcc291898b127aeadf52ceb43f6b692909fbe3e1830ef5b596b"
+    },
+    {
+      "file": "verification/clearance.json",
+      "bytes": 11677,
+      "sha256": "a9a509a49603c680fdcac65a7d4f6c651d07a051193a7d95084f978987a2e830"
+    },
+    {
+      "file": "verification/quality.json",
+      "bytes": 32493,
+      "sha256": "472d6fae6f1e171b0f25d2f1c9f8fa72db0dc3dd7810b6ba99a0cb7427c00120"
+    },
+    {
+      "file": "verification/lint.log",
+      "bytes": 2643,
+      "sha256": "5ff78d67616235b9e454218f4640703f48e5ae0b103f9cab63fa2f12e1775c4d"
+    },
+    {
+      "file": "verification/typecheck.log",
+      "bytes": 60,
+      "sha256": "85372a29e3bee5dc4f755cd386e77539e625a9262b4ec3ec8e9438482b7dfbdf"
+    },
+    {
+      "file": "verification/build.log",
+      "bytes": 1870,
+      "sha256": "b55d0b1861ac474b693701e21618475dfa454089c97347124c87b1bb99844456"
+    },
+    {
+      "file": "verification/unit-tests.log",
+      "bytes": 20232,
+      "sha256": "63e9fb009b4254240754020257f289bbfbdb22411dc95ab148b0178a2f29dd57"
+    },
+    {
+      "file": "verification/earlier-enlarged-text-failure.json",
+      "bytes": 96835,
+      "sha256": "ec133b0d130058579c20e381a3142039a3faeb8679114b93bb5d06a50ef1486d"
+    },
+    {
+      "file": "verification/remaining-enlarged-text-failure.json",
+      "bytes": 97180,
+      "sha256": "6eaf482437738d9ee810b1c3cd3f1f03d4d54e4e5bb547be5cf9c50fb9f68224"
+    }
+  ]
+}

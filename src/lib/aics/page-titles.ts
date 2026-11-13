@@ -43,6 +43,7 @@ export const VIEW_TITLES: Record<PortalRoute['view'], string> = {
   profile: 'Profile',
   academics: 'Academics',
   events: 'Events',
+  notifications: 'Notifications',
   professors: 'Professors',
   enrollment: 'Enrollment',
   settings: 'Settings',

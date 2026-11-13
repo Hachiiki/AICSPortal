@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState, type MouseEvent } from 'react'
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
@@ -21,10 +22,13 @@ import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
 import { formatNotifTime } from '@/lib/aics/notifications'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface TopbarProps {
   student: Student
-  onOpenMobileNav: () => void
+  active: View
+  onOpenMobileNav: (event: MouseEvent<HTMLButtonElement>) => void
   onProfile: () => void
   onLogout: () => void
   /** Drives the global search in the top bar. Lets the user jump to
@@ -45,6 +49,7 @@ interface TopbarProps {
 
 export function Topbar({
   student,
+  active,
   onOpenMobileNav,
   onProfile,
   onLogout,
@@ -56,7 +61,49 @@ export function Topbar({
   taskGroups,
   inbox,
 }: TopbarProps) {
+  const { navigate } = usePortalRoute()
+  const phone = usePhoneViewport()
+  const isStudent = !student.role || student.role === 'student'
+  const compact = isStudent && phone
+  const [scrollHidden, setScrollHidden] = useState(false)
+  useEffect(() => {
+    if (!phone) return
+    const readScroll = () => Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight))
+    let previous = readScroll()
+    let travel = 0
+    const update = () => {
+      const current = readScroll()
+      const delta = current - previous
+      previous = current
+      if (current <= 16) {
+        travel = 0
+        setScrollHidden(false)
+      } else if (delta !== 0) {
+        travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta
+        if (travel >= 14) {
+          setScrollHidden(true)
+          travel = 0
+        } else if (travel <= -10) {
+          setScrollHidden(false)
+          travel = 0
+        }
+      }
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [phone])
+  const roleLabel = student.role === 'faculty' ? 'Faculty' : student.role === 'admin' ? 'Admin' : 'Student'
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
+  const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
+  const bellIcon = <>
+    <Bell className="size-5" aria-hidden="true" />
+    {unread > 0 && (
+      <span aria-hidden="true" className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white dark:bg-[#b91c1c]">
+        {unread > 9 ? '9+' : unread}
+      </span>
+    )}
+  </>
+  const bellClass = 'relative col-start-3 row-start-1 grid size-[44px] place-items-center justify-self-end rounded-full text-ink hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9 sm:rounded-md sm:text-slate-600'
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
@@ -75,10 +122,8 @@ export function Topbar({
   const openNotification = (n: Notification) => {
     inbox?.onMark(n._id)
     if (n.taskId) {
-      try {
-        window.sessionStorage.setItem('aics_academics_focus', JSON.stringify({ tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId }))
-      } catch {}
-      onNavigate('academics')
+      if (student.role === 'faculty') onNavigate('tasks')
+      else if (student.role !== 'admin') navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId })
     }
   }
 
@@ -94,21 +139,23 @@ export function Topbar({
 
   return (
     <motion.header
-      className="sticky top-0 z-20 h-16 bg-surface border-b border-slate-200"
+      className="portal-topbar sticky top-0 z-20 border-slate-200 bg-surface sm:h-16 sm:border-b"
+      data-scroll-hidden={phone && scrollHidden ? 'true' : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className="h-full flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+      <div className="portal-topbar-layout grid min-h-[56px] grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-x-[8px] gap-y-[4px] px-[16px] py-[5px] sm:flex sm:h-full sm:justify-between sm:gap-3 sm:px-6 sm:py-0 lg:px-8">
+        <div className="contents sm:flex sm:shrink-0 sm:items-center sm:gap-3">
           <button
             type="button"
             onClick={onOpenMobileNav}
             aria-label="Open navigation menu"
             data-tour="topbar-mobile-nav"
-            className="lg:hidden p-2 -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-haspopup="dialog"
+            aria-controls="mobile-navigation"
+            className={`${isStudent ? 'hidden sm:grid lg:hidden' : 'grid lg:hidden'} col-start-1 row-start-2 size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2`}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -121,9 +168,13 @@ export function Topbar({
           </span>
         </div>
 
-        {/* Center — global search */}
-        <div className="flex-1 flex justify-center min-w-0">
-          <GlobalSearch
+        <div data-mobile-portal-brand="" className="col-start-2 row-start-1 min-w-0 text-center sm:hidden">
+          <p className="portal-topbar-title text-xl font-bold leading-tight tracking-tight text-link-strong">AICS Portal</p>
+          <p className="text-xs font-semibold leading-tight text-ink">{roleLabel}</p>
+        </div>
+
+        <div className={`${isStudent ? 'hidden sm:flex' : 'flex'} col-start-2 row-start-2 min-w-0 flex-1 justify-center`}>
+          {!compact && <GlobalSearch
             student={student}
             events={events}
             professors={professors}
@@ -131,18 +182,15 @@ export function Topbar({
             facultyData={facultyData}
             taskGroups={taskGroups}
             onNavigate={onNavigate}
-          />
+          />}
         </div>
 
-        {/* Right — theme toggle + notifications + profile dropdown + logout */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Theme quick toggle. First in the right cluster so the
-              pre-existing controls keep their exact positions. */}
+        <div className="contents sm:flex sm:shrink-0 sm:items-center sm:gap-3">
           <button
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className={`${isStudent ? 'hidden sm:grid' : 'grid'} col-start-3 row-start-2 size-[44px] place-items-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-9`}
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -151,7 +199,16 @@ export function Topbar({
             )}
           </button>
 
-          <DropdownMenu
+          {compact ? (
+            <button type="button" aria-label={bellLabel} aria-current={active === 'notifications' ? 'page' : undefined}
+              data-tour="topbar-notifications" className={`${bellClass} ${active === 'notifications' ? 'bg-blue-50 text-link-strong' : ''}`}
+              onClick={() => {
+                inbox?.onRefresh()
+                if (active !== 'notifications') onNavigate('notifications')
+              }}>
+              {bellIcon}
+            </button>
+          ) : <DropdownMenu
             onOpenChange={(open) => {
               if (open) inbox?.onRefresh()
             }}
@@ -159,21 +216,14 @@ export function Topbar({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label={`Notifications${unread > 0 ? `, ${unread} unread` : ''}`}
+                aria-label={bellLabel}
                 data-tour="topbar-notifications"
-                className="relative p-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className={bellClass}
               >
-                <Bell className="w-5 h-5" aria-hidden />
-                {unread > 0 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-bold grid place-items-center">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
-                )}
+                {bellIcon}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-24px)] max-h-[calc(100dvh-128px)] overflow-y-auto">
               <div className="px-2 py-1.5 flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900">Notifications</p>
                 {unread > 0 && (
@@ -196,7 +246,7 @@ export function Topbar({
                   <DropdownMenuItem
                     key={n._id}
                     onClick={() => openNotification(n)}
-                    className="cursor-pointer items-start"
+                    className="min-h-11 sm:min-h-0 cursor-pointer items-start"
                   >
                     <span className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${n.read ? 'bg-slate-200' : 'bg-blue-600'}`} />
                     <span className="min-w-0">
@@ -212,9 +262,9 @@ export function Topbar({
                 ))
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
 
-          <div className="w-px h-6 bg-slate-200" aria-hidden="true" />
+          <div className="hidden h-6 w-px bg-slate-200 sm:block" aria-hidden="true" />
 
           {/* Profile dropdown */}
           <DropdownMenu>
@@ -222,19 +272,19 @@ export function Topbar({
               <button
                 type="button"
                 data-tour="topbar-profile"
-                className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="col-start-1 row-start-1 flex size-[44px] items-center justify-center gap-2.5 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-auto sm:rounded-md sm:py-1 sm:pl-1 sm:pr-2"
                 aria-label="Account menu"
               >
                 {student.photoUrl ? (
                   <img
                     src={student.photoUrl}
                     alt=""
-                    className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                    className="size-[36px] shrink-0 rounded-full object-cover sm:size-9"
                     draggable={false}
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
+                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-semibold text-white sm:size-9 sm:bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
@@ -249,7 +299,7 @@ export function Topbar({
                 <ChevronDown className="w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align={phone ? 'start' : 'end'} className="w-56">
               {/* Profile header */}
               <div className="px-2 py-1.5">
                 <p className="text-sm font-semibold text-slate-900 truncate">{student.fullName}</p>
@@ -258,13 +308,13 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Profile — navigates to profile page */}
-              <DropdownMenuItem onClick={onProfile} className="cursor-pointer">
+              <DropdownMenuItem onClick={onProfile} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <User className="w-4 h-4 mr-2" />
                 <span>Profile</span>
               </DropdownMenuItem>
 
               {/* Theme — full selector lives in Settings → Appearance */}
-              <DropdownMenuItem onClick={() => onNavigate('settings')} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate({ view: 'settings', branch: student.branch, username: student.username, role: student.role ?? 'student', section: 'appearance' })} className="min-h-11 sm:min-h-0 cursor-pointer">
                 <Sun className="w-4 h-4 mr-2" />
                 <span>Theme settings</span>
               </DropdownMenuItem>
@@ -272,7 +322,7 @@ export function Topbar({
               <DropdownMenuSeparator />
 
               {/* Sign out */}
-              <DropdownMenuItem onClick={onLogout} className="cursor-pointer text-red-600 focus:text-red-600">
+              <DropdownMenuItem onClick={onLogout} className="min-h-11 sm:min-h-0 cursor-pointer text-red-600 focus:text-red-600">
                 <LogOut className="w-4 h-4 mr-2" />
                 <span>Sign out</span>
               </DropdownMenuItem>

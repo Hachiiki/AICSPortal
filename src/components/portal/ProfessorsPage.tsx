@@ -126,7 +126,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
@@ -204,7 +204,7 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                           return (
                             <div
                               key={s.code}
-                              className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-0.5 items-center"
+                              className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 sm:gap-y-0.5 items-start justify-items-start"
                             >
                               <span
                                 className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border ${style.chip}`}
@@ -212,11 +212,11 @@ export function ProfessorsPage({ student, professors, courses, onNavigate, onLog
                                 <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
                                 <span className={`font-mono text-xs font-bold ${style.code}`}>{s.code}</span>
                               </span>
-                              <span className="text-sm text-slate-700 truncate">{s.title}</span>
+                              <span className="text-sm text-slate-700 break-words">{s.title}</span>
                               {meta && (
                                 <>
-                                  <span />
-                                  <span className="text-[11px] text-slate-500 truncate">{meta}</span>
+                                  <span className="hidden sm:block" />
+                                  <span className="text-xs text-slate-500 break-words">{meta}</span>
                                 </>
                               )}
                             </div>

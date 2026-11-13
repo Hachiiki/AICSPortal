@@ -1,0 +1,42 @@
+
+> nextjs_tailwind_shadcn_ts@0.2.1 lint
+> eslint .
+
+
+C:\Users\Hp\AppData\Local\Temp\aics-mobile-quality-rL8iAb\src\components\legal\CookieConsent.tsx
+  42:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Hp\AppData\Local\Temp\aics-mobile-quality-rL8iAb\src\components\legal\CookieConsent.tsx:42:5
+  40 |
+  41 |   useEffect(() => {
+> 42 |     setChoice(readConsent())
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     // Same event carries two meanings: a decision (detail set — the
+  44 |     // banner hides and reflects the stored choice) and a reset from
+  45 |     // Cookie settings (no detail — the banner reopens for a new choice)  react-hooks/set-state-in-effect
+
+C:\Users\Hp\AppData\Local\Temp\aics-mobile-quality-rL8iAb\src\components\portal\AnnouncementsWidget.tsx
+  29:5  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Hp\AppData\Local\Temp\aics-mobile-quality-rL8iAb\src\components\portal\AnnouncementsWidget.tsx:29:5
+  27 |   useEffect(() => {
+  28 |     if (announcements.length === 0) return
+> 29 |     setDismissed(false)
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  30 |   }, [announcements.length])
+  31 |
+  32 |   // Filter out individually dismissed items  react-hooks/set-state-in-effect
+
+✖ 2 problems (0 errors, 2 warnings)

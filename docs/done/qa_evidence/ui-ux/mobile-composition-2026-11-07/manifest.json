@@ -1,0 +1,1169 @@
+{
+  "sourceCommit": "b7cbc3333b7bc88f9e1b84b50c629ea05e450b43",
+  "generatedAt": "2026-11-07T06:17:42.524Z",
+  "fixtureOnly": true,
+  "browser": "156.0.8078.4",
+  "checkedSourceFiles": 209,
+  "portalChecks": 413,
+  "signInChecks": 47,
+  "clearanceChecks": 45,
+  "failed": 0,
+  "clientErrors": 0,
+  "unitsPassed": 154,
+  "unitExpectations": 728,
+  "exactHistoricalCommits": [
+    "5e301bd",
+    "4a3f281",
+    "22b2f77",
+    "bdde867",
+    "b0efd70",
+    "b7cbc33"
+  ],
+  "fontHelperHash": "5954787626ac4524ad61ff6e512435d6907c072ab8983163902f8c719b2fc24e",
+  "cachedFonts": [
+    {
+      "file": "23af4c6531df3fad-s.a8bb0f87.woff2",
+      "sha256": "28158497284b6fc3bd58a40418b63e15f6a4d55d82348912888ad58bc12fd7d0"
+    },
+    {
+      "file": "328c66eecfe73616-s.77cf0a4c.woff2",
+      "sha256": "8af9ed1d79ab1f8093c3c45f1d2cff86b790d0326c60018ba2262cc0cfd14204"
+    },
+    {
+      "file": "38772d1e0cde909c-s.62d745bb.woff2",
+      "sha256": "5fdfeaf926cac990770dfa66011bdb87d6b69f43c42aa759dcdcf0a7a197c19a"
+    },
+    {
+      "file": "4fa387ec64143e14-s.3b336396.woff2",
+      "sha256": "75b3bedbebc35f347c0ae3b416aa871941555357e7b0f83767eb5987875589ed"
+    },
+    {
+      "file": "53b9e256198e5412-s.853d50a3.woff2",
+      "sha256": "f689f638f29fff460a2d5749edb5d5c38d7bef0389f32032d871f23fc6ebb008"
+    },
+    {
+      "file": "572c13468b8cff87-s.974b4bc2.woff2",
+      "sha256": "e44224eb71a96cb33bd046ded16a4e22bb441b170bdfbcba0268a754141b97c8"
+    },
+    {
+      "file": "5ce348bf30bf5439-s.56c1f21e.woff2",
+      "sha256": "e27f657e38d52887baa3b6b2f812bef93dfdd356f0810e40edd4ee284cc7e9f6"
+    },
+    {
+      "file": "62d4b50592542c9f-s.9e30d041.woff2",
+      "sha256": "32886c5ec61a0d06e5677a98c5ed78a5f1c788c18c5e8d7dcd931c4b6dc19830"
+    },
+    {
+      "file": "6306c77e7c8268e4-s.e3369375.woff2",
+      "sha256": "d67e4a94ba498635f764ddca7d1ec4271f5642f032eb24b426764480f66f8497"
+    },
+    {
+      "file": "7178b3e590c64307-s.55554cd0.woff2",
+      "sha256": "58a6b173d5ca1dec92166ea3c6cb1a84a4144556d10928ac14e8e6b40e4787bd"
+    },
+    {
+      "file": "797e433ab948586e-s.p.29207c2f.woff2",
+      "sha256": "5f3d6ad60f29d6cb708414ec6887163d63bf197377ef5417d2483ff31ace6c3b"
+    },
+    {
+      "file": "7d817b4c03b0c5f1-s.a40b9a8b.woff2",
+      "sha256": "16e1d48b6dd29eb240aec5db36184eb182933c082cd43de7f35af686d58087d2"
+    },
+    {
+      "file": "8a1ce52571f746ab-s.ae9c7be7.woff2",
+      "sha256": "ffafc532bb8d3c459744002bd4c338e62e0a9698c97f57f5c0f7414eb7bb9c5e"
+    },
+    {
+      "file": "8a480f0b521d4e75-s.ea323500.woff2",
+      "sha256": "6129fc8571c3e0cb0a4c41f5160c974a843b055009dc4ad8858bd808e18a2d86"
+    },
+    {
+      "file": "8fcf71678f67d0c5-s.14cf5ea9.woff2",
+      "sha256": "2071148c26bd0430cad316373c26db399e0cf8f6275b9e1a2c1b831f05ee7dc3"
+    },
+    {
+      "file": "900083fdf0c8222c-s.a7a58764.woff2",
+      "sha256": "d4b1b9eec9f76ed1b94934bd761d1379fa169ea957b8cc304ad8b2644c1258a3"
+    },
+    {
+      "file": "a0ffaa6a9384d9d3-s.a34f6310.woff2",
+      "sha256": "4813e3dfbbb23708c817ef7fd3fd9c82cd0d33c778def0897f0447f1c364ce64"
+    },
+    {
+      "file": "bbc41e54d2fcbd21-s.fe42ddf4.woff2",
+      "sha256": "745994b5cd950ec201b66526375f057d540847cccfc70f4f24f5f571d26d3923"
+    },
+    {
+      "file": "bd018ee847a2420e-s.2cc3c7eb.woff2",
+      "sha256": "e0ea8027ef6326865e64551e6096f80cf811c53afa783dec59553fdbfd309b6d"
+    },
+    {
+      "file": "bfc4cfa71b76e3c7-s.be92247a.woff2",
+      "sha256": "6915198ff62adefc39a453602e5995f91f5a4fad5b66d18ba6d467251db99942"
+    },
+    {
+      "file": "caa3a2e1cccd8315-s.p.3b6cae6d.woff2",
+      "sha256": "9b6f5ff45b278c744b5f379a2c4ecbaf858a842b8eaf82ac8d21b699ca16c608"
+    },
+    {
+      "file": "ccee61546c0358b7-s.83a2e280.woff2",
+      "sha256": "fab8a0056d92fdd8d64fed4b049744144e1d24d08762c513bff78265299ed7a3"
+    },
+    {
+      "file": "ce62453a442c7f35-s.p.124b2306.woff2",
+      "sha256": "0a44e0bb6ba5c8537e8814c148ef7755f1bce12112361231f595ecc584a18d7a"
+    },
+    {
+      "file": "f5e4054992afc1ae-s.p.6117f4cf.woff2",
+      "sha256": "b510596b37818f0befb5ca6930e6daa2f09c5e08f30305be2f5bf73c303406b1"
+    },
+    {
+      "file": "f7d6090e8b3debad-s.eccd0379.woff2",
+      "sha256": "cdd53dc5576a79f35cf280dfbd9c1cb2a5dd2f0ede30afba9b9ccdc7fe12e7d0"
+    },
+    {
+      "file": "fad568eea626db0e-s.479744c5.woff2",
+      "sha256": "297193369eea600161f4b5219bd7b08850180fcfe0752f1a2eaa436575cd03b7"
+    },
+    {
+      "file": "fef07dbb0973bf53-s.518e079e.woff2",
+      "sha256": "b7a545bbb08256bd809f11cfe66d88da3e22d169ea4407737b1ef0ec1ed3d791"
+    }
+  ],
+  "imagePolicy": "Unaltered browser captures. Fonts are loaded and visible images decoded. Numbered change explanations live in GitHub comments.",
+  "files": [
+    {
+      "path": "commits/5e301bd/build.log",
+      "bytes": 1806,
+      "sha256": "b5ae8a756f1f3e0d7ab988aadebbe33178ac33d9f57ddafd044eb685bfd86bc1",
+      "originalSha256": "11002a1ff066de4aa2b338e5d2b777f3b21a4e4660439376733d8f848e9ebe52",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "commits/5e301bd/coe-320.png",
+      "bytes": 25611,
+      "sha256": "78f88c143e44a2f293e4a8bafe4c8cba8410a767147e95d4e2dc7828a2bc0f8d"
+    },
+    {
+      "path": "commits/5e301bd/courses-320.png",
+      "bytes": 18768,
+      "sha256": "a90938cc9729008a8db9c83055e16e10cbe5ebd85f6c98d1ab6b3e9212ecce99"
+    },
+    {
+      "path": "commits/5e301bd/dashboard-390.png",
+      "bytes": 21732,
+      "sha256": "c19d2cb37c293ad64adb4c7f49b65bec9aa2b1e4580e011a40a71328759f94d3"
+    },
+    {
+      "path": "commits/5e301bd/drawer-320.png",
+      "bytes": 16886,
+      "sha256": "d74c11769d53e80436afe67b14ff87d40a79851cec6a57320e32154d11c4d136"
+    },
+    {
+      "path": "commits/5e301bd/events-320.png",
+      "bytes": 18264,
+      "sha256": "c8aa40f6b9e2540f1aab61d9e52fdd5d3d6d1dd60157a4a94a6fa24c97ec1e23"
+    },
+    {
+      "path": "commits/5e301bd/guide-320x420.png",
+      "bytes": 11674,
+      "sha256": "bd3ec4e97e27c98c824980a29b50be8b89bb1ba62907a1852d78afebf9af1cef"
+    },
+    {
+      "path": "commits/5e301bd/guide-minimized-320x420.png",
+      "bytes": 11515,
+      "sha256": "6f58d267f5969f8a334384833c8a2d2a25c8abcee2fd34ea8080c11abd19d392"
+    },
+    {
+      "path": "commits/5e301bd/materials-320.png",
+      "bytes": 18332,
+      "sha256": "403f779cdf265a4f7055f8d41d9ebd44660f4956124f8945d9dda10b99f092da"
+    },
+    {
+      "path": "commits/5e301bd/result.json",
+      "bytes": 102305,
+      "sha256": "58d06356458aa96297fbebd9d8f90d2cb302f807aaf1856404a85f5c21d73852"
+    },
+    {
+      "path": "commits/5e301bd/search-320.png",
+      "bytes": 23421,
+      "sha256": "6bd496161de086134d22f076b2bee892757337d96c65c28d65d3cc50fca1e37d"
+    },
+    {
+      "path": "commits/5e301bd/settings-security-320.png",
+      "bytes": 19535,
+      "sha256": "3054e5509a9cc64904fabd388500b6337fc84f0f72f0f37ee39b0aec83c6bbb5"
+    },
+    {
+      "path": "commits/5e301bd/setup-390.png",
+      "bytes": 21732,
+      "sha256": "c19d2cb37c293ad64adb4c7f49b65bec9aa2b1e4580e011a40a71328759f94d3"
+    },
+    {
+      "path": "commits/5e301bd/sign-in-320.png",
+      "bytes": 104744,
+      "sha256": "4be8458a8008c3b5999ff22c919ccf0189763e7ea17ac609873b7cdad368494e"
+    },
+    {
+      "path": "commits/5e301bd/sign-in-320x420.png",
+      "bytes": 73626,
+      "sha256": "ffbc29cdda666f8090f7d00b8b67e776d63cb48c12271e3ec8ac70cb7192e0f9"
+    },
+    {
+      "path": "commits/5e301bd/sign-in-390x844.png",
+      "bytes": 140115,
+      "sha256": "bd73a5282333505d4e88178a8604307f1f2b9868a4a9ee736a5036a7e8c4aad9"
+    },
+    {
+      "path": "commits/5e301bd/sign-in-keyboard-reveal-320.png",
+      "bytes": 105506,
+      "sha256": "169c1bfc5a999fd2ecd4bce5e798db36075c8f88600f31232e32d8e3774adb46"
+    },
+    {
+      "path": "commits/5e301bd/sign-in-legal-320.png",
+      "bytes": 14098,
+      "sha256": "44db04668e5fdc9a69cb0ad73632cc690c2948c338ed89dd7a3b7f3ad83421bd"
+    },
+    {
+      "path": "commits/5e301bd/tasks-320.png",
+      "bytes": 18914,
+      "sha256": "b72bc66f34a1ddb30d4024d7214edc03fba51a1bd38e428bf168790e77ca5c45"
+    },
+    {
+      "path": "commits/4a3f281/build.log",
+      "bytes": 1807,
+      "sha256": "c77292334a19c9fd287754055c48d00f1340177bee5ddfa738204881c3f8a1a9",
+      "originalSha256": "a6d3691e3d68d8bc3f1ce3c1081d77c04974da08ac104f3cdefb8f1ddaf96da5",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "commits/4a3f281/coe-320.png",
+      "bytes": 25611,
+      "sha256": "78f88c143e44a2f293e4a8bafe4c8cba8410a767147e95d4e2dc7828a2bc0f8d"
+    },
+    {
+      "path": "commits/4a3f281/courses-320.png",
+      "bytes": 18768,
+      "sha256": "a90938cc9729008a8db9c83055e16e10cbe5ebd85f6c98d1ab6b3e9212ecce99"
+    },
+    {
+      "path": "commits/4a3f281/dashboard-390.png",
+      "bytes": 21732,
+      "sha256": "c19d2cb37c293ad64adb4c7f49b65bec9aa2b1e4580e011a40a71328759f94d3"
+    },
+    {
+      "path": "commits/4a3f281/drawer-320.png",
+      "bytes": 16886,
+      "sha256": "d74c11769d53e80436afe67b14ff87d40a79851cec6a57320e32154d11c4d136"
+    },
+    {
+      "path": "commits/4a3f281/events-320.png",
+      "bytes": 18264,
+      "sha256": "c8aa40f6b9e2540f1aab61d9e52fdd5d3d6d1dd60157a4a94a6fa24c97ec1e23"
+    },
+    {
+      "path": "commits/4a3f281/guide-320x420.png",
+      "bytes": 11674,
+      "sha256": "bd3ec4e97e27c98c824980a29b50be8b89bb1ba62907a1852d78afebf9af1cef"
+    },
+    {
+      "path": "commits/4a3f281/guide-minimized-320x420.png",
+      "bytes": 11515,
+      "sha256": "6f58d267f5969f8a334384833c8a2d2a25c8abcee2fd34ea8080c11abd19d392"
+    },
+    {
+      "path": "commits/4a3f281/materials-320.png",
+      "bytes": 18332,
+      "sha256": "403f779cdf265a4f7055f8d41d9ebd44660f4956124f8945d9dda10b99f092da"
+    },
+    {
+      "path": "commits/4a3f281/result.json",
+      "bytes": 102301,
+      "sha256": "6f34d3fb8a059b3ebe7fbca042b5c065fa50f15e7075db15e2698055f4bf3a85"
+    },
+    {
+      "path": "commits/4a3f281/search-320.png",
+      "bytes": 23421,
+      "sha256": "6bd496161de086134d22f076b2bee892757337d96c65c28d65d3cc50fca1e37d"
+    },
+    {
+      "path": "commits/4a3f281/settings-security-320.png",
+      "bytes": 19535,
+      "sha256": "3054e5509a9cc64904fabd388500b6337fc84f0f72f0f37ee39b0aec83c6bbb5"
+    },
+    {
+      "path": "commits/4a3f281/setup-390.png",
+      "bytes": 21732,
+      "sha256": "c19d2cb37c293ad64adb4c7f49b65bec9aa2b1e4580e011a40a71328759f94d3"
+    },
+    {
+      "path": "commits/4a3f281/sign-in-320.png",
+      "bytes": 19153,
+      "sha256": "46e97a062601f58b957c35bc71805326ded045652e0684a1d4ec47736042fb49"
+    },
+    {
+      "path": "commits/4a3f281/sign-in-320x420.png",
+      "bytes": 14133,
+      "sha256": "15211c4c9205fad934f1ee2e9e4239238b678f5667f88c13546385e620f27616"
+    },
+    {
+      "path": "commits/4a3f281/sign-in-390x844.png",
+      "bytes": 22385,
+      "sha256": "96eff4a37464ed25d48e898895ec5a13b452efef51608f0d889fc34e37c679e7"
+    },
+    {
+      "path": "commits/4a3f281/sign-in-keyboard-reveal-320.png",
+      "bytes": 19630,
+      "sha256": "d6b0d28b482ba93676e7df8080e254b6df959a743a37cf1663084b3c564eafeb"
+    },
+    {
+      "path": "commits/4a3f281/sign-in-legal-320.png",
+      "bytes": 91745,
+      "sha256": "7dc95befe41155b4b7c3216442a95fa562ec4adf8e484e282e456f73e5077731"
+    },
+    {
+      "path": "commits/4a3f281/tasks-320.png",
+      "bytes": 18914,
+      "sha256": "b72bc66f34a1ddb30d4024d7214edc03fba51a1bd38e428bf168790e77ca5c45"
+    },
+    {
+      "path": "commits/22b2f77/build.log",
+      "bytes": 1805,
+      "sha256": "070d9fd311fbd1593f65d652a84838a022ac76dca9cead5f1723b14da9a34a1f",
+      "originalSha256": "795fde895ae27e09221141e531b43c69e11ba519fb5e1f72caa07419d0684e29",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "commits/22b2f77/coe-320.png",
+      "bytes": 26173,
+      "sha256": "878dfb0a056dd670bc0987ccfe64a55e80b84eb0d286b29823fd1f4e440076de"
+    },
+    {
+      "path": "commits/22b2f77/courses-320.png",
+      "bytes": 22825,
+      "sha256": "05f6c898624a5a4c5db1eb138dee52d153a253872e6562af0dd110c1384c6283"
+    },
+    {
+      "path": "commits/22b2f77/dashboard-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/22b2f77/drawer-320.png",
+      "bytes": 17805,
+      "sha256": "4e75bcd28949bdc8478bd4a112ef5ba967c5de37af6d23d2b7630ecd3b7dd0a5"
+    },
+    {
+      "path": "commits/22b2f77/events-320.png",
+      "bytes": 22300,
+      "sha256": "2078b16599747643692a1ab1a2ecc9246f32d28b69aec5af7ec453537fbadbbc"
+    },
+    {
+      "path": "commits/22b2f77/guide-320x420.png",
+      "bytes": 15633,
+      "sha256": "540bbc39b14ffdaa9383ba06d3b14537eb5f9a1f102df06fca5b440a4af6762f"
+    },
+    {
+      "path": "commits/22b2f77/guide-minimized-320x420.png",
+      "bytes": 15640,
+      "sha256": "212d8340679f1b58a36a49f7d955e4d23f147301ae8ff1936bdc9ed7a5193eca"
+    },
+    {
+      "path": "commits/22b2f77/materials-320.png",
+      "bytes": 22215,
+      "sha256": "7a44be7963a1c8786d31855e0194896ae68f063827dc254497dd57c232f2cdab"
+    },
+    {
+      "path": "commits/22b2f77/result.json",
+      "bytes": 104429,
+      "sha256": "19708876342d372352a583cd21050a4f9b6f1e23f90d2fa8ee7b9a28c80d4c89"
+    },
+    {
+      "path": "commits/22b2f77/search-320.png",
+      "bytes": 19811,
+      "sha256": "dba8cc59e221d01f8aba2f727e9a08d9e4592a28a2ec49a06a693a2718ca976a"
+    },
+    {
+      "path": "commits/22b2f77/settings-security-320.png",
+      "bytes": 23183,
+      "sha256": "36eb2a93f6def798be8aecdc85a5e0da73ffef9099da1e8f052a9969a34ba6fb"
+    },
+    {
+      "path": "commits/22b2f77/setup-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/22b2f77/sign-in-320.png",
+      "bytes": 19153,
+      "sha256": "46e97a062601f58b957c35bc71805326ded045652e0684a1d4ec47736042fb49"
+    },
+    {
+      "path": "commits/22b2f77/sign-in-320x420.png",
+      "bytes": 14133,
+      "sha256": "15211c4c9205fad934f1ee2e9e4239238b678f5667f88c13546385e620f27616"
+    },
+    {
+      "path": "commits/22b2f77/sign-in-390x844.png",
+      "bytes": 22385,
+      "sha256": "96eff4a37464ed25d48e898895ec5a13b452efef51608f0d889fc34e37c679e7"
+    },
+    {
+      "path": "commits/22b2f77/sign-in-keyboard-reveal-320.png",
+      "bytes": 19630,
+      "sha256": "d6b0d28b482ba93676e7df8080e254b6df959a743a37cf1663084b3c564eafeb"
+    },
+    {
+      "path": "commits/22b2f77/sign-in-legal-320.png",
+      "bytes": 91745,
+      "sha256": "7dc95befe41155b4b7c3216442a95fa562ec4adf8e484e282e456f73e5077731"
+    },
+    {
+      "path": "commits/22b2f77/tasks-320.png",
+      "bytes": 22813,
+      "sha256": "b62c1116a598877add2e3217dac9a716a9c9bea5f42dd0ceee80eb312a611a04"
+    },
+    {
+      "path": "commits/bdde867/build.log",
+      "bytes": 1805,
+      "sha256": "3b062124f34d299c7d3401ebc4317540fc86df3d37e9598c76f23fb8f0a7393d",
+      "originalSha256": "b669fe8b8a3caefe2b55d6d8703326b5650814c1f99691f9e7a2b242d6c314dc",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "commits/bdde867/coe-320.png",
+      "bytes": 26173,
+      "sha256": "878dfb0a056dd670bc0987ccfe64a55e80b84eb0d286b29823fd1f4e440076de"
+    },
+    {
+      "path": "commits/bdde867/courses-320.png",
+      "bytes": 22825,
+      "sha256": "05f6c898624a5a4c5db1eb138dee52d153a253872e6562af0dd110c1384c6283"
+    },
+    {
+      "path": "commits/bdde867/dashboard-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/bdde867/drawer-320.png",
+      "bytes": 17805,
+      "sha256": "4e75bcd28949bdc8478bd4a112ef5ba967c5de37af6d23d2b7630ecd3b7dd0a5"
+    },
+    {
+      "path": "commits/bdde867/events-320.png",
+      "bytes": 22300,
+      "sha256": "2078b16599747643692a1ab1a2ecc9246f32d28b69aec5af7ec453537fbadbbc"
+    },
+    {
+      "path": "commits/bdde867/guide-320x420.png",
+      "bytes": 15633,
+      "sha256": "540bbc39b14ffdaa9383ba06d3b14537eb5f9a1f102df06fca5b440a4af6762f"
+    },
+    {
+      "path": "commits/bdde867/guide-minimized-320x420.png",
+      "bytes": 15640,
+      "sha256": "212d8340679f1b58a36a49f7d955e4d23f147301ae8ff1936bdc9ed7a5193eca"
+    },
+    {
+      "path": "commits/bdde867/materials-320.png",
+      "bytes": 22215,
+      "sha256": "7a44be7963a1c8786d31855e0194896ae68f063827dc254497dd57c232f2cdab"
+    },
+    {
+      "path": "commits/bdde867/result.json",
+      "bytes": 104429,
+      "sha256": "f59d5a9bf2f588ea730a62823c8e31bef3c8154121fffa3159a9d7f2219ba7cd"
+    },
+    {
+      "path": "commits/bdde867/search-320.png",
+      "bytes": 20668,
+      "sha256": "36f9940320c4d4fb10f3ffb6dde822df79c59b633c5e13e985fc556aae8d7aaf"
+    },
+    {
+      "path": "commits/bdde867/settings-security-320.png",
+      "bytes": 23183,
+      "sha256": "36eb2a93f6def798be8aecdc85a5e0da73ffef9099da1e8f052a9969a34ba6fb"
+    },
+    {
+      "path": "commits/bdde867/setup-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/bdde867/sign-in-320.png",
+      "bytes": 19153,
+      "sha256": "46e97a062601f58b957c35bc71805326ded045652e0684a1d4ec47736042fb49"
+    },
+    {
+      "path": "commits/bdde867/sign-in-320x420.png",
+      "bytes": 14133,
+      "sha256": "15211c4c9205fad934f1ee2e9e4239238b678f5667f88c13546385e620f27616"
+    },
+    {
+      "path": "commits/bdde867/sign-in-390x844.png",
+      "bytes": 22385,
+      "sha256": "96eff4a37464ed25d48e898895ec5a13b452efef51608f0d889fc34e37c679e7"
+    },
+    {
+      "path": "commits/bdde867/sign-in-keyboard-reveal-320.png",
+      "bytes": 19630,
+      "sha256": "d6b0d28b482ba93676e7df8080e254b6df959a743a37cf1663084b3c564eafeb"
+    },
+    {
+      "path": "commits/bdde867/sign-in-legal-320.png",
+      "bytes": 91745,
+      "sha256": "7dc95befe41155b4b7c3216442a95fa562ec4adf8e484e282e456f73e5077731"
+    },
+    {
+      "path": "commits/bdde867/tasks-320.png",
+      "bytes": 22813,
+      "sha256": "b62c1116a598877add2e3217dac9a716a9c9bea5f42dd0ceee80eb312a611a04"
+    },
+    {
+      "path": "commits/b0efd70/build.log",
+      "bytes": 1807,
+      "sha256": "1b917307a6353b043ded0c3a526025be6118f5da1bd1839d84e698d9982d71e6",
+      "originalSha256": "4c2475451bfda785b254c69190dffcf78b54249f6ad573f20c21364ec0902b37",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "commits/b0efd70/coe-320.png",
+      "bytes": 26173,
+      "sha256": "878dfb0a056dd670bc0987ccfe64a55e80b84eb0d286b29823fd1f4e440076de"
+    },
+    {
+      "path": "commits/b0efd70/courses-320.png",
+      "bytes": 22825,
+      "sha256": "05f6c898624a5a4c5db1eb138dee52d153a253872e6562af0dd110c1384c6283"
+    },
+    {
+      "path": "commits/b0efd70/dashboard-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/b0efd70/drawer-320.png",
+      "bytes": 17805,
+      "sha256": "4e75bcd28949bdc8478bd4a112ef5ba967c5de37af6d23d2b7630ecd3b7dd0a5"
+    },
+    {
+      "path": "commits/b0efd70/events-320.png",
+      "bytes": 22300,
+      "sha256": "2078b16599747643692a1ab1a2ecc9246f32d28b69aec5af7ec453537fbadbbc"
+    },
+    {
+      "path": "commits/b0efd70/guide-320x420.png",
+      "bytes": 15633,
+      "sha256": "540bbc39b14ffdaa9383ba06d3b14537eb5f9a1f102df06fca5b440a4af6762f"
+    },
+    {
+      "path": "commits/b0efd70/guide-minimized-320x420.png",
+      "bytes": 15640,
+      "sha256": "212d8340679f1b58a36a49f7d955e4d23f147301ae8ff1936bdc9ed7a5193eca"
+    },
+    {
+      "path": "commits/b0efd70/materials-320.png",
+      "bytes": 22215,
+      "sha256": "7a44be7963a1c8786d31855e0194896ae68f063827dc254497dd57c232f2cdab"
+    },
+    {
+      "path": "commits/b0efd70/result.json",
+      "bytes": 104429,
+      "sha256": "c8885ab3595146ede0ed2b85f0c5b30960ea71c0f922dcfd73f5ee53d59c79c2"
+    },
+    {
+      "path": "commits/b0efd70/search-320.png",
+      "bytes": 20668,
+      "sha256": "36f9940320c4d4fb10f3ffb6dde822df79c59b633c5e13e985fc556aae8d7aaf"
+    },
+    {
+      "path": "commits/b0efd70/settings-security-320.png",
+      "bytes": 23183,
+      "sha256": "36eb2a93f6def798be8aecdc85a5e0da73ffef9099da1e8f052a9969a34ba6fb"
+    },
+    {
+      "path": "commits/b0efd70/setup-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/b0efd70/sign-in-320.png",
+      "bytes": 19090,
+      "sha256": "49cb3d1844d16c327fb0b0fcce133d1e0d2f1f1a5133143de2734635677f4c88"
+    },
+    {
+      "path": "commits/b0efd70/sign-in-320x420.png",
+      "bytes": 14072,
+      "sha256": "1674854fc27cf0380d21f69e77534df5adc3a16aa87c77cd4cca51b091517bb1"
+    },
+    {
+      "path": "commits/b0efd70/sign-in-390x844.png",
+      "bytes": 22081,
+      "sha256": "69716d80a917950968953fdd03ead5ef153b729917a97c2bac6030b04c15451e"
+    },
+    {
+      "path": "commits/b0efd70/sign-in-keyboard-reveal-320.png",
+      "bytes": 19629,
+      "sha256": "810b94f0a6ca2d740243b7f1b7ef1e596c1c8b62420aaa6a77bf64e2bb49f253"
+    },
+    {
+      "path": "commits/b0efd70/sign-in-legal-320.png",
+      "bytes": 91149,
+      "sha256": "12b2ec979e7c01aa8588077fc87de9985cb983ba30e5dea7f9b85320b84d166e"
+    },
+    {
+      "path": "commits/b0efd70/tasks-320.png",
+      "bytes": 22813,
+      "sha256": "b62c1116a598877add2e3217dac9a716a9c9bea5f42dd0ceee80eb312a611a04"
+    },
+    {
+      "path": "commits/b7cbc33/coe-320.png",
+      "bytes": 26173,
+      "sha256": "878dfb0a056dd670bc0987ccfe64a55e80b84eb0d286b29823fd1f4e440076de"
+    },
+    {
+      "path": "commits/b7cbc33/courses-320.png",
+      "bytes": 22825,
+      "sha256": "05f6c898624a5a4c5db1eb138dee52d153a253872e6562af0dd110c1384c6283"
+    },
+    {
+      "path": "commits/b7cbc33/dashboard-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/b7cbc33/drawer-320.png",
+      "bytes": 17805,
+      "sha256": "4e75bcd28949bdc8478bd4a112ef5ba967c5de37af6d23d2b7630ecd3b7dd0a5"
+    },
+    {
+      "path": "commits/b7cbc33/events-320.png",
+      "bytes": 22300,
+      "sha256": "2078b16599747643692a1ab1a2ecc9246f32d28b69aec5af7ec453537fbadbbc"
+    },
+    {
+      "path": "commits/b7cbc33/guide-320x420.png",
+      "bytes": 15633,
+      "sha256": "540bbc39b14ffdaa9383ba06d3b14537eb5f9a1f102df06fca5b440a4af6762f"
+    },
+    {
+      "path": "commits/b7cbc33/guide-minimized-320x420.png",
+      "bytes": 15640,
+      "sha256": "212d8340679f1b58a36a49f7d955e4d23f147301ae8ff1936bdc9ed7a5193eca"
+    },
+    {
+      "path": "commits/b7cbc33/materials-320.png",
+      "bytes": 22215,
+      "sha256": "7a44be7963a1c8786d31855e0194896ae68f063827dc254497dd57c232f2cdab"
+    },
+    {
+      "path": "commits/b7cbc33/result.json",
+      "bytes": 104432,
+      "sha256": "53e0f28dafa00998fda9f26eb9604676a59a751ad18bc917b323ac8a2a0622e5"
+    },
+    {
+      "path": "commits/b7cbc33/search-320.png",
+      "bytes": 20668,
+      "sha256": "36f9940320c4d4fb10f3ffb6dde822df79c59b633c5e13e985fc556aae8d7aaf"
+    },
+    {
+      "path": "commits/b7cbc33/settings-security-320.png",
+      "bytes": 23183,
+      "sha256": "36eb2a93f6def798be8aecdc85a5e0da73ffef9099da1e8f052a9969a34ba6fb"
+    },
+    {
+      "path": "commits/b7cbc33/setup-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "commits/b7cbc33/sign-in-320.png",
+      "bytes": 19090,
+      "sha256": "49cb3d1844d16c327fb0b0fcce133d1e0d2f1f1a5133143de2734635677f4c88"
+    },
+    {
+      "path": "commits/b7cbc33/sign-in-320x420.png",
+      "bytes": 14072,
+      "sha256": "1674854fc27cf0380d21f69e77534df5adc3a16aa87c77cd4cca51b091517bb1"
+    },
+    {
+      "path": "commits/b7cbc33/sign-in-390x844.png",
+      "bytes": 22081,
+      "sha256": "69716d80a917950968953fdd03ead5ef153b729917a97c2bac6030b04c15451e"
+    },
+    {
+      "path": "commits/b7cbc33/sign-in-keyboard-reveal-320.png",
+      "bytes": 19806,
+      "sha256": "2c9cccef659ffc2387a5f6a48fc009bfd819ce6ab709350287b31af031cbf429"
+    },
+    {
+      "path": "commits/b7cbc33/sign-in-legal-320.png",
+      "bytes": 91149,
+      "sha256": "12b2ec979e7c01aa8588077fc87de9985cb983ba30e5dea7f9b85320b84d166e"
+    },
+    {
+      "path": "commits/b7cbc33/tasks-320.png",
+      "bytes": 22813,
+      "sha256": "b62c1116a598877add2e3217dac9a716a9c9bea5f42dd0ceee80eb312a611a04"
+    },
+    {
+      "path": "final/portal/-academics-tab-grades-1280.png",
+      "bytes": 37940,
+      "sha256": "24adbaee75367be21ee7b4615599300b48e8a7eccbb26ea2b26bbc7987d03f3d"
+    },
+    {
+      "path": "final/portal/-academics-tab-grades-320.png",
+      "bytes": 21217,
+      "sha256": "d1449bfb56da39910729d6ba34c2c10e4537eb16617c71fb7176c380e80f89c8"
+    },
+    {
+      "path": "final/portal/-academics-tab-grades-390.png",
+      "bytes": 23861,
+      "sha256": "afbf764fcfc702284a41187cd198c4fb9858bc238607e7bf220f00d4ed2d8f13"
+    },
+    {
+      "path": "final/portal/-academics-tab-materials-1280.png",
+      "bytes": 38557,
+      "sha256": "5c38d1c600971c8a0001a9ed3e467ae95ac0f8045fa798703f39ae14ed71b94f"
+    },
+    {
+      "path": "final/portal/-academics-tab-materials-320.png",
+      "bytes": 21844,
+      "sha256": "e45102f0a290d59b28f4819dda5d5131512e2fd2ed24072fa63255e409cabfbe"
+    },
+    {
+      "path": "final/portal/-academics-tab-materials-390.png",
+      "bytes": 23533,
+      "sha256": "70604b561a4a121dd4513dfcf0ac0590c99fdba5cf7a95667618e18f8ac6e6a7"
+    },
+    {
+      "path": "final/portal/-academics-tab-subjects-1280.png",
+      "bytes": 37828,
+      "sha256": "d5404c7de396cbb8ca6cb10b3e50c3a84e396834d83511b0a7ddf33a4af78e33"
+    },
+    {
+      "path": "final/portal/-academics-tab-subjects-320.png",
+      "bytes": 21123,
+      "sha256": "f87fb46fab4d68b71e1a3d7d2ba8e14249bde22418fd9e0ce7d59951e4f7c676"
+    },
+    {
+      "path": "final/portal/-academics-tab-subjects-390.png",
+      "bytes": 23707,
+      "sha256": "9120eb0790ab509205ba6f5df188f49d007650368b7012a78c754806b8193748"
+    },
+    {
+      "path": "final/portal/-academics-tab-tasks-1280.png",
+      "bytes": 45435,
+      "sha256": "d0c940ab99c4d890912620270e5bf404e09cb03de5532ef60279973fd1844356"
+    },
+    {
+      "path": "final/portal/-academics-tab-tasks-320.png",
+      "bytes": 22428,
+      "sha256": "6d4d628c7c938b15b24f80db5cc9dbbbc6cdda69aceb89d36d3ca83ea96a34c4"
+    },
+    {
+      "path": "final/portal/-academics-tab-tasks-390.png",
+      "bytes": 25662,
+      "sha256": "2be3d087e6a3e99a1e84c6da54ac9e32c035e48192ab4142d4ab87420d3eb3f0"
+    },
+    {
+      "path": "final/portal/-enrollment-1280.png",
+      "bytes": 48388,
+      "sha256": "b0537285dd0f7a3dd9d5bafbb1c2298a8d31f2a81be916481d8cad7eaf07fe79"
+    },
+    {
+      "path": "final/portal/-enrollment-320.png",
+      "bytes": 24562,
+      "sha256": "2e6e98b61b0aacfe3895066aadb7b63d336e0676fca7c72ed5cf22bfc95a0bf3"
+    },
+    {
+      "path": "final/portal/-enrollment-390-documents.png",
+      "bytes": 24291,
+      "sha256": "fbde69cbada93e38e75a8a24b1ef5907a7ea480c0a0a82bf48011d3e006d65b6"
+    },
+    {
+      "path": "final/portal/-enrollment-390-full.png",
+      "bytes": 48539,
+      "sha256": "f9fbc84845029b57af5439a3d4cc49657a67c4bc90aa38773b4186a060b30868"
+    },
+    {
+      "path": "final/portal/-enrollment-390.png",
+      "bytes": 25122,
+      "sha256": "923ccd93a5303d96e7c57708539a315ba35818ce1b03c349de85993615a751a9"
+    },
+    {
+      "path": "final/portal/-events-1280.png",
+      "bytes": 38789,
+      "sha256": "0f87bfed047d52a272ce77d7a25f19da16d1dc09ffa81009afb3a849352b1d1a"
+    },
+    {
+      "path": "final/portal/-events-320.png",
+      "bytes": 21949,
+      "sha256": "49b434adef6a284cc8d63ce2d6a521a50f20518f0dbfbf57b53e2587b3c8fabc"
+    },
+    {
+      "path": "final/portal/-events-390.png",
+      "bytes": 22414,
+      "sha256": "2d0ed55239cb1342de6916ef90e04774812742ab06176fac3d24c12eaae45fc5"
+    },
+    {
+      "path": "final/portal/-help-1280.png",
+      "bytes": 41092,
+      "sha256": "c0df0d05b88b27183a88ec7c4f9487d019cea0e5009f6e409124c00b63e42a1e"
+    },
+    {
+      "path": "final/portal/-help-320.png",
+      "bytes": 22261,
+      "sha256": "c8995e8c7c6a17dfb38dcfbbb45e2de3b712a795683bbba9ac37509e3ab5237a"
+    },
+    {
+      "path": "final/portal/-help-390.png",
+      "bytes": 24038,
+      "sha256": "d45c9a356758844632042e47425b84f4f94903dc69a6f5755d84e8592ed67a60"
+    },
+    {
+      "path": "final/portal/-professors-1280.png",
+      "bytes": 48196,
+      "sha256": "2c1ead643d0bda2b53229abf2e66fb2265a576098ecf227a513c847a055d7467"
+    },
+    {
+      "path": "final/portal/-professors-320.png",
+      "bytes": 27097,
+      "sha256": "911bc710556df84d01302b90125aa1d05839cf8fa241c17a1833d0b8a5fed450"
+    },
+    {
+      "path": "final/portal/-professors-390-full.png",
+      "bytes": 41313,
+      "sha256": "b5e7b98b48dfa220060d5cf619717af1055acc6cd7f96de55b17468a910dcd89"
+    },
+    {
+      "path": "final/portal/-professors-390.png",
+      "bytes": 28116,
+      "sha256": "6b500a1cd32852a36fe13abfe415be1908e18dc53a283011063bd5f140636552"
+    },
+    {
+      "path": "final/portal/-profile-1280.png",
+      "bytes": 78542,
+      "sha256": "17bf75df8d09679d229a825271e0190206d4f857ad3c1760cbafaba95f8993ad"
+    },
+    {
+      "path": "final/portal/-profile-320.png",
+      "bytes": 24484,
+      "sha256": "f94b184b601fea657c0aec7b0a69bb152770ba9e0dfc484ae95f6c9b9675335b"
+    },
+    {
+      "path": "final/portal/-profile-390-documents.png",
+      "bytes": 58755,
+      "sha256": "dc8a34c060f04d166e5cc0e44370106e796915423d305bfc6779aa2f4ca84bc2"
+    },
+    {
+      "path": "final/portal/-profile-390-full.png",
+      "bytes": 168158,
+      "sha256": "c4ac9bff360a9a83a93584bb92848b889cd482f16f2c0dfa8937002cbcc4a31d"
+    },
+    {
+      "path": "final/portal/-profile-390.png",
+      "bytes": 25260,
+      "sha256": "7bdae7e892b52f9b429d6f5f6b46014b2264bc04dcc30b00cd87b982e80e26d6"
+    },
+    {
+      "path": "final/portal/-settings-1280.png",
+      "bytes": 45011,
+      "sha256": "2e418e83988219ff8aaf4a72c8110818dbf099377918e756e66e6248e2884860"
+    },
+    {
+      "path": "final/portal/-settings-320.png",
+      "bytes": 24706,
+      "sha256": "59624d88ce87778fc6559bba5baecee197ac997e6c765cc7674aaf5b00ba15d4"
+    },
+    {
+      "path": "final/portal/-settings-390.png",
+      "bytes": 26399,
+      "sha256": "300c83ee7bddd65b23b4c8d92b5e40918cb9aee0d372bb793054e22c336b1fc5"
+    },
+    {
+      "path": "final/portal/-settings-section-appearance-1280.png",
+      "bytes": 52340,
+      "sha256": "e264bade9bc6e6a5760aaecd5159785e438b14efb1c376cd6b4f407f816afc3c"
+    },
+    {
+      "path": "final/portal/-settings-section-appearance-320.png",
+      "bytes": 24832,
+      "sha256": "65c8de50034d0e80efdf56fdd155dac44caf798e86f325ced87b69522d567bc4"
+    },
+    {
+      "path": "final/portal/-settings-section-appearance-390.png",
+      "bytes": 25650,
+      "sha256": "c6299df72960e54466ff2e38b2cb50e3b049160c7075ed58927bbdc8ec416c0c"
+    },
+    {
+      "path": "final/portal/-settings-section-notifications-1280.png",
+      "bytes": 40262,
+      "sha256": "baf14309d45da46631006b5dca25ef9ba6008b524993a7f91f1e5c296ce0d1ff"
+    },
+    {
+      "path": "final/portal/-settings-section-notifications-320.png",
+      "bytes": 22906,
+      "sha256": "67f5a31d99c849dce0387c02ce63e4cc5e8ca1c44b4545ed022700a526f72684"
+    },
+    {
+      "path": "final/portal/-settings-section-notifications-390.png",
+      "bytes": 24874,
+      "sha256": "77d2e972ee44defaeb420ebc7d6f3c64f6973196cadd26adc52f7d7c61505372"
+    },
+    {
+      "path": "final/portal/-settings-section-privacy-1280.png",
+      "bytes": 41711,
+      "sha256": "324206877286bed762f012ef6ca7683962157021e5cb2df56c849d9b7cd48672"
+    },
+    {
+      "path": "final/portal/-settings-section-privacy-320.png",
+      "bytes": 23457,
+      "sha256": "46d96d8b39b47fec114bd113e73d20627382b92939dc08db92b873f7907921ee"
+    },
+    {
+      "path": "final/portal/-settings-section-privacy-390.png",
+      "bytes": 24328,
+      "sha256": "8226976fbc998f24228fa6c71c989ed231298fa322f5276c14903af93e20d2bf"
+    },
+    {
+      "path": "final/portal/-settings-section-security-1280.png",
+      "bytes": 37754,
+      "sha256": "a0cdf1e92631b25130f0293537057adf32e46b460b78d67a2bf4cf7cd2d3536e"
+    },
+    {
+      "path": "final/portal/-settings-section-security-320.png",
+      "bytes": 23183,
+      "sha256": "36eb2a93f6def798be8aecdc85a5e0da73ffef9099da1e8f052a9969a34ba6fb"
+    },
+    {
+      "path": "final/portal/-settings-section-security-390.png",
+      "bytes": 24015,
+      "sha256": "5f88d15e80c95dc4a4bbf6673c95a7ddb5afbc33b9422f5a5dfafd89c2c55b95"
+    },
+    {
+      "path": "final/portal/admin-drawer-320.png",
+      "bytes": 18046,
+      "sha256": "1bbbebe42929f18d0aa7a93b852b5c0fb0ca0fb8bc79b125a05c7c9a24581acc"
+    },
+    {
+      "path": "final/portal/certificate-320x420.png",
+      "bytes": 20531,
+      "sha256": "3797abb9fee748f0b038f5bc3d9ca23d5c40bb6873b0dbd29748ab0e90c99ea0"
+    },
+    {
+      "path": "final/portal/dashboard-1280.png",
+      "bytes": 42616,
+      "sha256": "9d10ace5ff3c4c2272b07dc8d6e96a656792fd4b735215996a08a1b227a32473"
+    },
+    {
+      "path": "final/portal/dashboard-320.png",
+      "bytes": 22639,
+      "sha256": "e638c11206a066533bb6f509d653daef3f141a8e19863a81b2ff1dd5e861dcca"
+    },
+    {
+      "path": "final/portal/dashboard-390.png",
+      "bytes": 25661,
+      "sha256": "4b48af9a4de5a9c9eea8aa34f077d7c8d86b06eaaf213d6c9c31aa54b28881f4"
+    },
+    {
+      "path": "final/portal/digital-id-320x420.png",
+      "bytes": 62717,
+      "sha256": "16ac5fc475960e2062ba0ad606e4bb3b781c6c6c8fba56238270cab7041b6b31"
+    },
+    {
+      "path": "final/portal/faculty-desktop-1280.png",
+      "bytes": 43610,
+      "sha256": "ba4e15b664a87b5963eb07c112596f26ec6c1039168ac732acc20508c8c8dcdc"
+    },
+    {
+      "path": "final/portal/faculty-drawer-320.png",
+      "bytes": 17120,
+      "sha256": "41a136fd05975f1684f1c8089b652d59c1fb0e95ef2482ce04f02ebe3cc9a8a6"
+    },
+    {
+      "path": "final/portal/guide-320x420.png",
+      "bytes": 15633,
+      "sha256": "540bbc39b14ffdaa9383ba06d3b14537eb5f9a1f102df06fca5b440a4af6762f"
+    },
+    {
+      "path": "final/portal/guide-minimized-320x420.png",
+      "bytes": 15640,
+      "sha256": "212d8340679f1b58a36a49f7d955e4d23f147301ae8ff1936bdc9ed7a5193eca"
+    },
+    {
+      "path": "final/portal/sign-in-320.png",
+      "bytes": 19090,
+      "sha256": "49cb3d1844d16c327fb0b0fcce133d1e0d2f1f1a5133143de2734635677f4c88"
+    },
+    {
+      "path": "final/portal/submission-320.png",
+      "bytes": 21369,
+      "sha256": "ae36ad41f8d4f19e63727c4363cd82264f198689c124f7f359a483f5eca0012e"
+    },
+    {
+      "path": "final/portal/tour-390.png",
+      "bytes": 28301,
+      "sha256": "72abd354e79ed50972110c81928465c77423b0a36927bf8c2c835f438440e4a0"
+    },
+    {
+      "path": "final/portal/welcome-320x420.png",
+      "bytes": 10420,
+      "sha256": "b1ff2aedce64d16991f12f9943474ef1a4f1b5998e38b9991ae6513b9b2c792a"
+    },
+    {
+      "path": "final/signin/signin-1280x900.png",
+      "bytes": 449414,
+      "sha256": "4bac990655498f114eae9f333ce1c0313c41df8cd399a546fc07aace17447833"
+    },
+    {
+      "path": "final/signin/signin-320x420.png",
+      "bytes": 14072,
+      "sha256": "1674854fc27cf0380d21f69e77534df5adc3a16aa87c77cd4cca51b091517bb1"
+    },
+    {
+      "path": "final/signin/signin-320x720.png",
+      "bytes": 19090,
+      "sha256": "49cb3d1844d16c327fb0b0fcce133d1e0d2f1f1a5133143de2734635677f4c88"
+    },
+    {
+      "path": "final/signin/signin-360x740.png",
+      "bytes": 19957,
+      "sha256": "ef096d8987a03577da3aab64fe55a8dbd60855930c006b976c42854e5ebf9b31"
+    },
+    {
+      "path": "final/signin/signin-390x844.png",
+      "bytes": 22081,
+      "sha256": "69716d80a917950968953fdd03ead5ef153b729917a97c2bac6030b04c15451e"
+    },
+    {
+      "path": "final/signin/signin-430x932.png",
+      "bytes": 23089,
+      "sha256": "f1bca9da6f7f1e5e2d1df4266ef3901874181d3cc36cf5aabe8fec2e218e3459"
+    },
+    {
+      "path": "final/signin/signin-844x390.png",
+      "bytes": 15105,
+      "sha256": "1f247e797856f2df63eaaf128ee8d7677cbad89b60eed203a4050fdacdc5e8e7"
+    },
+    {
+      "path": "final/signin/signin-dark-320x420.png",
+      "bytes": 14124,
+      "sha256": "c8445487054dc0b0e9fe0a4a76cdbd86d05301878669f2d3ceb3a9aa1b36bf89"
+    },
+    {
+      "path": "final/signin/signin-invalid-320x420.png",
+      "bytes": 7393,
+      "sha256": "786eb4be96772f40ad4a29d52fdc42cb9844a741f7cf741920cd69059e627679"
+    },
+    {
+      "path": "final/signin/signin-large-text-390.png",
+      "bytes": 27188,
+      "sha256": "5d3ffbd22012ba7aff1805ba240ca795f857d6ea75d23fb2b0810c51c3748089"
+    },
+    {
+      "path": "final/signin/signin-legal-320x420.png",
+      "bytes": 51628,
+      "sha256": "313f337dd679a7c5f47a58f799d7ed2a3e99686b7ca332b6d065c2ac8b3982b4"
+    },
+    {
+      "path": "final/signin/signin-pending-320x420.png",
+      "bytes": 8730,
+      "sha256": "4de3cc09e498a0d71e5fda70b551ca0dd923decf7981715ee567d1b95d67c975"
+    },
+    {
+      "path": "final/clearance/help-bottom-320.png",
+      "bytes": 17616,
+      "sha256": "ba0d8aa64943dad6c4d300ae180b1ff067c5f379052deb2befc3caeabcb7dbac"
+    },
+    {
+      "path": "final/clearance/profile-bottom-320.png",
+      "bytes": 21170,
+      "sha256": "a812eca4a8aa9dd322bb4e4ff2679e61992d5638175bd74adf45e5f9ad4dd916"
+    },
+    {
+      "path": "final/clearance/tasks-bottom-320.png",
+      "bytes": 16971,
+      "sha256": "65299034ff371e49a65dbb67f2c91c31e842d89d089c08da42ccba2b2ccc39bc"
+    },
+    {
+      "path": "verification/portal.json",
+      "bytes": 91397,
+      "sha256": "4377198ec5ee17d680cfbfaf290f4aed9c1b9b3057699794afaa2b73ff254580"
+    },
+    {
+      "path": "verification/signin.json",
+      "bytes": 17109,
+      "sha256": "d7260f08478372b9411e50ff271318d5aa70505ca6ea2011bf3dd227c6c211ce"
+    },
+    {
+      "path": "verification/clearance.json",
+      "bytes": 8900,
+      "sha256": "307157f77c3548943d993e86bc62727d2b23beccbbc20392b1293093cbf202c9"
+    },
+    {
+      "path": "verification/quality.json",
+      "bytes": 32184,
+      "sha256": "e9022ce31d2fab3ff4514976762e02c4611b9c80afa4491dff421bdaa1bc82f8"
+    },
+    {
+      "path": "verification/lint.log",
+      "bytes": 2643,
+      "sha256": "5ff78d67616235b9e454218f4640703f48e5ae0b103f9cab63fa2f12e1775c4d",
+      "originalSha256": "a92f572091cc63de20cd9374835379f13074205bdad0b5a1edd3a92d6417c159",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "verification/typecheck.log",
+      "bytes": 60,
+      "sha256": "85372a29e3bee5dc4f755cd386e77539e625a9262b4ec3ec8e9438482b7dfbdf",
+      "originalSha256": "a02bfa95bfa0b738b86acdc6808533a429a0d370467b48fef9e89ab41cfb199e",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "verification/build.log",
+      "bytes": 1870,
+      "sha256": "fb9960ed4de4ae77f872383111e96c20f70e8ff4abc8cfbdd560ae66eaaf415d",
+      "originalSha256": "6eae3b903d720b5481a753de8c59bf8c9bb945da0db968287f618a645c274a1e",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "verification/unit-tests.log",
+      "bytes": 20141,
+      "sha256": "3957c3720b7fd773419f71f2ed1d3152d8388f82e94d8d8c313fc2eca718d153",
+      "originalSha256": "e2bf7818fec92013875458a815cea90a697ccb8af3e8a2b33673a71ed7bdbfab",
+      "normalization": "Log line endings and trailing whitespace only"
+    },
+    {
+      "path": "verification/superseded-portal-r1.json",
+      "bytes": 59789,
+      "sha256": "3cf630814443540f620667af953ca900cbdc8b8beae6e56031b1d0449d832c1d"
+    },
+    {
+      "path": "verification/superseded-signin-r1.json",
+      "bytes": 11675,
+      "sha256": "0e812ac3fb772f24d8109469b13156d4b540ed32a7c67c6d88d2615bffc10c22"
+    },
+    {
+      "path": "verification/superseded-portal-r2.json",
+      "bytes": 81761,
+      "sha256": "7d514170d9dfce3c52bbf7f03c77f3db089cf1de23eeb455152606c0156f74e4"
+    },
+    {
+      "path": "verification/superseded-signin-r2.json",
+      "bytes": 5971,
+      "sha256": "b5a1bee8056d0dbaea2c0676bc46908d9671c1a7ed626ddc9856ff2546426831"
+    },
+    {
+      "path": "verification/superseded-portal-r3.json",
+      "bytes": 81765,
+      "sha256": "9885af37dabc8768627ffb6f59ac5bab0244fa6fc3da354aebd8cd6668c656fe"
+    },
+    {
+      "path": "verification/superseded-signin-r3.json",
+      "bytes": 6874,
+      "sha256": "6a9c8e95d22f239090ff33493b04607f00fd3dab13f3bd9d8fc1212a7f3a7c01"
+    }
+  ]
+}

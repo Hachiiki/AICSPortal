@@ -185,12 +185,12 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <div
           ref={deckRef}
           tabIndex={0}
-          className="bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
+          className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
         >
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Megaphone className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-semibold text-slate-700">Announcements</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <Megaphone className="size-4 shrink-0 text-slate-400" />
+              <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-700">Announcements</span>
             </div>
           </div>
           <EmptyState compact icon={Check} message="You're all caught up" hint="No new announcements to read." className="flex-1 flex flex-col items-center justify-center" />
@@ -222,9 +222,9 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-link" />
-            <span className="text-sm font-semibold text-slate-900">Announcements</span>
+          <div className="flex min-w-0 items-center gap-2">
+            <Megaphone className="size-4 shrink-0 text-link" />
+            <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-900">Announcements</span>
           </div>
         </div>
         {/* Body */}
@@ -238,13 +238,13 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
+              <p className={`student-item-title text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
                 {a.title}
               </p>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
+              <p className="student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
-              <button type="button" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              <button type="button" data-tour="announcement-read" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 aria-label={`Read announcement: ${a.title}`} onClick={() => { setOpened(a); void onboarding?.client.complete('announcements') }}>
                 Read announcement
               </button>
@@ -259,26 +259,28 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           </div>
         </div>
         {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-          <span className="text-[10px] text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 border-t border-slate-50 pt-2 sm:pt-3">
+          {visible.length > 1 && <span className="text-[10px] text-slate-500">
             {visible.indexOf(a) + 1} of {visible.length}
-          </span>
-          <div className="flex items-center gap-1">
+          </span>}
+          <div className="ml-auto flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => removeTop('left')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Snooze (swipe left)"
             >
               <Clock className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Snooze</span>
             </button>
             <button
               type="button"
               onClick={() => removeTop('right')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Mark as read (swipe right)"
             >
               <Check className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Mark as read</span>
             </button>
           </div>
         </div>
@@ -339,7 +341,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               key={card._id}
               inert={!isTop}
               aria-hidden={!isTop}
-              className="absolute inset-0"
+              className={isTop ? 'relative sm:absolute sm:inset-0' : 'absolute inset-x-0 bottom-7 top-0 sm:bottom-0'}
               style={{
                 zIndex: currentZ,
                 transform: `translateY(${currentY}px) scale(${currentScale}) rotate(${currentRotate}deg)`,
@@ -351,7 +353,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               }}
             >
               <div
-                className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
+                className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
                 style={{
                   minHeight: CARD_MIN_HEIGHT,
                   touchAction: 'pan-y',

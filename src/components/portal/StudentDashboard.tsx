@@ -10,7 +10,7 @@ import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import { PortalShell } from './PortalShell'
-import { AcademicHeader } from './AcademicHeader'
+import { AcademicHeader, AcademicAnnouncements, AcademicTermStats } from './AcademicHeader'
 import { GradesTable } from './GradesTable'
 import { ScheduleGrid } from './ScheduleGrid'
 import { TodaysClasses } from './TodaysClasses'
@@ -72,19 +72,23 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       tasks={tasks}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
-          <AcademicHeader student={dashboardStudent} totalUnits={totalUnits} announcements={announcements} announcementReadIds={announcementReadIds} />
-          <StudentGettingStarted />
+        <main className="min-w-0 space-y-5 px-[16px] py-[16px] sm:space-y-6 sm:px-6 sm:py-6 lg:space-y-8 lg:px-8 lg:py-8">
+          <div className="student-dashboard-intro grid grid-cols-1 gap-[16px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8">
+          <AcademicHeader student={dashboardStudent} />
 
           {/* Today at a glance — next class, pending tasks, unread announcements */}
-          <TodayGlance
+          <div className="min-w-0 lg:col-span-2 lg:row-start-3"><TodayGlance
             courses={courses}
             sessions={sessions}
             tasks={tasks}
             announcements={announcements}
             announcementReadIds={announcementReadIds}
             onNavigate={onNavigate}
-          />
+          /></div>
+          <AcademicTermStats student={dashboardStudent} totalUnits={totalUnits} />
+          <div className="min-w-0 empty:hidden lg:col-span-2 lg:row-start-4"><StudentGettingStarted /></div>
+          <AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />
+          </div>
 
           <GradesTable student={dashboardStudent} />
 
@@ -92,16 +96,16 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
           <div className="flex justify-end">
             <button
               onClick={() => onNavigate('academics')}
-              className="inline-flex items-center gap-1 text-sm font-medium text-link hover:text-link-strong hover:underline"
+              className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-link hover:text-link-strong hover:underline"
             >
               View full academic record <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4">
+          <section id="student-schedule" aria-label="Class schedule" tabIndex={-1} className="flex scroll-mt-3 flex-col gap-4 lg:flex-row lg:scroll-mt-20">
             <ScheduleGrid courses={courses} sessions={sessions} />
-            <TodaysClasses courses={courses} sessions={sessions} />
-          </div>
+            <div className="order-first lg:order-last lg:w-[320px] lg:shrink-0"><TodaysClasses courses={courses} sessions={sessions} /></div>
+          </section>
         </main>
     </PortalShell>
   )

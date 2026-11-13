@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { PortalShell } from './PortalShell'
 import { EventsSkeleton } from './Skeleton'
 import {
@@ -54,6 +56,16 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const phone = usePhoneViewport()
+  const { navigate } = usePortalRoute()
+
+  useEffect(() => {
+    if (!phone || !selectedDay) return
+    const agenda = document.getElementById('student-calendar-day')
+    agenda?.scrollIntoView({ block: 'start', behavior: 'auto' })
+    agenda?.focus({ preventScroll: true })
+  }, [phone, selectedDay])
 
   // showTasks + enabledCats are now lifted to the parent (StudentDataWrapper)
   // so they persist across route switches.
@@ -177,18 +189,25 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
       tasks={tasks}
       inbox={inbox}
     >
-        <main data-tour="events-page" className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main data-tour="events-page" className="min-w-0 space-y-[16px] px-[16px] py-[20px] sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           {/* Page header */}
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"
+              className="mb-3 hidden items-center gap-2 text-sm font-semibold text-link hover:text-link-strong sm:inline-flex"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              School events and deadlines &bull; AY {student.academicYear}
+            <div className="flex flex-wrap items-center justify-between gap-[8px]">
+              <h1 className="student-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
+              <button type="button" aria-label="Calendar filters" aria-expanded={filtersOpen} aria-controls="student-calendar-filters"
+                className="student-calendar-filter-toggle hidden min-h-[44px] items-center gap-[6px] student-control rounded-lg border border-line bg-surface px-[10px] text-xs font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link"
+                onClick={() => setFiltersOpen(open => !open)}>
+                <SlidersHorizontal className="size-[16px]" aria-hidden="true" /> Filters
+              </button>
+            </div>
+            <p className="student-academic-term student-text-detail mt-1 text-sm text-slate-500">
+              <span className="student-events-description">School events and deadlines &bull; </span>AY {student.academicYear}
             </p>
           </div>
 
@@ -196,12 +215,14 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* ============================ CALENDAR COLUMN ============================ */}
             <div className="lg:col-span-2 space-y-4">
-              <LegendChips
-                enabledCats={enabledCats}
-                showTasks={showTasks}
-                onToggleCat={toggleCat}
-                onToggleTasks={() => setShowTasks((v) => !v)}
-              />
+              <div id="student-calendar-filters" className={`space-y-4 ${filtersOpen ? '' : 'student-calendar-filters-collapsed'}`}>
+                <LegendChips
+                  enabledCats={enabledCats}
+                  showTasks={showTasks}
+                  onToggleCat={toggleCat}
+                  onToggleTasks={() => setShowTasks((v) => !v)}
+                />
+              </div>
 
               <CalendarGrid
                 viewMonth={viewMonth}
@@ -225,6 +246,13 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
                   events={selectedDayEvents}
                   tasks={selectedDayTasks}
                   showTasks={showTasks}
+                  onReturn={() => {
+                    const calendar = document.getElementById('student-calendar')
+                    calendar?.scrollIntoView({ block: 'start', behavior: 'auto' })
+                    const target = calendar?.querySelector<HTMLElement>('[aria-current="date"]') ?? calendar
+                    target?.focus({ preventScroll: true })
+                  }}
+                  onOpenTask={task => navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: 'tasks', subjectCode: task.subjectCode, taskId: task._id })}
                 />
               )}
             </div>

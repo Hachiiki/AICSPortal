@@ -26,12 +26,12 @@ export function GradesTable({ student }: GradesTableProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-      className="bg-surface rounded-xl border border-slate-200 shadow-sm"
+      className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm"
     >
       {/* Section header */}
       <div className="px-6 py-4 border-b border-slate-100">
-        <h2 className="text-base font-semibold text-slate-900">Grades &amp; Subjects</h2>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <h2 className="student-section-title text-base font-semibold text-slate-900">Grades &amp; Subjects</h2>
+        <p className="student-text-detail text-xs text-slate-500 mt-0.5">
           Your enrolled subjects, units, professors, and current grades
         </p>
       </div>

@@ -1,0 +1,996 @@
+{
+  "sourceCommit": "a3e1f336996c8d7d9fc70aabd51379298480d905",
+  "generatedAt": "2026-11-06T14:47:47.041Z",
+  "fixtureOnly": true,
+  "browser": "156.0.8078.4",
+  "checkedSourceFiles": 207,
+  "checksPassed": 314,
+  "checksFailed": 0,
+  "clientErrors": 0,
+  "unitsPassed": 154,
+  "unitExpectations": 728,
+  "exactHistoricalCommits": [
+    "151272b",
+    "0f2dfb4",
+    "0cb4ae1",
+    "af226f5",
+    "23b33a7",
+    "f03c908",
+    "a1ecf25",
+    "02cd462",
+    "a3e1f33"
+  ],
+  "imagePolicy": "Unaltered browser screenshots; numbered explanations are in GitHub comments.",
+  "files": [
+    {
+      "path": "commits/151272b/coe-320.png",
+      "bytes": 63002,
+      "sha256": "71b3a9829e0d343cda4538506d5557b62840721b2da1a982e804df529611e978"
+    },
+    {
+      "path": "commits/151272b/courses-320.png",
+      "bytes": 45775,
+      "sha256": "c5c8eb6e4e90521bea27824df477f4d1cdd62302307d2ea88e4c2226f8f22a46"
+    },
+    {
+      "path": "commits/151272b/dashboard-390.png",
+      "bytes": 58742,
+      "sha256": "86552abd982f5e1d30f66dc96f3b9e9cee198269225cb3bb1df7fcf35b17bb6d"
+    },
+    {
+      "path": "commits/151272b/drawer-320.png",
+      "bytes": 34198,
+      "sha256": "1ef71b97f5a1cbb8d393e94dc6815ed1ccda8e6ead4c44683b9e8823c8c1dbb7"
+    },
+    {
+      "path": "commits/151272b/events-320.png",
+      "bytes": 43223,
+      "sha256": "b27d2a85144390687a3ca2fe47d99ebe51536be8d081ab70f21531602db48f73"
+    },
+    {
+      "path": "commits/151272b/guide-320x420.png",
+      "bytes": 27411,
+      "sha256": "297f53c2d1e802afc703f0cac42efa13b35a7eb785fd7373816b6f258c5c4d32"
+    },
+    {
+      "path": "commits/151272b/materials-320.png",
+      "bytes": 54354,
+      "sha256": "0f7483ccc997082e851cf94a47404b5a7692fd83882a88aa33ba8082ce5dc461"
+    },
+    {
+      "path": "commits/151272b/result.json",
+      "bytes": 34730,
+      "sha256": "c0ea5cca68ef8029fc0d0f30bb61b5f0dbd8f2308dd57b7b474fb84637d0cc38"
+    },
+    {
+      "path": "commits/151272b/search-320.png",
+      "bytes": 39260,
+      "sha256": "f14c28ad57c08920cad6fad7f598aad5aa2d6774e411a62bd07b9786489561ed"
+    },
+    {
+      "path": "commits/151272b/settings-security-320.png",
+      "bytes": 45240,
+      "sha256": "d1defe880e3db10e5c9a9a09d5d5cea3eaf99e23e97bbee58ce652fd952d27f4"
+    },
+    {
+      "path": "commits/151272b/sign-in-320.png",
+      "bytes": 132036,
+      "sha256": "d614fad02300c6d46eed04eac9c4c7c13d5bbebffa6427c7b04990d67b36d21e"
+    },
+    {
+      "path": "commits/151272b/tasks-320.png",
+      "bytes": 52160,
+      "sha256": "ab8f16ab6ef29372c54935ddc5c88a20198cc38f6c5a5a32d4f1b07efc3387c0"
+    },
+    {
+      "path": "commits/0f2dfb4/coe-320.png",
+      "bytes": 62629,
+      "sha256": "9584a0bf90b56a27b4f535a824aafd0e7193f961cbe27a56e91fe7598dc1aef8"
+    },
+    {
+      "path": "commits/0f2dfb4/courses-320.png",
+      "bytes": 50512,
+      "sha256": "e54471a1b2b6eb0660f0968294941a738d45d82a883fe3aea9d7a001faab3063"
+    },
+    {
+      "path": "commits/0f2dfb4/dashboard-390.png",
+      "bytes": 67152,
+      "sha256": "e27603a8124f30ae1ebe37e19a85db02f106af141a825ffef197fbff70164065"
+    },
+    {
+      "path": "commits/0f2dfb4/drawer-320.png",
+      "bytes": 30217,
+      "sha256": "b0b37d44c23efccb94c16e85a3ce20eb27cd5a489d95578dc6e049e28b8d35c0"
+    },
+    {
+      "path": "commits/0f2dfb4/events-320.png",
+      "bytes": 45532,
+      "sha256": "a64d8f743a446fa4ec59da9aff65b1a13c18ee3f0339a16b8ec63d800b7b4b09"
+    },
+    {
+      "path": "commits/0f2dfb4/guide-320x420.png",
+      "bytes": 24948,
+      "sha256": "d56c915ef3e8515333506d148db2fdfe79b75d22ec8599d92b5d1458c3e79e07"
+    },
+    {
+      "path": "commits/0f2dfb4/materials-320.png",
+      "bytes": 54801,
+      "sha256": "e3dcc8b0a48aa34f111151a4a2b3ecab642df49e9af284c737258d79524832ac"
+    },
+    {
+      "path": "commits/0f2dfb4/result.json",
+      "bytes": 34730,
+      "sha256": "470a91496b33045296d120032cbaf02a153def05defa325436d1d03958f7dca2"
+    },
+    {
+      "path": "commits/0f2dfb4/search-320.png",
+      "bytes": 43340,
+      "sha256": "3e3f3f280941e51b3b5326805033dcd6851828c36ce8c2374227059289f4c478"
+    },
+    {
+      "path": "commits/0f2dfb4/settings-security-320.png",
+      "bytes": 47472,
+      "sha256": "cd22dc73f92f165fe07d11878e797966ae88af162b7ef59ddc9679ea72a670fd"
+    },
+    {
+      "path": "commits/0f2dfb4/sign-in-320.png",
+      "bytes": 136697,
+      "sha256": "141c00fe271499737ae5e113e219687643d47d02c6f5a1dd251f2f244b90b0af"
+    },
+    {
+      "path": "commits/0f2dfb4/tasks-320.png",
+      "bytes": 50045,
+      "sha256": "ba79f9b9ec88d3e7d21c65ba1f875897167b7ea53e31194a30ce5f8835b4ffbe"
+    },
+    {
+      "path": "commits/0cb4ae1/coe-320.png",
+      "bytes": 89290,
+      "sha256": "4a12b87a379c4106ecb93f212b276810fef94fcb1a0953b338fb456d5e07610a"
+    },
+    {
+      "path": "commits/0cb4ae1/courses-320.png",
+      "bytes": 37880,
+      "sha256": "c70100ede8e74631e3f0f300f5b960005623503fb55fe0316e8b762fab917174"
+    },
+    {
+      "path": "commits/0cb4ae1/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/0cb4ae1/drawer-320.png",
+      "bytes": 30775,
+      "sha256": "ce225a8dc47245a2841ed424e280edad1a56ecabf36c2478e344e92a7dc0286e"
+    },
+    {
+      "path": "commits/0cb4ae1/events-320.png",
+      "bytes": 44978,
+      "sha256": "4a37d286824ba9cc8fa6acdc8beb8740713cf157c793d3b20fb7fdda169c9aea"
+    },
+    {
+      "path": "commits/0cb4ae1/guide-320x420.png",
+      "bytes": 26287,
+      "sha256": "3d6cd3681b570883de46990a35aa8cb594b885c4401105acb8584476002d08c2"
+    },
+    {
+      "path": "commits/0cb4ae1/materials-320.png",
+      "bytes": 55136,
+      "sha256": "f78766b4108be4dd172aebded081f974ccbbdba1e5ba6bb2051d143757f92d44"
+    },
+    {
+      "path": "commits/0cb4ae1/result.json",
+      "bytes": 34730,
+      "sha256": "e5bc796825da1cf44bcc202dc3eae37f530fc50a21123a5da162f98adf165c84"
+    },
+    {
+      "path": "commits/0cb4ae1/search-320.png",
+      "bytes": 61487,
+      "sha256": "1a960438ca77e8fc2d55754b6325cf27550970dc05a0d0d9ab2105dc74a937e5"
+    },
+    {
+      "path": "commits/0cb4ae1/settings-security-320.png",
+      "bytes": 47271,
+      "sha256": "92e2e10ee00498b84f5d60c86408452c707f2a6445b7507cc24143e19ef47715"
+    },
+    {
+      "path": "commits/0cb4ae1/sign-in-320.png",
+      "bytes": 132036,
+      "sha256": "d614fad02300c6d46eed04eac9c4c7c13d5bbebffa6427c7b04990d67b36d21e"
+    },
+    {
+      "path": "commits/0cb4ae1/tasks-320.png",
+      "bytes": 51179,
+      "sha256": "2e3bf760c7e9510c70f206100e35531575736842328f0df32254e0c8da428620"
+    },
+    {
+      "path": "commits/af226f5/coe-320.png",
+      "bytes": 39186,
+      "sha256": "a81f7750a71b9f5f21b0c13342f57671f091157618375f21454aeb517136f395"
+    },
+    {
+      "path": "commits/af226f5/courses-320.png",
+      "bytes": 37880,
+      "sha256": "c70100ede8e74631e3f0f300f5b960005623503fb55fe0316e8b762fab917174"
+    },
+    {
+      "path": "commits/af226f5/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/af226f5/drawer-320.png",
+      "bytes": 30949,
+      "sha256": "b00246d9a1d0745473978258069262d93fa76796f039505480a9b699f06d5a64"
+    },
+    {
+      "path": "commits/af226f5/events-320.png",
+      "bytes": 44978,
+      "sha256": "4a37d286824ba9cc8fa6acdc8beb8740713cf157c793d3b20fb7fdda169c9aea"
+    },
+    {
+      "path": "commits/af226f5/guide-320x420.png",
+      "bytes": 26284,
+      "sha256": "f1f400fb8186895d63061c719d04d60eae72f4f2502a3cc4577aeaa77eb52145"
+    },
+    {
+      "path": "commits/af226f5/materials-320.png",
+      "bytes": 55120,
+      "sha256": "b9d109387d1cf4ee09adb9fdc9aae03833048ca147c73fee434fdbb9d8fc46c4"
+    },
+    {
+      "path": "commits/af226f5/result.json",
+      "bytes": 34730,
+      "sha256": "10e6765f32b7188444a1076345a2c4ad5ffe5a9aa2e42a54811518dac9dc4a58"
+    },
+    {
+      "path": "commits/af226f5/search-320.png",
+      "bytes": 38776,
+      "sha256": "b0a28d3a28971206a290c18154663d3c010073990f0327cc1a4ffe76dfabe8f8"
+    },
+    {
+      "path": "commits/af226f5/settings-security-320.png",
+      "bytes": 47316,
+      "sha256": "0c40e1aa7c7361a3ae9bdb4b3428af3da5d294ac98c31ebd7550ab92c12a347d"
+    },
+    {
+      "path": "commits/af226f5/sign-in-320.png",
+      "bytes": 136697,
+      "sha256": "141c00fe271499737ae5e113e219687643d47d02c6f5a1dd251f2f244b90b0af"
+    },
+    {
+      "path": "commits/af226f5/tasks-320.png",
+      "bytes": 51187,
+      "sha256": "204c11c0e1de81a2503843c4dceccc3b9b00dd2f5632fd91a500509c53960af8"
+    },
+    {
+      "path": "commits/23b33a7/coe-320.png",
+      "bytes": 74364,
+      "sha256": "0c0a92b4e9f5e77b90e040f8e44476aebd6165f099282295ad6ea58a9ae2be98"
+    },
+    {
+      "path": "commits/23b33a7/courses-320.png",
+      "bytes": 37880,
+      "sha256": "c70100ede8e74631e3f0f300f5b960005623503fb55fe0316e8b762fab917174"
+    },
+    {
+      "path": "commits/23b33a7/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/23b33a7/drawer-320.png",
+      "bytes": 30944,
+      "sha256": "a865286ea03e800e2a51aa04b75dd032280b68abf942d8b0a7772c7c481fc157"
+    },
+    {
+      "path": "commits/23b33a7/events-320.png",
+      "bytes": 44978,
+      "sha256": "4a37d286824ba9cc8fa6acdc8beb8740713cf157c793d3b20fb7fdda169c9aea"
+    },
+    {
+      "path": "commits/23b33a7/guide-320x420.png",
+      "bytes": 26284,
+      "sha256": "f1f400fb8186895d63061c719d04d60eae72f4f2502a3cc4577aeaa77eb52145"
+    },
+    {
+      "path": "commits/23b33a7/materials-320.png",
+      "bytes": 50920,
+      "sha256": "f303e012587ad4c1d13ec66ec22e2e49775b23122925af9179038302b1fac7a0"
+    },
+    {
+      "path": "commits/23b33a7/result.json",
+      "bytes": 34730,
+      "sha256": "f52963c390db86ff788c5741de7c82856316a9fd8a88a4a16e93ce3d5c1eafe9"
+    },
+    {
+      "path": "commits/23b33a7/search-320.png",
+      "bytes": 38778,
+      "sha256": "0178fe5725fbde87b038bf474c8d5a5593128a2cd892a22fc03f9eb9a8de0cbd"
+    },
+    {
+      "path": "commits/23b33a7/settings-security-320.png",
+      "bytes": 46552,
+      "sha256": "2443b2ba9cd99f85116840fd3dc4a3ce0fd6d3934a23e509f5b968ae95e13b24"
+    },
+    {
+      "path": "commits/23b33a7/sign-in-320.png",
+      "bytes": 136697,
+      "sha256": "141c00fe271499737ae5e113e219687643d47d02c6f5a1dd251f2f244b90b0af"
+    },
+    {
+      "path": "commits/23b33a7/tasks-320.png",
+      "bytes": 51187,
+      "sha256": "204c11c0e1de81a2503843c4dceccc3b9b00dd2f5632fd91a500509c53960af8"
+    },
+    {
+      "path": "commits/f03c908/coe-320.png",
+      "bytes": 59344,
+      "sha256": "c81a8dcac6c6d4279b7595e18c5fcc89faa758998ec87da9d371571663ddab3f"
+    },
+    {
+      "path": "commits/f03c908/courses-320.png",
+      "bytes": 37880,
+      "sha256": "c70100ede8e74631e3f0f300f5b960005623503fb55fe0316e8b762fab917174"
+    },
+    {
+      "path": "commits/f03c908/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/f03c908/drawer-320.png",
+      "bytes": 30909,
+      "sha256": "921d93ac64accfb19816f06c94bf4968aa8e945905b678e57db17d662bbf28c5"
+    },
+    {
+      "path": "commits/f03c908/events-320.png",
+      "bytes": 44978,
+      "sha256": "4a37d286824ba9cc8fa6acdc8beb8740713cf157c793d3b20fb7fdda169c9aea"
+    },
+    {
+      "path": "commits/f03c908/guide-320x420.png",
+      "bytes": 26284,
+      "sha256": "f1f400fb8186895d63061c719d04d60eae72f4f2502a3cc4577aeaa77eb52145"
+    },
+    {
+      "path": "commits/f03c908/materials-320.png",
+      "bytes": 50920,
+      "sha256": "f303e012587ad4c1d13ec66ec22e2e49775b23122925af9179038302b1fac7a0"
+    },
+    {
+      "path": "commits/f03c908/result.json",
+      "bytes": 34951,
+      "sha256": "c81d266e2613472d669bcdfd3e8f15e16c392902b7e19c7c9c90955202e01e79"
+    },
+    {
+      "path": "commits/f03c908/search-320.png",
+      "bytes": 44676,
+      "sha256": "6038d67942585c93cbe5457cd60135718e7e50fd72158d6755580571e1712f19"
+    },
+    {
+      "path": "commits/f03c908/settings-security-320.png",
+      "bytes": 46552,
+      "sha256": "2443b2ba9cd99f85116840fd3dc4a3ce0fd6d3934a23e509f5b968ae95e13b24"
+    },
+    {
+      "path": "commits/f03c908/setup-390.png",
+      "bytes": 60289,
+      "sha256": "78061be840725df47f36c9737965c96707376783e0c5c7092d2b1fdac7ccd8a7"
+    },
+    {
+      "path": "commits/f03c908/sign-in-320.png",
+      "bytes": 137032,
+      "sha256": "d30acfafa54969cb1112abef2188d6f96db9f52a7a28ee1efde0470fa091c990"
+    },
+    {
+      "path": "commits/f03c908/tasks-320.png",
+      "bytes": 51187,
+      "sha256": "204c11c0e1de81a2503843c4dceccc3b9b00dd2f5632fd91a500509c53960af8"
+    },
+    {
+      "path": "commits/a1ecf25/coe-320.png",
+      "bytes": 68479,
+      "sha256": "e7b87a131bc71b4355222087d344bd52f72198f6d149c31d3a64df82f893aa00"
+    },
+    {
+      "path": "commits/a1ecf25/courses-320.png",
+      "bytes": 49317,
+      "sha256": "e87816f68c6133a8d32806ba914ba5bd98870a2fcbcb15e341f824330a0667ee"
+    },
+    {
+      "path": "commits/a1ecf25/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/a1ecf25/drawer-320.png",
+      "bytes": 30939,
+      "sha256": "2b6df82f4f1f8f8a3b605e4babe24e913fcd3ee89a295684c48ea91a538a7663"
+    },
+    {
+      "path": "commits/a1ecf25/events-320.png",
+      "bytes": 45166,
+      "sha256": "4ee90ef987742a8a0301749e94af8dfcd3c65be7f6817151e45e522687173983"
+    },
+    {
+      "path": "commits/a1ecf25/guide-320x420.png",
+      "bytes": 26284,
+      "sha256": "f1f400fb8186895d63061c719d04d60eae72f4f2502a3cc4577aeaa77eb52145"
+    },
+    {
+      "path": "commits/a1ecf25/materials-320.png",
+      "bytes": 50920,
+      "sha256": "f303e012587ad4c1d13ec66ec22e2e49775b23122925af9179038302b1fac7a0"
+    },
+    {
+      "path": "commits/a1ecf25/result.json",
+      "bytes": 34951,
+      "sha256": "69be90b70729cfd6af9c42ab37273c1c8b1d30119bfd9410c9f72300ffb52276"
+    },
+    {
+      "path": "commits/a1ecf25/search-320.png",
+      "bytes": 44474,
+      "sha256": "8e16f3f78f14c8c3c8ff25c06c61ac5f44ac8036b492e9c1ee423635e7b3842d"
+    },
+    {
+      "path": "commits/a1ecf25/settings-security-320.png",
+      "bytes": 47108,
+      "sha256": "b0c8d933f50e999e8eb040755ee168614ff957e69af59375434f690bf821d400"
+    },
+    {
+      "path": "commits/a1ecf25/setup-390.png",
+      "bytes": 60289,
+      "sha256": "78061be840725df47f36c9737965c96707376783e0c5c7092d2b1fdac7ccd8a7"
+    },
+    {
+      "path": "commits/a1ecf25/sign-in-320.png",
+      "bytes": 137032,
+      "sha256": "d30acfafa54969cb1112abef2188d6f96db9f52a7a28ee1efde0470fa091c990"
+    },
+    {
+      "path": "commits/a1ecf25/tasks-320.png",
+      "bytes": 51173,
+      "sha256": "9e118824d507daae93adf489d89191bd13fcb7209365d375a7ba20d38fd2c57c"
+    },
+    {
+      "path": "commits/02cd462/coe-320.png",
+      "bytes": 59344,
+      "sha256": "c81a8dcac6c6d4279b7595e18c5fcc89faa758998ec87da9d371571663ddab3f"
+    },
+    {
+      "path": "commits/02cd462/courses-320.png",
+      "bytes": 49317,
+      "sha256": "e87816f68c6133a8d32806ba914ba5bd98870a2fcbcb15e341f824330a0667ee"
+    },
+    {
+      "path": "commits/02cd462/dashboard-390.png",
+      "bytes": 66108,
+      "sha256": "9a4bb8b2ee658d23a249105288688579bc9f53723d3894f891d732521779bc48"
+    },
+    {
+      "path": "commits/02cd462/drawer-320.png",
+      "bytes": 30939,
+      "sha256": "2b6df82f4f1f8f8a3b605e4babe24e913fcd3ee89a295684c48ea91a538a7663"
+    },
+    {
+      "path": "commits/02cd462/events-320.png",
+      "bytes": 45166,
+      "sha256": "4ee90ef987742a8a0301749e94af8dfcd3c65be7f6817151e45e522687173983"
+    },
+    {
+      "path": "commits/02cd462/guide-320x420.png",
+      "bytes": 26261,
+      "sha256": "70fc9997bdbbe97fd9e35f0caf555db665b7f197c7adbce762d65a02ed6a38f2"
+    },
+    {
+      "path": "commits/02cd462/guide-minimized-320x420.png",
+      "bytes": 24174,
+      "sha256": "24cfb46412f671f76098e21238aa64faf6a2f611f589b4b0583d96bd04085efa"
+    },
+    {
+      "path": "commits/02cd462/materials-320.png",
+      "bytes": 50920,
+      "sha256": "f303e012587ad4c1d13ec66ec22e2e49775b23122925af9179038302b1fac7a0"
+    },
+    {
+      "path": "commits/02cd462/result.json",
+      "bytes": 35185,
+      "sha256": "fd2eac8239a791ba34ae9b4da015a0e40377c60034b1b45e19cb6158795a21ea"
+    },
+    {
+      "path": "commits/02cd462/search-320.png",
+      "bytes": 44468,
+      "sha256": "256aeaa8c3ad93df7c100138c746080c7bd34dce4005544959a27dc315fcc1ea"
+    },
+    {
+      "path": "commits/02cd462/settings-security-320.png",
+      "bytes": 47108,
+      "sha256": "b0c8d933f50e999e8eb040755ee168614ff957e69af59375434f690bf821d400"
+    },
+    {
+      "path": "commits/02cd462/setup-390.png",
+      "bytes": 60289,
+      "sha256": "78061be840725df47f36c9737965c96707376783e0c5c7092d2b1fdac7ccd8a7"
+    },
+    {
+      "path": "commits/02cd462/sign-in-320.png",
+      "bytes": 137032,
+      "sha256": "d30acfafa54969cb1112abef2188d6f96db9f52a7a28ee1efde0470fa091c990"
+    },
+    {
+      "path": "commits/02cd462/tasks-320.png",
+      "bytes": 51187,
+      "sha256": "204c11c0e1de81a2503843c4dceccc3b9b00dd2f5632fd91a500509c53960af8"
+    },
+    {
+      "path": "commits/a3e1f33/coe-320.png",
+      "bytes": 59344,
+      "sha256": "c81a8dcac6c6d4279b7595e18c5fcc89faa758998ec87da9d371571663ddab3f"
+    },
+    {
+      "path": "commits/a3e1f33/courses-320.png",
+      "bytes": 49317,
+      "sha256": "e87816f68c6133a8d32806ba914ba5bd98870a2fcbcb15e341f824330a0667ee"
+    },
+    {
+      "path": "commits/a3e1f33/dashboard-390.png",
+      "bytes": 65928,
+      "sha256": "d7bbb17a330f88e79cc064fde32a6b1fdbd3d04894880dfd6ed8bceb4717cd57"
+    },
+    {
+      "path": "commits/a3e1f33/drawer-320.png",
+      "bytes": 30888,
+      "sha256": "462b3940d0bb44957036f7870546a5fb8bf6396a0d49b0e501d16ef5598edadf"
+    },
+    {
+      "path": "commits/a3e1f33/events-320.png",
+      "bytes": 45166,
+      "sha256": "4ee90ef987742a8a0301749e94af8dfcd3c65be7f6817151e45e522687173983"
+    },
+    {
+      "path": "commits/a3e1f33/guide-320x420.png",
+      "bytes": 25586,
+      "sha256": "7caee6e0016f82516114534a814549451d3f12b056e406347c547fb352136df1"
+    },
+    {
+      "path": "commits/a3e1f33/guide-minimized-320x420.png",
+      "bytes": 24177,
+      "sha256": "8df8663002e011541ed4178f3fb78b461622de89deccd574cac8b9a160f0d87d"
+    },
+    {
+      "path": "commits/a3e1f33/materials-320.png",
+      "bytes": 50920,
+      "sha256": "f303e012587ad4c1d13ec66ec22e2e49775b23122925af9179038302b1fac7a0"
+    },
+    {
+      "path": "commits/a3e1f33/result.json",
+      "bytes": 35185,
+      "sha256": "aaef564ab3a836a0d59f9203062ac74a37eb5105d834445bd7f4aa0fe0cf7845"
+    },
+    {
+      "path": "commits/a3e1f33/search-320.png",
+      "bytes": 44421,
+      "sha256": "13096b94b3c7f6089bd025296bf6b462eac1565442a7eeacf73bedb45ef1ee63"
+    },
+    {
+      "path": "commits/a3e1f33/settings-security-320.png",
+      "bytes": 47108,
+      "sha256": "b0c8d933f50e999e8eb040755ee168614ff957e69af59375434f690bf821d400"
+    },
+    {
+      "path": "commits/a3e1f33/setup-390.png",
+      "bytes": 65928,
+      "sha256": "d7bbb17a330f88e79cc064fde32a6b1fdbd3d04894880dfd6ed8bceb4717cd57"
+    },
+    {
+      "path": "commits/a3e1f33/sign-in-320.png",
+      "bytes": 132368,
+      "sha256": "1d1b718886037bf0f5b22836bcb13c8d32d3e2aa77401c1bbf9079373838d801"
+    },
+    {
+      "path": "commits/a3e1f33/tasks-320.png",
+      "bytes": 51187,
+      "sha256": "204c11c0e1de81a2503843c4dceccc3b9b00dd2f5632fd91a500509c53960af8"
+    },
+    {
+      "path": "final/-academics-tab-grades-1280.png",
+      "bytes": 105729,
+      "sha256": "8689fc8a9a22915a86557de15ce65f8f1433c6dc01a99f06620dc79c9fa2d710"
+    },
+    {
+      "path": "final/-academics-tab-grades-320.png",
+      "bytes": 51438,
+      "sha256": "c7c9d01fee9be2b10177f036498102a51876c4f6fb47b0c8e558b49be5a34b48"
+    },
+    {
+      "path": "final/-academics-tab-grades-390.png",
+      "bytes": 60614,
+      "sha256": "5093c9558897ad073d0f8cfea2c2f3950589637e01ee1ea78e0b323f8231c03e"
+    },
+    {
+      "path": "final/-academics-tab-materials-1280.png",
+      "bytes": 100100,
+      "sha256": "ce71c5fc6eea1946989eb91084ed1d7f01ffd9d9be895408abf47a06acf6530f"
+    },
+    {
+      "path": "final/-academics-tab-materials-320.png",
+      "bytes": 50640,
+      "sha256": "90ea7468a7a54239f0da396cbe4a7de0a0733fe90e8ac31deb434a7c6deeafbe"
+    },
+    {
+      "path": "final/-academics-tab-materials-390.png",
+      "bytes": 56934,
+      "sha256": "759ca6ea6b9b6bc3490650a507710772d779fe9e612e45b161c0cf2955b27e04"
+    },
+    {
+      "path": "final/-academics-tab-subjects-1280.png",
+      "bytes": 105665,
+      "sha256": "c9e3c93fb1d9cf60925248b3ddf39a7b619fb8ba7fbb0227a1b473f96bb53857"
+    },
+    {
+      "path": "final/-academics-tab-subjects-320.png",
+      "bytes": 50772,
+      "sha256": "d2f9a7fc14238dab4e897401873660965f057c261c75529e7c498f1dff1c8f5e"
+    },
+    {
+      "path": "final/-academics-tab-subjects-390.png",
+      "bytes": 60788,
+      "sha256": "8863a75eebf188fb3b87223c424783ad540a2e1d133d956dd5e762117ed660c3"
+    },
+    {
+      "path": "final/-academics-tab-tasks-1280.png",
+      "bytes": 109062,
+      "sha256": "64aeb03c7cb1038ba3155abce041d726aa2aa8d6b7b6f5d7ebb27005d10e1065"
+    },
+    {
+      "path": "final/-academics-tab-tasks-320.png",
+      "bytes": 50902,
+      "sha256": "51c9b477060679cc34b873b7677da0bcab73f46a982ff3dc4c4aa79add14b794"
+    },
+    {
+      "path": "final/-academics-tab-tasks-390.png",
+      "bytes": 57420,
+      "sha256": "d0d2a075c07cc384d582f62d845b99f3ac2e1ac879a344fd20c6181f018aead0"
+    },
+    {
+      "path": "final/-enrollment-1280.png",
+      "bytes": 127290,
+      "sha256": "4c5de73e364e6cde16f391a3632478b79d4ae206b06a99e070172f11906f1192"
+    },
+    {
+      "path": "final/-enrollment-320.png",
+      "bytes": 51312,
+      "sha256": "6ea0a9d724de9dd8ec71e209354df724287560398319f97f2e423a18a8ea3096"
+    },
+    {
+      "path": "final/-enrollment-390-documents.png",
+      "bytes": 48914,
+      "sha256": "365608d0263d02a5fda4114007ae8a5e2b1770e6ba06b7818fbb8efdd8b7e5f5"
+    },
+    {
+      "path": "final/-enrollment-390-full.png",
+      "bytes": 112920,
+      "sha256": "a5a0191ec232f52f2790e308f15f5e7cce9ad5c5d998e73f13c4593a2528cb74"
+    },
+    {
+      "path": "final/-enrollment-390.png",
+      "bytes": 51794,
+      "sha256": "2a804ae36862771e98f20e9fa4eb2163884ebd5cd78d2dc4afd49d4bffb3201d"
+    },
+    {
+      "path": "final/-events-1280.png",
+      "bytes": 95122,
+      "sha256": "5bea1e3d789eddf4fc6fa218a913a11d8735ace27135857d6a4315cbe8688f4f"
+    },
+    {
+      "path": "final/-events-320.png",
+      "bytes": 44976,
+      "sha256": "ed7df1a4c8a7a62c72470ac2eb3e127bd3934004ab93b04b5243e46e09f211d1"
+    },
+    {
+      "path": "final/-events-390.png",
+      "bytes": 45022,
+      "sha256": "37780f7f85cdaef7d954d9fb9e36c96c95b754990a1ccc0a2f0c6152e1cf7567"
+    },
+    {
+      "path": "final/-help-1280.png",
+      "bytes": 106374,
+      "sha256": "4c2daed86be92beb3883e70f832f6765878b4ea63f1d18d8b0d90aca27ed4c56"
+    },
+    {
+      "path": "final/-help-320.png",
+      "bytes": 49553,
+      "sha256": "79bcbba595947721623f5eb889e0f9bcf7b2b8a7ce3dbdd4790b5d4c8d5fb01f"
+    },
+    {
+      "path": "final/-help-390.png",
+      "bytes": 53274,
+      "sha256": "5a933db31460e33f33309a85aa784cdeb10dbb18d97bc62768ee67e20fe9b9a2"
+    },
+    {
+      "path": "final/-professors-1280.png",
+      "bytes": 113810,
+      "sha256": "4f6a146b37f3bd25591491bbd5812501a8a613837bfcf87c8b48a7b435857f37"
+    },
+    {
+      "path": "final/-professors-320.png",
+      "bytes": 56728,
+      "sha256": "e301ec1d5dc64f9163eb544df796999fba9e66774173946d065c3c7bc0a132a5"
+    },
+    {
+      "path": "final/-professors-390-full.png",
+      "bytes": 88498,
+      "sha256": "4f83ef75a1bc4eddbafe14f80f2fe8736287520cc1960563948436e850fa7eaf"
+    },
+    {
+      "path": "final/-professors-390.png",
+      "bytes": 58419,
+      "sha256": "434292090675f9a0ecb3b8ffc294e770513581cb0cb8efb18e47812c95bc2ac0"
+    },
+    {
+      "path": "final/-profile-1280.png",
+      "bytes": 150829,
+      "sha256": "d740ac84a1fb44d67064cec730c1d56ce125502762f0bc51e8d951d5d62e1092"
+    },
+    {
+      "path": "final/-profile-320.png",
+      "bytes": 44912,
+      "sha256": "d5667e136d07902413f0837f3320459e9915b79f9850e98a41d9121974cbb65c"
+    },
+    {
+      "path": "final/-profile-390-documents.png",
+      "bytes": 75684,
+      "sha256": "aa527bed6eb97de0da33ce508ba28bc9252d0feca91bbd9687162d5c13d18b7d"
+    },
+    {
+      "path": "final/-profile-390-full.png",
+      "bytes": 278084,
+      "sha256": "8a6bd81c638bf06ccbe7178366b2bd639f1cba1fbb341a46c59d390e3469669c"
+    },
+    {
+      "path": "final/-profile-390.png",
+      "bytes": 46573,
+      "sha256": "6fc1f61016117f90ea517b816f57071b3f51bfa157acacae8bbb37bb1adfe7be"
+    },
+    {
+      "path": "final/-settings-1280.png",
+      "bytes": 106733,
+      "sha256": "2dcd89db8331631675e3388c6717e8f62c452628c7cba0b3a4c7be1071cfc6cf"
+    },
+    {
+      "path": "final/-settings-320.png",
+      "bytes": 51488,
+      "sha256": "8cf383d3c9792fa245df7d6ff589979d302441ebcd53307eb274af9d0a479c5e"
+    },
+    {
+      "path": "final/-settings-390.png",
+      "bytes": 55046,
+      "sha256": "388ae25781c9172e3400efca78c45932567617144903d0fec305cde04e521c47"
+    },
+    {
+      "path": "final/-settings-section-appearance-1280.png",
+      "bytes": 113681,
+      "sha256": "208cff519102a184c59f7dd40525b42e3270a5aa3a34d96c71f9a195f0174dec"
+    },
+    {
+      "path": "final/-settings-section-appearance-320.png",
+      "bytes": 48451,
+      "sha256": "f5d0c3211407e350b2dac28b0c7e73f07496a162c1438fd36cc9ae79e194fe85"
+    },
+    {
+      "path": "final/-settings-section-appearance-390.png",
+      "bytes": 49418,
+      "sha256": "d6622579c048be1778bb7554d6b5d41092314ad4814a4b9a2f0247f8e9edcdb6"
+    },
+    {
+      "path": "final/-settings-section-notifications-1280.png",
+      "bytes": 97024,
+      "sha256": "acf1eb971ed5854593fc6257ac22cad2dcd9046cbdbdb1eb626afa113e5f95a3"
+    },
+    {
+      "path": "final/-settings-section-notifications-320.png",
+      "bytes": 49502,
+      "sha256": "25e465c108846789ee3a1acfe8d2da26933337e9ce2d5513b59a1b9edd36085a"
+    },
+    {
+      "path": "final/-settings-section-notifications-390.png",
+      "bytes": 52218,
+      "sha256": "1490b7a6f2a1fd6575ba7d365c6e703a7a68ea19d9c5cb54c779ce62b7a3c33a"
+    },
+    {
+      "path": "final/-settings-section-privacy-1280.png",
+      "bytes": 97668,
+      "sha256": "916e675419d23de9da248bf7dcecfa2020992bf45211b5aa9cf998bff7e9e6a4"
+    },
+    {
+      "path": "final/-settings-section-privacy-320.png",
+      "bytes": 45590,
+      "sha256": "6b6075c9f719e0fc4cb2fcb55e65a4ed7dac0c6c5d884d1a2e95840378b2d480"
+    },
+    {
+      "path": "final/-settings-section-privacy-390.png",
+      "bytes": 48435,
+      "sha256": "884abdf5f6d0f09b20ca21c26d8f023351fb4458c34b8d3b147089fb4e51f607"
+    },
+    {
+      "path": "final/-settings-section-security-1280.png",
+      "bytes": 88090,
+      "sha256": "ec195cf4b71f85536b3b5b1332660ed631e50010249c5810a02212ad82c5f6be"
+    },
+    {
+      "path": "final/-settings-section-security-320.png",
+      "bytes": 46829,
+      "sha256": "1de93757b0f18de90c748e429e59a16dbc55df7e6320f5e89b1bc3ed490bead9"
+    },
+    {
+      "path": "final/-settings-section-security-390.png",
+      "bytes": 47210,
+      "sha256": "f90a6d6ad3f461e7ccf59196318227a4e3d4febc79152a1aed07cfa6acd70e0d"
+    },
+    {
+      "path": "final/admin-drawer-320.png",
+      "bytes": 33255,
+      "sha256": "5cdd3ec798f9f798a2c959cae0b7a3666acaf235a4791aecb23d527947c00f93"
+    },
+    {
+      "path": "final/certificate-320x420.png",
+      "bytes": 34459,
+      "sha256": "8c351e486f7e47e439cc7bf5b6e0423d44862b81ff87c3a9ee1a7f58476016c2"
+    },
+    {
+      "path": "final/dashboard-1280.png",
+      "bytes": 111573,
+      "sha256": "e60614eba894965268ffe1c55e8f9dd6488409b4fa71b239c7fe05a851f6bf92"
+    },
+    {
+      "path": "final/dashboard-320.png",
+      "bytes": 59202,
+      "sha256": "54bbae077656ffb3e8f0b049556863b14ca0e3dcdad5bc4040f5482a7973de40"
+    },
+    {
+      "path": "final/dashboard-390.png",
+      "bytes": 65928,
+      "sha256": "d7bbb17a330f88e79cc064fde32a6b1fdbd3d04894880dfd6ed8bceb4717cd57"
+    },
+    {
+      "path": "final/digital-id-320x420.png",
+      "bytes": 73327,
+      "sha256": "baed40bf5e39742762527d11acfc7f3e99a4567c0eeb0e6e1c0c46a09c89b9d5"
+    },
+    {
+      "path": "final/faculty-desktop-1280.png",
+      "bytes": 120308,
+      "sha256": "af2ce1902133447a08d3a695ea83fea50a57c85e0585f2e36e9453e8fdab5b68"
+    },
+    {
+      "path": "final/faculty-drawer-320.png",
+      "bytes": 32943,
+      "sha256": "58704f22c7e9cf7fa375febcedad9488834c22c03b7549ffc8d2e2c42c13a7e0"
+    },
+    {
+      "path": "final/guide-320x420.png",
+      "bytes": 25554,
+      "sha256": "ca57c8f81a286c6984fed9c1e656236c5f744dab26b8bdb3c7ca4fc3a7194c46"
+    },
+    {
+      "path": "final/guide-minimized-320x420.png",
+      "bytes": 24177,
+      "sha256": "8df8663002e011541ed4178f3fb78b461622de89deccd574cac8b9a160f0d87d"
+    },
+    {
+      "path": "final/sign-in-320.png",
+      "bytes": 134154,
+      "sha256": "25d0546ee5d83e882562f777697eb1102b53e4fa737b2ec3bb50662c06948ed1"
+    },
+    {
+      "path": "final/submission-320.png",
+      "bytes": 43177,
+      "sha256": "235752eb8d6dfb51f5823b5f6c81491042f0011e9838f62fb73a9bd85f3d592d"
+    },
+    {
+      "path": "final/tour-390.png",
+      "bytes": 64101,
+      "sha256": "65c4c760f78cfb06427c8fc1a595e95c53db1da2b49f1a3cd725c97822abb564"
+    },
+    {
+      "path": "final/welcome-320x420.png",
+      "bytes": 25151,
+      "sha256": "f7bd892a58c4e51a2859b07f15f1b752901289c7a2ea89fded34b958d8f3fcaa"
+    },
+    {
+      "path": "verification/acceptance.json",
+      "bytes": 61382,
+      "sha256": "99cc3ab0b074e2b58b056c7c6e1d0adb550956f9d83769e01fd3945b930898c1"
+    },
+    {
+      "path": "verification/quality.json",
+      "bytes": 31790,
+      "sha256": "f27ab256510d1599767b979b5983edb9f66e9fdfb12ae7dd5af58c086e9de0c4"
+    },
+    {
+      "path": "verification/lint.log",
+      "bytes": 2643,
+      "sha256": "f66d6d0464664108c7a0ef58aaf9b8212b60028caf0932905184cc0e7b69f2c7",
+      "originalSha256": "0262775f190aed22e8ecb8968cb33a536c3b6ff309b19370727dd498a3b5727c"
+    },
+    {
+      "path": "verification/typecheck.log",
+      "bytes": 60,
+      "sha256": "85372a29e3bee5dc4f755cd386e77539e625a9262b4ec3ec8e9438482b7dfbdf",
+      "originalSha256": "a02bfa95bfa0b738b86acdc6808533a429a0d370467b48fef9e89ab41cfb199e"
+    },
+    {
+      "path": "verification/build.log",
+      "bytes": 1873,
+      "sha256": "08f1c91fa5ccf3e99e0bd5a35a315870a07ced72d848ecb3e41d5ee974a65ae5",
+      "originalSha256": "a99610e928d9d3494ff1aaec41e69ba5297f3136eb07ff801bd4b1118cde3694"
+    },
+    {
+      "path": "verification/unit-tests.log",
+      "bytes": 20142,
+      "sha256": "d4147e7dcfa5988077f890395a6c0bfd9f29639274634626600c2e75e42085f7",
+      "originalSha256": "43c45c84bf44e2260398520124cda56121852d0919fd23fedde791209caf00de"
+    },
+    {
+      "path": "verification/acceptance-r6.json",
+      "bytes": 55060,
+      "sha256": "cbbd836fd9fe1c5fb5556014b4f66685657df03e8f0dcd6f9cc5b1e2ad65d32c"
+    },
+    {
+      "path": "verification/acceptance-r7.json",
+      "bytes": 55478,
+      "sha256": "234ed966117784348a3b1535b11615651b7a1369790dd7837f5a8b8be602edfb"
+    },
+    {
+      "path": "verification/acceptance-r8.json",
+      "bytes": 55579,
+      "sha256": "4b05b0044ec300bd6edaefb47194425e7efad822d24191133e96f20980d1458d"
+    },
+    {
+      "path": "verification/acceptance-r9.json",
+      "bytes": 60572,
+      "sha256": "bdb0fc7d3ae3eae699de44b374f4f9fe22440289b7747d1c70e5191b4493c6bc"
+    },
+    {
+      "path": "verification/prior-search-failure.json",
+      "bytes": 52680,
+      "sha256": "6d9e1b3c762b297a5ae8ac6f1073d88942ee18f460d1c258974f5857cfe07bc1"
+    },
+    {
+      "path": "verification/clock-playwright-fixed.json",
+      "bytes": 2844,
+      "sha256": "98e419f9ea33f176766f30b7cd1b3d23c085c83791c2e970c5ce8fa290e1143b"
+    },
+    {
+      "path": "verification/clock-playwright-fixed.png",
+      "bytes": 35128,
+      "sha256": "5467301e2c8f239148649e474ccf4b7b2b72aceae182fac4a3f1ba4785d2ba2a"
+    },
+    {
+      "path": "verification/clock-date-offset.json",
+      "bytes": 2825,
+      "sha256": "92f5c825a2b0d24dbba3f9f3859e5b7b9c70f045456452ce5f24c9ad5e4faf05"
+    },
+    {
+      "path": "verification/clock-date-offset.png",
+      "bytes": 44691,
+      "sha256": "9d77b4042a15308ba0e9e86fcdb20481fef72c946c27f60df8b728631eb544e5"
+    },
+    {
+      "path": "verification/prior-r8-failure.png",
+      "bytes": 9639,
+      "sha256": "7b28f6d9e30b4e3e65e9db1ee03b0fa38947b1db9ba03383ce4b258df4f15feb"
+    },
+    {
+      "path": "final/certificate-clean-320x420.png",
+      "bytes": 33000,
+      "sha256": "a5d2d4d2d874e1ef71b169f9086ca9e969dbe4cc1327ec285359696ff3575fd5"
+    },
+    {
+      "path": "verification/clean-certificate.json",
+      "bytes": 373,
+      "sha256": "6c94740a7f4404fdf61813a0c9b818debc2b6925bf32b599f93e9ded9543d729"
+    }
+  ],
+  "logNormalization": "Published text logs use LF line endings without trailing whitespace. Original captured-byte hashes are retained for logs."
+}
