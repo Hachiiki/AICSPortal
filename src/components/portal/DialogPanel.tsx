@@ -49,7 +49,7 @@ export function DialogPanel({ onClose, trapFocus = true, children, ...rest }: Di
     const panel = panelRef.current
     if (!panel) return
     restoreRef.current = (document.activeElement as HTMLElement | null) ?? null
-    panel.focus()
+    panel.focus({ preventScroll: true })
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -82,7 +82,7 @@ export function DialogPanel({ onClose, trapFocus = true, children, ...rest }: Di
     panel.addEventListener('keydown', handleKey)
     return () => {
       panel.removeEventListener('keydown', handleKey)
-      restoreRef.current?.focus?.()
+      restoreRef.current?.focus({ preventScroll: true })
     }
   }, [trapFocus])
 

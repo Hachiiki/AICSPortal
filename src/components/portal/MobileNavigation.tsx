@@ -1,24 +1,26 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Menu } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
-const MOBILE_NAV_ACTION = 'grid min-h-[44px] min-w-[44px] place-items-center rounded-full text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:active:scale-95'
-const ACTIVE_NAV_ACTION = 'bg-blue-50 text-link-strong'
+const MOBILE_NAV_ACTION = 'relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full text-ink active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
+const ACTIVE_NAV_ACTION = 'text-link-strong'
 
 export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
   student: Student
   active: View
   academicTab?: AcademicsTab
   menuOpen: boolean
-  onOpenMenu: () => void
+  onOpenMenu: (event: MouseEvent<HTMLButtonElement>) => void
   onNavigate: (view: View) => void
   search: ReactNode
 }) {
   const { navigate } = usePortalRoute()
+  const reducedMotion = useReducedMotion()
   const dock = useRef<HTMLDivElement>(null)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
   useEffect(() => {
@@ -58,6 +60,11 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
     }
   }, [])
   const primary = active === 'notifications' || STUDENT_MOBILE_NAV.some(item => item.view === active)
+  const moreSelected = menuOpen || !primary
+  const activePill = <motion.span aria-hidden="true" data-dock-highlight=""
+    layoutId={reducedMotion ? undefined : 'student-dock-highlight'}
+    className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-blue-50"
+    transition={{ type: 'spring', stiffness: 500, damping: 39 }} />
   return <div ref={dock} data-student-mobile-nav="" aria-hidden={keyboardOpen || undefined}
     className={`pointer-events-none fixed inset-x-0 bottom-0 z-20 pl-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))] pb-[calc(10px+env(safe-area-inset-bottom))] sm:hidden ${keyboardOpen ? 'invisible' : ''}`}>
     <div aria-hidden="true" className="student-floating-backdrop" />
@@ -69,14 +76,16 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         return <button key={item.label} type="button" aria-current={selected ? 'page' : undefined} data-tour={item.view === 'academics' && item.tab === 'tasks' ? 'academics-tab-tasks' : undefined}
           className={`${MOBILE_NAV_ACTION} ${selected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`}
           onClick={() => item.view === 'academics' ? navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: item.tab }) : onNavigate(item.view)}>
+          {selected && activePill}
           <Icon className="size-[23px]" strokeWidth={selected ? 2.4 : 2} aria-hidden="true" />
           <span className="student-floating-label sr-only">{item.label}</span>
         </button>
       })}
       <button type="button" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded={menuOpen} aria-controls="mobile-navigation"
         aria-current={!primary && !menuOpen ? 'page' : undefined} data-tour="topbar-mobile-nav"
-        className={`${MOBILE_NAV_ACTION} ${menuOpen || !primary ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`} onClick={onOpenMenu}>
-        <Menu className="size-[23px]" strokeWidth={menuOpen || !primary ? 2.4 : 2} aria-hidden="true" />
+        className={`${MOBILE_NAV_ACTION} ${moreSelected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`} onClick={onOpenMenu}>
+        {moreSelected && activePill}
+        <Menu className="size-[23px]" strokeWidth={moreSelected ? 2.4 : 2} aria-hidden="true" />
         <span className="student-floating-label sr-only">More</span>
       </button>
     </nav>

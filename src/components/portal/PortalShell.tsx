@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import { motion, MotionConfig } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { motion, MotionConfig, useReducedMotion } from 'framer-motion'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -63,9 +63,25 @@ export function PortalShell({
   children,
   academicTab,
 }: PortalShellProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [mobileNav, setMobileNav] = useState<'closed' | 'open' | 'closing'>('closed')
+  const mobileNavOpen = mobileNav === 'open'
+  const mobileNavActive = mobileNav !== 'closed'
+  const menuTrigger = useRef<HTMLButtonElement>(null)
+  const openMobileNav = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    menuTrigger.current = event.currentTarget
+    setMobileNav('open')
+  }, [])
+  const closeMobileNav = useCallback(() => setMobileNav('closing'), [])
+  const finishClosingMobileNav = useCallback(() => setMobileNav('closed'), [])
+  useEffect(() => {
+    if (mobileNavActive || !menuTrigger.current) return
+    menuTrigger.current.focus({ preventScroll: true })
+    menuTrigger.current = null
+  }, [mobileNavActive])
   const role = student.role ?? 'student'
   const phone = usePhoneViewport()
+  const reducedMotion = useReducedMotion()
+  const studentPhone = role === 'student' && phone
   // Workspace-assembly entrance (assemble candidate only): staged
   // while the redirect overlay still covers the portal, animated
   // into place when the reveal flips. Null everywhere else — the
@@ -89,13 +105,15 @@ export function PortalShell({
         active={active}
         onNavigate={onNavigate}
         mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
+        mobileActive={mobileNavActive}
+        onMobileClose={closeMobileNav}
+        onMobileExitComplete={finishClosingMobileNav}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavOpen}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
         <Topbar
           student={student}
           active={active}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
+          onOpenMobileNav={openMobileNav}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
           onNavigate={onNavigate}
@@ -117,31 +135,33 @@ export function PortalShell({
             to an inline retry card while the sidebar/topbar stay alive;
             resetKey makes navigating away remount the crashed view. */}
         <motion.div
-          key={active}
+          key={studentPhone && !assembleReveal ? `${active}:${academicTab ?? ''}` : active}
           id="main-content"
           tabIndex={-1}
-          initial={assembleReveal ? entrance.initial : { opacity: 0, y: 8 }}
+          initial={assembleReveal ? entrance.initial : studentPhone
+            ? reducedMotion ? false : { opacity: 0.76, y: 6 }
+            : { opacity: 0, y: 8 }}
           animate={assembleReveal ? entrance.animate : { opacity: 1, y: 0 }}
           transition={
             assembleReveal
               ? entrance.transition
-              : { duration: 0.35, ease: 'easeOut' as const }
+              : { duration: studentPhone ? 0.22 : 0.35, ease: 'easeOut' as const }
           }
         >
           <ErrorBoundary resetKey={String(active)}>
             {children}
           </ErrorBoundary>
         </motion.div>
-        {role === 'student' && phone && (
+        {studentPhone && (
           <MobileNavigation
             student={student}
             active={active}
             academicTab={academicTab}
             menuOpen={mobileNavOpen}
-            onOpenMenu={() => setMobileNavOpen(true)}
+            onOpenMenu={openMobileNav}
             onNavigate={onNavigate}
             search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }}
-              className="pointer-events-auto grid size-[52px] shrink-0 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md hover:bg-blue-50 hover:text-link-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-transform motion-safe:active:scale-95" />}
+              className="pointer-events-auto grid size-[52px] shrink-0 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md hover:bg-blue-50 hover:text-link-strong active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color] motion-safe:duration-150 motion-safe:active:scale-95" />}
           />
         )}
       </div>

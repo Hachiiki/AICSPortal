@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState, type MouseEvent } from 'react'
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
@@ -27,7 +28,7 @@ import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 interface TopbarProps {
   student: Student
   active: View
-  onOpenMobileNav: () => void
+  onOpenMobileNav: (event: MouseEvent<HTMLButtonElement>) => void
   onProfile: () => void
   onLogout: () => void
   /** Drives the global search in the top bar. Lets the user jump to
@@ -64,6 +65,33 @@ export function Topbar({
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
+  const [scrollHidden, setScrollHidden] = useState(false)
+  useEffect(() => {
+    if (!phone) return
+    const readScroll = () => Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight))
+    let previous = readScroll()
+    let travel = 0
+    const update = () => {
+      const current = readScroll()
+      const delta = current - previous
+      previous = current
+      if (current <= 16) {
+        travel = 0
+        setScrollHidden(false)
+      } else if (delta !== 0) {
+        travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta
+        if (travel >= 14) {
+          setScrollHidden(true)
+          travel = 0
+        } else if (travel <= -10) {
+          setScrollHidden(false)
+          travel = 0
+        }
+      }
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [phone])
   const roleLabel = student.role === 'faculty' ? 'Faculty' : student.role === 'admin' ? 'Admin' : 'Student'
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
   const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
@@ -111,7 +139,8 @@ export function Topbar({
 
   return (
     <motion.header
-      className={`sticky top-0 z-20 border-slate-200 bg-surface sm:h-16 sm:border-b ${isStudent ? 'student-topbar' : ''}`}
+      className="portal-topbar sticky top-0 z-20 border-slate-200 bg-surface sm:h-16 sm:border-b"
+      data-scroll-hidden={phone && scrollHidden ? 'true' : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}

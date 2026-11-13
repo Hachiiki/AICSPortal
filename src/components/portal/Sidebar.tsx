@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion, AnimatePresence, useDragControls } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls, useReducedMotion } from 'framer-motion'
 import {
   X,
   Moon,
@@ -32,7 +32,9 @@ interface SidebarProps {
   onNavigate: (view: View) => void
   /** Mobile drawer open state (below lg) */
   mobileOpen: boolean
+  mobileActive?: boolean
   onMobileClose: () => void
+  onMobileExitComplete?: () => void
   /** When 'faculty', shows faculty nav items instead of student ones. */
   role?: 'student' | 'faculty' | 'admin'
 }
@@ -168,10 +170,15 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
   )
 }
 
-export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
+export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileOpen, onMobileClose, onMobileExitComplete, role }: SidebarProps) {
   const phone = usePhoneViewport()
   const phoneSheet = role === 'student' && phone
   const sheetDrag = useDragControls()
+  const reducedMotion = useReducedMotion()
+  const sheetTransition = {
+    duration: reducedMotion ? 0 : 0.28,
+    ease: [0.22, 1, 0.36, 1] as const,
+  }
   // Workspace-assembly entrance (assemble candidate only): the real
   // rail slides in from the left when the reveal flips. Inactive —
   // including normal navigation — the aside mounts at rest, exactly
@@ -180,7 +187,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
   const entrance = assembleEntrance('sidebar', assembleReveal)
   // The shared DialogPanel owns focus entry, Tab trapping and restoration.
   useEffect(() => {
-    if (!mobileOpen) return
+    if (!mobileActive) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const desktop = window.matchMedia('(min-width: 1024px)')
@@ -192,7 +199,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
       document.body.style.overflow = previousOverflow
       desktop.removeEventListener('change', closeOnDesktop)
     }
-  }, [mobileOpen, onMobileClose])
+  }, [mobileActive, onMobileClose])
 
   return (
     <>
@@ -211,7 +218,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
       </motion.aside>
 
       {/* Mobile drawer — slide-in below lg */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={onMobileExitComplete}>
         {mobileOpen && (
           <>
             {/* Backdrop */}
@@ -219,7 +226,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: reducedMotion ? 0 : 0.22 }}
               className="fixed inset-0 bg-scrim/40 z-40 lg:hidden"
               onClick={onMobileClose}
               aria-hidden="true"
@@ -228,10 +235,10 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
             <DialogPanel
               id="mobile-navigation"
               onClose={onMobileClose}
-              initial={phoneSheet ? { y: '100%' } : { x: -264 }}
-              animate={{ x: 0, y: 0 }}
-              exit={phoneSheet ? { y: '100%' } : { x: -264 }}
-              transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
+              initial={phoneSheet ? { y: '100%', opacity: 0.8 } : { x: -264 }}
+              animate={{ x: 0, y: 0, opacity: 1 }}
+              exit={phoneSheet ? { y: '100%', opacity: 0.8 } : { x: -264 }}
+              transition={phoneSheet ? sheetTransition : { duration: reducedMotion ? 0 : 0.25, ease: 'easeOut' }}
               drag={phoneSheet ? 'y' : false}
               dragControls={sheetDrag}
               dragListener={false}
