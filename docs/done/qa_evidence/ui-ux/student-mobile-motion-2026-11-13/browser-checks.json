@@ -1,0 +1,388 @@
+{
+  "source": "e0a431eae5d4917389ac7d984653878a017a90ca",
+  "synthetic": true,
+  "animation": [
+    {
+      "name": "no-preference scrolling down hides header",
+      "pass": true
+    },
+    {
+      "name": "no-preference scrolling up restores header",
+      "pass": true
+    },
+    {
+      "name": "no-preference header transition matches preference",
+      "pass": true
+    },
+    {
+      "name": "no-preference More is visible and page is inert",
+      "pass": true
+    },
+    {
+      "name": "More slides through intermediate positions on open",
+      "pass": true
+    },
+    {
+      "name": "no-preference Close returns focus and removes inert",
+      "pass": true
+    },
+    {
+      "name": "More slides out with the page inert during motion",
+      "pass": true
+    },
+    {
+      "name": "no-preference tap scale matches preference",
+      "pass": true
+    },
+    {
+      "name": "no-preference Academics becomes the current destination",
+      "pass": true
+    },
+    {
+      "name": "no-preference selection motion matches preference",
+      "pass": true,
+      "detail": {
+        "from": 90.5,
+        "to": 164
+      }
+    },
+    {
+      "name": "no-preference tab fade matches preference",
+      "pass": true
+    },
+    {
+      "name": "reduce scrolling down hides header",
+      "pass": true
+    },
+    {
+      "name": "reduce scrolling up restores header",
+      "pass": true
+    },
+    {
+      "name": "reduce header transition matches preference",
+      "pass": true
+    },
+    {
+      "name": "reduce More is visible and page is inert",
+      "pass": true
+    },
+    {
+      "name": "reduce Close returns focus and removes inert",
+      "pass": true
+    },
+    {
+      "name": "Reduced motion skips the sheet slide",
+      "pass": true
+    },
+    {
+      "name": "reduce tap scale matches preference",
+      "pass": true
+    },
+    {
+      "name": "reduce Academics becomes the current destination",
+      "pass": true
+    },
+    {
+      "name": "reduce selection motion matches preference",
+      "pass": true,
+      "detail": {
+        "from": 90.5,
+        "to": 164
+      }
+    },
+    {
+      "name": "reduce tab fade matches preference",
+      "pass": true
+    }
+  ],
+  "student": [
+    {
+      "name": "home-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "home-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Phone header has no bottom divider",
+      "pass": true
+    },
+    {
+      "name": "Dock blur fades above the controls and passes pointer events through",
+      "pass": true
+    },
+    {
+      "name": "Four dock actions fit on one row with touch targets",
+      "pass": true,
+      "data": [
+        {
+          "text": "Home",
+          "width": 54,
+          "height": 44,
+          "scrollWidth": 54,
+          "top": 661
+        },
+        {
+          "text": "Tasks",
+          "width": 54,
+          "height": 44,
+          "scrollWidth": 54,
+          "top": 661
+        },
+        {
+          "text": "Academics",
+          "width": 54,
+          "height": 44,
+          "scrollWidth": 54,
+          "top": 661
+        },
+        {
+          "text": "More",
+          "width": 54,
+          "height": 44,
+          "scrollWidth": 54,
+          "top": 661
+        }
+      ]
+    },
+    {
+      "name": "Circular Search is aligned outside the pill",
+      "pass": true
+    },
+    {
+      "name": "All four dock controls have accessible names",
+      "pass": true
+    },
+    {
+      "name": "Standing value stays on one line",
+      "pass": true
+    },
+    {
+      "name": "Next class opens and focuses the schedule",
+      "pass": true
+    },
+    {
+      "name": "search-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Search returns focus",
+      "pass": true
+    },
+    {
+      "name": "tasks-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Tasks has one active navigation entry",
+      "pass": true
+    },
+    {
+      "name": "Task attention totals distinguish open and closed work",
+      "pass": true
+    },
+    {
+      "name": "Materials tab label stays on one line",
+      "pass": true
+    },
+    {
+      "name": "tasks-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "academics-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "events-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "The calendar labels the selected date workload",
+      "pass": true
+    },
+    {
+      "name": "All six calendar rows fit above the dock",
+      "pass": true
+    },
+    {
+      "name": "Selecting a date focuses its agenda",
+      "pass": true
+    },
+    {
+      "name": "events-day-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "The selected date explains its event and coursework counts",
+      "pass": true
+    },
+    {
+      "name": "Calendar return focuses the selected date",
+      "pass": true
+    },
+    {
+      "name": "Agenda task opens the specific coursework item",
+      "pass": true
+    },
+    {
+      "name": "agenda-task-destination-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "notifications-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "more-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "A short tug returns More to its open position",
+      "pass": true
+    },
+    {
+      "name": "more-drag-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Touch drag dismisses More and returns focus",
+      "pass": true
+    },
+    {
+      "name": "Events is the first More destination",
+      "pass": true
+    },
+    {
+      "name": "More is active after opening Events",
+      "pass": true
+    },
+    {
+      "name": "Theme control is visible on the initial short More sheet",
+      "pass": true
+    },
+    {
+      "name": "notifications-dark-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Dark notice meets AA text contrast",
+      "pass": true,
+      "data": 11.582700567196378
+    },
+    {
+      "name": "Dark unread badge meets AA text contrast",
+      "pass": true,
+      "data": 6.4700447145121895
+    },
+    {
+      "name": "notification-marked-read-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "home-large-text-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Enlarged student navigation uses one row of four icons",
+      "pass": true
+    },
+    {
+      "name": "Today remains visible above the enlarged dock",
+      "pass": true
+    },
+    {
+      "name": "Class time is visible in the initial 200% viewport",
+      "pass": true
+    },
+    {
+      "name": "Classroom text is visible in the initial 200% viewport",
+      "pass": true
+    },
+    {
+      "name": "Enlarged dock maintains 44px targets",
+      "pass": true
+    },
+    {
+      "name": "today-large-text-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Student header scrolls away at enlarged text",
+      "pass": true
+    },
+    {
+      "name": "summary-large-text-320 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Standing stays on one line above the dock at 200%",
+      "pass": true
+    },
+    {
+      "name": "The last content clears the fixed dock at 200%",
+      "pass": true
+    },
+    {
+      "name": "guide-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Tour instructions fully visible",
+      "pass": true,
+      "data": {
+        "height": 68,
+        "needed": 68
+      }
+    },
+    {
+      "name": "guide-minimized-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "The minimized guide clears the floating Search target",
+      "pass": true
+    },
+    {
+      "name": "Both announcement controls have visible action labels",
+      "pass": true
+    },
+    {
+      "name": "Short guide spotlight stays above the dock",
+      "pass": true
+    },
+    {
+      "name": "signin-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Sign-in button visible at 320×420",
+      "pass": true,
+      "data": {
+        "x": 16,
+        "y": 368,
+        "width": 288,
+        "height": 44
+      }
+    },
+    {
+      "name": "signin-390 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Sign-in help link focuses the reset instructions",
+      "pass": true
+    },
+    {
+      "name": "signin-help-320x420 fits the width",
+      "pass": true
+    },
+    {
+      "name": "Sign-in body has no browser errors",
+      "pass": true,
+      "data": []
+    }
+  ],
+  "errors": []
+}
