@@ -1,0 +1,458 @@
+[
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-overview",
+    "pass": false,
+    "card": [
+      72,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 91,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-announcements",
+    "pass": false,
+    "card": [
+      94.75,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 68.25,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-academics",
+    "pass": false,
+    "card": [
+      94.75,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 68.25,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-tasks",
+    "pass": false,
+    "card": [
+      94.75,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 68.25,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-events",
+    "pass": false,
+    "card": [
+      94.75,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 68.25,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-account",
+    "pass": false,
+    "card": [
+      72,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 91,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "overview",
+    "id": "student-help",
+    "pass": false,
+    "card": [
+      72,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 91,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "tasks",
+    "id": "tasks-overview",
+    "pass": false,
+    "card": [
+      49.25,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 113.75,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "tasks",
+    "id": "tasks-filters",
+    "pass": false,
+    "card": [
+      94.75,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 68.25,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "tasks",
+    "id": "tasks-attention",
+    "pass": false,
+    "card": [
+      72,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 91,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "tasks",
+    "id": "tasks-courses",
+    "pass": false,
+    "card": [
+      12,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 129,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 320,
+    "height": 420,
+    "tour": "tasks",
+    "id": "tasks-finish",
+    "pass": false,
+    "card": [
+      72,
+      344
+    ],
+    "spot": [
+      0,
+      0
+    ],
+    "instructions": 91,
+    "dockTop": 356,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-overview",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      110,
+      210
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-announcements",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      110,
+      430
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-academics",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      99,
+      167
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-tasks",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      777,
+      837
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-events",
+    "pass": false,
+    "card": [
+      541.5,
+      768
+    ],
+    "spot": [
+      64,
+      777
+    ],
+    "instructions": 45.5,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-account",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      44,
+      104
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "overview",
+    "id": "student-help",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      110,
+      352
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "tasks",
+    "id": "tasks-overview",
+    "pass": false,
+    "card": [
+      496,
+      768
+    ],
+    "spot": [
+      345,
+      688
+    ],
+    "instructions": 91,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "tasks",
+    "id": "tasks-filters",
+    "pass": true,
+    "card": [
+      541.5,
+      768
+    ],
+    "spot": [
+      8,
+      139
+    ],
+    "instructions": 45.5,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "tasks",
+    "id": "tasks-attention",
+    "pass": true,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      64,
+      452
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "tasks",
+    "id": "tasks-courses",
+    "pass": true,
+    "card": [
+      496,
+      768
+    ],
+    "spot": [
+      64,
+      488
+    ],
+    "instructions": 91,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "tour": "tasks",
+    "id": "tasks-finish",
+    "pass": false,
+    "card": [
+      518.75,
+      768
+    ],
+    "spot": [
+      692,
+      752
+    ],
+    "instructions": 68.25,
+    "dockTop": 780,
+    "buttonsFit": true,
+    "overlap": true
+  }
+]
