@@ -126,14 +126,14 @@ export function CalendarGrid({
           </button>
         </div>
       </div>
-      <p className="border-b border-line px-[12px] pb-2 text-xs text-muted-fg sm:px-6">Select a date to see its scheduled items.</p>
+      <p className="border-b border-line px-[12px] pb-[8px] text-xs text-muted-fg sm:px-6">Select a date.</p>
 
       {/* Weekday row */}
       <div className="grid grid-cols-7 border-b border-slate-100">
         {WEEKDAY_LABELS.map((d) => (
           <div
             key={d}
-            className="py-2.5 text-center text-[length:min(0.6875rem,13px)] font-semibold uppercase tracking-wider text-slate-500"
+            className="py-[10px] text-center text-[length:min(0.6875rem,13px)] font-semibold uppercase tracking-wider text-slate-500"
           >
             {d}
           </div>

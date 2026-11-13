@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
@@ -56,6 +56,7 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
     return new Date(d.getFullYear(), d.getMonth(), 1)
   })
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const phone = usePhoneViewport()
   const { navigate } = usePortalRoute()
 
@@ -188,7 +189,7 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
       tasks={tasks}
       inbox={inbox}
     >
-        <main data-tour="events-page" className="min-w-0 space-y-4 px-[16px] py-[20px] sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <main data-tour="events-page" className="min-w-0 space-y-[16px] px-[16px] py-[20px] sm:space-y-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           {/* Page header */}
           <div>
             <button
@@ -197,9 +198,16 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
-            <p className="text-sm text-slate-500 mt-1">
-              School events and deadlines &bull; AY {student.academicYear}
+            <div className="flex flex-wrap items-center justify-between gap-[8px]">
+              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
+              <button type="button" aria-label="Calendar filters" aria-expanded={filtersOpen} aria-controls="student-calendar-filters"
+                className="student-calendar-filter-toggle hidden min-h-[44px] items-center gap-[6px] rounded-lg border border-line bg-surface px-[10px] text-xs font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link"
+                onClick={() => setFiltersOpen(open => !open)}>
+                <SlidersHorizontal className="size-[16px]" aria-hidden="true" /> Filters
+              </button>
+            </div>
+            <p className="student-academic-term mt-1 text-sm text-slate-500">
+              <span className="student-events-description">School events and deadlines &bull; </span>AY {student.academicYear}
             </p>
           </div>
 
@@ -207,12 +215,14 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* ============================ CALENDAR COLUMN ============================ */}
             <div className="lg:col-span-2 space-y-4">
-              <LegendChips
-                enabledCats={enabledCats}
-                showTasks={showTasks}
-                onToggleCat={toggleCat}
-                onToggleTasks={() => setShowTasks((v) => !v)}
-              />
+              <div id="student-calendar-filters" className={`space-y-4 ${filtersOpen ? '' : 'student-calendar-filters-collapsed'}`}>
+                <LegendChips
+                  enabledCats={enabledCats}
+                  showTasks={showTasks}
+                  onToggleCat={toggleCat}
+                  onToggleTasks={() => setShowTasks((v) => !v)}
+                />
+              </div>
 
               <CalendarGrid
                 viewMonth={viewMonth}

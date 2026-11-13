@@ -28,9 +28,9 @@ export interface MaterialItem {
 
 function formatBytes(bytes: number | null): string | null {
   if (bytes === null || bytes === undefined) return null
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024) return `${bytes}\u00a0B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}\u00a0KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)}\u00a0MB`
 }
 
 export function MaterialsTab({ student }: { student: Student }) {

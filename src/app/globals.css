@@ -58,6 +58,15 @@
       overflow-wrap: anywhere;
     }
 
+    .student-calendar-filter-toggle {
+      display: inline-flex;
+    }
+
+    .student-calendar-filters-collapsed,
+    .student-events-description {
+      display: none;
+    }
+
     .student-notifications-title {
       font-size: 1.375rem;
       line-height: 1.2;
