@@ -70,7 +70,7 @@ export function Topbar({
   const bellIcon = <>
     <Bell className="size-5" aria-hidden="true" />
     {unread > 0 && (
-      <span aria-hidden="true" className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
+      <span aria-hidden="true" className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white dark:bg-[#b91c1c]">
         {unread > 9 ? '9+' : unread}
       </span>
     )}
