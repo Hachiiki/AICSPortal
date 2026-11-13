@@ -12,6 +12,7 @@ import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 import { MobileNavigation } from './MobileNavigation'
+import { MobileSearch } from './MobileSearch'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
@@ -139,6 +140,8 @@ export function PortalShell({
             menuOpen={mobileNavOpen}
             onOpenMenu={() => setMobileNavOpen(true)}
             onNavigate={onNavigate}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }}
+              className="pointer-events-auto grid size-[52px] shrink-0 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md hover:bg-blue-50 hover:text-link-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-transform motion-safe:active:scale-95" />}
           />
         )}
       </div>

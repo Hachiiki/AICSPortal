@@ -116,15 +116,13 @@ try {
         check(`header-${width}: compact single-row chrome`, header.height <= 64, header)
         const nav = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
         const bounds = await nav.boundingBox()
-        const labelledActions = nav.locator('button').filter({ has: page.locator('span') })
-        check(`bottom-nav-${width}: four single-line labels and 44px targets`, await labelledActions.count() === 4 && (await labelledActions.evaluateAll(buttons => buttons.every(button => {
-          const label = document.createRange()
-          label.selectNodeContents(button.querySelector('span'))
-          return button.getBoundingClientRect().width >= 44 && button.getBoundingClientRect().height >= 44 && label.getClientRects().length === 1
-        }))))
-        const searchButton = page.locator('header').getByRole('button', { name: 'Open portal search', exact: true })
+        const actions = nav.getByRole('button')
+        check(`bottom-nav-${width}: four icons with accessible names and 44px targets`, await actions.count() === 4 &&
+          (await actions.evaluateAll(buttons => buttons.every(button => Math.min(button.offsetWidth, button.offsetHeight) >= 44))) &&
+          (await Promise.all(['Home', 'Tasks', 'Academics', 'Open navigation menu'].map(name => nav.getByRole('button', { name, exact: true }).isVisible()))).every(Boolean))
+        const searchButton = page.locator('[data-student-mobile-nav]').getByRole('button', { name: 'Open portal search', exact: true })
         const searchBounds = await searchButton.boundingBox()
-        check(`header-${width}: icon-only Search fits in the header`, searchBounds.y >= header.y && searchBounds.y + searchBounds.height <= header.y + header.height && Math.min(searchBounds.width, searchBounds.height) >= 44 && (await searchButton.innerText()).trim() === '' && await searchButton.locator('svg.lucide-search').count() === 1, { searchBounds, header })
+        check(`bottom-nav-${width}: circular Search is separate and centered beside the pill`, searchBounds.x >= bounds.x + bounds.width + 8 && Math.abs(searchBounds.y + searchBounds.height / 2 - bounds.y - bounds.height / 2) <= 1 && searchBounds.width === searchBounds.height && searchBounds.width >= 44 && await searchButton.locator('svg.lucide-search').count() === 1, { searchBounds, bounds })
         check(`bottom-nav-${width}: viewport-safe placement`, bounds.x >= 0 && bounds.y + bounds.height <= 845, bounds)
       }
       if (width < 640 && ['/settings', '/settings?section=security'].includes(route)) {
@@ -145,26 +143,13 @@ try {
   await page.setViewportSize({ width: 320, height: 720 })
   await go(page)
   await page.evaluate(() => { document.documentElement.style.fontSize = '200%' })
-  await page.waitForFunction(() => document.querySelector('[data-student-mobile-nav]').offsetHeight <= 65)
   await measure(page, 'phone-header-and-bar-200-percent-text')
   const enlargedActions = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).getByRole('button')
-  check('Phone actions keep their labels inside the bar at enlarged text', await enlargedActions.evaluateAll(buttons => buttons.every(button => button.scrollWidth <= button.clientWidth && button.scrollHeight <= button.clientHeight)))
   check('Enlarged text uses one compact row with 44px targets', await enlargedActions.evaluateAll(buttons => buttons.length === 4 && new Set(buttons.map(button => button.offsetTop)).size === 1 && buttons.every(button => Math.min(button.offsetWidth, button.offsetHeight) >= 44)))
-  check('All four bottom labels stay whole at enlarged text', await enlargedActions.evaluateAll(buttons => buttons.every(button => {
-    const range = document.createRange()
-    const label = button.querySelector('span')
-    if (!label) return true
-    range.selectNodeContents(label)
-    return range.getClientRects().length === 1
-  })))
   await page.screenshot({ path: resolve(out, 'phone-text-200-percent-320.png') })
   await go(page, '/academics?tab=grades')
   const activeAcademics = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).getByRole('button', { name: 'Academics', exact: true })
-  check('Active Academics label stays whole at enlarged text', await activeAcademics.getAttribute('aria-current') === 'page' && await activeAcademics.locator('span').evaluate(el => {
-    const range = document.createRange()
-    range.selectNodeContents(el)
-    return range.getClientRects().length === 1
-  }))
+  check('Academics remains the active destination at enlarged text', await activeAcademics.getAttribute('aria-current') === 'page')
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
   check('Page end clears the enlarged dock', await page.evaluate(() => document.querySelector('main').getBoundingClientRect().bottom <= document.querySelector('[data-student-mobile-nav]').getBoundingClientRect().top + 1))
   await page.evaluate(() => { document.documentElement.style.fontSize = '' })
@@ -189,6 +174,17 @@ try {
   await drawer.waitFor({ state: 'hidden' })
   check('Drawer restores focus to More', await menu.evaluate(el => el === document.activeElement))
   check('Drawer clears inert state', await page.locator('[inert]').count() === 0)
+  await menu.click()
+  const dragHandle = drawer.locator('[data-student-sheet-handle]')
+  await dragHandle.waitFor()
+  await page.waitForTimeout(300)
+  const handle = await dragHandle.boundingBox()
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + 10)
+  await page.mouse.down()
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + 125, { steps: 12 })
+  await page.mouse.up()
+  await drawer.waitFor({ state: 'hidden' })
+  check('Dragging More down dismisses it and restores focus', await menu.evaluate(el => el === document.activeElement))
   await menu.click()
   await drawer.getByRole('button', { name: 'Switch to dark theme', exact: true }).click()
   check('Phone theme action remains available in More', await page.locator('html').evaluate(el => el.classList.contains('dark')))
@@ -494,7 +490,7 @@ try {
   check('Minimizing the guide moves keyboard focus to Resume guide', await fresh.page.getByRole('button', { name: 'Resume guide · 2 of 7', exact: true }).evaluate(button => button === document.activeElement))
   const minimizedGuide = await shortGuide.boundingBox()
   const shortSearchButton = await fresh.page.getByRole('button', { name: 'Open portal search', exact: true }).boundingBox()
-  check('The minimized guide and Search have separate touch areas', shortSearchButton.y + shortSearchButton.height <= minimizedGuide.y, { minimizedGuide, shortSearchButton })
+  check('The minimized guide and Search have separate touch areas', minimizedGuide.y + minimizedGuide.height <= shortSearchButton.y, { minimizedGuide, shortSearchButton })
   const readNotice = fresh.page.getByRole('button', { name: 'Read announcement: Midterm examination schedule', exact: true })
   await readNotice.scrollIntoViewIfNeeded()
   const exposed = await readNotice.evaluate(button => {

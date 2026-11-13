@@ -5,7 +5,7 @@
 
 @media (max-width: 639px) {
   :root:has([data-student-mobile-nav]) {
-    --portal-mobile-nav-height: calc(4rem + 1px + env(safe-area-inset-bottom, 0px));
+    --portal-mobile-nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
     scroll-padding-top: 4rem;
   }
@@ -13,8 +13,37 @@
     scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
   }
 
-  .student-dock-container {
-    container: student-dock / inline-size;
+  .student-floating-nav {
+    container: student-floating-nav / inline-size;
+  }
+
+  @container student-floating-nav (width < 12rem) and (width >= 296px) {
+    .student-floating-pill {
+      grid-template-columns: 1fr 1fr max-content 1fr;
+      column-gap: 0;
+    }
+
+    .student-floating-pill button {
+      align-content: center;
+      padding-inline: 2px;
+      row-gap: 1px;
+    }
+
+    .student-floating-pill button > svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .student-floating-pill .student-floating-label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip-path: none;
+      font-size: 0.5rem;
+      line-height: 1;
+    }
   }
 
   .student-topbar {
@@ -106,21 +135,6 @@
 
     .student-topbar-title {
       font-size: 0.6875rem;
-    }
-  }
-
-  @container student-dock (width < 19rem) {
-    .student-dock-grid {
-      grid-template-columns: 1fr 1fr 1.85fr 1fr;
-      min-height: 52px;
-    }
-
-    .student-dock-destination {
-      font-size: 0.625rem;
-    }
-
-    .student-dock-destination > svg {
-      display: none;
     }
   }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import {
   X,
   Moon,
@@ -171,6 +171,7 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
 export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }: SidebarProps) {
   const phone = usePhoneViewport()
   const phoneSheet = role === 'student' && phone
+  const sheetDrag = useDragControls()
   // Workspace-assembly entrance (assemble candidate only): the real
   // rail slides in from the left when the reveal flips. Inactive —
   // including normal navigation — the aside mounts at rest, exactly
@@ -231,6 +232,15 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               animate={{ x: 0, y: 0 }}
               exit={phoneSheet ? { y: '100%' } : { x: -264 }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
+              drag={phoneSheet ? 'y' : false}
+              dragControls={sheetDrag}
+              dragListener={false}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.65 }}
+              dragMomentum={false}
+              onDragEnd={(_, info) => {
+                if (info.offset.y >= 80 || (info.offset.y >= 30 && info.velocity.y > 600)) onMobileClose()
+              }}
               className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 max-h-[min(90dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
               aria-label="Navigation menu"
             >
@@ -243,7 +253,13 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               >
                 <X className="w-5 h-5" />
               </button>}
-              {phoneSheet && <h2 className="shrink-0 border-b border-line px-5 py-[8px] text-lg font-bold tracking-tight text-ink">More</h2>}
+              {phoneSheet && (
+                <div data-student-sheet-handle="" className="shrink-0 touch-none select-none cursor-grab border-b border-line px-5 pb-[6px] pt-[6px] active:cursor-grabbing"
+                  onPointerDown={event => sheetDrag.start(event)}>
+                  <span aria-hidden="true" className="mx-auto mb-[3px] block h-[4px] w-[32px] rounded-full bg-slate-300" />
+                  <h2 className="text-lg font-bold tracking-tight text-ink">More</h2>
+                </div>
+              )}
               <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
                 <SidebarContent
                   active={active}
