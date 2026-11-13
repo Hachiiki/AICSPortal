@@ -13,6 +13,16 @@
     scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
   }
 
+  .student-floating-backdrop {
+    position: absolute;
+    inset: -28px 0 0;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--color-slate-50) 48%, transparent);
+    -webkit-backdrop-filter: blur(9px);
+    backdrop-filter: blur(9px);
+    mask-image: linear-gradient(to bottom, transparent, black 82%);
+  }
+
   .student-floating-nav {
     container: student-floating-nav / inline-size;
   }

@@ -111,7 +111,7 @@ export function Topbar({
 
   return (
     <motion.header
-      className={`sticky top-0 z-20 border-b border-slate-200 bg-surface sm:h-16 ${isStudent ? 'student-topbar' : ''}`}
+      className={`sticky top-0 z-20 border-slate-200 bg-surface sm:h-16 sm:border-b ${isStudent ? 'student-topbar' : ''}`}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}

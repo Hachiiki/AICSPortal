@@ -60,7 +60,8 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
   const primary = active === 'notifications' || STUDENT_MOBILE_NAV.some(item => item.view === active)
   return <div ref={dock} data-student-mobile-nav="" aria-hidden={keyboardOpen || undefined}
     className={`pointer-events-none fixed inset-x-0 bottom-0 z-20 pl-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))] pb-[calc(10px+env(safe-area-inset-bottom))] sm:hidden ${keyboardOpen ? 'invisible' : ''}`}>
-    <div className="student-floating-nav mx-auto flex w-full max-w-[440px] items-center gap-[12px]">
+    <div aria-hidden="true" className="student-floating-backdrop" />
+    <div className="student-floating-nav relative mx-auto flex w-full max-w-[440px] items-center gap-[12px]">
     <nav aria-label="Student mobile navigation" className="student-floating-pill pointer-events-auto grid min-w-0 flex-1 grid-cols-4 gap-[2px] rounded-full border border-line bg-surface/90 p-[4px] shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md">
       {STUDENT_MOBILE_NAV.map(item => {
         const selected = !menuOpen && active === item.view && (item.view !== 'academics' || (item.tab === 'tasks' ? academicTab === 'tasks' : academicTab !== 'tasks'))
