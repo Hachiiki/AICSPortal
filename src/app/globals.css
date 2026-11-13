@@ -111,7 +111,7 @@
 
   @container student-dock (width < 19rem) {
     .student-dock-grid {
-      grid-template-columns: 1fr 1fr 1.6fr 1fr;
+      grid-template-columns: 1fr 1fr 1.85fr 1fr;
       min-height: 52px;
     }
 

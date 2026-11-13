@@ -158,6 +158,13 @@ try {
     return range.getClientRects().length === 1
   })))
   await page.screenshot({ path: resolve(out, 'phone-text-200-percent-320.png') })
+  await go(page, '/academics?tab=grades')
+  const activeAcademics = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true }).getByRole('button', { name: 'Academics', exact: true })
+  check('Active Academics label stays whole at enlarged text', await activeAcademics.getAttribute('aria-current') === 'page' && await activeAcademics.locator('span').evaluate(el => {
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    return range.getClientRects().length === 1
+  }))
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
   check('Page end clears the enlarged dock', await page.evaluate(() => document.querySelector('main').getBoundingClientRect().bottom <= document.querySelector('[data-student-mobile-nav]').getBoundingClientRect().top + 1))
   await page.evaluate(() => { document.documentElement.style.fontSize = '' })
