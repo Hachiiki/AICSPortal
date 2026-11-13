@@ -113,7 +113,6 @@ export const STUDENT_MOBILE_NAV = [
   { view: 'dashboard', label: 'Home', icon: Home },
   { view: 'academics', tab: 'tasks', label: 'Tasks', icon: ClipboardList },
   { view: 'academics', tab: 'grades', label: 'Academics', icon: GraduationCap },
-  { view: 'events', label: 'Events', icon: CalendarDays },
 ] as const
 
 export const FACULTY_PRIMARY_NAV: NavItem[] = [

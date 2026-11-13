@@ -15,6 +15,7 @@ import {
 import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { GlobalSearch } from './GlobalSearch'
+import { MobileSearch } from './MobileSearch'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -155,7 +156,9 @@ export function Topbar({
         </div>
 
         {/* Right — theme toggle + notifications + profile dropdown + logout */}
-        <div className="flex items-center gap-0.5 sm:gap-3 flex-shrink-0">
+        <div className={`flex shrink-0 items-center sm:gap-3 ${compact ? '' : 'gap-0.5'}`}>
+          {compact && <MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }}
+            className="grid size-[44px] shrink-0 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link" />}
           {/* Theme quick toggle. First in the right cluster so the
               pre-existing controls keep their exact positions. */}
           <button
@@ -236,7 +239,7 @@ export function Topbar({
             </DropdownMenuContent>
           </DropdownMenu>}
 
-          <div className="w-px h-6 bg-slate-200" aria-hidden="true" />
+          {!compact && <div className="h-6 w-px bg-slate-200" aria-hidden="true" />}
 
           {/* Profile dropdown */}
           <DropdownMenu>

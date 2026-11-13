@@ -116,7 +116,7 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
       </div>}
 
       {/* Navigation */}
-      <nav className={`px-3 ${scrollBody ? 'space-y-0.5 py-1.5' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}>
+        <nav className={`px-3 ${scrollBody ? 'py-[2px]' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}>
         {primaryNav.filter(item => !scrollBody || !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view)).map((item) => (
           <NavButton
             key={item.view}
@@ -126,7 +126,7 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
           />
         ))}
 
-        <div className={`${scrollBody ? 'my-1' : 'my-4'} border-t border-slate-100`} />
+        <div className={`${scrollBody ? 'my-[2px]' : 'my-4'} border-t border-slate-100`} />
 
         {SECONDARY_NAV.map((item) => (
           <NavButton
@@ -243,7 +243,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
               >
                 <X className="w-5 h-5" />
               </button>}
-              {phoneSheet && <h2 className="shrink-0 border-b border-line px-5 py-3 text-lg font-bold tracking-tight text-ink">More</h2>}
+              {phoneSheet && <h2 className="shrink-0 border-b border-line px-5 py-[8px] text-lg font-bold tracking-tight text-ink">More</h2>}
               <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
                 <SidebarContent
                   active={active}
@@ -256,7 +256,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onMobileClose, role }:
                 />
               </div>
               {phoneSheet && (
-                <div className="shrink-0 border-t border-line p-[8px]">
+                <div className="shrink-0 border-t border-line px-[8px] py-[4px]">
                   <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
                     className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-50 px-3 py-1 text-sm font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link">
                     <X className="size-5 shrink-0" aria-hidden="true" /> Close menu

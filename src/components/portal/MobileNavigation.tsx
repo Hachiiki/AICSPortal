@@ -1,22 +1,21 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
-const MOBILE_NAV_GRID = 'student-dock-grid grid min-h-[64px] grid-cols-[1fr_1fr_1.5fr_1fr_1fr_1fr] items-stretch px-[4px]'
+const MOBILE_NAV_GRID = 'student-dock-grid grid min-h-[64px] grid-cols-4 items-stretch px-[4px]'
 const MOBILE_NAV_ACTION = 'student-dock-destination my-[4px] flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-[4px] rounded-xl px-[2px] text-center text-xs font-medium leading-tight [overflow-wrap:anywhere] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 
-export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
+export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate }: {
   student: Student
   active: View
   academicTab?: AcademicsTab
   menuOpen: boolean
   onOpenMenu: () => void
   onNavigate: (view: View) => void
-  search: ReactNode
 }) {
   const { navigate } = usePortalRoute()
   const dock = useRef<HTMLDivElement>(null)
@@ -57,7 +56,7 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
       document.removeEventListener('focusout', update)
     }
   }, [])
-  const primary = active === 'dashboard' || active === 'academics' || active === 'events' || active === 'notifications'
+  const primary = active === 'notifications' || STUDENT_MOBILE_NAV.some(item => item.view === active)
   return <div ref={dock} data-student-mobile-nav="" aria-hidden={keyboardOpen || undefined}
     className={`student-dock-container fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(15_23_42/0.04)] sm:hidden ${keyboardOpen ? 'invisible pointer-events-none' : ''}`}>
     <nav aria-label="Student mobile navigation" className={MOBILE_NAV_GRID}>
@@ -76,7 +75,6 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         className={`${MOBILE_NAV_ACTION} ${menuOpen || !primary ? 'bg-blue-50 text-link-strong' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-700'}`} onClick={onOpenMenu}>
         <Menu className="size-[20px] shrink-0" aria-hidden="true" /><span className="max-w-full">More</span>
       </button>
-      <div data-mobile-dock-search="" className="flex min-w-0 items-center justify-center">{search}</div>
     </nav>
   </div>
 }
