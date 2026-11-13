@@ -185,12 +185,12 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <div
           ref={deckRef}
           tabIndex={0}
-          className="bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
+          className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex min-w-0 items-center gap-2">
               <Megaphone className="size-4 shrink-0 text-slate-400" />
-              <span className="min-w-0 break-words text-sm font-semibold text-slate-700">Announcements</span>
+              <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-700">Announcements</span>
             </div>
           </div>
           <EmptyState compact icon={Check} message="You're all caught up" hint="No new announcements to read." className="flex-1 flex flex-col items-center justify-center" />
@@ -224,7 +224,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <div className="flex items-center justify-between mb-3">
           <div className="flex min-w-0 items-center gap-2">
             <Megaphone className="size-4 shrink-0 text-link" />
-            <span className="min-w-0 break-words text-sm font-semibold text-slate-900">Announcements</span>
+            <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-900">Announcements</span>
           </div>
         </div>
         {/* Body */}
@@ -238,10 +238,10 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
+              <p className={`student-item-title text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
                 {a.title}
               </p>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
+              <p className="student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
               <button type="button" data-tour="announcement-read" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -353,7 +353,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               }}
             >
               <div
-                className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
+                className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
                 style={{
                   minHeight: CARD_MIN_HEIGHT,
                   touchAction: 'pan-y',

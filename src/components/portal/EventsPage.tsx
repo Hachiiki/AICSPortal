@@ -199,14 +199,14 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
             <div className="flex flex-wrap items-center justify-between gap-[8px]">
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
+              <h1 className="student-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
               <button type="button" aria-label="Calendar filters" aria-expanded={filtersOpen} aria-controls="student-calendar-filters"
-                className="student-calendar-filter-toggle hidden min-h-[44px] items-center gap-[6px] rounded-lg border border-line bg-surface px-[10px] text-xs font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link"
+                className="student-calendar-filter-toggle hidden min-h-[44px] items-center gap-[6px] student-control rounded-lg border border-line bg-surface px-[10px] text-xs font-semibold text-link-strong focus-visible:ring-2 focus-visible:ring-link"
                 onClick={() => setFiltersOpen(open => !open)}>
                 <SlidersHorizontal className="size-[16px]" aria-hidden="true" /> Filters
               </button>
             </div>
-            <p className="student-academic-term mt-1 text-sm text-slate-500">
+            <p className="student-academic-term student-text-detail mt-1 text-sm text-slate-500">
               <span className="student-events-description">School events and deadlines &bull; </span>AY {student.academicYear}
             </p>
           </div>

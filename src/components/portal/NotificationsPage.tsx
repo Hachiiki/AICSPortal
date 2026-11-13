@@ -28,12 +28,12 @@ export function NotificationsPage({ student, inbox, onHome }: {
       </button>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="min-w-0">
-          <h1 ref={heading} tabIndex={-1} className="student-notifications-title text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
-          <p className="mt-1 text-sm text-muted-fg" role="status">{unread ? `${unread} unread` : 'No unread notifications'}</p>
+          <h1 ref={heading} tabIndex={-1} className="student-notifications-title student-page-title text-2xl font-bold tracking-tight text-ink outline-none [overflow-wrap:anywhere]">Notifications</h1>
+          <p className="student-text-detail mt-1 text-sm text-muted-fg" role="status">{unread ? `${unread} unread` : 'No unread notifications'}</p>
         </div>
         {inbox.notifications.length > 0 && (
           <button type="button" disabled={!unread || inbox.marking || inbox.loading} onClick={() => inbox.onMark(undefined, true)}
-            className="min-h-[44px] rounded-lg border border-line bg-surface px-[12px] py-[4px] text-sm font-semibold text-link-strong hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50 disabled:hover:bg-surface">
+            className="min-h-[44px] student-control rounded-lg border border-line bg-surface px-[12px] py-[4px] text-sm font-semibold text-link-strong hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-link disabled:opacity-50 disabled:hover:bg-surface">
             {inbox.marking ? 'Updating…' : 'Mark all read'}
           </button>
         )}
@@ -55,13 +55,13 @@ export function NotificationsPage({ student, inbox, onHome }: {
       {inbox.notifications.length > 0 && (
         <ul className="space-y-3" aria-label="Notification messages">
           {inbox.notifications.map(item => (
-            <li key={item._id} className="min-w-0 rounded-2xl border border-line bg-surface px-4 pb-2.5 pt-4">
+            <li key={item._id} className="student-card min-w-0 rounded-2xl border border-line bg-surface px-4 pb-2.5 pt-4">
               <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-                <h2 className="min-w-0 break-words font-semibold text-slate-900">{item.title}</h2>
-                {!item.read && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-link-strong">Unread</span>}
+                <h2 className="student-notification-title min-w-0 break-words font-semibold text-slate-900">{item.title}</h2>
+                {!item.read && <span className="student-badge rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-link-strong">Unread</span>}
               </div>
               <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">{item.body}</p>
-              <p className="mt-2 break-words text-xs leading-relaxed text-slate-600">
+              <p className="student-text-detail mt-2 break-words text-xs leading-relaxed text-slate-600">
                 {[item.fromName, item.subjectCode, formatNotifTime(item.createdAt)].filter(Boolean).join(' · ')}
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-x-5">

@@ -212,10 +212,10 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       </div>
 
       {/* NEEDS ATTENTION CARD */}
-      <div data-tour="tasks-attention" className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <div data-tour="tasks-attention" className="student-card overflow-hidden rounded-2xl border border-line bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-[8px] border-b border-line px-[16px] py-[12px] sm:px-6 sm:py-4">
-          <h3 className="text-base font-semibold leading-tight text-ink">Needs attention</h3>
-          {needsAttentionTasks.length > 0 && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-ink">{needsAttentionTasks.length - closedCount} open{closedCount > 0 && ` · ${closedCount} closed`}</span>}
+          <h3 className="student-section-title text-base font-semibold leading-tight text-ink">Needs attention</h3>
+          {needsAttentionTasks.length > 0 && <span className="student-badge rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold tabular-nums text-ink">{needsAttentionTasks.length - closedCount} open{closedCount > 0 && ` · ${closedCount} closed`}</span>}
         </div>
         {needsAttentionTasks.length === 0 ? (
           <EmptyState icon={CheckCircle} message="All caught up." hint="Nothing needs your action right now." />
@@ -230,16 +230,16 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                   onClick={() => handleAttentionRowClick(task)}
                   className={`w-full px-[16px] py-[8px] text-left sm:px-6 sm:py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:items-center gap-x-[12px] gap-y-1 hover:bg-slate-50 transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link`}>
                   {/* Circular status icon */}
-                  <div className={`size-[32px] rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
+                  <div className={`student-icon-tile size-[32px] rounded-full flex items-center justify-center flex-shrink-0 ${STATUS_ICON_COLORS[variant]}`} aria-hidden="true">
                     {variant === 'MISSING_OPEN' && <AlertTriangle className="w-4 h-4" />}
                     {variant === 'MISSING_CLOSED' && <Lock className="w-4 h-4" />}
                     {variant === 'NEEDS_ATTENTION' && <Calendar className="w-4 h-4" />}
                   </div>
                   <div className="student-task-attention-detail min-w-0 flex-1">
-                    <p className="text-xs font-medium text-muted-fg [overflow-wrap:anywhere]">{task.subjectCode}<span className="hidden sm:inline">{subject ? ` · ${subject.title}` : ''}</span></p>
-                    <p className="student-task-attention-title text-sm font-semibold text-ink [overflow-wrap:anywhere]">{task.title}</p>
+                    <p className="student-course-code text-xs font-medium text-muted-fg [overflow-wrap:anywhere]">{task.subjectCode}<span className="hidden sm:inline">{subject ? ` · ${subject.title}` : ''}</span></p>
+                    <p className="student-task-attention-title student-item-title text-sm font-semibold text-ink [overflow-wrap:anywhere]">{task.title}</p>
                   </div>
-                  <span className={`student-task-attention-status col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_COLORS[variant]}`}>
+                  <span className={`student-task-attention-status col-start-2 row-start-2 justify-self-start student-badge rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_COLORS[variant]}`}>
                     {variant === 'MISSING_CLOSED' ? 'Missing · Closed' : sub}
                   </span>
                   <ChevronRight className="student-task-attention-arrow col-start-3 row-span-2 row-start-1 size-[16px] shrink-0 self-center text-muted-fg sm:hidden" aria-hidden="true" />
@@ -252,8 +252,8 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       </div>
 
             {/* FILTER CARD */}
-      <div data-tour="tasks-filters" className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 sm:px-6 py-4">
-        <button type="button" aria-expanded={filtersExpanded} aria-controls="student-task-filter-controls" onClick={() => setFiltersExpanded(!filtersExpanded)} className="sm:hidden flex min-h-11 w-full items-center justify-between text-sm font-semibold text-slate-900">Filter tasks<ChevronDown className={`size-4 transition-transform ${filtersExpanded ? 'rotate-180' : ''}`} aria-hidden /></button>
+      <div data-tour="tasks-filters" className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm px-4 sm:px-6 py-4">
+        <button type="button" aria-expanded={filtersExpanded} aria-controls="student-task-filter-controls" onClick={() => setFiltersExpanded(!filtersExpanded)} className="sm:hidden flex min-h-11 w-full items-center justify-between student-item-title text-sm font-semibold text-slate-900">Filter tasks<ChevronDown className={`size-4 transition-transform ${filtersExpanded ? 'rotate-180' : ''}`} aria-hidden /></button>
         <div id="student-task-filter-controls" className={`${filtersExpanded ? 'flex' : 'hidden'} sm:flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-6 sm:items-center`}>
           {/* Subject (custom dropdown — shared SelectMenu) */}
           <SelectMenu
@@ -269,11 +269,11 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
           <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
           {/* Type */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Type</span>
+            <span className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">Type</span>
             <div role="group" aria-label="Filter by task type" className="flex flex-wrap gap-1.5">
               {(['all', 'Activity', 'Quiz', 'Test', 'Project'] as const).map((t) => (
                 <button key={t} type="button" onClick={() => setTypeFilter(t)} aria-pressed={typeFilter === t}
-                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
+                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 student-control rounded-lg text-xs font-medium transition-all ${typeFilter === t ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
                   {t === 'all' ? 'All' : t}
                 </button>
               ))}
@@ -282,11 +282,11 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
           <div className="hidden sm:block w-px h-10 bg-slate-100" aria-hidden="true" />
           {/* Status */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Status</span>
+            <span className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">Status</span>
             <div role="group" aria-label="Filter by task status" className="flex flex-wrap gap-1.5">
               {(['all', 'MISSING', 'PENDING', 'NEEDS_ATTENTION', 'GRADED'] as const).map((s) => (
                 <button key={s} type="button" onClick={() => setStatusFilter(s)} aria-pressed={statusFilter === s}
-                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
+                  className={`min-h-11 min-w-11 sm:min-h-8 px-3 py-1 student-control rounded-lg text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-700'}`}>
                   {s === 'all' ? 'All' : s === 'NEEDS_ATTENTION' ? 'Needs attention' : s.charAt(0) + s.slice(1).toLowerCase()}
                 </button>
               ))}
@@ -294,14 +294,14 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-2">
-          <p role="status" className="text-xs text-slate-600">{filteredTasks.length} of {tasks.length} tasks match</p>
+          <p role="status" className="student-text-detail text-xs text-slate-600">{filteredTasks.length} of {tasks.length} tasks match</p>
           {hasFilters && <button type="button" onClick={clearFilters} className="min-h-11 px-2 text-sm font-semibold text-link hover:underline">Clear filters</button>}
         </div>
       </div>
 
             {/* COURSES SECTION */}
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-slate-900">Courses</h3>
+        <h3 className="student-section-title text-base font-semibold text-slate-900">Courses</h3>
         <button type="button" onClick={() => expandedCourses.size === currentSubjects.length ? collapseAll() : expandAll()}
           className="inline-flex min-h-[44px] items-center gap-[4px] px-[8px] text-xs font-medium text-link hover:text-link-strong">
           {expandedCourses.size === currentSubjects.length ? 'Collapse all' : 'Expand all'}
@@ -312,7 +312,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
             {/* COURSE ACCORDION CARDS */}
       <div data-tour="tasks-courses">
       {filteredTasks.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+        <div className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={ClipboardList} message={hasFilters ? 'No matching tasks.' : 'No tasks for this term.'} hint={hasFilters ? 'Try another subject, type or status.' : 'When a teacher posts a task, it shows up here.'} />
           {hasFilters && <div className="pb-4 text-center"><button type="button" onClick={clearFilters} className="min-h-11 rounded-lg border border-slate-200 px-4 text-sm font-semibold text-link">Show all tasks</button></div>}
         </div>
@@ -328,21 +328,21 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
             const taskCountLabel = subjectTasks.length === 1 ? '1 task' : `${subjectTasks.length} tasks`
             return (
               <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
-                className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Accordion header */}
                 <button type="button" data-tour="tasks-course-toggle" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
                   className="flex w-full flex-wrap items-center justify-between gap-[12px] px-[16px] py-[16px] text-left transition-colors hover:bg-slate-50 sm:flex-nowrap sm:px-6 sm:py-4">
                   <div className="min-w-0 flex-1 basis-full sm:basis-auto">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                      <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
-                      <span className="text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</span>
+                      <span className="student-course-code font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
+                      <span className="student-item-title text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</span>
                     </div>
-                    {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
+                    {subject && <p className="student-text-detail text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                   </div>
                   <div className="flex min-w-0 max-w-full flex-wrap items-center gap-[8px] sm:shrink-0">
-                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{taskCountLabel}</span>
+                    <span className="text-xs font-medium text-slate-500 px-2 py-0.5 student-badge rounded-md bg-slate-100">{taskCountLabel}</span>
                     {hasMissing && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                         <AlertTriangle className="w-3 h-3" aria-hidden /> Needs attention
                       </span>
                     )}
@@ -363,13 +363,13 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                       return (
                         <li key={task._id} data-task-id={task._id} tabIndex={-1} ref={(el) => { rowRefs.current[task._id] = el }} className={`px-4 py-3.5 ${highlightId === task._id ? 'bg-blue-100/70' : ''}`}>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${TYPE_COLORS[task.type]}`}>{task.type}</span>
-                            <p className="text-sm font-medium text-slate-900 break-words">{task.title}</p>
+                            <span className={`inline-flex items-center px-2 py-0.5 student-badge rounded-md text-xs font-medium border flex-shrink-0 ${TYPE_COLORS[task.type]}`}>{task.type}</span>
+                            <p className="student-item-title text-sm font-medium text-slate-900 break-words">{task.title}</p>
                           </div>
                           <div className="mt-2.5 flex items-center justify-between gap-3">
                             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
                               <span className="text-xs text-slate-500 whitespace-nowrap">Due {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
                                 {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
                                 {variant === 'PENDING' && <Clock className="w-3 h-3" />}
                                 {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
@@ -381,7 +381,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                             <div className="flex-shrink-0">
                               {showSubmit ? (
                                 <button type="button" onClick={() => setSubmitTask(task)}
-                                  className={`inline-flex items-center min-h-11 sm:min-h-0 px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                  className={`inline-flex items-center min-h-11 sm:min-h-0 px-3 py-1.5 student-control rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
                                   {isOverdue ? 'Submit (Late)' : 'Submit'}
                                 </button>
                               ) : isClosed ? (
@@ -421,7 +421,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                           return (
                             <tr key={task._id} data-task-id={task._id} tabIndex={-1} ref={(el) => { rowRefs.current[task._id] = el }} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${highlightId === task._id ? 'bg-blue-100/70' : ''}`}>
                               <td className="px-4 py-3">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${TYPE_COLORS[task.type]}`}>{task.type}</span>
+                                <span className={`inline-flex items-center px-2 py-0.5 student-badge rounded-md text-xs font-medium border ${TYPE_COLORS[task.type]}`}>{task.type}</span>
                               </td>
                               <td className="px-4 py-3">
                                 <p className="text-sm font-medium text-slate-900">{task.title}</p>
@@ -430,7 +430,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                                 {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               </td>
                               <td className="px-4 py-3">
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
                                   {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
                                   {variant === 'PENDING' && <Clock className="w-3 h-3" />}
                                   {variant === 'MISSING_OPEN' && <AlertTriangle className="w-3 h-3" />}
@@ -443,7 +443,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                                 <div className="flex justify-center">
                                   {showSubmit ? (
                                     <button type="button" onClick={() => setSubmitTask(task)}
-                                      className={`inline-flex items-center min-h-11 sm:min-h-0 px-3 py-1.5 rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
+                                      className={`inline-flex items-center min-h-11 sm:min-h-0 px-3 py-1.5 student-control rounded-lg text-xs font-medium ${isOverdue ? 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100' : 'bg-blue-700 text-white hover:bg-blue-800'}`}>
                                       {isOverdue ? 'Submit (Late)' : 'Submit'}
                                     </button>
                                   ) : isClosed ? (
@@ -473,9 +473,9 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
 
       </div>
             {/* TASK OVERVIEW CARD */}
-      <div data-tour="tasks-overview" className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+      <div data-tour="tasks-overview" className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm">
         <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
-          <h3 className="text-base font-semibold text-slate-900">Task Overview</h3>
+          <h3 className="student-section-title text-base font-semibold text-slate-900">Task Overview</h3>
         </div>
         <div className="px-4 sm:px-6 py-5">
           <div className="grid grid-cols-2 min-[400px]:grid-cols-3 sm:grid-cols-5 gap-y-4 sm:divide-x divide-slate-100">
@@ -608,7 +608,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">{label}</p>
+      <p className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">{label}</p>
       <p className="text-sm font-medium text-slate-700 mt-0.5 break-words">{value}</p>
     </div>
   )

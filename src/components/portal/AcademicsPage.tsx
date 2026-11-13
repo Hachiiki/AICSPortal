@@ -248,21 +248,21 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
             >
               <ChevronLeft className="w-4 h-4" /> Back to Dashboard
             </button>
-            <h1 className="text-2xl font-bold leading-tight tracking-tight text-ink">
+            <h1 className="student-page-title text-2xl font-bold leading-tight tracking-tight text-ink">
               <span className="sm:hidden">{activeTab === 'tasks' ? 'Tasks' : 'Academics'}</span><span className="hidden sm:inline">Academics</span>
             </h1>
-            <p className="student-academic-term mt-1 text-sm text-muted-fg sm:hidden">{student.semester} &middot; AY {student.academicYear}</p>
+            <p className="student-academic-term student-text-detail mt-1 text-sm text-muted-fg sm:hidden">{student.semester} &middot; AY {student.academicYear}</p>
             <p className="mt-1 hidden text-sm text-slate-500 sm:block">
               {student.fullName} &bull; {student.studentNumber} &bull; {student.program}
             </p>
           </div>
 
-          <div data-tour="academics-tabs" role="group" aria-label="Academic sections" className={`student-academic-tabs ${activeTab === 'tasks' ? 'hidden' : 'grid'} max-w-full grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 sm:inline-flex`}>
+          <div data-tour="academics-tabs" role="group" aria-label="Academic sections" className={`student-academic-tabs student-card ${activeTab === 'tasks' ? 'hidden' : 'grid'} max-w-full grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 sm:inline-flex`}>
             <button
               type="button"
               onClick={() => setActiveTab('grades')}
               aria-pressed={activeTab === 'grades'}
-              className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
+              className={`min-h-11 min-w-0 student-control rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
                 activeTab === 'grades' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -272,7 +272,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('subjects')}
               aria-pressed={activeTab === 'subjects'}
-              className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
+              className={`min-h-11 min-w-0 student-control rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
                 activeTab === 'subjects' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -283,7 +283,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               onClick={() => setActiveTab('tasks')}
               aria-pressed={activeTab === 'tasks'}
               data-tour="academics-tab-tasks"
-              className={`hidden min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors sm:inline-flex sm:px-5 ${
+              className={`hidden min-w-0 student-control rounded-lg px-1 py-2 text-sm font-medium transition-colors sm:inline-flex sm:px-5 ${
                 activeTab === 'tasks' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -293,7 +293,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
               type="button"
               onClick={() => setActiveTab('materials')}
               aria-pressed={activeTab === 'materials'}
-              className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
+              className={`min-h-11 min-w-0 student-control rounded-lg px-1 py-2 text-sm font-medium transition-colors [overflow-wrap:anywhere] sm:min-h-0 sm:px-5 ${
                 activeTab === 'materials' ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
               }`}
             >
@@ -305,14 +305,14 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           {activeTab === 'grades' && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               {terms.map((term) => (
-                <div key={term.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div key={term.key} className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                   {/* Card header */}
                   <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b border-slate-100 px-4 py-4 sm:px-6">
                     <div className="min-w-0">
-                      <h2 className="text-base font-semibold text-slate-900">{term.yearLevel}</h2>
-                      <p className="mt-0.5 text-xs text-muted-fg"><span className="inline-block">AY {term.academicYear}</span> &middot; {term.semester}</p>
+                      <h2 className="student-section-title text-base font-semibold text-slate-900">{term.yearLevel}</h2>
+                      <p className="student-text-detail mt-0.5 text-xs text-muted-fg"><span className="inline-block">AY {term.academicYear}</span> &middot; {term.semester}</p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium ${
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium ${
                           term.status === 'completed'
                             ? 'bg-green-50 text-green-700 border border-green-200'
                             : 'bg-blue-50 text-link-strong border border-blue-200'
@@ -325,7 +325,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                     <button
                       type="button"
                       onClick={() => exportYearPDF(student, term)}
-                      className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 sm:min-h-0"
+                      className="inline-flex min-h-11 shrink-0 items-center gap-1.5 student-control rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 sm:min-h-0"
                     >
                       <Download className="w-3.5 h-3.5" /> Export PDF
                     </button>
@@ -335,7 +335,7 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                     <div>
                       <dt className="text-xs font-medium text-muted-fg">Term GPA</dt>
                       <dd className="mt-0.5 text-base font-semibold text-ink">
-                        {term.gpa === '-' ? <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">Pending</span> : term.gpa}
+                        {term.gpa === '-' ? <span className="student-badge rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">Pending</span> : term.gpa}
                       </dd>
                     </div>
                     <div>
@@ -373,17 +373,17 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
           {/* SUBJECTS TAB */}
           {activeTab === 'subjects' && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 className="text-base font-semibold text-slate-900">All Subjects</h2>
+                    <h2 className="student-section-title text-base font-semibold text-slate-900">All Subjects</h2>
                     <p className="text-xs text-slate-500 mt-0.5">Complete enrollment history</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => exportAllSubjectsPDF(student, student.subjects, cumulativeGPA)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 flex-shrink-0"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 student-control rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-50 flex-shrink-0"
                   >
                     <Download className="w-3.5 h-3.5" /> Export PDF
                   </button>
@@ -392,15 +392,15 @@ export function AcademicsPage({ student, onNavigate, onLogout, tasks, tasksLoadi
                 {/* Summary chips */}
                 <div className="px-6 py-3 flex gap-6 border-b border-slate-100">
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Total Units</p>
+                    <p className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">Total Units</p>
                     <p className="text-base font-bold text-slate-900">{totalUnits}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Total Subjects</p>
+                    <p className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">Total Subjects</p>
                     <p className="text-base font-bold text-slate-900">{student.subjects.length}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">Cumulative GPA</p>
+                    <p className="student-text-detail text-[10px] uppercase max-sm:normal-case tracking-wider max-sm:tracking-normal text-slate-500 font-medium">Cumulative GPA</p>
                     <p className="text-base font-bold text-link-strong">{cumulativeGPA}</p>
                   </div>
                 </div>

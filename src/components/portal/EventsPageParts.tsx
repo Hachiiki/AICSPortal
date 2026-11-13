@@ -94,10 +94,10 @@ export function CalendarGrid({
   onPrev, onNext, onToday, onSelectDay, monthHasEvents,
 }: CalendarGridProps) {
   return (
-    <div id="student-calendar" data-tour="events-calendar" tabIndex={-1} className="scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
+    <div id="student-calendar" data-tour="events-calendar" tabIndex={-1} className="student-card scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
       {/* Calendar header */}
       <div className="flex flex-wrap items-center justify-between gap-[8px] px-[12px] py-[10px] sm:gap-3 sm:px-6 sm:py-4">
-        <h2 className="text-base font-semibold text-slate-900">
+        <h2 className="student-section-title text-base font-semibold text-slate-900">
           {MONTH_LABELS[viewMonth.getMonth()]} {viewMonth.getFullYear()}
         </h2>
         <div className="flex max-w-full flex-wrap items-center gap-[4px] sm:gap-2">
@@ -105,14 +105,14 @@ export function CalendarGrid({
             type="button"
             onClick={onPrev}
             aria-label="Previous month"
-            className="size-[44px] rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
+            className="size-[44px] student-control rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             type="button"
             onClick={onToday}
-            className="min-h-[44px] rounded-lg border border-slate-200 px-[12px] text-sm font-medium text-link hover:bg-blue-50 sm:min-h-8 sm:px-4"
+            className="min-h-[44px] student-control rounded-lg border border-slate-200 px-[12px] text-sm font-medium text-link hover:bg-blue-50 sm:min-h-8 sm:px-4"
           >
             Today
           </button>
@@ -120,20 +120,20 @@ export function CalendarGrid({
             type="button"
             onClick={onNext}
             aria-label="Next month"
-            className="size-[44px] rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
+            className="size-[44px] student-control rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center sm:size-8"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
-      <p className="border-b border-line px-[12px] pb-[8px] text-xs text-muted-fg sm:px-6">Select a date.</p>
+      <p className="border-b border-line px-[12px] pb-[8px] student-text-detail text-xs text-muted-fg sm:px-6">Select a date.</p>
 
       {/* Weekday row */}
       <div className="grid grid-cols-7 border-b border-slate-100">
         {WEEKDAY_LABELS.map((d) => (
           <div
             key={d}
-            className="py-[10px] text-center text-[length:min(0.6875rem,13px)] font-semibold uppercase tracking-wider text-slate-500"
+            className="py-[10px] text-center text-[length:min(0.6875rem,13px)] font-semibold uppercase tracking-wider text-slate-500 max-sm:text-[length:min(0.75rem,14px)] max-sm:normal-case max-sm:tracking-normal"
           >
             {d}
           </div>
@@ -243,12 +243,12 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onRetur
       tabIndex={-1}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="scroll-mt-3 overflow-hidden rounded-xl border border-slate-200 bg-surface shadow-sm outline-none"
+      className="student-card scroll-mt-3 overflow-hidden rounded-xl border border-slate-200 bg-surface shadow-sm outline-none"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-2 border-b border-slate-100 px-4 py-2 sm:px-6 sm:py-4">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">Events on {formatFullDate(selectedDay)}</h3>
-          <p className="mt-0.5 text-xs text-muted-fg">{events.length} {events.length === 1 ? 'event' : 'events'} &middot; {tasks.length} {tasks.length === 1 ? 'coursework item' : 'coursework items'}</p>
+          <h3 className="student-section-title text-sm font-semibold text-slate-900">Events on {formatFullDate(selectedDay)}</h3>
+          <p className="student-text-detail mt-0.5 text-xs text-muted-fg">{events.length} {events.length === 1 ? 'event' : 'events'} &middot; {tasks.length} {tasks.length === 1 ? 'coursework item' : 'coursework items'}</p>
         </div>
         <button type="button" onClick={onReturn} className="inline-flex min-h-11 items-center gap-1 rounded-md px-1 text-xs font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link sm:hidden">
           <ArrowUp className="size-4" aria-hidden="true" /> Calendar
@@ -264,13 +264,13 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onRetur
                   className={`mt-1 size-2 shrink-0 ${CATEGORY_MARKERS[ev.category]}`}
             />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-slate-900">{ev.title}</p>
+              <p className="student-item-title text-sm font-medium text-slate-900">{ev.title}</p>
               {ev.description && (
-                <p className="text-xs text-slate-500 mt-0.5">{ev.description}</p>
+                <p className="student-text-detail text-xs text-slate-500 mt-0.5">{ev.description}</p>
               )}
             </div>
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border flex-shrink-0 ${
+              className={`inline-flex items-center px-2 py-0.5 student-badge rounded-md text-xs font-medium border flex-shrink-0 ${
                 CATEGORY_PILL_STYLES[ev.category]
               }`}
             >
@@ -282,7 +282,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onRetur
         {showTasks && tasks.length > 0 && (
           <>
             <div className="px-6 pt-3 pb-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 max-sm:text-xs max-sm:normal-case max-sm:tracking-normal">
                 Coursework
               </p>
             </div>
@@ -300,7 +300,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onRetur
                     aria-hidden="true"
                   />
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium text-slate-900 [overflow-wrap:anywhere]">
+                    <span className="student-item-title block text-sm font-medium text-slate-900 [overflow-wrap:anywhere]">
                       {task.title}
                     </span>
                     <span className="mt-0.5 block text-xs text-muted-fg">
@@ -308,7 +308,7 @@ export function DayDetailsPanel({ selectedDay, events, tasks, showTasks, onRetur
                     </span>
                   </span>
                   <span
-                      className={`col-start-2 row-start-2 justify-self-start rounded-md border px-2 py-0.5 text-xs font-medium ${
+                      className={`col-start-2 row-start-2 justify-self-start student-badge rounded-md border px-2 py-0.5 text-xs font-medium ${
                         VARIANT_COLORS[variant]
                       }`}
                     >
@@ -336,10 +336,10 @@ interface UpcomingRailProps {
 
 export function UpcomingRail({ upcoming, onJumpTo }: UpcomingRailProps) {
   return (
-    <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-20">
+    <div className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-20">
       <div className="px-5 py-4 border-b border-slate-100">
-        <h3 className="text-base font-semibold text-slate-900">Upcoming events</h3>
-        <p className="text-xs text-slate-500 mt-0.5">Next 8 events from today</p>
+        <h3 className="student-section-title text-base font-semibold text-slate-900">Upcoming events</h3>
+        <p className="student-text-detail text-xs text-slate-500 mt-0.5">Next 8 events from today</p>
       </div>
       <div className="max-h-[600px] overflow-auto">
         {upcoming.length === 0 ? (
@@ -359,7 +359,7 @@ export function UpcomingRail({ upcoming, onJumpTo }: UpcomingRailProps) {
                 >
                   {/* Date block */}
                   <div className="flex-shrink-0 w-12 text-center">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 max-sm:text-[length:min(0.75rem,14px)] max-sm:normal-case max-sm:tracking-normal">
                       {formatMonthDay(d).split(' ')[0]}
                     </p>
                     <p className="text-lg font-bold text-slate-900 leading-none">
@@ -368,7 +368,7 @@ export function UpcomingRail({ upcoming, onJumpTo }: UpcomingRailProps) {
                   </div>
                   {/* Title + category */}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-900 truncate">
+                    <p className="student-item-title text-sm font-medium text-slate-900 truncate">
                       {ev.title}
                     </p>
                     <span
@@ -415,7 +415,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
                 type="button"
                 onClick={() => onToggleCat(cat)}
                 aria-pressed={on}
-                className={`inline-flex min-h-[44px] items-center gap-[6px] rounded-md border px-[8px] py-[4px] text-xs font-medium transition-colors sm:min-h-0 sm:px-2.5 ${
+                className={`inline-flex min-h-[44px] items-center gap-[6px] student-control rounded-md border px-[8px] py-[4px] text-xs font-medium transition-colors sm:min-h-0 sm:px-2.5 ${
                   on
                     ? `${CATEGORY_PILL_STYLES[cat]}`
                     : 'bg-surface text-slate-500 border-slate-200'
@@ -439,7 +439,7 @@ export function LegendChips({ enabledCats, showTasks, onToggleCat, onToggleTasks
           role="switch"
           aria-checked={showTasks}
           aria-label="Show task due dates on the calendar"
-          className="inline-flex min-h-[44px] items-center gap-[12px] rounded-md text-left text-xs text-slate-600"
+          className="inline-flex min-h-[44px] items-center gap-[12px] rounded-md text-left student-text-detail text-xs text-slate-600"
         >
           <span
             aria-hidden="true"

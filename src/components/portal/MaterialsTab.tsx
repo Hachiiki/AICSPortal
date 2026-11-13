@@ -78,7 +78,7 @@ export function MaterialsTab({ student }: { student: Student }) {
       </div>
 
       {grouped.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+        <div className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm">
           <EmptyState icon={FolderOpen} message="No materials posted yet." hint="When a teacher shares a file or link, it shows up here." />
         </div>
       ) : (
@@ -86,24 +86,24 @@ export function MaterialsTab({ student }: { student: Student }) {
           {grouped.map(([subjectCode, items]) => {
             const subject = currentSubjects.find((s) => s.code === subjectCode)
             return (
-              <div key={subjectCode} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div key={subjectCode} className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="border-b border-slate-100 px-[16px] py-[16px] sm:px-6 sm:py-4">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                    <span className="font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
-                    <h3 className="text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</h3>
+                    <span className="student-course-code font-mono text-xs font-bold text-link-strong">{subjectCode}</span>
+                    <h3 className="student-item-title text-sm font-semibold text-slate-900 break-words">{subject?.title || subjectCode}</h3>
                   </div>
-                  {subject && <p className="text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
+                  {subject && <p className="student-text-detail text-xs text-slate-500 mt-0.5">{subject.professor}</p>}
                 </div>
                 <ul className="divide-y divide-slate-100">
                   {items.map((m) => (
                     <li key={m._id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-[12px] px-[16px] py-[12px] sm:flex sm:items-center sm:px-6 sm:py-3">
-                      <span className={`inline-flex shrink-0 items-center gap-[4px] self-center justify-self-start rounded-md border px-[8px] py-0.5 text-xs font-medium ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
+                      <span className={`inline-flex shrink-0 items-center gap-[4px] self-center justify-self-start student-badge rounded-md border px-[8px] py-0.5 text-xs font-medium ${m.kind === 'file' ? 'bg-violet-50 text-violet-700 border-violet-200' : 'bg-blue-50 text-link-strong border-blue-200'}`}>
                         {m.kind === 'file' ? <FileText className="size-[12px]" /> : <Link2 className="size-[12px]" />}
                         {m.kind === 'file' ? 'File' : 'Link'}
                       </span>
                       <div className="student-material-description min-w-0 flex-1">
-                        <p className="text-sm font-medium text-slate-900 break-words">{m.title}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="student-item-title text-sm font-medium text-slate-900 break-words">{m.title}</p>
+                        <p className="student-text-detail text-xs text-slate-500">
                           {new Date(m.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {formatBytes(m.bytes) ? ` • ${formatBytes(m.bytes)}` : ''}
                           {m.format ? ` • ${m.format.toUpperCase()}` : ''}
@@ -113,7 +113,7 @@ export function MaterialsTab({ student }: { student: Student }) {
                         href={m.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="col-start-2 inline-flex min-h-[44px] shrink-0 items-center gap-[6px] justify-self-end rounded-lg border border-slate-200 bg-surface px-[12px] py-1.5 text-xs font-medium hover:bg-slate-50 sm:min-h-8"
+                        className="col-start-2 inline-flex min-h-[44px] shrink-0 items-center gap-[6px] justify-self-end student-control rounded-lg border border-slate-200 bg-surface px-[12px] py-1.5 text-xs font-medium hover:bg-slate-50 sm:min-h-8"
                         aria-label={`Open ${m.title} in a new tab`}
                       >
                         <ExternalLink className="size-[14px]" /> Open

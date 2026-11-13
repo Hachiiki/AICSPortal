@@ -96,11 +96,11 @@ function SubjectCard({ subject, showTerm }: { subject: Subject; showTerm?: boole
   return (
     <li className="px-[16px] py-3.5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-[12px] gap-y-[4px]">
-        <span className="font-mono text-xs font-bold text-link-strong [overflow-wrap:anywhere]">{subject.code}</span>
+        <span className="student-course-code font-mono text-xs font-bold text-link-strong [overflow-wrap:anywhere]">{subject.code}</span>
         <span className="text-xs text-slate-500">{subject.units} units</span>
       </div>
-      <h3 className="mt-1 text-sm font-semibold text-slate-900 [overflow-wrap:anywhere]">{subject.title}</h3>
-      <p className="mt-1 text-xs text-slate-500 [overflow-wrap:anywhere]">
+      <h3 className="student-item-title mt-1 text-sm font-semibold text-slate-900 [overflow-wrap:anywhere]">{subject.title}</h3>
+      <p className="student-text-detail mt-1 text-xs text-slate-500 [overflow-wrap:anywhere]">
         {subject.professor}
         {showTerm && subject.yearLevel && subject.academicYear ? ` • ${subject.yearLevel} • AY ${subject.academicYear}` : ''}
       </p>
