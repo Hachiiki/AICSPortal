@@ -30,8 +30,7 @@
 //     topbar/sidebar so nav targets can be framed, below the z-50
 //     drawers, modals, dropdowns and toasts, which therefore paint
 //     above the tour (C5).
-//   - Below the sm breakpoint the card is a collapsible bottom sheet,
-//     so students can expose and use the highlighted page controls.
+//   - On phones the collapsible card fits above or below the spotlight.
 //   - Scrim color and card surfaces come from the theme tokens
 //     (--scrim, --surface, --ink, --muted-fg, --border), so all seven
 //     theme choices ride the same classes (G1).
@@ -43,8 +42,10 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { View } from '@/lib/aics/types'
 import {
+  CARD_GAP,
   centeredCard,
   placeCard,
+  placePhoneGuide,
   spotlightRect,
   type CardLayout,
   type Rect,
@@ -69,10 +70,6 @@ function safeVpt() {
     : { width: window.innerWidth, height: window.innerHeight }
 }
 
-function cardSizeFor(vpt: { width: number; height: number }) {
-  return DEFAULT_CARD_SIZE
-}
-
 export interface TourOverlayProps {
   steps: TourStep[]
   /** completed=true when the user reached the end; false when skipped. */
@@ -87,6 +84,8 @@ interface LayoutState {
   disposition: StepDisposition
   spot: Rect | null
   card: CardLayout
+  phoneCard?: { top: number; maxHeight: number; scrollPanel: boolean; moreInstructions: boolean }
+  headerTarget?: boolean
 }
 
 export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourOverlayProps) {
@@ -146,8 +145,19 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       headingRef.current?.focus({ preventScroll: true })
     }
 
-    const targets = document.querySelectorAll<HTMLElement>(`[data-tour="${CSS.escape(current.target)}"]`)
-    const el = Array.from(targets).find(target => target.getClientRects().length > 0)
+    const mobile = !window.matchMedia(SHEET_QUERY).matches
+    const target = (key: string) => Array.from(document.querySelectorAll<HTMLElement>(`[data-tour="${CSS.escape(key)}"]`))
+      .find(element => !element.closest('[inert]') && element.getClientRects().length > 0)
+    const viewport = window.visualViewport
+    const top = (viewport?.offsetTop ?? 0) + 12
+    const viewportBottom = (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
+    const short = mobile && viewportBottom - top < 500
+    const el = (short && current.shortPhoneTarget ? target(current.shortPhoneTarget) : undefined)
+      ?? (mobile && current.phoneTarget ? target(current.phoneTarget) : undefined)
+      ?? target(current.target)
+    const headerTarget = !!el?.closest('header')
+    const dockTarget = !!el?.closest('[data-student-mobile-nav]')
+    const header = mobile ? document.querySelector<HTMLElement>('.portal-topbar') : null
     const found = !!el
     if (found) everFoundRef.current = true
 
@@ -174,31 +184,65 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       return
     }
 
-    if (disposition === 'spot' && el && !ensuredVisibleRef.current) {
-      ensuredVisibleRef.current = true
-      const mobile = !window.matchMedia(SHEET_QUERY).matches
-      if (mobile && !el.closest('header, [data-student-mobile-nav]')) {
-        const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
-        window.scrollBy({ top: el.getBoundingClientRect().top - Math.max(headerBottom, 0) - 16, behavior: reduced ? 'instant' : 'smooth' })
-      } else el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
-    }
-
     const vpt = { width: window.innerWidth, height: window.innerHeight }
-    if (disposition === 'spot' && el) {
-      const spot = spotlightRect(el.getBoundingClientRect())
-      if (vpt.width < 640) {
-        const dock = document.querySelector('[data-student-mobile-nav]')
-        if (dock && !dock.contains(el)) {
-          spot.height = Math.max(0, Math.min(spot.height, dock.getBoundingClientRect().top - spot.top - 3))
+    if (mobile) {
+      const measured = cardWrapRef.current?.querySelector<HTMLElement>('[data-tour-card]')
+      const instructions = measured?.querySelector<HTMLElement>('[data-tour-instructions]')
+      const chrome = measured && instructions ? measured.offsetHeight - instructions.offsetHeight : measured?.offsetHeight ?? 56
+      const textHeight = instructions?.scrollHeight ?? 0
+      const dock = document.querySelector('[data-student-mobile-nav]')
+      const dockTop = dock?.getBoundingClientRect().top ?? viewportBottom
+      const bottom = Math.max(top, Math.min(dockTop, viewportBottom) - 12)
+      const visibleTargetTop = headerTarget || dockTarget ? top : Math.max(top, header?.getBoundingClientRect().bottom ?? top)
+      const card = {
+        height: chrome + textHeight,
+        minimum: chrome + Math.min(48, textHeight),
+      }
+      if (disposition === 'spot' && el && measured && !ensuredVisibleRef.current) {
+        ensuredVisibleRef.current = true
+        if (!headerTarget && !dockTarget) {
+          const spot = spotlightRect(el.getBoundingClientRect())
+          const scrollRoot = document.scrollingElement
+          const maxScroll = Math.max(0, (scrollRoot?.scrollHeight ?? vpt.height) - vpt.height)
+          const contentTop = Math.max(top, (viewport?.offsetTop ?? 0) + (header?.offsetHeight ?? 0) + 4)
+          const start = Math.min(maxScroll, Math.max(0, window.scrollY + spot.top - contentTop))
+          const end = Math.min(maxScroll, Math.max(0, window.scrollY + spot.top + spot.height - bottom))
+          const shiftedTop = spot.top + window.scrollY - start
+          const fitsAtStart = shiftedTop >= contentTop - 1 && shiftedTop + spot.height + CARD_GAP + card.minimum <= bottom
+          const fitsAtEnd = spot.top + window.scrollY - end >= top + card.minimum + CARD_GAP
+          window.scrollTo({ top: !fitsAtStart && fitsAtEnd ? end : start, behavior: 'instant' })
         }
       }
+      const spot = disposition === 'spot' && el ? spotlightRect(el.getBoundingClientRect()) : null
+      const phoneCard = placePhoneGuide(spot, card, {
+        top, bottom, spotlightTop: visibleTargetTop, spotlightBottom: dockTarget ? viewportBottom : bottom,
+      }, current.side ?? 'bottom')
+      setLayout({
+        disposition,
+        spot: phoneCard.spot,
+        card: centeredCard(DEFAULT_CARD_SIZE, vpt),
+        phoneCard: {
+          ...phoneCard,
+          scrollPanel: phoneCard.maxHeight <= chrome,
+          moreInstructions: textHeight - (phoneCard.maxHeight - chrome) - (instructions?.scrollTop ?? 0) > 1,
+        },
+        headerTarget,
+      })
+      return
+    }
+    if (disposition === 'spot' && el) {
+      if (!ensuredVisibleRef.current) {
+        ensuredVisibleRef.current = true
+        el.scrollIntoView({ block: 'nearest', behavior: reduced ? 'auto' : 'smooth' })
+      }
+      const spot = spotlightRect(el.getBoundingClientRect())
       const measured = cardWrapRef.current
       const cardSize = measured
         ? { width: measured.offsetWidth, height: measured.offsetHeight }
         : DEFAULT_CARD_SIZE
       setLayout({ disposition, spot, card: placeCard(spot, cardSize, current.side ?? 'bottom', vpt) })
     } else {
-      setLayout({ disposition, spot: null, card: centeredCard(cardSizeFor(vpt), vpt) })
+      setLayout({ disposition, spot: null, card: centeredCard(DEFAULT_CARD_SIZE, vpt) })
     }
   }, [steps, onFinish, reduced])
 
@@ -273,6 +317,12 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     })
     window.addEventListener('resize', schedule, { passive: true })
     window.addEventListener('scroll', schedule, { capture: true, passive: true })
+    const viewport = window.visualViewport
+    viewport?.addEventListener('resize', schedule)
+    viewport?.addEventListener('scroll', schedule)
+    const sizeObserver = new ResizeObserver(schedule)
+    if (cardWrapRef.current) sizeObserver.observe(cardWrapRef.current)
+    document.addEventListener('transitionend', schedule)
     // Focus changes without a DOM mutation (clicking empty page space
     // blurs to body). Captured focusout schedules the same rAF pass so
     // the H1 guard sees the post-blur active element one frame later.
@@ -286,6 +336,10 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     schedule()
     return () => {
       observer.disconnect()
+      sizeObserver.disconnect()
+      viewport?.removeEventListener('resize', schedule)
+      viewport?.removeEventListener('scroll', schedule)
+      document.removeEventListener('transitionend', schedule)
       window.removeEventListener('resize', schedule)
       window.removeEventListener('scroll', schedule, { capture: true } as EventListenerOptions)
       document.removeEventListener('focusout', schedule, true)
@@ -326,9 +380,9 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
   const isLast = index === total - 1
   const minimized = sheet && minimizedStep === step.id
-  const cardStyle = sheet ? undefined : { top: layout.card.top, left: layout.card.left }
+  const cardStyle = sheet ? { top: layout.phoneCard?.top } : { top: layout.card.top, left: layout.card.left }
+  const scrollPanel = sheet && !minimized && layout.phoneCard?.scrollPanel
   const showSpotlight = layout.disposition === 'spot' && (layout.spot?.height ?? 0) > 0
-  const compactGuide = sheet && !minimized
 
   return (
     <div
@@ -336,6 +390,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       data-tour-overlay=""
       data-step-id={step.id}
       data-disposition={layout.disposition}
+      data-tour-header-target={layout.headerTarget || undefined}
     >
       {/* Live region (D3): sr-only polite status, the GlobalSearch pattern. */}
       <p className="sr-only" role="status" aria-live="polite">
@@ -344,17 +399,16 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
 
       {/* Scrim. With a spotted target the spotlight element itself casts
           the dim through a huge outer box-shadow (a hole at the ring,
-          pointer-transparent everywhere). Without a target, or on the
-          mobile sheet, a plain full-screen scrim dims the page. Both
+          pointer-transparent everywhere). Without a visible target,
+          a plain full-screen scrim dims the page. Both
           layers are decorative visuals: aria-hidden keeps them out of
           the accessibility tree (D4 — everything exposed to AT is
           named; the ring carries no semantics of its own). */}
-      {compactGuide && showSpotlight && <div aria-hidden="true" className="absolute inset-0 hidden bg-scrim/40 [@media(max-height:500px)]:block" />}
       {showSpotlight && layout.spot ? (
         <motion.div
           data-tour-spotlight=""
           aria-hidden="true"
-          className={cn('absolute rounded-xl ring-2 ring-blue-500', compactGuide && '[@media(max-height:500px)]:hidden')}
+          className="absolute rounded-xl ring-2 ring-blue-500"
           initial={false}
           animate={{
             top: layout.spot.top,
@@ -362,7 +416,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
             width: layout.spot.width,
             height: layout.spot.height,
           }}
-          transition={{ duration: reduced ? 0 : 0.2, ease: 'easeOut' }}
+          transition={{ duration: reduced || sheet ? 0 : 0.2, ease: 'easeOut' }}
           style={{ boxShadow: '0 0 0 100vmax color-mix(in srgb, var(--scrim) 45%, transparent)' }}
         />
       ) : (
@@ -382,7 +436,8 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
         style={cardStyle}
         className={cn(
           'pointer-events-auto',
-          sheet ? minimized ? 'fixed left-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'fixed inset-x-3 bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]' : 'absolute',
+          sheet ? minimized ? 'fixed left-3' : 'fixed inset-x-3' : 'absolute',
+          sheet && !layout.phoneCard && 'bottom-[calc(var(--portal-mobile-nav-height,0px)+12px)]',
           sheet ? '' : 'w-fit'
         )}
       >
@@ -395,9 +450,11 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
           aria-describedby={minimized ? undefined : bodyId}
           data-tour-card=""
           data-minimized={minimized}
+          style={sheet && layout.phoneCard ? { maxHeight: layout.phoneCard.maxHeight } : undefined}
           className={cn(
-            'flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-xl border border-border bg-surface text-ink shadow-xl',
-            minimized ? 'p-1' : 'p-4',
+            'flex max-h-[calc(100dvh-24px)] flex-col rounded-xl border border-border bg-surface text-ink shadow-xl',
+            scrollPanel ? 'overflow-y-auto overscroll-contain' : 'overflow-hidden',
+            minimized ? 'p-1' : sheet ? 'p-3 [@media(max-height:500px)]:p-2.5' : 'p-4',
             sheet ? 'max-h-[calc(100dvh-var(--portal-mobile-nav-height,0px)-24px)] rounded-2xl' : 'w-72 max-w-[calc(100vw-24px)]'
           )}
         >
@@ -419,15 +476,18 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
               requestAnimationFrame(() => cardWrapRef.current?.querySelector<HTMLButtonElement>('button')?.focus({ preventScroll: true }))
             }}>Hide to explore</Button>}
           </div>
-          <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-base font-bold leading-snug outline-none sm:text-sm">
+          <h2 id={headingId} ref={headingRef} tabIndex={-1} className="mt-1 text-base font-bold leading-snug outline-none sm:text-sm max-sm:[@media(max-height:500px)]:mt-0">
             {step.title}
           </h2>
           </div>
-          <div key={step.id} data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className="mt-2 min-h-0 overflow-y-auto overscroll-contain rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link">
-          <p id={bodyId} className="text-sm leading-relaxed text-muted-fg">{step.body}</p>
+          <div key={step.id} data-tour-instructions="" role="region" aria-label="Tour instructions" tabIndex={0} className={cn(
+            'mt-2 min-h-0 rounded-sm [scrollbar-width:thin] focus-visible:outline-2 focus-visible:outline-link max-sm:[@media(max-height:500px)]:mt-1',
+            scrollPanel ? 'shrink-0' : 'overflow-y-auto overscroll-contain',
+          )} style={sheet && !scrollPanel && layout.phoneCard?.moreInstructions ? { maskImage: 'linear-gradient(to bottom, black calc(100% - 8px), transparent)' } : undefined}>
+          <p id={bodyId} className="text-sm leading-relaxed text-muted-fg">{sheet ? step.phoneBody ?? step.body : step.body}</p>
           {!sheet && <p className="mt-2 text-xs text-muted-fg">Explore the highlighted area. Press Alt+G to return to this guide.</p>}
           </div>
-          <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-3 [&_button]:min-h-11 sm:[&_button]:min-h-8">
+          <div className="mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-2 [&_button]:min-h-[44px] sm:mt-3 sm:pt-3 sm:[&_button]:min-h-8 max-sm:[@media(max-height:500px)]:mt-1 max-sm:[@media(max-height:500px)]:pt-1">
             <Button
               type="button"
               variant="ghost"

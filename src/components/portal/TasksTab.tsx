@@ -225,7 +225,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
               const { variant, sub } = computeStatus(task)
               const subject = currentSubjects.find((s) => s.code === task.subjectCode)
               return (
-                <button key={task._id}
+                <button key={task._id} data-tour={attentionIndex === 0 ? 'tasks-attention-item' : undefined}
                   type="button"
                   onClick={() => handleAttentionRowClick(task)}
                   className={`w-full px-[16px] py-[8px] text-left sm:px-6 sm:py-3 ${attentionIndex >= 3 && !attentionExpanded ? 'hidden' : 'grid'} grid-cols-[auto_minmax(0,1fr)_auto] sm:flex sm:items-center gap-x-[12px] gap-y-1 hover:bg-slate-50 transition-colors focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-link`}>
@@ -330,7 +330,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
               <div key={subjectCode} ref={(el) => { courseRefs.current[subjectCode] = el }}
                 className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 {/* Accordion header */}
-                <button type="button" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
+                <button type="button" data-tour="tasks-course-toggle" aria-expanded={isExpanded} onClick={() => toggleCourse(subjectCode)}
                   className="flex w-full flex-wrap items-center justify-between gap-[12px] px-[16px] py-[16px] text-left transition-colors hover:bg-slate-50 sm:flex-nowrap sm:px-6 sm:py-4">
                   <div className="min-w-0 flex-1 basis-full sm:basis-auto">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
@@ -488,7 +488,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
             <OverviewStat label="Needs attention" value={summary.needs} tone="text-[#2563EB] dark:text-link" />
             <OverviewStat label="Missing" value={summary.missing} tone="text-[#DC2626] dark:text-red-600" />
           </div>
-          <div className="mt-4">
+          <div data-tour="tasks-overview-progress" className="mt-4">
             <p className="text-xs text-slate-500 mb-1.5">
               {summary.graded} of {summary.total} {summary.total === 1 ? 'task' : 'tasks'} graded &bull; {pct}% completed
             </p>

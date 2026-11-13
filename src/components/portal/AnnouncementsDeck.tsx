@@ -244,7 +244,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
-              <button type="button" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              <button type="button" data-tour="announcement-read" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 aria-label={`Read announcement: ${a.title}`} onClick={() => { setOpened(a); void onboarding?.client.complete('announcements') }}>
                 Read announcement
               </button>

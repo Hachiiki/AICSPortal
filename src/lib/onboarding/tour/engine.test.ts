@@ -13,6 +13,7 @@ import {
   SPOTLIGHT_PAD,
   centeredCard,
   placeCard,
+  placePhoneGuide,
   sideOrder,
   spotlightRect,
 } from './geometry'
@@ -93,6 +94,41 @@ describe('placeCard', () => {
     expect(laid.side).toBe('center')
     expect(laid.top).toBe(10)
     expect(laid.left).toBe(10)
+  })
+})
+
+describe('placePhoneGuide', () => {
+  const bounds = { top: 12, bottom: 344 }
+  const card = { height: 190, minimum: 130 }
+  const spot = { top: 260, left: 16, width: 288, height: 56 }
+
+  it('moves above a target near the bottom', () => {
+    expect(placePhoneGuide(spot, card, bounds, 'bottom')).toEqual({ top: 58, maxHeight: 190, spot })
+  })
+
+  it('uses a shorter card before covering a target', () => {
+    const middle = { ...spot, top: 170 }
+    expect(placePhoneGuide(middle, card, bounds, 'bottom')).toEqual({ top: 12, maxHeight: 146, spot: middle })
+  })
+
+  it('keeps the visible part of an oversized target above the card', () => {
+    const tall = { ...spot, top: 20, height: 600 }
+    expect(placePhoneGuide(tall, card, bounds, 'bottom')).toEqual({
+      top: 214, maxHeight: 130, spot: { ...tall, height: 182 },
+    })
+  })
+
+  it('can frame a dock target below the card viewport', () => {
+    expect(placePhoneGuide(spot, card, { ...bounds, bottom: 244, spotlightBottom: 340 }, 'bottom')).toEqual({
+      top: 58, maxHeight: 190, spot,
+    })
+  })
+
+  it('keeps a scrolled content spotlight clear of the sticky header', () => {
+    const tall = { ...spot, top: 24, height: 150 }
+    expect(placePhoneGuide(tall, card, { ...bounds, spotlightTop: 56 }, 'bottom').spot).toEqual({
+      ...tall, top: 56, height: 118,
+    })
   })
 })
 

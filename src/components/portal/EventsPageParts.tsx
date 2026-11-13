@@ -94,7 +94,7 @@ export function CalendarGrid({
   onPrev, onNext, onToday, onSelectDay, monthHasEvents,
 }: CalendarGridProps) {
   return (
-    <div id="student-calendar" tabIndex={-1} className="scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
+    <div id="student-calendar" data-tour="events-calendar" tabIndex={-1} className="scroll-mt-3 overflow-hidden rounded-2xl border border-line bg-surface outline-none sm:rounded-xl sm:shadow-sm">
       {/* Calendar header */}
       <div className="flex flex-wrap items-center justify-between gap-[8px] px-[12px] py-[10px] sm:gap-3 sm:px-6 sm:py-4">
         <h2 className="text-base font-semibold text-slate-900">
@@ -142,7 +142,7 @@ export function CalendarGrid({
 
       {/* Day grid */}
       {monthHasEvents || showTasks ? (
-        <div className="grid grid-cols-7">
+        <div data-tour="events-calendar-dates" className="grid grid-cols-7">
           {grid.map((day, i) => {
             const dayMid = atMidnight(day)
             const isOtherMonth = day.getMonth() !== viewMonth.getMonth()

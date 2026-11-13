@@ -13,6 +13,11 @@
     pointer-events: none;
   }
 
+  :root:has([data-tour-header-target="true"]) .portal-topbar[data-scroll-hidden="true"] {
+    translate: none;
+    pointer-events: auto;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .portal-topbar {
       transition: none;
