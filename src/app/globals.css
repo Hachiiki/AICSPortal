@@ -46,8 +46,8 @@
     }
   }
 
-  .student-topbar {
-    container: student-topbar / inline-size;
+  .portal-topbar-layout {
+    container: portal-topbar / inline-size;
   }
 
   .app-notice {
@@ -128,13 +128,9 @@
     }
   }
 
-  @container student-topbar (width < 19rem) {
-    .student-topbar-logo {
-      display: none;
-    }
-
-    .student-topbar-title {
-      font-size: 0.6875rem;
+  @container portal-topbar (width < 12rem) {
+    .portal-topbar-title {
+      font-size: 1.0625rem;
     }
   }
 

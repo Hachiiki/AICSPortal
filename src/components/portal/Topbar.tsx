@@ -64,6 +64,7 @@ export function Topbar({
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
+  const roleLabel = student.role === 'faculty' ? 'Faculty' : student.role === 'admin' ? 'Admin' : 'Student'
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
   const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
   const bellIcon = <>
@@ -74,7 +75,7 @@ export function Topbar({
       </span>
     )}
   </>
-  const bellClass = 'relative grid size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9'
+  const bellClass = 'relative col-start-3 row-start-1 grid size-[44px] place-items-center justify-self-end rounded-full text-ink hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-9 sm:rounded-md sm:text-slate-600'
 
   // Theme quick toggle (dark-theme plan §6, Phase 1 control 3): cycles
   // light/dark on every authenticated surface. Resolved theme drives the
@@ -116,9 +117,8 @@ export function Topbar({
       transition={entrance.transition}
     >
       {/* Sticky chrome at z-20. Page content stays below this. See PortalShell. */}
-      <div className={`flex h-full items-center justify-between gap-x-[8px] gap-y-1 px-[16px] sm:flex-nowrap sm:gap-3 sm:px-6 sm:py-0 lg:px-8 ${isStudent ? 'min-h-[56px] py-[4px]' : 'flex-wrap pb-3 pt-1'}`}>
-        {/* Left — mobile hamburger + Branch pill (from prototype V23) */}
-        <div className={`flex items-center gap-1 sm:shrink-0 sm:gap-3 ${isStudent ? 'min-w-0' : 'shrink-0'}`}>
+      <div className="portal-topbar-layout grid min-h-[56px] grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-x-[8px] gap-y-[4px] px-[16px] py-[5px] sm:flex sm:h-full sm:justify-between sm:gap-3 sm:px-6 sm:py-0 lg:px-8">
+        <div className="contents sm:flex sm:shrink-0 sm:items-center sm:gap-3">
           <button
             type="button"
             onClick={onOpenMobileNav}
@@ -126,12 +126,10 @@ export function Topbar({
             data-tour="topbar-mobile-nav"
             aria-haspopup="dialog"
             aria-controls="mobile-navigation"
-            className={`${isStudent ? 'hidden sm:grid lg:hidden' : 'lg:hidden grid'} size-11 place-items-center -ml-2 rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+            className={`${isStudent ? 'hidden sm:grid lg:hidden' : 'grid lg:hidden'} col-start-1 row-start-2 size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2`}
           >
             <Menu className="w-5 h-5" />
           </button>
-          {isStudent && <img src="/aics-logo.svg" alt="" aria-hidden="true" className="student-topbar-logo size-[28px] shrink-0 sm:hidden" />}
-          <span className="student-topbar-title min-w-0 text-sm font-semibold leading-tight text-slate-900 sm:hidden">{student.role === 'faculty' ? 'Faculty portal' : student.role === 'admin' ? 'Admin portal' : 'Student portal'}</span>
           {/* Branch chip: #153357 is the repo-wide brand navy (palette.ts
               `navy`, 40+ action-button/chip sites) — brand-constant in
               both themes per the dark-theme plan §2.5 navy-chip ruling,
@@ -141,8 +139,12 @@ export function Topbar({
           </span>
         </div>
 
-        {/* Center — global search */}
-        <div className={`${isStudent ? 'hidden sm:flex' : 'flex'} order-last basis-full sm:order-none sm:basis-0 flex-1 justify-center min-w-0`}>
+        <div data-mobile-portal-brand="" className="col-start-2 row-start-1 min-w-0 text-center sm:hidden">
+          <p className="portal-topbar-title text-xl font-bold leading-tight tracking-tight text-link-strong">AICS Portal</p>
+          <p className="text-xs font-semibold leading-tight text-ink">{roleLabel}</p>
+        </div>
+
+        <div className={`${isStudent ? 'hidden sm:flex' : 'flex'} col-start-2 row-start-2 min-w-0 flex-1 justify-center`}>
           {!compact && <GlobalSearch
             student={student}
             events={events}
@@ -154,15 +156,12 @@ export function Topbar({
           />}
         </div>
 
-        {/* Right — theme toggle + notifications + profile dropdown + logout */}
-        <div className={`flex shrink-0 items-center sm:gap-3 ${compact ? '' : 'gap-0.5'}`}>
-          {/* Theme quick toggle. First in the right cluster so the
-              pre-existing controls keep their exact positions. */}
+        <div className="contents sm:flex sm:shrink-0 sm:items-center sm:gap-3">
           <button
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className={`${isStudent ? 'hidden sm:grid' : 'grid'} size-11 sm:size-9 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+            className={`${isStudent ? 'hidden sm:grid' : 'grid'} col-start-3 row-start-2 size-[44px] place-items-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-9`}
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -236,7 +235,7 @@ export function Topbar({
             </DropdownMenuContent>
           </DropdownMenu>}
 
-          {!compact && <div className="h-6 w-px bg-slate-200" aria-hidden="true" />}
+          <div className="hidden h-6 w-px bg-slate-200 sm:block" aria-hidden="true" />
 
           {/* Profile dropdown */}
           <DropdownMenu>
@@ -244,7 +243,7 @@ export function Topbar({
               <button
                 type="button"
                 data-tour="topbar-profile"
-                className="flex size-[44px] items-center justify-center gap-2.5 rounded-md hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-auto sm:py-1 sm:pl-1 sm:pr-2"
+                className="col-start-1 row-start-1 flex size-[44px] items-center justify-center gap-2.5 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-auto sm:rounded-md sm:py-1 sm:pl-1 sm:pr-2"
                 aria-label="Account menu"
               >
                 {student.photoUrl ? (
@@ -256,7 +255,7 @@ export function Topbar({
                   />
                 ) : (
                   <div
-                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-[var(--avatar-bg)] text-xs font-semibold text-white sm:size-9 dark:ring-1 dark:ring-inset dark:ring-white/15"
+                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-semibold text-white sm:size-9 sm:bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
                     aria-hidden="true"
                   >
                     {getInitials(student.fullName)}
@@ -271,7 +270,7 @@ export function Topbar({
                 <ChevronDown className="w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align={phone ? 'start' : 'end'} className="w-56">
               {/* Profile header */}
               <div className="px-2 py-1.5">
                 <p className="text-sm font-semibold text-slate-900 truncate">{student.fullName}</p>

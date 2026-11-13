@@ -103,16 +103,19 @@ try {
         check(`${name}: task toggle switches on`, await toggle.getAttribute('aria-checked') === 'true')
       }
       if (width < 640 && !route) {
-        const titleLines = await page.locator('header').getByText('Student portal', { exact: true }).evaluate(el => {
+        const brand = page.locator('[data-mobile-portal-brand]')
+        const titleLines = await brand.getByText('AICS Portal', { exact: true }).evaluate(el => {
           const range = document.createRange()
           range.selectNodeContents(el)
           return range.getClientRects().length
         })
-        check(`header-${width}: Student portal stays on one line`, titleLines === 1, titleLines)
+        check(`header-${width}: AICS Portal stays on one line above Student`, titleLines === 1 && await brand.getByText('Student', { exact: true }).isVisible(), titleLines)
         const bell = await page.getByRole('button', { name: /^Notifications/ }).boundingBox()
         const account = await page.getByRole('button', { name: 'Account menu', exact: true }).boundingBox()
         check(`header-${width}: primary controls have 44px hit areas`, Math.min(bell.height, bell.width, account.height, account.width) >= 44)
         const header = await page.locator('header').boundingBox()
+        const center = await brand.boundingBox()
+        check(`header-${width}: account left, centered brand, notifications right`, account.x + account.width <= center.x && center.x + center.width <= bell.x && Math.abs(center.x + center.width / 2 - header.x - header.width / 2) <= 1, { account, center, bell })
         check(`header-${width}: compact single-row chrome`, header.height <= 64, header)
         const nav = page.getByRole('navigation', { name: 'Student mobile navigation', exact: true })
         const bounds = await nav.boundingBox()
