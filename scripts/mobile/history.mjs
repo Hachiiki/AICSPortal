@@ -126,7 +126,8 @@ async function capture(out, report) {
     const hide = guide.getByRole('button', { name: 'Hide guide to explore the page', exact: true })
     if (await hide.count()) {
       await hide.click()
-      await page.getByRole('button', { name: 'Read announcement: Midterm examination schedule', exact: true }).scrollIntoViewIfNeeded()
+      const name = /^Read announcement: Midterm examination schedule/
+      await page.getByRole('button', { name }).or(page.getByRole('link', { name })).scrollIntoViewIfNeeded()
       await shot('guide-minimized-320x420')
     }
     await page.keyboard.press('Escape')

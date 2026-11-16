@@ -14,7 +14,11 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
+  ANNOUNCEMENT_IMAGE_ALT_MAX_LENGTH,
+  ANNOUNCEMENT_IMAGE_MAX_BYTES,
+  ANNOUNCEMENT_IMAGE_TYPES,
   ANNOUNCEMENT_STYLES,
+  announcementImageUrl,
   type Announcement,
   type AnnouncementCategory,
   type AnnouncementPriority,
@@ -99,6 +103,9 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Announcement | null>(null)
   const [form, setForm] = useState<AnnouncementForm>(EMPTY_FORM)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageAlt, setImageAlt] = useState('')
+  const [removeImage, setRemoveImage] = useState(false)
   const [saving, setSaving] = useState(false)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -217,11 +224,17 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
   const openCreate = () => {
     setEditing(null)
     setForm(EMPTY_FORM)
+    setImageFile(null)
+    setImageAlt('')
+    setRemoveImage(false)
     setModalOpen(true)
   }
 
   const openEdit = (a: Announcement) => {
     setEditing(a)
+    setImageFile(null)
+    setImageAlt('')
+    setRemoveImage(false)
     setForm({
       title: a.title,
       body: a.body,
@@ -250,19 +263,28 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
         priority: form.priority,
         expiryDate: form.expiryDate || null,
       }
-      const res = editing
-        ? await fetch('/api/announcements', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: editing._id, ...body }),
-          })
-        : await fetch('/api/announcements', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            // POST keeps its legacy contract: branch + performedBy are
-            // spoof-checked against the session; both come from self.
-            body: JSON.stringify({ branch: student.branch || 'commonwealth', ...body, performedBy: student.username }),
-          })
+      const method = editing ? 'PATCH' : 'POST'
+      const fields = editing ? { id: editing._id, ...body } : body
+      let res: Response
+      if (imageFile || removeImage) {
+        const attachment = new FormData()
+        attachment.set('announcement', JSON.stringify(fields))
+        if (imageFile) {
+          attachment.set('image', imageFile)
+          attachment.set('imageAlt', imageAlt.trim())
+        } else {
+          attachment.set('removeImage', '1')
+        }
+        res = await fetch('/api/announcements/image', { method, body: attachment })
+      } else {
+        res = await fetch('/api/announcements', {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editing ? fields : {
+            ...fields, branch: student.branch || 'commonwealth', performedBy: student.username,
+          }),
+        })
+      }
       const data = await res.json()
       if (data.ok) {
         toast.success(data.message || (editing ? 'Announcement updated.' : 'Announcement posted.'))
@@ -508,13 +530,14 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
         <Modal
           title={editing ? 'Edit announcement' : 'Post announcement'}
           description={editing ? 'Students see the update on their next dashboard load. Read/dismiss markers persist.' : 'Posts render in the announcement deck for every student in this branch.'}
-          onClose={() => setModalOpen(false)}
+          onClose={() => { if (!saving) setModalOpen(false) }}
           maxWidthClass="max-w-xl"
           footer={
             <>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
+                disabled={saving}
                 className="px-4 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Cancel
@@ -559,6 +582,56 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                 placeholder="What students should know"
                 className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-y"
               />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="ann-image" className="block text-xs font-semibold text-slate-600">
+                Image <span className="font-normal">(optional)</span>
+              </label>
+              {editing?.image && !imageFile && (
+                <div className="flex items-center gap-3">
+                  {!removeImage && (
+                    <img src={announcementImageUrl(editing._id)} alt={editing.image.alt} className="h-16 max-w-28 rounded-md object-contain" />
+                  )}
+                  <button type="button" disabled={saving} onClick={() => setRemoveImage(!removeImage)} className="min-h-11 text-sm font-medium text-link hover:underline">
+                    {removeImage ? 'Keep current image' : 'Remove current image'}
+                  </button>
+                </div>
+              )}
+              <p id="ann-image-hint" className="text-xs text-slate-500">JPG, PNG, or WebP. Up to 2 MB.</p>
+              <input
+                id="ann-image"
+                type="file"
+                accept={ANNOUNCEMENT_IMAGE_TYPES.join(',')}
+                aria-describedby="ann-image-hint"
+                disabled={saving}
+                className="block w-full rounded-md border border-slate-200 p-2 text-sm"
+                onChange={(event) => {
+                  const file = event.currentTarget.files?.[0] ?? null
+                  if (file && file.size > ANNOUNCEMENT_IMAGE_MAX_BYTES) {
+                    event.currentTarget.value = ''
+                    setImageFile(null)
+                    toast.error('The image must be 2 MB or smaller.')
+                    return
+                  }
+                  setImageFile(file)
+                  if (file) setRemoveImage(false)
+                }}
+              />
+              {imageFile && (
+                <div>
+                  <label htmlFor="ann-image-alt" className="mb-1 block text-xs font-semibold text-slate-600">
+                    Image description <span className="font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="ann-image-alt"
+                    value={imageAlt}
+                    maxLength={ANNOUNCEMENT_IMAGE_ALT_MAX_LENGTH}
+                    onChange={(event) => setImageAlt(event.target.value)}
+                    disabled={saving}
+                    className={inputClass}
+                  />
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>

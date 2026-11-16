@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Megaphone,
@@ -13,10 +12,9 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
-import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import { ANNOUNCEMENT_STYLES, announcementDetailsUrl } from '@/lib/aics/announcements'
 import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
-import { DialogPanel } from './DialogPanel'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 
 interface AnnouncementsDeckProps {
@@ -42,7 +40,6 @@ const CARD_MIN_HEIGHT = 250
 
 export function AnnouncementsDeck({ announcements, username, readIds }: AnnouncementsDeckProps) {
   const onboarding = useStudentOnboarding()
-  const [opened, setOpened] = useState<Announcement | null>(null)
   const [deck, setDeck] = useState<Announcement[]>(announcements)
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
   const [dragX, setDragX] = useState(0)
@@ -244,10 +241,17 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <p className="student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
-              <button type="button" data-tour="announcement-read" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                aria-label={`Read announcement: ${a.title}`} onClick={() => { setOpened(a); void onboarding?.client.complete('announcements') }}>
+              <a
+                href={announcementDetailsUrl(a._id)}
+                target="_blank"
+                rel="noopener"
+                data-tour="announcement-read"
+                className="mt-2 inline-block rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label={`Read announcement: ${a.title} (opens in a new tab)`}
+                onClick={() => { void onboarding?.client.complete('announcements') }}
+              >
                 Read announcement
-              </button>
+              </a>
             </div>
           </div>
           <div className="flex items-center gap-2 mt-2 pl-6">
@@ -388,19 +392,6 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           )
         })}
       </div>
-      {opened && createPortal(<div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-4">
-        <DialogPanel onClose={() => setOpened(null)} aria-labelledby="announcement-detail-title" className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-xl border border-border bg-surface text-ink shadow-xl">
-          <div className="flex items-start justify-between gap-4 border-b border-border p-5">
-            <h2 id="announcement-detail-title" className="text-lg font-semibold">{opened.title}</h2>
-            <button type="button" aria-label="Close announcement" className="rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onClick={() => setOpened(null)}><X className="size-5" aria-hidden /></button>
-          </div>
-          <div className="overflow-y-auto p-5">
-            <p className="whitespace-pre-wrap text-sm leading-6">{opened.body}</p>
-            <p className="mt-4 text-xs text-muted-fg">{opened.author} · {new Date(opened.postedDate).toLocaleDateString()}</p>
-            <p className="mt-4 text-xs text-muted-fg">Use the checkmark on the card to mark this announcement as read.</p>
-          </div>
-        </DialogPanel>
-      </div>, document.body)}
     </div>
   )
 }

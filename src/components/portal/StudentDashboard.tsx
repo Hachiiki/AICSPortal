@@ -72,28 +72,32 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       tasks={tasks}
       inbox={inbox}
     >
-        <main className="min-w-0 space-y-5 px-[16px] py-[16px] sm:space-y-6 sm:px-6 sm:py-6 lg:space-y-8 lg:px-8 lg:py-8">
-          <div className="student-dashboard-intro grid grid-cols-1 gap-[16px] sm:gap-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8">
+      <main className="min-w-0 sm:grid sm:grid-cols-1 sm:gap-6 sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8 lg:px-8 lg:py-8">
+        <div className="student-dashboard-hero sm:contents">
           <AcademicHeader student={dashboardStudent} />
-
-          {/* Today at a glance — next class, pending tasks, unread announcements */}
-          <div className="min-w-0 lg:col-span-2 lg:row-start-3"><TodayGlance
-            courses={courses}
-            sessions={sessions}
-            tasks={tasks}
-            announcements={announcements}
-            announcementReadIds={announcementReadIds}
-            onNavigate={onNavigate}
-          /></div>
           <AcademicTermStats student={dashboardStudent} totalUnits={totalUnits} />
-          <div className="min-w-0 empty:hidden lg:col-span-2 lg:row-start-4"><StudentGettingStarted /></div>
-          <AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />
+        </div>
+
+        <div className="student-dashboard-panel min-w-0 max-sm:space-y-5 max-sm:px-4 sm:contents">
+          <div className="student-dashboard-intro grid grid-cols-1 gap-4 sm:contents">
+            <div className="min-w-0 sm:max-lg:row-start-2 lg:col-span-2 lg:row-start-3">
+              <TodayGlance
+                courses={courses}
+                sessions={sessions}
+                tasks={tasks}
+                announcements={announcements}
+                announcementReadIds={announcementReadIds}
+                onNavigate={onNavigate}
+              />
+            </div>
+            <div className="min-w-0 empty:hidden lg:col-span-2 lg:row-start-4"><StudentGettingStarted /></div>
+            <AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />
           </div>
 
-          <GradesTable student={dashboardStudent} />
+          <div className="min-w-0 lg:col-span-2"><GradesTable student={dashboardStudent} /></div>
 
           {/* Link to full academic record */}
-          <div className="flex justify-end">
+          <div className="flex justify-end lg:col-span-2">
             <button
               onClick={() => onNavigate('academics')}
               className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-link hover:text-link-strong hover:underline"
@@ -102,11 +106,12 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
             </button>
           </div>
 
-          <section id="student-schedule" aria-label="Class schedule" tabIndex={-1} className="flex scroll-mt-3 flex-col gap-4 lg:flex-row lg:scroll-mt-20">
+          <section id="student-schedule" aria-label="Class schedule" tabIndex={-1} className="flex scroll-mt-3 flex-col gap-4 lg:col-span-2 lg:flex-row lg:scroll-mt-20">
             <ScheduleGrid courses={courses} sessions={sessions} />
             <div className="order-first lg:order-last lg:w-[320px] lg:shrink-0"><TodaysClasses courses={courses} sessions={sessions} /></div>
           </section>
-        </main>
+        </div>
+      </main>
     </PortalShell>
   )
 }

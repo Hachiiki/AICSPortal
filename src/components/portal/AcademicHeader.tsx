@@ -14,7 +14,7 @@ export function AcademicHeader({ student }: { student: Student }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="student-welcome student-card min-w-0 max-sm:rounded-2xl max-sm:bg-[#153357] max-sm:px-[16px] max-sm:py-[14px] max-sm:text-white lg:col-start-1 lg:row-start-1"
+      className="student-welcome student-card min-w-0 sm:max-lg:row-start-1 lg:col-start-1 lg:row-start-1"
     >
       <div className="flex-1 min-w-0">
         <p className="hidden text-xs font-medium uppercase tracking-[0.12em] text-slate-500 sm:block">
@@ -35,7 +35,7 @@ export function AcademicHeader({ student }: { student: Student }) {
 
 export function AcademicTermStats({ student, totalUnits }: { student: Student; totalUnits: number }) {
   return (
-    <section className="student-overview min-w-0 lg:col-start-1 lg:row-start-2" aria-label="Term summary">
+    <section className="student-overview min-w-0 sm:max-lg:row-start-3 lg:col-start-1 lg:row-start-2" aria-label="Term summary">
       <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 sm:hidden">
         <h2 className="student-section-title text-lg font-bold tracking-tight text-ink">Academic summary</h2>
         <p className="text-xs font-medium text-muted-fg">{student.semester} &middot; <span className="inline-block">AY {student.academicYear}</span></p>

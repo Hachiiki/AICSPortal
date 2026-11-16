@@ -25,9 +25,9 @@ export async function GET(request: NextRequest) {
 
     // getCollection<T> returns `any` (see connection.ts), so a typed
     // helper keeps the Promise.all tuple inference intact downstream.
-    async function fetchAll<T>(name: string): Promise<T[]> {
+    async function fetchAll<T>(name: string, projection?: Record<string, 0>): Promise<T[]> {
       const col = await getCollection<T>(name)
-      return col.find({}).toArray()
+      return col.find({}, { projection }).toArray()
     }
 
     const [
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       fetchAll<MongoSubject>('subjects'),
       fetchAll<MongoProfessor>('professors'),
       fetchAll<MongoEvent>('events'),
-      fetchAll<MongoAnnouncement>('announcements'),
+      fetchAll<MongoAnnouncement>('announcements', { 'image.bytes': 0 }),
       fetchAll<MongoEnrollment>('enrollments'),
       fetchAll<MongoProgram>('programs'),
       fetchAll<MongoCourse>('courses'),

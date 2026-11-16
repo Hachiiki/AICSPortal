@@ -1,4 +1,5 @@
 // Synthetic UI fixtures only. Requests never reach a school database.
+import { readFileSync } from 'node:fs'
 import { SignJWT } from 'jose'
 import { localEnv } from '../onboarding/isolated-source.mjs'
 export const origin = process.env.MOBILE_ORIGIN || 'http://localhost:4350'
@@ -15,7 +16,7 @@ const referenceDate = new Date('2026-11-06T01:15:00Z')
 const tomorrow = new Date(referenceDate); tomorrow.setDate(tomorrow.getDate() + 1)
 const yesterday = new Date(referenceDate); yesterday.setDate(yesterday.getDate() - 1)
 export const tasks = Array.from({ length: 6 }, (_, i) => ({ _id: `mobile-task-${i}`, subjectCode: subjects[i % 3].code, term, title: ['Implement a linked list and explain its time complexity', 'Object-oriented design: library management system', 'Applications of mathematical models', 'Algorithm analysis practice', 'Inheritance and interfaces quiz', 'Problem-solving reflection'][i], type: ['Activity', 'Project', 'Quiz', 'Test', 'Activity', 'Project'][i], description: 'Read the instructions and discuss your approach with your professor. '.repeat(i === 4 ? 40 : 2), dueDate: (i === 3 ? yesterday : tomorrow).toISOString(), postedDate: yesterday.toISOString(), submitted: i === 4 || i === 5, submittedAt: i === 4 || i === 5 ? yesterday.toISOString() : null, score: i === 4 ? 27 : null, maxScore: i === 4 ? 30 : null, feedback: i === 4 ? 'Good explanation. Review the feedback before the next activity. '.repeat(18) : null, submissionsClosed: i === 2 }))
-export const announcements = [{ _id: 'mobile-notice', title: 'Midterm examination schedule', body: 'Check your subject schedules and bring your school ID. Contact your professor if you have a schedule conflict.', category: 'academic', priority: 'normal', author: 'Registrar', postedBy: 'Registrar', createdAt: yesterday.toISOString(), publishedAt: yesterday.toISOString(), expiresAt: null, branch: 'commonwealth' }]
+export const announcements = [{ _id: '000000000000000000000001', title: 'Midterm examination schedule', body: 'Check your subject schedules and bring your school ID.\n\nContact your professor if you have a schedule conflict.', category: 'academic', priority: 'normal', author: 'Registrar', postedDate: yesterday.toISOString(), image: { alt: 'AICS campus building' }, branch: 'commonwealth' }]
 
 export async function fixtureContext(browser, { width = 390, height = 844, fresh = false, role = 'student', failTasksOnce = false, touch = false, referenceTime = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, hasTouch: touch, reducedMotion: 'reduce', serviceWorkers: 'block', locale: 'en-US', timezoneId: 'Asia/Manila' })
@@ -75,6 +76,10 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
       writes.push({ path: p, simulated: true }); data = { ok: true }
     }
     else if (p === '/api/announcements') data = { ok: true, announcements, readIds: [] }
+    else if (p === '/api/announcements/' + announcements[0]._id) data = { ok: true, announcement: announcements[0] }
+    else if (p === '/api/announcements/image' && url.searchParams.get('id') === announcements[0]._id) {
+      return route.fulfill({ contentType: 'image/jpeg', body: readFileSync(new URL('../../public/aics-campus.jpg', import.meta.url)) })
+    }
     else if (p === '/api/events') data = { ok: true, events: [{ _id: 'mobile-event', title: 'Midterm examinations', date: tomorrow.toISOString().slice(0,10), category: 'academic', description: 'Refer to your subject schedule.', location: 'Commonwealth campus' }] }
     else if (p === '/api/professors') data = { ok: true, professors: subjects.map((s, i) => ({ _id: `prof-${i}`, name: s.professor, email: s.professorEmail, department: 'Computer Studies', room: s.room, officeHours: 'Mon-Fri, 10:00 AM-12:00 PM' })) }
     else if (p === '/api/notifications') {

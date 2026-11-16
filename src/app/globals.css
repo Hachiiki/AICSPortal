@@ -180,6 +180,81 @@
     container: student-portal / inline-size;
   }
 
+  .student-dashboard-hero {
+    position: sticky;
+    top: 0;
+    isolation: isolate;
+    padding: 31px 16px 48px;
+    color: white;
+    background:
+      linear-gradient(180deg, #0d223b3b 0%, #0c203963 28%, #0c203bc7 65%, #102540ef 100%),
+      linear-gradient(105deg, #102640b5 5%, #10264044 68%, #1026402c 100%),
+      #182e4b url('/aics-campus.jpg') center 55% / cover no-repeat;
+  }
+
+  .student-dashboard-hero .student-welcome {
+    padding: 0;
+  }
+
+  .student-dashboard-hero .student-welcome-heading {
+    color: white;
+    font-size: clamp(1.625rem, 7vw, 2.125rem);
+    line-height: 1.12;
+  }
+
+  .student-dashboard-hero .student-welcome-identity {
+    display: block;
+    color: #eaf3ff;
+  }
+
+  .student-dashboard-hero .student-overview {
+    margin-top: 23px;
+  }
+
+  .student-dashboard-hero .student-overview h2 {
+    color: white;
+    font-size: 0.9375rem;
+  }
+
+  .student-dashboard-hero .student-overview :is(p, dt) {
+    color: #dce9fa;
+  }
+
+  .student-dashboard-hero .student-term-identity {
+    display: none;
+  }
+
+  .student-dashboard-hero .student-overview dd {
+    color: white;
+  }
+
+  .student-dashboard-hero .student-overview-stats {
+    gap: 7px;
+    padding: 10px 11px;
+    border-color: #eef5ff3d;
+    background: #112542c9;
+  }
+
+  .student-dashboard-hero .student-overview-stats > div + div {
+    padding-inline-start: 7px;
+    border-inline-start: 1px solid #eef5ff3d;
+  }
+
+  .student-dashboard-hero .student-overview-stats > div:first-child dd {
+    font-size: clamp(1.375rem, 6.8vw, 1.875rem);
+    line-height: 1.02;
+  }
+
+  .student-dashboard-panel {
+    position: relative;
+    z-index: 1;
+    margin-top: -24px;
+    padding-block: 20px;
+    border-radius: 28px 28px 0 0;
+    background: var(--color-slate-50);
+    box-shadow: 0 -3px 12px #10254117;
+  }
+
   @container student-portal (width < 19rem) {
     .student-dashboard-intro {
       row-gap: 12px;
@@ -304,6 +379,11 @@
     .student-overview-stats dd {
       overflow-wrap: break-word;
       text-align: end;
+    }
+
+    .student-dashboard-hero .student-overview-stats > div + div {
+      padding-inline-start: 0;
+      border-inline-start: 0;
     }
   }
 
