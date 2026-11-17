@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
@@ -65,9 +65,47 @@ export function Topbar({
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
+  const headerRef = useRef<HTMLElement>(null)
   const [scrollHidden, setScrollHidden] = useState(false)
+
   useEffect(() => {
-    if (!phone) return
+    const header = headerRef.current
+    if (!isStudent || !header) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const distance = phone ? 60 : 76
+    let frame = 0
+    let previous = -1
+    const update = () => {
+      frame = 0
+      const progress = Math.min(1, Math.max(0, window.scrollY / distance))
+      const eased = progress * progress * (3 - 2 * progress)
+      const filled = eased >= 0.54
+      const position = reducedMotion.matches ? Number(filled) : eased
+      if (position === previous) return
+
+      previous = position
+      header.style.setProperty('--student-topbar-float', String(position))
+      header.toggleAttribute('data-student-topbar-filled', filled)
+    }
+    const scheduleUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', scheduleUpdate, { passive: true })
+    reducedMotion.addEventListener('change', scheduleUpdate)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', scheduleUpdate)
+      reducedMotion.removeEventListener('change', scheduleUpdate)
+      header.style.removeProperty('--student-topbar-float')
+      header.removeAttribute('data-student-topbar-filled')
+    }
+  }, [isStudent, phone])
+
+  useEffect(() => {
+    if (!phone || isStudent) return
     const readScroll = () => Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight))
     let previous = readScroll()
     let travel = 0
@@ -91,7 +129,7 @@ export function Topbar({
     }
     window.addEventListener('scroll', update, { passive: true })
     return () => window.removeEventListener('scroll', update)
-  }, [phone])
+  }, [isStudent, phone])
   const roleLabel = student.role === 'faculty' ? 'Faculty' : student.role === 'admin' ? 'Admin' : 'Student'
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
   const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
@@ -139,8 +177,10 @@ export function Topbar({
 
   return (
     <motion.header
-      className="portal-topbar sticky top-0 z-20 border-slate-200 bg-surface sm:h-16 sm:border-b"
-      data-scroll-hidden={phone && scrollHidden ? 'true' : undefined}
+      ref={headerRef}
+      className={`portal-topbar sticky top-0 z-20 sm:h-16 ${isStudent ? '' : 'border-slate-200 bg-surface sm:border-b'}`}
+      data-student-topbar={isStudent ? active : undefined}
+      data-scroll-hidden={!isStudent && phone && scrollHidden ? 'true' : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
@@ -290,13 +330,13 @@ export function Topbar({
                     {getInitials(student.fullName)}
                   </div>
                 )}
-                <div className="hidden sm:block text-left leading-tight">
+                <div className="portal-topbar-account-detail hidden sm:block text-left leading-tight">
                   <p className="text-sm font-semibold text-slate-900">{student.fullName}</p>
                   <p className="text-[11px] text-slate-500 font-mono">
                     {student.role === 'faculty' ? `Faculty • ${student.studentNumber}` : student.studentNumber}
                   </p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
+                <ChevronDown className="portal-topbar-account-detail w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align={phone ? 'start' : 'end'} className="w-56">

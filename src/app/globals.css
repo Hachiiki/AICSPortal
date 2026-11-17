@@ -89,6 +89,54 @@
   }
 }
 
+.portal-topbar[data-student-topbar] {
+  --student-topbar-float: 0;
+  --student-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
+  --student-topbar-gap: 0.75rem;
+  pointer-events: none;
+}
+
+.portal-topbar[data-student-topbar] .portal-topbar-layout {
+  position: relative;
+  isolation: isolate;
+  inset-block-start: calc(var(--student-topbar-float) * var(--student-topbar-gap));
+  width: calc(100% - var(--student-topbar-float) * var(--student-topbar-inset));
+  margin-inline: auto;
+  border-radius: calc(var(--student-topbar-float) * 2rem);
+  pointer-events: auto;
+}
+
+.portal-topbar[data-student-topbar] .portal-topbar-layout::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 5px 18px rgb(15 23 42 / 0.15), 0 1px 3px rgb(15 23 42 / 0.08);
+  opacity: var(--student-topbar-float);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .portal-topbar[data-student-topbar] {
+    container: student-topbar / inline-size;
+  }
+
+  @container student-topbar (width < 54rem) {
+    .portal-topbar-layout {
+      padding-inline: 1rem;
+    }
+
+    .portal-topbar-layout :is(.portal-topbar-account-detail, kbd) {
+      display: none;
+    }
+  }
+}
+
 @media (max-width: 639px) {
   .portal-topbar {
     transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -113,7 +161,7 @@
   :root:has([data-student-mobile-nav]) {
     --portal-mobile-nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
-    scroll-padding-top: 4rem;
+    scroll-padding-top: 4.25rem;
   }
   :root:has([data-student-mobile-nav]) #main-content {
     scroll-margin-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
@@ -166,6 +214,30 @@
     container: portal-topbar / inline-size;
   }
 
+  .student-portal-column {
+    --student-topbar-height: 3.5rem;
+  }
+
+  .portal-topbar[data-student-topbar] {
+    --student-topbar-inset: 1.25rem;
+    --student-topbar-gap: 0.5625rem;
+  }
+
+  .portal-topbar[data-student-topbar="dashboard"] + #main-content:has(.student-dashboard-hero) {
+    margin-block-start: calc(-1 * var(--student-topbar-height));
+  }
+
+  .portal-topbar[data-student-topbar="dashboard"]:not([data-student-topbar-filled]):has(+ #main-content .student-dashboard-hero) {
+    & :is([data-mobile-portal-brand] p, [data-tour="topbar-notifications"]) {
+      color: white;
+      text-shadow: 0 1px 6px rgb(7 26 52 / 0.8);
+    }
+
+    & [data-tour="topbar-notifications"]:hover {
+      background: rgb(255 255 255 / 0.12);
+    }
+  }
+
   .app-notice {
     container: app-notice / inline-size;
   }
@@ -184,10 +256,10 @@
     position: sticky;
     top: 0;
     isolation: isolate;
-    padding: 31px 16px 48px;
+    padding: calc(31px + var(--student-topbar-height)) 16px 48px;
     color: white;
     background:
-      linear-gradient(180deg, #0d223b3b 0%, #0c203963 28%, #0c203bc7 65%, #102540ef 100%),
+      linear-gradient(180deg, #0d223bd9 0%, #0c203996 28%, #0c203bc7 65%, #102540ef 100%),
       linear-gradient(105deg, #102640b5 5%, #10264044 68%, #1026402c 100%),
       #182e4b url('/aics-campus.jpg') center 55% / cover no-repeat;
   }

@@ -157,7 +157,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
       ?? target(current.target)
     const headerTarget = !!el?.closest('header')
     const dockTarget = !!el?.closest('[data-student-mobile-nav]')
-    const header = mobile ? document.querySelector<HTMLElement>('.portal-topbar') : null
+    const header = mobile ? document.querySelector<HTMLElement>('.portal-topbar-layout') : null
     const found = !!el
     if (found) everFoundRef.current = true
 
