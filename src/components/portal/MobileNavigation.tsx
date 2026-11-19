@@ -1,16 +1,20 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { motion, useAnimate } from 'framer-motion'
-import { Menu, Presentation, X } from 'lucide-react'
+import { AnimatePresence, motion, useAnimate } from 'framer-motion'
+import { Menu, Moon, Presentation, Sun, X } from 'lucide-react'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
+import { useTheme } from 'next-themes'
 import { useAnimationPreferences, type AnimationMode } from '@/components/AnimationPreferences'
 import type { Student, View } from '@/lib/aics/types'
 import { getPrimaryNav, SECONDARY_NAV, STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
+import { quickToggleTheme } from '@/lib/aics/theme-palette'
+import { useMounted } from '@/lib/aics/use-mounted'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
 const MOBILE_NAV_ACTION = 'relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full text-ink active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 const ACTIVE_NAV_ACTION = 'text-link-strong'
+const MORE_ACTION = 'student-more-item relative col-span-2 grid size-[48px] cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
 const MORE_PAGES = [...getPrimaryNav('student'), ...SECONDARY_NAV].filter(
   item => item.enabled && !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view),
 )
@@ -43,6 +47,10 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
 }) {
   const { navigate } = usePortalRoute()
   const { mode } = useAnimationPreferences()
+  const { resolvedTheme, setTheme } = useTheme()
+  const themeMounted = useMounted()
+  const isDark = themeMounted && resolvedTheme === 'dark'
+  const themeAction = isDark ? 'Switch to light theme' : 'Switch to dark theme'
   const dock = useRef<HTMLDivElement>(null)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -115,14 +123,32 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       <Dropdown.Portal>
         <Dropdown.Content aria-label="More pages" aria-labelledby={undefined} side="top" align="end" sideOffset={13} collisionPadding={12} loop
           className="student-more-popover z-50 grid max-w-[calc(100vw-24px)] grid-cols-6 gap-[8px] rounded-3xl border border-line bg-surface/95 p-[12px] shadow-xl backdrop-blur-xl">
-          {MORE_PAGES.map((item, index) => {
+          {MORE_PAGES.map((item) => {
             const Icon = item.view === 'professors' ? Presentation : item.icon
             return <Dropdown.Item key={item.view} aria-label={item.label} data-destination-label={item.label}
               onSelect={() => onNavigate(item.view)}
-              className={`student-more-item relative col-span-2 grid size-[48px] cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'} ${index === 3 ? 'col-start-2' : ''}`}>
+              className={`${MORE_ACTION} ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'}`}>
               <Icon className="size-5" aria-hidden="true" />
             </Dropdown.Item>
           })}
+          <Dropdown.Item aria-label={themeAction} data-destination-label={themeAction}
+            className={`${MORE_ACTION} bg-slate-100 text-ink`}
+            onSelect={(event) => {
+              event.preventDefault()
+              quickToggleTheme(resolvedTheme, setTheme)
+            }}>
+            <span className="relative size-5" aria-hidden="true">
+              <AnimatePresence initial={false}>
+                <motion.span key={isDark ? 'moon' : 'sun'} className="absolute inset-0"
+                  initial={{ opacity: 0, rotate: -40, scale: 0.8 }}
+                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                  exit={{ opacity: 0, rotate: 40, scale: 0.8 }}
+                  transition={{ duration: mode === 'full' ? 0.22 : 0, ease: 'easeOut' }}>
+                  {isDark ? <Moon className="size-5" /> : <Sun className="size-5" />}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </Dropdown.Item>
         </Dropdown.Content>
       </Dropdown.Portal>
       </Dropdown.Root>
