@@ -1,0 +1,225 @@
+bun test v1.3.14 (0d9b296a)
+
+src\lib\aics\use-portal-route.test.ts:
+(pass) the Notifications page survives a student reload without becoming a staff route [2.15ms]
+(pass) checklist destinations preserve the selected section and focus across reloads [0.29ms]
+(pass) Tasks, profile and announcements have actual contextual destinations [0.15ms]
+(pass) unknown tabs and focus targets never become executable navigation [0.09ms]
+(pass) task links preserve the selected task across navigation and reload [0.17ms]
+(pass) task focus is ignored outside the Tasks section [0.06ms]
+
+src\lib\authz\grades-update-write.test.ts:
+(pass) grades/update route — issue #86 write-filter wiring > update write: the filter composes gradeRow with a state guard for every touched period [30.80ms]
+(pass) grades/update route — issue #86 write-filter wiring > finalGrade-only row: the guard set defaults to the structural finals period [0.80ms]
+(pass) grades/update route — issue #86 write-filter wiring > withdraw write: the filter composes gradeRow with the atomic submitted guard [1.15ms]
+(pass) grades/update route — issue #86 write-filter wiring > TOCTOU (update): a professor stamp flipped between the gate read and the write no-ops [1.21ms]
+(pass) grades/update route — issue #86 write-filter wiring > TOCTOU (update): a period locked between the gate read and the write no-ops [1.20ms]
+(pass) grades/update route — issue #86 write-filter wiring > TOCTOU (withdraw): a stamp flipped between the gate read and the withdrawal no-ops [2.05ms]
+
+src\lib\authz\guards.test.ts:
+(pass) guard decision -> HttpError mapping > allow maps to null (nothing to throw) [3.35ms]
+(pass) guard decision -> HttpError mapping > every deny code maps to an HttpError with the taxonomy status and message [1.27ms]
+(pass) guard decision -> HttpError mapping > the three status tiers round-trip through HttpError [0.18ms]
+(pass) guard decision -> HttpError mapping > the mapping helper is a pure function over decisions [0.10ms]
+
+src\lib\authz\onboarding-state-write.test.ts:
+(pass) onboarding display preferences > persists Tasks guide preferences without touching the overview or another account [6.54ms]
+(pass) onboarding display preferences > carries shared dimensions and resets display preferences when the stored role changes [0.65ms]
+(pass) onboarding display preferences > persists welcome and checklist preferences only for the session actor [0.70ms]
+(pass) onboarding display preferences > returns saved display preferences without completing a checklist step [0.90ms]
+(pass) onboarding display preferences > rejects unsupported preference fields [2.52ms]
+(pass) onboarding display preferences > starts fresh students at the current tour release without an update prompt [0.84ms]
+(pass) onboarding display preferences > keeps legacy progress and uses monotonic, session-scoped notice acknowledgments [1.23ms]
+(pass) onboarding display preferences > rejects acknowledgments for future releases and never changes another role release [0.90ms]
+(pass) password onboarding after session revocation > records only the successful password step for the authorized branch and preserves revocation [206.75ms]
+Password changed; onboarding progress could not be saved.
+(pass) password onboarding after session revocation > keeps a successful password change successful when progress cannot be saved [154.57ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > the read filter is exactly the session-stamped {branch, username} keys [0.66ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > no stored doc answers the current registry version with every dimension false [0.40ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > a stored doc carries done steps forward [0.47ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > a retired dimension drops out and newer dimensions start false (carry-forward) [0.49ms]
+Onboarding state read failed: 75 |
+76 | function fakeOnboardingStates() {
+77 |   return {
+78 |     async findOne(query: Record<string, unknown>) {
+79 |       state.findOneQueries.push(query)
+80 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:80:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:68:30)
+      at async GET (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:95:41)
+      at async callGet (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:136:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:314:36)
+
+(pass) GET /api/onboarding/state — session-stamped wiring > a read failure is non-blocking: 200 with defaults and persisted false [4.89ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > no session is a 401 [0.55ms]
+(pass) GET /api/onboarding/state — session-stamped wiring > a corrupt actor role answers 403 (issue #67 class, policy denies it) [0.44ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > the upsert filter is session-stamped and the write carries role, registry version, merged values [0.91ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > an update merges over the stored state (done steps stay done) [0.80ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > an explicit false marks a done step back to not done [0.76ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > unknown dimension keys are a 400 with the offending key, and nothing is written [0.57ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > non-boolean update values are a 400 [1.06ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > malformed JSON is a 400 [0.74ms]
+Onboarding state save failed: 84 |       filter: Record<string, unknown>,
+85 |       update: Record<string, unknown>,
+86 |       options: Record<string, unknown>
+87 |     ) {
+88 |       state.updateOneCalls.push({ filter, update, options })
+89 |       if (state.writeFails) throw new Error('simulated onboarding write failure')
+                                           ^
+error: simulated onboarding write failure
+      at updateOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:89:39)
+      at PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:160:19)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:141:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:430:36)
+
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > a write failure is non-blocking: 200 with the computed state and persisted false [1.20ms]
+Onboarding state read failed: 75 |
+76 | function fakeOnboardingStates() {
+77 |   return {
+78 |     async findOne(query: Record<string, unknown>) {
+79 |       state.findOneQueries.push(query)
+80 |       if (state.readFails) throw new Error('simulated onboarding read failure')
+                                          ^
+error: simulated onboarding read failure
+      at findOne (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:80:38)
+      at findStored (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:68:30)
+      at async PATCH (C:\Projects\loginAICSPortal\src\app\api\onboarding\state\route.ts:128:56)
+      at async callPatch (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:141:21)
+      at async <anonymous> (C:\Projects\loginAICSPortal\src\lib\authz\onboarding-state-write.test.ts:441:36)
+
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > a failed read skips the write: no updateOne at all, persisted false [1.26ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > no session is a 401 [0.49ms]
+(pass) PATCH /api/onboarding/state — self-stamped upsert wiring > a corrupt actor role answers 403 and nothing is written [0.51ms]
+
+src\lib\authz\permissions.test.ts:
+(pass) permissions mirror > IDs are unique [0.09ms]
+(pass) permissions mirror > IDs follow the resourceKind.action convention [0.56ms]
+(pass) permissions mirror > covers the faculty/admin UI surfaces the nav gates [0.20ms]
+(pass) permissions mirror > import-lint: the module source has no imports and no server references [5.28ms]
+
+src\lib\authz\policies.test.ts:
+(pass) student surface policies > profile read: self, staff same-branch, deny otherwise [0.57ms]
+(pass) student surface policies > profile update: self or admin; students denied on others [0.20ms]
+(pass) student surface policies > export and finances are self-only [0.23ms]
+(pass) student surface policies > unsupported actions deny role [0.12ms]
+(pass) grade policies > FIX-C1: submit requires the subject in the teaching load (C3.1) [0.34ms]
+(pass) grade policies > grade.period update: own draft row allowed [0.29ms]
+(pass) grade policies > FIX-H1a: submitted and released periods are state-locked (C3.3) [0.22ms]
+(pass) grade policies > FIX-H1a: withdraw pulls a submitted period back to draft (C3.3) [0.27ms]
+(pass) grade policies > FIX-H1a: unrelease is admin-only with branch parity (C3.3) [0.24ms]
+(pass) grade policies > grade.period update: row-level denials [0.39ms]
+(pass) grade policies > A1 phase 3: a falsy fullName still owns stamped rows — the username is the only key (issue #72) [0.17ms]
+(pass) grade policies > A1 phase 3: an unstamped row denies even when the display name matches (fallback removed) (issue #72) [0.32ms]
+(pass) grade policies > A1 phase 3: a malformed stamp denies fail-closed — no normalization (issue #72) [0.24ms]
+(pass) grade policies > A1 phase 3: a stamped row is owned by the username only — display name is ignored (issue #72) [0.24ms]
+(pass) grade policies > A1 phase 3: a stale display name never grants ownership of a stamped row (issue #72) [0.23ms]
+(pass) grade policies > release queue: admin only; branch parity on release [0.23ms]
+(pass) grade policies > FIX-M1: audits read keeps the faculty/admin roles; scoping is route-side (C3.5) [0.21ms]
+(pass) task policies > task.list: self or staff [0.22ms]
+(pass) task policies > task.board, faculty.roster, faculty.history: staff only [0.32ms]
+(pass) task policies > task.section create/update: faculty + branch + load [0.47ms]
+(pass) task policies > task submit: any authed actor (filter self-scopes) [0.15ms]
+(pass) task policies > task grade: faculty + load on the task subject [0.30ms]
+(pass) attendance policies > FIX-H2: reads and writes require the section in the teaching load (C3.4) [0.51ms]
+(pass) attendance policies > attendance update: role and branch parity denials [0.21ms]
+(pass) material policies > material.list: students and faculty only (admin excluded) [0.22ms]
+(pass) material policies > material.upload: faculty + branch + load [0.38ms]
+(pass) material policies > material delete: faculty + load on the doc subject (by load, not uploader) [0.25ms]
+(pass) announcement policies > read is open to any authed actor; writes are admin-only with branch parity [0.31ms]
+(pass) announcement policies > announcement.reads markRead is open (route self-scopes; L4 stays in route) [0.18ms]
+(pass) notification policies > inbox read: self or staff; markRead: self only [0.28ms]
+(pass) notification policies > outbox and cleanup are staff/admin surfaces [0.25ms]
+(pass) notification policies > send: faculty + branch parity; unowned keys are the route problem (LEGACY preserved) [0.25ms]
+(pass) admin and branch policies > admin.directory/stats/enrollment reads: admin only (D1 school-wide) [0.28ms]
+(pass) admin and branch policies > admin.enrollment writes: branch parity on the target doc [0.35ms]
+(pass) admin and branch policies > branch.calendar/directory: reads open, writes admin-only [0.31ms]
+(pass) account policies > account.password update passes the guard (route keeps its gates) [0.11ms]
+(pass) account policies > account.photo: self only [0.21ms]
+(pass) M2 stale-role class dies by construction > a stale JWT role claim never overrides the DB actor role [0.24ms]
+(pass) onboarding.state policies (self-only, session-derived identity) > read and update allow for every role — the surface is each user reading and writing their own progress [0.21ms]
+(pass) onboarding.state policies (self-only, session-derived identity) > every other action denies [0.20ms]
+(pass) onboarding.state policies (self-only, session-derived identity) > corrupt role strings deny fail-closed (issue #67 class) [0.57ms]
+
+src\lib\authz\scopes.test.ts:
+(pass) authz scopes > ownStudentRows carries branch + session username only [0.12ms]
+(pass) authz scopes > teachingLoad omits term keys when no term is passed [0.32ms]
+(pass) authz scopes > teachingLoad includes term keys when a term is passed [0.13ms]
+(pass) authz scopes > subjectRows carries branch + code + the strict ownership key (FIX-C1 + A1 phase 3) [0.21ms]
+(pass) authz scopes > subjectRows adds term keys only for non-empty term values [0.16ms]
+(pass) authz scopes > attendanceRows carries branch + sectionKey (ownership gated by the policy) [1.48ms]
+(pass) authz scopes > branchDocs is the plain branch tenancy fragment [0.21ms]
+(pass) authz scopes > fragments derive from the actor doc, never the JWT claims [0.14ms]
+(pass) authz scopes > A1 phase 3: the fragment is a flat username equality — the display name is absent [0.10ms]
+(pass) authz scopes > A1 phase 3: the ownership key survives a route spreading its own top-level $or [0.13ms]
+(pass) authz scopes > A1 phase 3: a falsy fullName no longer affects the fragment at all [0.09ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > gradeRow carries the row keys plus the strict ownership key [0.06ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > gradeRow adds term keys only for non-empty term values (route conditional spread) [0.10ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > gradeRow derives from the actor doc — stale claims cannot widen the write [0.07ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > mismatched ownership: another faculty's filter carries their key — never mine [0.05ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > mismatched ownership: a display name matching the row's professor grants nothing [0.08ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > editablePeriodGuard mirrors the grade.period gate: deny only submitted/released [0.08ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > update composition: the ownership key survives the route spreading the state guards [0.10ms]
+(pass) authz scopes — issue #86 gradeRow write fragments > withdraw composition: ownership and the submitted guard co-exist on the write [0.09ms]
+
+src\lib\authz\types.test.ts:
+(pass) authz types > RESOURCE_KINDS covers every union kind exactly once [0.21ms]
+(pass) authz types > ACTIONS is unique, non-empty, and every member is an Action [0.06ms]
+(pass) authz types > DENY_STATUS is total with the right status tiers [0.18ms]
+(pass) authz types > deny() derives status from the code and carries the message [0.08ms]
+(pass) authz types > allow() is the empty ok decision [0.04ms]
+
+src\lib\onboarding\registry.test.ts:
+(pass) onboarding registry shape > covers all three roles [0.08ms]
+(pass) onboarding registry shape > every role spec has exactly five state dimensions with unique keys [0.17ms]
+(pass) onboarding registry shape > every dimension carries a key and a non-empty label [0.10ms]
+(pass) onboarding registry shape > every spec version is a positive integer [0.07ms]
+(pass) registryFor > resolves the three roles [0.04ms]
+(pass) registryFor > corrupt role strings resolve to no spec (issue #67 class, fail closed) [0.04ms]
+(pass) emptyValues > every dimension starts false [0.06ms]
+(pass) carryForward (version carry-forward) > no stored doc reads as a fresh current-version state [0.06ms]
+(pass) carryForward (version carry-forward) > a same-version doc passes its values through [0.15ms]
+(pass) carryForward (version carry-forward) > an older-version doc keeps done steps, drops retired dimensions, starts new ones false [0.10ms]
+(pass) carryForward (version carry-forward) > a newer-version doc (registry rollback) normalizes to the current spec [0.13ms]
+(pass) carryForward (version carry-forward) > non-true stored values read as not done (tolerant reader) [0.09ms]
+(pass) carryForward (version carry-forward) > a malformed values field reads as a fresh state, not a crash [0.07ms]
+(pass) carryForward (version carry-forward) > a role change carries only the dimensions shared with the new spec [0.20ms]
+(pass) applyUpdates > sets known keys and returns a new map (no mutation) [0.12ms]
+(pass) applyUpdates > drops unknown keys (the route 400s them; this is the backstop) [0.06ms]
+(pass) applyUpdates > an explicit false marks a done step back to not done [0.04ms]
+
+src\lib\onboarding\student-client.test.ts:
+(pass) student tour updates > offers a major update to returning students while preserving completion [0.12ms]
+(pass) student tour updates > keeps minor revisions silent and gives fresh students only their welcome [0.07ms]
+(pass) student tour updates > clears the dot on read, persists dismissal, and offers a subsequent major revision [0.12ms]
+(pass) student onboarding journey through its state API > remembers Tasks dismissal and completion separately from the portal overview [2.13ms]
+(pass) student onboarding journey through its state API > uses the password action receipt without writing through the revoked session [0.43ms]
+(pass) student onboarding journey through its state API > reports unsaved password progress when the authorized action could not persist it [0.29ms]
+(pass) student onboarding journey through its state API > welcomes a new eligible student after portal readiness, then remembers exploration [0.78ms]
+(pass) student onboarding journey through its state API > resumes saved progress and never repeats a completed tour introduction [0.48ms]
+(pass) student onboarding journey through its state API > hides onboarding after a failed or non-authoritative read [0.81ms]
+(pass) student onboarding journey through its state API > keeps completion for the session after a failed save and retries the actual pending progress [0.82ms]
+(pass) student onboarding journey through its state API > dismisses and restores the checklist without resetting completed tasks [0.75ms]
+
+src\lib\onboarding\tour\engine.test.ts:
+(pass) spotlightRect > inflates the target by the pad on every side [0.10ms]
+(pass) sideOrder > preferred side first, then its opposite, then the rest [0.15ms]
+(pass) sideOrder > center degrades to the plain order (centering is the final fallback) [0.04ms]
+(pass) placeCard > honors the preferred side when there is room [0.27ms]
+(pass) placeCard > flips to the opposite side when the preferred one does not fit (B1) [0.08ms]
+(pass) placeCard > clamps horizontally near the left edge so the card stays on screen (B1) [0.07ms]
+(pass) placeCard > clamps horizontally near the right edge [0.07ms]
+(pass) placeCard > tries the remaining sides before falling back to center [0.09ms]
+(pass) placeCard > centers the card when no side fits at all [0.11ms]
+(pass) centeredCard > centers with clamping when the card is larger than the viewport [0.05ms]
+(pass) stepDisposition (the documented target-resolution contract) > a visible target spots [0.09ms]
+(pass) stepDisposition (the documented target-resolution contract) > an absent target inside the budget waits (B3 delayed mounts) [0.05ms]
+(pass) stepDisposition (the documented target-resolution contract) > an absent target past the budget skips (B2 missing at open) [0.06ms]
+(pass) stepDisposition (the documented target-resolution contract) > a target that vanishes after being found centers the card (B4 removed mid-tour) [0.06ms]
+(pass) stepAnnouncement (D3) > carries the position and the title [0.09ms]
+
+ 155 pass
+ 0 fail
+ 731 expect() calls
+Ran 155 tests across 11 files. [3.36s]

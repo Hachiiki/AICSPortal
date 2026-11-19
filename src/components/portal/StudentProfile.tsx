@@ -307,7 +307,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
             >
               {/* Submitted Documents (2 cols) */}
               <div className="lg:col-span-2 bg-surface rounded-2xl border border-slate-200 shadow-sm min-w-0">
-                <div className="p-6 pb-4 flex items-start justify-between gap-4">
+                <div className="p-4 sm:p-6 pb-4 flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                   <div className="min-w-0">
                     <h3 className="text-lg font-semibold text-slate-900">Submitted Documents</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -317,7 +317,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-lg flex-shrink-0"
+                    className="min-h-11 sm:min-h-8 rounded-lg flex-shrink-0"
                     onClick={handleViewAllDocuments}
                   >
                     <FileText className="w-4 h-4 mr-1.5" /> View All Documents
@@ -454,7 +454,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
           disclaimer mirrors the card subtitle so the enlarged view
           can never be mistaken for an official school ID. */}
       <Dialog open={showIDDialog} onOpenChange={setShowIDDialog}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85dvh] overflow-y-auto [&>button]:size-11 [&>button]:grid [&>button]:place-items-center">
           <DialogHeader>
             <DialogTitle>Digital ID</DialogTitle>
           </DialogHeader>
@@ -538,7 +538,7 @@ function DocumentRow({
   onSubmit: () => void
 }) {
   return (
-    <li className="px-6 py-4 flex items-center justify-between gap-4">
+    <li className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         {submitted ? (
           <CircleCheck className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -546,7 +546,7 @@ function DocumentRow({
           <CircleAlert className="w-5 h-5 text-red-600 flex-shrink-0" />
         )}
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-900 truncate">{name}</p>
+          <p className="text-sm font-semibold text-slate-900 break-words">{name}</p>
           <p className={`text-xs mt-0.5 ${submitted ? 'text-slate-500' : 'text-red-600'}`}>
             {submitted ? `Submitted on ${dateSubmitted}` : 'Required for enrollment'}
           </p>

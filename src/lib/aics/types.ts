@@ -6,6 +6,7 @@ export type View =
   | 'profile'
   | 'academics'
   | 'events'
+  | 'notifications'
   | 'professors'
   | 'subjects'
   | 'schedule'

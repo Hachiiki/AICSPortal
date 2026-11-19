@@ -3,6 +3,18 @@
 export type AnnouncementCategory = 'academic' | 'deadline' | 'campus' | 'holiday' | 'general'
 export type AnnouncementPriority = 'normal' | 'urgent'
 
+export const ANNOUNCEMENT_IMAGE_MAX_BYTES = 2 * 1024 * 1024
+export const ANNOUNCEMENT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
+export const ANNOUNCEMENT_IMAGE_ALT_MAX_LENGTH = 180
+
+export function announcementImageUrl(id: string) {
+  return `/api/announcements/image?id=${encodeURIComponent(id)}`
+}
+
+export function announcementDetailsUrl(id: string) {
+  return `/portal/announcements/${encodeURIComponent(id)}`
+}
+
 export interface Announcement {
   _id: string
   title: string
@@ -10,6 +22,7 @@ export interface Announcement {
   category: AnnouncementCategory
   priority: AnnouncementPriority
   author: string
+  image?: { alt: string }
   postedDate: string // ISO string
   /** Admin manage view only (all=1). null = no expiry; the student deck ignores it. */
   expiryDate?: string | null
