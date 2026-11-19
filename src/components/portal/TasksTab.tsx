@@ -1,5 +1,7 @@
 'use client'
 
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
+
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -49,6 +51,7 @@ interface TasksTabProps {
 }
 
 export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, onRetry }: TasksTabProps) {
+  const { mode } = useAnimationPreferences()
   const [subjectFilter, setSubjectFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState<'all' | TaskType>('all')
   const [statusFilter, setStatusFilter] = useState<'all' | TaskStatus>('all')
@@ -80,13 +83,13 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || active instanceof HTMLElement && active.isContentEditable) return
       const el = Array.from(document.querySelectorAll<HTMLElement>(`[data-task-id="${CSS.escape(focusTaskId)}"]`)).find(row => row.getClientRects().length > 0)
       if (!el) return
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.scrollIntoView({ behavior: mode === 'full' ? 'smooth' : 'instant', block: 'center' })
       el.focus({ preventScroll: true })
       setHighlightId(focusTaskId)
       setTimeout(() => setHighlightId((cur) => (cur === focusTaskId ? null : cur)), 2600)
     }, 250)
     return () => clearTimeout(t)
-  }, [focusTaskId, focusSubject, loading, tasks.length])
+  }, [focusTaskId, focusSubject, loading, tasks.length, mode])
 
   const currentSubjects = useMemo(() =>
     student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),
@@ -192,9 +195,9 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
     setExpandedCourses((prev) => new Set(prev).add(task.subjectCode))
     setTimeout(() => {
       const el = courseRefs.current[task.subjectCode]
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      if (el) el.scrollIntoView({ behavior: mode === 'full' ? 'smooth' : 'instant', block: 'start' })
     }, 100)
-  }, [])
+  }, [mode])
 
   if (loading) return <TasksSkeleton />
   if (error) return <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><p>We couldn't load your tasks. {error}</p>{onRetry && <button type="button" onClick={onRetry} className="mt-3 min-h-11 rounded-lg border border-red-300 px-4 font-semibold hover:bg-red-100">Retry loading tasks</button>}</div>

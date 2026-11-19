@@ -6,6 +6,7 @@ import type { Announcement } from '@/lib/aics/announcements'
 import { canSubmit, computeStatus, type Task } from '@/lib/aics/tasks'
 import type { View } from '@/lib/aics/types'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { dateToDayIndex, formatRangeTime, getCourse, getSessionsForDay, type Course, type Session } from '@/lib/schedule'
 
 interface TodayGlanceProps {
@@ -48,14 +49,15 @@ function GlanceRow({ icon: Icon, label, title, detail, status, urgent, action, o
   )
 }
 
-function focusDashboardSection(id: string) {
+function focusDashboardSection(id: string, behavior: ScrollBehavior) {
   const section = document.getElementById(id)
-  section?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
+  section?.scrollIntoView({ behavior, block: 'start' })
   section?.focus({ preventScroll: true })
 }
 
 export function TodayGlance({ courses, sessions, tasks, announcements, announcementReadIds, onNavigate }: TodayGlanceProps) {
   const { route, navigate } = usePortalRoute()
+  const scrollBehavior = useAnimationPreferences().mode === 'full' ? 'smooth' : 'instant'
   const now = new Date()
   const day = dateToDayIndex(now)
   const minutes = now.getHours() * 60 + now.getMinutes()
@@ -90,7 +92,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         <GlanceRow icon={CalendarClock} label={nextClass && minutesToClass <= 0 ? 'Current class' : 'Next class'}
           title={nextClass ? getCourse(nextClass.code, courses).title : 'No more classes today'}
           detail={nextClass && <span className="flex flex-wrap gap-x-2"><span>{formatRangeTime(nextClass.start, nextClass.end)}</span>{nextClass.room && <span>{nextClass.room}</span>}</span>}
-          status={nextClass ? classStatus : undefined} action="View class schedule" onClick={() => focusDashboardSection('student-schedule')} />
+          status={nextClass ? classStatus : undefined} action="View class schedule" onClick={() => focusDashboardSection('student-schedule', scrollBehavior)} />
         <GlanceRow icon={ClipboardList} label="Tasks"
           title={!openTasks ? 'Loading tasks' : nextTask ? `${openTasks.length} open for submission` : 'Nothing to submit'}
           detail={taskDetail} status={overdueCount ? `${overdueCount} overdue` : undefined} urgent={overdueCount > 0} action="Review tasks" onClick={() => {
@@ -99,7 +101,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
           }} />
         <GlanceRow icon={Megaphone} label="Campus announcements"
           title={!unread ? 'Loading announcements' : unread.length ? `${unread.length} unread` : 'You’re all caught up'}
-          detail={unread?.[0]?.title} action="Read updates" onClick={() => focusDashboardSection('student-announcements')} />
+          detail={unread?.[0]?.title} action="Read updates" onClick={() => focusDashboardSection('student-announcements', scrollBehavior)} />
       </div>
     </section>
   )

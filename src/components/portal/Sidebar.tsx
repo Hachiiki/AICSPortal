@@ -1,16 +1,21 @@
 'use client'
 
 import { useEffect } from 'react'
-import { motion, AnimatePresence, useDragControls, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import {
   X,
   Moon,
   Sun,
+  LogOut,
+  User,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import { useMounted } from '@/lib/aics/use-mounted'
-import type { View } from '@/lib/aics/types'
+import type { Student, View } from '@/lib/aics/types'
+import { getInitials } from '@/lib/aics/format'
+import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import {
   SECONDARY_NAV,
   STUDENT_MOBILE_NAV,
@@ -25,7 +30,6 @@ import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import { getStudentTourUpdate } from '@/lib/onboarding/student-client'
 import { DialogPanel } from './DialogPanel'
-import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
 interface SidebarProps {
   active: View
@@ -37,6 +41,8 @@ interface SidebarProps {
   onMobileExitComplete?: () => void
   /** When 'faculty', shows faculty nav items instead of student ones. */
   role?: 'student' | 'faculty' | 'admin'
+  profile?: Student
+  onLogout?: () => void
 }
 
 function NavButton({
@@ -96,16 +102,19 @@ function NavButton({
   )
 }
 
-function SidebarContent({ active, onNavigate, role = 'student', scrollBody = false }: { active: View; onNavigate: (v: View) => void; role?: string; scrollBody?: boolean }) {
+function SidebarContent({ active, onNavigate, role = 'student', profile, onLogout, onAppearance }: {
+  active: View; onNavigate: (v: View) => void; role?: string; profile?: Student; onLogout?: () => void; onAppearance?: () => void
+}) {
   const { resolvedTheme, setTheme } = useTheme()
   const mounted = useMounted()
   const dark = mounted && resolvedTheme === 'dark'
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
+  const scrollBody = !!profile
   return (
     <div className={`flex min-h-0 flex-col ${scrollBody ? '' : 'h-full'}`}>
       {/* Brand */}
-      {!scrollBody && <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-5 pr-12 lg:pr-4">
+      {!profile ? <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-5 pr-12 lg:pr-4">
         <img src="/aics-logo.svg" alt="" aria-hidden="true" className="w-10 h-10 flex-shrink-0" />
         <div className="leading-tight min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-link-strong">
@@ -115,10 +124,18 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
             Asian Institute of Computer Studies
           </p>
         </div>
+      </div> : <div className="flex items-center gap-3 border-b border-line py-5 pl-5 pr-14">
+        {profile.photoUrl ? <img src={profile.photoUrl} alt="" className="size-12 shrink-0 rounded-full object-cover" /> :
+          <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full bg-blue-700 font-semibold text-white">{getInitials(profile.fullName)}</span>}
+        <div className="min-w-0">
+          <h2 className="truncate text-base font-semibold text-ink">{profile.fullName}</h2>
+          <p className="truncate text-xs text-muted-fg">{profile.studentNumber || profile.username}</p>
+        </div>
       </div>}
 
       {/* Navigation */}
-        <nav className={`px-3 ${scrollBody ? 'py-[2px]' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}>
+        <nav className={`px-3 ${scrollBody ? 'space-y-1 py-3' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}>
+        {profile && <NavButton item={{ view: 'profile', label: 'Profile', icon: User, enabled: true }} active={active === 'profile'} onClick={() => onNavigate('profile')} />}
         {primaryNav.filter(item => !scrollBody || !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view)).map((item) => (
           <NavButton
             key={item.view}
@@ -138,8 +155,14 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
             onClick={() => onNavigate(item.view)}
           />
         ))}
+        {profile && <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-link" onClick={onAppearance}>
+          <Sun className="size-4" aria-hidden="true" /> Theme settings
+        </button>}
         {role === 'student' && <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:hidden" onClick={() => quickToggleTheme(resolvedTheme, setTheme)}>
           {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}<span>{dark ? 'Switch to light theme' : 'Switch to dark theme'}</span>
+        </button>}
+        {profile && <button type="button" className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-link" onClick={onLogout}>
+          <LogOut className="size-4" aria-hidden="true" /> Sign out
         </button>}
       </nav>
 
@@ -170,15 +193,10 @@ function SidebarContent({ active, onNavigate, role = 'student', scrollBody = fal
   )
 }
 
-export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileOpen, onMobileClose, onMobileExitComplete, role }: SidebarProps) {
-  const phone = usePhoneViewport()
-  const phoneSheet = role === 'student' && phone
-  const sheetDrag = useDragControls()
-  const reducedMotion = useReducedMotion()
-  const sheetTransition = {
-    duration: reducedMotion ? 0 : 0.28,
-    ease: [0.22, 1, 0.36, 1] as const,
-  }
+export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileOpen, onMobileClose, onMobileExitComplete, role, profile, onLogout }: SidebarProps) {
+  const { navigate } = usePortalRoute()
+  const { mode } = useAnimationPreferences()
+  const drawerOffset = profile ? '-100%' : -264
   // Workspace-assembly entrance (assemble candidate only): the real
   // rail slides in from the left when the reveal flips. Inactive —
   // including normal navigation — the aside mounts at rest, exactly
@@ -190,7 +208,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
     if (!mobileActive) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const desktop = window.matchMedia('(min-width: 1024px)')
+    const desktop = window.matchMedia(profile ? '(min-width: 640px)' : '(min-width: 1024px)')
     const closeOnDesktop = () => {
       if (desktop.matches) onMobileClose()
     }
@@ -199,7 +217,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
       document.body.style.overflow = previousOverflow
       desktop.removeEventListener('change', closeOnDesktop)
     }
-  }, [mobileActive, onMobileClose])
+  }, [mobileActive, onMobileClose, profile])
 
   return (
     <>
@@ -226,48 +244,32 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: reducedMotion ? 0 : 0.22 }}
-              className="fixed inset-0 bg-scrim/40 z-40 lg:hidden"
+              transition={{ duration: mode === 'off' ? 0 : 0.18 }}
+              className={`fixed inset-0 bg-scrim/40 z-40 ${profile ? 'sm:hidden' : 'lg:hidden'}`}
               onClick={onMobileClose}
               aria-hidden="true"
             />
             {/* Drawer */}
             <DialogPanel
-              id="mobile-navigation"
+              id={profile ? 'mobile-profile' : 'mobile-navigation'}
               onClose={onMobileClose}
-              initial={phoneSheet ? { y: '100%', opacity: 0.8 } : { x: -264 }}
-              animate={{ x: 0, y: 0, opacity: 1 }}
-              exit={phoneSheet ? { y: '100%', opacity: 0.8 } : { x: -264 }}
-              transition={phoneSheet ? sheetTransition : { duration: reducedMotion ? 0 : 0.25, ease: 'easeOut' }}
-              drag={phoneSheet ? 'y' : false}
-              dragControls={sheetDrag}
-              dragListener={false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.65 }}
-              dragMomentum={false}
-              onDragEnd={(_, info) => {
-                if (info.offset.y >= 80 || (info.offset.y >= 30 && info.velocity.y > 600)) onMobileClose()
-              }}
-              className={`fixed z-50 flex flex-col bg-surface outline-none pb-[env(safe-area-inset-bottom)] lg:hidden ${phoneSheet ? 'inset-x-0 bottom-0 max-h-[min(90dvh,42rem)] overflow-hidden rounded-t-2xl border-t border-line' : 'left-0 top-0 h-dvh w-72 max-w-[calc(100vw-32px)] border-r border-slate-200'}`}
-              aria-label="Navigation menu"
+              initial={mode === 'off' ? false : { x: mode === 'full' ? drawerOffset : 0, opacity: mode === 'full' ? 1 : 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: mode === 'full' ? drawerOffset : 0, opacity: mode === 'full' ? 1 : 0 }}
+              transition={{ duration: mode === 'off' ? 0 : mode === 'reduced' ? 0.12 : 0.27, ease: [0.22, 1, 0.36, 1] }}
+              className={`portal-mobile-drawer fixed left-0 top-0 z-50 flex h-dvh max-w-[calc(100vw-32px)] flex-col border-r border-line bg-surface pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] outline-none ${profile ? 'w-80 shadow-xl sm:hidden' : 'w-72 lg:hidden'}`}
+              aria-label={profile ? 'Profile menu' : 'Navigation menu'}
             >
               {/* Close button */}
-              {!phoneSheet && <button
+              <button
                 type="button"
                 onClick={onMobileClose}
-                aria-label="Close navigation menu"
-                className="absolute top-3 right-2 size-11 grid place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label={profile ? 'Close profile menu' : 'Close navigation menu'}
+                className="absolute top-[calc(0.75rem+env(safe-area-inset-top))] right-2 size-11 grid place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <X className="w-5 h-5" />
-              </button>}
-              {phoneSheet && (
-                <div data-student-sheet-handle="" className="shrink-0 touch-none select-none cursor-grab border-b border-line px-5 pb-[6px] pt-[6px] active:cursor-grabbing"
-                  onPointerDown={event => sheetDrag.start(event)}>
-                  <span aria-hidden="true" className="mx-auto mb-[3px] block h-[4px] w-[32px] rounded-full bg-slate-300" />
-                  <h2 className="text-lg font-bold tracking-tight text-ink">More</h2>
-                </div>
-              )}
-              <div className={`min-h-0 flex-1 ${phoneSheet ? 'overflow-y-auto overscroll-contain' : ''}`}>
+              </button>
+              <div className={`min-h-0 flex-1 ${profile ? 'overflow-y-auto overscroll-contain' : ''}`}>
                 <SidebarContent
                   active={active}
                   onNavigate={(v) => {
@@ -275,17 +277,14 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
                     onMobileClose()
                   }}
                   role={role}
-                  scrollBody={phoneSheet}
+                  profile={profile}
+                  onLogout={onLogout}
+                  onAppearance={profile ? () => {
+                    navigate({ view: 'settings', role: 'student', branch: profile.branch, username: profile.username, section: 'appearance' })
+                    onMobileClose()
+                  } : undefined}
                 />
               </div>
-              {phoneSheet && (
-                <div className="shrink-0 border-t border-line px-[8px] py-[4px]">
-                  <button type="button" aria-label="Close navigation menu" onClick={onMobileClose}
-                    className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-blue-50 px-3 py-1 text-sm font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link">
-                    <X className="size-5 shrink-0" aria-hidden="true" /> Close menu
-                  </button>
-                </div>
-              )}
             </DialogPanel>
           </>
         )}

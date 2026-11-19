@@ -9,8 +9,7 @@
 //     to the triggering element on unmount (D1/D2).
 //   - The sr-only polite status region pattern comes from GlobalSearch
 //     and announces start and step changes (D3).
-//   - Motion goes through the shell's MotionConfig reducedMotion="user"
-//     plus the local useReducedMotion check, so the spotlight settles
+//   - Motion follows the portal preference, so the spotlight settles
 //     without animation when the user prefers reduced motion (E1).
 //
 // Documented behaviors (each one is a gate criterion):
@@ -36,7 +35,8 @@
 //     theme choices ride the same classes (G1).
 
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { DialogPanel } from '@/components/portal/DialogPanel'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -101,7 +101,7 @@ export function TourOverlay({ steps, onFinish, onNavigate, onStepChange }: TourO
     card: centeredCard(DEFAULT_CARD_SIZE, safeVpt()),
   }))
 
-  const reduced = useReducedMotion()
+  const reduced = useAnimationPreferences().mode !== 'full'
   const headingId = useId()
   const bodyId = useId()
   const headingRef = useRef<HTMLHeadingElement | null>(null)

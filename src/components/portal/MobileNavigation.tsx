@@ -1,46 +1,51 @@
 'use client'
 
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
-import { motion, useAnimate, useReducedMotion } from 'framer-motion'
-import { Menu } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { motion, useAnimate } from 'framer-motion'
+import { Menu, Presentation, X } from 'lucide-react'
+import * as Dropdown from '@radix-ui/react-dropdown-menu'
+import { useAnimationPreferences, type AnimationMode } from '@/components/AnimationPreferences'
 import type { Student, View } from '@/lib/aics/types'
-import { STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
+import { getPrimaryNav, SECONDARY_NAV, STUDENT_MOBILE_NAV } from '@/lib/aics/nav-config'
 import { usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 
 const MOBILE_NAV_ACTION = 'relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full text-ink active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
 const ACTIVE_NAV_ACTION = 'text-link-strong'
+const MORE_PAGES = [...getPrimaryNav('student'), ...SECONDARY_NAV].filter(
+  item => item.enabled && !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view),
+)
 
-function DockHighlight() {
-  const reducedMotion = useReducedMotion()
+function DockHighlight({ mode }: { mode: AnimationMode }) {
+  const reducedMotion = mode !== 'full'
   const [surface, animate] = useAnimate<HTMLSpanElement>()
 
   return <motion.span aria-hidden="true" data-dock-highlight=""
     layoutId={reducedMotion ? undefined : 'student-dock-highlight'}
     className="pointer-events-none absolute inset-0 -z-10"
-    transition={{ type: 'spring', stiffness: 500, damping: 29, mass: 0.85 }}
+    transition={{ type: 'spring', stiffness: 430, damping: 29, mass: 0.9 }}
     onLayoutAnimationStart={() => {
       if (reducedMotion || !surface.current) return
       void animate(surface.current, {
-        scaleX: [1, 1.14, 0.985, 1],
-        scaleY: [1, 1.08, 0.99, 1],
-      }, { duration: 0.32, times: [0, 0.28, 0.65, 1], ease: ['easeOut', 'easeInOut', 'easeOut'] })
+        scaleX: [1, 1.1, 1],
+        scaleY: [1, 1.055, 1],
+      }, { duration: 0.36, times: [0, 0.32, 1], ease: ['easeOut', 'easeInOut'] })
     }}>
     <span ref={surface} className="absolute inset-0 rounded-full bg-blue-50" />
   </motion.span>
 }
 
-export function MobileNavigation({ student, active, academicTab, menuOpen, onOpenMenu, onNavigate, search }: {
+export function MobileNavigation({ student, active, academicTab, onNavigate, search }: {
   student: Student
   active: View
   academicTab?: AcademicsTab
-  menuOpen: boolean
-  onOpenMenu: (event: MouseEvent<HTMLButtonElement>) => void
   onNavigate: (view: View) => void
   search: ReactNode
 }) {
   const { navigate } = usePortalRoute()
+  const { mode } = useAnimationPreferences()
   const dock = useRef<HTMLDivElement>(null)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   useEffect(() => {
     if (!dock.current) return
     const element = dock.current
@@ -66,7 +71,9 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
       const editing = focused?.matches('textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])')
         && !focused.closest('[role="dialog"][aria-modal="true"], [data-slot="dialog-content"]')
       if (!editing) baseline = viewport?.height ?? window.innerHeight
-      setKeyboardOpen(!!editing && !!viewport && viewport.height < baseline * 0.75)
+      const open = !!editing && !!viewport && viewport.height < baseline * 0.75
+      setKeyboardOpen(open)
+      if (open) setMenuOpen(false)
     }
     viewport?.addEventListener('resize', update)
     document.addEventListener('focusin', update)
@@ -90,18 +97,35 @@ export function MobileNavigation({ student, active, academicTab, menuOpen, onOpe
         return <button key={item.label} type="button" aria-current={selected ? 'page' : undefined} data-tour={item.view === 'academics' && item.tab === 'tasks' ? 'academics-tab-tasks' : undefined}
           className={`${MOBILE_NAV_ACTION} ${selected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`}
           onClick={() => item.view === 'academics' ? navigate({ view: 'academics', role: 'student', branch: student.branch, username: student.username, tab: item.tab }) : onNavigate(item.view)}>
-          {selected && <DockHighlight />}
+          {selected && <DockHighlight key={mode} mode={mode} />}
           <Icon className="size-[23px]" strokeWidth={selected ? 2.4 : 2} aria-hidden="true" />
           <span className="student-floating-label sr-only">{item.label}</span>
         </button>
       })}
-      <button type="button" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded={menuOpen} aria-controls="mobile-navigation"
+      <Dropdown.Root modal={false} open={menuOpen && !keyboardOpen} onOpenChange={setMenuOpen}>
+      <Dropdown.Trigger asChild>
+      <button type="button" aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-current={!primary && !menuOpen ? 'page' : undefined} data-tour="topbar-mobile-nav"
-        className={`${MOBILE_NAV_ACTION} ${moreSelected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`} onClick={onOpenMenu}>
-        {moreSelected && <DockHighlight />}
-        <Menu className="size-[23px]" strokeWidth={moreSelected ? 2.4 : 2} aria-hidden="true" />
+        className={`${MOBILE_NAV_ACTION} ${moreSelected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`}>
+        {moreSelected && <DockHighlight key={mode} mode={mode} />}
+        {menuOpen ? <X className="size-[23px]" aria-hidden="true" /> : <Menu className="size-[23px]" strokeWidth={moreSelected ? 2.4 : 2} aria-hidden="true" />}
         <span className="student-floating-label sr-only">More</span>
       </button>
+      </Dropdown.Trigger>
+      <Dropdown.Portal>
+        <Dropdown.Content aria-label="More pages" aria-labelledby={undefined} side="top" align="end" sideOffset={13} collisionPadding={12} loop
+          className="student-more-popover z-50 grid max-w-[calc(100vw-24px)] grid-cols-6 gap-[8px] rounded-3xl border border-line bg-surface/95 p-[12px] shadow-xl backdrop-blur-xl">
+          {MORE_PAGES.map((item, index) => {
+            const Icon = item.view === 'professors' ? Presentation : item.icon
+            return <Dropdown.Item key={item.view} aria-label={item.label} data-destination-label={item.label}
+              onSelect={() => onNavigate(item.view)}
+              className={`student-more-item relative col-span-2 grid size-[48px] cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'} ${index === 3 ? 'col-start-2' : ''}`}>
+              <Icon className="size-5" aria-hidden="true" />
+            </Dropdown.Item>
+          })}
+        </Dropdown.Content>
+      </Dropdown.Portal>
+      </Dropdown.Root>
     </nav>
     {search}
     </div>

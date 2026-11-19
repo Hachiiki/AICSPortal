@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
 import { quickToggleTheme } from '@/lib/aics/theme-palette'
@@ -29,6 +30,8 @@ interface TopbarProps {
   student: Student
   active: View
   onOpenMobileNav: (event: MouseEvent<HTMLButtonElement>) => void
+  onOpenMobileProfile: (event: MouseEvent<HTMLButtonElement>) => void
+  mobileProfileOpen: boolean
   onProfile: () => void
   onLogout: () => void
   /** Drives the global search in the top bar. Lets the user jump to
@@ -51,6 +54,8 @@ export function Topbar({
   student,
   active,
   onOpenMobileNav,
+  onOpenMobileProfile,
+  mobileProfileOpen,
   onProfile,
   onLogout,
   onNavigate,
@@ -65,6 +70,7 @@ export function Topbar({
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
   const compact = isStudent && phone
+  const { mode } = useAnimationPreferences()
   const headerRef = useRef<HTMLElement>(null)
   const [scrollHidden, setScrollHidden] = useState(false)
 
@@ -72,37 +78,45 @@ export function Topbar({
     const header = headerRef.current
     if (!isStudent || !header) return
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const distance = phone ? 60 : 76
+    const distance = phone ? 76 : 94
+    const target = () => {
+      const scroll = Math.min(1, Math.max(0, window.scrollY / distance))
+      return scroll * scroll * (3 - 2 * scroll)
+    }
     let frame = 0
-    let previous = -1
-    const update = () => {
-      frame = 0
-      const progress = Math.min(1, Math.max(0, window.scrollY / distance))
-      const eased = progress * progress * (3 - 2 * progress)
-      const filled = eased >= 0.54
-      const position = reducedMotion.matches ? Number(filled) : eased
-      if (position === previous) return
-
-      previous = position
-      header.style.setProperty('--student-topbar-float', String(position))
+    let position = target()
+    let previousTime = 0
+    const paint = () => {
+      const filled = position >= 0.54
+      header.style.setProperty('--student-topbar-float', String(mode === 'full' ? position : Number(filled)))
       header.toggleAttribute('data-student-topbar-filled', filled)
+    }
+    const update = (time: number) => {
+      const next = target()
+      const elapsed = Math.min(50, previousTime ? time - previousTime : 16)
+      previousTime = time
+      position = mode === 'full' ? position + (next - position) * (1 - Math.exp(-elapsed / 42)) : next
+      if (Math.abs(next - position) < 0.002) {
+        position = next
+        frame = previousTime = 0
+      } else {
+        frame = window.requestAnimationFrame(update)
+      }
+      paint()
     }
     const scheduleUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(update)
     }
 
-    update()
+    paint()
     window.addEventListener('scroll', scheduleUpdate, { passive: true })
-    reducedMotion.addEventListener('change', scheduleUpdate)
     return () => {
       window.cancelAnimationFrame(frame)
       window.removeEventListener('scroll', scheduleUpdate)
-      reducedMotion.removeEventListener('change', scheduleUpdate)
       header.style.removeProperty('--student-topbar-float')
       header.removeAttribute('data-student-topbar-filled')
     }
-  }, [isStudent, phone])
+  }, [isStudent, phone, mode])
 
   useEffect(() => {
     if (!phone || isStudent) return
@@ -174,6 +188,42 @@ export function Topbar({
   // mounts at rest, exactly the element it was before.
   const assembleReveal = useAssembleReveal()
   const entrance = assembleEntrance('topbar', assembleReveal)
+
+  const accountButton = (
+    <button
+      type="button"
+      data-tour="topbar-profile"
+      className="col-start-1 row-start-1 flex size-[44px] items-center justify-center gap-2.5 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-auto sm:rounded-md sm:py-1 sm:pl-1 sm:pr-2"
+      aria-label={compact ? 'Open profile and navigation menu' : 'Account menu'}
+      aria-haspopup={compact ? 'dialog' : undefined}
+      aria-expanded={compact ? mobileProfileOpen : undefined}
+      aria-controls={compact && mobileProfileOpen ? 'mobile-profile' : undefined}
+      onClick={compact ? onOpenMobileProfile : undefined}
+    >
+      {student.photoUrl ? (
+        <img
+          src={student.photoUrl}
+          alt=""
+          className="size-[36px] shrink-0 rounded-full object-cover sm:size-9"
+          draggable={false}
+        />
+      ) : (
+        <div
+          className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-semibold text-white sm:size-9 sm:bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
+          aria-hidden="true"
+        >
+          {getInitials(student.fullName)}
+        </div>
+      )}
+      <div className="portal-topbar-account-detail hidden sm:block text-left leading-tight">
+        <p className="text-sm font-semibold text-slate-900">{student.fullName}</p>
+        <p className="text-[11px] text-slate-500 font-mono">
+          {student.role === 'faculty' ? `Faculty • ${student.studentNumber}` : student.studentNumber}
+        </p>
+      </div>
+      <ChevronDown className="portal-topbar-account-detail w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
+    </button>
+  )
 
   return (
     <motion.header
@@ -306,38 +356,10 @@ export function Topbar({
 
           <div className="hidden h-6 w-px bg-slate-200 sm:block" aria-hidden="true" />
 
-          {/* Profile dropdown */}
-          <DropdownMenu>
+          {/* Profile */}
+          {compact ? accountButton : <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                data-tour="topbar-profile"
-                className="col-start-1 row-start-1 flex size-[44px] items-center justify-center gap-2.5 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-auto sm:rounded-md sm:py-1 sm:pl-1 sm:pr-2"
-                aria-label="Account menu"
-              >
-                {student.photoUrl ? (
-                  <img
-                    src={student.photoUrl}
-                    alt=""
-                    className="size-[36px] shrink-0 rounded-full object-cover sm:size-9"
-                    draggable={false}
-                  />
-                ) : (
-                  <div
-                    className="flex size-[36px] shrink-0 items-center justify-center rounded-full bg-blue-700 text-xs font-semibold text-white sm:size-9 sm:bg-[var(--avatar-bg)] dark:ring-1 dark:ring-inset dark:ring-white/15"
-                    aria-hidden="true"
-                  >
-                    {getInitials(student.fullName)}
-                  </div>
-                )}
-                <div className="portal-topbar-account-detail hidden sm:block text-left leading-tight">
-                  <p className="text-sm font-semibold text-slate-900">{student.fullName}</p>
-                  <p className="text-[11px] text-slate-500 font-mono">
-                    {student.role === 'faculty' ? `Faculty • ${student.studentNumber}` : student.studentNumber}
-                  </p>
-                </div>
-                <ChevronDown className="portal-topbar-account-detail w-4 h-4 text-slate-500 hidden sm:block" aria-hidden="true" />
-              </button>
+              {accountButton}
             </DropdownMenuTrigger>
             <DropdownMenuContent align={phone ? 'start' : 'end'} className="w-56">
               {/* Profile header */}
@@ -367,7 +389,7 @@ export function Topbar({
                 <span>Sign out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
         </div>
       </div>
     </motion.header>

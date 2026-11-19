@@ -48,6 +48,7 @@ import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
 import { CustomThemeEditor } from './CustomThemeEditor'
+import { AnimationOptions } from '@/components/AnimationPreferences'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -805,6 +806,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
                 </p>
               </div>
+              <AnimationOptions />
               <div className="px-6 py-5">
                 <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {THEME_CHOICES.map((o) => {

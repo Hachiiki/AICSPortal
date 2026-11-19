@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, useReducedMotion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { RouteTrailVariant } from './redirect/RouteTrailVariant'
 import { WorkspaceAssemble } from './WorkspaceAssemble'
 
@@ -37,10 +38,7 @@ interface PostLoginTransitionProps {
  *
  * Reduced motion: the choreography is skipped entirely — the user
  * goes straight to the portal, whose own skeleton handles loading
- * honestly. (The shell's MotionConfig reducedMotion="user" would
- * degrade the entrance to opacity fades anyway; skipping it outright
- * is the conservative choice for the overlay's choreography, which
- * lives outside that config.)
+ * honestly.
  */
 export function PostLoginTransition({
   branch,
@@ -48,7 +46,7 @@ export function PostLoginTransition({
   readiness,
   onAssembleStart,
 }: PostLoginTransitionProps) {
-  const reduced = !!useReducedMotion()
+  const reduced = useAnimationPreferences().mode !== 'full'
   const [stage, setStage] = useState<'auth' | 'assemble'>('auth')
   const doneRef = useRef(false)
   // Latest readiness for stable callbacks — timers can fire after a

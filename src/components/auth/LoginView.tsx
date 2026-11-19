@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ScanFace,
   ShieldCheck,
@@ -56,9 +56,6 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const isDark = themeMounted && resolvedTheme === 'dark'
 
   return (
-    // reducedMotion="user" mirrors PortalShell's contract for the login
-    // surface (slides, scanner sweep, mode transitions).
-    <MotionConfig reducedMotion="user">
     <main
       className="relative w-full min-h-dvh flex flex-col lg:flex-row font-sans"
       style={{ background: T.white, color: T.text }}
@@ -285,9 +282,6 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           </div>
         </div>
       </section>
-
-
     </main>
-    </MotionConfig>
   )
 }

@@ -16,6 +16,7 @@ import { ANNOUNCEMENT_STYLES, announcementDetailsUrl } from '@/lib/aics/announce
 import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 
 interface AnnouncementsDeckProps {
   announcements: Announcement[]
@@ -50,9 +51,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   const dragStartTime = useRef(0)
   const deckRef = useRef<HTMLDivElement>(null)
 
-  // Detect prefers-reduced-motion
-  const prefersReducedMotion = typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const prefersReducedMotion = useAnimationPreferences().mode !== 'full'
 
   // Sync deck state when parent announcements change
   // Using a key-based approach to detect changes without setState-in-render
