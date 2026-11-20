@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import { motion, MotionConfig } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { motion } from 'framer-motion'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -11,6 +12,10 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
+import { MobileNavigation } from './MobileNavigation'
+import { MobileSearch } from './MobileSearch'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
+import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
 interface PortalShellProps {
   student: Student
@@ -26,6 +31,7 @@ interface PortalShellProps {
   // Bell inbox bundle.
   inbox?: NotificationInbox
   children: ReactNode
+  academicTab?: AcademicsTab
 }
 
 // Single portal chrome. Sidebar tabs, top bar, and content offset
@@ -56,9 +62,35 @@ export function PortalShell({
   taskGroups,
   inbox,
   children,
+  academicTab,
 }: PortalShellProps) {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [mobileNav, setMobileNav] = useState<'closed' | 'open' | 'closing'>('closed')
+  const [profilePanel, setProfilePanel] = useState(false)
+  const mobileNavOpen = mobileNav === 'open'
+  const mobileNavActive = mobileNav !== 'closed'
+  const menuTrigger = useRef<HTMLButtonElement>(null)
+  const openMobileNav = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    menuTrigger.current = event.currentTarget
+    setProfilePanel(false)
+    setMobileNav('open')
+  }, [])
+  const openMobileProfile = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    menuTrigger.current = event.currentTarget
+    setProfilePanel(true)
+    setMobileNav('open')
+  }, [])
+  const closeMobileNav = useCallback(() => setMobileNav('closing'), [])
+  const finishClosingMobileNav = useCallback(() => setMobileNav('closed'), [])
+  useEffect(() => {
+    if (mobileNavActive || !menuTrigger.current) return
+    menuTrigger.current.focus({ preventScroll: true })
+    menuTrigger.current = null
+  }, [mobileNavActive])
   const role = student.role ?? 'student'
+  const phone = usePhoneViewport()
+  const { mode } = useAnimationPreferences()
+  const reducedMotion = mode !== 'full'
+  const studentPhone = role === 'student' && phone
   // Workspace-assembly entrance (assemble candidate only): staged
   // while the redirect overlay still covers the portal, animated
   // into place when the reveal flips. Null everywhere else — the
@@ -67,8 +99,7 @@ export function PortalShell({
   const entrance = assembleEntrance('content', assembleReveal)
 
   return (
-    <MotionConfig reducedMotion="user">
-    <div className="min-h-dvh bg-slate-50 font-sans">
+    <div className="min-h-dvh bg-slate-50 font-sans [&_input]:text-base [&_textarea]:text-base [&_select]:text-base lg:[&_input]:text-sm lg:[&_textarea]:text-sm lg:[&_select]:text-sm">
       {/* Skip link — first tab stop on every portal page. Jumps past the
           sidebar and topbar to the page content wrapper below. */}
       <a
@@ -82,12 +113,19 @@ export function PortalShell({
         active={active}
         onNavigate={onNavigate}
         mobileOpen={mobileNavOpen}
-        onMobileClose={() => setMobileNavOpen(false)}
+        mobileActive={mobileNavActive}
+        onMobileClose={closeMobileNav}
+        onMobileExitComplete={finishClosingMobileNav}
+        profile={profilePanel ? student : undefined}
+        onLogout={onLogout}
       />
-      <div className="lg:pl-60">
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
         <Topbar
           student={student}
-          onOpenMobileNav={() => setMobileNavOpen(true)}
+          active={active}
+          onOpenMobileNav={openMobileNav}
+          onOpenMobileProfile={openMobileProfile}
+          mobileProfileOpen={profilePanel && mobileNavOpen}
           onProfile={() => onNavigate('profile')}
           onLogout={onLogout}
           onNavigate={onNavigate}
@@ -109,23 +147,34 @@ export function PortalShell({
             to an inline retry card while the sidebar/topbar stay alive;
             resetKey makes navigating away remount the crashed view. */}
         <motion.div
-          key={active}
+          key={studentPhone && !assembleReveal ? `${active}:${academicTab ?? ''}` : active}
           id="main-content"
           tabIndex={-1}
-          initial={assembleReveal ? entrance.initial : { opacity: 0, y: 8 }}
+          initial={mode === 'off' ? false : assembleReveal ? entrance.initial : studentPhone
+            ? reducedMotion ? false : { opacity: 0.76, y: 6 }
+            : { opacity: 0, y: 8 }}
           animate={assembleReveal ? entrance.animate : { opacity: 1, y: 0 }}
           transition={
             assembleReveal
               ? entrance.transition
-              : { duration: 0.35, ease: 'easeOut' as const }
+              : { duration: studentPhone ? 0.22 : 0.35, ease: 'easeOut' as const }
           }
         >
           <ErrorBoundary resetKey={String(active)}>
             {children}
           </ErrorBoundary>
         </motion.div>
+        {studentPhone && (
+          <MobileNavigation
+            student={student}
+            active={active}
+            academicTab={academicTab}
+            onNavigate={onNavigate}
+            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }}
+              className="pointer-events-auto grid size-[52px] shrink-0 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md hover:bg-blue-50 hover:text-link-strong active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color] motion-safe:duration-150 motion-safe:active:scale-95" />}
+          />
+        )}
       </div>
     </div>
-    </MotionConfig>
   )
 }

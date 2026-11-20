@@ -48,6 +48,7 @@ import type { Student, View } from '@/lib/aics/types'
 import { getInitials } from '@/lib/aics/format'
 import { PortalShell } from './PortalShell'
 import { CustomThemeEditor } from './CustomThemeEditor'
+import { AnimationOptions } from '@/components/AnimationPreferences'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -406,7 +407,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
           <div>
             <button
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+              className="inline-flex min-h-11 sm:min-h-0 items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
             >
               <ChevronLeft className="w-4 h-4" aria-hidden /> Back to Dashboard
             </button>
@@ -416,10 +417,9 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             </p>
           </div>
 
-          {/* Section tabs — scroll horizontally when they exceed the
-              container width (phones), no visible scrollbar */}
+          {/* Keep every section visible in a compact phone grid. */}
           <div
-            className="inline-flex gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1 p-1 rounded-xl bg-slate-100 mb-6 max-w-full"
             role="tablist"
             aria-label="Settings sections"
           >
@@ -433,8 +433,8 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveSection(s.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                  className={`min-h-11 sm:min-h-0 px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all inline-flex items-center gap-2 flex-shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    selected ? 'bg-surface text-link-strong shadow-sm' : 'text-slate-600 hover:text-slate-800'
                   }`}
                 >
                   <Icon className="w-4 h-4" aria-hidden /> {s.label}
@@ -806,6 +806,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
                 </p>
               </div>
+              <AnimationOptions />
               <div className="px-6 py-5">
                 <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {THEME_CHOICES.map((o) => {

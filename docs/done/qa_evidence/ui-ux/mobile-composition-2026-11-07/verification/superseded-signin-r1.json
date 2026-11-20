@@ -1,0 +1,240 @@
+{
+  "head": "22b2f77ffe7306abcde1f4b68a4add26c6198893",
+  "sourceFilesMatched": 209,
+  "fixtureOnly": true,
+  "checks": [
+    {
+      "name": "sign-in-320x720: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x720: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x720: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x720: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "Phone sign-in action is visible on the initial720px screen",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 545.75,
+        "width": 288,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-320x420: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x420: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x420: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x420: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-360x740: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "name": "sign-in-360x740: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-360x740: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-360x740: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 296,
+        "y": 383,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-390x844: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "sign-in-390x844: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-390x844: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-390x844: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 326,
+        "y": 367,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-430x932: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 430,
+        "scroll": 430
+      }
+    },
+    {
+      "name": "sign-in-430x932: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-430x932: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-430x932: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 359,
+        "y": 367,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-844x390: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 844,
+        "scroll": 844
+      }
+    },
+    {
+      "name": "sign-in-844x390: form precedes supporting welcome",
+      "pass": true
+    },
+    {
+      "name": "sign-in-844x390: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-844x390: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 566,
+        "y": 359,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-1280x900: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "name": "sign-in-1280x900: reveal target at least44px",
+      "pass": true,
+      "detail": {
+        "x": 1148,
+        "y": 374.4375,
+        "width": 44,
+        "height": 44
+      }
+    },
+    {
+      "name": "Sign-in reflows at200percent text size",
+      "pass": true
+    },
+    {
+      "name": "Verification completed",
+      "pass": false,
+      "detail": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Switch to dark theme', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"Switch to dark theme\" class=\"inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    57 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n"
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "signin-320x720.png",
+    "signin-320x420.png",
+    "signin-360x740.png",
+    "signin-390x844.png",
+    "signin-430x932.png",
+    "signin-844x390.png",
+    "signin-1280x900.png",
+    "signin-large-text-390.png"
+  ],
+  "failure": {
+    "message": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Switch to dark theme', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"Switch to dark theme\" class=\"inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    57 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+    "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Switch to dark theme', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"Switch to dark theme\" class=\"inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-[var(--login-border)] bg-[var(--login-bg)] text-[var(--login-muted)] transition-colors hover:text-[var(--login-text)] hover:border-[var(--login-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--login-accent)]/40\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    57 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"mb-5 flex items-center gap-3 pr-12 lg:hidden\">…</div> from <div class=\"relative w-full max-w-sm lg:py-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Projects\\loginAICSPortal\\scripts\\mobile\\verify-signin.mjs:65:74"
+  },
+  "finishedAt": "2026-11-07T01:23:20.473Z"
+}

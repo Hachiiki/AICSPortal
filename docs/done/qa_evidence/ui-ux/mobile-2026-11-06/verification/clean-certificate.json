@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "a3e1f336996c8d7d9fc70aabd51379298480d905",
+  "sourceFilesMatched": 207,
+  "capturedAt": "2026-11-06T14:49:20.782Z",
+  "fixtureOnly": true,
+  "viewport": {
+    "width": 320,
+    "height": 420
+  },
+  "opacity": 1,
+  "transientToasts": 0,
+  "writes": [],
+  "note": "Additional fresh-context screenshot. The original chained r10 screenshot is preserved."
+}

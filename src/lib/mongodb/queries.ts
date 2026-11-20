@@ -149,14 +149,19 @@ export async function getEnrollment(
 
 // Returns active announcements for the branch, sorted newest first.
 // Filters out expired announcements (expiryDate < now).
-export async function getAnnouncements(branch: Branch): Promise<MongoAnnouncement[]> {
-  const col = await getCollection<MongoAnnouncement>('announcements')
-  const now = new Date()
-  return col.find({
+export function activeAnnouncementFilter(branch: Branch) {
+  return {
     branch,
     $or: [
       { expiryDate: null },
-      { expiryDate: { $gte: now } },
+      { expiryDate: { $gte: new Date() } },
     ],
+  }
+}
+
+export async function getAnnouncements(branch: Branch): Promise<MongoAnnouncement[]> {
+  const col = await getCollection<MongoAnnouncement>('announcements')
+  return col.find(activeAnnouncementFilter(branch), {
+    projection: { 'image.bytes': 0 },
   }).sort({ postedDate: -1 }).toArray()
 }
