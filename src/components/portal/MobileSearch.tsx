@@ -1,31 +1,36 @@
 'use client'
 
-import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react'
 import { Search } from 'lucide-react'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { GlobalSearch } from './GlobalSearch'
 
 type MobileSearchProps = Omit<ComponentProps<typeof GlobalSearch>, 'surface' | 'onSelect' | 'onEscape'> & {
   className: string
+  onOpenChange: (open: boolean) => void
 }
 
-export function MobileSearch({ className, ...searchProps }: MobileSearchProps) {
+export function MobileSearch({ className, onOpenChange, ...searchProps }: MobileSearchProps) {
   const [open, setOpen] = useState(false)
   const selected = useRef(false)
   const panel = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
+  const changeOpen = useCallback((next: boolean) => {
+    if (next) selected.current = false
+    setOpen(next)
+    onOpenChange(next)
+  }, [onOpenChange])
 
   useEffect(() => {
     function onShortcut(event: KeyboardEvent) {
       if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return
-      if (trigger.current?.closest('[inert]') || document.querySelector('[role="dialog"][aria-modal="true"]')) return
+      if (trigger.current?.closest('[inert]:not([data-folded-dock])') || document.querySelector('[role="dialog"][aria-modal="true"]')) return
       event.preventDefault()
-      selected.current = false
-      setOpen(true)
+      changeOpen(true)
     }
     window.addEventListener('keydown', onShortcut)
     return () => window.removeEventListener('keydown', onShortcut)
-  }, [])
+  }, [changeOpen])
 
   useEffect(() => {
     if (!open) return
@@ -44,10 +49,7 @@ export function MobileSearch({ className, ...searchProps }: MobileSearchProps) {
   }, [open])
 
   return (
-    <Dialog open={open} onOpenChange={next => {
-      if (next) selected.current = false
-      setOpen(next)
-    }}>
+    <Dialog open={open} onOpenChange={changeOpen}>
       <DialogTrigger asChild>
         <button ref={trigger} type="button" aria-label="Open portal search" className={className}>
           <Search className="size-[20px] shrink-0" aria-hidden="true" />
@@ -69,8 +71,8 @@ export function MobileSearch({ className, ...searchProps }: MobileSearchProps) {
         </DialogHeader>
         <GlobalSearch {...searchProps} surface="dialog" onSelect={() => {
           selected.current = true
-          setOpen(false)
-        }} onEscape={() => setOpen(false)} />
+          changeOpen(false)
+        }} onEscape={() => changeOpen(false)} />
       </DialogContent>
     </Dialog>
   )

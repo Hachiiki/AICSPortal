@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ScanFace,
   ShieldCheck,
   Lock,
   CircleAlert,
+  CircleHelp,
   Sun,
   Moon,
 } from 'lucide-react'
@@ -19,6 +20,7 @@ import { T, PORTAL_TEXT_GRADIENT, SHOW_DEMO_LOGIN } from './login-tokens'
 import { CredentialsForm } from './CredentialsForm'
 import { FaceIdPanel } from './FaceIdPanel'
 import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 
 // ============================================================
@@ -34,6 +36,7 @@ import { LEGAL, POLICY_PAGES } from '@/lib/legal/site'
 // ============================================================
 
 const INDEPENDENT_NOTICE = 'An independent student project. Not affiliated with or endorsed by AICS.'
+const HERO_SPRING = { type: 'spring', stiffness: 330, damping: 24, mass: 0.85 } as const
 
 interface LoginViewProps {
   onLogin: (
@@ -54,21 +57,33 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
   const { resolvedTheme, setTheme } = useTheme()
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
+  const { mode } = useAnimationPreferences()
+  const animate = mode === 'full'
 
   return (
     <main
       className="relative w-full min-h-dvh flex flex-col lg:flex-row font-sans"
       style={{ background: T.white, color: T.text }}
     >
-      <div className="absolute right-4 top-3 z-20 sm:right-5 lg:top-5">
-        <button
+      <div className="absolute right-[max(1rem,env(safe-area-inset-right))] top-[max(0.75rem,env(safe-area-inset-top))] z-20 sm:right-5 lg:top-5">
+        <motion.button
           type="button"
           onClick={() => quickToggleTheme(resolvedTheme, setTheme)}
           aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-          className="inline-flex items-center justify-center size-11 lg:size-9 rounded-[10px] border border-white/45 bg-[#17324D] text-white transition-colors hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:border-[var(--login-border)] lg:bg-[var(--login-bg)] lg:text-[var(--login-muted)] lg:hover:border-[var(--login-primary)] lg:hover:text-[var(--login-text)] lg:focus-visible:ring-[var(--login-accent)]/40"
+          whileTap={animate ? { scale: 0.9 } : undefined}
+          transition={HERO_SPRING}
+          className="relative grid size-11 place-items-center rounded-full border border-white/40 bg-[#17324D]/90 text-white transition-colors hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white lg:size-9 lg:rounded-[10px] lg:border-[var(--login-border)] lg:bg-[var(--login-bg)] lg:text-[var(--login-muted)] lg:hover:border-[var(--login-primary)] lg:hover:text-[var(--login-text)] lg:focus-visible:ring-[var(--login-accent)]/40"
         >
-          {isDark ? <Sun className="w-4.5 h-4.5" aria-hidden /> : <Moon className="w-4.5 h-4.5" aria-hidden />}
-        </button>
+          <AnimatePresence initial={false}>
+            <motion.span key={isDark ? 'sun' : 'moon'} aria-hidden="true" className="absolute grid place-items-center"
+              initial={animate ? { opacity: 0, scale: 0.65, rotate: -30 } : false}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={animate ? { opacity: 0, scale: 0.65, rotate: 30 } : { opacity: 0 }}
+              transition={animate ? HERO_SPRING : { duration: 0 }}>
+              {isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
       </div>
 
       {/* ===================== LEFT 60% ===================== */}
@@ -83,26 +98,24 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
         <img
           src="/aics-campus.jpg"
           alt="Asian Institute of Computer Studies campus"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 size-full object-cover object-[center_44%] lg:object-center"
           onError={(e) => {
             ;(e.currentTarget as HTMLImageElement).style.display = 'none'
           }}
         />
         {/* Dark navy overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(160deg, rgba(23,50,77,0.78) 0%, rgba(18,77,122,0.92) 100%)',
-          }}
-        />
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(100deg,#0b2541_6%,#102f50e8_49%,#173b6273_100%)] lg:bg-[linear-gradient(160deg,rgba(23,50,77,0.78)_0%,rgba(18,77,122,0.92)_100%)]" />
 
-        <div className="relative flex min-h-16 items-center gap-3 px-4 py-4 pr-16 text-white sm:px-10 sm:pr-20 lg:hidden [@media(max-height:500px)]:py-2">
-          <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-9 shrink-0" />
-          <div className="min-w-0">
-            <p className="text-xs font-semibold leading-tight text-white/85 [@media(max-height:500px)]:sr-only">Asian Institute of Computer Studies</p>
-            <p className="text-lg font-bold leading-tight tracking-tight sm:text-2xl [@media(max-height:500px)]:text-base">Welcome to AICS Portal</p>
-          </div>
+        <div className="relative mx-auto flex w-full max-w-[30rem] flex-col gap-4 px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] pr-16 text-white lg:hidden [@media(max-height:500px)]:min-h-[74px] [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:items-center [@media(max-height:500px)]:gap-2.5 [@media(max-height:500px)]:py-2.5">
+          <motion.div className="flex min-w-0 items-center gap-2.5"
+            initial={animate ? { opacity: 0.65, y: -6 } : false} animate={{ opacity: 1, y: 0 }} transition={HERO_SPRING}>
+            <img src="/aics-logo.svg" alt="" aria-hidden="true" className="size-9 shrink-0" />
+            <p className="max-w-40 text-xs font-medium leading-snug text-white/90 [@media(max-height:500px)]:sr-only">Asian Institute of Computer Studies</p>
+          </motion.div>
+          <motion.p className="max-w-72 text-[1.75rem] font-bold leading-none tracking-tight [overflow-wrap:anywhere] [@media(max-height:500px)]:text-base [@media(max-height:500px)]:leading-tight"
+            initial={animate ? { opacity: 0.45, y: 12 } : false} animate={{ opacity: 1, y: 0 }} transition={{ ...HERO_SPRING, delay: 0.04 }}>
+            Welcome to <span className="block text-[#b5ddff] [@media(max-height:500px)]:inline">AICS Portal</span>
+          </motion.p>
         </div>
 
         {/* Top brand row — logo + institution name */}
@@ -160,7 +173,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
       </section>
       {/* ===================== RIGHT 40% — Login panel ===================== */}
       <section
-          className="relative z-10 flex w-full flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-10 max-lg:[@media(max-height:500px)]:pt-2 lg:-ml-12 lg:min-h-dvh lg:w-[calc(40%+3rem)] lg:items-center lg:rounded-l-[40px] lg:py-12"
+          className="relative z-10 -mt-4 flex w-full flex-1 items-start justify-center rounded-t-[24px] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:px-10 max-lg:[@media(max-height:500px)]:mt-0 max-lg:[@media(max-height:500px)]:rounded-none max-lg:[@media(max-height:500px)]:pt-1 lg:mt-0 lg:-ml-12 lg:min-h-dvh lg:w-[calc(40%+3rem)] lg:items-center lg:rounded-none lg:rounded-l-[40px] lg:py-12"
         style={{ background: T.white }}
       >
 
@@ -168,10 +181,12 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           {/* Heading */}
           <div className="mb-3 max-lg:[@media(max-height:500px)]:mb-1 lg:mb-8">
             <div className="flex flex-wrap items-center justify-between gap-x-2">
-              <h1 className="text-2xl font-bold leading-snug tracking-tight lg:text-[22px]" style={{ color: T.text }}>
+              <h1 className="text-[1.75rem] font-bold leading-tight tracking-tight max-lg:[@media(max-height:500px)]:text-xl lg:text-[22px] lg:leading-snug" style={{ color: T.text }}>
                 <span className="lg:hidden">Sign in</span><span className="hidden lg:inline">Sign in to AICS Portal</span>
               </h1>
-              <a href="#signin-help" className="inline-flex min-h-11 items-center rounded-sm text-sm font-semibold text-link-strong focus-visible:outline-2 focus-visible:outline-link lg:hidden">Need help?</a>
+              <a href="#signin-help" className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-1 text-sm font-semibold text-link-strong hover:underline focus-visible:outline-2 focus-visible:outline-link lg:hidden">
+                <CircleHelp className="size-4" aria-hidden="true" /> Need help?
+              </a>
             </div>
             <p className="mt-2 hidden text-sm lg:block" style={{ color: T.muted }}>
               Use your AICS credentials to access your student or staff portal.
@@ -232,7 +247,7 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
           <div
             id="signin-help"
             tabIndex={-1}
-            className="mt-6 rounded-[10px] p-4"
+            className="mt-6 rounded-2xl p-4 lg:rounded-[10px]"
             style={{ background: T.bg, border: `1px solid ${T.border}` }}
           >
             <div className="flex items-start gap-3">
@@ -251,6 +266,11 @@ export function LoginView({ onLogin, onDemoLogin }: LoginViewProps) {
               </div>
             </div>
           </div>
+
+          <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed lg:hidden" style={{ color: T.muted }}>
+            <ShieldCheck className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+            {INDEPENDENT_NOTICE}
+          </p>
 
           {/* Footer — matches the repository's documented licensing
               (LICENSE / README: All Rights Reserved, proprietary), plus the
