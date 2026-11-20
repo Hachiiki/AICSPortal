@@ -120,6 +120,18 @@ html:is([data-animation-mode="reduced"], [data-animation-mode="off"]) :is(.stude
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
 }
 
+/* The previous palette stays visible underneath the circular reveal. */
+:root.portal-theme-reveal::view-transition-group(root),
+:root.portal-theme-reveal::view-transition-old(root),
+:root.portal-theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+:root.portal-theme-reveal::view-transition {
+  pointer-events: none;
+}
+
 .student-more-item:focus-visible::after {
   content: attr(data-destination-label);
   position: absolute;

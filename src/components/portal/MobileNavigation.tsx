@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type ComponentProps } from 'react'
+import { flushSync } from 'react-dom'
 import { AnimatePresence, motion, useAnimate } from 'framer-motion'
 import { Menu, Moon, PanelBottomOpen, Presentation, Sun, X } from 'lucide-react'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
@@ -24,8 +25,12 @@ const MORE_PAGES = [...getPrimaryNav('student'), ...SECONDARY_NAV].filter(
   item => item.enabled && !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view),
 )
 
-function readScrollPosition() {
-  return Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight))
+function scrollLimit() {
+  return Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+}
+
+function readScrollPosition(limit = scrollLimit()) {
+  return Math.max(0, Math.min(window.scrollY, limit))
 }
 
 function focusDock(dock: Element | null) {
@@ -65,6 +70,8 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
   const themeAction = isDark ? 'Switch to light theme' : 'Switch to dark theme'
+  const themeButton = useRef<HTMLDivElement>(null)
+  const themeReveal = useRef<ViewTransition | null>(null)
   const guided = useStudentOnboarding()?.busy ?? false
   const navId = useId()
   const dock = useRef<HTMLDivElement>(null)
@@ -92,6 +99,39 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
     setSearchOpen(open)
   }, [expandDock])
 
+  function toggleTheme() {
+    if (themeReveal.current) return
+    const button = themeButton.current
+    if (!spatialMotion || !button || !document.startViewTransition) {
+      quickToggleTheme(resolvedTheme, setTheme)
+      return
+    }
+
+    const { left, top, width, height } = button.getBoundingClientRect()
+    const x = left + width / 2
+    const y = top + height / 2
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
+    const root = document.documentElement
+    root.classList.add('portal-theme-reveal')
+    const transition = document.startViewTransition(() => {
+      flushSync(() => quickToggleTheme(resolvedTheme, setTheme))
+    })
+    themeReveal.current = transition
+    void transition.ready.then(() => {
+      root.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] }, {
+        pseudoElement: '::view-transition-new(root)',
+        duration: 480,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+        fill: 'both',
+      })
+    }).catch(() => {})
+    const finish = () => {
+      themeReveal.current = null
+      root.classList.remove('portal-theme-reveal')
+    }
+    void transition.finished.then(finish, finish)
+  }
+
   useEffect(() => {
     const element = dock.current
     const row = fullDock.current
@@ -114,11 +154,12 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   useEffect(() => {
     scroll.current = { position: readScrollPosition(), travel: 0 }
     const update = () => {
-      const position = readScrollPosition()
+      const limit = scrollLimit()
+      const position = readScrollPosition(limit)
       const tracker = scroll.current
       const delta = position - tracker.position
       tracker.position = position
-      if (position === 0 || keepExpanded) {
+      if (position === 0 || limit - position <= 2 || keepExpanded) {
         tracker.travel = 0
         setFoldedOn(null)
         return
@@ -216,11 +257,11 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
               <Icon className="size-5" aria-hidden="true" />
             </Dropdown.Item>
           })}
-          <Dropdown.Item aria-label={themeAction} data-destination-label={themeAction}
+          <Dropdown.Item ref={themeButton} aria-label={themeAction} data-destination-label={themeAction}
             className={`${MORE_ACTION} bg-slate-100 text-ink`}
             onSelect={(event) => {
               event.preventDefault()
-              quickToggleTheme(resolvedTheme, setTheme)
+              toggleTheme()
             }}>
             <span className="relative size-5" aria-hidden="true">
               <AnimatePresence initial={false}>

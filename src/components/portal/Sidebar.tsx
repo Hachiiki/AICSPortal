@@ -39,6 +39,7 @@ const PROFILE_ROW: Variants = {
 }
 const PROFILE_ACTION = 'flex min-h-12 w-full items-center gap-3 rounded-xl px-2 py-1.5 text-left text-sm font-medium text-ink hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link'
 const PROFILE_ICON = 'grid size-9 shrink-0 place-items-center rounded-[10px] bg-slate-100 text-muted-fg group-hover:bg-surface'
+const PROFILE_DRAWER_WIDTH = 'min(21rem, calc(100% - max(64px, env(safe-area-inset-right))))'
 
 interface SidebarProps {
   active: View
@@ -141,7 +142,7 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
             Asian Institute of Computer Studies
           </p>
         </div>
-      </div> : <motion.div className="relative isolate mx-3 mt-2 flex items-center gap-3 overflow-hidden rounded-[20px] border border-blue-100 bg-blue-50 py-4 pl-3 pr-12" variants={profileRow}>
+      </div> : <motion.div className="relative isolate mx-3 mt-2 flex items-center gap-3 overflow-hidden rounded-[20px] border border-blue-100 bg-blue-50 px-3 py-4" variants={profileRow}>
         <span className="pointer-events-none absolute -right-4 -top-12 -z-10 size-40 rounded-full border border-blue-100" aria-hidden="true" />
         <motion.span aria-hidden="true" className="grid size-[50px] shrink-0 place-items-center overflow-hidden rounded-full bg-blue-700 font-semibold text-white ring-2 ring-surface"
           variants={animateProfile ? { closed: { scale: 0.85, rotate: -8 }, open: { scale: 1, rotate: 0, transition: PROFILE_SPRING } } : undefined}>
@@ -184,14 +185,14 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
           <span className="flex-1">Theme settings</span>
           <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-muted-fg" />
         </motion.button>}
-        {role === 'student' && <motion.button type="button" variants={profileRow} whileTap={animateProfile ? { scale: 0.97 } : undefined}
-          className={scrollBody ? `group ${PROFILE_ACTION}` : 'flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:hidden'}
+        {role === 'student' && !profile && <button type="button"
+          className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:hidden"
           onClick={() => quickToggleTheme(resolvedTheme, setTheme)}>
-          <span className={scrollBody ? PROFILE_ICON : 'shrink-0'}>
+          <span className="shrink-0">
             {dark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
           </span>
           <span>{dark ? 'Switch to light theme' : 'Switch to dark theme'}</span>
-        </motion.button>}
+        </button>}
         {profile && <motion.button type="button" variants={profileRow} whileTap={animateProfile ? { scale: 0.97 } : undefined}
           className={`group !mt-2 ${PROFILE_ACTION} !text-red-700 dark:!text-red-300`} onClick={onLogout}>
           <span className={`${PROFILE_ICON} !bg-red-50 !text-inherit dark:!bg-red-950`}><LogOut className="size-4" aria-hidden="true" /></span>
@@ -282,7 +283,13 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
               className={`fixed inset-0 bg-scrim/40 z-40 ${profile ? 'sm:hidden' : 'lg:hidden'}`}
               onClick={onMobileClose}
               aria-hidden="true"
-            />
+            >
+              {profile && (
+                <div className="pointer-events-none absolute right-0 top-[38%] grid -translate-y-1/2 justify-items-center px-1" style={{ left: PROFILE_DRAWER_WIDTH }}>
+                  <span className="rounded-lg bg-black/55 px-1 py-1.5 text-center text-[0.6875rem] font-medium leading-tight text-white/95">Tap here<br />to close</span>
+                </div>
+              )}
+            </motion.div>
             {/* Drawer */}
             <DialogPanel
               id={profile ? 'mobile-profile' : 'mobile-navigation'}
@@ -298,19 +305,22 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
               onPanEnd={profile ? (event, info) => {
                 if (event.pointerType === 'touch' && info.offset.x < -72 && Math.abs(info.offset.x) > Math.abs(info.offset.y)) onMobileClose()
               } : undefined}
-              className={`portal-mobile-drawer fixed left-0 top-0 z-50 flex h-dvh max-w-[calc(100vw-32px)] flex-col border-r border-line bg-surface pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] outline-none ${profile ? 'w-[21rem] overflow-hidden rounded-r-[26px] shadow-[12px_0_48px_rgb(2_6_23/0.22)] sm:hidden' : 'w-72 lg:hidden'}`}
+              style={profile ? { width: PROFILE_DRAWER_WIDTH } : undefined}
+              className={`portal-mobile-drawer fixed left-0 top-0 z-50 flex h-dvh max-w-[calc(100vw-32px)] flex-col border-r border-line bg-surface pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] outline-none ${profile ? 'overflow-hidden rounded-r-[26px] shadow-[12px_0_48px_rgb(2_6_23/0.22)] sm:hidden' : 'w-72 lg:hidden'}`}
               aria-label={profile ? 'Profile menu' : 'Navigation menu'}
             >
-              {/* Close button */}
-              <motion.button
+              {profile ? (
+                <button type="button" className="sr-only focus:not-sr-only focus:absolute focus:right-3 focus:top-[calc(0.75rem+env(safe-area-inset-top))] focus:z-10 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-ink focus:ring-2 focus:ring-link" onClick={onMobileClose}>
+                  Close profile menu
+                </button>
+              ) : <button
                 type="button"
                 onClick={onMobileClose}
-                aria-label={profile ? 'Close profile menu' : 'Close navigation menu'}
-                whileTap={springDrawer ? { scale: 0.9, rotate: 8 } : undefined}
-                className={`absolute top-[calc(0.75rem+env(safe-area-inset-top))] z-10 grid size-11 place-items-center text-muted-fg hover:bg-slate-100 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link ${profile ? 'right-3 rounded-full border border-line bg-surface' : 'right-2 rounded-md'}`}
+                aria-label="Close navigation menu"
+                className="absolute right-2 top-[calc(0.75rem+env(safe-area-inset-top))] z-10 grid size-11 place-items-center rounded-md text-muted-fg hover:bg-slate-100 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link"
               >
                 <X className="w-5 h-5" />
-              </motion.button>
+              </button>}
               <div className={`min-h-0 flex-1 ${profile ? 'overflow-y-auto overscroll-contain [touch-action:pan-y_pinch-zoom]' : ''}`}>
                 <SidebarContent
                   active={active}
