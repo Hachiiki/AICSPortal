@@ -1,0 +1,446 @@
+{
+  "before": {
+    "taskLines": 2,
+    "yearBounds": 1,
+    "phoneChrome": [
+      [
+        "320px",
+        "56px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "44px",
+        "44px",
+        "8px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "2px"
+      ],
+      [
+        "184px",
+        "25px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "20px",
+        "700",
+        "oklch(0.488 0.243 264.376)",
+        "1px"
+      ],
+      [
+        "44px",
+        "44px",
+        "8px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "2px"
+      ],
+      [
+        "44px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "44px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "16px",
+        "16px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.554 0.046 257.417)",
+        "2px"
+      ],
+      [
+        "320px",
+        "64px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.488 0.243 264.376)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.488 0.243 264.376)",
+        "2.4px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "52px",
+        "52px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ]
+    ],
+    "desktopTypography": [
+      "24px",
+      "700",
+      "30px",
+      "-0.6px"
+    ]
+  },
+  "round-2": {
+    "taskLines": 2,
+    "yearBounds": 1,
+    "phoneChrome": [
+      [
+        "320px",
+        "56px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "44px",
+        "44px",
+        "8px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "2px"
+      ],
+      [
+        "184px",
+        "25px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "20px",
+        "700",
+        "oklch(0.488 0.243 264.376)",
+        "1px"
+      ],
+      [
+        "44px",
+        "44px",
+        "8px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.446 0.043 257.281)",
+        "2px"
+      ],
+      [
+        "44px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "44px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "16px",
+        "16px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.554 0.046 257.417)",
+        "2px"
+      ],
+      [
+        "320px",
+        "64px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.488 0.243 264.376)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.488 0.243 264.376)",
+        "2.4px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "54px",
+        "44px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "23px",
+        "23px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ],
+      [
+        "52px",
+        "52px",
+        "3.35544e+07px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "1px"
+      ],
+      [
+        "20px",
+        "20px",
+        "0px",
+        "Geist, Arial, sans-serif",
+        "16px",
+        "400",
+        "oklch(0.208 0.042 265.755)",
+        "2px"
+      ]
+    ],
+    "desktopTypography": [
+      "24px",
+      "700",
+      "30px",
+      "-0.6px"
+    ]
+  }
+}

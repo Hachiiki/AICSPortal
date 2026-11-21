@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { getStudentByUsername, getAnnouncements } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
-import { parseBody, parseQuery, dateInput, trimmedString, errResponse, idQuerySchema } from '@/lib/validation'
-import { moderateContent } from '@/lib/moderation'
+import { parseBody, parseQuery, errResponse, idQuerySchema } from '@/lib/validation'
+import { announcementPostSchema, announcementPatchSchema, createAnnouncement, editAnnouncement } from '@/lib/announcement-write'
 import { HttpError } from '@/lib/http'
 import type { MongoAnnouncement } from '@/lib/mongodb/types'
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
       }
       const col = await getCollection<MongoAnnouncement>('announcements')
-      announcements = await col.find({ branch: student.branch }).sort({ postedDate: -1 }).toArray()
+      announcements = await col.find({ branch: student.branch }, { projection: { 'image.bytes': 0 } }).sort({ postedDate: -1 }).toArray()
     } else {
       announcements = await getAnnouncements(student.branch)
     }
@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
       category: a.category,
       priority: a.priority,
       author: a.author,
+      ...(a.image && { image: { alt: a.image.alt } }),
       postedDate: a.postedDate instanceof Date ? a.postedDate.toISOString() : String(a.postedDate),
       expiryDate: a.expiryDate
         ? a.expiryDate instanceof Date
@@ -92,78 +93,18 @@ export async function GET(request: NextRequest) {
 // Admin only. These posts render in the main announcement deck.
 // Faculty reach students through POST /api/notifications instead,
 // so teacher posts never land in the deck.
-const VALID_CATEGORIES = ['academic', 'deadline', 'campus', 'holiday', 'general'] as const
-
-// ---- Zod input schemas (the only place announcement input is shaped) ----
-
 const announcementsGetQuerySchema = z.object({
   username: z.string().optional(),
   all: z.literal('1').optional(),
 })
 
-/** priority is lenient by design: anything but 'urgent' reads as 'normal'. */
-const prioritySchema = z
-  .string()
-  .optional()
-  .transform((p) => (p === 'urgent' ? 'urgent' as const : 'normal' as const))
-
-const announcementPostSchema = z.object({
-  branch: z.string({ error: 'Branch, title, body, and category are required.' }).min(1, {
-    message: 'Branch, title, body, and category are required.',
-  }),
-  title: trimmedString(120, 'Title'),
-  body: trimmedString(2000, 'Body'),
-  category: z.enum(VALID_CATEGORIES, { error: 'Invalid category.' }),
-  priority: prioritySchema,
-  expiryDate: dateInput('Expiry date').optional(),
-  // Legacy spoof-check field; identity always comes from the session.
-  performedBy: z.string().optional(),
-})
-
-const announcementPatchSchema = z.object({
-  id: z.string({ error: 'Announcement id is required.' }).min(1),
-  title: trimmedString(120, 'Title'),
-  body: trimmedString(2000, 'Body'),
-  category: z.enum(VALID_CATEGORIES, { error: 'Invalid category.' }),
-  priority: prioritySchema,
-  expiryDate: dateInput('Expiry date').optional(),
-})
-
 export async function POST(request: NextRequest) {
   try {
-    const { branch, title, body, category, priority, expiryDate, performedBy } = await parseBody(
-      request,
-      announcementPostSchema
-    )
-    // C2.1: session, spoof (performedBy), admin role, and branch parity
-    // centralized in the announcement create case; author identity is
-    // the session admin off the authz context.
-    const {
-      ctx: { actor },
-    } = await requireCan(request, { kind: 'announcement', branch }, 'create', {
+    const { branch, performedBy, ...fields } = await parseBody(request, announcementPostSchema)
+    const { ctx: { actor } } = await requireCan(request, { kind: 'announcement', branch }, 'create', {
       claimedIdentity: performedBy,
     })
-    // Content moderation (server-side, next to the Zod layer): a verdict
-    // that is not ok carries the 422 response naming the rule that fired.
-    const verdict = await moderateContent({
-      surface: 'announcement',
-      fields: { title, body },
-      actor: { username: actor.username, role: actor.role, branch: actor.branch },
-    })
-    if (!verdict.ok) return verdict.response
-    const col = await getCollection<MongoAnnouncement>('announcements')
-    const doc: MongoAnnouncement = {
-      branch,
-      title,
-      body,
-      category,
-      priority,
-      author: actor.fullName,
-      postedDate: new Date(),
-      expiryDate: expiryDate ?? null,
-    }
-    const result = await col.insertOne(doc as any)
-    return NextResponse.json({ ok: true, message: 'Announcement posted.', id: result.insertedId.toString() })
+    return await createAnnouncement(fields, actor)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Announcement post error:', err)
@@ -171,56 +112,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ------------------------------------------------------------
-// PATCH /api/announcements (admin) — edit
-// Body: { id, title, body, category, priority?, expiryDate? }
-// The edit form sends the full field set; only these fields move.
-// author and postedDate never change on edit. expiryDate: null
-// clears the expiry (post becomes permanent).
-// ------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
-    // C2.1: session + admin-role gate centralized (announcement update).
-    const {
-      ctx: { actor },
-    } = await requireCan(request, { kind: 'announcement' }, 'update')
-
-    const { id, title, body, category, priority, expiryDate } = await parseBody(
-      request,
-      announcementPatchSchema
-    )
-    let idFilter: ObjectId
-    try {
-      idFilter = new ObjectId(id)
-    } catch {
-      return NextResponse.json({ ok: false, error: 'Announcement not found.' }, { status: 404 })
-    }
-
-    // Content moderation: edits pass through the same rules as posts.
-    const verdict = await moderateContent({
-      surface: 'announcement',
-      fields: { title, body },
-      actor: { username: actor.username, role: actor.role, branch: actor.branch },
-    })
-    if (!verdict.ok) return verdict.response
-
-    const col = await getCollection<MongoAnnouncement>('announcements')
-    const result = await col.updateOne(
-      { _id: idFilter, branch: actor.branch },
-      {
-        $set: {
-          title,
-          body,
-          category,
-          priority,
-          expiryDate: expiryDate ?? null,
-        },
-      }
-    )
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ ok: false, error: 'Announcement not found.' }, { status: 404 })
-    }
-    return NextResponse.json({ ok: true, message: 'Announcement updated.' })
+    const { ctx: { actor } } = await requireCan(request, { kind: 'announcement' }, 'update')
+    return await editAnnouncement(await parseBody(request, announcementPatchSchema), actor)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Announcement update error:', err)

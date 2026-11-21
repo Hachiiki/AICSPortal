@@ -1,0 +1,373 @@
+{
+  "sourceCommit": "b7cbc3333b7bc88f9e1b84b50c629ea05e450b43",
+  "fixtureOnly": true,
+  "checks": [
+    {
+      "name": "dashboard-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=grades-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=subjects-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=tasks-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=materials-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/events-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/enrollment-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/professors-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/profile-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.375,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=security-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=notifications-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=privacy-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.875,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=appearance-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/help-320: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.109375,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "dashboard-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=grades-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=subjects-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=tasks-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=materials-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/events-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/enrollment-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.625,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/professors-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/profile-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=security-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=notifications-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=privacy-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.25,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=appearance-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.25,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/help-390: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.359375,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "dashboard-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=grades-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=subjects-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=tasks-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/academics?tab=materials-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/events-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/enrollment-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.625,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/professors-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/profile-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 638.5,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=security-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=notifications-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=privacy-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.25,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/settings?section=appearance-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.375,
+        "navigationTop": 655
+      }
+    },
+    {
+      "name": "/help-430: final content clears navigation",
+      "pass": true,
+      "detail": {
+        "contentBottom": 639.359375,
+        "navigationTop": 655
+      }
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "tasks-bottom-320.png",
+    "profile-bottom-320.png",
+    "help-bottom-320.png"
+  ],
+  "finishedAt": "2026-11-07T06:16:41.853Z"
+}

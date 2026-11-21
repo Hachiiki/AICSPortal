@@ -1,0 +1,67 @@
+▲ Next.js 16.1.3 (webpack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 27.0s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/43) ...
+  Generating static pages using 3 workers (10/43)
+  Generating static pages using 3 workers (21/43)
+  Generating static pages using 3 workers (32/43)
+✓ Generating static pages using 3 workers (43/43) in 3.1s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/admin/enrollment
+├ ƒ /api/admin/people
+├ ƒ /api/admin/stats
+├ ƒ /api/announcements
+├ ƒ /api/announcements/bulk-delete
+├ ƒ /api/announcements/read
+├ ƒ /api/attendance
+├ ƒ /api/auth/change-password
+├ ƒ /api/auth/demo
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/enrollment
+├ ƒ /api/events
+├ ƒ /api/faculty
+├ ƒ /api/faculty/history
+├ ƒ /api/faculty/tasks
+├ ƒ /api/faculty/tasks/submissions
+├ ƒ /api/grades/audits
+├ ƒ /api/grades/release
+├ ƒ /api/grades/submit
+├ ƒ /api/grades/update
+├ ƒ /api/materials
+├ ƒ /api/materials/[id]
+├ ƒ /api/materials/sign
+├ ƒ /api/notifications
+├ ƒ /api/notifications/cleanup
+├ ƒ /api/notifications/sent
+├ ƒ /api/onboarding/state
+├ ƒ /api/professors
+├ ƒ /api/student
+├ ƒ /api/student/export
+├ ƒ /api/student/photo
+├ ƒ /api/student/photo/cleanup
+├ ƒ /api/student/update
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[taskId]/grade
+├ ƒ /api/tasks/[taskId]/submit
+├ ○ /legal/cookies
+├ ○ /legal/privacy
+├ ○ /legal/refund
+├ ○ /legal/terms
+└ ƒ /portal/[...slug]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Megaphone,
@@ -13,11 +12,11 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
-import { ANNOUNCEMENT_STYLES } from '@/lib/aics/announcements'
+import { ANNOUNCEMENT_STYLES, announcementDetailsUrl } from '@/lib/aics/announcements'
 import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
-import { DialogPanel } from './DialogPanel'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
 
 interface AnnouncementsDeckProps {
   announcements: Announcement[]
@@ -42,7 +41,6 @@ const CARD_MIN_HEIGHT = 250
 
 export function AnnouncementsDeck({ announcements, username, readIds }: AnnouncementsDeckProps) {
   const onboarding = useStudentOnboarding()
-  const [opened, setOpened] = useState<Announcement | null>(null)
   const [deck, setDeck] = useState<Announcement[]>(announcements)
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
   const [dragX, setDragX] = useState(0)
@@ -53,9 +51,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   const dragStartTime = useRef(0)
   const deckRef = useRef<HTMLDivElement>(null)
 
-  // Detect prefers-reduced-motion
-  const prefersReducedMotion = typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const prefersReducedMotion = useAnimationPreferences().mode !== 'full'
 
   // Sync deck state when parent announcements change
   // Using a key-based approach to detect changes without setState-in-render
@@ -185,12 +181,12 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <div
           ref={deckRef}
           tabIndex={0}
-          className="bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
+          className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-6 min-h-[210px] flex flex-col"
         >
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Megaphone className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-semibold text-slate-700">Announcements</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <Megaphone className="size-4 shrink-0 text-slate-400" />
+              <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-700">Announcements</span>
             </div>
           </div>
           <EmptyState compact icon={Check} message="You're all caught up" hint="No new announcements to read." className="flex-1 flex flex-col items-center justify-center" />
@@ -222,9 +218,9 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-link" />
-            <span className="text-sm font-semibold text-slate-900">Announcements</span>
+          <div className="flex min-w-0 items-center gap-2">
+            <Megaphone className="size-4 shrink-0 text-link" />
+            <span className="student-section-title min-w-0 break-words text-sm font-semibold text-slate-900">Announcements</span>
           </div>
         </div>
         {/* Body */}
@@ -238,16 +234,23 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
+              <p className={`student-item-title text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
                 {a.title}
               </p>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
+              <p className="student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
-              <button type="button" className="mt-2 rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                aria-label={`Read announcement: ${a.title}`} onClick={() => { setOpened(a); void onboarding?.client.complete('announcements') }}>
+              <a
+                href={announcementDetailsUrl(a._id)}
+                target="_blank"
+                rel="noopener"
+                data-tour="announcement-read"
+                className="mt-2 inline-block rounded text-xs font-semibold text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label={`Read announcement: ${a.title} (opens in a new tab)`}
+                onClick={() => { void onboarding?.client.complete('announcements') }}
+              >
                 Read announcement
-              </button>
+              </a>
             </div>
           </div>
           <div className="flex items-center gap-2 mt-2 pl-6">
@@ -259,26 +262,28 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           </div>
         </div>
         {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
-          <span className="text-[10px] text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 border-t border-slate-50 pt-2 sm:pt-3">
+          {visible.length > 1 && <span className="text-[10px] text-slate-500">
             {visible.indexOf(a) + 1} of {visible.length}
-          </span>
-          <div className="flex items-center gap-1">
+          </span>}
+          <div className="ml-auto flex flex-wrap items-center gap-1">
             <button
               type="button"
               onClick={() => removeTop('left')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Snooze (swipe left)"
             >
               <Clock className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Snooze</span>
             </button>
             <button
               type="button"
               onClick={() => removeTop('right')}
-              className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Mark as read (swipe right)"
             >
               <Check className="w-3.5 h-3.5" aria-hidden />
+              <span className="sm:hidden">Mark as read</span>
             </button>
           </div>
         </div>
@@ -339,7 +344,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               key={card._id}
               inert={!isTop}
               aria-hidden={!isTop}
-              className="absolute inset-0"
+              className={isTop ? 'relative sm:absolute sm:inset-0' : 'absolute inset-x-0 bottom-7 top-0 sm:bottom-0'}
               style={{
                 zIndex: currentZ,
                 transform: `translateY(${currentY}px) scale(${currentScale}) rotate(${currentRotate}deg)`,
@@ -351,7 +356,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               }}
             >
               <div
-                className="bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
+                className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
                 style={{
                   minHeight: CARD_MIN_HEIGHT,
                   touchAction: 'pan-y',
@@ -386,19 +391,6 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
           )
         })}
       </div>
-      {opened && createPortal(<div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-4">
-        <DialogPanel onClose={() => setOpened(null)} aria-labelledby="announcement-detail-title" className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-xl border border-border bg-surface text-ink shadow-xl">
-          <div className="flex items-start justify-between gap-4 border-b border-border p-5">
-            <h2 id="announcement-detail-title" className="text-lg font-semibold">{opened.title}</h2>
-            <button type="button" aria-label="Close announcement" className="rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onClick={() => setOpened(null)}><X className="size-5" aria-hidden /></button>
-          </div>
-          <div className="overflow-y-auto p-5">
-            <p className="whitespace-pre-wrap text-sm leading-6">{opened.body}</p>
-            <p className="mt-4 text-xs text-muted-fg">{opened.author} · {new Date(opened.postedDate).toLocaleDateString()}</p>
-            <p className="mt-4 text-xs text-muted-fg">Use the checkmark on the card to mark this announcement as read.</p>
-          </div>
-        </DialogPanel>
-      </div>, document.body)}
     </div>
   )
 }

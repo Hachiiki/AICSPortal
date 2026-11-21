@@ -1,0 +1,782 @@
+{
+  "head": "ae4842781d3f68f5f5dba1b4fb7afc24c4c4544a",
+  "sourceFilesMatched": 211,
+  "fixtureOnly": true,
+  "checks": [
+    {
+      "name": "Application fonts and visible sign-in images loaded",
+      "pass": true,
+      "detail": {
+        "family": "Geist, \"Geist Fallback\"",
+        "faces": [
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist",
+            "weight": "100 900",
+            "status": "loaded"
+          },
+          {
+            "family": "Geist Fallback",
+            "weight": "normal",
+            "status": "loaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono",
+            "weight": "100 900",
+            "status": "unloaded"
+          },
+          {
+            "family": "Geist Mono Fallback",
+            "weight": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed",
+            "weight": "700",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Condensed Fallback",
+            "weight": "normal",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "400",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto",
+            "weight": "500",
+            "status": "unloaded"
+          },
+          {
+            "family": "Roboto Fallback",
+            "weight": "normal",
+            "status": "unloaded"
+          }
+        ],
+        "images": [
+          {
+            "src": "http://localhost:4350/aics-campus.jpg",
+            "complete": true,
+            "naturalWidth": 300
+          },
+          {
+            "src": "http://localhost:4350/aics-logo.svg",
+            "complete": true,
+            "naturalWidth": 1342
+          }
+        ]
+      }
+    },
+    {
+      "name": "sign-in-320x720: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x720: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x720: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x720: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 486.75,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "Phone sign-in action is visible on the initial 720px screen",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 649.5,
+        "width": 288,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-320x420: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "sign-in-320x420: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-320x420: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-320x420: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 256,
+        "y": 486.75,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-360x740: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "name": "sign-in-360x740: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-360x740: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-360x740: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 296,
+        "y": 456.75,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-390x844: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "sign-in-390x844: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-390x844: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-390x844: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 326,
+        "y": 440.75,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-430x932: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 430,
+        "scroll": 430
+      }
+    },
+    {
+      "name": "sign-in-430x932: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-430x932: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-430x932: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 359,
+        "y": 440.75,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-844x390: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 844,
+        "scroll": 844
+      }
+    },
+    {
+      "name": "sign-in-844x390: photo and welcome precede the form",
+      "pass": true
+    },
+    {
+      "name": "sign-in-844x390: readable input text",
+      "pass": true,
+      "detail": [
+        16,
+        16
+      ]
+    },
+    {
+      "name": "sign-in-844x390: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 566,
+        "y": 443,
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "name": "sign-in-1280x900: no page overflow",
+      "pass": true,
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "name": "sign-in-1280x900: reveal target at least 44px",
+      "pass": true,
+      "detail": {
+        "x": 1148,
+        "y": 375.265625,
+        "width": 44,
+        "height": 44
+      }
+    },
+    {
+      "name": "Sign-in reflows at 200 percent text size",
+      "pass": true
+    },
+    {
+      "name": "Pre-auth theme toggle works",
+      "pass": true
+    },
+    {
+      "name": "Dark sign-in placeholder contrast meets 4.5 threshold",
+      "pass": true,
+      "detail": {
+        "ratio": 5.520129200421676,
+        "foreground": [
+          141,
+          147,
+          154,
+          255
+        ],
+        "background": [
+          24,
+          28,
+          33,
+          255
+        ]
+      }
+    },
+    {
+      "name": "Light sign-in placeholder contrast meets 4.5 threshold",
+      "pass": true,
+      "detail": {
+        "ratio": 5.679132476843043,
+        "foreground": [
+          93,
+          104,
+          116,
+          255
+        ],
+        "background": [
+          255,
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "name": "Dedicated phone legal links have 44px hit areas",
+      "pass": true,
+      "detail": [
+        44,
+        44,
+        44,
+        44
+      ]
+    },
+    {
+      "name": "Empty submission is announced without a network request",
+      "pass": true
+    },
+    {
+      "name": "Missing username receives focus and invalid state",
+      "pass": true
+    },
+    {
+      "name": "Missing password receives focus",
+      "pass": true
+    },
+    {
+      "name": "Pointer reveal preserves password and returns focus to the field",
+      "pass": true
+    },
+    {
+      "name": "Keyboard reveal retains control focus and updates its name",
+      "pass": true
+    },
+    {
+      "name": "Keyboard can hide password again without moving focus",
+      "pass": true
+    },
+    {
+      "name": "Remember control toggles with keyboard",
+      "pass": true
+    },
+    {
+      "name": "Authentication error remains visible with entered values",
+      "pass": true
+    },
+    {
+      "name": "Authentication request contract is preserved",
+      "pass": true
+    },
+    {
+      "name": "Network error permits retry without clearing credentials",
+      "pass": true
+    },
+    {
+      "name": "Pending login prevents duplicate requests",
+      "pass": true
+    },
+    {
+      "name": "Production sign-in excludes mock demo and Face ID controls",
+      "pass": true
+    },
+    {
+      "name": "Keyboard submission reaches the student portal after transition",
+      "pass": true
+    },
+    {
+      "name": "No unexpected client errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "signin-320x720.png",
+    "signin-320x420.png",
+    "signin-360x740.png",
+    "signin-390x844.png",
+    "signin-430x932.png",
+    "signin-844x390.png",
+    "signin-1280x900.png",
+    "signin-large-text-390.png",
+    "signin-dark-320x420.png",
+    "signin-legal-320x420.png",
+    "signin-invalid-320x420.png",
+    "signin-pending-320x420.png"
+  ],
+  "visualAssets": {
+    "family": "Geist, \"Geist Fallback\"",
+    "faces": [
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist",
+        "weight": "100 900",
+        "status": "loaded"
+      },
+      {
+        "family": "Geist Fallback",
+        "weight": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono",
+        "weight": "100 900",
+        "status": "unloaded"
+      },
+      {
+        "family": "Geist Mono Fallback",
+        "weight": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed",
+        "weight": "700",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Condensed Fallback",
+        "weight": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "400",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto",
+        "weight": "500",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Fallback",
+        "weight": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "images": [
+      {
+        "src": "http://localhost:4350/aics-campus.jpg",
+        "complete": true,
+        "naturalWidth": 300
+      },
+      {
+        "src": "http://localhost:4350/aics-logo.svg",
+        "complete": true,
+        "naturalWidth": 1342
+      }
+    ]
+  },
+  "finishedAt": "2026-11-07T11:38:54.094Z"
+}
