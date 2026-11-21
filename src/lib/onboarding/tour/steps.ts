@@ -26,8 +26,13 @@ export interface TourStep {
   id: string
   /** data-tour value on the target element. */
   target: string
+  /** A smaller affordance inside the target on a phone. */
+  phoneTarget?: string
+  /** A compact alternative for very short phones. */
+  shortPhoneTarget?: string
   title: string
   body: string
+  phoneBody?: string
   /** Preferred card side; the geometry layer flips when it cannot fit. */
   side?: CardSide
   /** When set, the engine navigates to this view before resolving. */

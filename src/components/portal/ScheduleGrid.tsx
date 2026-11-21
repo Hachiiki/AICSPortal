@@ -159,24 +159,24 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
   return (
     <section className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-surface shadow-sm">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-slate-100">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-slate-900">Weekly Schedule</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Your class schedule from Monday to Saturday
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={goPrev}
             disabled={!anchor}
             aria-label="Previous week"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="size-11 sm:size-8 shrink-0 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <span className="text-sm font-medium tabular-nums text-slate-700 min-w-[150px] text-center">
+          <span aria-live="polite" className="flex-1 sm:flex-none text-sm font-medium tabular-nums text-slate-700 sm:min-w-[150px] text-center">
             {anchor ? formatWeekRange(days) : '—'}
           </span>
           <button
@@ -184,7 +184,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
             onClick={goNext}
             disabled={!anchor}
             aria-label="Next week"
-            className="h-8 w-8 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="size-11 sm:size-8 shrink-0 rounded-lg border border-slate-200 bg-surface text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -192,7 +192,7 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
             type="button"
             onClick={goToday}
             disabled={!anchor}
-            className="h-8 rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
+            className="min-h-11 sm:min-h-8 basis-full sm:basis-auto rounded-lg border border-slate-200 px-4 text-sm font-medium text-link hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
           >
             Today
           </button>
@@ -200,7 +200,8 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
       </div>
 
       {/* Grid — horizontally scrollable on small screens */}
-      <div className="overflow-x-auto">
+      <p className="sm:hidden px-4 py-2 text-xs text-slate-600">Swipe across to see every day.</p>
+      <div className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" tabIndex={0} role="region" aria-label="Weekly class timetable, scroll horizontally for more days">
         <div className="min-w-[720px]">
           {/* Header row: TIME + day labels */}
           <div className={GRID_TEMPLATE}>
