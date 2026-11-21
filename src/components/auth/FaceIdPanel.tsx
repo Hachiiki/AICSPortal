@@ -1,5 +1,7 @@
 'use client'
 
+import { useAnimationPreferences } from '@/components/AnimationPreferences'
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -32,6 +34,7 @@ interface FaceIdPanelProps {
 }
 
 export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
+  const { mode } = useAnimationPreferences()
   const [faceState, setFaceState] = useState<FaceState>('idle')
   const [faceProgress, setFaceProgress] = useState(0)
   const [streamError, setStreamError] = useState<string | null>(null)
@@ -203,8 +206,8 @@ export function FaceIdPanel({ onDemoLogin }: FaceIdPanelProps) {
                 background: `linear-gradient(90deg, transparent, ${T.accent}, transparent)`,
               }}
               initial={{ top: '12%' }}
-              animate={{ top: ['12%', '86%', '12%'] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              animate={{ top: mode === 'full' ? ['12%', '86%', '12%'] : '50%' }}
+              transition={mode === 'full' ? { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } : { duration: 0 }}
             />
             <div className="absolute bottom-3 left-3 right-3">
               <div className="flex items-center justify-between text-[10px] text-white/75 mb-1.5">

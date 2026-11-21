@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "student-mobile": {
+      "targetKind": "existing-ui",
+      "projectId": "f52d3274-980b-4933-8abf-dc900a7b5ba5",
+      "baselineDraftId": "37bafc75-77a4-41d6-ab18-efa8c8363060",
+      "activeDraftId": "62d08684-e70c-4f0a-a5db-72f133d001b5",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-aics-logo.svg",
+        "public-aics-campus.jpg"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-aics-logo.svg",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/f52d3274-980b-4933-8abf-dc900a7b5ba5/brand-assets/public-aics-logo.svg/aics-logo.svg",
+          "sourcePath": "public/aics-logo.svg"
+        }
+      },
+      "contextFiles": [
+        "src/components/portal/PortalShell.tsx",
+        "src/components/portal/Topbar.tsx",
+        "src/components/portal/Sidebar.tsx",
+        "src/components/portal/GlobalSearch.tsx",
+        "src/lib/aics/nav-config.ts",
+        ".superdesign/design-system.md",
+        "src/app/globals.css",
+        "src/components/portal/MobileNavigation.tsx",
+        "src/components/portal/MobileSearch.tsx",
+        "src/components/portal/NotificationsPage.tsx"
+      ],
+      "fingerprints": {
+        "src/components/portal/PortalShell.tsx": "baefd7ea5a962e03b6dce7b98b06e377accd24c818f0dd8e1aae58709640cc11",
+        "src/components/portal/Topbar.tsx": "b3feacfd027b35902e1c3812f287145046503bffab8c12c41eea95edd631a2aa",
+        "src/components/portal/Sidebar.tsx": "48a6538f0ec92b2f25680c815f3524ae4f6f90abe609c4e53f814e24580990bf",
+        "src/components/portal/GlobalSearch.tsx": "3ef85904ec7dbf179d800a949b3b77fc5784780fbd8091cb36951bc0ed5d3cf4",
+        "src/lib/aics/nav-config.ts": "fcbdc51408d4c6b2c4b9418136f43f544d2444d23beec80f0044cbaeddfcd952",
+        ".superdesign/design-system.md": "87719116ab578927f144e6c140009dbf97c4ccccab2df43feb1ff54a9cc9b23f",
+        "src/app/globals.css": "935bed7c31ed09a395c247bd599cbc9bc7ae963f8a5ff815d7b1a5396887f280",
+        "src/components/portal/MobileNavigation.tsx": "9d80990295c301620594a51f1d1683c384627148cbc209fc2710b0fc4963d176",
+        "src/components/portal/MobileSearch.tsx": "fe8741c71fe6d64f319bb068923dcc45df551fa1a394613b72166e79163f9ced",
+        "src/components/portal/NotificationsPage.tsx": "4372301b3cdf2618a0e553c191c680a029d0684ec2f78bb99c5738f83cdf0d98"
+      },
+      "drafts": {
+        "62d08684-e70c-4f0a-a5db-72f133d001b5": {
+          "title": "Student mobile navigation",
+          "visualDirection": "Phone title, lower-right Search icon, More close action and Notifications page",
+          "currentVersion": 4,
+          "parentDraftId": "37bafc75-77a4-41d6-ab18-efa8c8363060"
+        }
+      },
+      "updatedAt": "2026-11-09T14:45:35.476Z"
+    },
+    "sign-in-mobile": {
+      "targetKind": "existing-ui",
+      "projectId": "f52d3274-980b-4933-8abf-dc900a7b5ba5",
+      "baselineDraftId": "048e2566-3bb2-434b-bebe-8b4fbab362c4",
+      "activeDraftId": "eb3e9031-3204-462e-86d8-c253167f9dbf",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-aics-logo.svg",
+        "public-aics-campus.jpg"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-aics-logo.svg",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/f52d3274-980b-4933-8abf-dc900a7b5ba5/brand-assets/public-aics-logo.svg/aics-logo.svg",
+          "sourcePath": "public/aics-logo.svg"
+        }
+      },
+      "contextFiles": [
+        "src/components/auth/LoginView.tsx",
+        "src/components/auth/CredentialsForm.tsx",
+        "src/components/auth/login-tokens.ts",
+        ".superdesign/design-system.md",
+        "src/app/globals.css"
+      ],
+      "fingerprints": {
+        "src/components/auth/LoginView.tsx": "f7e0b21a4fc463c1864066ac5eae94c27052ec0f2032cb19e1480c5912dd4c52",
+        "src/components/auth/CredentialsForm.tsx": "41c164904957da0016210427533054d7e32894c4209590e97154d4433c62945e",
+        "src/components/auth/login-tokens.ts": "eb55433841204577da31240c94716732296a761a0b2b6b9ede3cae653720927d",
+        ".superdesign/design-system.md": "87719116ab578927f144e6c140009dbf97c4ccccab2df43feb1ff54a9cc9b23f",
+        "src/app/globals.css": "935bed7c31ed09a395c247bd599cbc9bc7ae963f8a5ff815d7b1a5396887f280"
+      },
+      "drafts": {
+        "eb3e9031-3204-462e-86d8-c253167f9dbf": {
+          "title": "Mobile sign-in composition",
+          "visualDirection": "Compact campus welcome before the credential form",
+          "currentVersion": 2,
+          "parentDraftId": "048e2566-3bb2-434b-bebe-8b4fbab362c4"
+        }
+      },
+      "updatedAt": "2026-11-09T14:45:35.583Z"
+    }
+  }
+}

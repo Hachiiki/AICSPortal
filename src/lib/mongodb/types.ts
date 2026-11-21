@@ -271,6 +271,11 @@ export interface MongoEnrollment {
 // ADMIN CONTROL: Announcements are created/edited/deleted by
 // Admin only. Students have read-only access. Faculty reach
 // students through section notifications instead (see below).
+export interface MongoAnnouncementImage {
+  alt: string
+  bytes: import('mongodb').Binary
+}
+
 export interface MongoAnnouncement {
   _id?: string
   branch: Branch
@@ -280,6 +285,7 @@ export interface MongoAnnouncement {
   priority: 'normal' | 'urgent'
   author: string // name of the admin who posted
   postedDate: Date
+  image?: MongoAnnouncementImage
   // null = no expiry; otherwise hide after this date
   expiryDate?: Date | null
 }

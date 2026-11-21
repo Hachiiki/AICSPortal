@@ -94,24 +94,20 @@ export function GradesCards({ subjects, totalUnits, showTerm }: GradesCardsProps
 
 function SubjectCard({ subject, showTerm }: { subject: Subject; showTerm?: boolean }) {
   return (
-    <li className="px-4 py-3.5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-link-strong flex-shrink-0">{subject.code}</span>
-            <h3 className="text-sm font-semibold text-slate-900 truncate">{subject.title}</h3>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5 truncate">
-            {subject.professor}
-            {showTerm && subject.yearLevel && subject.academicYear ? ` • ${subject.yearLevel} • AY ${subject.academicYear}` : ''}
-          </p>
-        </div>
-        <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">{subject.units} units</span>
+    <li className="px-[16px] py-3.5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-[12px] gap-y-[4px]">
+        <span className="student-course-code font-mono text-xs font-bold text-link-strong [overflow-wrap:anywhere]">{subject.code}</span>
+        <span className="text-xs text-slate-500">{subject.units} units</span>
       </div>
+      <h3 className="student-item-title mt-1 text-sm font-semibold text-slate-900 [overflow-wrap:anywhere]">{subject.title}</h3>
+      <p className="student-text-detail mt-1 text-xs text-slate-500 [overflow-wrap:anywhere]">
+        {subject.professor}
+        {showTerm && subject.yearLevel && subject.academicYear ? ` • ${subject.yearLevel} • AY ${subject.academicYear}` : ''}
+      </p>
       <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        <GradeStat label="Mid" value={subject.midterm} />
-        <GradeStat label="Fin" value={subject.finals} />
-        <GradeStat label="FG" value={subject.finalGrade} strong />
+        <GradeStat label="Midterm" value={subject.midterm} />
+        <GradeStat label="Finals" value={subject.finals} />
+        <GradeStat label="Final grade" value={subject.finalGrade} strong />
         <RemarksBadge remarks={subject.remarks} />
       </div>
     </li>
@@ -121,7 +117,7 @@ function SubjectCard({ subject, showTerm }: { subject: Subject; showTerm?: boole
 function GradeStat({ label, value, strong }: { label: string; value: string | number | null | undefined; strong?: boolean }) {
   return (
     <span className="inline-flex items-baseline gap-1.5">
-      <span className="text-[10px] uppercase tracking-wider font-medium text-slate-500">{label}</span>
+      <span className="text-xs font-medium text-slate-500">{label}</span>
       <span className={`font-mono text-sm tabular-nums ${strong ? 'font-bold text-link-strong' : 'text-slate-700'}`}>
         {fmtGrade(value)}
       </span>

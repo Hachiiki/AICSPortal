@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/legal/CookieConsent";
 import { ConsentGate } from "@/components/legal/ConsentGate";
+import { AnimationPreferences } from "@/components/AnimationPreferences";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,17 +86,19 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ThemePaletteSync />
-          <DevBanner appEnv={getAppEnv()} />
-          {children}
-          <Toaster richColors position="bottom-right" />
-          {/* Analytics beacons are cookieless but still send usage events
-              to Vercel (US), so they are consent-gated and off until
-              opt-in. See /legal/cookies. */}
-          <ConsentGate>
-            <Analytics />
-            <SpeedInsights />
-          </ConsentGate>
-          <CookieConsent />
+          <AnimationPreferences>
+            <DevBanner appEnv={getAppEnv()} />
+            {children}
+            <Toaster richColors position="bottom-right" />
+            {/* Analytics beacons are cookieless but still send usage events
+                to Vercel (US), so they are consent-gated and off until
+                opt-in. See /legal/cookies. */}
+            <ConsentGate>
+              <Analytics />
+              <SpeedInsights />
+            </ConsentGate>
+            <CookieConsent />
+          </AnimationPreferences>
         </ThemeProvider>
       </body>
     </html>
