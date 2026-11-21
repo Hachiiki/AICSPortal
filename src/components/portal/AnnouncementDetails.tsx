@@ -35,7 +35,7 @@ export function AnnouncementDetails({ id }: { id: string }) {
 
   const published = state.kind === 'ready' ? new Date(state.post.postedDate) : null
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-8">
+    <main data-portal-page-enter className="mx-auto w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-8">
       <Link href="/" prefetch={false} className="mb-3 inline-flex min-h-11 items-center gap-2 rounded text-sm font-medium text-link hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-link">
         <ArrowLeft className="size-4" aria-hidden />
         Back to dashboard
@@ -43,7 +43,7 @@ export function AnnouncementDetails({ id }: { id: string }) {
       {state.kind === 'loading' && <p role="status" className="text-sm text-muted-fg">Loading announcement…</p>}
       {state.kind === 'error' && <p role="alert" className="rounded-xl border border-line bg-surface p-5 text-sm text-ink">{state.message}</p>}
       {state.kind === 'ready' && (
-        <article className="space-y-5 rounded-2xl border border-line bg-surface p-5 text-ink sm:p-8">
+        <article data-portal-motion-group className="space-y-5 rounded-2xl border border-line bg-surface p-5 text-ink sm:p-8">
           <header className="space-y-2">
             <p className="text-sm font-semibold text-link">{ANNOUNCEMENT_STYLES[state.post.category]?.label ?? 'Announcement'}</p>
             <h1 className="text-2xl leading-tight font-bold tracking-tight [overflow-wrap:anywhere] sm:text-3xl">{state.post.title}</h1>

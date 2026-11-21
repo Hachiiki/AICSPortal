@@ -246,7 +246,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
         ) : (
           <>
             {/* Headline stat cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-portal-motion-group className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard icon={Users} label="Students" value={String(stats.totals.students)} hint={`${stats.totals.branches} branch${stats.totals.branches === 1 ? '' : 'es'} · ${stats.totals.programs} programs`} onClick={() => onNavigate('admin-people')} />
               <StatCard icon={GraduationCap} label="Faculty" value={String(stats.totals.faculty)} hint={`${stats.totals.courses} courses in catalog`} onClick={() => onNavigate('admin-people')} />
               <StatCard
@@ -263,7 +263,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
               <StatCard icon={Landmark} label="Outstanding balance" value={peso.format(stats.finances.totalBalance)} hint={`${peso.format(stats.finances.totalPaid)} collected of ${peso.format(stats.finances.totalAssessment)}`} onClick={() => onNavigate('admin-enrollment')} />
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-portal-motion-group className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard icon={Megaphone} label="Announcements" value={String(stats.totals.announcements)} hint="All-time posts" onClick={() => onNavigate('admin-announcements')} />
               <StatCard icon={CalendarDays} label="Events" value={String(stats.totals.events)} hint={`${stats.totals.upcomingEvents} in the next 7 days`} onClick={() => onNavigate('admin-events')} />
               <StatCard icon={Users} label="Professors listed" value={String(professors?.length ?? 0)} hint="Directory entries (this branch)" onClick={() => onNavigate('admin-professors')} />

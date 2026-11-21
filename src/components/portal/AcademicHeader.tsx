@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import type { Student } from '@/lib/aics/types'
 import type { Announcement } from '@/lib/aics/announcements'
 import { AnnouncementsDeck } from './AnnouncementsDeck'
@@ -9,11 +8,8 @@ import { useDestinationFocus } from '@/lib/aics/use-destination-focus'
 
 export function AcademicHeader({ student }: { student: Student }) {
   return (
-    <motion.section
+    <section
       data-tour="student-overview"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="student-welcome student-card min-w-0 sm:max-lg:row-start-1 lg:col-start-1 lg:row-start-1"
     >
       <div className="flex-1 min-w-0">
@@ -29,7 +25,7 @@ export function AcademicHeader({ student }: { student: Student }) {
 
       </div>
 
-    </motion.section>
+    </section>
   )
 }
 

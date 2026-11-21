@@ -116,6 +116,67 @@ html:is([data-animation-mode="reduced"], [data-animation-mode="off"]) :is(.stude
   backdrop-filter: none;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html[data-animation-mode="full"] [data-portal-page-enter] {
+    --page-travel: 8px;
+    --page-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    animation: portal-page-arrive 240ms var(--page-ease) backwards;
+  }
+
+  html[data-animation-mode="full"] [data-portal-page-enter] h1 {
+    animation: portal-heading-arrive 320ms var(--page-ease) backwards;
+  }
+
+  /* Animate page sections without targeting overlays or every table row. */
+  html[data-animation-mode="full"] [data-portal-page-enter] :is(main, [data-portal-motion-group])
+    > :where(div, section, article, header, aside, ul, ol, form, img, p):not([data-portal-motion-group], .fixed, [role="dialog"], [role="alertdialog"], :has(h1)) {
+    animation: portal-section-arrive 325ms var(--page-ease) var(--page-section-delay, 24ms) backwards;
+  }
+
+  html[data-animation-mode="full"] :is([data-portal-page-enter], [data-portal-page-enter] :is(main, [data-portal-motion-group])) > :nth-child(2) {
+    --page-section-delay: 42ms;
+  }
+
+  html[data-animation-mode="full"] :is([data-portal-page-enter], [data-portal-page-enter] :is(main, [data-portal-motion-group])) > :nth-child(3) {
+    --page-section-delay: 74ms;
+  }
+
+  html[data-animation-mode="full"] :is([data-portal-page-enter], [data-portal-page-enter] :is(main, [data-portal-motion-group])) > :nth-child(n + 4) {
+    --page-section-delay: 98ms;
+  }
+
+  html[data-animation-mode="full"] [data-portal-page-enter] :is(main, [data-portal-motion-group]) > :is([role="tablist"], [data-tour="academics-tabs"], nav, form) {
+    animation: portal-controls-arrive 280ms var(--page-ease) 32ms backwards;
+  }
+
+  @media (width < 40rem) {
+    html[data-animation-mode="full"] [data-portal-page-enter] {
+      --page-travel: 6px;
+    }
+  }
+}
+
+@keyframes portal-page-arrive {
+  from { translate: 0 var(--page-travel); opacity: 0.92; }
+  to { translate: 0 0; opacity: 1; }
+}
+
+@keyframes portal-heading-arrive {
+  from { translate: -10px 0; opacity: 0.78; }
+  to { translate: 0 0; opacity: 1; }
+}
+
+@keyframes portal-section-arrive {
+  from { translate: 0 12px; scale: 0.988; opacity: 0.8; }
+  to { translate: 0 0; scale: 1; opacity: 1; }
+}
+
+@keyframes portal-controls-arrive {
+  from { translate: 0 -5px; scale: 0.972; opacity: 0.84; }
+  68% { translate: 0 0; scale: 1.006; opacity: 1; }
+  to { translate: 0 0; scale: 1; opacity: 1; }
+}
+
 .student-more-popover {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
 }

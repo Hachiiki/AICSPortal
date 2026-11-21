@@ -116,6 +116,7 @@ export function StudentProfile({ student, onNavigate, onLogout, events, professo
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0">
           <motion.div
+            data-portal-motion-group
             variants={containerVariants}
             initial="hidden"
             animate="visible"

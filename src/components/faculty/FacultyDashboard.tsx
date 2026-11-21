@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { BookOpen, Users, LayoutGrid } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
@@ -163,10 +162,7 @@ export function FacultyDashboard({
     >
         <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}
-          <motion.section
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+          <section data-portal-motion-group
             className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start"
           >
             <div className="flex-1 min-w-0">
@@ -181,7 +177,7 @@ export function FacultyDashboard({
               </p>
 
               {/* Stats row */}
-              <div className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
+              <div data-portal-motion-group className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
                 <Stat
                   label="Subjects"
                   value={String(subjectRows.length)}
@@ -206,13 +202,10 @@ export function FacultyDashboard({
             {announcements && announcements.length > 0 && (
               <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
             )}
-          </motion.section>
+          </section>
 
           {/* My Subjects table */}
-          <motion.section
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
+          <section
             className="bg-surface rounded-xl border border-slate-200 shadow-sm"
           >
             <div className="px-6 py-4 border-b border-slate-100">
@@ -277,7 +270,7 @@ export function FacultyDashboard({
                 </table>
               </div>
             )}
-          </motion.section>
+          </section>
         </main>
     </PortalShell>
   )
