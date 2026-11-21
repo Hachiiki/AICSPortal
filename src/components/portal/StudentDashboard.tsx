@@ -73,13 +73,13 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
       inbox={inbox}
     >
       <main className="min-w-0 sm:grid sm:grid-cols-1 sm:gap-6 sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,1fr)_470px] lg:gap-8 lg:px-8 lg:py-8">
-        <div className="student-dashboard-hero sm:contents">
+        <div data-portal-motion-group className="student-dashboard-hero sm:contents">
           <AcademicHeader student={dashboardStudent} />
           <AcademicTermStats student={dashboardStudent} totalUnits={totalUnits} />
         </div>
 
-        <div className="student-dashboard-panel min-w-0 max-sm:space-y-5 max-sm:px-4 sm:contents">
-          <div className="student-dashboard-intro grid grid-cols-1 gap-4 sm:contents">
+        <div data-portal-motion-group className="student-dashboard-panel min-w-0 max-sm:space-y-5 max-sm:px-4 sm:contents">
+          <div data-portal-motion-group className="student-dashboard-intro grid grid-cols-1 gap-4 sm:contents">
             <div className="min-w-0 sm:max-lg:row-start-2 lg:col-span-2 lg:row-start-3">
               <TodayGlance
                 courses={courses}

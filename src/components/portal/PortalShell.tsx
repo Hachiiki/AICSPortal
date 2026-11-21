@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { useAnimationPreferences } from '@/components/AnimationPreferences'
+import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import type { Student, View } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -13,7 +14,6 @@ import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
 import { MobileNavigation } from './MobileNavigation'
-import { MobileSearch } from './MobileSearch'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
@@ -89,14 +89,18 @@ export function PortalShell({
   const role = student.role ?? 'student'
   const phone = usePhoneViewport()
   const { mode } = useAnimationPreferences()
-  const reducedMotion = mode !== 'full'
   const studentPhone = role === 'student' && phone
-  // Workspace-assembly entrance (assemble candidate only): staged
-  // while the redirect overlay still covers the portal, animated
-  // into place when the reveal flips. Null everywhere else — the
-  // standard fade-up below is today's behavior, untouched.
+  const tourActive = useStudentOnboarding()?.busy ?? false
+  // The sign-in overlay coordinates its own reveal of the portal chrome.
   const assembleReveal = useAssembleReveal()
-  const entrance = assembleEntrance('content', assembleReveal)
+  const entrance = assembleEntrance('content', mode === 'off' ? null : assembleReveal)
+  const pageKey = studentPhone && academicTab ? `${active}:${academicTab}` : active
+  const motionBlocked = !!assembleReveal || tourActive
+  const [pageMotion, setPageMotion] = useState(() => ({ key: pageKey, enabled: !motionBlocked }))
+  // Finishing sign-in or dismissing a tour should not replay this route's entrance.
+  if (pageMotion.key !== pageKey || (pageMotion.enabled && motionBlocked)) {
+    setPageMotion({ key: pageKey, enabled: !motionBlocked })
+  }
 
   return (
     <div className="min-h-dvh bg-slate-50 font-sans [&_input]:text-base [&_textarea]:text-base [&_select]:text-base lg:[&_input]:text-sm lg:[&_textarea]:text-sm lg:[&_select]:text-sm">
@@ -136,29 +140,15 @@ export function PortalShell({
           taskGroups={taskGroups}
           inbox={inbox}
         />
-        {/* Shared entrance transition. Every tab mounts through this
-            shell, so all of them fade up the same way instead of each
-            page inventing its own. Page-level section animations nest
-            inside and keep working. During the post-login assembly the
-            entrance comes from assemble-entrance.tsx instead: the real
-            chrome (this sidebar, this topbar, this column) animates into
-            place as the redirect overlay exits. */}
         {/* Error boundary per view: a render crash in one tab degrades
             to an inline retry card while the sidebar/topbar stay alive;
             resetKey makes navigating away remount the crashed view. */}
         <motion.div
-          key={studentPhone && !assembleReveal ? `${active}:${academicTab ?? ''}` : active}
+          key={pageKey}
           id="main-content"
           tabIndex={-1}
-          initial={mode === 'off' ? false : assembleReveal ? entrance.initial : studentPhone
-            ? reducedMotion ? false : { opacity: 0.76, y: 6 }
-            : { opacity: 0, y: 8 }}
-          animate={assembleReveal ? entrance.animate : { opacity: 1, y: 0 }}
-          transition={
-            assembleReveal
-              ? entrance.transition
-              : { duration: studentPhone ? 0.22 : 0.35, ease: 'easeOut' as const }
-          }
+          data-portal-page-enter={pageMotion.enabled && !motionBlocked ? '' : undefined}
+          {...entrance}
         >
           <ErrorBoundary resetKey={String(active)}>
             {children}
@@ -170,8 +160,7 @@ export function PortalShell({
             active={active}
             academicTab={academicTab}
             onNavigate={onNavigate}
-            search={<MobileSearch {...{ student, events, professors, tasks, facultyData, taskGroups, onNavigate }}
-              className="pointer-events-auto grid size-[52px] shrink-0 place-items-center rounded-full border border-line bg-surface/90 text-ink shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md hover:bg-blue-50 hover:text-link-strong active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color] motion-safe:duration-150 motion-safe:active:scale-95" />}
+            searchProps={{ events, professors, tasks, facultyData, taskGroups }}
           />
         )}
       </div>
