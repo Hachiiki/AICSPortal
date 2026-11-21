@@ -13,7 +13,6 @@ import {
   Check,
   UserRound,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { useAnimationPreferences } from '@/components/AnimationPreferences'
 import { T, SHOW_DEMO_LOGIN } from './login-tokens'
 
@@ -68,9 +67,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
           setSubmitting(false)
           pendingRef.current = false
           setError(result.error || 'Invalid username or password.')
-          return
         }
-        toast.success('Signed in. Redirecting to your AICS dashboard...')
       } catch {
         setSubmitting(false)
         pendingRef.current = false
@@ -93,9 +90,7 @@ export function CredentialsForm({ onLogin, onDemoLogin }: CredentialsFormProps) 
         setSubmitting(false)
         pendingRef.current = false
         setError(result.error || 'Test login failed.')
-        return
       }
-      toast.success('Test login successful. Welcome!')
     } catch {
       setSubmitting(false)
       pendingRef.current = false

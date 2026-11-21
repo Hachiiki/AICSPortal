@@ -1,8 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useAnimationPreferences } from '@/components/AnimationPreferences'
+import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
+import { T } from '../login-tokens'
 import { RouteTrailVariant } from './redirect/RouteTrailVariant'
 import { WorkspaceAssemble } from './WorkspaceAssemble'
 
@@ -21,15 +23,51 @@ interface PostLoginTransitionProps {
   onAssembleStart?: () => void
 }
 
+function MobilePortalLoading() {
+  return (
+    <motion.div
+      initial={false}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto px-6 py-6"
+      style={{ background: T.white }}
+    >
+      <div className="flex max-w-full flex-col items-center gap-5 text-center">
+        <motion.div
+          aria-hidden="true"
+          initial={{ scale: 0.92, y: 6 }}
+          animate={{ scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 27 }}
+          className="grid size-16 place-items-center rounded-2xl border"
+          style={{ background: T.bg, borderColor: T.border }}
+        >
+          <img src="/aics-logo.svg" alt="" className="size-10 object-contain" />
+        </motion.div>
+        <p role="status" className="text-sm font-medium" style={{ color: T.text }}>Opening your portal…</p>
+        <div aria-hidden="true" className="h-1 w-24 max-w-full overflow-hidden rounded-full" style={{ background: T.accentSoft }}>
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: '300%' }}
+            transition={{ duration: 1.05, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+            className="h-full w-1/3 rounded-full"
+            style={{ background: T.primary }}
+          />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 /**
  * The post-login redirect overlay — the production two-stage flow.
  *
- * Stage one is the Route Trail journey (redirect/RouteTrailVariant):
+ * On desktop, stage one is the Route Trail journey (redirect/RouteTrailVariant):
  * the traveling dot carries the sign-in's progress along the route
  * through the credential, branch, and portal checkpoints, with every
  * fill paced by the shared sequence and gated on real readiness — the
  * final checkpoint never completes on a bare timer, and a failed load
- * exits promptly so the existing error card takes over. Stage two is
+ * exits promptly so the existing error card takes over. On phones, a compact
+ * loader hands off as soon as the initial data is ready. Stage two is
  * the workspace assembly of the REAL portal: onAssembleStart flips
  * the reveal so the actual dashboard chrome animates into its final
  * positions while the redirect overlay exits over it — nothing is
@@ -47,6 +85,7 @@ export function PostLoginTransition({
   onAssembleStart,
 }: PostLoginTransitionProps) {
   const reduced = useAnimationPreferences().mode !== 'full'
+  const phone = usePhoneViewport()
   const [stage, setStage] = useState<'auth' | 'assemble'>('auth')
   const doneRef = useRef(false)
   // Latest readiness for stable callbacks — timers can fire after a
@@ -98,14 +137,18 @@ export function PostLoginTransition({
     setStage('assemble')
   }, [finish])
 
+  useEffect(() => {
+    if (!phone || reduced || stage !== 'auth' || !readiness.ready || readiness.error) return
+    const frame = requestAnimationFrame(handleStageDone)
+    return () => cancelAnimationFrame(frame)
+  }, [handleStageDone, phone, readiness.error, readiness.ready, reduced, stage])
+
   if (reduced) return null
 
-  // Two-stage flow: the Route Trail journey, gated on real readiness,
-  // handing off to the assembly of the real portal underneath.
   return (
     <AnimatePresence>
       {stage === 'auth' ? (
-        <RouteTrailVariant
+        phone ? <MobilePortalLoading key="stage-mobile" /> : <RouteTrailVariant
           key="stage-auth"
           branch={branch}
           onComplete={handleStageDone}
