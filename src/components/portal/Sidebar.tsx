@@ -333,7 +333,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
                   profile={profile}
                   onLogout={onLogout}
                   onAppearance={profile ? () => {
-                    navigate({ view: 'settings', role: 'student', branch: profile.branch, username: profile.username, section: 'appearance' })
+                    navigate({ view: 'settings', role: profile.role ?? 'student', branch: profile.branch, username: profile.username, section: 'appearance' })
                     onMobileClose()
                   } : undefined}
                 />

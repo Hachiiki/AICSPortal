@@ -10,6 +10,17 @@ export const subjects = [
   ['GE104', 'Mathematics in the Modern World', 'Prof. Angela Dela Cruz'],
 ].map(([code, title, professor]) => ({ ...term, code, title, professor, units: 3, professorEmail: 'faculty@example.invalid', schedule: 'Mon / Wed / Fri 9:00 AM', room: 'Computer Lab 2', prelim: '88', midterm: '-', finals: '-', finalGrade: '-', remarks: 'Pending', status: 'in-progress' }))
 export const student = { username: 'mobile.student', role: 'student', fullName: 'Alexandra Dela Cruz', firstName: 'Alexandra', lastName: 'Dela Cruz', middleName: '', studentNumber: '2026-20418', program: 'Bachelor of Science in Computer Science', programShort: 'BSCS', yearLevel: term.yearLevel, section: 'BSCS 2-A', semester: term.semester, academicYear: term.academicYear, enrollmentStatus: 'Enrolled', deanLister: false, deanListerSemester: '', gpa: '88.67', email: 'alexandra@example.invalid', phone: '09171234567', address: 'Quezon City', emergencyContactName: 'Andrea Dela Cruz', emergencyContactNumber: '09171234568', branch: 'commonwealth', branchAddress: 'Commonwealth, Quezon City', subjects, schedule: [], documents: [{ name: 'Form 138 / Report card', submitted: true, dateSubmitted: '2026-07-12' }, { name: 'Certificate of Good Moral Character', submitted: false, dateSubmitted: null }] }
+const facultyRoster = [
+  { ...student, username: 'sample.lena', fullName: 'Lena Bautista', studentNumber: '2026-20432' },
+  { ...student, username: 'sample.daniel', fullName: 'Daniel Garcia', studentNumber: '2026-20437', section: 'BSCS 2-B' },
+].map(({ username, fullName, studentNumber, program, yearLevel, section, enrollmentStatus }) => ({
+  username, fullName, studentNumber, program, yearLevel, section, enrollmentStatus,
+}))
+const facultySubjects = subjects.flatMap((subject, index) => facultyRoster.map((member, row) => ({
+  ...subject, studentUsername: member.username, prelim: String(88 - index + row),
+  midterm: '', finals: '', finalGrade: '', prelimStatus: 'draft', midtermStatus: '', finalsStatus: '',
+})))
+
 export const courses = subjects.map((s, i) => ({ code: s.code, title: s.title, shortTitle: s.title, color: ['blue', 'green', 'amber'][i] }))
 export const sessions = [0, 1, 2, 3, 4, 5].flatMap(day => [{ code: 'CS201', day, start: 9, end: 10.5, room: 'Computer Lab 2' }, { code: 'CS202', day, start: 13, end: 14.5, room: 'Room 204' }])
 const referenceDate = new Date('2026-11-06T01:15:00Z')
@@ -54,7 +65,7 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
     let data = { ok: true }
     if (p === '/api/auth/session') data = { ok: true, username: student.username, role, branch: student.branch }
     else if (p === '/api/student') data = { ok: true, student: { ...student, role }, courses, sessions }
-    else if (p === '/api/faculty') data = role === 'faculty' ? { ok: true, faculty: { ...student, role }, subjects, students: [] } : { ok: false }
+    else if (p === '/api/faculty') data = role === 'faculty' ? { ok: true, faculty: { ...student, role }, subjects: facultySubjects, students: facultyRoster } : { ok: false }
     else if (p === '/api/admin/stats') data = { ok: true, stats: {
       totals: { students: 3, faculty: 2, admins: 1, branches: 1, programs: 1, courses: 3, events: 0, announcements: 0, pendingReleaseGroups: 0, pendingReleaseRows: 0, upcomingEvents: 0 },
       enrollment: { byStatus: [], byYearLevel: [], byProgram: [] },

@@ -121,7 +121,7 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   // Roster surface feeds both My Students and the Schedule grid; the
   // attendance modal lives inside My Students.
   { view: 'my-students', label: 'My Students', icon: Users, enabled: true, permission: PERMISSIONS.viewMyStudents },
-  { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true, permission: PERMISSIONS.encodeGrades },
+  { view: 'grade-encoding', label: 'Grade Encoding', icon: ClipboardPenLine, enabled: true, permission: PERMISSIONS.encodeGrades },
   { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true, permission: PERMISSIONS.viewPreviousRecords },
   // Compose plus sent history over POST /api/notifications.
   { view: 'announcements', label: 'Announcements', icon: Megaphone, enabled: true, permission: PERMISSIONS.sendNotifications },
@@ -132,8 +132,8 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
 const FACULTY_MOBILE_NAV = [
   { view: 'dashboard', label: 'Home' },
   { view: 'my-students', label: 'Students' },
-  { view: 'grade-encoding', label: 'Grades', icon: ClipboardPenLine },
-] as const satisfies ReadonlyArray<Pick<NavItem, 'view' | 'label'> & Partial<Pick<NavItem, 'icon'>>>
+  { view: 'grade-encoding', label: 'Grades' },
+] as const satisfies ReadonlyArray<Pick<NavItem, 'view' | 'label'>>
 
 export function getMobileNav(role: 'faculty' | 'student'): ReadonlyArray<
   Pick<NavItem, 'view' | 'label' | 'icon'> & { tab?: 'tasks' | 'grades' }
@@ -144,8 +144,7 @@ export function getMobileNav(role: 'faculty' | 'student'): ReadonlyArray<
   return FACULTY_MOBILE_NAV.flatMap((destination) => {
     const item = allowed.find(({ view, enabled }) => view === destination.view && enabled)
     if (!item) return []
-    const icon = 'icon' in destination ? destination.icon : item.icon
-    return [{ view: item.view, label: destination.label, icon }]
+    return [{ view: item.view, label: destination.label, icon: item.icon }]
   })
 }
 

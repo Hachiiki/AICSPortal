@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   Download,
   UserRoundPlus,
+  UserRound,
+  ClipboardPenLine,
   ChevronDown,
   ChevronUp,
   X,
@@ -617,19 +619,80 @@ export function FacultyStudentsPage({
                           <span className="faculty-item-title text-sm font-semibold text-slate-900 sm:truncate">{sec.subjectTitle}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-1.5 max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
-                          <span className="text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
+                          <span className="faculty-text-detail text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
+                      <div className="flex items-center gap-2 flex-shrink-0 max-sm:max-w-[36%]">
+                        <span className="faculty-badge text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100 max-sm:[overflow-wrap:anywhere]">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
                         {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" aria-hidden /> : <ChevronDown className="w-4 h-4 text-slate-500" aria-hidden />}
                       </div>
                     </button>
                     {isExpanded && (
                       <div className="border-t border-slate-100">
-                        <div className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-link" tabIndex={0} role="region" aria-label={`${sec.subjectCode} student roster`}>
+                        <div className="p-4 sm:hidden">
+                          <label className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+                            Sort by
+                            <select
+                              value={`${sortBy}:${sortDir}`}
+                              onChange={(event) => {
+                                const [field, direction] = event.target.value.split(':')
+                                if ((field === 'name' || field === 'number' || field === 'prelim') && (direction === 'asc' || direction === 'desc')) {
+                                  setSortBy(field)
+                                  setSortDir(direction)
+                                  resetPage()
+                                }
+                              }}
+                              className="min-h-11 max-w-full rounded-lg border border-line bg-surface px-2 text-ink"
+                            >
+                              <option value="name:asc">Name (A to Z)</option>
+                              <option value="name:desc">Name (Z to A)</option>
+                              <option value="number:asc">Student number (low first)</option>
+                              <option value="number:desc">Student number (high first)</option>
+                              <option value="prelim:asc">Prelim grade (low first)</option>
+                              <option value="prelim:desc">Prelim grade (high first)</option>
+                            </select>
+                          </label>
+                          <ul className="mt-3 divide-y divide-line">
+                            {pageStudents.map((stu) => {
+                              const subject = stu.subjects.find((entry) => entry.code === sec.subjectCode)
+                              return (
+                                <li key={stu.username} className="space-y-2 py-3">
+                                  <p className="faculty-item-title text-ink">{stu.fullName}</p>
+                                  <p className="break-words text-xs leading-relaxed text-slate-600">
+                                    {stu.studentNumber} · {stu.section || sec.section} · {stu.enrollmentStatus || 'Enrolled'}
+                                  </p>
+                                  <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,3.5rem),1fr))] gap-1 rounded-lg bg-slate-50 p-2 text-xs">
+                                    {[
+                                      { label: 'Prelim', grade: subject?.prelim },
+                                      { label: 'Midterm', grade: subject?.midterm },
+                                      { label: 'Finals', grade: subject?.finals },
+                                      { label: 'Final', grade: subject?.finalGrade },
+                                    ].map(({ label, grade }) => (
+                                      <div key={label} className="min-w-0 [overflow-wrap:anywhere]">
+                                        <dt className="text-slate-600">{label}</dt>
+                                        <dd className="font-medium tabular-nums text-ink">{grade || '—'}</dd>
+                                      </div>
+                                    ))}
+                                  </dl>
+                                  {subject?.remarks && <RemarksBadge remarks={subject.remarks} />}
+                                  <div className="flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => { setSelectedStudent(stu); setSelectedSectionKey(sec.key) }}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-medium text-link-strong">
+                                      <UserRound className="size-4 shrink-0" aria-hidden="true" /> View student file
+                                    </button>
+                                    <button type="button" onClick={() => onNavigate('grade-encoding')}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-medium text-ink">
+                                      <ClipboardPenLine className="size-4 shrink-0" aria-hidden="true" /> Grade Encoding
+                                    </button>
+                                  </div>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                        <div className="hidden overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-link sm:block" tabIndex={0} role="region" aria-label={`${sec.subjectCode} student roster`}>
                           <table className="w-full text-sm min-w-[980px]">
                             <thead className="sticky top-0 z-10">
                               <tr className="bg-slate-50 border-b border-slate-100">
@@ -687,7 +750,7 @@ export function FacultyStudentsPage({
                           </table>
                         </div>
                         {sec.students.length > PAGE_SIZE && (
-                          <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+                          <div className="px-6 py-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs max-sm:px-4">
                             <span className="text-slate-500">
                               Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sec.students.length)} of {sec.students.length}
                             </span>
@@ -714,9 +777,9 @@ export function FacultyStudentsPage({
                         )}
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
                           <button onClick={() => setMessageSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle, room: sec.room })} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
-                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UserRoundPlus className="w-3.5 h-3.5" aria-hidden="true" /> Take attendance</button>
                           <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
-                          <span className="ml-auto text-slate-500">Click View for student file.</span>
+                          <span className="ml-auto hidden text-slate-500 sm:inline">Click View for student file.</span>
                         </div>
                       </div>
                     )}

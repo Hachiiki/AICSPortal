@@ -501,8 +501,8 @@ export function FacultyTasksPage({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
+                        <span className="faculty-course-code font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
+                        <span className={`faculty-badge inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
                           {group.type}
                         </span>
                         {closed && (
@@ -511,8 +511,8 @@ export function FacultyTasksPage({
                           </span>
                         )}
                       </div>
-                      <p className="text-sm font-semibold text-slate-900 mt-1">{group.title}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="faculty-item-title text-sm font-semibold text-slate-900 mt-1">{group.title}</p>
+                      <p className="faculty-text-detail text-xs text-slate-500 mt-0.5">
                         Due {formatDue(group.dueDate)} • {group.submitted}/{group.total} submitted • {group.graded} graded • {group.maxScore} pts
                       </p>
                     </div>
@@ -532,7 +532,7 @@ export function FacultyTasksPage({
         </div>
           </div>
           <aside aria-label="Closed tasks" className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 lg:sticky lg:top-20">
-            <h3 className="text-sm font-semibold text-slate-900">Closed ({closedGroups.length})</h3>
+            <h3 className="faculty-section-title text-sm font-semibold text-slate-900">Closed ({closedGroups.length})</h3>
             <p className="text-xs text-slate-500 mt-0.5">Done collecting. Reopen to accept work again.</p>
             {closedGroups.length === 0 ? (
               <p className="text-xs text-slate-500 mt-3">Nothing closed yet. Closed assignments will appear here.</p>
@@ -544,16 +544,16 @@ export function FacultyTasksPage({
                   return (
                     <div key={key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
+                        <span className="faculty-course-code font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
+                        <span className={`faculty-badge inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>
                           {group.type}
                         </span>
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border bg-slate-100 text-slate-600 border-slate-200">
                           <Lock className="w-3 h-3" /> Closed
                         </span>
                       </div>
-                      <p className="text-sm font-semibold text-slate-900 mt-1">{group.title}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="faculty-item-title text-sm font-semibold text-slate-900 mt-1">{group.title}</p>
+                      <p className="faculty-text-detail text-xs text-slate-500 mt-0.5">
                         Due {formatDue(group.dueDate)} • {group.submitted}/{group.total} submitted • {group.graded} graded • {group.maxScore} pts
                       </p>
                       <div className="mt-2.5">
