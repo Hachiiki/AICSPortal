@@ -90,6 +90,7 @@ export function PortalShell({
   const phone = usePhoneViewport()
   const { mode } = useAnimationPreferences()
   const studentPhone = role === 'student' && phone
+  const hasPhoneDock = role === 'student' || role === 'faculty'
   const tourActive = useStudentOnboarding()?.busy ?? false
   // The sign-in overlay coordinates its own reveal of the portal chrome.
   const assembleReveal = useAssembleReveal()
@@ -123,7 +124,7 @@ export function PortalShell({
         profile={profilePanel ? student : undefined}
         onLogout={onLogout}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
+      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column' : role === 'faculty' ? 'faculty-portal-column' : ''} ${hasPhoneDock ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
         <Topbar
           student={student}
           active={active}
@@ -154,7 +155,7 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
-        {studentPhone && (
+        {hasPhoneDock && phone && (
           <MobileNavigation
             student={student}
             active={active}

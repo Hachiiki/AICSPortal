@@ -89,6 +89,189 @@
   }
 }
 
+@media (width < 40rem) {
+  .faculty-portal-column {
+    --faculty-card-radius: 0.75rem;
+    --faculty-control-radius: 0.5rem;
+  }
+
+  [data-faculty-dock] > button {
+    align-content: center;
+    gap: 0.125rem;
+    min-inline-size: 0;
+    padding: 0.25rem 0.125rem;
+  }
+
+  [data-faculty-dock] > button > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 1.85;
+  }
+
+  [data-faculty-dock] > button[aria-current="page"] > svg {
+    stroke-width: 2.25;
+  }
+
+  .faculty-dock-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-page {
+    min-width: 0;
+    padding-block-start: 1.125rem;
+  }
+
+  .faculty-page-title {
+    font-size: 1.625rem;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-section-title {
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    font-weight: 650;
+    letter-spacing: -0.012em;
+  }
+
+  .faculty-item-title {
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-course-code {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
+  }
+
+  .faculty-page .faculty-term {
+    font-size: 0.8125rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .faculty-welcome {
+    border: 1px solid var(--line);
+    border-radius: var(--faculty-card-radius);
+    background: color-mix(in srgb, var(--surface) 78%, var(--color-blue-50));
+    padding: 1rem;
+  }
+
+  .faculty-welcome .faculty-page-title {
+    margin-block-start: 0.4rem;
+  }
+
+  .faculty-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 4.5rem), 1fr));
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-block-start: 1rem;
+  }
+
+  .faculty-stat {
+    min-width: 0;
+    padding: 0.625rem 0.375rem;
+    border: 1px solid var(--line);
+    border-radius: var(--faculty-control-radius);
+    background: var(--surface);
+    text-align: center;
+  }
+
+  .faculty-stat > div {
+    justify-content: center;
+  }
+
+  .faculty-stat-label {
+    font-size: 0.75rem;
+    text-transform: none;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-stat-value {
+    font-size: 1.125rem;
+    line-height: 1.3;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-page .faculty-card {
+    border-radius: var(--faculty-card-radius);
+  }
+
+  .faculty-page :is(button.rounded-lg, input.rounded-xl, select.rounded-xl) {
+    border-radius: var(--faculty-control-radius);
+  }
+
+  .faculty-page :is(button.rounded-lg, input.rounded-xl, button[aria-pressed], button[aria-haspopup="listbox"]) {
+    min-height: 44px;
+  }
+
+  .faculty-page button[aria-pressed] {
+    white-space: normal;
+    border-radius: var(--faculty-control-radius);
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faculty-filters > div {
+    min-width: 0;
+  }
+
+  .faculty-filters > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .faculty-filters button {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .faculty-filters label {
+    font-size: 0.75rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .faculty-periods {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+
+  .faculty-periods > button {
+    padding-inline: 0.125rem;
+  }
+
+  .faculty-page .faculty-grades-table th:first-child,
+  .faculty-page .faculty-grades-table td:first-child {
+    min-width: 8rem;
+    max-width: min(11rem, 43vw);
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-page svg.lucide {
+    stroke-width: 1.75;
+  }
+}
+
 html[data-animation-mode="off"],
 html[data-animation-mode="off"] *,
 html[data-animation-mode="off"] *::before,
@@ -240,14 +423,14 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   to { opacity: 0; transform: translateY(5px) scale(0.82, 0.9); }
 }
 
-.portal-topbar[data-student-topbar] {
+.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
   --student-topbar-float: 0;
   --student-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
   --student-topbar-gap: 0.75rem;
   pointer-events: none;
 }
 
-.portal-topbar[data-student-topbar] .portal-topbar-layout {
+.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) .portal-topbar-layout {
   position: relative;
   isolation: isolate;
   inset-block-start: calc(var(--student-topbar-float) * var(--student-topbar-gap));
@@ -257,7 +440,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   pointer-events: auto;
 }
 
-.portal-topbar[data-student-topbar] .portal-topbar-layout::before {
+.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) .portal-topbar-layout::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -273,7 +456,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
 }
 
 @media (min-width: 640px) {
-  .portal-topbar[data-student-topbar] {
+  .portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
     container: student-topbar / inline-size;
   }
 
@@ -369,7 +552,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     --student-topbar-height: 3.5rem;
   }
 
-  .portal-topbar[data-student-topbar] {
+  .portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
     --student-topbar-inset: 1.25rem;
     --student-topbar-gap: 0.5625rem;
   }

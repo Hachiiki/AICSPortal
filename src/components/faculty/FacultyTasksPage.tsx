@@ -377,9 +377,9 @@ export function FacultyTasksPage({
       taskGroups={taskGroupsData?.groups}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-6xl">
+      <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-w-6xl">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Tasks</h1>
+          <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Tasks</h1>
           <p className="text-sm text-slate-500 mt-1">
             Post work for your subjects. One post reaches every enrolled student.
           </p>
@@ -391,10 +391,10 @@ export function FacultyTasksPage({
             list (grid row-span distribution was the old bug). */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
           <div className="min-w-0 flex flex-col gap-6">
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden min-w-0">
+          <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden min-w-0">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
             <ClipboardList className="w-4 h-4 text-link" />
-            <h2 className="text-base font-semibold text-slate-900">New task</h2>
+            <h2 className="faculty-section-title text-base font-semibold text-slate-900">New task</h2>
           </div>
           <div className="px-6 py-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -481,13 +481,13 @@ export function FacultyTasksPage({
         {/* Posted groups (open only — closed live beside the form).
             Sits directly below the creation form inside the left column. */}
         <div className="space-y-3 min-w-0">
-          <h2 className="text-sm font-semibold text-slate-900">Open ({openGroups.length})</h2>
+          <h2 className="faculty-section-title text-sm font-semibold text-slate-900">Open ({openGroups.length})</h2>
           {groups.length === 0 ? (
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">No tasks posted yet. Create the first one above.</p>
             </div>
           ) : openGroups.length === 0 ? (
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">Nothing open. Reopen a closed task from beside the form to collect work again.</p>
             </div>
           ) : (
@@ -497,7 +497,7 @@ export function FacultyTasksPage({
                     const closed = isClosedGroup(group)
                     const toggling = togglingKey === key
               return (
-                <div key={key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <div key={key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -542,7 +542,7 @@ export function FacultyTasksPage({
                   const key = groupKey(group)
                   const toggling = togglingKey === key
                   return (
-                    <div key={key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3">
+                    <div key={key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_COLORS[group.type] || ''}`}>

@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft,
+  Download,
+  UserRoundPlus,
   ChevronDown,
   ChevronUp,
   X,
@@ -522,26 +524,26 @@ export function FacultyStudentsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3">
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 max-sm:hidden">
                 <ChevronLeft className="w-4 h-4" /> Back to Dashboard
               </button>
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
+              <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
+                <Download className="size-4 shrink-0" aria-hidden="true" /> Export roster (CSV)
               </button>
               <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
+                <UserRoundPlus className="size-4 shrink-0" aria-hidden="true" /> Take attendance
               </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="faculty-filters flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label htmlFor="faculty-students-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
@@ -583,7 +585,7 @@ export function FacultyStudentsPage({
           </div>
 
           {filteredSections.length === 0 ? (
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+            <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm">
               <EmptyState
                 icon={UsersIcon}
                 message="No classes found."
@@ -602,19 +604,19 @@ export function FacultyStudentsPage({
                 const safePage = Math.min(page, pageCount)
                 const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
-                  <div key={sec.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div key={sec.key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <button
                       type="button"
                       aria-expanded={isExpanded}
                       onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }}
-                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors max-sm:items-start max-sm:gap-2 max-sm:px-4"
                     >
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-link-strong">{sec.subjectCode}</span>
-                          <span className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</span>
+                        <div className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
+                          <span className="faculty-course-code font-mono text-xs font-bold text-link-strong">{sec.subjectCode}</span>
+                          <span className="faculty-item-title text-sm font-semibold text-slate-900 sm:truncate">{sec.subjectTitle}</span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1.5">
+                        <div className="flex items-center gap-3 mt-1.5 max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1">
                           <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
                           <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
                           <span className="text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
@@ -627,7 +629,7 @@ export function FacultyStudentsPage({
                     </button>
                     {isExpanded && (
                       <div className="border-t border-slate-100">
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-link" tabIndex={0} role="region" aria-label={`${sec.subjectCode} student roster`}>
                           <table className="w-full text-sm min-w-[980px]">
                             <thead className="sticky top-0 z-10">
                               <tr className="bg-slate-50 border-b border-slate-100">

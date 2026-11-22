@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { BookOpen, Users, LayoutGrid } from 'lucide-react'
+import { BookOpen, Users, LayoutGrid, CalendarClock, MapPin } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -160,16 +160,16 @@ export function FacultyDashboard({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}
           <section data-portal-motion-group
             className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start"
           >
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
+            <div className="faculty-welcome flex-1 min-w-0">
+              <p className="faculty-term text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
                 {faculty.semester} &bull; AY {faculty.academicYear}
               </p>
-              <h1 className="mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight text-balance text-blue-950">
+              <h1 className="faculty-page-title mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight text-balance text-blue-950">
                 Welcome back, {faculty.firstName}!
               </h1>
               <p className="mt-1.5 text-sm text-slate-600">
@@ -177,7 +177,7 @@ export function FacultyDashboard({
               </p>
 
               {/* Stats row */}
-              <div data-portal-motion-group className="mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
+              <div data-portal-motion-group className="faculty-stats mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
                 <Stat
                   label="Subjects"
                   value={String(subjectRows.length)}
@@ -206,15 +206,14 @@ export function FacultyDashboard({
 
           {/* My Subjects table */}
           <section
-            className="bg-surface rounded-xl border border-slate-200 shadow-sm"
+            className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm"
+            aria-labelledby="faculty-subjects-heading"
           >
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h2 className="text-base font-semibold text-slate-900">
+            <div className="px-4 py-4 sm:px-6 border-b border-slate-100">
+              <h2 id="faculty-subjects-heading" className="faculty-section-title text-base font-semibold text-slate-900">
                 My Subjects
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Subjects you are teaching this term &bull; enrolled students per section
-              </p>
+              <p className="text-xs text-slate-500 mt-0.5">Subjects you teach this term</p>
             </div>
 
             {subjectRows.length === 0 ? (
@@ -224,51 +223,68 @@ export function FacultyDashboard({
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[720px]">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100">
-                      <Th>Code</Th>
-                      <Th>Subject</Th>
-                      <Th center>Units</Th>
-                      <Th>Schedule</Th>
-                      <Th>Room</Th>
-                      <Th center>Students</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subjectRows.map((row) => (
-                      <tr
-                        key={row.code}
-                        className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
-                      >
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="font-mono text-xs font-bold text-link-strong">
-                            {row.code}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm text-slate-700">{row.title}</span>
-                        </td>
-                        <td className="px-4 py-3 text-center text-sm text-slate-700 whitespace-nowrap">
-                          {row.units}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="text-sm text-slate-700">{row.schedule}</span>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="text-sm text-slate-700">{row.room}</span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-blue-50 text-link-strong text-xs font-semibold">
-                            {row.enrolled}
-                          </span>
-                        </td>
+              <>
+                <ul className="divide-y divide-line sm:hidden">
+                  {subjectRows.map((row) => (
+                    <li key={row.code} className="space-y-2 p-4">
+                      <p className="faculty-course-code text-link-strong">{row.code}</p>
+                      <h3 className="faculty-item-title break-words text-ink">{row.title}</h3>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
+                        {row.schedule && <span className="inline-flex items-start gap-1.5"><CalendarClock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{row.schedule}</span>}
+                        {row.room && <span className="inline-flex items-start gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{row.room}</span>}
+                      </div>
+                      <p className="text-xs tabular-nums text-slate-600">
+                        {row.units} {row.units === 1 ? 'unit' : 'units'} · {row.enrolled} {row.enrolled === 1 ? 'student' : 'students'}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+                <div className="hidden overflow-x-auto sm:block">
+                  <table className="w-full text-sm min-w-[720px]">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-100">
+                        <Th>Code</Th>
+                        <Th>Subject</Th>
+                        <Th center>Units</Th>
+                        <Th>Schedule</Th>
+                        <Th>Room</Th>
+                        <Th center>Students</Th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {subjectRows.map((row) => (
+                        <tr
+                          key={row.code}
+                          className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
+                        >
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="font-mono text-xs font-bold text-link-strong">
+                              {row.code}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-700">{row.title}</span>
+                          </td>
+                          <td className="px-4 py-3 text-center text-sm text-slate-700 whitespace-nowrap">
+                            {row.units}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="text-sm text-slate-700">{row.schedule}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="text-sm text-slate-700">{row.room}</span>
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-blue-50 text-link-strong text-xs font-semibold">
+                              {row.enrolled}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </section>
         </main>
@@ -290,13 +306,13 @@ function Stat({
   icon?: React.ComponentType<{ className?: string }>
 }) {
   return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+    <div className="faculty-stat">
+      <p className="faculty-stat-label text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
         {label}
       </p>
       <div className="mt-0.5 flex items-center gap-1.5">
-        {Icon && <Icon className="w-4 h-4 text-link-strong" />}
-        <p className="text-xl font-bold tabular-nums text-slate-900">{value}</p>
+        {Icon && <Icon className="w-4 h-4 shrink-0 text-link-strong" />}
+        <p className="faculty-stat-value text-xl font-bold tabular-nums text-slate-900">{value}</p>
       </div>
     </div>
   )

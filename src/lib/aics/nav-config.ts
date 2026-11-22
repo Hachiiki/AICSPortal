@@ -3,6 +3,7 @@
 import {
   Archive,
   CalendarDays,
+  ClipboardPenLine,
   ClipboardList,
   GraduationCap,
   Home,
@@ -127,6 +128,26 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: true, permission: PERMISSIONS.viewMyStudents },
   { view: 'tasks', label: 'Tasks', icon: ClipboardList, enabled: true, permission: PERMISSIONS.viewFacultyTasks },
 ]
+
+const FACULTY_MOBILE_NAV = [
+  { view: 'dashboard', label: 'Home' },
+  { view: 'my-students', label: 'Students' },
+  { view: 'grade-encoding', label: 'Grades', icon: ClipboardPenLine },
+] as const satisfies ReadonlyArray<Pick<NavItem, 'view' | 'label'> & Partial<Pick<NavItem, 'icon'>>>
+
+export function getMobileNav(role: 'faculty' | 'student'): ReadonlyArray<
+  Pick<NavItem, 'view' | 'label' | 'icon'> & { tab?: 'tasks' | 'grades' }
+> {
+  if (role === 'student') return STUDENT_MOBILE_NAV
+
+  const allowed = getPrimaryNav(role)
+  return FACULTY_MOBILE_NAV.flatMap((destination) => {
+    const item = allowed.find(({ view, enabled }) => view === destination.view && enabled)
+    if (!item) return []
+    const icon = 'icon' in destination ? destination.icon : item.icon
+    return [{ view: item.view, label: destination.label, icon }]
+  })
+}
 
 export const ADMIN_PRIMARY_NAV: NavItem[] = [
   // The admin dashboard renders GET /api/admin/stats.

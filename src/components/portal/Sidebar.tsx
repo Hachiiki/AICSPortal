@@ -19,7 +19,7 @@ import { getInitials } from '@/lib/aics/format'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import {
   SECONDARY_NAV,
-  STUDENT_MOBILE_NAV,
+  getMobileNav,
   getPortalAria,
   getPortalLabel,
   getPrimaryNav,
@@ -127,6 +127,7 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
   const scrollBody = !!profile
+  const phoneDestinations = scrollBody && role !== 'admin' ? getMobileNav(role === 'faculty' ? 'faculty' : 'student') : []
   const animateProfile = useAnimationPreferences().mode === 'full' && scrollBody
   const profileRow = animateProfile ? PROFILE_ROW : undefined
   return (
@@ -150,7 +151,7 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
         </motion.span>
         <div className="min-w-0 flex-1">
           <h2 className="text-base font-semibold leading-tight tracking-tight text-ink [overflow-wrap:anywhere]">{profile.fullName}</h2>
-          <p className="mt-1 text-xs tabular-nums text-muted-fg [overflow-wrap:anywhere]">{profile.studentNumber || profile.username}</p>
+          <p className="mt-1 text-xs tabular-nums text-muted-fg [overflow-wrap:anywhere]">{role === 'faculty' && 'Faculty · '}{profile.studentNumber || profile.username}</p>
         </div>
       </motion.div>}
 
@@ -158,7 +159,7 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
         <motion.nav className={`px-3 ${scrollBody ? 'space-y-0.5 py-3' : 'flex-1 space-y-1 overflow-y-auto py-4'}`} aria-label={getPortalAria(role)}
           variants={animateProfile ? { open: { transition: { delayChildren: 0.04, staggerChildren: 0.024 } } } : undefined}>
         {profile && <NavButton mobileProfile item={{ view: 'profile', label: 'Profile', icon: User, enabled: true }} active={active === 'profile'} onClick={() => onNavigate('profile')} />}
-        {primaryNav.filter(item => !scrollBody || !STUDENT_MOBILE_NAV.some(destination => destination.view === item.view)).map((item) => (
+        {primaryNav.filter(item => !phoneDestinations.some(destination => destination.view === item.view)).map((item) => (
           <NavButton
             key={item.view}
             item={item}

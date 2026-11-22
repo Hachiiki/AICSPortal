@@ -72,15 +72,15 @@ export function FacultySchedulePage({
       facultyData={facultyData}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+      <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Schedule</h1>
+          <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Schedule</h1>
           <p className="text-sm text-slate-500 mt-1">
             Your weekly classes only • {classCount} {classCount === 1 ? 'subject' : 'subjects'} this term
           </p>
         </div>
         {mySessions.length === 0 ? (
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+          <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
             <p className="text-sm font-medium text-slate-600">No scheduled sessions</p>
             <p className="text-xs text-slate-500 mt-1">Sessions for your subjects will appear here once set.</p>
           </div>

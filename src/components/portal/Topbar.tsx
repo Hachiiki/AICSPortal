@@ -69,14 +69,17 @@ export function Topbar({
   const { navigate } = usePortalRoute()
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
-  const compact = isStudent && phone
+  const isFaculty = student.role === 'faculty'
+  const hasPhoneDock = isStudent || isFaculty
+  const compact = hasPhoneDock && phone
+  const floating = isStudent || (isFaculty && phone)
   const { mode } = useAnimationPreferences()
   const headerRef = useRef<HTMLElement>(null)
   const [scrollHidden, setScrollHidden] = useState(false)
 
   useEffect(() => {
     const header = headerRef.current
-    if (!isStudent || !header) return
+    if (!floating || !header) return
 
     const distance = phone ? 76 : 94
     const target = () => {
@@ -116,7 +119,7 @@ export function Topbar({
       header.style.removeProperty('--student-topbar-float')
       header.removeAttribute('data-student-topbar-filled')
     }
-  }, [isStudent, phone, mode])
+  }, [floating, phone, mode])
 
   useEffect(() => {
     if (!phone || isStudent) return
@@ -228,8 +231,9 @@ export function Topbar({
   return (
     <motion.header
       ref={headerRef}
-      className={`portal-topbar sticky top-0 z-20 sm:h-16 ${isStudent ? '' : 'border-slate-200 bg-surface sm:border-b'}`}
+      className={`portal-topbar sticky top-0 z-20 sm:h-16 ${floating ? '' : 'border-slate-200 bg-surface sm:border-b'}`}
       data-student-topbar={isStudent ? active : undefined}
+      data-faculty-phone-topbar={isFaculty && phone ? '' : undefined}
       data-scroll-hidden={!isStudent && phone && scrollHidden ? 'true' : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
@@ -245,7 +249,7 @@ export function Topbar({
             data-tour="topbar-mobile-nav"
             aria-haspopup="dialog"
             aria-controls="mobile-navigation"
-            className={`${isStudent ? 'hidden sm:grid lg:hidden' : 'grid lg:hidden'} col-start-1 row-start-2 size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2`}
+            className={`${hasPhoneDock ? 'hidden sm:grid lg:hidden' : 'grid lg:hidden'} col-start-1 row-start-2 size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2`}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -263,7 +267,7 @@ export function Topbar({
           <p className="text-xs font-semibold leading-tight text-ink">{roleLabel}</p>
         </div>
 
-        <div className={`${isStudent ? 'hidden sm:flex' : 'flex'} col-start-2 row-start-2 min-w-0 flex-1 justify-center`}>
+        <div className={`${hasPhoneDock ? 'hidden sm:flex' : 'flex'} col-start-2 row-start-2 min-w-0 flex-1 justify-center`}>
           {!compact && <GlobalSearch
             student={student}
             events={events}
@@ -280,7 +284,7 @@ export function Topbar({
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className={`${isStudent ? 'hidden sm:grid' : 'grid'} col-start-3 row-start-2 size-[44px] place-items-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-9`}
+            className={`${hasPhoneDock ? 'hidden sm:grid' : 'grid'} col-start-3 row-start-2 size-[44px] place-items-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-9`}
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -289,7 +293,7 @@ export function Topbar({
             )}
           </button>
 
-          {compact ? (
+          {compact && isStudent ? (
             <button type="button" aria-label={bellLabel} aria-current={active === 'notifications' ? 'page' : undefined}
               data-tour="topbar-notifications" className={`${bellClass} ${active === 'notifications' ? 'bg-blue-50 text-link-strong' : ''}`}
               onClick={() => {
