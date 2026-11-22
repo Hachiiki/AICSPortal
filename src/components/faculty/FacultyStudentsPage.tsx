@@ -33,7 +33,7 @@ import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { AttendanceModal } from './AttendanceModal'
 import { SelectMenu } from '../ui/select-menu'
-import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
+import { useFacultyRows, type FacultyApiSubject, type FacultySection, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
 import { DialogPanel } from '../portal/DialogPanel'
 
 interface FacultyStudentsPageProps {
@@ -69,6 +69,14 @@ interface Section {
 // Roster rows per page in an expanded section. The pager only
 // appears when a section holds more than this many students.
 const PAGE_SIZE = 25
+
+function subjectForSection(student: StudentWithGrades, section: Pick<FacultySection, 'subjectCode' | 'academicYear' | 'semester'>) {
+  return student.subjects.find((subject) =>
+    subject.code === section.subjectCode &&
+    (subject.academicYear || '') === section.academicYear &&
+    (subject.semester || '') === section.semester
+  )
+}
 
 export function FacultyStudentsPage({
   student, courses, sessions, onNavigate, onLogout,
@@ -327,14 +335,17 @@ export function FacultyStudentsPage({
         if (sortBy === 'name') return a.fullName.localeCompare(b.fullName) * dir
         if (sortBy === 'number') return a.studentNumber.localeCompare(b.studentNumber) * dir
         if (sortBy === 'prelim') {
-          const aSub = a.subjects.find((s) => s.code === sec.subjectCode)
-          const bSub = b.subjects.find((s) => s.code === sec.subjectCode)
-          const aPre = aSub?.prelim || ''
-          const bPre = bSub?.prelim || ''
-          // INC sorts last
-          if (aPre === 'INC' && bPre !== 'INC') return 1 * dir
-          if (bPre === 'INC' && aPre !== 'INC') return -1 * dir
-          return aPre.localeCompare(bPre) * dir
+          const aSub = subjectForSection(a, sec)
+          const bSub = subjectForSection(b, sec)
+          const aPre = aSub?.prelim?.trim().toUpperCase() || ''
+          const bPre = bSub?.prelim?.trim().toUpperCase() || ''
+          if (aPre === 'INC' || bPre === 'INC') return Number(aPre === 'INC') - Number(bPre === 'INC')
+          const aGrade = aPre ? Number(aPre) : NaN
+          const bGrade = bPre ? Number(bPre) : NaN
+          if (!Number.isFinite(aGrade) || !Number.isFinite(bGrade)) {
+            return Number(!Number.isFinite(aGrade)) - Number(!Number.isFinite(bGrade))
+          }
+          return (aGrade - bGrade) * dir
         }
         return 0
       }),
@@ -469,7 +480,7 @@ export function FacultyStudentsPage({
     rows.push(['Student Name', 'Student #', 'Username', 'Section', 'Program', 'Subject Code', 'Subject Title', 'Prelim', 'Midterm', 'Finals', 'Final Grade', 'Remarks', 'Status', 'Academic Year', 'Semester'].join(','))
     for (const sec of filteredSections) {
       for (const stu of sec.students) {
-        const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+        const subj = subjectForSection(stu, sec)
         rows.push([
           `"${stu.fullName.replace(/"/g, '""')}"`,
           stu.studentNumber,
@@ -656,7 +667,7 @@ export function FacultyStudentsPage({
                           </label>
                           <ul className="mt-3 divide-y divide-line">
                             {pageStudents.map((stu) => {
-                              const subject = stu.subjects.find((entry) => entry.code === sec.subjectCode)
+                              const subject = subjectForSection(stu, sec)
                               return (
                                 <li key={stu.username} className="space-y-2 py-3">
                                   <p className="faculty-item-title text-ink">{stu.fullName}</p>
@@ -716,7 +727,7 @@ export function FacultyStudentsPage({
                             </thead>
                             <tbody>
                               {pageStudents.map((stu) => {
-                                const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+                                const subj = subjectForSection(stu, sec)
                                 const prelim = subj?.prelim || '-'
                                 const rawStatus = stu.enrollmentStatus || 'Enrolled'
                                 const statusLower = rawStatus.toLowerCase()

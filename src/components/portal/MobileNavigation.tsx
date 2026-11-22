@@ -24,6 +24,16 @@ const MORE_ACTION = 'student-more-item relative col-span-2 grid size-[48px] curs
 
 const FACULTY_MORE_ACTION = 'flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium leading-snug outline-none [overflow-wrap:anywhere] data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
 
+let pendingFacultyNavigation: { pathname: string; focus: boolean } | null = null
+
+export function finishFacultyPhoneNavigation(content: HTMLElement) {
+  const pending = pendingFacultyNavigation
+  pendingFacultyNavigation = null
+  if (pending?.pathname !== window.location.pathname) return
+  window.scrollTo(0, 0)
+  if (pending.focus) content.focus({ preventScroll: true })
+}
+
 function scrollLimit() {
   return Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
 }
@@ -227,10 +237,11 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   function goToDestination(view: View, fromKeyboard: boolean) {
     const currentPath = window.location.pathname
     onNavigate(view)
-    if (!faculty || !fromKeyboard || currentPath === window.location.pathname) return
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>('.faculty-portal-column #main-content')?.focus({ preventScroll: true })
-    })
+    const pathname = window.location.pathname
+    if (faculty && currentPath !== pathname) {
+      // Some routes replace their loading skeleton with the shell after data arrives.
+      pendingFacultyNavigation = { pathname, focus: fromKeyboard }
+    }
   }
   return <div ref={dock} data-student-mobile-nav="" data-dock-folded={folded} inert={keyboardOpen}
     className={`pointer-events-none fixed inset-x-0 bottom-0 z-20 pl-[max(12px,env(safe-area-inset-left))] pr-[max(12px,env(safe-area-inset-right))] pb-[calc(10px+env(safe-area-inset-bottom))] sm:hidden ${keyboardOpen ? 'invisible' : ''}`}>

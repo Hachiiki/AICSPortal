@@ -540,8 +540,10 @@ try {
     if (await expand.isVisible()) await expand.click()
   }
   await expandFacultyDock()
-  await facultyDock.getByRole('button', { name: 'Grades', exact: true }).click()
+  await facultyDock.getByRole('button', { name: 'Grades', exact: true }).focus()
+  await facultyPage.keyboard.press('Enter')
   await facultyPage.getByRole('heading', { name: 'Grade Encoding', exact: true }).waitFor()
+  await facultyPage.waitForFunction(() => document.activeElement?.id === 'main-content')
   await facultyPage.getByRole('button', { name: 'Prelim', exact: true }).click()
   check('Faculty can reach a single-period editable grade on a phone', await facultyPage.getByRole('textbox', { name: /prelim grade/i }).first().isEditable())
   await measure(facultyPage, 'faculty-mobile-grades')

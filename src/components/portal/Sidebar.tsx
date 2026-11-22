@@ -244,7 +244,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, mobileActive = mobileO
     if (!mobileActive) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const desktop = window.matchMedia(profile ? '(min-width: 640px)' : '(min-width: 1024px)')
+    const desktop = window.matchMedia(profile ? '(width >= 40rem)' : '(width >= 64rem)')
     const closeOnDesktop = () => {
       if (desktop.matches) onMobileClose()
     }

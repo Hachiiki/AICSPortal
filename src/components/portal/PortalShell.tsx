@@ -13,7 +13,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { MobileNavigation } from './MobileNavigation'
+import { finishFacultyPhoneNavigation, MobileNavigation } from './MobileNavigation'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
@@ -87,6 +87,10 @@ export function PortalShell({
     menuTrigger.current = null
   }, [mobileNavActive])
   const role = student.role ?? 'student'
+  const mainContent = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (role === 'faculty' && mainContent.current) finishFacultyPhoneNavigation(mainContent.current)
+  }, [role, active])
   const phone = usePhoneViewport()
   const { mode } = useAnimationPreferences()
   const studentPhone = role === 'student' && phone
@@ -146,6 +150,7 @@ export function PortalShell({
             resetKey makes navigating away remount the crashed view. */}
         <motion.div
           key={pageKey}
+          ref={mainContent}
           id="main-content"
           tabIndex={-1}
           data-portal-page-enter={pageMotion.enabled && !motionBlocked ? '' : undefined}
