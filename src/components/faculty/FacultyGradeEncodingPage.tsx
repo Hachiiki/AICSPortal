@@ -452,7 +452,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                       </div>
                       <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,3rem),1fr))] gap-1 rounded-lg bg-slate-50 p-1 text-center">
                         {grades.map(({ label, value }) => (
-                          <div key={label} className={`min-w-0 rounded-md p-1.5 ${label === 'Final' ? 'bg-blue-50' : ''}`}>
+                          <div key={label} className={`min-w-0 rounded-md px-0.5 py-1.5 ${label === 'Final' ? 'bg-blue-50' : ''}`}>
                             <dt className="break-words text-xs font-medium text-slate-700">{label}</dt>
                             <dd className={`mt-0.5 break-words text-sm font-semibold tabular-nums ${label === 'Final' ? 'text-link-strong' : 'text-ink'}`}>{value}</dd>
                           </div>
