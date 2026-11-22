@@ -24,14 +24,13 @@ const MORE_ACTION = 'student-more-item relative col-span-2 grid size-[48px] curs
 
 const FACULTY_MORE_ACTION = 'flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium leading-snug outline-none [overflow-wrap:anywhere] data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
 
-let pendingFacultyNavigation: { pathname: string; focus: boolean } | null = null
-
 export function finishFacultyPhoneNavigation(content: HTMLElement) {
-  const pending = pendingFacultyNavigation
-  pendingFacultyNavigation = null
-  if (pending?.pathname !== window.location.pathname) return
+  const state = window.history.state as { facultyPhoneNavigation?: 'scroll' | 'focus' } | null
+  if (!state?.facultyPhoneNavigation) return
+  const { facultyPhoneNavigation, ...routeState } = state
+  window.history.replaceState(routeState, '')
   window.scrollTo(0, 0)
-  if (pending.focus) content.focus({ preventScroll: true })
+  if (facultyPhoneNavigation === 'focus') content.focus({ preventScroll: true })
 }
 
 function scrollLimit() {
@@ -240,7 +239,10 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
     const pathname = window.location.pathname
     if (faculty && currentPath !== pathname) {
       // Some routes replace their loading skeleton with the shell after data arrives.
-      pendingFacultyNavigation = { pathname, focus: fromKeyboard }
+      window.history.replaceState({
+        ...window.history.state,
+        facultyPhoneNavigation: fromKeyboard ? 'focus' : 'scroll',
+      }, '')
     }
   }
   return <div ref={dock} data-student-mobile-nav="" data-dock-folded={folded} inert={keyboardOpen}
