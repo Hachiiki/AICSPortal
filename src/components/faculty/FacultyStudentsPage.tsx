@@ -537,7 +537,7 @@ export function FacultyStudentsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6 max-sm:space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 max-sm:hidden">
@@ -546,13 +546,13 @@ export function FacultyStudentsPage({
               <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
+            <div className="flex flex-wrap gap-2 max-sm:grid max-sm:w-full max-sm:grid-cols-[auto_minmax(0,1fr)] max-[19rem]:grid-cols-1">
+              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2 max-sm:justify-center">
                 <Download className="size-4 shrink-0" aria-hidden="true" />
                 <span className="sm:hidden">Export CSV</span>
                 <span className="hidden sm:inline">Export roster (CSV)</span>
               </button>
-              <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
+              <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 max-sm:justify-center max-sm:px-2.5">
                 <UserRoundPlus className="size-4 shrink-0" aria-hidden="true" /> Take attendance
               </button>
             </div>
