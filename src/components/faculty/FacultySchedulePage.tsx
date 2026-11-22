@@ -85,7 +85,7 @@ export function FacultySchedulePage({
             <p className="text-xs text-slate-500 mt-1">Sessions for your subjects will appear here once set.</p>
           </div>
         ) : (
-          <ScheduleGrid courses={myCourses} sessions={mySessions} />
+          <ScheduleGrid courses={myCourses} sessions={mySessions} phoneAgenda />
         )}
       </main>
     </PortalShell>

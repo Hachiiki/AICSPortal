@@ -548,7 +548,9 @@ export function FacultyStudentsPage({
             </div>
             <div className="flex flex-wrap gap-2">
               <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
-                <Download className="size-4 shrink-0" aria-hidden="true" /> Export roster (CSV)
+                <Download className="size-4 shrink-0" aria-hidden="true" />
+                <span className="sm:hidden">Export CSV</span>
+                <span className="hidden sm:inline">Export roster (CSV)</span>
               </button>
               <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
                 <UserRoundPlus className="size-4 shrink-0" aria-hidden="true" /> Take attendance
@@ -561,7 +563,7 @@ export function FacultyStudentsPage({
               <label htmlFor="faculty-students-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
-                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-surface shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Name, ID, or subject" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-surface shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
@@ -573,7 +575,7 @@ export function FacultyStudentsPage({
                 value={sectionFilter}
                 onChange={(v) => { setSectionFilter(v); resetPage() }}
                 options={[
-                  { value: 'all', label: `All sections (${sections.length})` },
+                  { value: 'all', label: 'All sections' },
                   ...sections.map((s) => ({ value: s.key, label: `${s.subjectCode} · ${s.room} • ${s.schedule}` })),
                 ]}
               />
@@ -622,27 +624,32 @@ export function FacultyStudentsPage({
                       type="button"
                       aria-expanded={isExpanded}
                       onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }}
-                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors max-sm:items-start max-sm:gap-2 max-sm:px-4"
+                      className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-slate-50 max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4"
                     >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
-                          <span className="faculty-course-code font-mono text-xs font-bold text-link-strong">{sec.subjectCode}</span>
-                          <span className="faculty-item-title text-sm font-semibold text-slate-900 sm:truncate">{sec.subjectTitle}</span>
+                      <div className="min-w-0 max-sm:contents">
+                        <div className="flex items-center gap-2 max-sm:contents">
+                          <span className="faculty-course-code font-mono text-xs font-bold text-link-strong max-sm:col-start-1 max-sm:row-start-1">{sec.subjectCode}</span>
+                          <span className="faculty-item-title text-sm font-semibold text-slate-900 max-sm:col-span-2 max-sm:row-start-2 sm:truncate">{sec.subjectTitle}</span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1.5 max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1">
-                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
-                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
-                          <span className="faculty-text-detail text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
+                        <div className="mt-1.5 flex items-center gap-3 max-sm:col-span-2 max-sm:row-start-3 max-sm:mt-0.5 max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1">
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500 max-sm:text-slate-600"><MapPin className="size-3 shrink-0" aria-hidden /> {sec.room}</span>
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500 max-sm:text-slate-600"><Clock className="size-3 shrink-0" aria-hidden /> {sec.schedule}</span>
+                          <span className="faculty-text-detail text-[10px] text-slate-500 max-sm:basis-full max-sm:text-slate-600">
+                            {sec.section ? `${sec.section} · ${sec.yearLevel}` : sec.yearLevel}
+                            <span className={sec.academicYear === faculty.academicYear && sec.semester === faculty.semester ? 'max-sm:hidden' : undefined}>
+                              {' · '}AY {sec.academicYear} &bull; {sec.semester}
+                            </span>
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0 max-sm:max-w-[36%]">
-                        <span className="faculty-badge text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100 max-sm:[overflow-wrap:anywhere]">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
+                      <div className="flex shrink-0 items-center gap-2 max-sm:col-start-2 max-sm:row-start-1">
+                        <span className="faculty-badge whitespace-nowrap rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
                         {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" aria-hidden /> : <ChevronDown className="w-4 h-4 text-slate-500" aria-hidden />}
                       </div>
                     </button>
                     {isExpanded && (
                       <div className="border-t border-slate-100">
-                        <div className="p-4 sm:hidden">
+                        <div className="px-4 py-3 sm:hidden">
                           <label className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
                             Sort by
                             <select
@@ -665,7 +672,7 @@ export function FacultyStudentsPage({
                               <option value="prelim:desc">Prelim grade (high first)</option>
                             </select>
                           </label>
-                          <ul className="mt-3 divide-y divide-line">
+                          <ul className="mt-2 divide-y divide-line">
                             {pageStudents.map((stu) => {
                               const subject = subjectForSection(stu, sec)
                               return (

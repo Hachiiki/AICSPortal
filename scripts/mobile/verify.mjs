@@ -536,7 +536,7 @@ try {
   await measure(facultyPage, 'faculty-mobile-roster')
 
   const expandFacultyDock = async () => {
-    const expand = facultyPage.getByRole('button', { name: 'Show navigation', exact: true })
+    const expand = facultyPage.locator('button[aria-label="Show navigation"]:not([inert])')
     if (await expand.isVisible()) await expand.click()
   }
   await expandFacultyDock()
@@ -544,6 +544,9 @@ try {
   await facultyPage.keyboard.press('Enter')
   await facultyPage.getByRole('heading', { name: 'Grade Encoding', exact: true }).waitFor()
   await facultyPage.waitForFunction(() => document.activeElement?.id === 'main-content')
+  await facultyPage.getByLabel('Section', { exact: true }).selectOption('CS201')
+  await facultyPage.getByText('2 / 6 records', { exact: true }).waitFor()
+  check('Faculty phone section selector filters the grade table', true)
   await facultyPage.getByRole('button', { name: 'Prelim', exact: true }).click()
   check('Faculty can reach a single-period editable grade on a phone', await facultyPage.getByRole('textbox', { name: /prelim grade/i }).first().isEditable())
   await measure(facultyPage, 'faculty-mobile-grades')
@@ -555,6 +558,12 @@ try {
   check('Faculty More covers secondary destinations', await facultyMenu.getByRole('menuitem', { name: 'Schedule', exact: true }).isVisible())
   await facultyMenu.getByRole('menuitem', { name: 'Schedule', exact: true }).click()
   await facultyPage.getByRole('heading', { name: 'Schedule', exact: true }).waitFor()
+  const monday = facultyPage.getByRole('button', { name: /^Monday\b/ })
+  await monday.click()
+  check('Faculty schedule selects a day on mobile', await monday.getAttribute('aria-pressed') === 'true')
+  await facultyPage.getByRole('button', { name: 'Week grid', exact: true }).click()
+  check('Faculty can switch from the day list to the week grid', await facultyPage.getByRole('region', { name: /^Weekly class timetable/ }).isVisible())
+  await facultyPage.getByRole('button', { name: 'Day list', exact: true }).click()
 
   const facultyAvatar = facultyPage.getByRole('button', { name: 'Open profile and navigation menu', exact: true })
   await facultyAvatar.click()

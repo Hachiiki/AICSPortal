@@ -34,6 +34,10 @@ try {
         await page.screenshot({ path: resolve(output, `${screen.name}-${width}.png`), animations: 'disabled' })
         if (screen.name === 'students') {
           await page.getByRole('button', { name: /Data Structures and Algorithms/ }).click()
+          await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+          await page.waitForFunction(() => scrollY === 0 &&
+            document.querySelector('[data-dock-folded]')?.getAttribute('data-dock-folded') !== 'true')
+          await settleVisuals(page)
           await page.screenshot({ path: resolve(output, `students-expanded-${width}.png`), animations: 'disabled' })
         }
       }

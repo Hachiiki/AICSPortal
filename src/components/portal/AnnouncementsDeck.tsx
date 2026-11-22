@@ -237,7 +237,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <p className={`student-item-title text-sm font-medium ${isUrgent ? 'text-red-900' : 'text-slate-900'}`}>
                 {a.title}
               </p>
-              <p className="student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
+              <p className="student-announcement-body student-text-detail text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">
                 {a.body}
               </p>
               <a
@@ -296,8 +296,12 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
       <div
         ref={deckRef}
         tabIndex={0}
+        data-announcement-stack={topThree.length}
         className="relative isolate"
-        style={{ minHeight: CARD_MIN_HEIGHT + 28, paddingBottom: 28 }}
+        style={{
+          minHeight: `calc(var(--announcement-card-height, ${CARD_MIN_HEIGHT}px) + var(--announcement-deck-gutter, 28px))`,
+          paddingBottom: 'var(--announcement-deck-gutter, 28px)',
+        }}
       >
         {/* Dismiss X button — floats above the deck, stays inside its stacking context */}
         <button
@@ -358,7 +362,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
               <div
                 className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm p-5 h-full select-none"
                 style={{
-                  minHeight: CARD_MIN_HEIGHT,
+                  minHeight: `var(--announcement-card-height, ${CARD_MIN_HEIGHT}px)`,
                   touchAction: 'pan-y',
                   cursor: isTop ? (isDragging ? 'grabbing' : 'grab') : 'default',
                 }}

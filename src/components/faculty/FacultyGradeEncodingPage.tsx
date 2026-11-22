@@ -335,7 +335,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-sm:space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 max-sm:hidden"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
@@ -350,7 +350,22 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             </div>
           </div>
 
-            <div className="flex flex-wrap gap-2 items-center">
+          <div className="space-y-1 sm:hidden">
+            <label htmlFor="grade-section" className="text-sm font-semibold text-slate-700">Section</label>
+            <select
+              id="grade-section"
+              value={activeSection}
+              onChange={(event) => setActiveSection(event.target.value)}
+              className="min-h-11 w-full min-w-0 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-link"
+            >
+              <option value="all">All sections ({sections.length})</option>
+              {sections.map((section) => (
+                <option key={section.key} value={section.subjectCode}>{section.subjectCode} · {section.room}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="hidden flex-wrap items-center gap-2 sm:flex">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
             <div className="flex flex-wrap gap-2">
               <button onClick={() => setActiveSection('all')} aria-pressed={activeSection === 'all'} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === 'all' ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}>All sections ({sections.length} • {rows.length} rows)</button>
@@ -360,7 +375,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
 
           <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-              <div className="faculty-periods flex gap-2">
+              <div className="faculty-periods flex gap-2" role="group" aria-label="Grade period">
                 {(['all', 'prelim', 'midterm', 'finals'] as const).map((p) => (<button key={p} onClick={() => setPeriod(p)} aria-pressed={period === p} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${period === p ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}><span className="sm:hidden">{p === 'all' ? 'All' : p === 'prelim' ? 'Prelim' : p === 'midterm' ? 'Midterm' : 'Finals'}</span><span className="hidden sm:inline">{p === 'all' ? 'All periods' : p === 'prelim' ? 'Prelim only' : p === 'midterm' ? 'Midterm only' : 'Finals only'}</span></button>))}
               </div>
               <div className="flex items-center gap-2">

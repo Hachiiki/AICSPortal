@@ -160,10 +160,10 @@ export function FacultyDashboard({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
+        <main className="faculty-page faculty-home px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-sm:space-y-4 lg:space-y-8">
           {/* Hero — adapted from AcademicHeader */}
           <section data-portal-motion-group
-            className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start"
+            className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:gap-8"
           >
             <div className="faculty-welcome flex-1 min-w-0">
               <p className="faculty-term text-xs font-medium uppercase tracking-[0.15em] text-slate-500">

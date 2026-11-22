@@ -96,6 +96,16 @@
     --faculty-badge-radius: 0.375rem;
   }
 
+  :root:has(.faculty-portal-column) [data-app-notice] {
+    position: relative;
+    z-index: 21;
+  }
+
+  :root:has([data-faculty-dock]) .student-floating-backdrop {
+    background: linear-gradient(to bottom, transparent, var(--color-slate-50) 88%);
+    mask-image: none;
+  }
+
   [data-faculty-dock] > button {
     align-content: center;
     gap: 0.125rem;
@@ -221,6 +231,28 @@
     border-radius: var(--faculty-card-radius);
   }
 
+  .faculty-home [data-announcement-stack="1"] {
+    --announcement-card-height: 0px;
+    --announcement-deck-gutter: 0px;
+  }
+
+  .faculty-home [data-announcement-stack="1"] .student-card {
+    padding: 1rem;
+  }
+
+  .faculty-home [data-announcement-stack="1"] .student-announcement-body {
+    -webkit-line-clamp: 2;
+  }
+
+  .faculty-page :is(input:not([type="checkbox"], [type="radio"]), textarea, select, button[aria-haspopup="listbox"]) {
+    border-color: color-mix(in srgb, var(--color-slate-500) 86%, var(--surface));
+  }
+
+  .faculty-page :is(input, textarea)::placeholder {
+    color: var(--color-slate-600);
+    opacity: 1;
+  }
+
   .faculty-page :is(button.rounded-lg, input.rounded-xl, select.rounded-xl) {
     border-radius: var(--faculty-control-radius);
   }
@@ -259,7 +291,7 @@
     overflow-wrap: anywhere;
   }
 
-  @media (width < 21rem) {
+  @media (width < 19rem) {
     .faculty-filters {
       grid-template-columns: minmax(0, 1fr);
     }
