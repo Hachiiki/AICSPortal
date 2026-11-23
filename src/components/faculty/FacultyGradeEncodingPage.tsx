@@ -47,6 +47,17 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const branch = faculty?.branch || student.branch || 'commonwealth'
 
   const { sections, gradeRows: initialRows, allStudents } = useFacultyRows(facultyData as any)
+  const sectionOptions = useMemo(() => {
+    const bySubject = new Map<string, string>()
+    for (const { subjectCode, room } of sections) {
+      // The grade filter groups every term with the same subject code.
+      if (!bySubject.has(subjectCode)) bySubject.set(subjectCode, `${subjectCode} · ${room}`)
+    }
+    return [
+      { value: 'all', label: `All sections (${sections.length})` },
+      ...Array.from(bySubject, ([value, label]) => ({ value, label })),
+    ]
+  }, [sections])
 
   const [rows, setRows] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
@@ -350,20 +361,16 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             </div>
           </div>
 
-          <div className="space-y-1 sm:hidden">
-            <label htmlFor="grade-section" className="text-sm font-semibold text-slate-700">Section</label>
-            <select
-              id="grade-section"
-              value={activeSection}
-              onChange={(event) => setActiveSection(event.target.value)}
-              className="min-h-11 w-full min-w-0 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-link"
-            >
-              <option value="all">All sections ({sections.length})</option>
-              {sections.map((section) => (
-                <option key={section.key} value={section.subjectCode}>{section.subjectCode} · {section.room}</option>
-              ))}
-            </select>
-          </div>
+          <SelectMenu
+            id="grade-section"
+            label="Section"
+            value={activeSection}
+            onChange={setActiveSection}
+            options={sectionOptions}
+            className="sm:hidden"
+            buttonClassName="min-h-11 min-w-0"
+            panelClassName="min-w-0 [&_[role=option]]:min-h-11"
+          />
 
           <div className="hidden flex-wrap items-center gap-2 sm:flex">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
