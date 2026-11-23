@@ -73,6 +73,12 @@ export async function fixtureContext(browser, { width = 390, height = 844, fresh
       finances: { totalAssessment: 0, totalPaid: 0, totalBalance: 0, paid: 0, partial: 0, unpaid: 3 },
       branches: [], upcomingEvents: [], recentAnnouncements: [],
     } }
+    else if (p === '/api/admin/people') data = {
+      ok: true,
+      people: [{ ...student, branchName: 'Commonwealth' }],
+      branches: [{ branch: student.branch, branchName: 'Commonwealth' }],
+      counts: { total: 1, students: 1, faculty: 0, admins: 0 },
+    }
     else if (p === '/api/onboarding/state') {
       if (request.method() === 'PATCH') { const patch = request.postDataJSON(); values = { ...values, ...patch.updates }; preferences = { ...preferences, ...patch.preferences }; writes.push({ path: p, patch }) }
       data = { ok: true, persisted: true, role, version: 1, values, preferences }
