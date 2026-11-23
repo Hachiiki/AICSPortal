@@ -23,7 +23,7 @@ const DOCK_SPRING = { type: 'spring', stiffness: 420, damping: 30, mass: 0.82 } 
 const SCROLL_THRESHOLD = 8
 const ACTIVE_NAV_ACTION = 'text-link-strong'
 const MORE_ACTION = 'student-more-item relative grid cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
-const MORE_LABEL = 'text-left text-sm font-medium leading-tight'
+const MORE_LABEL = 'min-w-0 text-left text-[11px] font-medium leading-tight [overflow-wrap:anywhere]'
 
 export function finishPhoneNavigation(content: HTMLElement) {
   const state = window.history.state as { phoneNavigation?: 'scroll' | 'focus' } | null
@@ -78,7 +78,6 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const { resolvedTheme, setTheme } = useTheme()
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
-  const themeAction = isDark ? 'Switch to light theme' : 'Switch to dark theme'
   const navigationLabels = useNavigationLabels()
   const themeButton = useRef<HTMLDivElement>(null)
   const themeReveal = useRef<ViewTransition | null>(null)
@@ -228,8 +227,10 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const labels = role === 'faculty' ? (navigationLabels ? 'visible' : 'hidden') : 'auto'
   const labelClass = labels === 'visible' ? 'student-floating-label' : labels === 'auto' ? 'student-floating-label sr-only' : 'sr-only'
   const showMoreLabels = labels === 'visible'
+  const themeAction = `Switch to ${isDark ? 'light' : 'dark'} ${showMoreLabels ? 'mode' : 'theme'}`
+  const moreIconClass = showMoreLabels ? 'size-4' : 'size-5'
   const moreActionClass = cn(MORE_ACTION, showMoreLabels
-    ? 'flex min-h-11 min-w-0 items-center justify-start gap-2.5 px-3 py-2'
+    ? 'flex min-h-11 min-w-0 items-center justify-start gap-1.5 rounded-[10px] px-2 py-1.5'
     : 'col-span-2 size-12')
   const destinations = getMobileNav(role)
   const morePages = [...getPrimaryNav(role), ...SECONDARY_NAV].filter(
@@ -283,8 +284,10 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       <Dropdown.Portal>
         <Dropdown.Content aria-label="More pages" aria-labelledby={undefined} side="top" align="end" sideOffset={13} collisionPadding={12} loop
           className={cn(
-            'student-more-popover z-50 grid max-w-[calc(100vw-24px)] gap-2 rounded-3xl border border-line bg-surface/95 p-3 shadow-xl backdrop-blur-xl',
-            showMoreLabels ? 'max-h-[var(--radix-dropdown-menu-content-available-height)] w-60 grid-cols-1 overflow-y-auto' : 'grid-cols-6',
+            'student-more-popover z-50 grid max-w-[calc(100vw-24px)] rounded-3xl border border-line bg-surface/95 shadow-xl backdrop-blur-xl',
+            showMoreLabels
+              ? 'max-h-[var(--radix-dropdown-menu-content-available-height)] w-64 grid-cols-2 gap-1.5 overflow-y-auto p-2.5'
+              : 'grid-cols-6 gap-2 p-3',
           )}>
           {morePages.map((item) => {
             const Icon = item.view === 'professors' ? Presentation : item.icon
@@ -292,7 +295,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
               aria-current={active === item.view ? 'page' : undefined}
               onSelect={() => goToDestination(item.view, !!document.activeElement?.matches(':focus-visible'))}
               className={cn(moreActionClass, active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink')}>
-              <Icon className="size-5 shrink-0" aria-hidden="true" />
+              <Icon className={cn(moreIconClass, 'shrink-0')} aria-hidden="true" />
               {showMoreLabels && <span data-more-label="" className={MORE_LABEL}>{item.label}</span>}
             </Dropdown.Item>
           })}
@@ -302,18 +305,18 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
               event.preventDefault()
               toggleTheme()
             }}>
-            <span className="relative size-5 shrink-0" aria-hidden="true">
+            <span className={cn('relative shrink-0', moreIconClass)} aria-hidden="true">
               <AnimatePresence initial={false}>
                 <motion.span key={isDark ? 'moon' : 'sun'} className="absolute inset-0"
                   initial={{ opacity: 0, rotate: -40, scale: 0.8 }}
                   animate={{ opacity: 1, rotate: 0, scale: 1 }}
                   exit={{ opacity: 0, rotate: 40, scale: 0.8 }}
                   transition={{ duration: mode === 'full' ? 0.22 : 0, ease: 'easeOut' }}>
-                  {isDark ? <Moon className="size-5" /> : <Sun className="size-5" />}
+                  {isDark ? <Moon className="size-full" /> : <Sun className="size-full" />}
                 </motion.span>
               </AnimatePresence>
             </span>
-            {showMoreLabels && <span data-more-label="" className={MORE_LABEL}>{isDark ? 'Light theme' : 'Dark theme'}</span>}
+            {showMoreLabels && <span data-more-label="" className={MORE_LABEL}>{isDark ? 'Light mode' : 'Dark mode'}</span>}
           </Dropdown.Item>
         </Dropdown.Content>
       </Dropdown.Portal>

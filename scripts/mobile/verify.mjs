@@ -574,6 +574,7 @@ try {
   check('Faculty More covers secondary destinations', await facultyMenu.getByRole('menuitem', { name: 'Schedule', exact: true }).isVisible())
   const moreLabels = facultyMenu.locator('[data-more-label]')
   check('Faculty More shows a label for every item by default', await moreLabels.count() === await facultyMenu.getByRole('menuitem').count())
+  check('Faculty More uses two columns for labeled items', await facultyMenu.evaluate(menu => getComputedStyle(menu).gridTemplateColumns.split(' ').length === 2))
   check('Faculty More labels sit to the right of their icons', await moreLabels.evaluateAll(labels => labels.every(label => {
     const icon = label.previousElementSibling.getBoundingClientRect()
     const text = label.getBoundingClientRect()
