@@ -812,7 +812,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                 <div className="border-b border-line px-6">
                   <ToggleRow
                     label="Show navigation labels"
-                    description="Show the names under the icons in the mobile bottom bar."
+                    description="Show text under icons in the mobile bottom bar and More menu."
                     checked={navigationLabels}
                     onChange={setNavigationLabels}
                   />

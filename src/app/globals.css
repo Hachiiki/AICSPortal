@@ -427,7 +427,7 @@ html:is([data-animation-mode="reduced"], [data-animation-mode="off"]) :is(.stude
   }
 }
 
-.student-more-item:focus-visible::after {
+.student-more-item[data-destination-label]:focus-visible::after {
   content: attr(data-destination-label);
   position: absolute;
   inset-block-end: calc(100% + 0.3rem);

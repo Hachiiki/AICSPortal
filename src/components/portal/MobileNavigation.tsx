@@ -14,6 +14,7 @@ import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import { useMounted } from '@/lib/aics/use-mounted'
 import { useNavigationLabels } from '@/lib/aics/use-navigation-labels'
 import { routeToPath, usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
+import { cn } from '@/lib/utils'
 import { MobileSearch } from './MobileSearch'
 
 const MOBILE_NAV_ACTION = 'relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full text-ink active:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link motion-safe:transition-[scale,background-color,color] motion-safe:duration-150 motion-safe:active:scale-95'
@@ -21,7 +22,8 @@ const FLOATING_BUTTON = 'pointer-events-auto grid size-[52px] shrink-0 place-ite
 const DOCK_SPRING = { type: 'spring', stiffness: 420, damping: 30, mass: 0.82 } as const
 const SCROLL_THRESHOLD = 8
 const ACTIVE_NAV_ACTION = 'text-link-strong'
-const MORE_ACTION = 'student-more-item relative col-span-2 grid size-[48px] cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
+const MORE_ACTION = 'student-more-item relative grid cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
+const MORE_LABEL = 'text-balance text-center text-xs font-medium leading-tight'
 
 export function finishPhoneNavigation(content: HTMLElement) {
   const state = window.history.state as { phoneNavigation?: 'scroll' | 'focus' } | null
@@ -225,6 +227,10 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const role = student.role ?? 'student'
   const labels = role === 'faculty' ? (navigationLabels ? 'visible' : 'hidden') : 'auto'
   const labelClass = labels === 'visible' ? 'student-floating-label' : labels === 'auto' ? 'student-floating-label sr-only' : 'sr-only'
+  const showMoreLabels = labels === 'visible'
+  const moreActionClass = cn(MORE_ACTION, showMoreLabels
+    ? 'min-h-16 min-w-0 content-center gap-1.5 px-1 py-2'
+    : 'col-span-2 size-12')
   const destinations = getMobileNav(role)
   const morePages = [...getPrimaryNav(role), ...SECONDARY_NAV].filter(
     (item) => item.enabled && !destinations.some(({ view }) => view === item.view),
@@ -276,18 +282,22 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       </Dropdown.Trigger>
       <Dropdown.Portal>
         <Dropdown.Content aria-label="More pages" aria-labelledby={undefined} side="top" align="end" sideOffset={13} collisionPadding={12} loop
-          className="student-more-popover z-50 grid max-w-[calc(100vw-24px)] grid-cols-6 gap-2 rounded-3xl border border-line bg-surface/95 p-3 shadow-xl backdrop-blur-xl">
+          className={cn(
+            'student-more-popover z-50 grid max-w-[calc(100vw-24px)] gap-2 rounded-3xl border border-line bg-surface/95 p-3 shadow-xl backdrop-blur-xl',
+            showMoreLabels ? 'w-[22rem] auto-rows-[minmax(4rem,1fr)] grid-cols-2 min-[360px]:grid-cols-3' : 'grid-cols-6',
+          )}>
           {morePages.map((item) => {
             const Icon = item.view === 'professors' ? Presentation : item.icon
-            return <Dropdown.Item key={item.view} aria-label={item.label} data-destination-label={item.label}
+            return <Dropdown.Item key={item.view} aria-label={item.label} data-destination-label={showMoreLabels ? undefined : item.label}
               aria-current={active === item.view ? 'page' : undefined}
               onSelect={() => goToDestination(item.view, !!document.activeElement?.matches(':focus-visible'))}
-              className={`${MORE_ACTION} ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'}`}>
+              className={cn(moreActionClass, active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink')}>
               <Icon className="size-5 shrink-0" aria-hidden="true" />
+              {showMoreLabels && <span data-more-label="" className={MORE_LABEL}>{item.label}</span>}
             </Dropdown.Item>
           })}
-          <Dropdown.Item ref={themeButton} aria-label={themeAction} data-destination-label={themeAction}
-            className={`${MORE_ACTION} bg-slate-100 text-ink`}
+          <Dropdown.Item ref={themeButton} aria-label={themeAction} data-destination-label={showMoreLabels ? undefined : themeAction}
+            className={cn(moreActionClass, 'bg-slate-100 text-ink')}
             onSelect={(event) => {
               event.preventDefault()
               toggleTheme()
@@ -303,6 +313,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
                 </motion.span>
               </AnimatePresence>
             </span>
+            {showMoreLabels && <span data-more-label="" className={MORE_LABEL}>{isDark ? 'Light theme' : 'Dark theme'}</span>}
           </Dropdown.Item>
         </Dropdown.Content>
       </Dropdown.Portal>
