@@ -471,7 +471,7 @@ function StudentDataWrapper({
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
   const [announcementReadIds, setAnnouncementReadIds] = useState<string[]>([])
 
-  // Bell inbox notifications. Students read their own docs here.
+  // Bell inbox notifications for the signed-in account.
   // Lifted for the same reason as announcements: the Topbar lives
   // in the shell, so per-page fetching would refetch on every tab.
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
@@ -746,8 +746,8 @@ function StudentDataWrapper({
   // ----------------------------------------------------------
 
   // Admin users get the admin portal: dashboard (school stats) and
-  // one screen per management surface. Shared pages (settings, help,
-  // profile) render through the common blocks below so the sidebar
+  // one screen per management surface. Shared pages render
+  // through the common blocks below so the sidebar
   // and top bar never change between tabs.
   if (route.view !== 'login' && route.role === 'admin') {
     if (route.view === 'release-queue') {
@@ -828,10 +828,9 @@ function StudentDataWrapper({
         />
       )
     }
-    // settings / help / profile fall through to the shared blocks
-    // below — every other admin view (dashboard + unknown) lands on
-    // the stats dashboard.
-    if (route.view !== 'settings' && route.view !== 'help' && route.view !== 'profile') {
+    // Settings, help, profile and notifications use the shared pages
+    // below. Any other admin view opens the stats dashboard.
+    if (route.view !== 'settings' && route.view !== 'help' && route.view !== 'profile' && route.view !== 'notifications') {
       return (
         <AdminDashboardPage
           student={student}
@@ -1001,7 +1000,7 @@ function StudentDataWrapper({
   if (route.view === 'notifications') {
     return (
       <PortalShell student={student} active="notifications" onNavigate={handleNavigate} onLogout={onLogout}
-        events={events} professors={professors} tasks={tasks} inbox={inbox}>
+        events={events} professors={professors} tasks={tasks} inbox={inbox} facultyData={facultyData} taskGroups={taskGroupsData?.groups}>
         <NotificationsPage student={student} inbox={inbox} onHome={() => handleNavigate('dashboard')} />
       </PortalShell>
     )

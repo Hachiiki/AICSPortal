@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, type MouseEvent } from 'react'
 import { Menu, Bell, ChevronDown, LogOut, User, Sun, Moon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAnimationPreferences } from '@/components/AnimationPreferences'
@@ -22,7 +22,8 @@ import type { PortalEvent } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
 import type { Task } from '@/lib/aics/tasks'
 import type { NotificationInbox, Notification } from '@/lib/aics/notifications'
-import { formatNotifTime } from '@/lib/aics/notifications'
+import { formatNotifTime, getNotificationTaskRoute } from '@/lib/aics/notifications'
+import { getPortalRoleLabel } from '@/lib/aics/nav-config'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 
@@ -69,17 +70,12 @@ export function Topbar({
   const { navigate } = usePortalRoute()
   const phone = usePhoneViewport()
   const isStudent = !student.role || student.role === 'student'
-  const isFaculty = student.role === 'faculty'
-  const hasPhoneDock = isStudent || isFaculty
-  const compact = hasPhoneDock && phone
-  const floating = isStudent || (isFaculty && phone)
   const { mode } = useAnimationPreferences()
   const headerRef = useRef<HTMLElement>(null)
-  const [scrollHidden, setScrollHidden] = useState(false)
 
   useEffect(() => {
     const header = headerRef.current
-    if (!floating || !header) return
+    if (!header) return
 
     const distance = phone ? 76 : 94
     const target = () => {
@@ -91,8 +87,8 @@ export function Topbar({
     let previousTime = 0
     const paint = () => {
       const filled = position >= 0.54
-      header.style.setProperty('--student-topbar-float', String(mode === 'full' ? position : Number(filled)))
-      header.toggleAttribute('data-student-topbar-filled', filled)
+      header.style.setProperty('--portal-topbar-float', String(mode === 'full' ? position : Number(filled)))
+      header.toggleAttribute('data-portal-topbar-filled', filled)
     }
     const update = (time: number) => {
       const next = target()
@@ -116,38 +112,11 @@ export function Topbar({
     return () => {
       window.cancelAnimationFrame(frame)
       window.removeEventListener('scroll', scheduleUpdate)
-      header.style.removeProperty('--student-topbar-float')
-      header.removeAttribute('data-student-topbar-filled')
+      header.style.removeProperty('--portal-topbar-float')
+      header.removeAttribute('data-portal-topbar-filled')
     }
-  }, [floating, phone, mode])
-
-  useEffect(() => {
-    if (!phone || isStudent) return
-    const readScroll = () => Math.max(0, Math.min(window.scrollY, document.documentElement.scrollHeight - window.innerHeight))
-    let previous = readScroll()
-    let travel = 0
-    const update = () => {
-      const current = readScroll()
-      const delta = current - previous
-      previous = current
-      if (current <= 16) {
-        travel = 0
-        setScrollHidden(false)
-      } else if (delta !== 0) {
-        travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta
-        if (travel >= 14) {
-          setScrollHidden(true)
-          travel = 0
-        } else if (travel <= -10) {
-          setScrollHidden(false)
-          travel = 0
-        }
-      }
-    }
-    window.addEventListener('scroll', update, { passive: true })
-    return () => window.removeEventListener('scroll', update)
-  }, [isStudent, phone])
-  const roleLabel = student.role === 'faculty' ? 'Faculty' : student.role === 'admin' ? 'Admin' : 'Student'
+  }, [phone, mode])
+  const roleLabel = getPortalRoleLabel(student.role)
   const unread = (inbox?.notifications ?? []).filter((n) => !n.read).length
   const bellLabel = `Notifications${unread > 0 ? `, ${unread} unread` : ''}`
   const bellIcon = <>
@@ -176,10 +145,8 @@ export function Topbar({
   // handoff is one-shot (consumed + cleared on mount).
   const openNotification = (n: Notification) => {
     inbox?.onMark(n._id)
-    if (n.taskId) {
-      if (student.role === 'faculty') onNavigate('tasks')
-      else if (student.role !== 'admin') navigate({ view: 'academics', branch: student.branch, username: student.username, role: 'student', tab: 'tasks', subjectCode: n.subjectCode, taskId: n.taskId })
-    }
+    const route = getNotificationTaskRoute(student, n)
+    if (route) navigate(route)
   }
 
   const handleThemeToggle = () => {
@@ -197,11 +164,11 @@ export function Topbar({
       type="button"
       data-tour="topbar-profile"
       className="col-start-1 row-start-1 flex size-[44px] items-center justify-center gap-2.5 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link sm:size-auto sm:rounded-md sm:py-1 sm:pl-1 sm:pr-2"
-      aria-label={compact ? 'Open profile and navigation menu' : 'Account menu'}
-      aria-haspopup={compact ? 'dialog' : undefined}
-      aria-expanded={compact ? mobileProfileOpen : undefined}
-      aria-controls={compact && mobileProfileOpen ? 'mobile-profile' : undefined}
-      onClick={compact ? onOpenMobileProfile : undefined}
+      aria-label={phone ? 'Open profile and navigation menu' : 'Account menu'}
+      aria-haspopup={phone ? 'dialog' : undefined}
+      aria-expanded={phone ? mobileProfileOpen : undefined}
+      aria-controls={phone && mobileProfileOpen ? 'mobile-profile' : undefined}
+      onClick={phone ? onOpenMobileProfile : undefined}
     >
       {student.photoUrl ? (
         <img
@@ -231,10 +198,8 @@ export function Topbar({
   return (
     <motion.header
       ref={headerRef}
-      className={`portal-topbar sticky top-0 z-20 sm:h-16 ${floating ? '' : 'border-slate-200 bg-surface sm:border-b'}`}
+      className="portal-topbar sticky top-0 z-20 sm:h-16"
       data-student-topbar={isStudent ? active : undefined}
-      data-faculty-phone-topbar={isFaculty && phone ? '' : undefined}
-      data-scroll-hidden={!isStudent && phone && scrollHidden ? 'true' : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}
@@ -249,7 +214,7 @@ export function Topbar({
             data-tour="topbar-mobile-nav"
             aria-haspopup="dialog"
             aria-controls="mobile-navigation"
-            className={`${hasPhoneDock ? 'hidden sm:grid lg:hidden' : 'grid lg:hidden'} col-start-1 row-start-2 size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2`}
+            className="hidden size-[44px] place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:-ml-2 sm:grid lg:hidden"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -267,8 +232,8 @@ export function Topbar({
           <p className="text-xs font-semibold leading-tight text-ink">{roleLabel}</p>
         </div>
 
-        <div className={`${hasPhoneDock ? 'hidden sm:flex' : 'flex'} col-start-2 row-start-2 min-w-0 flex-1 justify-center`}>
-          {!compact && <GlobalSearch
+        <div className="hidden min-w-0 flex-1 justify-center sm:flex">
+          {!phone && <GlobalSearch
             student={student}
             events={events}
             professors={professors}
@@ -284,7 +249,7 @@ export function Topbar({
             type="button"
             onClick={handleThemeToggle}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className={`${hasPhoneDock ? 'hidden sm:grid' : 'grid'} col-start-3 row-start-2 size-[44px] place-items-center justify-self-end rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:size-9`}
+            className="hidden size-9 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:grid"
           >
             {isDark ? (
               <Sun className="w-5 h-5" aria-hidden />
@@ -293,7 +258,7 @@ export function Topbar({
             )}
           </button>
 
-          {compact && isStudent ? (
+          {phone ? (
             <button type="button" aria-label={bellLabel} aria-current={active === 'notifications' ? 'page' : undefined}
               data-tour="topbar-notifications" className={`${bellClass} ${active === 'notifications' ? 'bg-blue-50 text-link-strong' : ''}`}
               onClick={() => {
@@ -361,11 +326,11 @@ export function Topbar({
           <div className="hidden h-6 w-px bg-slate-200 sm:block" aria-hidden="true" />
 
           {/* Profile */}
-          {compact ? accountButton : <DropdownMenu>
+          {phone ? accountButton : <DropdownMenu>
             <DropdownMenuTrigger asChild>
               {accountButton}
             </DropdownMenuTrigger>
-            <DropdownMenuContent align={phone ? 'start' : 'end'} className="w-56">
+            <DropdownMenuContent align="end" className="w-56">
               {/* Profile header */}
               <div className="px-2 py-1.5">
                 <p className="text-sm font-semibold text-slate-900 truncate">{student.fullName}</p>

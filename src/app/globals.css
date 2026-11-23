@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @media (width < 40rem) {
-  .student-portal-column #main-content {
+  :is(.student-portal-column #main-content, .portal-notifications-page) {
     --student-card-radius: 0.75rem;
     --student-control-radius: 0.5rem;
     --student-badge-radius: 0.375rem;
@@ -96,34 +96,24 @@
     --faculty-badge-radius: 0.375rem;
   }
 
-  :root:has(.faculty-portal-column) [data-app-notice] {
-    position: relative;
-    z-index: 21;
-  }
-
-  :root:has([data-faculty-dock]) .student-floating-backdrop {
-    background: linear-gradient(to bottom, transparent, var(--color-slate-50) 88%);
-    mask-image: none;
-  }
-
-  [data-faculty-dock] > button {
+  [data-dock-labels="visible"] > button {
     align-content: center;
     gap: 0.125rem;
     min-inline-size: 0;
     padding: 0.25rem 0.125rem;
   }
 
-  [data-faculty-dock] > button > svg {
+  [data-dock-labels="visible"] > button > svg {
     width: 1.25rem;
     height: 1.25rem;
     stroke-width: 1.85;
   }
 
-  [data-faculty-dock] > button[aria-current="page"] > svg {
+  [data-dock-labels="visible"] > button[aria-current="page"] > svg {
     stroke-width: 2.25;
   }
 
-  .faculty-dock-label {
+  [data-dock-labels="visible"] .student-floating-label {
     font-size: 0.6875rem;
     font-weight: 600;
     line-height: 1.15;
@@ -430,6 +420,13 @@ html:is([data-animation-mode="reduced"], [data-animation-mode="off"]) :is(.stude
   pointer-events: none;
 }
 
+@media (height < 26rem) {
+  .student-more-popover {
+    max-height: var(--radix-dropdown-menu-content-available-height);
+    overflow-y: auto;
+  }
+}
+
 .student-more-item:focus-visible::after {
   content: attr(data-destination-label);
   position: absolute;
@@ -477,24 +474,24 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   to { opacity: 0; transform: translateY(5px) scale(0.82, 0.9); }
 }
 
-.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
-  --student-topbar-float: 0;
-  --student-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
-  --student-topbar-gap: 0.75rem;
+.portal-topbar {
+  --portal-topbar-float: 0;
+  --portal-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
+  --portal-topbar-gap: 0.75rem;
   pointer-events: none;
 }
 
-.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) .portal-topbar-layout {
+.portal-topbar .portal-topbar-layout {
   position: relative;
   isolation: isolate;
-  inset-block-start: calc(var(--student-topbar-float) * var(--student-topbar-gap));
-  width: calc(100% - var(--student-topbar-float) * var(--student-topbar-inset));
+  inset-block-start: calc(var(--portal-topbar-float) * var(--portal-topbar-gap));
+  width: calc(100% - var(--portal-topbar-float) * var(--portal-topbar-inset));
   margin-inline: auto;
-  border-radius: calc(var(--student-topbar-float) * 2rem);
+  border-radius: calc(var(--portal-topbar-float) * 2rem);
   pointer-events: auto;
 }
 
-.portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) .portal-topbar-layout::before {
+.portal-topbar .portal-topbar-layout::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -503,18 +500,18 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   border-radius: inherit;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: 0 5px 18px rgb(15 23 42 / 0.15), 0 1px 3px rgb(15 23 42 / 0.08);
-  opacity: var(--student-topbar-float);
+  opacity: var(--portal-topbar-float);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   pointer-events: none;
 }
 
 @media (width >= 40rem) {
-  .portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
-    container: student-topbar / inline-size;
+  .portal-topbar {
+    container: portal-header / inline-size;
   }
 
-  @container student-topbar (width < 54rem) {
+  @container portal-header (width < 54rem) {
     .portal-topbar-layout {
       padding-inline: 1rem;
     }
@@ -526,26 +523,6 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
 }
 
 @media (width < 40rem) {
-  .portal-topbar {
-    transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .portal-topbar[data-scroll-hidden="true"]:not(:has(:focus-visible, button[data-state="open"])) {
-    translate: 0 -100%;
-    pointer-events: none;
-  }
-
-  :root:has([data-tour-header-target="true"]) .portal-topbar[data-scroll-hidden="true"] {
-    translate: none;
-    pointer-events: auto;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .portal-topbar {
-      transition: none;
-    }
-  }
-
   :root:has([data-student-mobile-nav]) {
     --portal-mobile-nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
@@ -606,9 +583,9 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     --student-topbar-height: 3.5rem;
   }
 
-  .portal-topbar:is([data-student-topbar], [data-faculty-phone-topbar]) {
-    --student-topbar-inset: 1.25rem;
-    --student-topbar-gap: 0.5625rem;
+  .portal-topbar {
+    --portal-topbar-inset: 1.25rem;
+    --portal-topbar-gap: 0.5625rem;
   }
 
   .portal-topbar[data-student-topbar="dashboard"] + #main-content:has(.student-dashboard-hero) {
@@ -619,7 +596,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     transition: color 100ms ease, text-shadow 100ms ease;
   }
 
-  .portal-topbar[data-student-topbar="dashboard"]:not([data-student-topbar-filled]):has(+ #main-content .student-dashboard-hero) {
+  .portal-topbar[data-student-topbar="dashboard"]:not([data-portal-topbar-filled]):has(+ #main-content .student-dashboard-hero) {
     & :is([data-mobile-portal-brand] p, [data-tour="topbar-notifications"]) {
       color: white;
       text-shadow: 0 1px 6px rgb(7 26 52 / 0.8);

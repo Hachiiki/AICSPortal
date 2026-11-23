@@ -9,9 +9,10 @@ import { useTheme } from 'next-themes'
 import { useAnimationPreferences, type AnimationMode } from '@/components/AnimationPreferences'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import type { Student, View } from '@/lib/aics/types'
-import { getMobileNav, getPrimaryNav, SECONDARY_NAV } from '@/lib/aics/nav-config'
+import { getMobileNav, getPortalRoleLabel, getPrimaryNav, SECONDARY_NAV } from '@/lib/aics/nav-config'
 import { quickToggleTheme } from '@/lib/aics/theme-palette'
 import { useMounted } from '@/lib/aics/use-mounted'
+import { useNavigationLabels } from '@/lib/aics/use-navigation-labels'
 import { routeToPath, usePortalRoute, type AcademicsTab } from '@/lib/aics/use-portal-route'
 import { MobileSearch } from './MobileSearch'
 
@@ -22,15 +23,13 @@ const SCROLL_THRESHOLD = 8
 const ACTIVE_NAV_ACTION = 'text-link-strong'
 const MORE_ACTION = 'student-more-item relative col-span-2 grid size-[48px] cursor-pointer place-items-center rounded-2xl outline-none transition-colors data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
 
-const FACULTY_MORE_ACTION = 'flex min-h-11 min-w-0 cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium leading-snug outline-none [overflow-wrap:anywhere] data-highlighted:bg-blue-100 data-highlighted:text-link-strong'
-
-export function finishFacultyPhoneNavigation(content: HTMLElement) {
-  const state = window.history.state as { facultyPhoneNavigation?: 'scroll' | 'focus' } | null
-  if (!state?.facultyPhoneNavigation) return
-  const { facultyPhoneNavigation, ...routeState } = state
+export function finishPhoneNavigation(content: HTMLElement) {
+  const state = window.history.state as { phoneNavigation?: 'scroll' | 'focus' } | null
+  if (!state?.phoneNavigation) return
+  const { phoneNavigation, ...routeState } = state
   window.history.replaceState(routeState, '')
   window.scrollTo(0, 0)
-  if (facultyPhoneNavigation === 'focus') content.focus({ preventScroll: true })
+  if (phoneNavigation === 'focus') content.focus({ preventScroll: true })
 }
 
 function scrollLimit() {
@@ -78,7 +77,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
   const themeAction = isDark ? 'Switch to light theme' : 'Switch to dark theme'
-  const themeLabel = isDark ? 'Light mode' : 'Dark mode'
+  const navigationLabels = useNavigationLabels()
   const themeButton = useRef<HTMLDivElement>(null)
   const themeReveal = useRef<ViewTransition | null>(null)
   const guided = useStudentOnboarding()?.busy ?? false
@@ -223,25 +222,25 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       document.removeEventListener('focusout', update)
     }
   }, [])
-  const faculty = student.role === 'faculty'
-  const role = faculty ? 'faculty' : 'student'
+  const role = student.role ?? 'student'
+  const labels = role === 'faculty' ? (navigationLabels ? 'visible' : 'hidden') : 'auto'
+  const labelClass = labels === 'visible' ? 'student-floating-label' : labels === 'auto' ? 'student-floating-label sr-only' : 'sr-only'
   const destinations = getMobileNav(role)
   const morePages = [...getPrimaryNav(role), ...SECONDARY_NAV].filter(
     (item) => item.enabled && !destinations.some(({ view }) => view === item.view),
   )
-  const primary = (!faculty && active === 'notifications') || destinations.some((item) => item.view === active)
-  const moreCurrent = faculty ? morePages.some((item) => item.view === active) : !primary
+  const moreCurrent = morePages.some((item) => item.view === active)
   const moreSelected = menuOpen || moreCurrent
 
   function goToDestination(view: View, fromKeyboard: boolean) {
     const currentPath = window.location.pathname
     onNavigate(view)
     const pathname = window.location.pathname
-    if (faculty && currentPath !== pathname) {
+    if (currentPath !== pathname) {
       // Some routes replace their loading skeleton with the shell after data arrives.
       window.history.replaceState({
         ...window.history.state,
-        facultyPhoneNavigation: fromKeyboard ? 'focus' : 'scroll',
+        phoneNavigation: fromKeyboard ? 'focus' : 'scroll',
       }, '')
     }
   }
@@ -253,7 +252,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       className="flex items-center gap-[12px]" style={{ originX: 0 }} initial={false}
       animate={{ scaleX: folded && spatialMotion ? foldedScale : 1, opacity: folded ? 0 : 1 }}
       transition={{ scaleX: spatialMotion ? DOCK_SPRING : { duration: 0 }, opacity: { ...fade, delay: folded && spatialMotion ? 0.06 : 0 } }}>
-    <nav aria-label={faculty ? 'Faculty mobile navigation' : 'Student mobile navigation'} data-faculty-dock={faculty ? '' : undefined} className="student-floating-pill pointer-events-auto grid min-w-0 flex-1 grid-cols-4 gap-[2px] rounded-full border border-line bg-surface/90 p-[4px] shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md">
+    <nav aria-label={`${getPortalRoleLabel(role)} mobile navigation`} data-dock-labels={labels} className="student-floating-pill pointer-events-auto grid min-w-0 flex-1 grid-cols-4 gap-[2px] rounded-full border border-line bg-surface/90 p-[4px] shadow-[0_6px_22px_rgb(15_23_42/0.12)] backdrop-blur-md">
       {destinations.map(item => {
         const selected = !menuOpen && active === item.view && (item.view !== 'academics' || (item.tab === 'tasks' ? academicTab === 'tasks' : academicTab !== 'tasks'))
         const Icon = item.icon
@@ -262,34 +261,33 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
           onClick={(event) => item.view === 'academics' && item.tab ? navigate({ view: 'academics', role, branch: student.branch, username: student.username, tab: item.tab }) : goToDestination(item.view, event.detail === 0)}>
           {selected && <DockHighlight key={mode} mode={mode} />}
           <Icon className="size-[23px]" strokeWidth={selected ? 2.4 : 2} aria-hidden="true" />
-          <span className={faculty ? 'faculty-dock-label' : 'student-floating-label sr-only'}>{item.label}</span>
+          <span className={labelClass}>{item.label}</span>
         </button>
       })}
       <Dropdown.Root modal={false} open={menuOpen && !keyboardOpen} onOpenChange={setMenuOpen}>
       <Dropdown.Trigger asChild>
-      <button type="button" aria-label={faculty ? 'More' : menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+      <button type="button" aria-label={role !== 'student' ? 'More' : menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-current={moreCurrent && !menuOpen ? 'page' : undefined} data-tour="topbar-mobile-nav"
         className={`${MOBILE_NAV_ACTION} ${moreSelected ? ACTIVE_NAV_ACTION : 'hover:bg-slate-100'}`}>
         {moreSelected && <DockHighlight key={mode} mode={mode} />}
         {menuOpen ? <X className="size-[23px]" aria-hidden="true" /> : <Menu className="size-[23px]" strokeWidth={moreSelected ? 2.4 : 2} aria-hidden="true" />}
-        <span className={faculty ? 'faculty-dock-label' : 'student-floating-label sr-only'}>More</span>
+        <span className={labelClass}>More</span>
       </button>
       </Dropdown.Trigger>
       <Dropdown.Portal>
         <Dropdown.Content aria-label="More pages" aria-labelledby={undefined} side="top" align="end" sideOffset={13} collisionPadding={12} loop
-          className={`student-more-popover z-50 grid max-w-[calc(100vw-24px)] gap-2 rounded-3xl border border-line bg-surface/95 p-3 shadow-xl backdrop-blur-xl ${faculty ? "w-72 grid-cols-2 max-h-[min(60dvh,var(--radix-dropdown-menu-content-available-height))] overflow-y-auto" : "grid-cols-6"}`}>
+          className="student-more-popover z-50 grid max-w-[calc(100vw-24px)] grid-cols-6 gap-2 rounded-3xl border border-line bg-surface/95 p-3 shadow-xl backdrop-blur-xl">
           {morePages.map((item) => {
             const Icon = item.view === 'professors' ? Presentation : item.icon
             return <Dropdown.Item key={item.view} aria-label={item.label} data-destination-label={item.label}
-              aria-current={faculty && active === item.view ? 'page' : undefined}
+              aria-current={active === item.view ? 'page' : undefined}
               onSelect={() => goToDestination(item.view, !!document.activeElement?.matches(':focus-visible'))}
-              className={`${faculty ? FACULTY_MORE_ACTION : MORE_ACTION} ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'}`}>
+              className={`${MORE_ACTION} ${active === item.view ? 'bg-blue-100 text-link-strong' : 'bg-slate-100 text-ink'}`}>
               <Icon className="size-5 shrink-0" aria-hidden="true" />
-              {faculty && <span>{item.label}</span>}
             </Dropdown.Item>
           })}
-          <Dropdown.Item ref={themeButton} aria-label={faculty ? themeLabel : themeAction} data-destination-label={themeAction}
-            className={`${faculty ? FACULTY_MORE_ACTION : MORE_ACTION} bg-slate-100 text-ink`}
+          <Dropdown.Item ref={themeButton} aria-label={themeAction} data-destination-label={themeAction}
+            className={`${MORE_ACTION} bg-slate-100 text-ink`}
             onSelect={(event) => {
               event.preventDefault()
               toggleTheme()
@@ -305,7 +303,6 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
                 </motion.span>
               </AnimatePresence>
             </span>
-            {faculty && <span>{themeLabel}</span>}
           </Dropdown.Item>
         </Dropdown.Content>
       </Dropdown.Portal>

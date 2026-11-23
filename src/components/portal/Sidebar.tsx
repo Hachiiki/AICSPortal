@@ -127,7 +127,7 @@ function SidebarContent({ active, onNavigate, role = 'student', profile, onLogou
   const primaryNav = getPrimaryNav(role)
   const portalLabel = getPortalLabel(role)
   const scrollBody = !!profile
-  const phoneDestinations = scrollBody && role !== 'admin' ? getMobileNav(role === 'faculty' ? 'faculty' : 'student') : []
+  const phoneDestinations = scrollBody ? getMobileNav(role === 'faculty' || role === 'admin' ? role : 'student') : []
   const animateProfile = useAnimationPreferences().mode === 'full' && scrollBody
   const profileRow = animateProfile ? PROFILE_ROW : undefined
   return (

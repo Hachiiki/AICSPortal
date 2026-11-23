@@ -35,6 +35,7 @@ import {
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useMounted } from '@/lib/aics/use-mounted'
+import { setNavigationLabels, useNavigationLabels } from '@/lib/aics/use-navigation-labels'
 import {
   type PaletteId,
   detectBase,
@@ -102,6 +103,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   // initializes the stored value synchronously on the client, so a
   // checked radio rendered before mount would hydrate-mismatch).
   const { theme, resolvedTheme, setTheme } = useTheme()
+  const navigationLabels = useNavigationLabels()
   const themeMounted = useMounted()
 
   // Palette layer (theme expansion): the stored dark-family palette
@@ -806,6 +808,16 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   Choose how the portal looks. Your choice is saved on this device and applies to every page, including the sign-in screen.
                 </p>
               </div>
+              {student.role === 'faculty' && (
+                <div className="border-b border-line px-6">
+                  <ToggleRow
+                    label="Show navigation labels"
+                    description="Show the names under the icons in the mobile bottom bar."
+                    checked={navigationLabels}
+                    onChange={setNavigationLabels}
+                  />
+                </div>
+              )}
               <AnimationOptions />
               <div className="px-6 py-5">
                 <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

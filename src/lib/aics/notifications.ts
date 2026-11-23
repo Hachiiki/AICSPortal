@@ -1,4 +1,5 @@
-// Client-side notification type for the Topbar bell inbox.
+import type { Student } from './types'
+import type { PortalRoute } from './use-portal-route'
 
 // How long a sent notification lives before it expires out of the
 // faculty history (and is physically removed by the cleanup cron).
@@ -29,6 +30,15 @@ export interface NotificationInbox {
   marking?: boolean
   onRefresh: () => void
   onMark: (id?: string, all?: boolean) => Promise<boolean>
+}
+
+export function getNotificationTaskRoute(
+  { branch, username, role }: Pick<Student, 'branch' | 'username' | 'role'>,
+  { taskId, subjectCode }: Pick<Notification, 'taskId' | 'subjectCode'>,
+): PortalRoute | null {
+  if (!taskId || role === 'admin') return null
+  if (role === 'faculty') return { view: 'tasks', branch, username, role }
+  return { view: 'academics', branch, username, role: 'student', tab: 'tasks', subjectCode, taskId }
 }
 
 // ============================================================

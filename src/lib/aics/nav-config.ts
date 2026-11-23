@@ -129,19 +129,26 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   { view: 'tasks', label: 'Tasks', icon: ClipboardList, enabled: true, permission: PERMISSIONS.viewFacultyTasks },
 ]
 
-const FACULTY_MOBILE_NAV = [
-  { view: 'dashboard', label: 'Home' },
-  { view: 'my-students', label: 'Students' },
-  { view: 'grade-encoding', label: 'Grades' },
-] as const satisfies ReadonlyArray<Pick<NavItem, 'view' | 'label'>>
+const STAFF_MOBILE_NAV = {
+  faculty: [
+    { view: 'dashboard', label: 'Home' },
+    { view: 'my-students', label: 'Students' },
+    { view: 'grade-encoding', label: 'Grades' },
+  ],
+  admin: [
+    { view: 'dashboard', label: 'Home' },
+    { view: 'admin-people', label: 'People' },
+    { view: 'release-queue', label: 'Release' },
+  ],
+} as const satisfies Record<'faculty' | 'admin', ReadonlyArray<Pick<NavItem, 'view' | 'label'>>>
 
-export function getMobileNav(role: 'faculty' | 'student'): ReadonlyArray<
+export function getMobileNav(role: PortalRole): ReadonlyArray<
   Pick<NavItem, 'view' | 'label' | 'icon'> & { tab?: 'tasks' | 'grades' }
 > {
   if (role === 'student') return STUDENT_MOBILE_NAV
 
   const allowed = getPrimaryNav(role)
-  return FACULTY_MOBILE_NAV.flatMap((destination) => {
+  return STAFF_MOBILE_NAV[role].flatMap((destination) => {
     const item = allowed.find(({ view, enabled }) => view === destination.view && enabled)
     if (!item) return []
     return [{ view: item.view, label: destination.label, icon: item.icon }]
@@ -176,9 +183,13 @@ export function getPrimaryNav(role?: PortalRole | string): NavItem[] {
 }
 
 export function getPortalLabel(role?: PortalRole | string): string {
-  if (role === 'faculty') return 'Faculty Portal'
-  if (role === 'admin') return 'Admin Portal'
-  return 'Student Portal'
+  return `${getPortalRoleLabel(role)} Portal`
+}
+
+export function getPortalRoleLabel(role?: PortalRole | string): string {
+  if (role === 'faculty') return 'Faculty'
+  if (role === 'admin') return 'Admin'
+  return 'Student'
 }
 
 export function getPortalAria(role?: PortalRole | string): string {

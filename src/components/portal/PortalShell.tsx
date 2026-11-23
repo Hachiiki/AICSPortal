@@ -13,7 +13,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { finishFacultyPhoneNavigation, MobileNavigation } from './MobileNavigation'
+import { finishPhoneNavigation, MobileNavigation } from './MobileNavigation'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
@@ -89,12 +89,11 @@ export function PortalShell({
   const role = student.role ?? 'student'
   const mainContent = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (role === 'faculty' && mainContent.current) finishFacultyPhoneNavigation(mainContent.current)
-  }, [role, active])
+    if (mainContent.current) finishPhoneNavigation(mainContent.current)
+  }, [active])
   const phone = usePhoneViewport()
   const { mode } = useAnimationPreferences()
   const studentPhone = role === 'student' && phone
-  const hasPhoneDock = role === 'student' || role === 'faculty'
   const tourActive = useStudentOnboarding()?.busy ?? false
   // The sign-in overlay coordinates its own reveal of the portal chrome.
   const assembleReveal = useAssembleReveal()
@@ -128,7 +127,7 @@ export function PortalShell({
         profile={profilePanel ? student : undefined}
         onLogout={onLogout}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column' : role === 'faculty' ? 'faculty-portal-column' : ''} ${hasPhoneDock ? 'pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
+      <div className={`min-w-0 pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0 lg:pl-60 ${role === 'student' ? 'student-portal-column' : role === 'faculty' ? 'faculty-portal-column' : ''}`} inert={mobileNavActive}>
         <Topbar
           student={student}
           active={active}
@@ -160,7 +159,7 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
-        {hasPhoneDock && phone && (
+        {phone && (
           <MobileNavigation
             student={student}
             active={active}

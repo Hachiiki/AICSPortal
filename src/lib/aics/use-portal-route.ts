@@ -104,7 +104,7 @@ export function parsePath(path: string): PortalRoute {
     if (parts[4] === 'events') {
       return { view: 'events', branch, username, role }
     }
-    if (parts[4] === 'notifications' && role === 'student') {
+    if (parts[4] === 'notifications') {
       return { view: 'notifications', branch, username, role }
     }
     if (parts[4] === 'professors') {
@@ -167,7 +167,7 @@ export function routeToPath(route: PortalRoute): string {
     case 'events':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/events`
     case 'notifications':
-      return `/portal/${encodeURIComponent(route.branch)}/student/${encodeURIComponent(route.username)}/notifications`
+      return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/notifications`
     case 'professors':
       return `/portal/${encodeURIComponent(route.branch)}/${route.role}/${encodeURIComponent(route.username)}/professors`
     case 'enrollment':
