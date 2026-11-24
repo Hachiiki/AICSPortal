@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { ChevronLeft, Search, Save, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
+import { ChevronLeft, Search, Save, Send, Calculator, ArrowDown, Info, Loader2, History, X, SearchX } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -47,6 +47,17 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const branch = faculty?.branch || student.branch || 'commonwealth'
 
   const { sections, gradeRows: initialRows, allStudents } = useFacultyRows(facultyData as any)
+  const sectionOptions = useMemo(() => {
+    const bySubject = new Map<string, string>()
+    for (const { subjectCode, room } of sections) {
+      // The grade filter groups every term with the same subject code.
+      if (!bySubject.has(subjectCode)) bySubject.set(subjectCode, `${subjectCode} · ${room}`)
+    }
+    return [
+      { value: 'all', label: `All sections (${sections.length})` },
+      ...Array.from(bySubject, ([value, label]) => ({ value, label })),
+    ]
+  }, [sections])
 
   const [rows, setRows] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
@@ -335,11 +346,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-sm:space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 max-sm:hidden"><ChevronLeft className="w-4 h-4" /> Back to Dashboard</button>
+              <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Grade Encoding</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} • Prelim / Midterm / Finals → final auto-computed (INC = 0)</p>
             </div>
             <div className="hidden sm:flex items-center gap-1 p-1 rounded-full bg-slate-50 border border-slate-200 shadow-sm self-center">
@@ -350,18 +361,29 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             </div>
           </div>
 
-            <div className="flex flex-wrap gap-2 items-center">
+          <SelectMenu
+            id="grade-section"
+            label="Section"
+            value={activeSection}
+            onChange={setActiveSection}
+            options={sectionOptions}
+            className="sm:hidden"
+            buttonClassName="min-h-11 min-w-0"
+            panelClassName="min-w-0 [&_[role=option]]:min-h-11"
+          />
+
+          <div className="hidden flex-wrap items-center gap-2 sm:flex">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Section</span>
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => setActiveSection('all')} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === 'all' ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}>All sections ({sections.length} • {rows.length} rows)</button>
+              <button onClick={() => setActiveSection('all')} aria-pressed={activeSection === 'all'} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === 'all' ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}>All sections ({sections.length} • {rows.length} rows)</button>
               {sections.map((s) => (<button key={s.key} onClick={() => setActiveSection(s.subjectCode)} aria-pressed={activeSection === s.subjectCode} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${activeSection === s.subjectCode ? 'bg-[#1D6FB8] text-white border-[#1D6FB8]' : 'bg-surface text-slate-700 border-slate-200'}`}>{s.subjectCode} · {s.room}</button>))}
             </div>
           </div>
 
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-              <div className="flex gap-2">
-                {(['all', 'prelim', 'midterm', 'finals'] as const).map((p) => (<button key={p} onClick={() => setPeriod(p)} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${period === p ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}>{p === 'all' ? 'All periods' : p === 'prelim' ? 'Prelim only' : p === 'midterm' ? 'Midterm only' : 'Finals only'}</button>))}
+              <div className="faculty-periods flex gap-2" role="group" aria-label="Grade period">
+                {(['all', 'prelim', 'midterm', 'finals'] as const).map((p) => (<button key={p} onClick={() => setPeriod(p)} aria-pressed={period === p} className={`px-3 py-1.5 rounded-full text-xs font-medium border ${period === p ? 'bg-[#153357] text-white border-[#153357]' : 'bg-surface text-slate-700 border-slate-200'}`}><span className="sm:hidden">{p === 'all' ? 'All periods' : p === 'prelim' ? 'Prelim' : p === 'midterm' ? 'Midterm' : 'Finals'}</span><span className="hidden sm:inline">{p === 'all' ? 'All periods' : p === 'prelim' ? 'Prelim only' : p === 'midterm' ? 'Midterm only' : 'Finals only'}</span></button>))}
               </div>
               <div className="flex items-center gap-2">
                 {/* Stage 2C: bg-[#fffbeb] is exact in light; dark pairs
@@ -376,14 +398,14 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
             {period !== 'all' && (
               <div className="px-4 py-3 border-b border-slate-100 bg-surface flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'} · {activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} · per-period save</span></p>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button onClick={handleSavePeriod} disabled={saving} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : `Save ${period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}`}</button>
-                  <button onClick={() => openSubmit(period)} disabled={submitting} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] dark:hover:bg-[#1e4a77] inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> Submit {period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}</button>
+                  <button onClick={() => openSubmit(period)} disabled={submitting} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] dark:hover:bg-[#1e4a77] inline-flex items-center gap-1.5 disabled:opacity-60"><Send className="w-3.5 h-3.5" aria-hidden="true" /> Submit {period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}</button>
                 </div>
               </div>
             )}
             <div className="px-4 py-3 flex flex-wrap gap-3 items-center border-b border-slate-100">
-              <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <div className="relative flex-1 min-w-[200px] max-w-sm max-sm:min-w-0 max-sm:basis-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
                 <label htmlFor="grade-encoding-search" className="sr-only">Search student</label>
                 <input id="grade-encoding-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search student…" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface shadow-sm text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
@@ -392,8 +414,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 aria-label="Filter by status"
                 value={statusFilter}
                 onChange={setStatusFilter}
-                buttonClassName="w-auto"
-                panelClassName="z-30"
+                buttonClassName="w-auto max-sm:min-w-0"
+                panelClassName="z-30 max-sm:min-w-0 max-sm:w-[min(14rem,calc(100vw-4rem))]"
                 options={[
                   { value: 'all', label: 'All statuses' },
                   { value: '', label: 'No status' },
@@ -405,15 +427,59 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               <label className="inline-flex items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={showOnlyDirty} onChange={(e) => setShowOnlyDirty(e.target.checked)} className="rounded" /> Dirty only</label>
               <span className="text-xs text-slate-500">{filtered.length} / {rows.length} records{hiddenDroppedCount > 0 ? ` • ${hiddenDroppedCount} hidden (Dropped/Transferred)` : ''}</span>
             </div>
-            <div className="overflow-auto max-h-[70vh]">
-              <table className="w-full text-sm">
+            {period === 'all' && filtered.length > 0 && (
+              <ul aria-label="Grade summary" className="divide-y divide-line sm:hidden">
+                {filtered.map((row) => {
+                  const grades = [
+                    { label: 'Prelim', value: row.prelim || 'INC' },
+                    { label: 'Midterm', value: row.midterm || 'INC' },
+                    { label: 'Finals', value: row.finals || 'INC' },
+                    { label: 'Final', value: row.finalGrade || computedFinalINCasZero(row.prelim, row.midterm, row.finals) || '-' },
+                  ]
+                  return (
+                    <li key={row._key} className="space-y-2 px-4 py-3">
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="faculty-item-title break-words text-ink">{row.studentName}</p>
+                          <p className="mt-0.5 text-xs leading-relaxed text-slate-700">
+                            <span className="font-semibold text-link-strong">{row.subjectCode}</span>
+                            {row.section && <> · {row.section}</>}
+                          </p>
+                          <p className="break-words text-xs leading-relaxed text-slate-600">{row.studentNumber} · {row.academicYear} {row.semester}</p>
+                          {row.dirty && <p className="text-xs font-medium text-amber-800">Unsaved changes</p>}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openHistory(row)}
+                          aria-label={`Grade history for ${row.studentName} in ${row.subjectCode}`}
+                          className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-link-strong hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-link"
+                        >
+                          <History className="size-3.5" aria-hidden /> History
+                        </button>
+                      </div>
+                      <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,3rem),1fr))] gap-1 rounded-lg bg-slate-50 p-1 text-center">
+                        {grades.map(({ label, value }) => (
+                          <div key={label} className={`min-w-0 rounded-md px-0.5 py-1.5 ${label === 'Final' ? 'bg-blue-50' : ''}`}>
+                            <dt className="break-words text-xs font-medium text-slate-700">{label}</dt>
+                            <dd className={`mt-0.5 break-words text-sm font-semibold tabular-nums ${label === 'Final' ? 'text-link-strong' : 'text-ink'}`}>{value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+            {period !== 'all' && filtered.length > 0 && <p id="faculty-grade-scroll-hint" className="border-b border-line px-4 py-2 text-xs text-slate-600 sm:hidden">Scroll sideways for status and history.</p>}
+            <div className={`${period === 'all' ? 'hidden sm:block' : ''} overflow-auto max-h-[70vh] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-link`} tabIndex={0} role="region" aria-label="Grade records" aria-describedby={period !== 'all' && filtered.length > 0 ? "faculty-grade-scroll-hint" : undefined}>
+              <table className="faculty-grades-table w-full text-sm">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                     <th scope="col" className="sticky left-0 z-20 px-3 py-2.5 text-left w-56 bg-slate-50 border-r border-slate-200">Student</th>
                     {showPrelim && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Prelim</th>}
                     {showMidterm && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Midterm</th>}
                     {showFinals && <th scope="col" className="px-2 py-2.5 text-center w-24 bg-slate-50">Finals</th>}
-                    {showFinal && <th scope="col" className={`px-2 py-2.5 text-center w-24 bg-blue-50 ${period === 'all' ? 'sticky right-0 z-20' : ''}`}>Final</th>}
+                    {showFinal && <th scope="col" className={`px-2 py-2.5 text-center w-24 bg-blue-50 ${period === 'all' ? 'sm:sticky sm:right-0 sm:z-20' : ''}`}>Final</th>}
                     {period === 'finals' && <th scope="col" className="px-2 py-2.5 text-center w-28 bg-slate-50">Remarks</th>}
                     {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-center w-24 bg-slate-50">Status</th>}
                     {period !== 'all' && <th scope="col" className="px-3 py-2.5 text-left w-40 bg-slate-50">Audit</th>}
@@ -433,11 +499,11 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                         {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showFinal && <td className={`px-2 py-2.5 text-center ${period === 'all' ? 'sticky right-0 z-0 bg-blue-50' : ''}`}><input aria-label={`${row.studentName} computed final grade`} value={fg} readOnly className="w-20 h-10 px-2 text-center font-mono tabular-nums text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
+                        {showFinal && <td className={`px-2 py-2.5 text-center ${period === 'all' ? 'sm:sticky sm:right-0 sm:z-0 bg-blue-50' : ''}`}><input aria-label={`${row.studentName} computed final grade`} value={fg} readOnly className="w-20 h-10 px-2 text-center font-mono tabular-nums text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
                         {period === 'finals' && <td className="px-2 py-2.5 text-center">{rm ? <RemarksBadge remarks={rm} /> : <span className="text-slate-500">—</span>}</td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${statusBadge}`}>{periodStatus || '—'}</span></td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-left text-[11px] text-slate-500">{faculty?.username || '—'} • {periodStatus || 'No status'} {row.dirty ? '• unsaved' : ''}</td>}
-                        <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} aria-label={`Grade history for ${row.studentName}`} className="inline-flex items-center justify-center gap-1 h-6 min-w-6 px-2 rounded border border-slate-200 bg-surface text-[10px] font-medium hover:bg-slate-50"><History className="w-3 h-3" /> History</button></td>
+                        <td className="px-2 py-2.5 text-center"><button onClick={() => openHistory(row)} aria-label={`Grade history for ${row.studentName}`} className="inline-flex items-center justify-center gap-1 h-6 min-w-6 px-2 rounded border border-slate-200 bg-surface text-[10px] font-medium hover:bg-slate-50 max-sm:min-h-11 max-sm:rounded-lg max-sm:text-xs"><History className="w-3 h-3" aria-hidden="true" /> History</button></td>
                       </tr>
                     )
                   })}

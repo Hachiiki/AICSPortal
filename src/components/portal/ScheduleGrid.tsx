@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useSyncExternalStore } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, List, MapPin } from 'lucide-react'
 import {
   START_HOUR,
   HOURS,
@@ -101,21 +101,26 @@ function EventCard({ session, courses, overlapIndex, overlapTotal }: EventCardPr
 interface ScheduleGridProps {
   courses: Course[]
   sessions: Session[]
+  phoneAgenda?: boolean
 }
 
-export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
+export function ScheduleGrid({ courses, sessions, phoneAgenda = false }: ScheduleGridProps) {
   // Resolve `today` client-side only to avoid SSR hydration mismatch.
   const today = useSyncExternalStore(emptySubscribe, getClientToday, getServerToday)
   // Lazy-init anchor to current week's Monday on the client; null on server.
   const [anchor, setAnchor] = useState<Date | null>(() =>
     typeof window !== 'undefined' ? getMonday(new Date()) : null
   )
+  const [selectedDay, setSelectedDay] = useState<number | null>(null)
+  const [agendaView, setAgendaView] = useState(true)
 
   const days = useMemo(() => (anchor ? getWeekDays(anchor) : []), [anchor])
   const todayIndex = useMemo(() => {
     if (!today || !anchor) return -1
     return dateToDayIndexSafe(today)
   }, [today, anchor])
+  const agendaDay = selectedDay ?? Math.max(0, todayIndex)
+  const showAgenda = phoneAgenda && agendaView
 
   const goPrev = () => {
     if (!anchor) return
@@ -129,7 +134,10 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
     d.setDate(d.getDate() + 7)
     setAnchor(d)
   }
-  const goToday = () => setAnchor(getMonday(new Date()))
+  const goToday = () => {
+    setAnchor(getMonday(new Date()))
+    setSelectedDay(null)
+  }
 
   // Pre-compute sessions + overlap groups per day.
   // Overlap detection: two sessions overlap when their time ranges intersect.
@@ -157,11 +165,11 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
   }, [sessions])
 
   return (
-    <section className="flex-1 min-w-0 rounded-xl border border-slate-200 bg-surface shadow-sm">
+    <section className="faculty-card flex-1 min-w-0 rounded-xl border border-slate-200 bg-surface shadow-sm">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-slate-100">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-900">Weekly Schedule</h2>
+          <h2 className="faculty-section-title text-lg font-semibold tracking-tight text-slate-900">Weekly Schedule</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Your class schedule from Monday to Saturday
           </p>
@@ -199,9 +207,64 @@ export function ScheduleGrid({ courses, sessions }: ScheduleGridProps) {
         </div>
       </div>
 
-      {/* Grid — horizontally scrollable on small screens */}
-      <p className="sm:hidden px-4 py-2 text-xs text-slate-600">Swipe across to see every day.</p>
-      <div className="overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" tabIndex={0} role="region" aria-label="Weekly class timetable, scroll horizontally for more days">
+      {phoneAgenda && (
+        <div className="sm:hidden">
+          {showAgenda && (
+            <div aria-label="Day of the week" role="group" className="grid grid-cols-6 gap-0.5 border-b border-line p-1">
+              {DAY_SHORT.map((day, index) => (
+                <button
+                  key={day}
+                  type="button"
+                  aria-label={days[index]?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) ?? day}
+                  aria-pressed={agendaDay === index}
+                  onClick={() => setSelectedDay(index)}
+                  className="flex min-h-12 min-w-0 flex-col items-center justify-center rounded-lg p-0.5 text-xs font-medium tabular-nums text-slate-700 outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-link aria-pressed:bg-blue-50 aria-pressed:text-link-strong aria-pressed:font-semibold"
+                >
+                  {day}
+                  <span className="text-sm">{days[index]?.getDate()}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap items-center justify-between gap-1 px-4 pt-2">
+            {showAgenda && (
+              <h3 className="faculty-item-title text-ink" aria-live="polite">
+                {days[agendaDay]?.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+              </h3>
+            )}
+            <button
+              type="button"
+              onClick={() => setAgendaView(!agendaView)}
+              className="ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-link-strong hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-link"
+            >
+              {showAgenda ? <CalendarDays className="size-4" aria-hidden /> : <List className="size-4" aria-hidden />}
+              {showAgenda ? 'Week grid' : 'Day list'}
+            </button>
+          </div>
+          {showAgenda && (
+            <ul className="space-y-2 px-4 pb-4">
+              {dayData[agendaDay].length === 0 && <li className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">No classes scheduled.</li>}
+              {dayData[agendaDay].map(({ session }, index) => {
+                const course = getCourse(session.code, courses)
+                const style = COLOR_STYLES[course.color]
+                return (
+                  <li key={`${session.code}-${session.start}-${index}`} className={`space-y-1 rounded-lg border-l-[3px] p-3 ${style.border} ${style.bg}`}>
+                    <p className={`faculty-course-code ${style.code}`}>{session.code}</p>
+                    <p className="faculty-item-title text-ink">{course.title}</p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-[0.8125rem] leading-snug text-slate-700">
+                      <span className="inline-flex items-center gap-1.5 tabular-nums"><Clock className="size-3.5 shrink-0" aria-hidden />{formatRangeTime(session.start, session.end)}</span>
+                      {session.room && <span className="inline-flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0" aria-hidden />{session.room}</span>}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {!showAgenda && <p className="sm:hidden px-4 py-2 text-xs text-slate-600">Swipe across to see every day.</p>}
+      <div className={`${showAgenda ? 'hidden sm:block' : ''} overflow-x-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500`} tabIndex={0} role="region" aria-label="Weekly class timetable, scroll horizontally for more days">
         <div className="min-w-[720px]">
           {/* Header row: TIME + day labels */}
           <div className={GRID_TEMPLATE}>

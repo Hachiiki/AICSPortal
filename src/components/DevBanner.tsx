@@ -16,6 +16,7 @@ export function DevBanner({ appEnv }: { appEnv: AppEnv }) {
 
   return (
     <div
+      data-app-notice=""
       className={cn(
         'w-full border-b border-amber-200 text-amber-950 sm:border-b-2 sm:border-black sm:text-black',
         // Stage 2C: the bridged dark amber-400 (oklch 0.55) drops black

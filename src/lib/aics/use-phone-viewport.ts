@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 
-const query = '(max-width: 639px)'
+const query = '(width < 40rem)'
 const subscribe = (listener: () => void) => {
   const media = window.matchMedia(query)
   media.addEventListener('change', listener)
