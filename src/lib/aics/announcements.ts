@@ -6,6 +6,7 @@ export type AnnouncementPriority = 'normal' | 'urgent'
 export const ANNOUNCEMENT_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 export const ANNOUNCEMENT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
 export const ANNOUNCEMENT_IMAGE_ALT_MAX_LENGTH = 180
+export const ANNOUNCEMENT_MARK_BATCH_SIZE = 200
 
 export function announcementImageUrl(id: string) {
   return `/api/announcements/image?id=${encodeURIComponent(id)}`

@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
       ...(academicYear ? { academicYear } : {}),
       ...(semester ? { semester } : {}),
     }
-    const from = releaseAction === 'release' ? 'submitted' : 'released'
+    const from: GradePeriodStatus = releaseAction === 'release' ? 'submitted' : 'released'
     const to = releaseAction === 'release' ? 'released' : 'submitted'
-    const selected = period ? [period] : periods
+    const selected: readonly (typeof periods)[number][] = period ? [period] : periods
     const statusKeys = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' } as const
     const statusFilters: Record<string, GradePeriodStatus | null>[] =
       selected.map((item) => ({ [statusKeys[item]]: from }))

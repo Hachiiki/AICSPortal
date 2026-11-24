@@ -167,10 +167,11 @@ export function useAuth() {
     }
   }, [])
 
-  const logout = useCallback(() => {
-    // Fire-and-forget: client state clears immediately; the server
-    // cookie clears in the background. Route guards bounce to login.
-    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+  const logout = useCallback(async () => {
+    const response = await fetch('/api/auth/logout', { method: 'POST' })
+    if (!response.ok || !(await response.json()).ok) {
+      throw new Error('The server could not confirm sign-out.')
+    }
     setAuth({ username: null, branch: null, role: null })
   }, [])
 

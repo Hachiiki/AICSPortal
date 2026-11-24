@@ -77,10 +77,11 @@ export function DashboardSummary({ title, regionLabel, semester, academicYear, i
   )
 }
 
-export function AcademicAnnouncements({ student, announcements, announcementReadIds }: {
+export function AcademicAnnouncements({ student, announcements, announcementReadIds, status }: {
   student: Student
   announcements?: Announcement[]
   announcementReadIds?: string[]
+  status?: 'loading' | 'error'
 }) {
   const { route } = usePortalRoute()
   const faculty = student.role === 'faculty'
@@ -88,7 +89,14 @@ export function AcademicAnnouncements({ student, announcements, announcementRead
   useDestinationFocus(id, route.view === 'dashboard' && route.focus === 'announcements')
   return (
       <section id={id} tabIndex={-1} data-tour={faculty ? undefined : 'student-announcements'} aria-label="Campus announcements" className="min-w-0 scroll-mt-16 sm:scroll-mt-36 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-      {announcements && announcements.length > 0 ? (
+      {status ? (
+        <div className="student-card rounded-xl border border-border bg-surface p-5 text-ink">
+          <h2 className="student-section-title text-sm font-semibold">Announcements</h2>
+          <p role={status === 'error' ? 'alert' : 'status'} className="mt-2 text-sm text-muted-fg">
+            {status === 'error' ? 'Could not load announcements.' : 'Loading announcements…'}
+          </p>
+        </div>
+      ) : announcements && announcements.length > 0 ? (
         <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
       ) : <div className="student-card rounded-xl border border-border bg-surface p-5 text-ink"><h2 className="student-section-title text-sm font-semibold">Announcements</h2><p className="mt-2 text-sm text-muted-fg">No announcements right now. Check here for campus updates.</p></div>}
       </section>
