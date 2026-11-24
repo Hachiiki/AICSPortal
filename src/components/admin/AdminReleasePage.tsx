@@ -85,7 +85,8 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
       })
       const data = await res.json()
       if (data.ok) {
-        toast.success(data.message || 'Grades released.')
+        if (data.auditWarning) toast.warning(data.auditWarning)
+        else toast.success(data.message || 'Grades released.')
         fetchGroups()
       } else {
         toast.error(data.error || 'Failed to release grades.')

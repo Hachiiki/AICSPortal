@@ -203,6 +203,11 @@ describe('grades/update route — issue #86 write-filter wiring', () => {
       semester: '1st Sem',
       prelimStatus: { $nin: ['submitted', 'released'] },
       midtermStatus: { $nin: ['submitted', 'released'] },
+      prelim: '',
+      midterm: '85',
+      finals: '',
+      finalGrade: '',
+      remarks: '',
     })
     // the write landed (fake matcher matched) and the audit recorded it
     expect(state.auditBatches).toHaveLength(1)
@@ -223,7 +228,31 @@ describe('grades/update route — issue #86 write-filter wiring', () => {
       academicYear: '2026-2027',
       semester: '1st Sem',
       finalsStatus: { $nin: ['submitted', 'released'] },
+      prelim: '',
+      midterm: '85',
+      finals: '',
+      finalGrade: '',
+      remarks: '',
     })
+  })
+
+  it('rejects a draft save when another edit changes the grade calculation snapshot', async () => {
+    state.row = { ...baseRow(), prelim: '80', midterm: '80', finals: '80', finalGrade: '80.00' }
+    state.writeRow = { ...state.row, midterm: '90', finalGrade: '83.00' }
+
+    const { body } = await callPatch({ ...row, prelim: '100' })
+
+    expect(body.results[0].ok).toBe(false)
+    expect(state.auditBatches).toHaveLength(0)
+  })
+
+  it('computes the final from stored periods even when a client sends its own total', async () => {
+    state.row = { ...baseRow(), prelim: '80', midterm: '90', finals: '80', finalGrade: '83.00' }
+
+    const { body } = await callPatch({ ...row, prelim: '100', finalGrade: '86', remarks: 'Good' })
+
+    expect(body.results[0].ok).toBe(true)
+    expect(state.updateOneCalls[0].update.$set).toMatchObject({ finalGrade: '89.00', remarks: 'Very Good' })
   })
 
   it('withdraw write: the filter composes gradeRow with the atomic submitted guard', async () => {

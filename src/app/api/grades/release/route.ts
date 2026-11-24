@@ -4,6 +4,8 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import { gradeReleaseAudit } from '@/lib/mongodb/grade-release-audit'
+import type { GradePeriodStatus, MongoGradeAudit, MongoSubject } from '@/lib/mongodb/types'
 
 // ---- Zod input schema (the only place release input is shaped) ----
 const gradeReleaseSchema = z.object({
@@ -86,122 +88,99 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Failed to load pending releases.' }, { status: 500 })
   }
 }
+const periods = ['prelim', 'midterm', 'finals'] as const
+
 export async function POST(request: NextRequest) {
   try {
-    const { branch, subjectCode, academicYear, semester, period, action, performedBy } = await parseBody(
-      request,
-      gradeReleaseSchema
-    )
+    const { branch, subjectCode, academicYear, semester, period, action, performedBy } =
+      await parseBody(request, gradeReleaseSchema)
     const releaseAction = action === 'unrelease' ? 'unrelease' : 'release'
-    // C2.5: session, spoof (performedBy), admin role, and claimed
-    // branch parity centralized (grade.releaseQueue release/unrelease —
-    // both actions share the admin role and same-branch parity gate).
     const { ctx } = await requireCan(
       request,
       { kind: 'grade.releaseQueue', branch },
       releaseAction,
       { claimedIdentity: performedBy }
     )
-    const performedByUser = ctx.actor.username
 
-    const col = await getCollection('subjects')
-    const auditCol = await getCollection('grade_audits')
-    const query: Record<string, string> = { branch, code: subjectCode }
-    if (academicYear) query.academicYear = academicYear
-    if (semester) query.semester = semester
-
-    const periodKey = period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : period === 'finals' ? 'finalsStatus' : null
-    let result
-    const now = new Date()
-    if (releaseAction === 'unrelease') {
-      // FIX-H1a (C3.3): released -> submitted, audited as 'unrelease'.
-      // The released guard rides the write filter itself, so only rows
-      // actually released move (issue #58).
-      if (periodKey) {
-        const docs = await col.find({ ...query, [periodKey]: 'released' }).toArray()
-        result = await col.updateMany(
-          { ...query, [periodKey]: 'released' },
-          { $set: { [periodKey]: 'submitted', gradeStatus: 'submitted' } }
-        )
-        if (docs.length) {
-          const audits = docs.map((d: any) => ({
-            branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: 'released', newValue: 'submitted', action: 'unrelease', performedBy: performedByUser, performedAt: now,
-          }))
-          try {
-            await auditCol.insertMany(audits)
-          } catch (auditErr) {
-            console.error('Grade unrelease audit insert failed:', auditErr)
-          }
-        }
-      } else {
-        const docs = await col.find({ ...query, $or: [{ prelimStatus: 'released' }, { midtermStatus: 'released' }, { finalsStatus: 'released' }] }).toArray()
-        result = await col.updateMany(
-          { ...query, $or: [{ prelimStatus: 'released' }, { midtermStatus: 'released' }, { finalsStatus: 'released' }] },
-          { $set: { prelimStatus: 'submitted', midtermStatus: 'submitted', finalsStatus: 'submitted', gradeStatus: 'submitted' } }
-        )
-        if (docs.length) {
-          const audits = docs.map((d: any) => ({
-            branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: 'released', newValue: 'submitted', action: 'unrelease', performedBy: performedByUser, performedAt: now,
-          }))
-          try {
-            await auditCol.insertMany(audits)
-          } catch (auditErr) {
-            console.error('Grade unrelease audit insert failed:', auditErr)
-          }
-        }
-      }
-      return NextResponse.json({
-        ok: true,
-        message: `${result.modifiedCount} grade(s) unreleased for correction.`,
-        modifiedCount: result.modifiedCount,
-      })
+    const subjects = await getCollection<MongoSubject>('subjects')
+    const query = {
+      branch,
+      code: subjectCode,
+      ...(academicYear ? { academicYear } : {}),
+      ...(semester ? { semester } : {}),
     }
-    if (periodKey) {
-      const docs = await col.find({ ...query, [periodKey]: 'submitted' }).toArray()
-      result = await col.updateMany(
-        { ...query, [periodKey]: 'submitted' },
-        { $set: { [periodKey]: 'released', gradeStatus: 'released' } }
-      )
-      if (docs.length) {
-        const audits = docs.map((d: any) => ({
-          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period, oldValue: d[period as string] || '', newValue: d[period as string] || '', action: 'release', performedBy: performedByUser, performedAt: now,
-        }))
-        // BUG-011: log audit failures instead of swallowing.
-        try {
-          await auditCol.insertMany(audits)
-        } catch (auditErr) {
-          console.error('Grade release audit insert failed:', auditErr)
+    const from = releaseAction === 'release' ? 'submitted' : 'released'
+    const to = releaseAction === 'release' ? 'released' : 'submitted'
+    const selected = period ? [period] : periods
+    const statusKeys = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' } as const
+    const statusFilters: Record<string, GradePeriodStatus | null>[] =
+      selected.map((item) => ({ [statusKeys[item]]: from }))
+    if (!period) {
+      statusFilters.push({ prelimStatus: null, midtermStatus: null, finalsStatus: null, gradeStatus: from })
+    }
+    const candidates: MongoSubject[] = await subjects.find({ ...query, $or: statusFilters }).toArray()
+    const performedAt = new Date()
+    const writes = candidates.map((row) => {
+      const legacy = !period && periods.every((item) => row[statusKeys[item]] == null)
+      const affected = selected.filter((item) => (legacy ? row.gradeStatus : row[statusKeys[item]]) === from)
+      const statusSnapshot = Object.fromEntries(periods.map((item) => [
+        statusKeys[item], row[statusKeys[item]] ?? null,
+      ]))
+      const affectedValues = Object.fromEntries(affected.map((item) => [item, row[item] ?? null]))
+      const events = affected.map((item) => gradeReleaseAudit(row, item, releaseAction, ctx.actor.username, performedAt))
+      const statuses = Object.fromEntries(affected.map((item) => [statusKeys[item], to]))
+      return {
+        updateOne: {
+          filter: { ...query, _id: row._id, ...statusSnapshot, ...affectedValues, ...(legacy ? { gradeStatus: from } : {}) },
+          update: {
+            $set: { ...statuses, gradeStatus: to },
+            $push: { pendingReleaseAudits: { $each: events } },
+          },
+        },
+      }
+    })
+    const result = writes.length ? await subjects.bulkWrite(writes, { ordered: false }) : { modifiedCount: 0 }
+
+    // The transition and pending event are one document write. Retry the
+    // export to grade_audits even when this request has no new transitions.
+    let auditWarning: string | undefined
+    try {
+      const pending: MongoSubject[] = await subjects.find({ ...query, 'pendingReleaseAudits.0': { $exists: true } })
+        .project({ pendingReleaseAudits: 1 })
+        .toArray()
+      if (pending.length) {
+        const audits = await getCollection<MongoGradeAudit>('grade_audits')
+        for (const row of pending) {
+          const events = row.pendingReleaseAudits ?? []
+          if (!events.length) continue
+          await audits.bulkWrite(events.map((event) => ({
+            updateOne: {
+              filter: { _id: event._id, branch },
+              update: { $setOnInsert: event },
+              upsert: true,
+            },
+          })), { ordered: false })
+          await subjects.updateOne(
+            { ...query, _id: row._id },
+            { $pull: { pendingReleaseAudits: { _id: { $in: events.map((event) => event._id) } } } }
+          )
         }
       }
-    } else {
-      const docs = await col.find({ ...query, $or: [{ prelimStatus: 'submitted' }, { midtermStatus: 'submitted' }, { finalsStatus: 'submitted' }, { gradeStatus: 'submitted' }] }).toArray()
-      result = await col.updateMany(
-        { ...query, $or: [{ prelimStatus: 'submitted' }, { midtermStatus: 'submitted' }, { finalsStatus: 'submitted' }, { gradeStatus: 'submitted' }] },
-        { $set: { prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' } }
-      )
-      if (result.modifiedCount === 0) {
-        result = await col.updateMany({ ...query, gradeStatus: 'submitted' }, { $set: { prelimStatus: 'released', midtermStatus: 'released', finalsStatus: 'released', gradeStatus: 'released' } })
-      }
-      if (docs.length) {
-        const audits = docs.map((d: any) => ({
-          branch, studentUsername: d.studentUsername, subjectCode: d.code, academicYear: d.academicYear || academicYear || '', semester: d.semester || semester || '', period: 'all', oldValue: '', newValue: '', action: 'release', performedBy: performedByUser, performedAt: now,
-        }))
-        try {
-          await auditCol.insertMany(audits)
-        } catch (auditErr) {
-          console.error('Grade release audit insert failed:', auditErr)
-        }
-      }
+    } catch (err) {
+      console.error('Grade release audit export pending:', err)
+      auditWarning = 'Grade history was saved with the grade. Export to the audit collection is pending.'
     }
 
+    const operation = releaseAction === 'release' ? 'released to students' : 'unreleased for correction'
     return NextResponse.json({
       ok: true,
-      message: `${result.modifiedCount} grade(s) released to students.`,
+      message: result.modifiedCount + ' grade(s) ' + operation + '.',
       modifiedCount: result.modifiedCount,
+      ...(auditWarning ? { auditWarning } : {}),
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Grade release error:', err)
-    return NextResponse.json({ ok: false, error: 'Failed to release grades.' }, { status: 500 })
+    return NextResponse.json({ ok: false, error: 'Failed to complete the grade release. Reload to check the latest grades before retrying.' }, { status: 500 })
   }
 }

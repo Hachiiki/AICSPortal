@@ -188,38 +188,53 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     }
     setSaving(true)
     try {
-      const updates = targets.map((r: any) => {
-        const fg = computedFinalINCasZero(r.prelim, r.midterm, r.finals)
-        const payload: any = { studentUsername: r.studentUsername, subjectCode: r.subjectCode, branch, academicYear: r.academicYear, semester: r.semester, [field]: (r as any)[field], performedBy: faculty?.username || student.username }
-        if (fg) {
-          payload.finalGrade = fg
-          payload.remarks = remarksFor(fg) || r.remarks
-        } else if (field === 'finals' && !(r as any)[field]) {
-          payload.finalGrade = ''
-        }
-        return payload
-      })
+      const updates = targets.map((r) => ({
+        studentUsername: r.studentUsername,
+        subjectCode: r.subjectCode,
+        branch,
+        academicYear: r.academicYear,
+        semester: r.semester,
+        [field]: r[field],
+      }))
       const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
       const data = await res.json()
-      if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to save')
+      const outcomes: {
+        ok: boolean
+        studentUsername: string
+        subjectCode: string
+        academicYear: string
+        semester: string
+        finalGrade?: string
+        remarks?: string
+      }[] = data.results ?? []
+      const saved = outcomes.filter((row) => row.ok)
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || (outcomes.length
+          ? 'The grades could not be saved. Refresh the grade sheet and review your edits.'
+          : 'Failed to save'))
+      }
       setRows((prev) =>
         prev.map((r) => {
-          const isTarget = targets.some((t: any) => t._key === r._key)
-          if (!isTarget) return r
-          const fg = computedFinalINCasZero(r.prelim, r.midterm, r.finals)
-          const newFg = fg || r.finalGrade
-          const newRemarks = fg ? remarksFor(fg) : r.remarks
-          return { ...r, finalGrade: newFg, remarks: newRemarks, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: newFg }, [statusKey]: 'draft', gradeStatus: 'draft' }
+          const persisted = saved.find((row) => row.studentUsername === r.studentUsername
+            && row.subjectCode === r.subjectCode && row.academicYear === r.academicYear && row.semester === r.semester)
+          if (!persisted) return r
+          const original = { ...r.original, [field]: r[field], finalGrade: persisted.finalGrade ?? r.original.finalGrade }
+          const dirty = r.prelim !== original.prelim || r.midterm !== original.midterm || r.finals !== original.finals
+          return { ...r, finalGrade: persisted.finalGrade ?? r.finalGrade, remarks: persisted.remarks ?? r.remarks, original, dirty, [statusKey]: 'draft', gradeStatus: 'draft' }
         })
       )
-      if (onRefresh) await onRefresh()
-      toast.success(`Saved ${targets.length} ${period} draft(s) · ${activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} (${filtered.length})`}`)
+      if (saved.length < targets.length || data.auditWarning) {
+        toast.warning(data.auditWarning || `Saved ${saved.length} of ${targets.length} drafts. Refresh the grade sheet before retrying the skipped rows.`)
+      } else {
+        if (onRefresh) await onRefresh()
+        toast.success(`Saved ${saved.length} ${period} draft(s).`)
+      }
     } catch (e: any) {
       toast.error(e.message || 'Save failed')
     } finally {
       setSaving(false)
     }
-  }, [period, filtered, activeSection, branch, faculty?.username, student.username])
+  }, [period, filtered, activeSection, branch, faculty?.username, student.username, onRefresh])
 
   const handleSubmitConfirm = useCallback(async () => {
     const vis = activeSection === 'all' ? filtered : filtered.filter((r) => r.subjectCode === activeSection)
@@ -244,13 +259,19 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         })
         const dirtyForPatch = patchedRows.filter((r: any) => vis.some((v: any) => v._key === r._key) && r.dirty && (!(r as any)[sKey] || (r as any)[sKey] === 'draft') && !r.locked)
         if (dirtyForPatch.length > 0) {
-          const updates = dirtyForPatch.map((r: any) => {
-            const fg = r.finalGrade || computedFinalINCasZero(r.prelim, r.midterm, r.finals)
-            return { studentUsername: r.studentUsername, subjectCode: r.subjectCode, branch, academicYear: r.academicYear, semester: r.semester, prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: fg, remarks: remarksFor(fg) || r.remarks, performedBy: faculty?.username || student.username }
-          })
+          const updates = dirtyForPatch
+            .filter((r: any) => r[f] !== r.original[f] || !r[sKey])
+            .map((r: any) => ({
+              studentUsername: r.studentUsername, subjectCode: r.subjectCode, branch,
+              academicYear: r.academicYear, semester: r.semester, [f]: r[f],
+            }))
+          if (updates.length) {
           const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
           const data = await res.json()
-          if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to save INC fills')
+            if (!res.ok || !data.ok || data.results?.some((row: { ok: boolean }) => !row.ok)) {
+              throw new Error(data.error || 'Some draft grades could not be saved. Refresh the grade sheet before submitting.')
+            }
+          }
         }
         setRows(patchedRows)
         const distinct = new Map<string, { subjectCode: string; academicYear: string; semester: string }>()

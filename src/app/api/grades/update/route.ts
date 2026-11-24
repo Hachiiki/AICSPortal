@@ -85,7 +85,16 @@ export async function PATCH(request: NextRequest) {
     // fetch below stays for the audit trail and the finalGrade compute.
     const col = await getCollection('subjects')
     const auditCol = await getCollection('grade_audits')
-    const results: { ok: boolean; studentUsername: string; subjectCode: string; reason?: string }[] = []
+    const results: {
+      ok: boolean
+      studentUsername: string
+      subjectCode: string
+      academicYear?: string
+      semester?: string
+      finalGrade?: string
+      remarks?: string
+      reason?: string
+    }[] = []
     let auditOk = true
 
     // BUG-008: grade values must be 0-100 (up to 2 decimals) or INC (case-insensitive).
@@ -275,36 +284,28 @@ export async function PATCH(request: NextRequest) {
         pushAudit('finals', old, nv)
       }
 
-      // finalGrade: if explicitly provided use it, else compute with INC=0 if any of prelim/mid/finals changed
-      let fg = finalGrade !== undefined ? String(finalGrade) : ''
-      if (finalGrade === undefined && (prelim !== undefined || midterm !== undefined || finals !== undefined)) {
+      // Period saves use the current stored values. Older clients may still
+      // send a final derived from their local copy of the grade sheet.
+      if (touched.length) {
         const p = prelim !== undefined ? String(prelim) : existing.prelim || ''
         const m = midterm !== undefined ? String(midterm) : existing.midterm || ''
         const f = finals !== undefined ? String(finals) : existing.finals || ''
         const computed = computedFinalINCasZero(p, m, f)
         if (computed) {
-          fg = computed
-          setDoc.finalGrade = fg
-          // INC as final when any period INC? computed returns '' for missing, but INC-as-0 returns numeric
-          // If computed is numeric, set remarks accordingly
-          const rm = remarksFor(computed)
-          if (rm) setDoc.remarks = rm
-        } else if (fg === '') {
-          // if not computable, keep existing or clear
+          setDoc.finalGrade = computed
+          setDoc.remarks = remarksFor(computed)
+          pushAudit('finalGrade', existing.finalGrade || '', computed)
         }
-        if (fg) pushAudit('finalGrade', existing.finalGrade || '', fg)
       } else if (finalGrade !== undefined) {
         setDoc.finalGrade = String(finalGrade)
         pushAudit('finalGrade', existing.finalGrade || '', String(finalGrade))
       }
 
-      if (remarks !== undefined) {
+      if (!touched.length && remarks !== undefined) {
         const old = existing.remarks || ''
         const nv = String(remarks)
         setDoc.remarks = nv
         pushAudit('finalGrade', old, nv)
-      } else if (setDoc.remarks === undefined && fg) {
-        // remarks already set via computed
       }
 
       if (Object.keys(setDoc).length === 0) {
@@ -326,8 +327,15 @@ export async function PATCH(request: NextRequest) {
       for (const p of periodsToCheck) {
         Object.assign(stateGuards, editablePeriodGuard(p))
       }
+      const gradeSnapshot = {
+        prelim: existing.prelim ?? null,
+        midterm: existing.midterm ?? null,
+        finals: existing.finals ?? null,
+        finalGrade: existing.finalGrade ?? null,
+        remarks: existing.remarks ?? null,
+      }
       const result = await col.updateOne(
-        { ...scope.gradeRow(studentUsername, subjectCode, term), ...stateGuards },
+        { ...scope.gradeRow(studentUsername, subjectCode, term), ...stateGuards, ...gradeSnapshot },
         { $set: setDoc }
       )
 
@@ -351,6 +359,12 @@ export async function PATCH(request: NextRequest) {
         ok: result.modifiedCount > 0,
         studentUsername,
         subjectCode,
+        academicYear: term.academicYear,
+        semester: term.semester,
+        ...(result.modifiedCount > 0 ? {
+          finalGrade: setDoc.finalGrade ?? existing.finalGrade,
+          remarks: setDoc.remarks ?? existing.remarks,
+        } : {}),
         ...(result.modifiedCount === 0 ? { reason: 'No change' } : {}),
       })
     }

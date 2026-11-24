@@ -111,6 +111,7 @@ export interface MongoSubject {
   prelimStatus?: GradePeriodStatus
   midtermStatus?: GradePeriodStatus
   finalsStatus?: GradePeriodStatus
+  pendingReleaseAudits?: (MongoGradeAudit & { _id: string })[]
 }
 
 // Real audit log — every grade change is recorded
@@ -121,10 +122,10 @@ export interface MongoGradeAudit {
   subjectCode: string
   academicYear: string
   semester: string
-  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade'
+  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade' | 'all'
   oldValue: string
   newValue: string
-  action: 'save' | 'submit' | 'release' | 'fill'
+  action: 'save' | 'submit' | 'release' | 'fill' | 'withdraw' | 'unrelease'
   performedBy: string // faculty username
   performedAt: Date
   note?: string
