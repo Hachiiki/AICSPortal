@@ -8,7 +8,7 @@
 
 **AICS StudentFacultyAdmin Portal**: digital student information system for Asian Institute of Computer Studies (AICS), replacing paper enrollment, grades, schedules, and document requests.
 
-Stack: **Next.js 16 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4 + shadcn/ui (New York, Radix) + MongoDB Atlas (native driver v7) + Framer Motion + Lucide + jsPDF + Sonner + Vercel Analytics**. See `package.json`.
+Stack: **Next.js 16 (App Router) + React 19 + TypeScript 6 + Tailwind CSS 4 + shadcn/ui (New York, Radix) + MongoDB Atlas (native driver v7) + Framer Motion + Lucide + jsPDF + Sonner + Vercel Analytics**. See `package.json`.
 
 Key domain (single-context, see `@CONTEXT.md`):
 - `branch` tenant string (e.g. `commonwealth`) on every doc, all reads filter `{branch, ...}`. No DB per branch.
@@ -121,7 +121,7 @@ Architecture rules:
 
 ## 5. Code Style and Conventions / Coding Conventions & Style
 
-- TypeScript 5, React 19, App Router server/client boundary respected. `'use client'` only where needed (portal shell, interactive pages).
+- TypeScript 6, React 19, App Router server/client boundary respected. `'use client'` only where needed (portal shell, interactive pages).
 - Styling: Tailwind 4 + `cn()` from `src/lib/utils.ts`. shadcn New York style, Radix primitives. Icons Lucide only. Animations Framer Motion: single fade-up in shell, `AnimatePresence` for drawers, and the sanctioned post-login pair. Route Trail sign-in journey (`src/components/auth/post-login/`) + workspace-assemble entrance (`src/components/portal/assemble-entrance.tsx`). Dark variant exists (`@custom-variant dark`) but toggle not wired, do not half-wire.
 - Naming: `PascalCase` components (`FacultyGradeEncodingPage`), `camelCase` hooks/utils (`useFacultyRows`, `computedFinalINCasZero`), API routes `route.ts` with exported `GET/POST/PATCH`. Types in `src/lib/mongodb/types.ts` + `src/lib/aics/`.
 - Grades: `INC` string, badge amber, sorts last. `remarksFor()` / `badgeForRemarks()` helpers. Reuse, don't reinvent.
@@ -133,10 +133,10 @@ Architecture rules:
 ## 6. Workflow and Boundaries
 
 - Plan before code: `Request -> Plan -> Execute -> Verify -> Deliver`. Break large work into testable chunks, small PRs.
-- Feature work: follow §6b before implementing any new feature or extending an existing one. Create the branch and open a draft PR at the start of the work.
+- Feature work and planned web-stack upgrades: follow §6b. Open the draft PR before changing implementation files or dependency versions.
 - Orchestration: on complex tasks use `project-orchestrator` to analyze, map to best skill(s), announce `To accomplish this, I will use: [...]`, always include `unslop`.
 - Commits: ALWAYS commit every change made (standing user instruction). Before commit inspect `git status/diff/log --oneline -10`, stage only intended files, never commit secrets/`.env.local`/`.next/`. Never `--force`, `--no-verify`, or config changes unless asked.
-- Pushes (standing user instruction, updated 2026-11-06): push every completed commit immediately to the matching branch on `origin`. For feature work, push the dedicated branch from §6b; other work on `main-full-dev` continues to push to `origin/main-full-dev`. Before pushing, verify the active branch, destination and authorized diff. After pushing, verify the remote branch contains the commit. If a push fails, preserve the local commit and report the exact error; never force-push or rewrite history. Feature requests authorize the branch push and early draft PR in §6b without another permission request. Other PRs, merges and production releases require an explicit request. Never push directly to `main`.
+- Pushes (standing user instruction, updated 2026-11-06): push every completed commit immediately to the matching branch on `origin`. For features and planned web-stack upgrades, push the dedicated branch from §6b. Other work on `main-full-dev` continues to push to `origin/main-full-dev`. Before pushing, verify the active branch, destination and authorized diff. After pushing, verify the remote branch contains the commit. If a push fails, preserve the local commit and report the exact error; never force-push or rewrite history. Feature and web-stack upgrade requests authorize the branch push and early draft PR in §6b. Merges and production releases require an explicit request. Never push directly to `main`.
 - Never: modify `.env.local`, rotate keys, edit `src/components/ui/` primitives by hand, create `*.md` docs unless asked, ` subjects.section` writes, unchecked `Select All` on faculty notify (default nothing checked).
 - Sensitive: credentials are never logged or exposed to the client; passwords are scrypt-hashed with legacy upgrade-on-login. Any auth change must preserve `performedBy` role check (faculty for update/submit, admin for release, same branch, 403 otherwise).
 
@@ -158,15 +158,16 @@ Architecture rules:
 
 Forbidden moves: PR, merge, or rebase FROM `main-full-dev` INTO `main`. CI notes: GitHub only recognizes workflow files that sit DIRECTLY in `.github/workflows/` (a `docs/` subfolder there is dead weight); the source of truth is parked at `docs/ci-workflow.yml` on main-full-dev; API tokens without `workflow` scope cannot touch `.github/workflows/**`, that file is created or changed only through the GitHub web UI by the repo owner.
 
-### 6b. Start feature work with a branch and draft PR
+### 6b. Branch and draft PR workflow
 
-For every new feature or addition to an existing feature:
+Use this workflow for new features, additions to existing features, and planned web-stack dependency upgrades.
 
 1. Before editing implementation files, create a dedicated `codex/<short-name>` branch from the current `origin/main-full-dev`. Keep unrelated local changes out of its commits.
-2. Commit a short feature plan with the scope and intended verification, then push the branch. This planning document is authorized as part of feature work and stays on the dev branch. GitHub needs a commit with a file change to open a PR against the base branch.
+2. Commit a short plan with the scope and intended verification, then push the branch. Keep the planning document on the dev branch. GitHub needs a commit with a file change to open a PR against the base branch.
 3. Open a draft PR into `main-full-dev` immediately after that planning commit, before implementation. Include the scope, related issue if any, and planned checks. Verify the draft PR exists and report its link. If push or PR creation fails, report the blocker and establish the draft PR before proceeding with implementation.
 4. Implement on that branch. Commit and push incrementally to keep the same draft PR current, and update its description as scope or verification results change.
-5. After implementation and required verification pass, update the PR with the final behavior and actual checks, then mark it ready for review. Merge and production release still require an explicit request. Use §6a for an authorized production port.
+5. After implementation and required verification pass, update the PR with the final changes and actual checks, then mark it ready for review.
+6. When the owner asks to sync `main-full-dev` with the completed work, merge the verified PR into `main-full-dev`. Verify that the remote branch contains the merge, then fetch and fast-forward the local `main-full-dev` if the checkout permits it. Preserve unrelated local changes. A production release requires a separate request and follows §6a.
 
 ## 7. Behavioral Guardrails & Rules (hard constraints)
 
