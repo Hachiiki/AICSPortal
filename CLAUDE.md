@@ -8,7 +8,7 @@
 
 **AICS StudentFacultyAdmin Portal**: digital student information system for Asian Institute of Computer Studies (AICS), replacing paper enrollment, grades, schedules, and document requests.
 
-Stack: **Next.js 16 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4 + shadcn/ui (New York, Radix) + MongoDB Atlas (native driver v7) + Framer Motion + Lucide + jsPDF + Sonner + Vercel Analytics**. See `package.json`.
+Stack: **Next.js 16 (App Router) + React 19 + TypeScript 6 + Tailwind CSS 4 + shadcn/ui (New York, Radix) + MongoDB Atlas (native driver v7) + Framer Motion + Lucide + jsPDF + Sonner + Vercel Analytics**. See `package.json`.
 
 Key domain (single-context, see `@CONTEXT.md`):
 - `branch` tenant string (e.g. `commonwealth`) on every doc, all reads filter `{branch, ...}`. No DB per branch.
@@ -121,7 +121,7 @@ Architecture rules:
 
 ## 5. Code Style and Conventions / Coding Conventions & Style
 
-- TypeScript 5, React 19, App Router server/client boundary respected. `'use client'` only where needed (portal shell, interactive pages).
+- TypeScript 6, React 19, App Router server/client boundary respected. `'use client'` only where needed (portal shell, interactive pages).
 - Styling: Tailwind 4 + `cn()` from `src/lib/utils.ts`. shadcn New York style, Radix primitives. Icons Lucide only. Animations Framer Motion: single fade-up in shell, `AnimatePresence` for drawers, and the sanctioned post-login pair. Route Trail sign-in journey (`src/components/auth/post-login/`) + workspace-assemble entrance (`src/components/portal/assemble-entrance.tsx`). Dark variant exists (`@custom-variant dark`) but toggle not wired, do not half-wire.
 - Naming: `PascalCase` components (`FacultyGradeEncodingPage`), `camelCase` hooks/utils (`useFacultyRows`, `computedFinalINCasZero`), API routes `route.ts` with exported `GET/POST/PATCH`. Types in `src/lib/mongodb/types.ts` + `src/lib/aics/`.
 - Grades: `INC` string, badge amber, sorts last. `remarksFor()` / `badgeForRemarks()` helpers. Reuse, don't reinvent.
