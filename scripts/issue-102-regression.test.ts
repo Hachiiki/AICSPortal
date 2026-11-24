@@ -1,4 +1,4 @@
-import { beforeEach, expect, mock, setSystemTime, test } from 'bun:test'
+import { beforeEach, expect, mock, test } from 'bun:test'
 import { computeStatus, type Task } from '../src/lib/aics/tasks'
 import { isFinalGradeReleased, releasedGradeAverages } from '../src/lib/aics/grades'
 import type { MongoSubject } from '../src/lib/mongodb/types'
@@ -110,6 +110,31 @@ test('one attendance session can be created for a class and date', async () => {
   expect(saved.revision).toBeTruthy()
 })
 
+test('a confirmed correction records history and checks the version that faculty reviewed', async () => {
+  const history: { changedFields: string[] }[] = []
+  const stored = { _id: 'legacy-row', revision: 'initial-revision', records: { [studentUsername]: 'present' }, takenAt: new Date() }
+  collection.set('attendance', {
+    findOne: async () => structuredClone(stored),
+    updateOne: async (filter: any, update: any) => {
+      if (filter.revision !== stored.revision) return { matchedCount: 0 }
+      Object.assign(stored, update.$set)
+      history.push(update.$push.history)
+      return { matchedCount: 1 }
+    },
+  })
+  collection.set('subjects', { find: () => cursor([{ studentUsername, academicYear: actor.academicYear, semester: actor.semester }]) })
+  const correction = {
+    branch: actor.branch, sectionKey: [subjectCode, actor.academicYear, actor.semester].join('|'),
+    date: '2026-11-24', records: { [studentUsername]: 'absent' },
+  }
+  const save = (extra = {}) => saveAttendance(request('POST', { ...correction, ...extra }))
+  expect((await save()).status).toBe(409)
+  expect((await save({ allowOverwrite: true, expectedRevision: stored.revision })).status).toBe(200)
+  expect(stored.records[studentUsername]).toBe('absent')
+  expect(history.map((entry) => entry.changedFields)).toEqual([[studentUsername]])
+  expect((await save({ allowOverwrite: true, expectedRevision: 'initial-revision' })).status).toBe(409)
+})
+
 test('grade release saves its pending audit and can export it on a later request', async () => {
   let exportAvailable = false
   const exported = new Map<string, unknown>()
@@ -140,7 +165,9 @@ test('grade release saves its pending audit and can export it on a later request
     },
   })
   const release = () => releaseGrade(request('POST', { branch: actor.branch, subjectCode, period: 'prelim' }))
-  expect(await (await release()).json()).toMatchObject({ ok: true, modifiedCount: 1, auditWarning: expect.any(String) })
+  const first = await (await release()).json()
+  expect(first).toMatchObject({ ok: true, modifiedCount: 1 })
+  expect(typeof first.auditWarning).toBe('string')
   expect(row.prelimStatus).toBe('released')
   expect(row.pendingReleaseAudits).toHaveLength(1)
   exportAvailable = true
@@ -165,8 +192,8 @@ test('same-titled assignments stay separate when faculty close one group', async
     },
   })
   const base = { branch: actor.branch, subjectCode, title: 'Week four', dueDate: '2026-11-25', type: 'Quiz' }
-  expect((await postTask(request('POST', { ...base, maxScore: 10 }))).ok).toBe(true)
-  expect((await postTask(request('POST', { ...base, maxScore: 20 }))).ok).toBe(true)
+  expect((await postTask(request('POST', { ...base, maxScore: 10 })))?.ok).toBe(true)
+  expect((await postTask(request('POST', { ...base, maxScore: 20 })))?.ok).toBe(true)
   const { groups } = await (await readFacultyTasks(request('GET'))).json()
   expect(groups).toHaveLength(2)
   expect(new Set(groups.map((group: any) => group.assignmentId)).size).toBe(2)
@@ -178,14 +205,8 @@ test('date-only tasks remain open through the selected Manila day', () => {
   const task = {
     dueDate: '2026-11-24T00:00:00.000Z', score: null, submitted: false, submissionsClosed: false,
   } as Task
-  try {
-    setSystemTime(new Date('2026-11-24T15:59:59.000Z'))
-    expect(computeStatus(task).status).toBe('NEEDS_ATTENTION')
-    setSystemTime(new Date('2026-11-24T16:00:00.000Z'))
-    expect(computeStatus(task).sub).toBe('Overdue')
-  } finally {
-    setSystemTime()
-  }
+  expect(computeStatus(task, new Date('2026-11-24T15:59:59.000Z')).status).toBe('NEEDS_ATTENTION')
+  expect(computeStatus(task, new Date('2026-11-24T16:00:00.000Z')).sub).toBe('Overdue')
 })
 
 test('a partial release never enters the GPA and old and new grading scales stay separate', () => {

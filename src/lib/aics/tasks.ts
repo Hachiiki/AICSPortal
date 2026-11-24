@@ -63,7 +63,7 @@ export type TaskVariant =
 // students but NOT deleted. Admin and Teacher roles can
 // see full task history (to be wired when those roles
 // exist).
-export function computeStatus(task: Task): {
+export function computeStatus(task: Task, now = new Date()): {
   status: TaskStatus
   variant: TaskVariant
   sub: string
@@ -78,7 +78,6 @@ export function computeStatus(task: Task): {
   if (task.submissionsClosed) {
     return { status: 'MISSING', variant: 'MISSING_CLOSED', sub: 'Missing' }
   }
-  const now = new Date()
   const due = new Date(task.dueDate)
   // The date picker has always stored date-only assignments at midnight
   // UTC. Keep their entire Manila calendar day and preserve timed deadlines.

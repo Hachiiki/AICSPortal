@@ -50,8 +50,10 @@ export function releasedGradeAverages(rows: MongoSubject[]): { gpa: number | nul
   let percentageUnits = 0
   let weightedPercentage = 0
   for (const row of rows) {
-    if (!isFinalGradeReleased(row) || !row.finalGrade?.trim() || !(row.units > 0)) continue
-    const grade = Number(row.finalGrade)
+    if (!isFinalGradeReleased(row) || !Number.isFinite(row.units) || row.units <= 0) continue
+    const value = String(row.finalGrade ?? '').trim()
+    if (!value) continue
+    const grade = Number(value)
     if (!Number.isFinite(grade) || grade < 0 || grade > 100) continue
     const isPercentage = row.finalGradeScale === 'percentage'
       || grade > 5 || periods.some((period) => Number(row[period]) > 5)
