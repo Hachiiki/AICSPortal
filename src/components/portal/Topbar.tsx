@@ -69,7 +69,6 @@ export function Topbar({
 }: TopbarProps) {
   const { navigate } = usePortalRoute()
   const phone = usePhoneViewport()
-  const isStudent = !student.role || student.role === 'student'
   const { mode } = useAnimationPreferences()
   const headerRef = useRef<HTMLElement>(null)
 
@@ -199,7 +198,6 @@ export function Topbar({
     <motion.header
       ref={headerRef}
       className="portal-topbar sticky top-0 z-20 sm:h-16"
-      data-student-topbar={isStudent ? active : undefined}
       initial={entrance.initial}
       animate={entrance.animate}
       transition={entrance.transition}

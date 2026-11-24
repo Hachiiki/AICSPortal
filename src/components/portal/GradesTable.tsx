@@ -1,8 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import type { Student } from '@/lib/aics/types'
 import { GradesHeader, GradesRow, GradesFooter, GradesCards } from './GradesRow'
+import { DashboardSubjectsCard } from './DashboardLayout'
 
 interface GradesTableProps {
   student: Student
@@ -22,19 +22,7 @@ export function GradesTable({ student }: GradesTableProps) {
   const totalUnits = student.subjects.reduce((sum, s) => sum + s.units, 0)
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
-      className="student-card bg-surface rounded-xl border border-slate-200 shadow-sm"
-    >
-      {/* Section header */}
-      <div className="px-6 py-4 border-b border-slate-100">
-        <h2 className="student-section-title text-base font-semibold text-slate-900">Grades &amp; Subjects</h2>
-        <p className="student-text-detail text-xs text-slate-500 mt-0.5">
-          Your enrolled subjects, units, professors, and current grades
-        </p>
-      </div>
+    <DashboardSubjectsCard title="Grades & Subjects" detail="Your enrolled subjects, units, professors, and current grades">
 
       {/* Grades — per-subject cards on mobile, scrollable table from md up */}
       <GradesCards subjects={student.subjects} totalUnits={totalUnits} />
@@ -53,6 +41,6 @@ export function GradesTable({ student }: GradesTableProps) {
           </tfoot>
         </table>
       </div>
-    </motion.section>
+    </DashboardSubjectsCard>
   )
 }

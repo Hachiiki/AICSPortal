@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { BookOpen, Users, LayoutGrid, CalendarClock, MapPin } from 'lucide-react'
+import { CalendarClock, MapPin } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
 import type { Course, Session } from '@/lib/schedule'
 import type { PortalEvent } from '@/lib/aics/events'
@@ -11,31 +11,10 @@ import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { Announcement } from '@/lib/aics/announcements'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
 import { PortalShell } from '../portal/PortalShell'
-import { AnnouncementsDeck } from '../portal/AnnouncementsDeck'
+import { AcademicAnnouncements, DashboardSummary, DashboardWelcome } from '../portal/AcademicHeader'
+import { DashboardLayout, DashboardSubjectsCard } from '../portal/DashboardLayout'
+import { TodayGlance } from '../portal/TodayGlance'
 import { DashboardSkeleton } from '../portal/Skeleton'
-
-// ============================================================
-//  FacultyDashboard
-// ============================================================
-//  Main faculty landing page. The faculty member's basic info
-//  is carried in the `student` prop (faculty are stored in the
-//  `students` collection, so /api/student returns them in the
-//  same Student shape — Topbar / Profile / Settings can all be
-//  reused unchanged).
-//
-//  The faculty-specific bits (subjects they teach + the roster
-//  of students enrolled in those subjects) are fetched in-band
-//  from /api/faculty and stored in local state. While that fetch
-//  is in flight we render the shared DashboardSkeleton so the
-//  chrome stays visible.
-//
-//  Layout mirrors the student dashboard:
-//    - PortalShell with faculty nav
-//    - Topbar (with global search)
-//    - Hero (eyebrow + welcome + program subtitle + stats)
-//    - "My Subjects" table card
-//    - Announcements deck (swipeable)
-// ============================================================
 
 interface FacultyDashboardProps {
   student: Student
@@ -48,294 +27,131 @@ interface FacultyDashboardProps {
   tasks?: Task[]
   announcements?: Announcement[]
   announcementReadIds?: string[]
-  // Faculty-specific data lifted to parent so it persists across route switches
-  facultyData?: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null
+  facultyData?: { faculty: FacultyMember; subjects: FacultySubject[]; students: FacultyStudent[] } | null
   inbox?: NotificationInbox
   facultyLoading?: boolean
 }
 
-interface FacultyApiSubject {
+interface FacultySubject {
   code: string
   title: string
   units: number
-  studentUsername: string
-  professor: string
-  professorEmail: string
   schedule: string
   room: string
-  midterm: string
-  finals: string
-  finalGrade: string
-  remarks: string
   academicYear?: string
   semester?: string
-  yearLevel?: string
-  status?: string
 }
 
-/** One row in the "My Subjects" table — collapsed across students. */
-interface FacultySubjectRow {
-  code: string
-  title: string
-  units: number
-  schedule: string
-  room: string
-  enrolled: number
-}
+type TeachingSubject = Pick<FacultySubject, 'code' | 'title' | 'units' | 'schedule' | 'room'> & { enrolled: number }
 
 export function FacultyDashboard({
-  student,
-  courses,
-  sessions,
-  onNavigate,
-  onLogout,
-  events,
-  professors,
-  tasks,
-  announcements,
-  announcementReadIds,
-  facultyData,
-  facultyLoading,
-  inbox,
+  student, courses, sessions, onNavigate, onLogout, events, professors, tasks,
+  announcements, announcementReadIds, facultyData, facultyLoading = true, inbox,
 }: FacultyDashboardProps) {
-  // Faculty data comes from the parent (lifted state), not an internal fetch.
-  // This prevents re-fetching when navigating between dashboard and my-students.
-  const faculty = facultyData?.faculty ?? null
-  const taughtSubjects: FacultyApiSubject[] = facultyData?.subjects ?? []
-  const enrolledStudents: FacultyStudent[] = facultyData?.students ?? []
-  const loading = facultyLoading ?? true
-
-  // ----------------------------------------------------------
-  //  Group current-term subjects by code so each row is a unique
-  //  subject with the count of enrolled students. Older terms stay
-  //  out — they live on Previous Records once released.
-  // ----------------------------------------------------------
-  const subjectRows = useMemo<FacultySubjectRow[]>(() => {
-    const map = new Map<string, FacultySubjectRow>()
-    for (const s of taughtSubjects) {
-      if ((s.academicYear || '') !== (faculty?.academicYear || '') || (s.semester || '') !== (faculty?.semester || '')) continue
-      const existing = map.get(s.code)
+  const faculty = facultyData?.faculty
+  const { subjects, myCourses, mySessions } = useMemo(() => {
+    const termSubjects = new Map<string, TeachingSubject>()
+    for (const subject of facultyData?.subjects ?? []) {
+      if ((subject.academicYear || '') !== (faculty?.academicYear || '') || (subject.semester || '') !== (faculty?.semester || '')) continue
+      const existing = termSubjects.get(subject.code)
       if (existing) {
         existing.enrolled += 1
-        continue
+      } else {
+        const { code, title, units, schedule, room } = subject
+        termSubjects.set(code, { code, title, units, schedule, room, enrolled: 1 })
       }
-      map.set(s.code, {
-        code: s.code,
-        title: s.title,
-        units: s.units,
-        schedule: s.schedule,
-        room: s.room,
-        enrolled: 1,
-      })
     }
-    return Array.from(map.values())
-  }, [taughtSubjects, faculty])
+    return {
+      subjects: Array.from(termSubjects.values()),
+      myCourses: courses.filter(course => termSubjects.has(course.code)),
+      mySessions: sessions.filter(session => termSubjects.has(session.code)),
+    }
+  }, [facultyData, faculty, courses, sessions])
 
-  // Unique sections taught (e.g. "CS-2A", "CS-2B"). We derive
-  // these from the enrolled students' `section` field.
-  const sectionCount = useMemo(
-    () =>
-      new Set(
-        enrolledStudents.map((s) => s.section).filter((x) => x && x.length > 0)
-      ).size,
-    [enrolledStudents]
-  )
+  if (facultyLoading || !faculty) return <DashboardSkeleton />
 
-  // Show the skeleton while the faculty-specific data is loading.
-  // The student data (used by Topbar) is already resolved by the
-  // parent wrapper before this component is mounted.
-  if (loading || !faculty) {
-    return <DashboardSkeleton />
-  }
+  const enrolledStudents = facultyData?.students ?? []
+  const sectionCount = new Set(enrolledStudents.map(member => member.section).filter(Boolean)).size
+  const totalUnits = subjects.reduce((total, subject) => total + subject.units, 0)
 
   return (
-    <PortalShell
-      student={student}
-      active="dashboard"
-      onNavigate={onNavigate}
-      onLogout={onLogout}
-      events={events}
-      professors={professors}
-      tasks={tasks}
-      facultyData={facultyData}
-      inbox={inbox}
-    >
-        <main className="faculty-page faculty-home px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 max-sm:space-y-4 lg:space-y-8">
-          {/* Hero — adapted from AcademicHeader */}
-          <section data-portal-motion-group
-            className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:gap-8"
-          >
-            <div className="faculty-welcome flex-1 min-w-0">
-              <p className="faculty-term text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
-                {faculty.semester} &bull; AY {faculty.academicYear}
-              </p>
-              <h1 className="faculty-page-title mt-1.5 text-2xl sm:text-3xl font-bold tracking-tight text-balance text-blue-950">
-                Welcome back, {faculty.firstName}!
-              </h1>
-              <p className="mt-1.5 text-sm text-slate-600">
-                {student.program}
-              </p>
-
-              {/* Stats row */}
-              <div data-portal-motion-group className="faculty-stats mt-6 flex flex-wrap items-end gap-x-8 gap-y-4">
-                <Stat
-                  label="Subjects"
-                  value={String(subjectRows.length)}
-                  icon={BookOpen}
-                />
-                <Divider />
-                <Stat
-                  label="Students"
-                  value={String(enrolledStudents.length)}
-                  icon={Users}
-                />
-                <Divider />
-                <Stat
-                  label="Sections"
-                  value={String(sectionCount)}
-                  icon={LayoutGrid}
-                />
-              </div>
-            </div>
-
-            {/* Announcements deck — reuses the student component unchanged */}
-            {announcements && announcements.length > 0 && (
-              <AnnouncementsDeck announcements={announcements} username={student.username} readIds={announcementReadIds} />
-            )}
-          </section>
-
-          {/* My Subjects table */}
-          <section
-            className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm"
-            aria-labelledby="faculty-subjects-heading"
-          >
-            <div className="px-4 py-4 sm:px-6 border-b border-slate-100">
-              <h2 id="faculty-subjects-heading" className="faculty-section-title text-base font-semibold text-slate-900">
-                My Subjects
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">Subjects you teach this term</p>
-            </div>
-
-            {subjectRows.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <p className="text-sm text-slate-500">
-                  No subjects assigned yet. Contact the Registrar if this is unexpected.
-                </p>
-              </div>
-            ) : (
-              <>
-                <ul className="divide-y divide-line sm:hidden">
-                  {subjectRows.map((row) => (
-                    <li key={row.code} className="space-y-2 p-4">
-                      <p className="faculty-course-code text-link-strong">{row.code}</p>
-                      <h3 className="faculty-item-title break-words text-ink">{row.title}</h3>
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
-                        {row.schedule && <span className="inline-flex items-start gap-1.5"><CalendarClock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{row.schedule}</span>}
-                        {row.room && <span className="inline-flex items-start gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{row.room}</span>}
-                      </div>
-                      <p className="text-xs tabular-nums text-slate-600">
-                        {row.units} {row.units === 1 ? 'unit' : 'units'} · {row.enrolled} {row.enrolled === 1 ? 'student' : 'students'}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-                <div className="hidden overflow-x-auto sm:block">
-                  <table className="w-full text-sm min-w-[720px]">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-100">
-                        <Th>Code</Th>
-                        <Th>Subject</Th>
-                        <Th center>Units</Th>
-                        <Th>Schedule</Th>
-                        <Th>Room</Th>
-                        <Th center>Students</Th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {subjectRows.map((row) => (
-                        <tr
-                          key={row.code}
-                          className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60"
-                        >
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="font-mono text-xs font-bold text-link-strong">
-                              {row.code}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-sm text-slate-700">{row.title}</span>
-                          </td>
-                          <td className="px-4 py-3 text-center text-sm text-slate-700 whitespace-nowrap">
-                            {row.units}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="text-sm text-slate-700">{row.schedule}</span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="text-sm text-slate-700">{row.room}</span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-blue-50 text-link-strong text-xs font-semibold">
-                              {row.enrolled}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </section>
-        </main>
+    <PortalShell student={student} active="dashboard" onNavigate={onNavigate} onLogout={onLogout}
+      events={events} professors={professors} tasks={tasks} facultyData={facultyData} inbox={inbox}>
+      <DashboardLayout
+        welcome={<DashboardWelcome firstName={faculty.firstName} semester={faculty.semester} academicYear={faculty.academicYear}>
+          {student.program && <><span className="sm:hidden">{student.programShort || student.program}</span><span className="hidden sm:inline">{student.program}</span></>}
+        </DashboardWelcome>}
+        summary={<DashboardSummary title="Teaching summary" semester={faculty.semester} academicYear={faculty.academicYear}
+          stats={[
+            { label: 'Students', value: String(enrolledStudents.length) },
+            { label: 'Units', value: String(totalUnits) },
+            { label: 'Subjects', value: String(subjects.length) },
+            { label: 'Sections', value: String(sectionCount) },
+          ]}
+        />}
+        today={<TodayGlance faculty courses={myCourses} sessions={mySessions} announcements={announcements} announcementReadIds={announcementReadIds} onNavigate={onNavigate} />}
+        announcements={<AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />}
+        subjects={<TeachingSubjects subjects={subjects} />}
+        detailsLabel="View my classes"
+        onDetails={() => onNavigate('my-students')}
+        scheduleId="faculty-schedule"
+        courses={myCourses}
+        sessions={mySessions}
+      />
     </PortalShell>
   )
 }
 
-// ------------------------------------------------------------
-//  Hero stat — label above value, with an optional leading icon.
-// ------------------------------------------------------------
-
-function Stat({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string
-  value: string
-  icon?: React.ComponentType<{ className?: string }>
-}) {
+function TeachingSubjects({ subjects }: { subjects: TeachingSubject[] }) {
   return (
-    <div className="faculty-stat">
-      <p className="faculty-stat-label text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-        {label}
-      </p>
-      <div className="mt-0.5 flex items-center gap-1.5">
-        {Icon && <Icon className="w-4 h-4 shrink-0 text-link-strong" />}
-        <p className="faculty-stat-value text-xl font-bold tabular-nums text-slate-900">{value}</p>
-      </div>
-    </div>
-  )
-}
-
-function Divider() {
-  return <div className="hidden sm:block w-px h-8 bg-slate-200" aria-hidden="true" />
-}
-
-function Th({
-  children,
-  center,
-}: {
-  children: React.ReactNode
-  center?: boolean
-}) {
-  return (
-    <th
-      className={`px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap ${
-        center ? 'text-center' : 'text-left'
-      }`}
-    >
-      {children}
-    </th>
+    <DashboardSubjectsCard title="My Subjects" detail="Subjects you teach this term">
+      {subjects.length === 0 ? (
+        <p className="px-6 py-12 text-center text-sm text-slate-500">
+          No subjects assigned yet. Contact the Registrar if this is unexpected.
+        </p>
+      ) : (
+        <>
+          <ul className="divide-y divide-slate-100 md:hidden">
+            {subjects.map(subject => (
+              <li key={subject.code} className="px-4 py-3.5">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="student-course-code font-mono text-xs font-bold text-link-strong [overflow-wrap:anywhere]">{subject.code}</span>
+                  <span className="text-xs text-slate-500">{subject.units} {subject.units === 1 ? 'unit' : 'units'}</span>
+                </div>
+                <h3 className="student-item-title mt-1 text-sm font-semibold text-slate-900 [overflow-wrap:anywhere]">{subject.title}</h3>
+                <div className="student-text-detail mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                  {subject.schedule && <span className="inline-flex items-start gap-1.5"><CalendarClock className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{subject.schedule}</span>}
+                  {subject.room && <span className="inline-flex items-start gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />{subject.room}</span>}
+                </div>
+                <p className="mt-2.5 text-xs font-medium text-slate-600">{subject.enrolled} {subject.enrolled === 1 ? 'student' : 'students'}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50">
+                  {['Code', 'Subject', 'Units', 'Schedule', 'Room', 'Students'].map(label => (
+                    <th key={label} scope="col" className="whitespace-nowrap px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {subjects.map(subject => (
+                  <tr key={subject.code} className="border-b border-slate-100 text-slate-700 last:border-b-0 hover:bg-slate-50/60">
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs font-bold text-link-strong">{subject.code}</td>
+                    <td className="px-4 py-3">{subject.title}</td>
+                    <td className="px-4 py-3 tabular-nums">{subject.units}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{subject.schedule}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{subject.room}</td>
+                    <td className="px-4 py-3"><span className="inline-flex min-w-7 justify-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-link-strong">{subject.enrolled}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </DashboardSubjectsCard>
   )
 }
