@@ -266,8 +266,8 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
               academicYear: r.academicYear, semester: r.semester, [f]: r[f],
             }))
           if (updates.length) {
-          const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
-          const data = await res.json()
+            const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
+            const data = await res.json()
             if (!res.ok || !data.ok || data.results?.some((row: { ok: boolean }) => !row.ok)) {
               throw new Error(data.error || 'Some draft grades could not be saved. Refresh the grade sheet before submitting.')
             }

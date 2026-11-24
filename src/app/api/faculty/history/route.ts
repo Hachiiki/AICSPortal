@@ -3,6 +3,7 @@ import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan, professorOwnership } from '@/lib/authz'
 import { HttpError } from '@/lib/http'
+import { isFinalGradeReleased } from '@/lib/aics/grades'
 import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
 // ============================================================
@@ -22,13 +23,6 @@ import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 //    { code, title, room, schedule, yearLevel, enrolled, avg,
 //      assignment: 'current' | 'former', note }
 // ============================================================
-
-type Period = 'prelim' | 'midterm' | 'finals'
-
-function isReleased(doc: any): boolean {
-  if (doc.gradeStatus === 'released') return true
-  return (['prelimStatus', 'midtermStatus', 'finalsStatus'] as const).every((k) => doc[k] === 'released')
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -114,7 +108,7 @@ export async function GET(request: NextRequest) {
       const sem = d.semester || ''
       if (!ay || !sem) continue
       if (ay === (faculty.academicYear || '') && sem === (faculty.semester || '')) continue
-      if (!isReleased(d)) continue
+      if (!isFinalGradeReleased(d)) continue
       const termKey = `${ay}|${sem}`
       let term = terms.get(termKey)
       if (!term) {

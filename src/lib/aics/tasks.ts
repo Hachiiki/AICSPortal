@@ -2,6 +2,24 @@
 
 export type TaskType = 'Activity' | 'Quiz' | 'Test' | 'Project'
 
+const CAMPUS_TIME_ZONE = 'Asia/Manila'
+const campusDay = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: CAMPUS_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
+})
+
+export function campusTaskDay(date: Date): string {
+  return campusDay.format(date)
+}
+
+export function formatTaskDueDate(dueDate: string | Date, long = false): string {
+  const date = new Date(dueDate)
+  if (!Number.isFinite(date.getTime())) return ''
+  return date.toLocaleDateString('en-US', {
+    timeZone: CAMPUS_TIME_ZONE, month: long ? 'long' : 'short', day: 'numeric',
+    ...(long ? { year: 'numeric' } : {}),
+  })
+}
+
 export interface Task {
   _id: string
   subjectCode: string
@@ -62,13 +80,19 @@ export function computeStatus(task: Task): {
   }
   const now = new Date()
   const due = new Date(task.dueDate)
-  if (due < now) {
+  // The date picker has always stored date-only assignments at midnight
+  // UTC. Keep their entire Manila calendar day and preserve timed deadlines.
+  const dateOnly = /^\d{4}-\d{2}-\d{2}(?:T00:00:00(?:\.000)?Z)?$/.test(task.dueDate)
+  const overdue = Number.isFinite(due.getTime())
+    && (dateOnly ? campusTaskDay(now) > campusTaskDay(due) : due < now)
+  if (overdue) {
     return { status: 'MISSING', variant: 'MISSING_OPEN', sub: 'Overdue' }
   }
+  const label = formatTaskDueDate(due)
   return {
     status: 'NEEDS_ATTENTION',
     variant: 'NEEDS_ATTENTION',
-    sub: `Due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+    sub: label ? `Due ${label}` : 'Due date unavailable',
   }
 }
 

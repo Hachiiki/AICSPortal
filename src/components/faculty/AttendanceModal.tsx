@@ -78,19 +78,23 @@ export function AttendanceModal({
 
   useEffect(() => {
     if (!sectionKey) return
+    const key = sectionKey
     const controller = new AbortController()
+    setLoaded(null)
     setLoadError(null)
     setConfirmCorrection(false)
     async function loadRecord() {
       try {
-        const params = new URLSearchParams({ username: facultyUsername, sectionKey: sectionKey!, date })
+        const params = new URLSearchParams({ username: facultyUsername, sectionKey: key, date })
         const res = await fetch(`/api/attendance?${params}`, { signal: controller.signal })
         const data = await res.json()
         if (controller.signal.aborted) return
         if (!res.ok || !data.ok) throw new Error('Could not load attendance.')
-        setRecords(Object.fromEntries(students.map((student) => [
-          student.username, data.records?.[student.username] === 'absent' ? 'absent' : 'present',
-        ])))
+        const saved = data.records as Record<string, 'present' | 'absent'> | null
+        setRecords(Object.fromEntries(students.flatMap(({ username }) => {
+          const value = saved === null ? 'present' : saved?.[username]
+          return value === 'present' || value === 'absent' ? [[username, value]] : []
+        })))
         setLoaded({ selection, revision: data.revision ?? null })
       } catch {
         if (!controller.signal.aborted) setLoadError('Could not load attendance. Reload the marks before saving.')
@@ -105,7 +109,14 @@ export function AttendanceModal({
   }
 
   const present = Object.values(records).filter((s) => s === 'present').length
-  const absent = students.length - present
+  const absent = Object.values(records).filter((s) => s === 'absent').length
+  const unmarked = students.length - present - absent
+
+  function changeSelection(change: () => void) {
+    setLoaded(null)
+    setLoadError(null)
+    change()
+  }
 
   const handleSave = async () => {
     if (!sec || !ready || saving) return
@@ -173,7 +184,9 @@ export function AttendanceModal({
               className="mt-1"
               aria-label="Switch class"
               value={sec?.key || ''}
-              onChange={setSecKey}
+              onChange={(key) => {
+                if (key !== secKey) changeSelection(() => setSecKey(key))
+              }}
               disabled={saving || confirmCorrection}
               options={sections.map((s) => ({
                 value: s.key,
@@ -188,7 +201,10 @@ export function AttendanceModal({
               type="date"
               value={date}
               disabled={saving || confirmCorrection}
-              onChange={(e) => e.target.value && setDate(e.target.value)}
+              onChange={(e) => {
+                const nextDate = e.target.value
+                if (nextDate && nextDate !== date) changeSelection(() => setDate(nextDate))
+              }}
               className="h-9 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500"
             />
             {isToday && (
@@ -196,7 +212,11 @@ export function AttendanceModal({
                 Today
               </span>
             )}
-            {ready && <span className="text-xs text-slate-500 ml-auto">{present} present • {absent} absent</span>}
+            {ready && (
+              <span className="text-xs text-slate-500 ml-auto">
+                {present} present • {absent} absent{unmarked > 0 && ` • ${unmarked} unmarked`}
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-500 mt-1.5">
             {formatLong(date)} • {students.length} {students.length === 1 ? 'student' : 'students'}
@@ -235,7 +255,8 @@ export function AttendanceModal({
           ) : (
             <ul className="divide-y divide-slate-100">
               {students.map((s) => {
-                const isPresent = (records[s.username] || 'present') === 'present'
+                const isPresent = records[s.username] === 'present'
+                const isAbsent = records[s.username] === 'absent'
                 return (
                   <li key={s.username} className="py-2.5 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">
@@ -259,8 +280,8 @@ export function AttendanceModal({
                         type="button"
                         disabled={saving || confirmCorrection}
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'absent' }))}
-                        aria-pressed={!isPresent}
-                        className={`px-3 py-1.5 text-xs font-semibold ${!isPresent ? 'bg-red-600 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
+                        aria-pressed={isAbsent}
+                        className={`px-3 py-1.5 text-xs font-semibold ${isAbsent ? 'bg-red-600 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
                       >
                         Absent
                       </button>

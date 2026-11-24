@@ -99,6 +99,7 @@ export interface MongoSubject {
   midterm: string
   finals: string
   finalGrade: string
+  finalGradeScale?: 'percentage'
   remarks: string
   // Term fields
   academicYear?: string // e.g. "2025-2026"
@@ -138,6 +139,7 @@ export interface MongoTask {
   branch: Branch
   studentUsername: string
   subjectCode: string
+  assignmentId?: string
   term: {
     academicYear: string
     semester: string

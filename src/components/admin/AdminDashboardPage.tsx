@@ -54,6 +54,9 @@ interface StatsResponse {
     withGpa: number
     withoutGpa: number
     average: string | null
+    withoutReleasedGrades: number
+    withPercentage: number
+    percentageAverage: string | null
   }
   finances: {
     totalAssessment: number
@@ -267,7 +270,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
               <StatCard icon={Megaphone} label="Announcements" value={String(stats.totals.announcements)} hint="All-time posts" onClick={() => onNavigate('admin-announcements')} />
               <StatCard icon={CalendarDays} label="Events" value={String(stats.totals.events)} hint={`${stats.totals.upcomingEvents} in the next 7 days`} onClick={() => onNavigate('admin-events')} />
               <StatCard icon={Users} label="Professors listed" value={String(professors?.length ?? 0)} hint="Directory entries (this branch)" onClick={() => onNavigate('admin-professors')} />
-              <StatCard icon={Stamp} label="Dean's listers" value={String(stats.gpa.deanListers)} hint={`GPA ≤ 1.75 · ${stats.gpa.withGpa} with released grades`} />
+              <StatCard icon={Stamp} label="Dean's listers" value={String(stats.gpa.deanListers)} hint={`GPA ≤ 1.75 · ${stats.gpa.withGpa} with a released GPA`} />
             </div>
 
             {/* GPA distribution + enrollment status */}
@@ -276,7 +279,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                 <div className="flex items-baseline justify-between gap-3">
                   <h2 className="text-sm font-bold text-slate-900">GPA distribution</h2>
                   <p className="text-xs text-slate-500">
-                    {stats.gpa.average ? `School average ${stats.gpa.average}` : 'No released grades yet'}
+                    {stats.gpa.average ? `GPA average ${stats.gpa.average}` : 'No released GPA grades'}
                   </p>
                 </div>
                 <ul className="mt-4 space-y-2">
@@ -301,7 +304,10 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                   <span className="inline-flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-sm bg-emerald-600" /> Dean&apos;s lister range (≤ 1.75)
                   </span>
-                  <span>{stats.gpa.withoutGpa} students without released grades</span>
+                  <span>{stats.gpa.withoutReleasedGrades} students without a released numeric grade</span>
+                  {stats.gpa.percentageAverage && (
+                    <span>Released percentage average {stats.gpa.percentageAverage}% across {stats.gpa.withPercentage} students</span>
+                  )}
                 </div>
               </section>
 

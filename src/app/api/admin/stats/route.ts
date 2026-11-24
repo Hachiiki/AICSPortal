@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
+import { releasedGradeAverages } from '@/lib/aics/grades'
 import { requireCan } from '@/lib/authz'
 import { errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
@@ -54,32 +55,16 @@ export async function GET(request: NextRequest) {
       return Array.from(map, ([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     }
 
-    // Unit-weighted GPA per student over RELEASED final grades —
-    // mirrors the student API's visibility rule (finalGrade shows
-    // only when gradeStatus === 'released'). Philippine scale:
-    // 1.00 is best, 3.00 is pass.
+    // Report released GPA and percentage grades on their own scales.
+    const studentKey = (branch: string, username: string) => JSON.stringify([branch, username])
     const subjectsByStudent = new Map<string, MongoSubject[]>()
     for (const s of subjectsAll) {
-      const list = subjectsByStudent.get(s.studentUsername)
+      const key = studentKey(s.branch, s.studentUsername)
+      const list = subjectsByStudent.get(key)
       if (list) list.push(s)
-      else subjectsByStudent.set(s.studentUsername, [s])
+      else subjectsByStudent.set(key, [s])
     }
-    function releasedGpa(username: string): number | null {
-      const rows = subjectsByStudent.get(username)
-      if (!rows) return null
-      let units = 0
-      let weighted = 0
-      for (const s of rows) {
-        if (s.gradeStatus !== 'released') continue
-        const g = parseFloat(s.finalGrade)
-        if (!isNaN(g)) {
-          units += s.units
-          weighted += g * s.units
-        }
-      }
-      if (units === 0) return null
-      return weighted / units
-    }
+    const gradeAverages = new Map(Array.from(subjectsByStudent, ([key, rows]) => [key, releasedGradeAverages(rows)]))
 
     // ---------- totals ----------
     const studentRows = studentsAll.filter((s) => s.role === 'student')
@@ -131,10 +116,15 @@ export async function GET(request: NextRequest) {
     ]
     const bucketCounts = BUCKETS.map(() => 0)
     const gpaValues: number[] = []
+    const percentages: number[] = []
     let withGpa = 0
+    let withoutReleasedGrades = 0
     let deanListers = 0
     for (const s of studentRows) {
-      const gpa = releasedGpa(s.username)
+      const { gpa, percentage } = gradeAverages.get(studentKey(s.branch, s.username))
+        ?? { gpa: null, percentage: null }
+      if (percentage !== null) percentages.push(percentage)
+      if (gpa === null && percentage === null) withoutReleasedGrades++
       if (gpa === null) continue
       withGpa += 1
       gpaValues.push(gpa)
@@ -147,6 +137,7 @@ export async function GET(request: NextRequest) {
       }
     }
     const gpaAverage = gpaValues.length > 0 ? gpaValues.reduce((a, b) => a + b, 0) / gpaValues.length : null
+    const percentageAverage = percentages.length ? percentages.reduce((sum, value) => sum + value, 0) / percentages.length : null
 
     // ---------- finances (all enrollment records, every term) ----------
     const totalAssessment = enrollmentsAll.reduce((sum, e) => sum + (e.assessment?.totalAssessment ?? 0), 0)
@@ -180,7 +171,7 @@ export async function GET(request: NextRequest) {
         ).length,
         deanListers: st.filter((s) => {
           if (s.role !== 'student') return false
-          const gpa = releasedGpa(s.username)
+          const gpa = gradeAverages.get(studentKey(s.branch, s.username))?.gpa ?? null
           return gpa !== null && gpa <= 1.75
         }).length,
         balance: enrollmentsAll
@@ -258,7 +249,10 @@ export async function GET(request: NextRequest) {
           deanListers,
           withGpa,
           withoutGpa: studentRows.length - withGpa,
+          withoutReleasedGrades,
           average: gpaAverage === null ? null : gpaAverage.toFixed(2),
+          withPercentage: percentages.length,
+          percentageAverage: percentageAverage?.toFixed(2) ?? null,
         },
         finances: {
           totalAssessment,

@@ -5,6 +5,7 @@ import { spoofCheck } from '@/lib/session'
 import { resolveContext, createRelations, createScopes, can, editablePeriodGuard, type Period } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import { computedFinalINCasZero, remarksFor } from '@/lib/aics/grades'
 
 // ---- Zod input schemas (the only place grade-sheet input is shaped) ----
 // Row-level outcomes (reasons per update) stay manual below — the schema
@@ -33,31 +34,6 @@ const gradeUpdateSchema = z.object({
   performedBy: z.string().optional(),
 })
 
-function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
-  const norm = (v: string) => {
-    if (!v) return null
-    if (v.toUpperCase() === 'INC') return 0
-    const n = parseFloat(v)
-    return isNaN(n) ? null : n
-  }
-  const p = norm(pre)
-  const m = norm(mid)
-  const f = norm(fin)
-  if (p === null || m === null || f === null) return ''
-  return (p * 0.3 + m * 0.3 + f * 0.4).toFixed(2)
-}
-function remarksFor(final: string): string {
-  if (!final) return ''
-  if (final.toUpperCase() === 'INC') return 'INC'
-  const v = parseFloat(final)
-  if (isNaN(v)) return '—'
-  if (v >= 90) return 'Excellent'
-  if (v >= 85) return 'Very Good'
-  if (v >= 80) return 'Good'
-  if (v >= 75) return 'Passed'
-  if (v >= 70) return 'Conditional'
-  return 'Failed'
-}
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -293,6 +269,7 @@ export async function PATCH(request: NextRequest) {
         const computed = computedFinalINCasZero(p, m, f)
         if (computed) {
           setDoc.finalGrade = computed
+          setDoc.finalGradeScale = 'percentage'
           setDoc.remarks = remarksFor(computed)
           pushAudit('finalGrade', existing.finalGrade || '', computed)
         }

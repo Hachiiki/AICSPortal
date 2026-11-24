@@ -4,6 +4,7 @@ import { resolveContext, createRelations, can, decisionToHttpError, professorOwn
 import { HttpError } from '@/lib/http'
 import { errResponse } from '@/lib/validation'
 import { getStudentByUsername } from '@/lib/mongodb/queries'
+import { gradePeriodStatus, isFinalGradeReleased } from '@/lib/aics/grades'
 
 // ============================================================
 //  Data export (PDPA data-portability / access right).
@@ -120,11 +121,10 @@ export async function GET(request: NextRequest) {
         // route's projection, so the data export never leaks the final
         // verdict after a single-period release (the legacy gradeStatus
         // field stays on the documents for backward compatibility).
-        const prelimStatus = x.prelimStatus ?? x.gradeStatus
-        const midtermStatus = x.midtermStatus ?? x.gradeStatus
-        const finalsStatus = x.finalsStatus ?? x.gradeStatus
-        const allReleased =
-          prelimStatus === 'released' && midtermStatus === 'released' && finalsStatus === 'released'
+        const prelimStatus = gradePeriodStatus(x, 'prelim')
+        const midtermStatus = gradePeriodStatus(x, 'midterm')
+        const finalsStatus = gradePeriodStatus(x, 'finals')
+        const allReleased = isFinalGradeReleased(x)
         return {
           code: x.code,
           title: x.title,

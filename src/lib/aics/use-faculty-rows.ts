@@ -45,33 +45,7 @@ export interface FacultySection {
   students: StudentWithGrades[]
 }
 
-// INC = 0 for finalGrade math (per user decision)
-export function computedFinalINCasZero(pre: string, mid: string, fin: string): string {
-  const norm = (v: string) => {
-    if (!v) return null
-    if (v.toUpperCase() === 'INC') return 0
-    const n = parseFloat(v)
-    return isNaN(n) ? null : n
-  }
-  const p = norm(pre)
-  const m = norm(mid)
-  const f = norm(fin)
-  if (p === null || m === null || f === null) return ''
-  return (p * 0.3 + m * 0.3 + f * 0.4).toFixed(2)
-}
-
-export function remarksFor(final: string): string {
-  if (!final) return ''
-  if (final.toUpperCase() === 'INC') return 'INC'
-  const v = parseFloat(final)
-  if (isNaN(v)) return '—'
-  if (v >= 90) return 'Excellent'
-  if (v >= 85) return 'Very Good'
-  if (v >= 80) return 'Good'
-  if (v >= 75) return 'Passed'
-  if (v >= 70) return 'Conditional'
-  return 'Failed'
-}
+export { computedFinalINCasZero, remarksFor } from './grades'
 
 export function useFacultyRows(facultyData: { faculty: FacultyMember; subjects: any[]; students: FacultyStudent[] } | null | undefined) {
   const subjects: FacultyApiSubject[] = (facultyData?.subjects ?? []) as FacultyApiSubject[]
