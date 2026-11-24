@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Archive, Search, MapPin, Clock, Eye, X } from 'lucide-react'
+import { Archive, Download, Search, MapPin, Clock, Eye, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { DialogPanel } from '../portal/DialogPanel'
@@ -170,15 +170,15 @@ export function FacultyPreviousRecordsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Previous Records</h1>
-              <p className="text-sm text-slate-500 mt-1">By Academic Year • easy to navigate • shows sections you formerly handled (professor switches)</p>
+              <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Previous Records</h1>
+              <p className="text-sm text-slate-500 mt-1">Released grades for classes you taught in past terms.</p>
             </div>
             <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
-              <Archive className="w-4 h-4" /> Export history (CSV)
+              <Download className="w-4 h-4" aria-hidden="true" /> Export history (CSV)
             </button>
           </div>
 
@@ -191,7 +191,7 @@ export function FacultyPreviousRecordsPage({
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="faculty-filters flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label htmlFor="prev-records-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
@@ -233,7 +233,7 @@ export function FacultyPreviousRecordsPage({
           {/* Categorized history */}
           <div className="space-y-6">
             {filtered.length === 0 && (
-              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
+              <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
                   <Archive className="w-6 h-6 text-slate-400" />
                 </div>
@@ -246,7 +246,7 @@ export function FacultyPreviousRecordsPage({
               if (sections.length === 0) return null
               const statusColor = term.status === 'Graded' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : term.status === 'Archived' ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-amber-50 text-amber-700 border-amber-200'
               return (
-                <div key={`${term.ay}-${term.sem}`} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div key={`${term.ay}-${term.sem}`} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                   <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-bold text-slate-900">

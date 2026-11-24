@@ -4,6 +4,10 @@ import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft,
+  Download,
+  UserRoundPlus,
+  UserRound,
+  ClipboardPenLine,
   ChevronDown,
   ChevronUp,
   X,
@@ -29,7 +33,7 @@ import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { AttendanceModal } from './AttendanceModal'
 import { SelectMenu } from '../ui/select-menu'
-import { useFacultyRows, type FacultyApiSubject, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
+import { useFacultyRows, type FacultyApiSubject, type FacultySection, type StudentWithGrades } from '@/lib/aics/use-faculty-rows'
 import { DialogPanel } from '../portal/DialogPanel'
 
 interface FacultyStudentsPageProps {
@@ -65,6 +69,14 @@ interface Section {
 // Roster rows per page in an expanded section. The pager only
 // appears when a section holds more than this many students.
 const PAGE_SIZE = 25
+
+function subjectForSection(student: StudentWithGrades, section: Pick<FacultySection, 'subjectCode' | 'academicYear' | 'semester'>) {
+  return student.subjects.find((subject) =>
+    subject.code === section.subjectCode &&
+    (subject.academicYear || '') === section.academicYear &&
+    (subject.semester || '') === section.semester
+  )
+}
 
 export function FacultyStudentsPage({
   student, courses, sessions, onNavigate, onLogout,
@@ -323,14 +335,17 @@ export function FacultyStudentsPage({
         if (sortBy === 'name') return a.fullName.localeCompare(b.fullName) * dir
         if (sortBy === 'number') return a.studentNumber.localeCompare(b.studentNumber) * dir
         if (sortBy === 'prelim') {
-          const aSub = a.subjects.find((s) => s.code === sec.subjectCode)
-          const bSub = b.subjects.find((s) => s.code === sec.subjectCode)
-          const aPre = aSub?.prelim || ''
-          const bPre = bSub?.prelim || ''
-          // INC sorts last
-          if (aPre === 'INC' && bPre !== 'INC') return 1 * dir
-          if (bPre === 'INC' && aPre !== 'INC') return -1 * dir
-          return aPre.localeCompare(bPre) * dir
+          const aSub = subjectForSection(a, sec)
+          const bSub = subjectForSection(b, sec)
+          const aPre = aSub?.prelim?.trim().toUpperCase() || ''
+          const bPre = bSub?.prelim?.trim().toUpperCase() || ''
+          if (aPre === 'INC' || bPre === 'INC') return Number(aPre === 'INC') - Number(bPre === 'INC')
+          const aGrade = aPre ? Number(aPre) : NaN
+          const bGrade = bPre ? Number(bPre) : NaN
+          if (!Number.isFinite(aGrade) || !Number.isFinite(bGrade)) {
+            return Number(!Number.isFinite(aGrade)) - Number(!Number.isFinite(bGrade))
+          }
+          return (aGrade - bGrade) * dir
         }
         return 0
       }),
@@ -465,7 +480,7 @@ export function FacultyStudentsPage({
     rows.push(['Student Name', 'Student #', 'Username', 'Section', 'Program', 'Subject Code', 'Subject Title', 'Prelim', 'Midterm', 'Finals', 'Final Grade', 'Remarks', 'Status', 'Academic Year', 'Semester'].join(','))
     for (const sec of filteredSections) {
       for (const stu of sec.students) {
-        const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+        const subj = subjectForSection(stu, sec)
         rows.push([
           `"${stu.fullName.replace(/"/g, '""')}"`,
           stu.studentNumber,
@@ -522,31 +537,33 @@ export function FacultyStudentsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-        <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6">
+        <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 min-w-0 space-y-6 max-sm:space-y-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3">
+              <button onClick={() => onNavigate('dashboard')} className="inline-flex items-center gap-2 text-sm font-semibold text-link hover:text-link-strong mb-3 max-sm:hidden">
                 <ChevronLeft className="w-4 h-4" /> Back to Dashboard
               </button>
-              <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
+              <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">My Classes</h1>
               <p className="text-sm text-slate-500 mt-1">{faculty.semester} • AY {faculty.academicYear} - <span className="font-medium text-slate-900">{sections.length} classes</span> • <span className="font-medium text-slate-900">{totalStudents} students</span></p>
             </div>
-            <div className="flex gap-2">
-              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export roster (CSV)
+            <div className="flex flex-wrap gap-2 max-sm:grid max-sm:w-full max-sm:grid-cols-[auto_minmax(0,1fr)] max-[19rem]:grid-cols-1">
+              <button onClick={handleExportCsv} className="px-3 py-2 rounded-lg border border-slate-200 bg-surface text-sm font-medium hover:bg-slate-50 inline-flex items-center gap-2 max-sm:justify-center">
+                <Download className="size-4 shrink-0" aria-hidden="true" />
+                <span className="sm:hidden">Export CSV</span>
+                <span className="hidden sm:inline">Export roster (CSV)</span>
               </button>
-              <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/><path d="M19 8v6"/></svg> Take attendance
+              <button onClick={openHeaderAttendance} className="px-3 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 max-sm:justify-center max-sm:px-2.5">
+                <UserRoundPlus className="size-4 shrink-0" aria-hidden="true" /> Take attendance
               </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="faculty-filters flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
               <label htmlFor="faculty-students-search" className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search</label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" aria-hidden />
-                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Search student name, number, or subject..." className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-surface shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+                <input id="faculty-students-search" type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); resetPage() }} placeholder="Name, ID, or subject" className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 text-sm bg-surface shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
               </div>
             </div>
             <div>
@@ -558,7 +575,7 @@ export function FacultyStudentsPage({
                 value={sectionFilter}
                 onChange={(v) => { setSectionFilter(v); resetPage() }}
                 options={[
-                  { value: 'all', label: `All sections (${sections.length})` },
+                  { value: 'all', label: 'All sections' },
                   ...sections.map((s) => ({ value: s.key, label: `${s.subjectCode} · ${s.room} • ${s.schedule}` })),
                 ]}
               />
@@ -583,7 +600,7 @@ export function FacultyStudentsPage({
           </div>
 
           {filteredSections.length === 0 ? (
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm">
+            <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm">
               <EmptyState
                 icon={UsersIcon}
                 message="No classes found."
@@ -602,32 +619,98 @@ export function FacultyStudentsPage({
                 const safePage = Math.min(page, pageCount)
                 const pageStudents = sec.students.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
                 return (
-                  <div key={sec.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div key={sec.key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <button
                       type="button"
                       aria-expanded={isExpanded}
                       onClick={() => { setExpandedSection(isExpanded ? null : sec.key); resetPage() }}
-                      className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
+                      className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-slate-50 max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:gap-x-2 max-sm:gap-y-1 max-sm:px-4"
                     >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-link-strong">{sec.subjectCode}</span>
-                          <span className="text-sm font-semibold text-slate-900 truncate">{sec.subjectTitle}</span>
+                      <div className="min-w-0 max-sm:contents">
+                        <div className="flex items-center gap-2 max-sm:contents">
+                          <span className="faculty-course-code font-mono text-xs font-bold text-link-strong max-sm:col-start-1 max-sm:row-start-1">{sec.subjectCode}</span>
+                          <span className="faculty-item-title text-sm font-semibold text-slate-900 max-sm:col-span-2 max-sm:row-start-2 sm:truncate">{sec.subjectTitle}</span>
                         </div>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><MapPin className="w-3 h-3" aria-hidden /> {sec.room}</span>
-                          <span className="inline-flex items-center gap-1 text-[10px] text-slate-500"><Clock className="w-3 h-3" aria-hidden /> {sec.schedule}</span>
-                          <span className="text-[10px] text-slate-500">{sec.section || sec.yearLevel} &bull; {sec.yearLevel} &bull; AY {sec.academicYear} &bull; {sec.semester}</span>
+                        <div className="mt-1.5 flex items-center gap-3 max-sm:col-span-2 max-sm:row-start-3 max-sm:mt-0.5 max-sm:flex-wrap max-sm:gap-x-2 max-sm:gap-y-1">
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500 max-sm:text-slate-600"><MapPin className="size-3 shrink-0" aria-hidden /> {sec.room}</span>
+                          <span className="inline-flex items-center gap-1 faculty-text-detail text-[10px] text-slate-500 max-sm:text-slate-600"><Clock className="size-3 shrink-0" aria-hidden /> {sec.schedule}</span>
+                          <span className="faculty-text-detail text-[10px] text-slate-500 max-sm:basis-full max-sm:text-slate-600">
+                            {sec.section ? `${sec.section} · ${sec.yearLevel}` : sec.yearLevel}
+                            <span className={sec.academicYear === faculty.academicYear && sec.semester === faculty.semester ? 'max-sm:hidden' : undefined}>
+                              {' · '}AY {sec.academicYear} &bull; {sec.semester}
+                            </span>
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-xs font-medium text-slate-500 px-2 py-0.5 rounded-md bg-slate-100">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
+                      <div className="flex shrink-0 items-center gap-2 max-sm:col-start-2 max-sm:row-start-1">
+                        <span className="faculty-badge whitespace-nowrap rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">{sec.students.length} {sec.students.length === 1 ? 'student' : 'students'}</span>
                         {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" aria-hidden /> : <ChevronDown className="w-4 h-4 text-slate-500" aria-hidden />}
                       </div>
                     </button>
                     {isExpanded && (
                       <div className="border-t border-slate-100">
-                        <div className="overflow-x-auto">
+                        <div className="px-4 py-3 sm:hidden">
+                          <label className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+                            Sort by
+                            <select
+                              value={`${sortBy}:${sortDir}`}
+                              onChange={(event) => {
+                                const [field, direction] = event.target.value.split(':')
+                                if ((field === 'name' || field === 'number' || field === 'prelim') && (direction === 'asc' || direction === 'desc')) {
+                                  setSortBy(field)
+                                  setSortDir(direction)
+                                  resetPage()
+                                }
+                              }}
+                              className="min-h-11 max-w-full rounded-lg border border-line bg-surface px-2 text-ink"
+                            >
+                              <option value="name:asc">Name (A to Z)</option>
+                              <option value="name:desc">Name (Z to A)</option>
+                              <option value="number:asc">Student number (low first)</option>
+                              <option value="number:desc">Student number (high first)</option>
+                              <option value="prelim:asc">Prelim grade (low first)</option>
+                              <option value="prelim:desc">Prelim grade (high first)</option>
+                            </select>
+                          </label>
+                          <ul className="mt-2 divide-y divide-line">
+                            {pageStudents.map((stu) => {
+                              const subject = subjectForSection(stu, sec)
+                              return (
+                                <li key={stu.username} className="space-y-2 py-3">
+                                  <p className="faculty-item-title text-ink">{stu.fullName}</p>
+                                  <p className="break-words text-xs leading-relaxed text-slate-600">
+                                    {stu.studentNumber} · {stu.section || sec.section} · {stu.enrollmentStatus || 'Enrolled'}
+                                  </p>
+                                  <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,3.5rem),1fr))] gap-1 rounded-lg bg-slate-50 p-2 text-xs">
+                                    {[
+                                      { label: 'Prelim', grade: subject?.prelim },
+                                      { label: 'Midterm', grade: subject?.midterm },
+                                      { label: 'Finals', grade: subject?.finals },
+                                      { label: 'Final', grade: subject?.finalGrade },
+                                    ].map(({ label, grade }) => (
+                                      <div key={label} className="min-w-0 [overflow-wrap:anywhere]">
+                                        <dt className="text-slate-600">{label}</dt>
+                                        <dd className="font-medium tabular-nums text-ink">{grade || '—'}</dd>
+                                      </div>
+                                    ))}
+                                  </dl>
+                                  {subject?.remarks && <RemarksBadge remarks={subject.remarks} />}
+                                  <div className="flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => { setSelectedStudent(stu); setSelectedSectionKey(sec.key) }}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-medium text-link-strong">
+                                      <UserRound className="size-4 shrink-0" aria-hidden="true" /> View student file
+                                    </button>
+                                    <button type="button" onClick={() => onNavigate('grade-encoding')}
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-xs font-medium text-ink">
+                                      <ClipboardPenLine className="size-4 shrink-0" aria-hidden="true" /> Grade Encoding
+                                    </button>
+                                  </div>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                        <div className="hidden overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-link sm:block" tabIndex={0} role="region" aria-label={`${sec.subjectCode} student roster`}>
                           <table className="w-full text-sm min-w-[980px]">
                             <thead className="sticky top-0 z-10">
                               <tr className="bg-slate-50 border-b border-slate-100">
@@ -651,7 +734,7 @@ export function FacultyStudentsPage({
                             </thead>
                             <tbody>
                               {pageStudents.map((stu) => {
-                                const subj = stu.subjects.find((s) => s.code === sec.subjectCode)
+                                const subj = subjectForSection(stu, sec)
                                 const prelim = subj?.prelim || '-'
                                 const rawStatus = stu.enrollmentStatus || 'Enrolled'
                                 const statusLower = rawStatus.toLowerCase()
@@ -685,7 +768,7 @@ export function FacultyStudentsPage({
                           </table>
                         </div>
                         {sec.students.length > PAGE_SIZE && (
-                          <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between gap-3 text-xs">
+                          <div className="px-6 py-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs max-sm:px-4">
                             <span className="text-slate-500">
                               Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sec.students.length)} of {sec.students.length}
                             </span>
@@ -712,9 +795,9 @@ export function FacultyStudentsPage({
                         )}
                         <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
                           <button onClick={() => setMessageSec({ key: sec.key, subjectCode: sec.subjectCode, subjectTitle: sec.subjectTitle, room: sec.room })} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UsersIcon className="w-3.5 h-3.5" /> Message section</button>
-                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Take attendance</button>
+                          <button onClick={() => openAttendance(sec)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><UserRoundPlus className="w-3.5 h-3.5" aria-hidden="true" /> Take attendance</button>
                           <button onClick={() => openHistory(sec.key)} className="px-3 py-1.5 rounded-lg bg-surface border border-slate-200 font-medium hover:bg-slate-50 inline-flex items-center gap-1.5"><History className="w-3.5 h-3.5" /> History</button>
-                          <span className="ml-auto text-slate-500">Click View for student file.</span>
+                          <span className="ml-auto hidden text-slate-500 sm:inline">Click View for student file.</span>
                         </div>
                       </div>
                     )}

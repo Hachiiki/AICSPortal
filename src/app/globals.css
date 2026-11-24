@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @media (width < 40rem) {
-  .student-portal-column #main-content {
+  :is(.student-portal-column #main-content, .dashboard-home, .portal-notifications-page) {
     --student-card-radius: 0.75rem;
     --student-control-radius: 0.5rem;
     --student-badge-radius: 0.375rem;
@@ -86,6 +86,168 @@
     .student-portal-column #main-content .student-task-attention-title {
       font-size: 0.875rem;
     }
+  }
+}
+
+@media (width < 40rem) {
+  .faculty-portal-column {
+    --faculty-card-radius: 0.75rem;
+    --faculty-control-radius: 0.5rem;
+    --faculty-badge-radius: 0.375rem;
+  }
+
+  [data-dock-labels="visible"] > button {
+    align-content: center;
+    gap: 0.125rem;
+    min-inline-size: 0;
+    padding: 0.25rem 0.125rem;
+  }
+
+  [data-dock-labels="visible"] > button > svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 1.85;
+  }
+
+  [data-dock-labels="visible"] > button[aria-current="page"] > svg {
+    stroke-width: 2.25;
+  }
+
+  [data-dock-labels="visible"] .student-floating-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-page {
+    min-width: 0;
+    padding-block-start: 1.125rem;
+  }
+
+  .faculty-page-title {
+    font-size: 1.625rem;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-section-title {
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    font-weight: 650;
+    letter-spacing: -0.012em;
+  }
+
+  .faculty-item-title {
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-text-detail {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .faculty-page .faculty-badge {
+    border-radius: var(--faculty-badge-radius);
+  }
+
+  .faculty-course-code {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
+  }
+
+  .faculty-page .faculty-card {
+    border-radius: var(--faculty-card-radius);
+  }
+
+  .faculty-page :is(input:not([type="checkbox"], [type="radio"]), textarea, select, button[aria-haspopup="listbox"]) {
+    border-color: color-mix(in srgb, var(--color-slate-500) 86%, var(--surface));
+  }
+
+  .faculty-page :is(input, textarea)::placeholder {
+    color: var(--color-slate-600);
+    opacity: 1;
+  }
+
+  .faculty-page :is(button.rounded-lg, input.rounded-xl, select.rounded-xl) {
+    border-radius: var(--faculty-control-radius);
+  }
+
+  .faculty-page :is(button.rounded-lg, input.rounded-xl, input.rounded-lg, button[aria-pressed], button[aria-haspopup="listbox"]) {
+    min-height: 44px;
+  }
+
+  .faculty-page button[aria-pressed] {
+    white-space: normal;
+    border-radius: var(--faculty-control-radius);
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faculty-filters > div {
+    min-width: 0;
+  }
+
+  .faculty-filters > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .faculty-filters :is(button, [role="listbox"]) {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .faculty-filters :is(button[aria-haspopup], [role="option"]) > span {
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < 19rem) {
+    .faculty-filters {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .faculty-filters label {
+    font-size: 0.75rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .faculty-periods {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+
+  .faculty-periods > button {
+    padding-inline: 0.125rem;
+  }
+
+  .faculty-page .faculty-grades-table th:first-child,
+  .faculty-page .faculty-grades-table td:first-child {
+    min-width: 8rem;
+    max-width: min(11rem, 43vw);
+    overflow-wrap: anywhere;
+  }
+
+  .faculty-page svg.lucide {
+    stroke-width: 1.75;
   }
 }
 
@@ -193,7 +355,14 @@ html:is([data-animation-mode="reduced"], [data-animation-mode="off"]) :is(.stude
   pointer-events: none;
 }
 
-.student-more-item:focus-visible::after {
+@media (height < 26rem) {
+  .student-more-popover {
+    max-height: var(--radix-dropdown-menu-content-available-height);
+    overflow-y: auto;
+  }
+}
+
+.student-more-item[data-destination-label]:focus-visible::after {
   content: attr(data-destination-label);
   position: absolute;
   inset-block-end: calc(100% + 0.3rem);
@@ -240,24 +409,24 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   to { opacity: 0; transform: translateY(5px) scale(0.82, 0.9); }
 }
 
-.portal-topbar[data-student-topbar] {
-  --student-topbar-float: 0;
-  --student-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
-  --student-topbar-gap: 0.75rem;
+.portal-topbar {
+  --portal-topbar-float: 0;
+  --portal-topbar-inset: clamp(1.25rem, 36% - 12rem, 9.5rem);
+  --portal-topbar-gap: 0.75rem;
   pointer-events: none;
 }
 
-.portal-topbar[data-student-topbar] .portal-topbar-layout {
+.portal-topbar .portal-topbar-layout {
   position: relative;
   isolation: isolate;
-  inset-block-start: calc(var(--student-topbar-float) * var(--student-topbar-gap));
-  width: calc(100% - var(--student-topbar-float) * var(--student-topbar-inset));
+  inset-block-start: calc(var(--portal-topbar-float) * var(--portal-topbar-gap));
+  width: calc(100% - var(--portal-topbar-float) * var(--portal-topbar-inset));
   margin-inline: auto;
-  border-radius: calc(var(--student-topbar-float) * 2rem);
+  border-radius: calc(var(--portal-topbar-float) * 2rem);
   pointer-events: auto;
 }
 
-.portal-topbar[data-student-topbar] .portal-topbar-layout::before {
+.portal-topbar .portal-topbar-layout::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -266,18 +435,18 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   border-radius: inherit;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: 0 5px 18px rgb(15 23 42 / 0.15), 0 1px 3px rgb(15 23 42 / 0.08);
-  opacity: var(--student-topbar-float);
+  opacity: var(--portal-topbar-float);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   pointer-events: none;
 }
 
-@media (min-width: 640px) {
-  .portal-topbar[data-student-topbar] {
-    container: student-topbar / inline-size;
+@media (width >= 40rem) {
+  .portal-topbar {
+    container: portal-header / inline-size;
   }
 
-  @container student-topbar (width < 54rem) {
+  @container portal-header (width < 54rem) {
     .portal-topbar-layout {
       padding-inline: 1rem;
     }
@@ -288,27 +457,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
   }
 }
 
-@media (max-width: 639px) {
-  .portal-topbar {
-    transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .portal-topbar[data-scroll-hidden="true"]:not(:has(:focus-visible, button[data-state="open"])) {
-    translate: 0 -100%;
-    pointer-events: none;
-  }
-
-  :root:has([data-tour-header-target="true"]) .portal-topbar[data-scroll-hidden="true"] {
-    translate: none;
-    pointer-events: auto;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .portal-topbar {
-      transition: none;
-    }
-  }
-
+@media (width < 40rem) {
   :root:has([data-student-mobile-nav]) {
     --portal-mobile-nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom: calc(var(--portal-mobile-nav-height) + 1rem);
@@ -365,24 +514,21 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     container: portal-topbar / inline-size;
   }
 
-  .student-portal-column {
-    --student-topbar-height: 3.5rem;
+  .portal-topbar {
+    --portal-topbar-inset: 1.25rem;
+    --portal-topbar-gap: 0.5625rem;
   }
 
-  .portal-topbar[data-student-topbar] {
-    --student-topbar-inset: 1.25rem;
-    --student-topbar-gap: 0.5625rem;
+  .portal-topbar + #main-content:has(.student-dashboard-hero) {
+    --dashboard-topbar-height: 3.5rem;
+    margin-block-start: calc(-1 * var(--dashboard-topbar-height));
   }
 
-  .portal-topbar[data-student-topbar="dashboard"] + #main-content:has(.student-dashboard-hero) {
-    margin-block-start: calc(-1 * var(--student-topbar-height));
-  }
-
-  .portal-topbar[data-student-topbar="dashboard"] :is([data-mobile-portal-brand] p, [data-tour="topbar-notifications"]) {
+  .portal-topbar:has(+ #main-content .student-dashboard-hero) :is([data-mobile-portal-brand] p, [data-tour="topbar-notifications"]) {
     transition: color 100ms ease, text-shadow 100ms ease;
   }
 
-  .portal-topbar[data-student-topbar="dashboard"]:not([data-student-topbar-filled]):has(+ #main-content .student-dashboard-hero) {
+  .portal-topbar:not([data-portal-topbar-filled]):has(+ #main-content .student-dashboard-hero) {
     & :is([data-mobile-portal-brand] p, [data-tour="topbar-notifications"]) {
       color: white;
       text-shadow: 0 1px 6px rgb(7 26 52 / 0.8);
@@ -403,7 +549,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     }
   }
 
-  .student-portal-column {
+  :is(.student-portal-column, .faculty-portal-column:has(.dashboard-home)) {
     container: student-portal / inline-size;
   }
 
@@ -411,7 +557,7 @@ html[data-animation-mode="reduced"] :is(.student-more-popover[data-state="open"]
     position: sticky;
     top: 0;
     isolation: isolate;
-    padding: calc(31px + var(--student-topbar-height)) 16px 48px;
+    padding: calc(31px + var(--dashboard-topbar-height)) 16px 48px;
     color: white;
     background:
       linear-gradient(180deg, #0d223bd9 0%, #0c203996 28%, #0c203bc7 65%, #102540ef 100%),
