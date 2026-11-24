@@ -189,9 +189,9 @@ export function FacultyAnnouncementsPage({
       facultyData={facultyData}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+      <main className="faculty-page px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Announcements</h1>
+          <h1 className="faculty-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Announcements</h1>
           <p className="text-sm text-slate-500 mt-1">
             Notify your sections. Messages land in each student&apos;s bell inbox, never in the main announcement deck.
           </p>
@@ -201,10 +201,10 @@ export function FacultyAnnouncementsPage({
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         <div className="lg:col-span-3">
         {/* Compose */}
-        <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-link" />
-            <h2 className="text-base font-semibold text-slate-900">Notify sections</h2>
+            <h2 className="faculty-section-title text-base font-semibold text-slate-900">Notify sections</h2>
           </div>
           <div className="px-6 py-5 space-y-4">
             <div>
@@ -295,11 +295,11 @@ export function FacultyAnnouncementsPage({
         {/* Sent history — grouped per send, 5 per page, last 30 days */}
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-baseline justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-900">Sent history</h2>
+            <h2 className="faculty-section-title text-sm font-semibold text-slate-900">Sent history</h2>
             <span className="text-[11px] text-slate-500">Newest first · keeps the last {NOTIFICATION_RETENTION_DAYS} days</span>
           </div>
           {!sent || sent.groups.length === 0 ? (
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
+            <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-10 text-center">
               <p className="text-sm text-slate-500">
                 Nothing sent yet. Messages you send to sections will appear here, grouped by send.
               </p>
@@ -312,7 +312,7 @@ export function FacultyAnnouncementsPage({
                   const subjectCodes = Array.from(new Set(g.sections.map((s) => s.subjectCode)))
                   const allRead = g.readCount >= g.total
                   return (
-                    <div key={g.key} className="bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                    <div key={g.key} className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-5 py-4">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-semibold text-slate-900 min-w-0">{g.title}</p>
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -402,7 +402,7 @@ export function FacultyAnnouncementsPage({
               </div>
 
               {/* Pager — server-side pagination, app's existing control style */}
-              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
+              <div className="faculty-card bg-surface rounded-xl border border-slate-200 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
                 <p className="text-xs text-slate-500 tabular-nums">
                   Showing {(sent.page - 1) * sent.pageSize + 1}–{Math.min(sent.page * sent.pageSize, sent.total)} of{' '}
                   {sent.total}

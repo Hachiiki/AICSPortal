@@ -3,6 +3,7 @@
 import {
   Archive,
   CalendarDays,
+  ClipboardPenLine,
   ClipboardList,
   GraduationCap,
   Home,
@@ -120,13 +121,39 @@ export const FACULTY_PRIMARY_NAV: NavItem[] = [
   // Roster surface feeds both My Students and the Schedule grid; the
   // attendance modal lives inside My Students.
   { view: 'my-students', label: 'My Students', icon: Users, enabled: true, permission: PERMISSIONS.viewMyStudents },
-  { view: 'grade-encoding', label: 'Grade Encoding', icon: GraduationCap, enabled: true, permission: PERMISSIONS.encodeGrades },
+  { view: 'grade-encoding', label: 'Grade Encoding', icon: ClipboardPenLine, enabled: true, permission: PERMISSIONS.encodeGrades },
   { view: 'previous-records', label: 'Previous Records', icon: Archive, enabled: true, permission: PERMISSIONS.viewPreviousRecords },
   // Compose plus sent history over POST /api/notifications.
   { view: 'announcements', label: 'Announcements', icon: Megaphone, enabled: true, permission: PERMISSIONS.sendNotifications },
   { view: 'schedule', label: 'Schedule', icon: CalendarDays, enabled: true, permission: PERMISSIONS.viewMyStudents },
   { view: 'tasks', label: 'Tasks', icon: ClipboardList, enabled: true, permission: PERMISSIONS.viewFacultyTasks },
 ]
+
+const STAFF_MOBILE_NAV = {
+  faculty: [
+    { view: 'dashboard', label: 'Home' },
+    { view: 'my-students', label: 'Students' },
+    { view: 'grade-encoding', label: 'Grades' },
+  ],
+  admin: [
+    { view: 'dashboard', label: 'Home' },
+    { view: 'admin-people', label: 'People' },
+    { view: 'release-queue', label: 'Release' },
+  ],
+} as const satisfies Record<'faculty' | 'admin', ReadonlyArray<Pick<NavItem, 'view' | 'label'>>>
+
+export function getMobileNav(role: PortalRole): ReadonlyArray<
+  Pick<NavItem, 'view' | 'label' | 'icon'> & { tab?: 'tasks' | 'grades' }
+> {
+  if (role === 'student') return STUDENT_MOBILE_NAV
+
+  const allowed = getPrimaryNav(role)
+  return STAFF_MOBILE_NAV[role].flatMap((destination) => {
+    const item = allowed.find(({ view, enabled }) => view === destination.view && enabled)
+    if (!item) return []
+    return [{ view: item.view, label: destination.label, icon: item.icon }]
+  })
+}
 
 export const ADMIN_PRIMARY_NAV: NavItem[] = [
   // The admin dashboard renders GET /api/admin/stats.
@@ -156,9 +183,13 @@ export function getPrimaryNav(role?: PortalRole | string): NavItem[] {
 }
 
 export function getPortalLabel(role?: PortalRole | string): string {
-  if (role === 'faculty') return 'Faculty Portal'
-  if (role === 'admin') return 'Admin Portal'
-  return 'Student Portal'
+  return `${getPortalRoleLabel(role)} Portal`
+}
+
+export function getPortalRoleLabel(role?: PortalRole | string): string {
+  if (role === 'faculty') return 'Faculty'
+  if (role === 'admin') return 'Admin'
+  return 'Student'
 }
 
 export function getPortalAria(role?: PortalRole | string): string {

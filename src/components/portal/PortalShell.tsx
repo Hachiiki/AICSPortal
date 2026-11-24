@@ -13,7 +13,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { assembleEntrance, useAssembleReveal } from './assemble-entrance'
-import { MobileNavigation } from './MobileNavigation'
+import { finishPhoneNavigation, MobileNavigation } from './MobileNavigation'
 import { usePhoneViewport } from '@/lib/aics/use-phone-viewport'
 import type { AcademicsTab } from '@/lib/aics/use-portal-route'
 
@@ -87,6 +87,10 @@ export function PortalShell({
     menuTrigger.current = null
   }, [mobileNavActive])
   const role = student.role ?? 'student'
+  const mainContent = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (mainContent.current) finishPhoneNavigation(mainContent.current)
+  }, [active])
   const phone = usePhoneViewport()
   const { mode } = useAnimationPreferences()
   const studentPhone = role === 'student' && phone
@@ -123,7 +127,7 @@ export function PortalShell({
         profile={profilePanel ? student : undefined}
         onLogout={onLogout}
       />
-      <div className={`min-w-0 lg:pl-60 ${role === 'student' ? 'student-portal-column pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0' : ''}`} inert={mobileNavActive}>
+      <div className={`min-w-0 pb-[calc(var(--portal-mobile-nav-height,65px)+1rem)] sm:pb-0 lg:pl-60 ${role === 'student' ? 'student-portal-column' : role === 'faculty' ? 'faculty-portal-column' : ''}`} inert={mobileNavActive}>
         <Topbar
           student={student}
           active={active}
@@ -145,6 +149,7 @@ export function PortalShell({
             resetKey makes navigating away remount the crashed view. */}
         <motion.div
           key={pageKey}
+          ref={mainContent}
           id="main-content"
           tabIndex={-1}
           data-portal-page-enter={pageMotion.enabled && !motionBlocked ? '' : undefined}
@@ -154,7 +159,7 @@ export function PortalShell({
             {children}
           </ErrorBoundary>
         </motion.div>
-        {studentPhone && (
+        {phone && (
           <MobileNavigation
             student={student}
             active={active}

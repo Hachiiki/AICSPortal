@@ -16,6 +16,7 @@ interface TodayGlanceProps {
   announcements?: Announcement[]
   announcementReadIds?: string[]
   onNavigate: (view: View) => void
+  faculty?: boolean
 }
 
 function GlanceRow({ icon: Icon, label, title, detail, status, urgent, action, onClick }: {
@@ -55,7 +56,7 @@ function focusDashboardSection(id: string, behavior: ScrollBehavior) {
   section?.focus({ preventScroll: true })
 }
 
-export function TodayGlance({ courses, sessions, tasks, announcements, announcementReadIds, onNavigate }: TodayGlanceProps) {
+export function TodayGlance({ courses, sessions, tasks, announcements, announcementReadIds, onNavigate, faculty = false }: TodayGlanceProps) {
   const { route, navigate } = usePortalRoute()
   const scrollBehavior = useAnimationPreferences().mode === 'full' ? 'smooth' : 'instant'
   const now = new Date()
@@ -67,7 +68,7 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
   const minutesToClass = nextClass ? Math.ceil(nextClass.start * 60 - minutes) : 0
   const classStatus = minutesToClass > 0 && minutesToClass < 60 ? `In ${minutesToClass} min` : undefined
 
-  const openTasks = tasks?.filter(canSubmit).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+  const openTasks = faculty ? undefined : tasks?.filter(canSubmit).sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
   const nextTask = openTasks?.[0]
   const overdue = nextTask && computeStatus(nextTask).variant === 'MISSING_OPEN'
   const overdueCount = openTasks?.filter(task => computeStatus(task).variant === 'MISSING_OPEN').length ?? 0
@@ -92,16 +93,17 @@ export function TodayGlance({ courses, sessions, tasks, announcements, announcem
         <GlanceRow icon={CalendarClock} label={nextClass && minutesToClass <= 0 ? 'Current class' : 'Next class'}
           title={nextClass ? getCourse(nextClass.code, courses).title : 'No more classes today'}
           detail={nextClass && <span className="flex flex-wrap gap-x-2"><span>{formatRangeTime(nextClass.start, nextClass.end)}</span>{nextClass.room && <span>{nextClass.room}</span>}</span>}
-          status={nextClass ? classStatus : undefined} action="View class schedule" onClick={() => focusDashboardSection('student-schedule', scrollBehavior)} />
-        <GlanceRow icon={ClipboardList} label="Tasks"
+          status={nextClass ? classStatus : undefined} action="View class schedule" onClick={() => focusDashboardSection(faculty ? 'faculty-schedule' : 'student-schedule', scrollBehavior)} />
+        {faculty ? <GlanceRow icon={ClipboardList} label="Tasks" title="Manage class tasks"
+          action="Open faculty tasks" onClick={() => onNavigate('tasks')} /> : <GlanceRow icon={ClipboardList} label="Tasks"
           title={!openTasks ? 'Loading tasks' : nextTask ? `${openTasks.length} open for submission` : 'Nothing to submit'}
           detail={taskDetail} status={overdueCount ? `${overdueCount} overdue` : undefined} urgent={overdueCount > 0} action="Review tasks" onClick={() => {
             if (route.view === 'login') onNavigate('academics')
             else navigate({ view: 'academics', branch: route.branch, username: route.username, role: route.role, tab: 'tasks' })
-          }} />
+          }} />}
         <GlanceRow icon={Megaphone} label="Campus announcements"
           title={!unread ? 'Loading announcements' : unread.length ? `${unread.length} unread` : 'You’re all caught up'}
-          detail={unread?.[0]?.title} action="Read updates" onClick={() => focusDashboardSection('student-announcements', scrollBehavior)} />
+          detail={unread?.[0]?.title} action="Read updates" onClick={() => focusDashboardSection(faculty ? 'faculty-announcements' : 'student-announcements', scrollBehavior)} />
       </div>
     </section>
   )
