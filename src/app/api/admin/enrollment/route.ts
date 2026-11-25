@@ -48,6 +48,10 @@ const paymentPostSchema = z.object({
   note: z.string().trim().max(200, { message: 'Note must be at most 200 characters.' }).optional(),
 })
 
+function toCentavos(amount: number): number {
+  return Math.round(amount * 100)
+}
+
 // ------------------------------------------------------------
 // GET /api/admin/enrollment
 // ------------------------------------------------------------
@@ -183,6 +187,13 @@ export async function PATCH(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { id, amount, date, note } = await parseBody(request, paymentPostSchema)
+    const payment = toCentavos(amount)
+    if (!Number.isSafeInteger(payment) || payment < 1 || payment / 100 !== amount) {
+      return NextResponse.json(
+        { ok: false, error: 'Enter a payment amount with at most two decimal places.' },
+        { status: 400 }
+      )
+    }
     let idFilter: ObjectId
     try {
       idFilter = new ObjectId(id)
@@ -205,44 +216,54 @@ export async function POST(request: NextRequest) {
       'create'
     )
 
-    const totalAssessment = existing.assessment?.totalAssessment ?? 0
-    const amountPaid = existing.assessment?.amountPaid ?? 0
-    const balance = existing.assessment?.balance ?? totalAssessment - amountPaid
-    if (amount > balance) {
-      return NextResponse.json(
-        { ok: false, error: `Payment exceeds the remaining balance of ${balance}.` },
-        { status: 400 }
-      )
-    }
-
     const receivedAt = date ?? new Date().toISOString().slice(0, 10)
-    const safeNote = note || undefined
-
-    const newPaid = amountPaid + amount
-    const newBalance = Math.max(0, totalAssessment - newPaid)
-    const paymentStatus = newBalance === 0 ? 'paid' : newPaid > 0 ? 'partial' : 'unpaid'
-    const paymentDate = newBalance === 0 ? receivedAt : existing.assessment?.paymentDate ?? null
-
-    await col.updateOne(
-      { _id: idFilter },
-      {
-        $set: {
-          'assessment.amountPaid': newPaid,
-          'assessment.balance': newBalance,
-          'assessment.paymentStatus': paymentStatus,
-          'assessment.paymentDate': paymentDate,
-        },
-        $push: {
-          payments: { amount, date: receivedAt, postedBy: actor.username, note: safeNote },
-        },
+    const target = { _id: idFilter, branch: actor.branch }
+    let current: MongoEnrollment | null = existing
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (!current) {
+        return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
       }
-    )
-    return NextResponse.json({
-      ok: true,
-      message: `Payment posted. Remaining balance ${newBalance}.`,
-      balance: newBalance,
-      paymentStatus,
-    })
+      const assessment = current.assessment
+      const total = toCentavos(assessment?.totalAssessment ?? 0)
+      const paid = toCentavos(assessment?.amountPaid ?? 0)
+      if (!Number.isSafeInteger(total) || !Number.isSafeInteger(paid) || total < 0 || paid < 0) {
+        throw new HttpError(409, 'The stored assessment needs reconciliation before posting payments.')
+      }
+      const outstanding = Math.max(0, total - paid)
+      if (payment > outstanding) {
+        throw new HttpError(400, `Payment exceeds the remaining balance of ${(outstanding / 100).toFixed(2)}.`)
+      }
+
+      const newPaid = paid + payment
+      const newBalance = (total - newPaid) / 100
+      const paymentStatus = newBalance === 0 ? 'paid' : 'partial'
+      const result = await col.updateOne(
+        {
+          ...target,
+          'assessment.totalAssessment': assessment?.totalAssessment ?? null,
+          'assessment.amountPaid': assessment?.amountPaid ?? null,
+        },
+        {
+          $set: {
+            'assessment.amountPaid': newPaid / 100,
+            'assessment.balance': newBalance,
+            'assessment.paymentStatus': paymentStatus,
+            'assessment.paymentDate': newBalance === 0 ? receivedAt : assessment?.paymentDate ?? null,
+          },
+          $push: { payments: { amount, date: receivedAt, postedBy: actor.username, note: note || undefined } },
+        }
+      )
+      if (result.matchedCount === 1) {
+        return NextResponse.json({
+          ok: true,
+          message: `Payment posted. Remaining balance ${newBalance.toFixed(2)}.`,
+          balance: newBalance,
+          paymentStatus,
+        })
+      }
+      current = await col.findOne(target)
+    }
+    throw new HttpError(409, 'The assessment changed while posting payment. Refresh and try again.')
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Admin payment post error:', err)
