@@ -32,7 +32,10 @@ export async function GET(request: NextRequest) {
       { academicYear: student.academicYear, semester: student.semester }
     )
     if (!enrollment) {
-      return NextResponse.json({ ok: false, error: 'No enrollment record found for this term.' }, { status: 404 })
+      return NextResponse.json(
+        { ok: false, code: 'ENROLLMENT_NOT_FOUND', error: 'No enrollment record found for this term.' },
+        { status: 404 }
+      )
     }
     const clientEnrollment = {
       currentStep: enrollment.currentStep,

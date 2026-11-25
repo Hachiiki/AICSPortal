@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { randomUUID } from 'node:crypto'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { requireCan, resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
@@ -54,7 +55,12 @@ const attendancePostSchema = z.object({
   performedBy: z.string().optional(),
   // BUG-015: existing sessions require an explicit overwrite confirmation.
   allowOverwrite: z.boolean().optional(),
+  expectedRevision: z.string().min(1).optional(),
 })
+
+function attendanceRevision(record: { revision?: string; takenAt?: Date | string }): string {
+  return record.revision ?? String(record.takenAt ?? 'legacy')
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -81,18 +87,13 @@ export async function GET(request: NextRequest) {
       .project({ date: 1, takenBy: 1, takenAt: 1 })
       .sort({ date: -1 })
       .toArray()
-    let records: Record<string, string> | null = null
-    if (date) {
-      const doc = await col.findOne({ ...query, date })
-      if (doc) records = doc.records || {}
-    } else if (sessionList.length) {
-      const latest = await col.findOne({ ...query, date: (sessionList[0] as any).date })
-      if (latest) records = latest.records || {}
-    }
+    const selectedDate = date || sessionList[0]?.date
+    const doc = selectedDate ? await col.findOne({ ...query, date: selectedDate }) : null
     return NextResponse.json({
       ok: true,
       sessions: sessionList.map((s: any) => ({ date: s.date, takenBy: s.takenBy, takenAt: s.takenAt })),
-      records,
+      records: doc ? doc.records ?? {} : null,
+      revision: doc ? attendanceRevision(doc) : null,
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
-    const { branch, sectionKey, date, records, performedBy, allowOverwrite } = await parseBody(
+    const { branch, sectionKey, date, records, performedBy, allowOverwrite, expectedRevision } = await parseBody(
       request,
       attendancePostSchema
     )
@@ -153,36 +154,48 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    // BUG-017: unique index is created by seed/migration tooling, not per request.
-    // BUG-015: silent overwrite guard — existing session requires explicit allowOverwrite.
-    const existing = await col.findOne({ branch, sectionKey, date })
-    if (existing && allowOverwrite !== true) {
-      return NextResponse.json(
+    const session = { branch, sectionKey, date }
+    const existing = await col.findOne(session)
+    const now = new Date()
+    const updated = { records, takenBy: ctx.actor.username, takenAt: now, revision: randomUUID() }
+    if (existing) {
+      if (!allowOverwrite) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: 'Attendance already exists for this session. Reload and review the saved marks.',
+            existing: { takenBy: existing.takenBy, takenAt: existing.takenAt, records: existing.records },
+          },
+          { status: 409 }
+        )
+      }
+      if (expectedRevision !== undefined && expectedRevision !== attendanceRevision(existing)) {
+        throw new HttpError(409, 'Someone changed this attendance. Reload and review the saved marks.')
+      }
+      const prevRecords: Record<string, string> = existing.records ?? {}
+      // A correction edits the current roster; preserve marks from the original roll call.
+      const formerMarks = Object.fromEntries(Object.entries(prevRecords).filter(([key]) => !roster.has(key)))
+      const correctedRecords = { ...formerMarks, ...records }
+      const changedFields = [...new Set([...Object.keys(prevRecords), ...Object.keys(correctedRecords)])]
+        .filter((key) => prevRecords[key] !== correctedRecords[key])
+      const result = await col.updateOne(
+        { ...session, _id: existing._id, revision: existing.revision ?? null, takenAt: existing.takenAt ?? null },
         {
-          ok: false,
-          error: 'Attendance already exists for this session. Resubmit with allowOverwrite:true to update.',
-          existing: { takenBy: (existing as any).takenBy, takenAt: (existing as any).takenAt, records: (existing as any).records },
-        },
-        { status: 409 }
+          $set: { ...updated, records: correctedRecords },
+          $push: { history: { updatedAt: now, updatedBy: ctx.actor.username, changedFields } },
+        }
       )
-    }
-    if (existing && allowOverwrite === true) {
-      const prevRecords = (existing as any).records || {}
-      const changedFields = Object.keys(records).filter((k) => prevRecords[k] !== (records as Record<string, string>)[k])
-      await col.updateOne(
-        { branch, sectionKey, date },
-        {
-          $set: { records, takenBy: ctx.actor.username, takenAt: new Date() },
-          $push: { history: { updatedAt: new Date(), updatedBy: ctx.actor.username, changedFields } as any },
-        },
-        { upsert: true }
-      )
+      if (result.matchedCount === 0) {
+        throw new HttpError(409, 'Someone changed this attendance. Reload and review the saved marks.')
+      }
     } else {
-      await col.updateOne(
-        { branch, sectionKey, date },
-        { $set: { records, takenBy: ctx.actor.username, takenAt: new Date() } },
-        { upsert: true }
-      )
+      if (allowOverwrite && expectedRevision !== undefined) {
+        throw new HttpError(409, 'The saved attendance no longer exists. Reload before saving.')
+      }
+      // Existing ObjectId rows are still found by class and date. New rows
+      // use the same ID for a session so simultaneous creates collide.
+      const _id = JSON.stringify([branch, sectionKey, date])
+      await col.insertOne({ _id, ...session, ...updated })
     }
     const present = Object.values(records).filter((s) => s === 'present').length
     const absent = Object.values(records).length - present

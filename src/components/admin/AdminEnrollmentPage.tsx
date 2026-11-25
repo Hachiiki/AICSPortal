@@ -67,7 +67,7 @@ interface EnrollmentRecord {
   } | null
 }
 
-const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 })
+const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—'
@@ -238,7 +238,12 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       toast.error('Enter a payment amount greater than zero.')
       return
     }
-    if (amount > paymentFor.assessment.balance) {
+    const cents = Math.round(amount * 100)
+    if (!Number.isSafeInteger(cents) || cents < 1 || cents / 100 !== amount) {
+      toast.error('Enter a payment amount with at most two decimal places.')
+      return
+    }
+    if (cents > Math.round(paymentFor.assessment.balance * 100)) {
       toast.error(`Payment exceeds the remaining balance (${peso.format(paymentFor.assessment.balance)}).`)
       return
     }
@@ -555,17 +560,17 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
               <input
                 id="pay-amount"
                 type="number"
-                min={1}
-                max={paymentFor.assessment.balance}
+                min={0.01}
+                max={Math.round(paymentFor.assessment.balance * 100) / 100}
                 step="0.01"
                 value={payAmount}
                 onChange={(e) => setPayAmount(e.target.value)}
-                placeholder={String(paymentFor.assessment.balance)}
+                placeholder={paymentFor.assessment.balance.toFixed(2)}
                 className={inputClass}
               />
               <button
                 type="button"
-                onClick={() => setPayAmount(String(paymentFor.assessment.balance))}
+                onClick={() => setPayAmount(paymentFor.assessment.balance.toFixed(2))}
                 className="mt-1.5 text-[11px] font-semibold text-link-strong hover:underline"
               >
                 Full balance ({peso.format(paymentFor.assessment.balance)})

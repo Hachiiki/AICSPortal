@@ -96,6 +96,14 @@ interface AuthState {
   role: string | null
 }
 
+export async function requestPortalSignOut(send: typeof fetch = fetch) {
+  const response = await send('/api/auth/logout', { method: 'POST' })
+  if (response.status === 401) return // The session already ended.
+  if (!response.ok || !(await response.json()).ok) {
+    throw new Error('The server could not confirm sign-out.')
+  }
+}
+
 export function useAuth() {
   const [auth, setAuth] = useState<AuthState>({ username: null, branch: null, role: null })
   // loading starts true on both server and first client render, so
@@ -167,10 +175,8 @@ export function useAuth() {
     }
   }, [])
 
-  const logout = useCallback(() => {
-    // Fire-and-forget: client state clears immediately; the server
-    // cookie clears in the background. Route guards bounce to login.
-    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+  const logout = useCallback(async () => {
+    await requestPortalSignOut()
     setAuth({ username: null, branch: null, role: null })
   }, [])
 

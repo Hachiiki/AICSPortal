@@ -17,6 +17,8 @@ const submissionsGetQuerySchema = z.object({
     message: 'Subject, title, and due date are required.',
   }),
   dueDate: z.coerce.date({ error: 'Invalid due date.' }),
+  postedDate: z.coerce.date({ error: 'Invalid posting date.' }).optional(),
+  assignmentId: z.uuid().optional(),
 })
 
 // ============================================================
@@ -42,7 +44,7 @@ export async function GET(request: NextRequest) {
     if (!ctx) throw new HttpError(401, 'Unauthorized')
     const rel = createRelations(ctx)
 
-    const { username: usernameParam, subjectCode, title, dueDate } = parseQuery(
+    const { username: usernameParam, subjectCode, title, dueDate, postedDate, assignmentId } = parseQuery(
       request,
       submissionsGetQuerySchema
     )
@@ -84,8 +86,14 @@ export async function GET(request: NextRequest) {
       .find({
         branch: ctx.actor.branch,
         subjectCode,
-        title,
-        dueDate: { $gte: start, $lt: end },
+        ...(assignmentId ? { assignmentId } : {
+          assignmentId: null,
+          title,
+          ...(postedDate ? {
+            postedDate: { $in: [postedDate, postedDate.toISOString()] },
+            dueDate: { $in: [due, due.toISOString()] },
+          } : { dueDate: { $gte: start, $lt: end } }),
+        }),
         'term.academicYear': faculty.academicYear,
         'term.semester': faculty.semester,
       })

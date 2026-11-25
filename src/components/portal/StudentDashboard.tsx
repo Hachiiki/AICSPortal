@@ -28,6 +28,7 @@ interface StudentDashboardProps {
   tasks?: Task[]
   announcements?: Announcement[]
   announcementReadIds?: string[]
+  announcementsStatus?: 'loading' | 'error'
   inbox?: NotificationInbox
 }
 
@@ -35,7 +36,7 @@ interface StudentDashboardProps {
  * Main student dashboard. Shows the current term's grades and schedule.
  * The sidebar includes an "Academics" link to the full academic record.
  */
-export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, announcementReadIds, inbox }: StudentDashboardProps) {
+export function StudentDashboard({ student, courses, sessions, onNavigate, onLogout, events, professors, tasks, announcements, announcementReadIds, announcementsStatus, inbox }: StudentDashboardProps) {
   // Filter to current-term subjects + compute derived values
   const { currentTermSubjects, totalUnits, cumulativeGPA } = useMemo(() => {
     const current = student.subjects.filter((s) => {
@@ -75,7 +76,7 @@ export function StudentDashboard({ student, courses, sessions, onNavigate, onLog
         summary={<AcademicTermStats student={dashboardStudent} totalUnits={totalUnits} />}
         today={<TodayGlance courses={courses} sessions={sessions} tasks={tasks} announcements={announcements} announcementReadIds={announcementReadIds} onNavigate={onNavigate} />}
         gettingStarted={<StudentGettingStarted />}
-        announcements={<AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />}
+      announcements={<AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} status={announcementsStatus} />}
         subjects={<GradesTable student={dashboardStudent} />}
         detailsLabel="View full academic record"
         onDetails={() => onNavigate('academics')}

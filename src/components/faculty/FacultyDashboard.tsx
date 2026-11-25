@@ -27,6 +27,7 @@ interface FacultyDashboardProps {
   tasks?: Task[]
   announcements?: Announcement[]
   announcementReadIds?: string[]
+  announcementsStatus?: 'loading' | 'error'
   facultyData?: { faculty: FacultyMember; subjects: FacultySubject[]; students: FacultyStudent[] } | null
   inbox?: NotificationInbox
   facultyLoading?: boolean
@@ -46,7 +47,7 @@ type TeachingSubject = Pick<FacultySubject, 'code' | 'title' | 'units' | 'schedu
 
 export function FacultyDashboard({
   student, courses, sessions, onNavigate, onLogout, events, professors, tasks,
-  announcements, announcementReadIds, facultyData, facultyLoading = true, inbox,
+  announcements, announcementReadIds, announcementsStatus, facultyData, facultyLoading = true, inbox,
 }: FacultyDashboardProps) {
   const faculty = facultyData?.faculty
   const { subjects, myCourses, mySessions } = useMemo(() => {
@@ -90,7 +91,7 @@ export function FacultyDashboard({
           ]}
         />}
         today={<TodayGlance faculty courses={myCourses} sessions={mySessions} announcements={announcements} announcementReadIds={announcementReadIds} onNavigate={onNavigate} />}
-        announcements={<AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} />}
+      announcements={<AcademicAnnouncements student={student} announcements={announcements} announcementReadIds={announcementReadIds} status={announcementsStatus} />}
         subjects={<TeachingSubjects subjects={subjects} />}
         detailsLabel="View my classes"
         onDetails={() => onNavigate('my-students')}

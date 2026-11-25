@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { randomUUID } from 'node:crypto'
 import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
@@ -8,7 +9,7 @@ import { parseBody, parseQuery, trimmedString, errResponse } from '@/lib/validat
 import { moderateContent } from '@/lib/moderation'
 import { HttpError } from '@/lib/http'
 import type { MongoNotification, MongoTask, TaskType } from '@/lib/mongodb/types'
-import type { Task } from '@/lib/aics/tasks'
+import { formatTaskDueDate, type Task } from '@/lib/aics/tasks'
 
 // GET /api/tasks?username=juan.santos
 // Returns tasks for the student's CURRENT TERM only (visibility rule).
@@ -65,6 +66,7 @@ export async function GET(request: NextRequest) {
       type: t.type,
       description: t.description,
       dueDate: t.dueDate instanceof Date ? t.dueDate.toISOString() : String(t.dueDate),
+      dueDateOnly: t.dueDateOnly,
       postedDate: t.postedDate instanceof Date ? t.postedDate.toISOString() : String(t.postedDate),
       submitted: t.submitted,
       submittedAt: t.submittedAt ? (t.submittedAt instanceof Date ? t.submittedAt.toISOString() : String(t.submittedAt)) : null,
@@ -102,7 +104,10 @@ const taskPostSchema = z.object({
     .number({ error: 'Max score must be a positive number.' })
     .finite({ message: 'Max score must be a positive number.' })
     .positive({ message: 'Max score must be a positive number.' }),
-  dueDate: z.coerce.date({ error: 'Invalid due date.' }),
+  dueDate: z.union([
+    z.iso.date().transform((day) => ({ date: new Date(day), dateOnly: true })),
+    z.coerce.date({ error: 'Invalid due date.' }).transform((date) => ({ date, dateOnly: false })),
+  ]),
   // Legacy spoof-check field; identity always comes from the session.
   performedBy: z.string().optional(),
 })
@@ -121,6 +126,8 @@ const taskPatchSchema = z.object({
     (v) => (v === '' ? undefined : v),
     z.coerce.date({ error: 'Invalid due date.' }).optional()
   ),
+  postedDate: z.coerce.date({ error: 'Invalid posting date.' }).optional(),
+  assignmentId: z.uuid().optional(),
   submissionsClosed: z.boolean({ error: 'Branch, subject, title, and submissionsClosed are required.' }),
   performedBy: z.string().optional(),
 })
@@ -135,10 +142,11 @@ export async function POST(request: NextRequest) {
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
-    const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await parseBody(
+    const { branch, subjectCode, title, type, description, maxScore, dueDate: deadline, performedBy } = await parseBody(
       request,
       taskPostSchema
     )
+    const dueDate = deadline.date
     // Phase 6: performer is the session user. A mismatched performedBy is a spoof attempt.
     const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
@@ -186,15 +194,18 @@ export async function POST(request: NextRequest) {
     })
     if (!verdict.ok) return verdict.response
     const now = new Date()
+    const assignmentId = randomUUID()
     const docs: MongoTask[] = usernames.map((studentUsername) => ({
       branch,
       studentUsername,
       subjectCode,
+      assignmentId,
       term: { academicYear: actor.academicYear, semester: actor.semester, yearLevel },
       title,
       type,
       description: description || undefined,
       dueDate,
+      dueDateOnly: deadline.dateOnly,
       postedDate: now,
       submitted: false,
       submittedAt: null,
@@ -212,7 +223,7 @@ export async function POST(request: NextRequest) {
     try {
       const notifCol = await getCollection<MongoNotification>('notifications')
       const sectionKey = `${subjectCode}|${actor.academicYear}|${actor.semester}`
-      const dueLabel = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      const dueLabel = formatTaskDueDate(dueDate, true)
       const trimmedDesc = description || ''
       const notifs: MongoNotification[] = usernames.map((studentUsername, i) => ({
         branch,
@@ -249,7 +260,7 @@ export async function PATCH(request: NextRequest) {
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
-    const { branch, subjectCode, title, dueDate, submissionsClosed, performedBy } = await parseBody(
+    const { branch, subjectCode, title, dueDate, postedDate, assignmentId, submissionsClosed, performedBy } = await parseBody(
       request,
       taskPatchSchema
     )
@@ -274,11 +285,19 @@ export async function PATCH(request: NextRequest) {
     const query: Record<string, any> = {
       branch,
       subjectCode,
-      title,
       'term.academicYear': actor.academicYear,
       'term.semester': actor.semester,
     }
-    if (dueDate) {
+    if (assignmentId) {
+      query.assignmentId = assignmentId
+    } else {
+      query.assignmentId = null
+      query.title = title
+    }
+    if (!assignmentId && postedDate && dueDate) {
+      query.postedDate = { $in: [postedDate, postedDate.toISOString()] }
+      query.dueDate = { $in: [dueDate, dueDate.toISOString()] }
+    } else if (!assignmentId && dueDate) {
       const start = new Date(dueDate)
       start.setHours(0, 0, 0, 0)
       const end = new Date(start)
@@ -287,6 +306,9 @@ export async function PATCH(request: NextRequest) {
     }
     const col = await getCollection<MongoTask>('tasks')
     const result = await col.updateMany(query, { $set: { submissionsClosed } })
+    if (result.matchedCount === 0) {
+      throw new HttpError(404, 'Task group not found. Reload the task list and try again.')
+    }
     return NextResponse.json({
       ok: true,
       message: submissionsClosed ? `Submissions closed for ${result.modifiedCount} students.` : `Submissions reopened for ${result.modifiedCount} students.`,
