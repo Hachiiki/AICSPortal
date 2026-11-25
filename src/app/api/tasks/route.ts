@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
       type: t.type,
       description: t.description,
       dueDate: t.dueDate instanceof Date ? t.dueDate.toISOString() : String(t.dueDate),
+      dueDateOnly: t.dueDateOnly,
       postedDate: t.postedDate instanceof Date ? t.postedDate.toISOString() : String(t.postedDate),
       submitted: t.submitted,
       submittedAt: t.submittedAt ? (t.submittedAt instanceof Date ? t.submittedAt.toISOString() : String(t.submittedAt)) : null,
@@ -103,7 +104,10 @@ const taskPostSchema = z.object({
     .number({ error: 'Max score must be a positive number.' })
     .finite({ message: 'Max score must be a positive number.' })
     .positive({ message: 'Max score must be a positive number.' }),
-  dueDate: z.coerce.date({ error: 'Invalid due date.' }),
+  dueDate: z.union([
+    z.iso.date().transform((day) => ({ date: new Date(day), dateOnly: true })),
+    z.coerce.date({ error: 'Invalid due date.' }).transform((date) => ({ date, dateOnly: false })),
+  ]),
   // Legacy spoof-check field; identity always comes from the session.
   performedBy: z.string().optional(),
 })
@@ -138,10 +142,11 @@ export async function POST(request: NextRequest) {
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
-    const { branch, subjectCode, title, type, description, maxScore, dueDate, performedBy } = await parseBody(
+    const { branch, subjectCode, title, type, description, maxScore, dueDate: deadline, performedBy } = await parseBody(
       request,
       taskPostSchema
     )
+    const dueDate = deadline.date
     // Phase 6: performer is the session user. A mismatched performedBy is a spoof attempt.
     const spoof = spoofCheck(ctx.claims, performedBy)
     if (spoof) {
@@ -200,6 +205,7 @@ export async function POST(request: NextRequest) {
       type,
       description: description || undefined,
       dueDate,
+      dueDateOnly: deadline.dateOnly,
       postedDate: now,
       submitted: false,
       submittedAt: null,

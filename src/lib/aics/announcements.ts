@@ -8,6 +8,30 @@ export const ANNOUNCEMENT_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'
 export const ANNOUNCEMENT_IMAGE_ALT_MAX_LENGTH = 180
 export const ANNOUNCEMENT_MARK_BATCH_SIZE = 200
 
+export async function persistAnnouncementMarks(
+  username: string,
+  ids: string[],
+  action?: 'read' | 'dismissed',
+  send: typeof fetch = fetch,
+) {
+  const saved: string[] = []
+  try {
+    for (let offset = 0; offset < ids.length; offset += ANNOUNCEMENT_MARK_BATCH_SIZE) {
+      const batch = ids.slice(offset, offset + ANNOUNCEMENT_MARK_BATCH_SIZE)
+      const response = await send('/api/announcements/read', {
+        method: action ? 'POST' : 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, ids: batch, action }),
+      })
+      if (!response.ok || !(await response.json()).ok) break
+      saved.push(...batch)
+    }
+  } catch {
+    // Keep the batches the server already acknowledged.
+  }
+  return saved
+}
+
 export function announcementImageUrl(id: string) {
   return `/api/announcements/image?id=${encodeURIComponent(id)}`
 }

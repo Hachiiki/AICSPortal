@@ -40,6 +40,8 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
   const [error, setError] = useState<string | null>(null)
   const [confirmKey, setConfirmKey] = useState<string | null>(null)
   const [releasingKey, setReleasingKey] = useState<string | null>(null)
+  const [hasPendingAuditExport, setHasPendingAuditExport] = useState(false)
+  const [retryingAudit, setRetryingAudit] = useState(false)
 
   const branch = student.branch || 'commonwealth'
 
@@ -49,8 +51,12 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
     try {
       const res = await fetch(`/api/grades/release?username=${encodeURIComponent(student.username)}`)
       const data = await res.json()
-      if (data.ok) setGroups(data.groups || [])
-      else setError(data.error || 'Failed to load pending releases.')
+      if (data.ok) {
+        setGroups(data.groups ?? [])
+        setHasPendingAuditExport(data.hasPendingAuditExport === true)
+      } else {
+        setError(data.error || 'Failed to load pending releases.')
+      }
     } catch {
       setError('Network error. Please try again.')
     } finally {
@@ -85,8 +91,12 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
       })
       const data = await res.json()
       if (data.ok) {
-        if (data.auditWarning) toast.warning(data.auditWarning)
-        else toast.success(data.message || 'Grades released.')
+        if (data.auditWarning) {
+          setHasPendingAuditExport(true)
+          toast.warning(data.auditWarning)
+        } else {
+          toast.success(data.message || 'Grades released.')
+        }
         fetchGroups()
       } else {
         toast.error(data.error || 'Failed to release grades.')
@@ -95,6 +105,25 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
       toast.error('Network error. Please try again.')
     } finally {
       setReleasingKey(null)
+    }
+  }
+
+  const retryAuditExport = async () => {
+    setRetryingAudit(true)
+    try {
+      const response = await fetch('/api/grades/release', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branch, performedBy: student.username }),
+      })
+      const data = await response.json()
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not export grade history.')
+      toast.success('Grade history exported.')
+      await fetchGroups()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not export grade history. Try again.')
+    } finally {
+      setRetryingAudit(false)
     }
   }
 
@@ -116,6 +145,20 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
             Submitted grade periods awaiting release. Released grades become visible to students.
           </p>
         </div>
+
+        {hasPendingAuditExport && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-surface p-4">
+            <p role="status" className="text-sm text-slate-700">Some grade history is waiting to be exported.</p>
+            <button
+              type="button"
+              onClick={retryAuditExport}
+              disabled={retryingAudit || releasingKey !== null}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-link disabled:opacity-60"
+            >
+              {retryingAudit ? 'Exporting grade history…' : 'Retry grade history export'}
+            </button>
+          </div>
+        )}
 
         {loading ? (
           <div className="bg-surface rounded-xl border border-slate-200 shadow-sm px-6 py-12 text-center">
@@ -178,7 +221,7 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
                           <button
                             type="button"
                             onClick={() => handleRelease(group)}
-                            disabled={releasing}
+                            disabled={releasing || retryingAudit}
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-60 ${
                               confirming
                                 ? 'bg-emerald-700 text-white hover:bg-emerald-800'

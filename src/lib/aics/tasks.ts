@@ -28,6 +28,7 @@ export interface Task {
   type: TaskType
   description?: string
   dueDate: string
+  dueDateOnly?: boolean
   postedDate: string
   submitted: boolean
   submittedAt: string | null
@@ -79,9 +80,8 @@ export function computeStatus(task: Task, now = new Date()): {
     return { status: 'MISSING', variant: 'MISSING_CLOSED', sub: 'Missing' }
   }
   const due = new Date(task.dueDate)
-  // The date picker has always stored date-only assignments at midnight
-  // UTC. Keep their entire Manila calendar day and preserve timed deadlines.
-  const dateOnly = /^\d{4}-\d{2}-\d{2}(?:T00:00:00(?:\.000)?Z)?$/.test(task.dueDate)
+  // Older date-picker rows were stored at midnight UTC without a date-only flag.
+  const dateOnly = task.dueDateOnly ?? /^\d{4}-\d{2}-\d{2}(?:T00:00:00(?:\.000)?Z)?$/.test(task.dueDate)
   const overdue = Number.isFinite(due.getTime())
     && (dateOnly ? campusTaskDay(now) > campusTaskDay(due) : due < now)
   if (overdue) {

@@ -173,12 +173,15 @@ export async function POST(request: NextRequest) {
         throw new HttpError(409, 'Someone changed this attendance. Reload and review the saved marks.')
       }
       const prevRecords: Record<string, string> = existing.records ?? {}
-      const changedFields = [...new Set([...Object.keys(prevRecords), ...Object.keys(records)])]
-        .filter((key) => prevRecords[key] !== records[key])
+      // A correction edits the current roster; preserve marks from the original roll call.
+      const formerMarks = Object.fromEntries(Object.entries(prevRecords).filter(([key]) => !roster.has(key)))
+      const correctedRecords = { ...formerMarks, ...records }
+      const changedFields = [...new Set([...Object.keys(prevRecords), ...Object.keys(correctedRecords)])]
+        .filter((key) => prevRecords[key] !== correctedRecords[key])
       const result = await col.updateOne(
         { ...session, _id: existing._id, revision: existing.revision ?? null, takenAt: existing.takenAt ?? null },
         {
-          $set: updated,
+          $set: { ...updated, records: correctedRecords },
           $push: { history: { updatedAt: now, updatedBy: ctx.actor.username, changedFields } },
         }
       )

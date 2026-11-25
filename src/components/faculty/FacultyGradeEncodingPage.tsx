@@ -18,6 +18,7 @@ import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { EmptyState } from '../portal/EmptyState'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
+import { acknowledgeDraftGrade } from '@/lib/aics/grades'
 import { DialogPanel } from '../portal/DialogPanel'
 
 interface Props {
@@ -186,6 +187,10 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
       toast.info(`No ${period} changes to save for ${activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} (${filtered.length})`}.`)
       return
     }
+    const submittedGrades = new Map<string, string>(targets.map((row) => [row._key, row[field]]))
+    const otherDrafts = rows.some((row) =>
+      acknowledgeDraftGrade(row, field, submittedGrades.get(row._key) ?? row.original[field]).dirty
+    )
     setSaving(true)
     try {
       const updates = targets.map((r) => ({
@@ -217,16 +222,16 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
         prev.map((r) => {
           const persisted = saved.find((row) => row.studentUsername === r.studentUsername
             && row.subjectCode === r.subjectCode && row.academicYear === r.academicYear && row.semester === r.semester)
-          if (!persisted) return r
-          const original = { ...r.original, [field]: r[field], finalGrade: persisted.finalGrade ?? r.original.finalGrade }
-          const dirty = r.prelim !== original.prelim || r.midterm !== original.midterm || r.finals !== original.finals
-          return { ...r, finalGrade: persisted.finalGrade ?? r.finalGrade, remarks: persisted.remarks ?? r.remarks, original, dirty, [statusKey]: 'draft', gradeStatus: 'draft' }
+          const submittedValue = submittedGrades.get(r._key)
+          if (!persisted || submittedValue === undefined) return r
+          const acknowledgement = acknowledgeDraftGrade(r, field, submittedValue, persisted.finalGrade)
+          return { ...r, ...acknowledgement, finalGrade: persisted.finalGrade ?? r.finalGrade, remarks: persisted.remarks ?? r.remarks, [statusKey]: 'draft', gradeStatus: 'draft' }
         })
       )
       if (saved.length < targets.length || data.auditWarning) {
         toast.warning(data.auditWarning || `Saved ${saved.length} of ${targets.length} drafts. Refresh the grade sheet before retrying the skipped rows.`)
       } else {
-        if (onRefresh) await onRefresh()
+        if (!otherDrafts && onRefresh) await onRefresh()
         toast.success(`Saved ${saved.length} ${period} draft(s).`)
       }
     } catch (e: any) {
@@ -234,7 +239,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     } finally {
       setSaving(false)
     }
-  }, [period, filtered, activeSection, branch, faculty?.username, student.username, onRefresh])
+  }, [period, rows, filtered, activeSection, branch, faculty?.username, student.username, onRefresh])
 
   const handleSubmitConfirm = useCallback(async () => {
     const vis = activeSection === 'all' ? filtered : filtered.filter((r) => r.subjectCode === activeSection)
@@ -413,15 +418,15 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     light pixel parity). */}
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-amber-700 bg-[#fffbeb] dark:bg-amber-50 border border-amber-100 rounded-full px-2.5 py-1"><Info className="w-3.5 h-3.5" /> Final • auto-computed (INC = 0)</span>
                 <button onClick={() => toast.info('Auto-compute: Final = Prelim*0.3+Mid*0.3+Finals*0.4, INC counts as 0')} className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-xs font-semibold text-link-strong hover:bg-blue-100 inline-flex items-center gap-1.5"><Calculator className="w-3.5 h-3.5" /> Auto-compute</button>
-                <button onClick={openFill} disabled={isFillDisabled} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed opacity-60' : 'bg-surface border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
+                <button onClick={openFill} disabled={isFillDisabled || saving || submitting} title={isFillDisabled ? 'Select a specific section and period to use Fill down' : 'Fill down for ' + period + ' in ' + activeSection} className={`px-3 py-1.5 rounded-lg border text-xs font-medium inline-flex items-center gap-1.5 ${isFillDisabled ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed opacity-60' : 'bg-surface border-slate-200 hover:bg-slate-50'}`}><ArrowDown className="w-3.5 h-3.5" /> Fill down…</button>
               </div>
             </div>
             {period !== 'all' && (
               <div className="px-4 py-3 border-b border-slate-100 bg-surface flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-slate-600"><span className="font-semibold text-slate-900">{period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'} · {activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} · per-period save</span></p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button onClick={handleSavePeriod} disabled={saving} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : `Save ${period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}`}</button>
-                  <button onClick={() => openSubmit(period)} disabled={submitting} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] dark:hover:bg-[#1e4a77] inline-flex items-center gap-1.5 disabled:opacity-60"><Send className="w-3.5 h-3.5" aria-hidden="true" /> Submit {period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}</button>
+                  <button onClick={handleSavePeriod} disabled={saving || submitting} className="px-4 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-semibold hover:bg-slate-50 inline-flex items-center gap-1.5 disabled:opacity-60"><Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : `Save ${period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}`}</button>
+                  <button onClick={() => openSubmit(period)} disabled={saving || submitting} className="px-4 py-1.5 rounded-lg bg-[#153357] text-white text-xs font-semibold hover:bg-[#0f2744] dark:hover:bg-[#1e4a77] inline-flex items-center gap-1.5 disabled:opacity-60"><Send className="w-3.5 h-3.5" aria-hidden="true" /> Submit {period === 'prelim' ? 'Prelim only' : period === 'midterm' ? 'Midterm only' : 'Finals only'}</button>
                 </div>
               </div>
             )}
@@ -517,9 +522,9 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                     return (
                       <tr key={row._key} className={`border-b border-slate-100 last:border-b-0 ${row.dirty ? 'bg-amber-50/60' : ''} ${isLocked ? 'opacity-75' : ''}`}>
                         <td className={`sticky left-0 z-0 px-3 py-2.5 border-r border-slate-200 ${row.dirty ? 'bg-amber-50' : 'bg-surface'}`}><p className="text-sm font-medium">{row.studentName}</p><p className="text-[11px] text-slate-500 font-mono">{row.studentNumber} • {row.section}</p><p className="text-[10px] text-slate-500">{row.academicYear} {row.semester}</p></td>
-                        {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
-                        {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showPrelim && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} prelim grade`} disabled={saving || submitting || period === 'all' || (row.prelimStatus === 'submitted' || row.prelimStatus === 'released')} value={period === 'all' && !row.prelim ? 'INC' : row.prelim} onChange={(e) => onGradeInput(row._key, 'prelim', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.prelimStatus === 'submitted' || row.prelimStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showMidterm && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} midterm grade`} disabled={saving || submitting || period === 'all' || (row.midtermStatus === 'submitted' || row.midtermStatus === 'released')} value={period === 'all' && !row.midterm ? 'INC' : row.midterm} onChange={(e) => onGradeInput(row._key, 'midterm', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.midtermStatus === 'submitted' || row.midtermStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
+                        {showFinals && <td className="px-2 py-2.5 text-center"><input aria-label={`${row.studentName} finals grade`} disabled={saving || submitting || period === 'all' || (row.finalsStatus === 'submitted' || row.finalsStatus === 'released')} value={period === 'all' && !row.finals ? 'INC' : row.finals} onChange={(e) => onGradeInput(row._key, 'finals', e.target.value)} placeholder={period === 'all' ? 'INC' : '—'} className={`w-20 h-10 px-2 text-center font-mono tabular-nums text-sm rounded-lg border ${period === 'all' || row.finalsStatus === 'submitted' || row.finalsStatus === 'released' ? 'bg-slate-100 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-surface border-slate-200 focus:border-blue-500 focus:ring-1'}`} /></td>}
                         {showFinal && <td className={`px-2 py-2.5 text-center ${period === 'all' ? 'sm:sticky sm:right-0 sm:z-0 bg-blue-50' : ''}`}><input aria-label={`${row.studentName} computed final grade`} value={fg} readOnly className="w-20 h-10 px-2 text-center font-mono tabular-nums text-sm font-bold rounded-lg border bg-blue-50/30 border-blue-200" /></td>}
                         {period === 'finals' && <td className="px-2 py-2.5 text-center">{rm ? <RemarksBadge remarks={rm} /> : <span className="text-slate-500">—</span>}</td>}
                         {period !== 'all' && <td className="px-3 py-2.5 text-center"><span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${statusBadge}`}>{periodStatus || '—'}</span></td>}

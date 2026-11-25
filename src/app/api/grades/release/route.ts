@@ -28,6 +28,9 @@ const gradeReleaseSchema = z.object({
   performedBy: z.string().optional(),
 })
 
+const auditRetrySchema = gradeReleaseSchema.pick({ branch: true, performedBy: true })
+const pendingAuditFilter = { 'pendingReleaseAudits.0': { $exists: true } }
+
 // POST /api/grades/release
 // Body: { branch, subjectCode, academicYear, semester, period?, action?, performedBy }
 // ADMIN ONLY: action 'release' (default) moves per-period status
@@ -55,13 +58,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
     const col = await getCollection('subjects')
-    const rows = await col
-      .find({
+    const [rows, pendingAudit] = await Promise.all([
+      col.find({
         branch: actor.branch,
         $or: [{ prelimStatus: 'submitted' }, { midtermStatus: 'submitted' }, { finalsStatus: 'submitted' }],
       })
-      .project({ code: 1, title: 1, academicYear: 1, semester: 1, prelimStatus: 1, midtermStatus: 1, finalsStatus: 1 })
-      .toArray()
+        .project({ code: 1, title: 1, academicYear: 1, semester: 1, prelimStatus: 1, midtermStatus: 1, finalsStatus: 1 })
+        .toArray(),
+      col.findOne({ branch: actor.branch, ...pendingAuditFilter }, { projection: { _id: 1 } }),
+    ])
     const groups = new Map<string, { subjectCode: string; title: string; academicYear: string; semester: string; period: string; count: number }>()
     for (const r of rows as any[]) {
       for (const period of ['prelim', 'midterm', 'finals'] as const) {
@@ -81,13 +86,57 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-    return NextResponse.json({ ok: true, groups: Array.from(groups.values()) })
+    return NextResponse.json({
+      ok: true,
+      groups: Array.from(groups.values()),
+      hasPendingAuditExport: pendingAudit !== null,
+    })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
     console.error('Grade pending error:', err)
     return NextResponse.json({ ok: false, error: 'Failed to load pending releases.' }, { status: 500 })
   }
 }
+async function exportPendingAudits(query: { branch: string; code?: string; academicYear?: string; semester?: string }) {
+  const subjects = await getCollection<MongoSubject>('subjects')
+  const pending: MongoSubject[] = await subjects.find({ ...query, ...pendingAuditFilter })
+    .project({ pendingReleaseAudits: 1 })
+    .toArray()
+  if (!pending.length) return
+  const audits = await getCollection<MongoGradeAudit>('grade_audits')
+  for (const row of pending) {
+    const events = row.pendingReleaseAudits ?? []
+    if (!events.length) continue
+    await audits.bulkWrite(events.map((event) => ({
+      updateOne: {
+        filter: { _id: event._id, branch: query.branch },
+        update: { $setOnInsert: event },
+        upsert: true,
+      },
+    })), { ordered: false })
+    await subjects.updateOne(
+      { ...query, _id: row._id },
+      { $pull: { pendingReleaseAudits: { _id: { $in: events.map((event) => event._id) } } } }
+    )
+  }
+}
+
+// Retry only the audit export. Released grades stay in their current state.
+export async function PATCH(request: NextRequest) {
+  try {
+    const { branch, performedBy } = await parseBody(request, auditRetrySchema)
+    const { ctx } = await requireCan(request, { kind: 'grade.releaseQueue', branch }, 'release', {
+      claimedIdentity: performedBy,
+    })
+    await exportPendingAudits({ branch: ctx.actor.branch })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
+    console.error('Grade audit export retry failed:', err)
+    return NextResponse.json({ ok: false, error: 'Could not export grade history. Try again.' }, { status: 503 })
+  }
+}
+
 const periods = ['prelim', 'midterm', 'finals'] as const
 
 export async function POST(request: NextRequest) {
@@ -145,27 +194,7 @@ export async function POST(request: NextRequest) {
     // export to grade_audits even when this request has no new transitions.
     let auditWarning: string | undefined
     try {
-      const pending: MongoSubject[] = await subjects.find({ ...query, 'pendingReleaseAudits.0': { $exists: true } })
-        .project({ pendingReleaseAudits: 1 })
-        .toArray()
-      if (pending.length) {
-        const audits = await getCollection<MongoGradeAudit>('grade_audits')
-        for (const row of pending) {
-          const events = row.pendingReleaseAudits ?? []
-          if (!events.length) continue
-          await audits.bulkWrite(events.map((event) => ({
-            updateOne: {
-              filter: { _id: event._id, branch },
-              update: { $setOnInsert: event },
-              upsert: true,
-            },
-          })), { ordered: false })
-          await subjects.updateOne(
-            { ...query, _id: row._id },
-            { $pull: { pendingReleaseAudits: { _id: { $in: events.map((event) => event._id) } } } }
-          )
-        }
-      }
+      await exportPendingAudits(query)
     } catch (err) {
       console.error('Grade release audit export pending:', err)
       auditWarning = 'Grade history was saved with the grade. Export to the audit collection is pending.'

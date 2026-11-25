@@ -96,6 +96,14 @@ interface AuthState {
   role: string | null
 }
 
+export async function requestPortalSignOut(send: typeof fetch = fetch) {
+  const response = await send('/api/auth/logout', { method: 'POST' })
+  if (response.status === 401) return // The session already ended.
+  if (!response.ok || !(await response.json()).ok) {
+    throw new Error('The server could not confirm sign-out.')
+  }
+}
+
 export function useAuth() {
   const [auth, setAuth] = useState<AuthState>({ username: null, branch: null, role: null })
   // loading starts true on both server and first client render, so
@@ -168,10 +176,7 @@ export function useAuth() {
   }, [])
 
   const logout = useCallback(async () => {
-    const response = await fetch('/api/auth/logout', { method: 'POST' })
-    if (!response.ok || !(await response.json()).ok) {
-      throw new Error('The server could not confirm sign-out.')
-    }
+    await requestPortalSignOut()
     setAuth({ username: null, branch: null, role: null })
   }, [])
 

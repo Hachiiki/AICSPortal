@@ -31,6 +31,20 @@ export function remarksFor(final: string): string {
 const periods = ['prelim', 'midterm', 'finals'] as const
 const statusKeys = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' } as const
 type GradePeriod = (typeof periods)[number]
+export function acknowledgeDraftGrade(
+  row: Record<GradePeriod, string> & { original: Record<GradePeriod | 'finalGrade', string> },
+  period: GradePeriod,
+  submittedValue: string,
+  finalGrade?: string,
+) {
+  const original = {
+    ...row.original,
+    [period]: submittedValue,
+    finalGrade: finalGrade ?? row.original.finalGrade,
+  }
+  return { original, dirty: periods.some((field) => row[field] !== original[field]) }
+}
+
 type GradeStatuses = Pick<MongoSubject, 'prelimStatus' | 'midtermStatus' | 'finalsStatus' | 'gradeStatus'>
 
 export function gradePeriodStatus(row: GradeStatuses, period: GradePeriod): GradePeriodStatus | undefined {

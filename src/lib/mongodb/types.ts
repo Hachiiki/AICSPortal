@@ -149,6 +149,7 @@ export interface MongoTask {
   type: TaskType
   description?: string
   dueDate: Date
+  dueDateOnly?: boolean
   postedDate: Date
   submitted: boolean
   submittedAt: Date | null

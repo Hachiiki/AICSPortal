@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, type MouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Megaphone,
@@ -12,7 +12,7 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
-import { ANNOUNCEMENT_MARK_BATCH_SIZE, ANNOUNCEMENT_STYLES, announcementDetailsUrl } from '@/lib/aics/announcements'
+import { ANNOUNCEMENT_STYLES, announcementDetailsUrl, persistAnnouncementMarks } from '@/lib/aics/announcements'
 import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
@@ -70,28 +70,15 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   const topThree = visible.slice(0, 3)
 
   const persistMark = useCallback(async (ids: string[], action?: 'read' | 'dismissed') => {
-    const saved: string[] = []
-    if (savingMarks.current) return saved
+    if (savingMarks.current) return []
     savingMarks.current = true
     setMarking(true)
     try {
-      for (let offset = 0; offset < ids.length; offset += ANNOUNCEMENT_MARK_BATCH_SIZE) {
-        const batch = ids.slice(offset, offset + ANNOUNCEMENT_MARK_BATCH_SIZE)
-        const response = await fetch('/api/announcements/read', {
-          method: action ? 'POST' : 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, ids: batch, action }),
-        })
-        if (!response.ok || !(await response.json()).ok) break
-        saved.push(...batch)
-      }
-    } catch {
-      // Keep acknowledged batches when a later request fails.
+      return await persistAnnouncementMarks(username, ids, action)
     } finally {
       savingMarks.current = false
       setMarking(false)
     }
-    return saved
   }, [username])
 
   const removeTop = useCallback(async (direction: 'left' | 'right') => {
@@ -181,19 +168,29 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
     }
     if (!dismissed.length) return
     setRemovedIds((prev) => new Set([...prev, ...dismissed]))
-    toast(dismissed.length === allIds.length ? 'Announcements dismissed.' : 'Dismissal saved for some announcements.', {
-      action: {
-        label: 'Undo',
-        onClick: async () => {
-          const restored = await persistMark(dismissed)
-          setRemovedIds((prev) => {
-            const next = new Set(prev)
-            restored.forEach((id) => next.delete(id))
-            return next
-          })
-          if (restored.length < dismissed.length) toast.error('Could not restore every dismissed announcement.')
-        },
-      },
+    let remaining = dismissed
+    let restoring = false
+    const undoDismissal = async (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      if (restoring) return
+      restoring = true
+      toast.loading('Restoring announcements…', { id: undoToast, action: undefined })
+      const restored = new Set(await persistMark(remaining))
+      setRemovedIds((prev) => new Set([...prev].filter((id) => !restored.has(id))))
+      remaining = remaining.filter((id) => !restored.has(id))
+      restoring = false
+      if (remaining.length) {
+        toast.error('Some announcements could not be restored.', {
+          id: undoToast,
+          duration: Infinity,
+          action: { label: 'Retry undo', onClick: undoDismissal },
+        })
+      } else {
+        toast.dismiss(undoToast)
+      }
+    }
+    const undoToast = toast(dismissed.length === allIds.length ? 'Announcements dismissed.' : 'Dismissal saved for some announcements.', {
+      action: { label: 'Undo', onClick: undoDismissal },
     })
   }
 
