@@ -23,7 +23,7 @@ import type { Student } from '@/lib/aics/types'
 import { SelectMenu } from '../ui/select-menu'
 import { TasksSkeleton } from './Skeleton'
 import type { Task, TaskType, TaskStatus, TaskVariant } from '@/lib/aics/tasks'
-import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails } from '@/lib/aics/tasks'
+import { computeStatus, TYPE_COLORS, VARIANT_COLORS, STATUS_LABELS, STATUS_ICON_COLORS, canSubmit, canViewDetails, formatTaskDueDate } from '@/lib/aics/tasks'
 import { DialogPanel } from './DialogPanel'
 import { EmptyState } from './EmptyState'
 import { StudentTasksGuide } from '@/components/onboarding/StudentOnboarding'
@@ -358,7 +358,6 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                   <ul className="md:hidden divide-y divide-slate-100 border-t border-slate-100">
                     {subjectTasks.map((task) => {
                       const { variant, sub } = computeStatus(task)
-                      const dueDate = new Date(task.dueDate)
                       const showSubmit = canSubmit(task)
                       const showDetails = canViewDetails(task)
                       const isClosed = variant === 'MISSING_CLOSED'
@@ -371,7 +370,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                           </div>
                           <div className="mt-2.5 flex items-center justify-between gap-3">
                             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 min-w-0">
-                              <span className="text-xs text-slate-500 whitespace-nowrap">Due {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <span className="text-xs text-slate-500 whitespace-nowrap">Due {formatTaskDueDate(task.dueDate)}</span>
                               <span className={`inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
                                 {variant === 'GRADED' && <CheckCircle2 className="w-3 h-3" />}
                                 {variant === 'PENDING' && <Clock className="w-3 h-3" />}
@@ -416,7 +415,6 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                       <tbody>
                         {subjectTasks.map((task) => {
                           const { variant, sub } = computeStatus(task)
-                          const dueDate = new Date(task.dueDate)
                           const showSubmit = canSubmit(task)
                           const showDetails = canViewDetails(task)
                           const isClosed = variant === 'MISSING_CLOSED'
@@ -430,7 +428,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
                                 <p className="text-sm font-medium text-slate-900">{task.title}</p>
                               </td>
                               <td className="px-4 py-3 text-xs text-slate-500">
-                                {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            {formatTaskDueDate(task.dueDate)}
                               </td>
                               <td className="px-4 py-3">
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 student-badge rounded-md text-xs font-medium border w-fit ${VARIANT_COLORS[variant]}`}>
@@ -593,7 +591,7 @@ function TaskDetailsModal({ task, subjectName, onClose }: { task: Task; subjectN
           <DetailRow label="Title" value={task.title} />
           <DetailRow label="Type" value={task.type} />
           <DetailRow label="Subject" value={`${task.subjectCode} · ${subjectName}`} />
-          <DetailRow label="Due Date" value={new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
+              <DetailRow label="Due Date" value={formatTaskDueDate(task.dueDate, true)} />
           {task.submittedAt && <DetailRow label="Submitted" value={new Date(task.submittedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />}
           <DetailRow label="Status" value={STATUS_LABELS[status]} />
           {task.score !== null && <DetailRow label="Score" value={`${task.score} / ${task.maxScore}`} />}

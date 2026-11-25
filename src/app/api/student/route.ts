@@ -4,6 +4,7 @@ import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib
 import { HttpError } from '@/lib/http'
 import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 import type { Student } from '@/lib/aics/types'
+import { gradePeriodStatus, isFinalGradeReleased } from '@/lib/aics/grades'
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,17 +61,16 @@ export async function GET(request: NextRequest) {
       branch: mongoStudent.branch, branchAddress: mongoStudent.branchAddress,
       documents: mongoStudent.documents,
       subjects: subjects.map((x) => {
-        const prelimStatus = (x as any).prelimStatus ?? x.gradeStatus
-        const midtermStatus = (x as any).midtermStatus ?? x.gradeStatus
-        const finalsStatus = (x as any).finalsStatus ?? x.gradeStatus
+        const prelimStatus = gradePeriodStatus(x, 'prelim')
+        const midtermStatus = gradePeriodStatus(x, 'midterm')
+        const finalsStatus = gradePeriodStatus(x, 'finals')
         // Per-period workflow: each period visible only when its status is 'released'.
         // '' / draft / submitted → hidden as '-' / Pending.
         // FIX-A5 (C3.13, issue #70): finalGrade and remarks need ALL THREE
         // periods released — the legacy gradeStatus field alone no longer
         // exposes them after a single-period release. The legacy field
         // itself stays on the documents for backward compatibility.
-        const allReleased =
-          prelimStatus === 'released' && midtermStatus === 'released' && finalsStatus === 'released'
+        const allReleased = isFinalGradeReleased(x)
         return {
           code: x.code, title: x.title, units: x.units, professor: x.professor,
           professorEmail: x.professorEmail, schedule: x.schedule, room: x.room,

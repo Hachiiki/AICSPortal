@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, type MouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Megaphone,
@@ -12,7 +12,7 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Announcement } from '@/lib/aics/announcements'
-import { ANNOUNCEMENT_STYLES, announcementDetailsUrl } from '@/lib/aics/announcements'
+import { ANNOUNCEMENT_STYLES, announcementDetailsUrl, persistAnnouncementMarks } from '@/lib/aics/announcements'
 import { EmptyState } from './EmptyState'
 import { toast } from 'sonner'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
@@ -50,6 +50,8 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   const dragStartX = useRef(0)
   const dragStartTime = useRef(0)
   const deckRef = useRef<HTMLDivElement>(null)
+  const savingMarks = useRef(false)
+  const [marking, setMarking] = useState(false)
 
   const prefersReducedMotion = useAnimationPreferences().mode !== 'full'
 
@@ -67,23 +69,29 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   const visible = deck.filter((a) => !removedIds.has(a._id) && !(readIds || []).includes(a._id) && a._id !== exiting)
   const topThree = visible.slice(0, 3)
 
-  // Persist a dismissal so refresh brings back nothing already seen.
-  // Fire and forget: the card is already gone locally.
-  const persistMark = useCallback((ids: string[], action: 'read' | 'dismissed') => {
-    if (ids.length === 0) return
-    fetch('/api/announcements/read', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, ids, action }),
-    }).catch(() => {})
+  const persistMark = useCallback(async (ids: string[], action?: 'read' | 'dismissed') => {
+    if (savingMarks.current) return []
+    savingMarks.current = true
+    setMarking(true)
+    try {
+      return await persistAnnouncementMarks(username, ids, action)
+    } finally {
+      savingMarks.current = false
+      setMarking(false)
+    }
   }, [username])
 
-  const removeTop = useCallback((direction: 'left' | 'right') => {
-    if (visible.length === 0) return
+  const removeTop = useCallback(async (direction: 'left' | 'right') => {
+    if (savingMarks.current || exiting) return
     const top = visible[0]
     if (!top) return
 
-    persistMark([top._id], direction === 'right' ? 'read' : 'dismissed')
+    const saved = await persistMark([top._id], direction === 'right' ? 'read' : 'dismissed')
+    if (!saved.length) {
+      setDragX(0)
+      toast.error('Could not save the announcement. Try again.')
+      return
+    }
     if (!prefersReducedMotion) {
       setExiting(top._id)
       setExitX(direction === 'right' ? 600 : -600)
@@ -97,7 +105,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
       setRemovedIds((prev) => new Set(prev).add(top._id))
       setDragX(0)
     }
-  }, [visible, prefersReducedMotion, persistMark])
+  }, [visible, prefersReducedMotion, persistMark, exiting])
 
   // Keyboard navigation
   useEffect(() => {
@@ -150,27 +158,39 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
   }, [isDragging, removeTop])
 
   // Dismiss entire widget (reversible via toast Undo).
-  const dismissAll = () => {
+  const dismissAll = async () => {
+    if (savingMarks.current || exiting) return
     const allIds = visible.map((a) => a._id)
     if (allIds.length === 0) return
-    persistMark(allIds, 'dismissed')
-    setRemovedIds(new Set(deck.map((a) => a._id)))
-    toast('Announcements dismissed.', {
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          setRemovedIds((prev) => {
-            const next = new Set(prev)
-            allIds.forEach((id) => next.delete(id))
-            return next
-          })
-          fetch('/api/announcements/read', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, ids: allIds }),
-          }).catch(() => {})
-        },
-      },
+    const dismissed = await persistMark(allIds, 'dismissed')
+    if (dismissed.length < allIds.length) {
+      toast.error(dismissed.length ? 'Some announcements could not be dismissed. Try again.' : 'Could not dismiss announcements. Try again.')
+    }
+    if (!dismissed.length) return
+    setRemovedIds((prev) => new Set([...prev, ...dismissed]))
+    let remaining = dismissed
+    let restoring = false
+    const undoDismissal = async (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      if (restoring) return
+      restoring = true
+      toast.loading('Restoring announcements…', { id: undoToast, action: undefined })
+      const restored = new Set(await persistMark(remaining))
+      setRemovedIds((prev) => new Set([...prev].filter((id) => !restored.has(id))))
+      remaining = remaining.filter((id) => !restored.has(id))
+      restoring = false
+      if (remaining.length) {
+        toast.error('Some announcements could not be restored.', {
+          id: undoToast,
+          duration: Infinity,
+          action: { label: 'Retry undo', onClick: undoDismissal },
+        })
+      } else {
+        toast.dismiss(undoToast)
+      }
+    }
+    const undoToast = toast(dismissed.length === allIds.length ? 'Announcements dismissed.' : 'Dismissal saved for some announcements.', {
+      action: { label: 'Undo', onClick: undoDismissal },
     })
   }
 
@@ -270,6 +290,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             <button
               type="button"
               onClick={() => removeTop('left')}
+              disabled={marking || !!exiting}
               className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Snooze (swipe left)"
             >
@@ -279,6 +300,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
             <button
               type="button"
               onClick={() => removeTop('right')}
+              disabled={marking || !!exiting}
               className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-medium text-link-strong hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-link sm:size-7 sm:min-h-0 sm:rounded-full sm:border sm:border-slate-200 sm:p-0 sm:text-slate-500"
               aria-label="Mark as read (swipe right)"
             >
@@ -307,6 +329,7 @@ export function AnnouncementsDeck({ announcements, username, readIds }: Announce
         <button
           type="button"
           onClick={dismissAll}
+          disabled={marking || !!exiting}
           className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-surface/80 flex items-center justify-center text-slate-500 hover:bg-surface hover:text-slate-700"
           aria-label="Dismiss all announcements"
         >

@@ -5,6 +5,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import { ANNOUNCEMENT_MARK_BATCH_SIZE } from '@/lib/aics/announcements'
 import type { MongoAnnouncementRead } from '@/lib/mongodb/types'
 
 // ---- Zod input schemas (the only place read-marker input is shaped) ----
@@ -17,7 +18,7 @@ const readMarkBaseSchema = z.object({
   // an unbounded array fed a bulkWrite of upserts per request.
   ids: z
     .array(z.string(), { error: 'An announcement id is required.' })
-    .max(200, { message: 'Marking is capped at 200 announcements per request.' })
+    .max(ANNOUNCEMENT_MARK_BATCH_SIZE, { message: 'Too many announcements in one request.' })
     .optional(),
 })
 

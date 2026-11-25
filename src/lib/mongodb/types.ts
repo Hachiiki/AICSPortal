@@ -99,6 +99,7 @@ export interface MongoSubject {
   midterm: string
   finals: string
   finalGrade: string
+  finalGradeScale?: 'percentage'
   remarks: string
   // Term fields
   academicYear?: string // e.g. "2025-2026"
@@ -111,6 +112,7 @@ export interface MongoSubject {
   prelimStatus?: GradePeriodStatus
   midtermStatus?: GradePeriodStatus
   finalsStatus?: GradePeriodStatus
+  pendingReleaseAudits?: (MongoGradeAudit & { _id: string })[]
 }
 
 // Real audit log — every grade change is recorded
@@ -121,10 +123,10 @@ export interface MongoGradeAudit {
   subjectCode: string
   academicYear: string
   semester: string
-  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade'
+  period: 'prelim' | 'midterm' | 'finals' | 'finalGrade' | 'all'
   oldValue: string
   newValue: string
-  action: 'save' | 'submit' | 'release' | 'fill'
+  action: 'save' | 'submit' | 'release' | 'fill' | 'withdraw' | 'unrelease'
   performedBy: string // faculty username
   performedAt: Date
   note?: string
@@ -137,6 +139,7 @@ export interface MongoTask {
   branch: Branch
   studentUsername: string
   subjectCode: string
+  assignmentId?: string
   term: {
     academicYear: string
     semester: string
@@ -146,6 +149,7 @@ export interface MongoTask {
   type: TaskType
   description?: string
   dueDate: Date
+  dueDateOnly?: boolean
   postedDate: Date
   submitted: boolean
   submittedAt: Date | null

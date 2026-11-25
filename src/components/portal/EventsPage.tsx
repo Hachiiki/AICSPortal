@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronLeft, SlidersHorizontal } from 'lucide-react'
 import type { Student, View } from '@/lib/aics/types'
-import type { Task } from '@/lib/aics/tasks'
+import { campusTaskDay, type Task } from '@/lib/aics/tasks'
 import type { NotificationInbox } from '@/lib/aics/notifications'
 import type { PortalEvent, EventCategory } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
@@ -100,7 +100,10 @@ export function EventsPage({ student, onNavigate, onLogout, events, eventsLoadin
   const tasksByDate = useMemo(() => {
     const map = new Map<string, Task[]>()
     for (const t of tasks) {
-      const key = atMidnight(new Date(t.dueDate)).toISOString().slice(0, 10)
+      const due = new Date(t.dueDate)
+      if (!Number.isFinite(due.getTime())) continue
+      const [year, month, day] = campusTaskDay(due).split('-').map(Number)
+      const key = new Date(year, month - 1, day).toISOString().slice(0, 10)
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(t)
     }

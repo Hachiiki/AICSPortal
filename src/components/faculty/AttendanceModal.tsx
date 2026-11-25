@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo, useId } from 'react'
+import { useState, useEffect, useMemo, useId } from 'react'
 import { X, Check, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { SelectMenu } from '../ui/select-menu'
@@ -60,66 +60,88 @@ export function AttendanceModal({
     () => sections.find((s) => s.key === secKey) || sections[0] || null,
     [sections, secKey]
   )
-  const students = useMemo(() => sec?.students || [], [sec])
+  const students = useMemo(() => sec?.students.filter((student) => student.username) ?? [], [sec])
   const [date, setDate] = useState(todayLocal)
   const [records, setRecords] = useState<Record<string, 'present' | 'absent'>>({})
-  const [loadingRecord, setLoadingRecord] = useState(false)
+  const [loaded, setLoaded] = useState<{ selection: string; revision: string | null } | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
+  const [confirmCorrection, setConfirmCorrection] = useState(false)
   const [saving, setSaving] = useState(false)
+  const sectionKey = sec?.key
+  const selection = JSON.stringify([sectionKey, date, reloadKey])
+  const ready = loaded?.selection === selection
+  const revision = ready ? loaded.revision : null
 
   const today = todayLocal()
   const isToday = date === today
 
-  // Load any existing session for this section + date so re-opening
-  // a day (or switching classes) shows what was recorded instead of
-  // blank toggles.
-  const loadRecord = useCallback(async (day: string, key: string, list: AttendanceStudent[]) => {
-    setLoadingRecord(true)
-    try {
-      const params = new URLSearchParams({ username: facultyUsername, sectionKey: key, date: day })
-      const res = await fetch(`/api/attendance?${params.toString()}`)
-      const data = await res.json()
-      if (data.ok && data.records) {
-        setRecords(data.records)
-      } else {
-        setRecords(Object.fromEntries(list.map((s) => [s.username, 'present'])))
-      }
-    } catch {
-      setRecords(Object.fromEntries(list.map((s) => [s.username, 'present'])))
-    } finally {
-      setLoadingRecord(false)
-    }
-  }, [facultyUsername])
-
   useEffect(() => {
-    if (sec) loadRecord(date, sec.key, students)
-  }, [date, sec, students, loadRecord])
-
-  const switchSection = (key: string) => {
-    if (key === secKey) return
-    setRecords({})
-    setSecKey(key)
-  }
+    if (!sectionKey) return
+    const key = sectionKey
+    const controller = new AbortController()
+    setLoaded(null)
+    setLoadError(null)
+    setConfirmCorrection(false)
+    async function loadRecord() {
+      try {
+        const params = new URLSearchParams({ username: facultyUsername, sectionKey: key, date })
+        const res = await fetch(`/api/attendance?${params}`, { signal: controller.signal })
+        const data = await res.json()
+        if (controller.signal.aborted) return
+        if (!res.ok || !data.ok) throw new Error('Could not load attendance.')
+        const saved = data.records as Record<string, 'present' | 'absent'> | null
+        setRecords(Object.fromEntries(students.flatMap(({ username }) => {
+          const value = saved === null ? 'present' : saved?.[username]
+          return value === 'present' || value === 'absent' ? [[username, value]] : []
+        })))
+        setLoaded({ selection, revision: data.revision ?? null })
+      } catch {
+        if (!controller.signal.aborted) setLoadError('Could not load attendance. Reload the marks before saving.')
+      }
+    }
+    void loadRecord()
+    return () => controller.abort()
+  }, [date, sectionKey, students, facultyUsername, selection])
 
   const setAll = (status: 'present' | 'absent') => {
     setRecords(Object.fromEntries(students.map((s) => [s.username, status])))
   }
 
   const present = Object.values(records).filter((s) => s === 'present').length
-  const absent = students.length - present
+  const absent = Object.values(records).filter((s) => s === 'absent').length
+  const unmarked = students.length - present - absent
+
+  function changeSelection(change: () => void) {
+    setLoaded(null)
+    setLoadError(null)
+    change()
+  }
 
   const handleSave = async () => {
-    if (!sec) return
+    if (!sec || !ready || saving) return
+    if (revision && !confirmCorrection) {
+      setConfirmCorrection(true)
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch('/api/attendance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branch, sectionKey: sec.key, date, records, performedBy: facultyUsername }),
+        body: JSON.stringify({
+          branch, sectionKey: sec.key, date, records, performedBy: facultyUsername,
+          ...(revision ? { allowOverwrite: true, expectedRevision: revision } : {}),
+        }),
       })
       const data = await res.json()
       if (data.ok) {
         toast.success(data.message || 'Attendance saved.')
         onSaved()
+      } else if (res.status === 409) {
+        setLoaded(null)
+        setConfirmCorrection(false)
+        setLoadError(data.error || 'The saved marks changed. Reload attendance to continue.')
       } else {
         toast.error(data.error || 'Failed to save attendance.')
       }
@@ -162,7 +184,10 @@ export function AttendanceModal({
               className="mt-1"
               aria-label="Switch class"
               value={sec?.key || ''}
-              onChange={switchSection}
+              onChange={(key) => {
+                if (key !== secKey) changeSelection(() => setSecKey(key))
+              }}
+              disabled={saving || confirmCorrection}
               options={sections.map((s) => ({
                 value: s.key,
                 label: `${s.code} · ${s.title}${termOf(s.key) ? ` • ${termOf(s.key)}` : ''} • ${s.students.length} ${s.students.length === 1 ? 'student' : 'students'}`,
@@ -175,7 +200,11 @@ export function AttendanceModal({
               id="attendance-date"
               type="date"
               value={date}
-              onChange={(e) => e.target.value && setDate(e.target.value)}
+              disabled={saving || confirmCorrection}
+              onChange={(e) => {
+                const nextDate = e.target.value
+                if (nextDate && nextDate !== date) changeSelection(() => setDate(nextDate))
+              }}
               className="h-9 px-3 rounded-lg border border-slate-200 text-sm outline-none focus:border-blue-500"
             />
             {isToday && (
@@ -183,7 +212,11 @@ export function AttendanceModal({
                 Today
               </span>
             )}
-            <span className="text-xs text-slate-500 ml-auto">{present} present • {absent} absent</span>
+            {ready && (
+              <span className="text-xs text-slate-500 ml-auto">
+                {present} present • {absent} absent{unmarked > 0 && ` • ${unmarked} unmarked`}
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-500 mt-1.5">
             {formatLong(date)} • {students.length} {students.length === 1 ? 'student' : 'students'}
@@ -191,6 +224,7 @@ export function AttendanceModal({
           <div className="mt-2 flex gap-2">
             <button
               type="button"
+              disabled={!ready || saving || confirmCorrection}
               onClick={() => setAll('present')}
               className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50"
             >
@@ -198,6 +232,7 @@ export function AttendanceModal({
             </button>
             <button
               type="button"
+              disabled={!ready || saving || confirmCorrection}
               onClick={() => setAll('absent')}
               className="px-3 py-1.5 rounded-lg border border-slate-200 bg-surface text-xs font-medium hover:bg-slate-50"
             >
@@ -206,14 +241,22 @@ export function AttendanceModal({
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3">
-          {loadingRecord ? (
-            <div className="flex items-center justify-center py-10">
+          {loadError ? (
+            <div role="alert" className="py-6 text-sm text-slate-700">
+              <p>{loadError}</p>
+              <button type="button" onClick={() => setReloadKey((key) => key + 1)} className="mt-2 min-h-11 font-semibold text-link">
+                Reload attendance
+              </button>
+            </div>
+          ) : !ready ? (
+            <div role="status" aria-label="Loading attendance" className="flex items-center justify-center py-10">
               <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
             </div>
           ) : (
             <ul className="divide-y divide-slate-100">
               {students.map((s) => {
-                const isPresent = (records[s.username] || 'present') === 'present'
+                const isPresent = records[s.username] === 'present'
+                const isAbsent = records[s.username] === 'absent'
                 return (
                   <li key={s.username} className="py-2.5 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0 bg-[var(--avatar-bg)]">
@@ -226,6 +269,7 @@ export function AttendanceModal({
                     <div className="flex rounded-lg border border-slate-200 overflow-hidden flex-shrink-0">
                       <button
                         type="button"
+                        disabled={saving || confirmCorrection}
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'present' }))}
                         aria-pressed={isPresent}
                         className={`px-3 py-1.5 text-xs font-semibold ${isPresent ? 'bg-emerald-700 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
@@ -234,9 +278,10 @@ export function AttendanceModal({
                       </button>
                       <button
                         type="button"
+                        disabled={saving || confirmCorrection}
                         onClick={() => setRecords((prev) => ({ ...prev, [s.username]: 'absent' }))}
-                        aria-pressed={!isPresent}
-                        className={`px-3 py-1.5 text-xs font-semibold ${!isPresent ? 'bg-red-600 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
+                        aria-pressed={isAbsent}
+                        className={`px-3 py-1.5 text-xs font-semibold ${isAbsent ? 'bg-red-600 text-white' : 'bg-surface text-slate-500 hover:bg-slate-50'}`}
                       >
                         Absent
                       </button>
@@ -247,22 +292,28 @@ export function AttendanceModal({
             </ul>
           )}
         </div>
+        {confirmCorrection && (
+          <p role="status" className="border-t border-slate-100 px-6 pt-3 text-sm text-slate-700">
+            Replace the saved marks for this class and date? This correction will be recorded in the attendance history.
+          </p>
+        )}
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={confirmCorrection ? () => setConfirmCorrection(false) : onClose}
+            disabled={saving}
             className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50"
           >
-            Cancel
+            {confirmCorrection ? 'Keep editing' : 'Cancel'}
           </button>
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || loadingRecord || students.length === 0 || !sec}
+            disabled={saving || !ready || students.length === 0 || !sec}
             className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold hover:bg-[#0f2744] inline-flex items-center gap-2 disabled:opacity-60"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <Check className="w-4 h-4" aria-hidden />}
-            {saving ? 'Saving...' : 'Save attendance'}
+            {saving ? 'Saving...' : confirmCorrection ? 'Confirm correction' : revision ? 'Save correction' : 'Save attendance'}
           </button>
         </div>
       </DialogPanel>
