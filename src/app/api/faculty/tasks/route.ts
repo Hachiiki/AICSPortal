@@ -65,17 +65,21 @@ export async function GET(request: NextRequest) {
         'term.academicYear': faculty.academicYear,
         'term.semester': faculty.semester,
       })
-      .project({ subjectCode: 1, title: 1, type: 1, dueDate: 1, maxScore: 1, submitted: 1, score: 1, submissionsClosed: 1 })
+      .project({ subjectCode: 1, assignmentId: 1, title: 1, type: 1, dueDate: 1, postedDate: 1, maxScore: 1, submitted: 1, score: 1, submissionsClosed: 1 })
       .sort({ dueDate: 1 })
       .toArray()
 
     const groups = new Map<string, any>()
     for (const r of rows as any[]) {
       const dueISO = r.dueDate instanceof Date ? r.dueDate.toISOString() : String(r.dueDate)
-      const key = `${r.subjectCode}|${r.title}|${dueISO}`
+      const postedDate = r.postedDate instanceof Date ? r.postedDate.toISOString() : r.postedDate
+      const key = r.assignmentId ?? JSON.stringify([r.subjectCode, r.title, dueISO, postedDate])
       let group = groups.get(key)
       if (!group) {
         group = {
+          key,
+          assignmentId: r.assignmentId,
+          postedDate,
           subjectCode: r.subjectCode,
           title: r.title,
           type: r.type,

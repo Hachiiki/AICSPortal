@@ -4,6 +4,7 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan, professorOwnership } from '@/lib/authz'
 import { parseQuery, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import type { MongoGradeAudit } from '@/lib/mongodb/types'
 
 // ---- Zod input schema (the only place audit-filter input is shaped) ----
 // limit: 1-200 whole number, default 50; junk silently reads as 50
@@ -74,8 +75,24 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const col = await getCollection('grade_audits')
-    const audits = await col.find(query).sort({ performedAt: -1 }).limit(limit).toArray()
+    const subjects = await getCollection('subjects')
+    const pending: MongoGradeAudit[] = await subjects.aggregate([
+      { $match: {
+        branch: query.branch,
+        ...(query.subjectCode ? { code: query.subjectCode } : {}),
+        ...(query.studentUsername ? { studentUsername: query.studentUsername } : {}),
+        'pendingReleaseAudits.0': { $exists: true },
+      } },
+      { $unwind: '$pendingReleaseAudits' },
+      { $replaceWith: '$pendingReleaseAudits' },
+      { $sort: { performedAt: -1 } },
+      { $limit: limit },
+    ]).toArray()
+    const col = await getCollection<MongoGradeAudit>('grade_audits')
+    const exported: MongoGradeAudit[] = await col.find(query).sort({ performedAt: -1 }).limit(limit).toArray()
+    const audits = Array.from(new Map([...pending, ...exported].map((entry) => [String(entry._id), entry])).values())
+      .sort((a, b) => new Date(b.performedAt).getTime() - new Date(a.performedAt).getTime())
+      .slice(0, limit)
 
     return NextResponse.json({ ok: true, audits })
   } catch (err) {

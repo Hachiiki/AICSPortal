@@ -14,8 +14,12 @@ import { PortalShell } from '../portal/PortalShell'
 import { Modal } from '../portal/Modal'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { SelectMenu } from '../ui/select-menu'
+import { campusTaskDay, formatTaskDueDate } from '@/lib/aics/tasks'
 
 export interface TaskGroup {
+  key?: string
+  assignmentId?: string
+  postedDate?: string
   subjectCode: string
   title: string
   type: TaskType
@@ -86,19 +90,15 @@ function readTasksHandoff(): { type?: TaskType; subjectCode?: string } {
 }
 
 function defaultDue(): string {
-  const d = new Date()
-  d.setDate(d.getDate() + 7)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return campusTaskDay(new Date(Date.now() + 7 * 86_400_000))
 }
 
 function formatDue(iso: string): string {
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return ''
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatTaskDueDate(iso, true)
 }
 
 function groupKey(group: TaskGroup): string {
-  return `${group.subjectCode}|${group.title}|${group.dueDate}`
+  return group.key ?? JSON.stringify([group.subjectCode, group.title, group.dueDate, group.postedDate])
 }
 
 function isClosedGroup(group: TaskGroup): boolean {
@@ -247,7 +247,7 @@ export function FacultyTasksPage({
   }
 
   const handleToggle = async (group: TaskGroup) => {
-    const key = `${group.subjectCode}|${group.title}|${group.dueDate}`
+    const key = groupKey(group)
     const closing = group.closed < group.total
     setTogglingKey(key)
     try {
@@ -259,6 +259,8 @@ export function FacultyTasksPage({
           subjectCode: group.subjectCode,
           title: group.title,
           dueDate: group.dueDate,
+          assignmentId: group.assignmentId,
+          postedDate: group.postedDate,
           submissionsClosed: closing,
           performedBy: student.username,
         }),
@@ -289,6 +291,8 @@ export function FacultyTasksPage({
         title: group.title,
         dueDate: group.dueDate,
       })
+      if (group.assignmentId) params.set('assignmentId', group.assignmentId)
+      if (group.postedDate) params.set('postedDate', group.postedDate)
       const res = await fetch(`/api/faculty/tasks/submissions?${params.toString()}`)
       const data = await res.json()
       if (data.ok) {

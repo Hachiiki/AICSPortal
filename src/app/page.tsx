@@ -265,8 +265,18 @@ export default function AICSLoginPage() {
     }
   }, [redirectBranch, redirectRole, username, navigate])
 
-  const handleLogout = useCallback(() => {
-    logout()
+  const signOutInFlight = useRef(false)
+  const handleLogout = useCallback(async () => {
+    if (signOutInFlight.current) return
+    signOutInFlight.current = true
+    try {
+      await logout()
+    } catch {
+      toast.error('Could not confirm sign-out. Check your connection and try again.')
+      return
+    } finally {
+      signOutInFlight.current = false
+    }
     // Clear the lifted roster with the session, in the same commit —
     // a later sign-in (same or different user) re-arms the readiness
     // gate on its own fresh fetch and can never render a stale roster.
@@ -460,6 +470,7 @@ function StudentDataWrapper({
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [announcementsLoading, setAnnouncementsLoading] = useState(true)
+  const [announcementsError, setAnnouncementsError] = useState<string | null>(null)
   const [announcementReadIds, setAnnouncementReadIds] = useState<string[]>([])
 
   // Bell inbox notifications for the signed-in account.
@@ -627,62 +638,44 @@ function StudentDataWrapper({
   )
 
   useEffect(() => {
-    let cancelled = false
-    async function fetchAll() {
+    const controller = new AbortController()
+    async function loadFeature(
+      feature: string,
+      apply: (data: any) => void,
+      setLoading: (loading: boolean) => void,
+      setError: (error: string | null) => void,
+      onMissing?: () => void,
+    ) {
+      setLoading(true)
+      setError(null)
+      const fallback = 'Could not load ' + feature + '.'
       try {
-        // Faculty roster intentionally absent — the page component
-        // owns that fetch (the post-login readiness gate includes it).
-        // Same request count as before, no duplicates.
-        const [tkRes, evRes, profRes, enrRes, annRes] = await Promise.all([
-          fetch(`/api/tasks?username=${encodeURIComponent(username)}`),
-          fetch(`/api/events?username=${encodeURIComponent(username)}`),
-          fetch(`/api/professors?username=${encodeURIComponent(username)}`),
-          fetch(`/api/enrollment?username=${encodeURIComponent(username)}`),
-          fetch(`/api/announcements?username=${encodeURIComponent(username)}`),
-        ])
-        const [tkData, evData, profData, enrData, annData] = await Promise.all([
-          tkRes.json(),
-          evRes.json(),
-          profRes.json(),
-          enrRes.json(),
-          annRes.json(),
-        ])
-        if (cancelled) return
-        if (tkData.ok) setTasks(tkData.tasks)
-        else setTasksError(tkData.error || 'Failed to load tasks')
-        if (evData.ok) setEvents(evData.events)
-        else setEventsError(evData.error || 'Failed to load events')
-        if (profData.ok) setProfessors(profData.professors)
-        else setProfessorsError(profData.error || 'Failed to load professors')
-        // Enrollment is a single record (not found is fine — the page shows an
-        // empty state). Only set an error if the API itself fails.
-        if (enrData.ok) setEnrollment(enrData.enrollment ?? null)
-        else setEnrollmentError(enrData.error || 'Failed to load enrollment')
-        if (annData.ok) {
-          setAnnouncements(annData.announcements)
-          setAnnouncementReadIds(annData.readIds || [])
+        const response = await fetch('/api/' + feature + '?username=' + encodeURIComponent(username), { signal: controller.signal })
+        const data = await response.json()
+        if (controller.signal.aborted) return
+        if (response.status === 404 && data.code === 'ENROLLMENT_NOT_FOUND' && onMissing) {
+          onMissing()
+        } else if (response.ok && data.ok) {
+          apply(data)
+        } else {
+          setError(typeof data.error === 'string' ? data.error : fallback)
         }
-        // Announcements failure is non-fatal — dashboard shows empty state
       } catch {
-        if (!cancelled) {
-          setTasksError('Network error')
-          setEventsError('Network error')
-          setProfessorsError('Network error')
-          setEnrollmentError('Network error')
-        }
+        if (!controller.signal.aborted) setError(fallback)
       } finally {
-        if (!cancelled) {
-          setTasksLoading(false)
-          setEventsLoading(false)
-          setProfessorsLoading(false)
-          setEnrollmentLoading(false)
-          setAnnouncementsLoading(false)
-        }
+        if (!controller.signal.aborted) setLoading(false)
       }
     }
-    fetchAll()
-    refreshNotifications()
-    return () => { cancelled = true }
+    void loadFeature('tasks', (data) => setTasks(data.tasks), setTasksLoading, setTasksError)
+    void loadFeature('events', (data) => setEvents(data.events), setEventsLoading, setEventsError)
+    void loadFeature('professors', (data) => setProfessors(data.professors), setProfessorsLoading, setProfessorsError)
+    void loadFeature('enrollment', (data) => setEnrollment(data.enrollment ?? null), setEnrollmentLoading, setEnrollmentError, () => setEnrollment(null))
+    void loadFeature('announcements', (data) => {
+      setAnnouncements(data.announcements)
+      setAnnouncementReadIds(data.readIds ?? [])
+    }, setAnnouncementsLoading, setAnnouncementsError)
+    void refreshNotifications()
+    return () => controller.abort()
   }, [username])
 
   // Prefetch faculty-only slices in the background once the roster
@@ -850,6 +843,7 @@ function StudentDataWrapper({
         inbox={inbox}
         announcements={announcements}
         announcementReadIds={announcementReadIds}
+        announcementsStatus={announcementsLoading ? 'loading' : announcementsError ? 'error' : undefined}
         facultyData={facultyData}
         facultyLoading={facultyLoading}
       />
@@ -1109,6 +1103,7 @@ function StudentDataWrapper({
       tasks={tasks}
       announcements={announcements}
       announcementReadIds={announcementReadIds}
+      announcementsStatus={announcementsLoading ? 'loading' : announcementsError ? 'error' : undefined}
       inbox={inbox}
     />
   )

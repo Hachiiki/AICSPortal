@@ -25,7 +25,7 @@ import type { View, Student } from '@/lib/aics/types'
 import type { PortalEvent } from '@/lib/aics/events'
 import { CATEGORY_LABELS } from '@/lib/aics/events'
 import type { Professor } from '@/lib/aics/professors'
-import type { Task } from '@/lib/aics/tasks'
+import { formatTaskDueDate, type Task } from '@/lib/aics/tasks'
 import { EmptyState } from './EmptyState'
 import { usePortalRoute } from '@/lib/aics/use-portal-route'
 
@@ -238,7 +238,7 @@ function buildIndex(
       subjectCode: t.subjectCode,
       type: 'Task',
       label: t.title,
-      hint: `${t.subjectCode} · ${t.type} · due\u00a0${formatDate(t.dueDate).replaceAll(' ', '\u00a0')}`,
+      hint: `${t.subjectCode} · ${t.type} · due\u00a0${formatTaskDueDate(t.dueDate).replaceAll(' ', '\u00a0')}`,
       icon: ClipboardList,
       view: 'academics',
       keywords: `${t.title} ${t.subjectCode} ${t.type} ${t.description ?? ''} task assignment`.toLowerCase(),
