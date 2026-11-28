@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useEffect, useEffectEvent, useId, useRef, type ReactNode } from 'react'
 
 interface ModalProps {
   title: ReactNode
@@ -14,6 +14,8 @@ interface ModalProps {
   maxWidthClass?: string
   /** Element to receive initial focus. Falls back to the first focusable control. */
   initialFocusRef?: { current: HTMLElement | null }
+  /** Keep the header and actions visible while long forms scroll on phones. */
+  mobileScrollable?: boolean
 }
 
 const FOCUSABLE =
@@ -31,13 +33,34 @@ export function Modal({
   footer,
   maxWidthClass = 'max-w-lg',
   initialFocusRef,
+  mobileScrollable = false,
 }: ModalProps) {
   const titleId = useId()
   const descId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const closeFromKeyboard = useEffectEvent(onClose)
 
-  // Mount-only: parents conditionally render (open = mounted) and must pass
-  // a stable onClose (useCallback), so this never re-runs mid-session.
+  useEffect(() => {
+    if (!mobileScrollable) return
+    const viewport = window.visualViewport
+    const frame = viewportRef.current
+    if (!viewport || !frame) return
+
+    const update = () => {
+      frame.style.setProperty('--admin-modal-top', `${viewport.offsetTop}px`)
+      frame.style.setProperty('--admin-modal-height', `${viewport.height}px`)
+    }
+
+    update()
+    viewport.addEventListener('resize', update)
+    viewport.addEventListener('scroll', update)
+    return () => {
+      viewport.removeEventListener('resize', update)
+      viewport.removeEventListener('scroll', update)
+    }
+  }, [mobileScrollable])
+  // Focus stays in the dialog while the parent updates the form.
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null
     const panel = panelRef.current
@@ -50,7 +73,7 @@ export function Modal({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
-        onClose()
+        closeFromKeyboard()
         return
       }
       // Lightweight Tab trap: cycle within the panel.
@@ -75,11 +98,10 @@ export function Modal({
       document.removeEventListener('keydown', onKeyDown)
       previouslyFocused?.focus?.()
     }
-    // Mount-only: parents conditionally render, so open/close = mount/unmount.
-  }, [onClose])
+  }, [initialFocusRef])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div ref={viewportRef} className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${mobileScrollable ? 'admin-modal-viewport' : ''}`}>
       <div className="absolute inset-0 bg-scrim/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
@@ -87,7 +109,7 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className={`relative bg-surface rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden outline-none`}
+        className={`relative bg-surface rounded-2xl shadow-2xl ${maxWidthClass} w-full overflow-hidden outline-none ${mobileScrollable ? 'admin-modal' : ''}`}
       >
         <div className="px-6 py-4 border-b border-slate-100">
           <h3 id={titleId} className="font-bold">
@@ -100,7 +122,7 @@ export function Modal({
           ) : null}
           {headerExtra}
         </div>
-        <div className="px-6 py-4 space-y-3">{children}</div>
+        <div className="admin-modal-body px-6 py-4 space-y-3">{children}</div>
         <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2">{footer}</div>
       </div>
     </div>

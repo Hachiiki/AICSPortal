@@ -78,7 +78,8 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const { resolvedTheme, setTheme } = useTheme()
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
-  const navigationLabels = useNavigationLabels()
+  const role = student.role ?? 'student'
+  const navigationLabels = useNavigationLabels(role)
   const themeButton = useRef<HTMLDivElement>(null)
   const themeReveal = useRef<ViewTransition | null>(null)
   const guided = useStudentOnboarding()?.busy ?? false
@@ -223,8 +224,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       document.removeEventListener('focusout', update)
     }
   }, [])
-  const role = student.role ?? 'student'
-  const labels = role === 'faculty' ? (navigationLabels ? 'visible' : 'hidden') : 'auto'
+  const labels = role === 'student' ? 'auto' : navigationLabels ? 'visible' : 'hidden'
   const labelClass = labels === 'visible' ? 'student-floating-label' : labels === 'auto' ? 'student-floating-label sr-only' : 'sr-only'
   const showMoreLabels = labels === 'visible'
   const themeAction = `Switch to ${isDark ? 'light' : 'dark'} ${showMoreLabels ? 'mode' : 'theme'}`
@@ -286,7 +286,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
           className={cn(
             'student-more-popover z-50 grid max-w-[calc(100vw-24px)] rounded-3xl border border-line bg-surface/95 shadow-xl backdrop-blur-xl',
             showMoreLabels
-              ? 'max-h-[var(--radix-dropdown-menu-content-available-height)] w-64 grid-cols-2 gap-1.5 overflow-y-auto p-2.5'
+              ? cn('max-h-[var(--radix-dropdown-menu-content-available-height)] grid-cols-2 gap-1.5 overflow-y-auto p-2.5', role === 'admin' ? 'w-72' : 'w-64')
               : 'grid-cols-6 gap-2 p-3',
           )}>
           {morePages.map((item) => {

@@ -1,16 +1,19 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
+import type { PortalRole } from './nav-config'
 
-const key = 'aics.faculty.navigation-labels'
-const changeEvent = 'aics:faculty-navigation-labels'
-let labelsVisible = true
+type StaffRole = Exclude<PortalRole, 'student'>
+const changeEvent = 'aics:navigation-labels'
+const labelsVisible: Record<StaffRole, boolean> = { faculty: true, admin: true }
+const storageKey = (role: StaffRole) => `aics.${role}.navigation-labels`
 
-function getSnapshot() {
+function getSnapshot(role?: PortalRole) {
+  if (role !== 'faculty' && role !== 'admin') return true
   try {
-    return window.localStorage.getItem(key) !== 'off'
+    return window.localStorage.getItem(storageKey(role)) !== 'off'
   } catch {
-    return labelsVisible
+    return labelsVisible[role]
   }
 }
 
@@ -23,16 +26,16 @@ function subscribe(listener: () => void) {
   }
 }
 
-export function setNavigationLabels(visible: boolean) {
-  labelsVisible = visible
+export function setNavigationLabels(role: StaffRole, visible: boolean) {
+  labelsVisible[role] = visible
   try {
-    window.localStorage.setItem(key, visible ? 'on' : 'off')
+    window.localStorage.setItem(storageKey(role), visible ? 'on' : 'off')
   } catch {
     // Keep the preference for this tab when storage is unavailable.
   }
   window.dispatchEvent(new Event(changeEvent))
 }
 
-export function useNavigationLabels() {
-  return useSyncExternalStore(subscribe, getSnapshot, () => true)
+export function useNavigationLabels(role?: PortalRole) {
+  return useSyncExternalStore(subscribe, () => getSnapshot(role), () => true)
 }
