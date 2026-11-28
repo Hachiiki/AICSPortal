@@ -69,7 +69,7 @@ The app is branch-scoped and multi-tenant: one deployment serves every campus br
 - Role-aware **session auth**: signed JWT in an httpOnly cookie, revocation via `tokenVersion`, proxy enforcement (`src/proxy.ts`) on every `/api` and `/portal` route
 - **Centralized authorization**: one policy table (`src/lib/authz/`) decides every API request through `can()` / `requireCan()` from the database-read role, branch parity, and teaching load keyed on `professorUsername` (the faculty account username, not the display name); ownership keys ride scope fragments into the Mongo filters, and client-side checks are display-only
 - **scrypt password hashing** with automatic upgrade of legacy plaintext accounts on next login
-- **Tiered rate limiting** on every `/api` request, enforced ahead of the session gate: 100/5 min per IP on the auth routes, 300/5 min reads and 120/5 min writes per session, plus failure-based throttles on login and password change
+- **Shared request limits** for API and page requests. Sign-in and password changes also check a smaller attempt budget before password verification. Static build assets are served through the CDN.
 - **Content moderation** on every user-authored write (announcements, notifications, tasks, materials, profile fields): English + Filipino rule sets for profanity, harassment, and sexual content, a URL trusted-domain policy, and a false-positive allowlist, violations return 422 and every decision is logged
 - **Zod validation** on every route; unknown keys are stripped, operator objects can never reach Mongo filters
 - **Error boundaries** at every level: per-view retry card, segment, root, global. The shell survives a crashing view
@@ -129,7 +129,7 @@ Create a `.env.local` file in the project root (see [`example.env.local`](./exam
 ```env
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/
 MONGODB_DB=aics_portal
-AUTH_SECRET=<16+ character random string, e.g. output of: openssl rand -hex 32>
+AUTH_SECRET=<output of openssl rand -hex 32>
 
 # Optional — enable file uploads in the Materials tab.
 # Without these, signing returns 503 and the link-only flow keeps working.
@@ -141,8 +141,8 @@ CLOUDINARY_API_SECRET=
 | Variable | Required | Description |
 | --- | --- | --- |
 | `MONGODB_URI` | yes | MongoDB connection string |
-| `MONGODB_DB` | in production | Database name, must be `aics_portal`. Tooling aborts when unset |
-| `AUTH_SECRET` | in production | JWT signing secret, 16+ chars. Production login refuses to run without it; dev falls back with a warning |
+| `MONGODB_DB` | in preview and production | Use a different database and a separate database credential for each deployment environment. |
+| `AUTH_SECRET` | yes | Random JWT signing secret of at least 32 bytes. Use a different value for each environment. |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | no | Cloudinary credentials for material file uploads |
 | `CLOUDINARY_FOLDER` | no | Base upload folder, default `aics-portal/materials`. Files land in `<folder>/<branch>/<SUBJECT-CODE>/` |
 | `MODERATION_TRUSTED_DOMAINS` | no | Comma-separated extra trusted domains for the URL moderation policy (the school site, Cloudinary, and the LMS are always trusted) |
@@ -241,14 +241,7 @@ When a caller also supplies a legacy identity string (`username` / `performedBy`
 
 ### Password verification: `src/lib/password.ts`
 
-Hashes use Node's `scrypt` in the format `scrypt$<saltHex>$<hashHex>` with a timing-safe compare. Legacy plaintext accounts still verify, and get upgraded to a hash on that same login.
-
-```ts
-// Legacy plaintext fallback — caller should upgrade to hash on success.
-if (stored === plain) {
-  return { ok: true, upgradedHash: await hashPassword(plain) }
-}
-```
+New records use Node's scrypt at `N=131072, r=8, p=1` and the format `scrypt$v2$<saltHex>$<hashHex>`. A successful login upgrades legacy plaintext or older scrypt records atomically. Existing maintenance tooling recognizes the `scrypt$` prefix. Run the bulk-rehash tool against existing databases using a checkout that includes this password verifier. Once passwords have upgraded, roll back to a build that still understands the `scrypt$v2$` format.
 
 ### Grade workflow and the release gate: `src/app/api/student/route.ts`
 
@@ -373,7 +366,7 @@ All write routes enforce: valid session, role check, branch match, and (for facu
 ```
 AICSPortal/
 ├── src/
-│   ├── proxy.ts                 # Session enforcement + rate-limit tiers for /api and /portal
+│   ├── proxy.ts                 # Request limits, session gate, and security headers
 │   ├── app/
 │   │   ├── page.tsx             # SPA entry: login view + portal shell
 │   │   ├── layout.tsx           # Root layout (fonts, Toaster, Analytics)
@@ -393,7 +386,7 @@ AICSPortal/
 │       ├── session.ts           # JWT sign/verify, cookie helpers, spoofCheck
 │       ├── session-auth.ts      # Authed session + tokenVersion revocation check
 │       ├── password.ts          # scrypt hash/verify with legacy upgrade
-│       ├── rate-limit.ts        # Tiered fixed-window limiter (auth/read/write)
+│       ├── rate-limit.ts        # Shared MongoDB request budgets
 │       ├── validation.ts        # Zod parseBody/parseQuery for every route
 │       ├── authz/                # Authorization policy table (can/requireCan),
 │       │                        #   relations, scope fragments, permissions
@@ -414,12 +407,14 @@ AICSPortal/
 The project is deployed at aics-portal.vercel.app. To deploy your own:
 
 1. In Vercel project settings, set `MONGODB_URI`, `MONGODB_DB=aics_portal`, a fresh `AUTH_SECRET` (`openssl rand -hex 32`), and the `CLOUDINARY_*` values if you want file uploads.
-2. In Atlas Network Access, allow `0.0.0.0/0` (Vercel has no static egress IPs).
-3. Deploy. Production builds disable the demo login endpoint and switch cookies to `Secure`.
+2. Keep Vercel system environment variables exposed. Give the application’s separate MongoDB credential access to its own database only. The rate limiter writes to `rate_limit_buckets` and initializes its TTL index on `expiresAt`. Restrict Atlas network access to the deployment’s approved egress where available.
+3. Configure `CRON_SECRET` for scheduled notification cleanup. Production and preview use secure cookies, disable demo login, and require a shared rate-limit store.
+4. For profile photos and course files, provision the three signed Cloudinary upload presets listed in the environment template. Restrict each preset to the app’s photo or material formats, permit explicit public IDs, and set the provider’s storage upload limits where available. The app verifies the asset’s type and size before it saves the URL. Existing assets and material links remain available while preset configuration is pending.
+5. For email verification, set the app’s HTTPS origin in `APP_PUBLIC_ORIGIN` plus `RESEND_API_KEY` and `EMAIL_VERIFICATION_FROM` for a verified sender. A user can verify their existing address or request a change in Settings. New addresses become active upon confirmation.
 
 ### Self-hosted (Caddy)
 
-A `Caddyfile` is included for reverse-proxying the app behind [Caddy](https://caddyserver.com/) on port 81. Caddy provisions HTTPS automatically:
+Set `PORTAL_HOST` to your public hostname in Caddy’s environment. Run the app on loopback with `npm run start -- --hostname 127.0.0.1` and set `TRUST_CADDY_PROXY=1` for the app when Caddy is its sole ingress. [Caddy](https://caddyserver.com/) terminates HTTPS and forwards to the fixed loopback upstream:
 
 ```bash
 caddy run
@@ -433,7 +428,6 @@ caddy run
 - **Real face recognition** via face-api.js (the Face ID login is currently a mock convenience layer)
 - **In/Out log** stays a disabled placeholder until a campus entry/exit data source exists
 - **Filipino moderation reviewer sign-off**: a native-speaker pass over the category tags and regional homographs (decision records on the dev branch)
-- **Operational**: the rate limiter is in-memory per instance, fine at school scale, swap in Redis/Upstash before scaling out
 
 ---
 

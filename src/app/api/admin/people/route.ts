@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Admin people API error:', err)
+    console.error('Admin people API error.')
     return NextResponse.json({ ok: false, error: 'Failed to load directory.' }, { status: 500 })
   }
 }

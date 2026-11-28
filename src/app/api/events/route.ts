@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     // Resolve the student to determine their branch (events are
     // branch-scoped, not student-scoped).
-    const student = await getStudentByUsername(username)
+    const student = await getStudentByUsername(username, actor.branch)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, events: clientEvents })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Events API error:', err)
+    console.error('Events API error.')
     return NextResponse.json({ ok: false, error: 'Failed to fetch events.' }, { status: 500 })
   }
 }
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Event created.', id: result.insertedId.toString() })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Event create error:', err)
+    console.error('Event create error.')
     return NextResponse.json({ ok: false, error: 'Failed to create event.' }, { status: 500 })
   }
 }
@@ -191,7 +191,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Event updated.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Event update error:', err)
+    console.error('Event update error.')
     return NextResponse.json({ ok: false, error: 'Failed to update event.' }, { status: 500 })
   }
 }
@@ -221,7 +221,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Event deleted.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Event delete error:', err)
+    console.error('Event delete error.')
     return NextResponse.json({ ok: false, error: 'Failed to delete event.' }, { status: 500 })
   }
 }

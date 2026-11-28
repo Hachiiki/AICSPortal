@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     )
     if (gate) throw gate
 
-    const student = await getStudentByUsername(username)
+    const student = await getStudentByUsername(username, ctx.actor.branch)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, enrollment: clientEnrollment })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Enrollment API error:', err)
+    console.error('Enrollment API error.')
     return NextResponse.json({ ok: false, error: 'Failed to fetch enrollment data.' }, { status: 500 })
   }
 }

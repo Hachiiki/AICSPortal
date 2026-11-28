@@ -13,6 +13,6 @@ export async function writeModerationLog(doc: Omit<MongoModerationLog, '_id' | '
     const col = await getCollection<MongoModerationLog>('moderation_logs')
     await col.insertOne({ ...doc, createdAt: new Date() } as any)
   } catch (err) {
-    console.error('Moderation log write failed:', err)
+    console.error('Moderation log write failed.')
   }
 }

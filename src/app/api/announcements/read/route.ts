@@ -43,14 +43,14 @@ export async function POST(request: NextRequest) {
     // check: a mismatched value is a 403 exactly where the old inline
     // comparison fired). FIX-L4 (C3.11): the ids cap rides the schema
     // above, like bulk-delete.
-    await requireCan(request, { kind: 'announcement.reads' }, 'markRead', {
+    const { ctx: { actor } } = await requireCan(request, { kind: 'announcement.reads' }, 'markRead', {
       claimedIdentity: username,
     })
     const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
     }
-    const user = await getStudentByUsername(username)
+    const user = await getStudentByUsername(username, actor.branch)
     if (!user) {
       return NextResponse.json({ ok: false, error: 'User not found.' }, { status: 404 })
     }
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, marked: idList.length })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement read error:', err)
+    console.error('Announcement read error.')
     return NextResponse.json({ ok: false, error: 'Failed to record read.' }, { status: 500 })
   }
 }
@@ -81,14 +81,14 @@ export async function DELETE(request: NextRequest) {
     const { username, announcementId, ids } = await parseBody(request, readMarkBaseSchema)
     // C2.2: auth + username-self gate centralized (announcement.reads
     // delete; same spoof-check mapping as POST).
-    await requireCan(request, { kind: 'announcement.reads' }, 'delete', {
+    const { ctx: { actor } } = await requireCan(request, { kind: 'announcement.reads' }, 'delete', {
       claimedIdentity: username,
     })
     const idList = toIdList(announcementId, ids)
     if (idList.length === 0) {
       return NextResponse.json({ ok: false, error: 'An announcement id is required.' }, { status: 400 })
     }
-    const user = await getStudentByUsername(username)
+    const user = await getStudentByUsername(username, actor.branch)
     if (!user) {
       return NextResponse.json({ ok: false, error: 'User not found.' }, { status: 404 })
     }
@@ -97,7 +97,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true, unmarked: res.deletedCount })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement unmark error:', err)
+    console.error('Announcement unmark error.')
     return NextResponse.json({ ok: false, error: 'Failed to undo dismissal.' }, { status: 500 })
   }
 }

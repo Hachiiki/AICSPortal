@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono, Roboto_Condensed, Roboto } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
@@ -7,10 +8,8 @@ import { ThemePaletteScript } from "@/components/ThemePaletteScript";
 import { ThemePaletteSync } from "@/components/ThemePaletteSync";
 import { getAppEnv } from "@/lib/env";
 import { Toaster } from "@/components/ui/sonner";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/legal/CookieConsent";
-import { ConsentGate } from "@/components/legal/ConsentGate";
+import { PortalTelemetry } from "@/components/legal/PortalTelemetry";
 import { AnimationPreferences } from "@/components/AnimationPreferences";
 
 const geistSans = Geist({
@@ -51,11 +50,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-csp-nonce") ?? undefined;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -77,8 +77,9 @@ export default function RootLayout({
             keeps the palette consistent whenever the theme changes
             elsewhere (topbar/login toggles). Both stay inert in light
             mode, so light rendering is unchanged. */}
-        <ThemePaletteScript />
+        <ThemePaletteScript nonce={nonce} />
         <ThemeProvider
+          nonce={nonce}
           attribute="class"
           defaultTheme="system"
           enableSystem
@@ -90,13 +91,7 @@ export default function RootLayout({
             <DevBanner appEnv={getAppEnv()} />
             {children}
             <Toaster richColors position="bottom-right" />
-            {/* Analytics beacons are cookieless but still send usage events
-                to Vercel (US), so they are consent-gated and off until
-                opt-in. See /legal/cookies. */}
-            <ConsentGate>
-              <Analytics />
-              <SpeedInsights />
-            </ConsentGate>
+            <PortalTelemetry />
             <CookieConsent />
           </AnimationPreferences>
         </ThemeProvider>

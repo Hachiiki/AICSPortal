@@ -15,7 +15,7 @@ export default function GlobalError({
   reset: () => void
 }) {
   if (typeof console !== 'undefined') {
-    console.error('[global] render error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('[global] render error:', error)
   }
 
   return (

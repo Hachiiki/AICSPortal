@@ -68,7 +68,7 @@ async function findStored(actor: { branch: string; username: string }): Promise<
     const stored = await col.findOne({ branch: actor.branch, username: actor.username })
     return { stored, persisted: true }
   } catch (err) {
-    console.error('Onboarding state read failed:', err)
+    console.error('Onboarding state read failed.')
     return { stored: null, persisted: false }
   }
 }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     return stateResponse(ctx.actor.role, spec, state, persisted, onboardingPreferences(sameRole ? stored.preferences : null, initialTourVersion))
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Onboarding state read error:', err)
+    console.error('Onboarding state read error.')
     return NextResponse.json({ ok: false, error: 'Failed to load onboarding state.' }, { status: 500 })
   }
 }
@@ -164,14 +164,14 @@ export async function PATCH(request: NextRequest) {
         )
       } catch (err) {
         persisted = false
-        console.error('Onboarding state save failed:', err)
+        console.error('Onboarding state save failed.')
       }
     }
 
     return stateResponse(ctx.actor.role, spec, { version: state.version, values }, persisted, preferences)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Onboarding state update error:', err)
+    console.error('Onboarding state update error.')
     return NextResponse.json({ ok: false, error: 'Failed to save onboarding state.' }, { status: 500 })
   }
 }

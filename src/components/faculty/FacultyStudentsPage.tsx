@@ -227,7 +227,7 @@ export function FacultyStudentsPage({
       const signRes = await fetch('/api/materials/sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subjectCode: materialsSec.subjectCode, resourceType, performedBy: student.username }),
+        body: JSON.stringify({ subjectCode: materialsSec.subjectCode, resourceType, format: ext, performedBy: student.username }),
       })
       const sign = await signRes.json()
       if (!sign.ok) throw new Error(sign.error || 'Upload is not available right now.')
@@ -235,12 +235,13 @@ export function FacultyStudentsPage({
       const form = new FormData()
       form.append('file', matFile)
       form.append('api_key', sign.apiKey)
-      form.append('timestamp', String(sign.timestamp))
-      form.append('folder', sign.folder)
+      for (const [key, value] of Object.entries(sign.uploadParams)) form.append(key, String(value))
       form.append('signature', sign.signature)
       const upRes = await fetch(sign.uploadUrl, { method: 'POST', body: form })
-      const uploaded = await upRes.json()
-      if (!upRes.ok || !uploaded.secure_url) throw new Error(uploaded?.error?.message || 'Cloudinary upload failed.')
+      if (!upRes.ok) {
+        const uploaded = await upRes.json().catch(() => null)
+        throw new Error(uploaded?.error?.message || 'Cloudinary upload failed.')
+      }
       // 3. Record the asset so the subject sees it.
       const recRes = await fetch('/api/materials', {
         method: 'POST',
@@ -250,12 +251,7 @@ export function FacultyStudentsPage({
           subjectCode: materialsSec.subjectCode,
           title: matTitle.trim(),
           kind: 'file',
-          url: uploaded.secure_url,
-          publicId: uploaded.public_id,
-          resourceType,
-          bytes: uploaded.bytes,
-          format: uploaded.format,
-          filename: matFile.name,
+          uploadToken: sign.uploadToken,
           performedBy: student.username,
         }),
       })

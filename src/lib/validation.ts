@@ -34,11 +34,33 @@ export function zodMessage(err: ZodError): string {
  * - success         -> the typed, unknown-key-stripped payload
  */
 export async function parseBody<T>(request: NextRequest, schema: ZodType<T>): Promise<T> {
+  const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase()
+  if (contentType !== 'application/json') throw new HttpError(415, 'Use application/json.')
+  const maxBytes = 1024 * 1024
+  if (Number(request.headers.get('content-length')) > maxBytes) {
+    throw new HttpError(413, 'The request is too large.')
+  }
+  const reader = request.body?.getReader()
+  if (!reader) throw new HttpError(400, 'Request body must be valid JSON.')
+  const decoder = new TextDecoder('utf-8', { fatal: true })
   let raw: unknown
   try {
-    raw = await request.json()
-  } catch {
+    let bytes = 0
+    let text = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      bytes += value.byteLength
+      if (bytes > maxBytes) throw new HttpError(413, 'The request is too large.')
+      text += decoder.decode(value, { stream: true })
+    }
+    raw = JSON.parse(text + decoder.decode())
+  } catch (error) {
+    if (error instanceof HttpError) throw error
     throw new HttpError(400, 'Request body must be valid JSON.')
+  } finally {
+    void reader.cancel().catch(() => {})
+    reader.releaseLock()
   }
   const parsed = schema.safeParse(raw)
   if (!parsed.success) throw new HttpError(400, zodMessage(parsed.error))
@@ -51,7 +73,7 @@ export async function parseBody<T>(request: NextRequest, schema: ZodType<T>): Pr
  * them exactly like a body. Missing optional keys stay undefined.
  */
 export function parseQuery<T>(request: NextRequest, schema: ZodType<T>): T {
-  const raw: Record<string, string | string[]> = {}
+  const raw: Record<string, string | string[]> = Object.create(null)
   request.nextUrl.searchParams.forEach((value, key) => {
     const prev = raw[key]
     if (prev === undefined) raw[key] = value
@@ -78,7 +100,7 @@ export const objectIdSchema = z
 export const idQuerySchema = z.object({ id: objectIdSchema })
 
 /** `?username=<self>` — the session-fallback pattern used by read routes. */
-export const selfQuerySchema = z.object({ username: z.string().optional() })
+export const selfQuerySchema = z.object({ username: z.string().max(64).optional() })
 
 /** Session usernames (also used as directory keys): plain, bounded strings. */
 export const usernameSchema = z.string().min(1, { message: 'Username is required.' }).max(64)

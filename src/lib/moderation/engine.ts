@@ -96,7 +96,7 @@ function wordPattern(word: string): ParsedPattern | null {
   } catch (err) {
     // A curated term containing pattern meta-characters must never crash
     // a cold start; skip it loudly instead.
-    console.error(`[moderation] unparseable pattern for term "${word}":`, err)
+    console.error('Moderation filter pattern could not be parsed.')
     return null
   }
 }

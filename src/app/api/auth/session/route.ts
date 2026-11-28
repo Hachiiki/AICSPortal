@@ -8,5 +8,6 @@ export async function GET(request: NextRequest) {
   if (!session) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
   }
-  return NextResponse.json({ ok: true, ...session })
+  const { username, role, branch } = session
+  return NextResponse.json({ ok: true, username, role, branch })
 }

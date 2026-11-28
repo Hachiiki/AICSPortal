@@ -30,11 +30,6 @@ export async function PATCH(
   try {
     const { taskId } = await params
     const claimed = parseQuery(request, submitQuerySchema).username
-    // C2.4: auth + username-self gate centralized (task submit: any
-    // authed actor passes; the atomic update filter self-scopes to
-    // {studentUsername: session username}). The username query field
-    // rides the guard's spoof check, preserving the ownership-in-filter
-    // pattern (design section 6.2).
     const {
       ctx: { actor },
     } = await requireCan(request, { kind: 'task', taskId }, 'submit', {
@@ -45,13 +40,10 @@ export async function PATCH(
     if (!parsedId.success) {
       return NextResponse.json({ ok: false, error: 'Task not found.' }, { status: 404 })
     }
-    const username = claimed || actor.username
-
-    if (!username) {
-      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-
-    const result = await submitTask(parsedId.data, username)
+    const result = await submitTask(parsedId.data, actor.username, actor.branch, {
+      academicYear: actor.academicYear,
+      semester: actor.semester,
+    })
 
     if (!result.ok) {
       if (result.reason === 'closed') {
@@ -69,7 +61,7 @@ export async function PATCH(
     return NextResponse.json({ ok: true, message: 'Task submitted successfully.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Submit task error:', err)
+    console.error('Submit task error.')
     return NextResponse.json({ ok: false, error: 'Failed to submit task.' }, { status: 500 })
   }
 }

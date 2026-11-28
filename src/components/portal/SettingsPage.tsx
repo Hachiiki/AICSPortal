@@ -1,5 +1,6 @@
 'use client'
 
+import { MIN_PASSWORD_LENGTH } from '@/lib/password-policy'
 import { useStudentOnboarding } from '@/components/onboarding/StudentOnboarding'
 import { usePortalRoute, type SettingsSection } from '@/lib/aics/use-portal-route'
 import { useDestinationFocus } from '@/lib/aics/use-destination-focus'
@@ -174,6 +175,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
   // Profile edit state
   const [phone, setPhone] = useState(student.phone || '')
   const [email, setEmail] = useState(student.email || '')
+  const [sendingVerification, setSendingVerification] = useState(false)
   const [address, setAddress] = useState(student.address || '')
   const [emergencyName, setEmergencyName] = useState(student.emergencyContactName || '')
   const [emergencyNumber, setEmergencyNumber] = useState(student.emergencyContactNumber || '')
@@ -235,35 +237,26 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       const form = new FormData()
       form.append('file', new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
       form.append('api_key', sign.apiKey)
-      form.append('timestamp', String(sign.timestamp))
-      form.append('folder', sign.folder)
+      for (const [key, value] of Object.entries(sign.uploadParams)) form.append(key, String(value))
       form.append('signature', sign.signature)
       const upRes = await fetch(sign.uploadUrl, { method: 'POST', body: form })
-      const up = await upRes.json()
-      if (!up.secure_url) throw new Error(up.error?.message || 'Cloudinary rejected the upload.')
+      if (!upRes.ok) {
+        const uploaded = await upRes.json().catch(() => null)
+        throw new Error(uploaded?.error?.message || 'Cloudinary rejected the upload.')
+      }
 
-      // 4. Persist the URL on the profile record.
-      const saveRes = await fetch(`/api/student/update?username=${encodeURIComponent(student.username)}`, {
+      // 4. Verify the upload and save its canonical URL.
+      const saveRes = await fetch('/api/student/photo', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ photoUrl: up.secure_url }),
+        body: JSON.stringify({ uploadToken: sign.uploadToken }),
       })
       const saved = await saveRes.json()
       if (!saved.ok) throw new Error(saved.error || 'Failed to save the photo to your profile.')
 
-      onStudentPatch?.({ photoUrl: up.secure_url as string })
+      onStudentPatch?.({ photoUrl: saved.photoUrl })
       toast.success('Profile photo updated.')
       void onboarding?.client.complete('photo')
-
-      // 5. Fire-and-forget: destroy the replaced asset so it does not
-      //    orphan in Cloudinary. Server validates it is the user's own.
-      if (sign.oldPublicId) {
-        fetch('/api/student/photo/cleanup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ publicId: sign.oldPublicId }),
-        }).catch(() => {})
-      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Upload failed. Please try again.')
     } finally {
@@ -336,7 +329,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
       const res = await fetch(`/api/student/update?username=${encodeURIComponent(student.username)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, email, address, emergencyContactName: emergencyName, emergencyContactNumber: emergencyNumber }),
+        body: JSON.stringify({ phone, address, emergencyContactName: emergencyName, emergencyContactNumber: emergencyNumber }),
       })
       const data = await res.json()
       if (data.ok) {
@@ -351,13 +344,31 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
     }
   }
 
+  const handleVerifyEmail = async () => {
+    setSendingVerification(true)
+    try {
+      const response = await fetch('/api/auth/email-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await response.json()
+      if (response.ok) toast.success('Check your inbox for the verification link.')
+      else toast.error(data.error || 'Could not send a verification email.')
+    } catch {
+      toast.error('Network error. Please try again.')
+    } finally {
+      setSendingVerification(false)
+    }
+  }
+
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       toast.error('New passwords do not match.')
       return
     }
-    if (newPassword.length < 6) {
-      toast.error('New password must be at least 6 characters.')
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      toast.error(`New password must be at least ${MIN_PASSWORD_LENGTH} characters.`)
       return
     }
 
@@ -545,6 +556,19 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
                   />
                 </Field>
 
+                {student.emailVerified && email === student.email ? (
+                  <p className="text-sm text-slate-600">Email verified</p>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={sendingVerification || !email.trim()}
+                    onClick={handleVerifyEmail}
+                    className="min-h-11 self-start rounded-lg border border-slate-200 px-3 text-sm font-medium disabled:opacity-50"
+                  >
+                    {sendingVerification ? 'Sending…' : 'Send verification link'}
+                  </button>
+                )}
+
                 <Field id="settings-phone" icon={Phone} label="Phone">
                   <input
                     id="settings-phone"
@@ -611,7 +635,7 @@ export function SettingsPage({ student, onNavigate, onLogout, events, professors
             <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100">
                 <h2 id="settings-password" tabIndex={-1} className="scroll-mt-32 text-base font-semibold text-slate-900">Change password</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Use at least 6 characters. Mix letters and numbers for stronger security.</p>
+                <p className="text-xs text-slate-500 mt-0.5">Use at least {MIN_PASSWORD_LENGTH} characters.</p>
               </div>
               <div className="px-6 py-5 space-y-4">
                 <Field id="settings-current-password" label="Current password">

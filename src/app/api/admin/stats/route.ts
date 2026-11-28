@@ -270,7 +270,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Admin stats API error:', err)
+    console.error('Admin stats API error.')
     return NextResponse.json({ ok: false, error: 'Failed to compute school stats.' }, { status: 500 })
   }
 }

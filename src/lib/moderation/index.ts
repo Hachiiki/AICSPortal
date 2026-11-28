@@ -25,8 +25,6 @@ import { decide, type UrlFinding } from './policy'
 import { extractUrlFindings, urlFieldFinding } from './url-policy'
 import { writeModerationLog } from './log'
 
-const EXCERPT_MAX = 240
-
 export interface ModerateContentInput {
   surface: Surface
   /** Free-text fields to scan, by field name ("title", "body", ...). */
@@ -44,13 +42,6 @@ export interface ModerateContentVerdict {
   ok: boolean
   /** Present only when not ok: the 422 response naming the rule that fired. */
   response?: NextResponse
-}
-
-function excerpt(fields: Record<string, string | undefined | null>): string {
-  const joined = Object.values(fields)
-    .filter((v): v is string => typeof v === 'string')
-    .join(' | ')
-  return joined.length > EXCERPT_MAX ? `${joined.slice(0, EXCERPT_MAX)}...` : joined
 }
 
 export async function moderateContent(input: ModerateContentInput): Promise<ModerateContentVerdict> {
@@ -97,7 +88,6 @@ export async function moderateContent(input: ModerateContentInput): Promise<Mode
         ruleId: 'allowlist',
         action: 'allow',
         matchedTerms: decision.allowlistSaves,
-        textExcerpt: excerpt(fields),
         reviewPending: false,
         reviewedAt: null,
         reviewedBy: null,
@@ -107,7 +97,7 @@ export async function moderateContent(input: ModerateContentInput): Promise<Mode
   }
 
   const matchedTerms = [
-    ...new Set(decision.findings.map((f) => f.canonical).concat(decision.urlFindings.map((u) => u.host))),
+    ...new Set(decision.findings.map((f) => f.canonical)),
   ]
   await writeModerationLog({
     branch: actor.branch,
@@ -120,8 +110,7 @@ export async function moderateContent(input: ModerateContentInput): Promise<Mode
     ruleId: decision.ruleId ?? 'unknown',
     action: decision.action,
     matchedTerms,
-    urls: decision.urlFindings.map((u) => ({ url: u.url, host: u.host })),
-    textExcerpt: excerpt(fields),
+    rejectedUrlCount: decision.urlFindings.length,
     reviewPending: decision.action === 'flag',
     reviewedAt: null,
     reviewedBy: null,

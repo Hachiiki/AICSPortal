@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement details error:', err)
+    console.error('Announcement details error.')
     return Response.json({ ok: false, error: 'Failed to load the announcement.' }, { status: 500 })
   }
 }

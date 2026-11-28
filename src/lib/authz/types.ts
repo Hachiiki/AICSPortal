@@ -51,7 +51,7 @@ export type AuthzResource =
   | { kind: 'task.list'; studentUsername: string }
   | { kind: 'task.board' }
   | { kind: 'task.section'; subjectCode: string; term: TermKey; branch?: string }
-  | { kind: 'task'; taskId: string; subjectCode?: string }
+  | { kind: 'task'; taskId: string; subjectCode?: string; studentUsername?: string; term?: TermKey }
   // attendance
   | { kind: 'attendance'; sectionKey: string; branch?: string }
   // materials
@@ -69,7 +69,7 @@ export type AuthzResource =
   // admin and shared branch surfaces
   | { kind: 'admin.directory' }
   | { kind: 'admin.stats' }
-  | { kind: 'admin.enrollment'; id?: string; branch?: string }
+  | { kind: 'admin.enrollment' }
   | { kind: 'branch.calendar' }
   | { kind: 'branch.directory' }
   // faculty reads over the actor's own teaching load

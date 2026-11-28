@@ -26,7 +26,10 @@ bun.lock
 
 # Env files
 .env*
+*.env
+*.env.*
 !.env.example
+!example.env.local
 
 # Vercel
 .vercel
@@ -77,4 +80,3 @@ scripts/gh_inspect.sh
 
 # Agent config
 .z-ai-config
-package-lock.json

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
 import { parseQuery, errResponse, usernameSchema } from '@/lib/validation'
@@ -71,33 +70,18 @@ interface GroupAcc {
 export async function GET(request: NextRequest) {
   try {
     const { sentBy, page, pageSize } = parseQuery(request, sentQuerySchema)
-    // C2.3: auth + role + sentBy-self gates centralized
-    // (notification.outbox read: faculty or admin, DB role). The
-    // sentBy query field rides the guard's spoof check (a foreign
-    // outbox is a 403 exactly where the old inline comparison fired);
-    // the performer lookup and the branch-vs-session check stay
-    // route-kept below.
     const {
-      ctx: { claims },
+      ctx: { actor },
     } = await requireCan(request, { kind: 'notification.outbox' }, 'read', {
       claimedIdentity: sentBy,
     })
-
-    // Own outbox only — same boundary the old flat query enforced.
-    const performer = await getStudentByUsername(sentBy)
-    if (!performer) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized: faculty or admin only' }, { status: 403 })
-    }
-    if (performer.branch !== claims.branch) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
-    }
 
     // 30-day window baked into the query itself (requirement #3).
     const cutoff = new Date(Date.now() - NOTIFICATION_RETENTION_DAYS * 24 * 60 * 60 * 1000)
     const col = await getCollection<MongoNotification>('notifications')
     const docs = await col
       .find(
-        { branch: performer.branch, fromUsername: sentBy, createdAt: { $gte: cutoff } },
+        { branch: actor.branch, fromUsername: actor.username, createdAt: { $gte: cutoff } },
         {
           projection: {
             title: 1,
@@ -226,7 +210,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Sent history read error:', err)
+    console.error('Sent history read error.')
     return NextResponse.json({ ok: false, error: 'Failed to load sent history.' }, { status: 500 })
   }
 }

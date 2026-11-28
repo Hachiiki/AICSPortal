@@ -1,119 +1,144 @@
-// In-memory fixed-window rate limiter (BUG-013, generalized 2026-10-16).
-//
-// Two layers use this module, with distinct key namespaces:
-//   1. Route-level failure throttles — login and change-password count
-//      FAILED verifications only, keyed `login:`/`cpw:` + ip + username.
-//      The precision anti-brute-force instrument (unchanged behavior).
-//   2. Proxy-level request tiers — src/proxy.ts counts every
-//      /api request against a per-identity budget keyed `mw:` + tier +
-//      identity. The flood ceiling: hammering dies in the proxy before
-//      any route work or Mongo round-trip happens.
-//
-// Identity for tier buckets: the session username when the token
-// signature verifies, else the client IP. Campus NAT puts many students
-// behind one public IP, so authenticated limits must key by user, never
-// by IP, or a morning login rush would lock the whole lab out.
-//
-// No Redis in stack; per-instance only. Fine for single-node, revisit
-// before scaling out (docs/rate-limiting.md).
-
+import { createHmac } from 'node:crypto'
+import { isIP } from 'node:net'
+import { MongoServerError, type Collection } from 'mongodb'
 import type { NextRequest } from 'next/server'
+import { getAppEnv, getAuthSecret } from '@/lib/env'
+import { getCollection } from '@/lib/mongodb/connection'
 
-type Key = string
-type Entry = { count: number; resetAt: number }
+type RateLimitResult = { ok: boolean; retryAfterSec: number }
+type RateLimitBucket = { _id: string; count: number; expiresAt: Date }
 
-const store = new Map<Key, Entry>()
+const localBuckets = new Map<string, RateLimitBucket>()
+let localChecks = 0
+const deniedUntil = new Map<string, number>()
+const MAX_CACHED_DENIALS = 2_048
+let bucketCollection: Promise<Collection<RateLimitBucket>> | undefined
 
-// Amortized eviction: expired buckets are swept periodically so a
-// long-lived instance cannot grow the Map without bound (e.g. scanner
-// IPs creating one bucket each).
-const SWEEP_EVERY = 1_024
-let checks = 0
+function getBuckets(): Promise<Collection<RateLimitBucket>> {
+  if (!bucketCollection) {
+    bucketCollection = (async () => {
+      const collection: Collection<RateLimitBucket> = await getCollection<RateLimitBucket>('rate_limit_buckets')
+      await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, maxTimeMS: 3_000 })
+      return collection
+    })().catch((error: unknown) => {
+      bucketCollection = undefined
+      throw error
+    })
+  }
+  return bucketCollection
+}
 
-function sweep(now: number) {
-  for (const [key, entry] of store) {
-    if (now >= entry.resetAt) store.delete(key)
+function resultFor(bucket: RateLimitBucket, limit: number): RateLimitResult {
+  if (bucket.count <= limit) return { ok: true, retryAfterSec: 0 }
+  return {
+    ok: false,
+    retryAfterSec: Math.max(1, Math.ceil((bucket.expiresAt.getTime() - Date.now()) / 1_000)),
   }
 }
 
-export function rateLimit(key: Key, limit: number, windowMs: number): { ok: boolean; retryAfterSec: number } {
+function localRateLimit(key: string, limit: number, windowMs: number): RateLimitResult {
   const now = Date.now()
-  checks += 1
-  if (checks % SWEEP_EVERY === 0) sweep(now)
-  const existing = store.get(key)
-  if (!existing || now >= existing.resetAt) {
-    store.set(key, { count: 1, resetAt: now + windowMs })
-    return { ok: true, retryAfterSec: 0 }
+  localChecks += 1
+  if (localChecks % 1_024 === 0) {
+    for (const [id, bucket] of localBuckets) {
+      if (bucket.expiresAt.getTime() <= now) localBuckets.delete(id)
+    }
   }
-  existing.count += 1
-  if (existing.count > limit) {
-    return { ok: false, retryAfterSec: Math.ceil((existing.resetAt - now) / 1000) }
-  }
-  return { ok: true, retryAfterSec: 0 }
+  const existing = localBuckets.get(key)
+  const bucket = existing && existing.expiresAt.getTime() > now
+    ? existing
+    : { _id: key, count: 0, expiresAt: new Date(now + windowMs) }
+  bucket.count = Math.min(bucket.count + 1, limit + 1)
+  localBuckets.set(key, bucket)
+  return resultFor(bucket, limit)
 }
 
-// Test-only hook: clear the in-memory store between probes.
-export function __clearRateLimitStore() {
-  store.clear()
+export async function rateLimit(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
+  if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1' && getAppEnv() === 'development') {
+    return localRateLimit(key, limit, windowMs)
+  }
+
+  // Persist opaque bucket IDs so usernames and IP addresses are not stored in the limiter.
+  const bucketId = createHmac('sha256', getAuthSecret()).update('rate-limit:').update(key).digest('hex')
+  // Requests already denied by Mongo can be dropped locally until the
+  // authoritative window expires, avoiding more writes during a flood.
+  const cachedExpiry = deniedUntil.get(bucketId)
+  if (cachedExpiry !== undefined) {
+    const remaining = cachedExpiry - Date.now()
+    if (remaining > 0) return { ok: false, retryAfterSec: Math.ceil(remaining / 1_000) }
+    deniedUntil.delete(bucketId)
+  }
+
+  const collection = await getBuckets()
+  const expired = { $lte: [{ $ifNull: ['$expiresAt', new Date(0)] }, '$$NOW'] }
+  const update = [
+    {
+      $set: {
+        count: { $cond: [expired, 1, { $min: [{ $add: ['$count', 1] }, limit + 1] }] },
+        expiresAt: { $cond: [expired, { $add: ['$$NOW', windowMs] }, '$expiresAt'] },
+      },
+    },
+  ]
+  const options = { upsert: true, returnDocument: 'after' as const, maxTimeMS: 2_000 }
+  const increment = () => collection.findOneAndUpdate({ _id: bucketId }, update, options)
+  let bucket
+  try {
+    bucket = await increment()
+  } catch (error) {
+    // Concurrent upserts can race on a new bucket's unique _id. The losing
+    // upsert made no write and can safely apply its single increment again.
+    if (!(error instanceof MongoServerError) || error.code !== 11000) throw error
+    bucket = await increment()
+  }
+  if (!bucket) throw new Error('Rate limit bucket update returned no document.')
+  const result = resultFor(bucket, limit)
+  if (!result.ok) {
+    if (deniedUntil.size >= MAX_CACHED_DENIALS) {
+      const oldest = deniedUntil.keys().next().value
+      if (oldest !== undefined) deniedUntil.delete(oldest)
+    }
+    deniedUntil.set(bucketId, bucket.expiresAt.getTime())
+  }
+  return result
 }
 
-// ---------------------------------------------------------------------------
-// General API request tiers (enforced in src/proxy.ts).
-//
-// Budgets are 5-minute fixed windows sized with >=10x headroom over
-// observed legitimate traffic: a portal load bursts ~15 GETs (prefetch
-// included), the client polls nothing, and sustained grade encoding
-// peaks around 2-3 saves per minute. Tighter limits protect nothing
-// extra and risk locking out real users; looser ones stop being a
-// ceiling.
-// ---------------------------------------------------------------------------
+export const CRON_CLEANUP_PATH = '/api/notifications/cleanup'
 
-export type TierName = 'auth' | 'read' | 'write'
+export type TierName = 'auth' | 'read' | 'write' | 'cron' | 'health' | 'page'
 
-export const RATE_TIERS: Record<TierName, { limit: number; windowMs: number }> = {
-  // Unauthenticated entry points (login, demo), keyed by IP: 100 per
-  // 5 min survives a campus-NAT morning rush (dozens of students, one
-  // IP) while capping credential sprays; per-username precision stays
-  // in the route-level failure throttle.
+const RATE_TIERS: Record<TierName, { limit: number; windowMs: number }> = {
   auth: { limit: 100, windowMs: 5 * 60_000 },
-  // Authenticated GET/HEAD, keyed by username: 1 req/sec sustained.
   read: { limit: 300, windowMs: 5 * 60_000 },
-  // Authenticated POST/PATCH/PUT/DELETE, keyed by username: 24/min
-  // sustained — roughly 10x human click speed while encoding grades.
   write: { limit: 120, windowMs: 5 * 60_000 },
+  cron: { limit: 12, windowMs: 5 * 60_000 },
+  health: { limit: 120, windowMs: 60_000 },
+  page: { limit: 300, windowMs: 60_000 },
 }
 
-// First hop of x-forwarded-for (the client as seen by the platform),
-// matching the pre-existing login-route parsing.
-export function clientIp(request: NextRequest): string {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip'
-}
-
-// Tier selection for a /api request. Login and demo are the
-// unauthenticated entry points -> strict auth tier. Everything else
-// keys off the HTTP method: reads get the generous budget, mutations
-// the tighter one. The /api health stub never reaches this (the proxy
-// returns early); /api/auth/session is a plain read.
 export function apiTier(pathname: string, method: string): TierName {
   if (pathname === '/api/auth/login' || pathname === '/api/auth/demo') return 'auth'
-  const m = method.toUpperCase()
-  if (m === 'GET' || m === 'HEAD') return 'read'
-  return 'write'
+  if (pathname === '/api') return 'health'
+  if (pathname === CRON_CLEANUP_PATH) return 'cron'
+  return method === 'GET' || method === 'HEAD' ? 'read' : 'write'
 }
 
-// One-call tier check for the proxy. `identity` is the verified session
-// username when present, else the client IP (resolved by the caller —
-// the proxy holds the token claims).
-export function checkApiRateLimit(
-  pathname: string,
-  method: string,
-  identity: string
-): { ok: boolean; retryAfterSec: number; tier: TierName } {
-  const tier = apiTier(pathname, method)
-  const { ok, retryAfterSec } = rateLimit(
-    `mw:${tier}:${identity}`,
-    RATE_TIERS[tier].limit,
-    RATE_TIERS[tier].windowMs
-  )
-  return { ok, retryAfterSec, tier }
+export function checkRequestRateLimit(tier: TierName, identity: string): Promise<RateLimitResult> {
+  const { limit, windowMs } = RATE_TIERS[tier]
+  return rateLimit(`request:${tier}:${identity}`, limit, windowMs)
+}
+
+export function clientIp(request: Pick<NextRequest, 'headers'>): string {
+  // Vercel overwrites this header at ingress. Self-hosted deployments may
+  // opt in only when Caddy is the sole ingress and overwrites its own header.
+  const header = process.env.VERCEL === '1'
+    ? 'x-forwarded-for'
+    : process.env.TRUST_CADDY_PROXY === '1'
+      ? 'x-aics-client-ip'
+      : null
+  const address = header ? request.headers.get(header)?.trim() : undefined
+  if (!address || address.includes('%')) return 'unknown-ip'
+  const version = isIP(address)
+  if (version === 4) return address
+  if (version === 6) return new URL(`http://[${address}]`).hostname.slice(1, -1)
+  return 'unknown-ip'
 }

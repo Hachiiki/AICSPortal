@@ -93,6 +93,7 @@ export interface Student {
   deanListerSemester: string
   gpa: string
   email: string
+  emailVerified?: boolean
   phone: string
   address: string
   emergencyContactName: string

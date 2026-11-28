@@ -19,7 +19,7 @@ export default function PortalError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[portal] render error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('[portal] render error:', error)
   }, [error])
 
   return (

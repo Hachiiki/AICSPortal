@@ -1,30 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { clearSessionCookie, verifySessionToken, SESSION_COOKIE } from '@/lib/session'
+import { clearSessionCookie, getSession, sessionVersionFilter } from '@/lib/session'
 import { getCollection } from '@/lib/mongodb/connection'
 
-// POST /api/auth/logout — clears the session cookie AND revokes the token.
-// Phase 6.5: logout bumps the user's tokenVersion, so a captured token
-// replayed after logout 401s instead of authenticating (was 200).
 export async function POST(request: NextRequest) {
+  let revoked = true
   try {
-    const raw = request.cookies.get(SESSION_COOKIE)?.value
-    if (raw) {
-      const claims = await verifySessionToken(raw)
-      if (claims) {
-        try {
-          const col = await getCollection('students')
-          await col.updateOne({ username: claims.username }, { $inc: { tokenVersion: 1 } })
-        } catch (err) {
-          console.error('Logout revocation bump failed:', err)
-        }
-      }
+    const session = await getSession(request)
+    if (session) {
+      const students = await getCollection('students')
+      await students.updateOne(
+        { username: session.username, branch: session.branch, ...sessionVersionFilter(session.tv) },
+        { $set: { tokenVersion: session.tv + 1 } },
+      )
     }
-  } catch (err) {
-    console.error('Logout error:', err)
+  } catch {
+    revoked = false
+    console.error('Logout revocation failed.')
   }
-  // Always clear the cookie, even when revocation failed — a 200 here
-  // must never strand the browser on a dead session.
-  const res = NextResponse.json({ ok: true })
-  res.cookies.set(clearSessionCookie())
-  return res
+
+  const response = revoked
+    ? NextResponse.json({ ok: true })
+    : NextResponse.json({ ok: false, error: 'Signed out here, but session revocation could not be confirmed.' }, { status: 503 })
+  response.cookies.set(clearSessionCookie())
+  return response
 }

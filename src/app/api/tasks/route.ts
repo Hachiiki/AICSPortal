@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
-import { getStudentByUsername, getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
+import { getTasksForStudentCurrentTerm } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { spoofCheck } from '@/lib/session'
 import { resolveContext, createRelations, can, decisionToHttpError, professorOwnership } from '@/lib/authz'
@@ -16,13 +16,6 @@ import { formatTaskDueDate, type Task } from '@/lib/aics/tasks'
 // Phase 6: self or same-branch staff (faculty/admin) only.
 export async function GET(request: NextRequest) {
   try {
-    // C2.4: canonical actor off the DB doc (the FIX-M2 flip rides on
-    // the staff gate, issue #62). FIX-L1 (C3.8, issue #65): the policy
-    // gate now runs BEFORE the student lookup — the 404 oracle is
-    // closed. Non-staff callers get the uniform notOwner 403 whether
-    // the username exists or not; the 404 below fires post-gate for
-    // authorized staff only (task.list's staff path is role-based, so
-    // existence is learned only after authorization).
     const ctx = await resolveContext(request)
     if (!ctx) throw new HttpError(401, 'Unauthorized')
 
@@ -37,14 +30,13 @@ export async function GET(request: NextRequest) {
     )
     if (gate) throw gate
 
-    const student = await getStudentByUsername(username)
+    const students = await getCollection('students')
+    const student = await students.findOne(
+      { username, branch: ctx.actor.branch },
+      { projection: { academicYear: 1, semester: 1 } }
+    )
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-    }
-    // Route-kept: staff reads of another student's tasks stay
-    // same-branch (student.branch vs the JWT branch claim, as today).
-    if (student.username !== ctx.actor.username && student.branch !== ctx.claims.branch) {
-      return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
     // VISIBILITY RULE: Students only see tasks of the ACTIVE
@@ -53,8 +45,8 @@ export async function GET(request: NextRequest) {
     // see full task history (to be wired when those roles
     // exist).
     const tasks = await getTasksForStudentCurrentTerm(
-      student.username,
-      student.branch,
+      username,
+      ctx.actor.branch,
       { academicYear: student.academicYear, semester: student.semester }
     )
 
@@ -79,7 +71,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, tasks: clientTasks })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Tasks API error:', err)
+    console.error('Tasks API error.')
     return NextResponse.json({ ok: false, error: 'Failed to fetch tasks.' }, { status: 500 })
   }
 }
@@ -241,12 +233,12 @@ export async function POST(request: NextRequest) {
       }))
       await notifCol.insertMany(notifs as any)
     } catch (notifyErr) {
-      console.error('Task notification fan-out failed (non-fatal):', notifyErr)
+      console.error('Task notification fan-out failed (non-fatal).')
     }
     return NextResponse.json({ ok: true, message: `Task posted to ${result.insertedCount} students.`, created: result.insertedCount })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Task create error:', err)
+    console.error('Task create error.')
     return NextResponse.json({ ok: false, error: 'Failed to create task.' }, { status: 500 })
   }
 }
@@ -272,21 +264,24 @@ export async function PATCH(request: NextRequest) {
     // C2.4: faculty role, claimed-branch parity, and the current-term
     // teaching load centralized (task.section update).
     const actor = ctx.actor
+    const term = { academicYear: actor.academicYear, semester: actor.semester }
+    const rel = createRelations(ctx)
     const gate = decisionToHttpError(
-      await can(ctx, createRelations(ctx), {
+      await can(ctx, rel, {
         kind: 'task.section',
         subjectCode,
-        term: { academicYear: actor.academicYear, semester: actor.semester },
+        term,
         branch,
       }, 'update')
     )
     if (gate) throw gate
 
     const query: Record<string, any> = {
-      branch,
+      branch: actor.branch,
       subjectCode,
-      'term.academicYear': actor.academicYear,
-      'term.semester': actor.semester,
+      'term.academicYear': term.academicYear,
+      'term.semester': term.semester,
+      studentUsername: { $in: [...await rel.teachingStudents(subjectCode, term)] },
     }
     if (assignmentId) {
       query.assignmentId = assignmentId
@@ -316,7 +311,7 @@ export async function PATCH(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Task toggle error:', err)
+    console.error('Task toggle error.')
     return NextResponse.json({ ok: false, error: 'Failed to update task.' }, { status: 500 })
   }
 }

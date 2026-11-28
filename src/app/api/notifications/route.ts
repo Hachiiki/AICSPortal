@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan, professorOwnership } from '@/lib/authz'
 import { parseBody, parseQuery, trimmedString, errResponse, objectIdSchema } from '@/lib/validation'
@@ -76,31 +75,25 @@ export async function GET(request: NextRequest) {
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    // C2.4: self-or-staff gate centralized (notification.inbox read;
-    // DB role — the FIX-M2 flip rides here, issue #62). The student
-    // lookup (404) and the branch-mismatch 403 stay route-kept below,
-    // exactly as today. (Faculty sent history lives in
-    // /api/notifications/sent with grouping + expiry.)
+    // Faculty sent history uses /api/notifications/sent.
     const {
-      ctx: { claims },
+      ctx: { actor },
     } = await requireCan(request, { kind: 'notification.inbox', username }, 'read')
-    const student = await getStudentByUsername(username)
+    const students = await getCollection('students')
+    const student = await students.findOne({ username, branch: actor.branch }, { projection: { _id: 1 } })
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
-    if (student.branch !== claims.branch) {
-      return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-    }
     const col = await getCollection<MongoNotification>('notifications')
     const docs = await col
-      .find({ branch: student.branch, studentUsername: username })
+      .find({ branch: actor.branch, studentUsername: username })
       .sort({ createdAt: -1 })
       .limit(50)
       .toArray()
     return NextResponse.json({ ok: true, notifications: docs.map(toClient) })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Notifications read error:', err)
+    console.error('Notifications read error.')
     return NextResponse.json({ ok: false, error: 'Failed to load notifications.' }, { status: 500 })
   }
 }
@@ -190,7 +183,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Notification send error:', err)
+    console.error('Notification send error.')
     return NextResponse.json({ ok: false, error: 'Failed to send notification.' }, { status: 500 })
   }
 }
@@ -203,12 +196,8 @@ export async function PATCH(request: NextRequest) {
     const {
       ctx: { actor },
     } = await requireCan(request, { kind: 'notification.inbox', username }, 'markRead')
-    const student = await getStudentByUsername(username)
-    if (!student) {
-      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-    }
     const col = await getCollection<MongoNotification>('notifications')
-    const base = { branch: student.branch, studentUsername: actor.username }
+    const base = { branch: actor.branch, studentUsername: actor.username }
     // Session-scoped to the reader's own username and branch (see above).
     if (all === true) {
       const result = await col.updateMany({ ...base, read: false }, { $set: { read: true, readAt: new Date() } })
@@ -222,7 +211,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Notification read error:', err)
+    console.error('Notification read error.')
     return NextResponse.json({ ok: false, error: 'Failed to update notification.' }, { status: 500 })
   }
 }

@@ -136,7 +136,7 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Vercel, Inc. (United States):</strong> hosts the website itself and, only if you
-          allow analytics, receives cookieless usage events (pages viewed, referrer, device type).
+          allow analytics, receives cookieless usage events for the sign-in and legal pages.
         </li>
         <li>
           <strong>MongoDB Atlas (cloud region selected by the operator):</strong> the database
@@ -144,7 +144,12 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Cloudinary (United States):</strong> stores uploaded profile photos and course
-          materials. Deleting a photo from your profile deletes it from the provider as well.
+          materials. Removing a photo clears it from your profile. The portal also requests provider
+          deletion when the photo has a verified Cloudinary asset ID.
+        </li>
+        <li>
+          <strong>Resend:</strong> when you ask to verify your email address, Resend receives
+          that address and the single-use link in order to deliver your verification email.
         </li>
       </ul>
       <p>

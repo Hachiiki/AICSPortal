@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     if (gate) throw gate
     const actor = ctx.actor
 
-    const me = await getStudentByUsername(actor.username)
+    const me = await getStudentByUsername(actor.username, actor.branch)
     if (!me) {
       return NextResponse.json({ ok: false, error: 'Account not found.' }, { status: 404 })
     }
@@ -182,7 +182,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Data export error:', err)
+    console.error('Data export error.')
     return NextResponse.json({ ok: false, error: 'An error occurred while preparing your export.' }, { status: 500 })
   }
 }

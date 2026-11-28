@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: unknown) {
     // Full details stay in the console; the fallback UI never shows them.
-    console.error('[ErrorBoundary]', this.props.resetKey ?? 'view', error, info)
+    if (process.env.NODE_ENV === 'development') console.error('[ErrorBoundary]', this.props.resetKey ?? 'view', error, info)
   }
 
   componentDidUpdate(prev: ErrorBoundaryProps) {

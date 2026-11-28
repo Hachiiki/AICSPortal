@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         })
         if (result.modifiedCount) results.push({ studentUsername: row.studentUsername, grades, statuses, finalGrade, remarks })
       } catch (error) {
-        console.error('Grade submit write could not be confirmed:', error)
+        console.error('Grade submit write could not be confirmed.')
         writeWarning = 'Some grade updates could not be confirmed. Refresh the grade sheet before retrying.'
         break
       }
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
     try {
       await exportPendingGradeAudits({ ...query })
     } catch (error) {
-      console.error('Grade submit audit export pending:', error)
+      console.error('Grade submit audit export pending.')
       auditWarning = 'Grade history was saved with the grade. Export to the audit collection is pending.'
     }
     return NextResponse.json({
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Grade submit error:', err)
+    console.error('Grade submit error.')
     return NextResponse.json({ ok: false, error: 'Failed to submit grades.' }, { status: 500 })
   }
 }

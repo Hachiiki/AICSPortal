@@ -90,10 +90,6 @@ export async function can(
     case 'grade.period': {
       if (action !== 'update' && action !== 'withdraw') return deny('role', 'Not supported.')
       if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
-      // Route-level parity from grades/update: the DB performer branch must
-      // equal the session's JWT branch claim. Encoded per row here; a stale
-      // claim denies every row (unpinned by goldens, deny outcome kept).
-      if (ctx.claims.branch !== ctx.actor.branch) return deny('branch', 'Branch mismatch')
       // Per-row claimed branch (reason 'Branch mismatch' in the 207 envelope).
       if (ctx.actor.branch && resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
@@ -151,9 +147,8 @@ export async function can(
       if (action !== 'read') return deny('role', 'Not supported.')
       if (ctx.actor.role !== 'faculty' && ctx.actor.role !== 'admin')
         return deny('role', 'Unauthorized: faculty or admin only')
-      // FIX-M1 (C3.5, issue #61): the route scopes faculty reads to the
-      // caller's professor-of-record subjects (any term); admin keeps the
-      // branch view. Audits for abandoned subjects become admin-only.
+      // Faculty see audits tied to their exact professor-of-record rows.
+      // Admins can read the branch's audit history.
       return allow()
     }
 
@@ -162,11 +157,8 @@ export async function can(
     // -----------------------------------------------------------------
     case 'task.list': {
       if (action !== 'read') return deny('role', 'Not supported.')
-      // tasks GET: self or same-branch staff. FIX-L1 (C3.8, issue #65):
-      // the gate runs BEFORE the route's student lookup; non-staff get
-      // the uniform notOwner 403 for absent and existing names alike.
-      // The route keeps its student.branch vs claims.branch comparison
-      // inline (post-lookup, authorized readers only).
+      // The route applies the actor's branch to the target lookup after
+      // this self-or-staff check.
       if (resource.studentUsername === ctx.actor.username) return allow()
       if (ctx.actor.role === 'faculty' || ctx.actor.role === 'admin') return allow()
       return deny('notOwner', 'Forbidden.')
@@ -185,30 +177,25 @@ export async function can(
       if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
       if (resource.branch !== undefined && resource.branch !== ctx.actor.branch)
         return deny('branch', 'Branch mismatch')
-      // The load check always uses the actor's CURRENT term (tasks stamp
-      // the term from the faculty doc).
-      if (!(await rel.teachesSubject(resource.subjectCode)))
+      // The route derives this term from the actor's current term.
+      if (!(await rel.teachesSubject(resource.subjectCode, resource.term)))
         return deny('notAssigned', 'Subject is not in your current teaching load.')
       return allow()
     }
 
     case 'task': {
       if (action === 'submit') {
-        // Ownership lives inside the route's atomic update filter
-        // ({studentUsername: session.username, ...}) — the strongest
-        // pattern in the repo, preserved by scope fragments. Any authed
-        // actor passes; the filter self-scopes.
+        // The atomic update filter limits submissions to the actor's own
+        // tasks in their branch and active term.
         return allow()
       }
       if (action === 'grade') {
         if (ctx.actor.role !== 'faculty') return deny('role', 'Unauthorized: faculty only')
-        // The route guards with the FETCHED task's subjectCode under the
-        // current-term load (past-term tasks gradeable under a current-term
-        // load — preserved, not a finding). The optional body branch
-        // parity check stays in the route.
-        if (!resource.subjectCode) return deny('notAssigned', 'Subject is not in your current teaching load.')
-        if (!(await rel.teachesSubject(resource.subjectCode)))
-          return deny('notAssigned', 'Subject is not in your current teaching load.')
+        if (!resource.subjectCode || !resource.studentUsername || !resource.term)
+          return deny('notAssigned', 'Student is not on your roster for this task.')
+        const students = await rel.teachingStudents(resource.subjectCode, resource.term)
+        if (!students.has(resource.studentUsername))
+          return deny('notAssigned', 'Student is not on your roster for this task.')
         return allow()
       }
       return deny('role', 'Not supported.')
@@ -221,12 +208,8 @@ export async function can(
       if (action === 'read') {
         if (ctx.actor.role !== 'faculty' && ctx.actor.role !== 'admin')
           return deny('role', 'Unauthorized: faculty or admin only')
-        // FIX-H2 (C3.4, issue #60): faculty reads are load-scoped — the
-        // section must be in the caller's teaching load (co-taught sections
-        // pass: the load query is the strict username match over
-        // professor-of-record rows — A1 phase 3, issue #72). Admin keeps the
-        // branch-wide read, and the read path stays tolerant of historical
-        // off-roster usernames in stored records.
+        // The route limits faculty reads to the caller's roster within a
+        // section. Admins can read the branch's attendance history.
         if (ctx.actor.role === 'faculty' && !(await rel.teachesSection(resource.sectionKey)))
           return deny('notAssigned', 'You do not teach this section.')
         return allow()
@@ -313,9 +296,8 @@ export async function can(
     // -----------------------------------------------------------------
     case 'notification.inbox': {
       if (action === 'read') {
-        // Self or staff (DB role after the C2.4 M2 flip). The route keeps
-        // its student lookup (404) and branch-mismatch 403 inline after
-        // the gate, exactly as today.
+        // The route applies the actor's branch to the target lookup after
+        // this self-or-staff check.
         if (resource.username === ctx.actor.username) return allow()
         if (ctx.actor.role === 'faculty' || ctx.actor.role === 'admin') return allow()
         return deny('notOwner', 'Forbidden.')
@@ -369,10 +351,8 @@ export async function can(
       if (action !== 'read' && action !== 'update' && action !== 'create')
         return deny('role', 'Not supported.')
       if (ctx.actor.role !== 'admin') return deny('role', 'Unauthorized: admin only')
-      // Reads are school-wide (D1). Writes pass the target doc's branch for
-      // parity: the route fetches it and supplies resource.branch.
-      if (action !== 'read' && resource.branch !== undefined && resource.branch !== ctx.actor.branch)
-        return deny('branch', 'Branch mismatch')
+      // Reads are school-wide. Enrollment writes scope every target lookup
+      // and update to the actor's branch.
       return allow()
     }
 

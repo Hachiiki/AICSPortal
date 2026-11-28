@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const student = await getStudentByUsername(username)
+    const student = await getStudentByUsername(username, actor.branch)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcements API error:', err)
+    console.error('Announcements API error.')
     return NextResponse.json({ ok: false, error: 'Failed to fetch announcements.' }, { status: 500 })
   }
 }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     return await createAnnouncement(fields, actor)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement post error:', err)
+    console.error('Announcement post error.')
     return NextResponse.json({ ok: false, error: 'Failed to post announcement.' }, { status: 500 })
   }
 }
@@ -118,7 +118,7 @@ export async function PATCH(request: NextRequest) {
     return await editAnnouncement(await parseBody(request, announcementPatchSchema), actor)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement update error:', err)
+    console.error('Announcement update error.')
     return NextResponse.json({ ok: false, error: 'Failed to update announcement.' }, { status: 500 })
   }
 }
@@ -154,7 +154,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Announcement deleted.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement delete error:', err)
+    console.error('Announcement delete error.')
     return NextResponse.json({ ok: false, error: 'Failed to delete announcement.' }, { status: 500 })
   }
 }

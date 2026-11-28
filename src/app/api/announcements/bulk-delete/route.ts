@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement bulk delete error:', err)
+    console.error('Announcement bulk delete error.')
     return NextResponse.json({ ok: false, error: 'Failed to delete announcements.' }, { status: 500 })
   }
 }

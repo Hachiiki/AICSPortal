@@ -62,17 +62,15 @@ function attendanceRevision(record: { revision?: string; takenAt?: Date | string
   return record.revision ?? String(record.takenAt ?? 'legacy')
 }
 
+function rosterMarks(records: Record<string, string>, roster: Set<string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(records).filter(([username]) => roster.has(username)))
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { username: usernameParam, sectionKey, date } = parseQuery(request, attendanceGetQuerySchema)
-    // C2.5: auth + username-self + role gates centralized
-    // (attendance read). FIX-H2 (C3.4): the policy also requires the
-    // section in a faculty caller's teaching load; admin reads stay
-    // branch-wide. The username query field rides the guard's spoof
-    // check; the branch-scoped query below stays route-kept (branch
-    // from the session claim, as today).
     const {
-      ctx: { actor, claims },
+      ctx: { actor }, rel, scope,
     } = await requireCan(request, { kind: 'attendance', sectionKey }, 'read', {
       claimedIdentity: usernameParam,
     })
@@ -81,7 +79,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Username and sectionKey are required.' }, { status: 400 })
     }
     const col = await getCollection('attendance')
-    const query: Record<string, string> = { branch: claims.branch, sectionKey }
+    const query = scope.attendanceRows(sectionKey)
     const sessionList = await col
       .find(query)
       .project({ date: 1, takenBy: 1, takenAt: 1 })
@@ -89,15 +87,20 @@ export async function GET(request: NextRequest) {
       .toArray()
     const selectedDate = date || sessionList[0]?.date
     const doc = selectedDate ? await col.findOne({ ...query, date: selectedDate }) : null
+    let records = doc ? doc.records ?? {} : null
+    if (records && actor.role === 'faculty') {
+      const [code, academicYear, semester] = sectionKey.split('|')
+      records = rosterMarks(records, await rel.teachingStudents(code, { academicYear, semester }))
+    }
     return NextResponse.json({
       ok: true,
       sessions: sessionList.map((s: any) => ({ date: s.date, takenBy: s.takenBy, takenAt: s.takenAt })),
-      records: doc ? doc.records ?? {} : null,
+      records,
       revision: doc ? attendanceRevision(doc) : null,
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Attendance read error:', err)
+    console.error('Attendance read error.')
     return NextResponse.json({ ok: false, error: 'Failed to load attendance.' }, { status: 500 })
   }
 }
@@ -123,26 +126,12 @@ export async function POST(request: NextRequest) {
     // C2.5: faculty role + branch parity centralized
     // (attendance update). FIX-H2 (C3.4): the policy also requires the
     // section in the caller's teaching load (issue #60).
-    const gate = decisionToHttpError(
-      await can(ctx, createRelations(ctx), { kind: 'attendance', sectionKey, branch }, 'update')
-    )
+    const rel = createRelations(ctx)
+    const gate = decisionToHttpError(await can(ctx, rel, { kind: 'attendance', sectionKey, branch }, 'update'))
     if (gate) throw gate
     const col = await getCollection('attendance')
-    // FIX-H2 (C3.4, issue #60): records keys must be enrolled students
-    // of the section. The roster is the subjects rows for the section
-    // key (same (field || '') term matching the relations use); the
-    // read path stays tolerant of historical off-roster usernames.
-    const [code, ay, sem] = sectionKey.split('|')
-    const subjectsCol = await getCollection('subjects')
-    const rosterRows = await subjectsCol
-      .find({ branch, code })
-      .project({ studentUsername: 1, academicYear: 1, semester: 1 })
-      .toArray()
-    const roster = new Set(
-      rosterRows
-        .filter((r: any) => (r.academicYear || '') === ay && (r.semester || '') === sem)
-        .map((r: any) => r.studentUsername)
-    )
+    const [code, academicYear, semester] = sectionKey.split('|')
+    const roster = await rel.teachingStudents(code, { academicYear, semester })
     const invalidKeys = Object.keys(records).filter((k) => !roster.has(k))
     if (invalidKeys.length > 0) {
       return NextResponse.json(
@@ -154,7 +143,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    const session = { branch, sectionKey, date }
+    const session = { branch: ctx.actor.branch, sectionKey, date }
     const existing = await col.findOne(session)
     const now = new Date()
     const updated = { records, takenBy: ctx.actor.username, takenAt: now, revision: randomUUID() }
@@ -164,7 +153,11 @@ export async function POST(request: NextRequest) {
           {
             ok: false,
             error: 'Attendance already exists for this session. Reload and review the saved marks.',
-            existing: { takenBy: existing.takenBy, takenAt: existing.takenAt, records: existing.records },
+            existing: {
+              takenBy: existing.takenBy,
+              takenAt: existing.takenAt,
+              records: rosterMarks(existing.records ?? {}, roster),
+            },
           },
           { status: 409 }
         )
@@ -194,7 +187,7 @@ export async function POST(request: NextRequest) {
       }
       // Existing ObjectId rows are still found by class and date. New rows
       // use the same ID for a session so simultaneous creates collide.
-      const _id = JSON.stringify([branch, sectionKey, date])
+      const _id = JSON.stringify([session.branch, sectionKey, date])
       await col.insertOne({ _id, ...session, ...updated })
     }
     const present = Object.values(records).filter((s) => s === 'present').length
@@ -205,7 +198,7 @@ export async function POST(request: NextRequest) {
     if (err?.code === 11000) {
       return NextResponse.json({ ok: false, error: 'That session was just saved. Reload and try again.' }, { status: 409 })
     }
-    console.error('Attendance save error:', err)
+    console.error('Attendance save error.')
     return NextResponse.json({ ok: false, error: 'Failed to save attendance.' }, { status: 500 })
   }
 }
