@@ -2,12 +2,13 @@ import { expect, test } from 'bun:test'
 import { parsePath, routeToPath } from './use-portal-route'
 
 const identity = { branch: 'commonwealth', username: 'juan.santos', role: 'student' as const }
-test('the Notifications page survives a student reload without becoming a staff route', () => {
+test('Notifications routes retain their role across reloads', () => {
   const notifications = { ...identity, view: 'notifications' as const }
   const path = routeToPath(notifications)
   expect(path).toBe('/portal/commonwealth/student/juan.santos/notifications')
   expect(parsePath(path)).toEqual(notifications)
-  expect(parsePath(path.replace('/student/', '/faculty/'))).toEqual({ ...identity, role: 'faculty', view: 'dashboard' })
+  const facultyNotifications = { ...notifications, role: 'faculty' as const }
+  expect(parsePath(routeToPath(facultyNotifications))).toEqual(facultyNotifications)
 })
 test('checklist destinations preserve the selected section and focus across reloads', () => {
   const password = { ...identity, view: 'settings' as const, section: 'security' as const, focus: 'password' as const }

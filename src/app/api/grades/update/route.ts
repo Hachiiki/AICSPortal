@@ -5,7 +5,7 @@ import { spoofCheck } from '@/lib/session'
 import { resolveContext, createRelations, createScopes, can, editablePeriodGuard, type Period } from '@/lib/authz'
 import { parseBody, errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
-import { computedFinalINCasZero, remarksFor } from '@/lib/aics/grades'
+import { computedFinalINCasZero, remarksFor, validGrade } from '@/lib/aics/grades'
 
 // ---- Zod input schemas (the only place grade-sheet input is shaped) ----
 // Row-level outcomes (reasons per update) stay manual below — the schema
@@ -72,13 +72,6 @@ export async function PATCH(request: NextRequest) {
       reason?: string
     }[] = []
     let auditOk = true
-
-    // BUG-008: grade values must be 0-100 (up to 2 decimals) or INC (case-insensitive).
-    const validGrade = (v: unknown): boolean => {
-      if (typeof v !== 'string') return false
-      if (v.toUpperCase() === 'INC') return true
-      return /^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/.test(v.trim())
-    }
 
     for (const update of updates) {
       const { studentUsername, subjectCode, branch, prelim, midterm, finals, finalGrade, remarks, academicYear, semester, withdraw } = update
