@@ -215,10 +215,10 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
+            <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Events</h1>
             <p className="text-sm text-slate-500 mt-1">
               School calendar for this branch. Changes appear on every student calendar immediately.
             </p>
@@ -233,7 +233,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2">
+        <div className="admin-filters flex flex-wrap gap-2">
           <SelectMenu
             aria-label="Filter by category"
             value={categoryFilter}
@@ -270,39 +270,41 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
             <EmptyState icon={CalendarDays} message="No events match" hint="Adjust the filters or add a new event." />
           </div>
         ) : (
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[620px]">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Date</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Event</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+          <div className="bg-surface admin-table-card rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="admin-table-scroll overflow-x-auto">
+              <table role="table" aria-label="Events" className="admin-table w-full text-sm min-w-[620px]">
+                <thead role="rowgroup" className="sticky top-0 z-10">
+                  <tr role="row" className="bg-slate-50 border-b border-slate-100">
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Date</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Event</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {filtered.map((e) => {
                     const confirming = confirmId === e._id
                     const deleting = deletingId === e._id
                     return (
-                      <tr key={e._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                        <td className="px-4 py-3 whitespace-nowrap">
+                      <tr role="row" key={e._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                        <td role="cell" className="px-4 py-3 whitespace-nowrap">
+                          <span className="admin-cell-label" aria-hidden="true">Date</span>
                           <p className="font-medium text-slate-800 tabular-nums">{formatDate(e.date)}</p>
                           {e.endDate ? <p className="text-xs text-slate-500 tabular-nums">to {formatDate(e.endDate)}</p> : null}
                         </td>
-                        <td className="px-4 py-3 min-w-[240px]">
+                        <td role="cell" className="admin-cell-title px-4 py-3 min-w-[240px]">
                           <p className="font-medium text-slate-800">{e.title}</p>
                           {e.description ? (
                             <p className="text-xs text-slate-500 mt-0.5 line-clamp-2 max-w-md">{e.description}</p>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
+                          <span className="admin-cell-label" aria-hidden="true">Category</span>
                           <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${CATEGORY_PILL_STYLES[e.category]}`}>
                             {CATEGORY_LABELS[e.category]}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <td role="cell" className="admin-cell-actions px-4 py-3 text-right whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => openEdit(e)}
@@ -334,6 +336,7 @@ export function AdminEventsPage({ student, onNavigate, onLogout, events, profess
 
       {modalOpen && (
         <Modal
+          mobileScrollable
           title={editing ? 'Edit event' : 'Add event'}
           description={editing ? 'Update the calendar entry. Students see changes on their next calendar load.' : 'New entries appear on every student calendar in this branch.'}
           onClose={() => setModalOpen(false)}

@@ -78,7 +78,8 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
   const { resolvedTheme, setTheme } = useTheme()
   const themeMounted = useMounted()
   const isDark = themeMounted && resolvedTheme === 'dark'
-  const navigationLabels = useNavigationLabels()
+  const role = student.role ?? 'student'
+  const navigationLabels = useNavigationLabels(role)
   const themeButton = useRef<HTMLDivElement>(null)
   const themeReveal = useRef<ViewTransition | null>(null)
   const guided = useStudentOnboarding()?.busy ?? false
@@ -223,8 +224,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
       document.removeEventListener('focusout', update)
     }
   }, [])
-  const role = student.role ?? 'student'
-  const labels = role === 'faculty' ? (navigationLabels ? 'visible' : 'hidden') : 'auto'
+  const labels = role === 'student' ? 'auto' : navigationLabels ? 'visible' : 'hidden'
   const labelClass = labels === 'visible' ? 'student-floating-label' : labels === 'auto' ? 'student-floating-label sr-only' : 'sr-only'
   const showMoreLabels = labels === 'visible'
   const themeAction = `Switch to ${isDark ? 'light' : 'dark'} ${showMoreLabels ? 'mode' : 'theme'}`

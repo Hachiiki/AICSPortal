@@ -138,9 +138,9 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Release Queue</h1>
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header">
+          <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Release Queue</h1>
           <p className="text-sm text-slate-500 mt-1">
             Submitted grade periods awaiting release. Released grades become visible to students.
           </p>
@@ -181,43 +181,46 @@ export function AdminReleasePage({ student, onNavigate, onLogout, events, profes
             <EmptyState icon={Inbox} message="Nothing waiting" hint="Submitted periods from faculty will appear here." />
           </div>
         ) : (
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[720px]">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Period</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Students</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Action</th>
+          <div className="bg-surface admin-table-card rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="admin-table-scroll overflow-x-auto">
+              <table role="table" aria-label="Pending grade releases" className="admin-table w-full text-sm min-w-[720px]">
+                <thead role="rowgroup" className="sticky top-0 z-10">
+                  <tr role="row" className="bg-slate-50 border-b border-slate-100">
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Period</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">Students</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Action</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {groups.map((group) => {
                     const key = `${group.subjectCode}|${group.academicYear}|${group.semester}|${group.period}`
                     const confirming = confirmKey === key
                     const releasing = releasingKey === key
                     return (
-                      <tr key={key} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                        <td className="px-4 py-3">
-                          <span className="font-mono text-xs font-bold text-link-strong">{group.subjectCode}</span>
-                          <span className="text-sm text-slate-700 ml-2">{group.title}</span>
+                      <tr role="row" key={key} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                        <td role="cell" className="admin-cell-title px-4 py-3">
+                          <span className="font-mono text-xs font-bold text-link-strong max-sm:block">{group.subjectCode}</span>
+                          <span className="text-sm text-slate-700 max-sm:mt-0.5 max-sm:block max-sm:font-semibold max-sm:text-ink sm:ml-2">{group.title}</span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-slate-600">
+                        <td role="cell" className="px-4 py-3 text-sm text-slate-600">
+                          <span className="admin-cell-label" aria-hidden="true">Term</span>
                           {group.academicYear} {group.semester}
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
+                          <span className="admin-cell-label" aria-hidden="true">Period</span>
                           <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-link-strong border-blue-200">
                             {periodLabel(group.period)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td role="cell" className="admin-cell-wide px-4 py-3 text-center">
+                          <span className="admin-cell-label" aria-hidden="true">Students</span>
                           <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold tabular-nums">
                             {group.count}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td role="cell" className="admin-cell-actions px-4 py-3 text-right">
                           <button
                             type="button"
                             onClick={() => handleRelease(group)}

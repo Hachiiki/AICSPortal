@@ -334,10 +334,10 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Announcements</h1>
+            <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Announcements</h1>
             <p className="text-sm text-slate-500 mt-1">
               Deck posts for this branch, including expired ones. Faculty reach sections through notifications instead.
             </p>
@@ -352,7 +352,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2">
+        <div className="admin-filters flex flex-wrap gap-2">
           <SelectMenu
             aria-label="Filter by category"
             value={categoryFilter}
@@ -427,52 +427,58 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
             <EmptyState icon={Megaphone} message="No announcements match" hint="Adjust the filters or post a new announcement." />
           </div>
         ) : (
-          <div className={`bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden ${bulkDeleting ? 'pointer-events-none opacity-60' : ''}`}>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[760px]">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 w-10">
-                      <input
-                        ref={headerCheckboxRef}
-                        type="checkbox"
-                        checked={allVisibleSelected}
-                        onChange={toggleSelectAll}
-                        disabled={filtered.length === 0}
-                        aria-label="Select all listed announcements"
-                        className="w-4 h-4 accent-[#153357] cursor-pointer"
-                      />
+          <div className={`admin-table-card bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden ${bulkDeleting ? 'pointer-events-none opacity-60' : ''}`}>
+            <div className="admin-table-scroll overflow-x-auto">
+              <table role="table" aria-label="Announcements" className="admin-table w-full text-sm min-w-[760px]">
+                <thead role="rowgroup" className="admin-table-selection sticky top-0 z-10">
+                  <tr role="row" className="bg-slate-50 border-b border-slate-100">
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 w-10">
+                      <label className="admin-checkbox">
+                        <input
+                          ref={headerCheckboxRef}
+                          type="checkbox"
+                          checked={allVisibleSelected}
+                          onChange={toggleSelectAll}
+                          disabled={filtered.length === 0}
+                          aria-label="Select all listed announcements"
+                          className="size-4 shrink-0 cursor-pointer accent-[#153357]"
+                        />
+                        <span className="text-sm font-medium text-slate-700 sm:hidden">Select all shown</span>
+                      </label>
                     </th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Posted</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcement</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Expiry</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Posted</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Announcement</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Category</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Expiry</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {filtered.map((a) => {
                     const style = ANNOUNCEMENT_STYLES[a.category] ?? ANNOUNCEMENT_STYLES.general
                     const confirming = confirmId === a._id
                     const deleting = deletingId === a._id
                     const expired = isExpired(a)
                     return (
-                      <tr key={a._id} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${expired ? 'opacity-60' : ''} ${effectiveSelected.has(a._id) ? 'bg-blue-50/50' : ''}`}>
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            checked={effectiveSelected.has(a._id)}
-                            onChange={() => toggleSelected(a._id)}
-                            aria-label={`Select "${a.title}"`}
-                            className="w-4 h-4 accent-[#153357] cursor-pointer"
-                          />
+                      <tr role="row" key={a._id} className={`border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 ${expired ? 'opacity-60' : ''} ${effectiveSelected.has(a._id) ? 'bg-blue-50/50' : ''}`}>
+                        <td role="cell" className="admin-cell-select px-4 py-3">
+                          <label className="admin-checkbox">
+                            <input
+                              type="checkbox"
+                              checked={effectiveSelected.has(a._id)}
+                              onChange={() => toggleSelected(a._id)}
+                              aria-label={`Select "${a.title}"`}
+                              className="size-4 cursor-pointer accent-[#153357]"
+                            />
+                          </label>
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        <td role="cell" className="px-4 py-3 whitespace-nowrap">
+                          <span className="admin-cell-label" aria-hidden="true">Posted</span>
                           <p className="font-medium text-slate-800 tabular-nums">{formatDate(a.postedDate)}</p>
                           <p className="text-xs text-slate-500">{a.author}</p>
                         </td>
-                        <td className="px-4 py-3 min-w-[280px]">
-                          <div className="flex items-center gap-2">
+                        <td role="cell" className="admin-cell-title px-4 py-3 min-w-[280px]">
+                          <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
                             {a.priority === 'urgent' ? (
                               <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-red-50 text-red-700 border-red-200 flex-shrink-0">Urgent</span>
                             ) : null}
@@ -480,12 +486,14 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                           </div>
                           <p className="text-xs text-slate-500 mt-0.5 line-clamp-2 max-w-md">{a.body}</p>
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
+                          <span className="admin-cell-label" aria-hidden="true">Category</span>
                           <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border ${style.pill}`}>
                             {style.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
+                        <td role="cell" className="admin-cell-wide px-4 py-3 whitespace-nowrap">
+                          <span className="admin-cell-label" aria-hidden="true">Expiry</span>
                           {expired ? (
                             <span className="inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-slate-100 text-slate-500 border-slate-200">
                               Expired
@@ -496,7 +504,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
                             <span className="text-xs text-slate-500">No expiry</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <td role="cell" className="admin-cell-actions px-4 py-3 text-right whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => openEdit(a)}
@@ -528,6 +536,7 @@ export function AdminAnnouncementsPage({ student, onNavigate, onLogout, events, 
 
       {modalOpen && (
         <Modal
+          mobileScrollable
           title={editing ? 'Edit announcement' : 'Post announcement'}
           description={editing ? 'Students see the update on their next dashboard load. Read/dismiss markers persist.' : 'Posts render in the announcement deck for every student in this branch.'}
           onClose={() => { if (!saving) setModalOpen(false) }}

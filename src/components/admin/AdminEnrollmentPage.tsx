@@ -280,9 +280,9 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Enrollment</h1>
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header">
+          <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Enrollment</h1>
           <p className="text-sm text-slate-500 mt-1">
             Registrar view — override step trackers and post payments against fee assessments.
           </p>
@@ -306,7 +306,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
         ) : (
           <>
             {/* Summary strip */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="admin-enrollment-summary grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               <div className="bg-surface rounded-xl border border-slate-200 shadow-sm p-4 sm:p-5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -358,22 +358,22 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                 <p className="text-xs text-slate-500 mt-1">Records appear when the registrar creates them per student per term.</p>
               </div>
             ) : (
-              <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm min-w-[760px]">
-                    <thead className="sticky top-0 z-10">
-                      <tr className="bg-slate-50 border-b border-slate-100">
-                        <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Student</th>
-                        <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
-                        <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Step tracker</th>
-                        <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Payment</th>
-                        <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+              <div className="bg-surface admin-table-card rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="admin-table-scroll overflow-x-auto">
+                  <table role="table" aria-label="Enrollment records" className="admin-table w-full text-sm min-w-[760px]">
+                    <thead role="rowgroup" className="sticky top-0 z-10">
+                      <tr role="row" className="bg-slate-50 border-b border-slate-100">
+                        <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Student</th>
+                        <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Term</th>
+                        <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Step tracker</th>
+                        <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Payment</th>
+                        <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                       {records.map((r) => (
-                        <tr key={r._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                          <td className="px-4 py-3">
+                        <tr role="row" key={r._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                          <td role="cell" className="admin-cell-title px-4 py-3">
                             <p className="font-medium text-slate-800">{r.student?.fullName ?? r.studentUsername}</p>
                             <p className="text-xs text-slate-500">
                               {r.student?.studentNumber ? <span className="tabular-nums">{r.student.studentNumber} · </span> : null}
@@ -385,18 +385,21 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                               </p>
                             ) : null}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-slate-600">
+                          <td role="cell" className="px-4 py-3 whitespace-nowrap text-slate-600">
+                            <span className="admin-cell-label" aria-hidden="true">Term</span>
                             <p className="font-medium">{r.academicYear}</p>
                             <p className="text-xs text-slate-500">{r.semester}</p>
                           </td>
-                          <td className="px-4 py-3">
+                          <td role="cell" className="px-4 py-3">
+                            <span className="admin-cell-label" aria-hidden="true">Progress</span>
                             <StepTracker steps={r.steps} currentStep={r.currentStep} />
                             <p className="text-xs text-slate-500 mt-1">
                               Step {r.currentStep} of {r.steps.length || '—'}
                               {r.steps[r.currentStep - 1]?.status === 'current' ? ` · ${r.steps[r.currentStep - 1].label}` : ''}
                             </p>
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
+                          <td role="cell" className="admin-cell-wide px-4 py-3 whitespace-nowrap">
+                            <span className="admin-cell-label" aria-hidden="true">Payment</span>
                             <PaymentPill status={r.assessment.paymentStatus} />
                             <p className="text-xs text-slate-500 mt-1 tabular-nums">
                               Balance <span className="font-semibold text-slate-700">{peso.format(r.assessment.balance)}</span>
@@ -405,7 +408,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                               paid {peso.format(r.assessment.amountPaid)} of {peso.format(r.assessment.totalAssessment)}
                             </p>
                           </td>
-                          <td className="px-4 py-3 text-right whitespace-nowrap">
+                          <td role="cell" className="admin-cell-actions px-4 py-3 text-right whitespace-nowrap">
                             <button
                               type="button"
                               onClick={() => openOverride(r)}
@@ -444,6 +447,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       {/* Override step tracker modal */}
       {overrideFor && (
         <Modal
+          mobileScrollable
           title="Override step tracker"
           description={`${overrideFor.student?.fullName ?? overrideFor.studentUsername} · ${overrideFor.academicYear} ${overrideFor.semester}. Set where the tracker stands now.`}
           onClose={() => setOverrideFor(null)}
@@ -514,6 +518,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       {/* Post payment modal */}
       {paymentFor && (
         <Modal
+          mobileScrollable
           title="Post payment"
           description={`${paymentFor.student?.fullName ?? paymentFor.studentUsername} · ${paymentFor.academicYear} ${paymentFor.semester}`}
           onClose={() => setPaymentFor(null)}
@@ -609,6 +614,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
       {/* Full record view modal */}
       {viewFor && (
         <Modal
+          mobileScrollable
           title={viewFor.student?.fullName ?? viewFor.studentUsername}
           description={`${viewFor.academicYear} ${viewFor.semester} · ${viewFor.branch} branch · full enrollment record.`}
           onClose={() => setViewFor(null)}
