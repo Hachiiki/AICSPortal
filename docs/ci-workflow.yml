@@ -108,6 +108,35 @@ jobs:
             echo "No scripts/lib test files on this branch (dev-only); vacuous pass."
           fi
 
+  grade-and-task-workflows:
+    name: Grade and task browser regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      mongo:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1}).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile || bun install
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: Exercise grade and task workflows
+        run: node scripts/verify-grade-and-task-workflows.mjs
+
   whitelist:
     name: Production whitelist guard
     runs-on: ubuntu-latest

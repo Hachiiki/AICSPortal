@@ -14,6 +14,8 @@ const auditsGetQuerySchema = z.object({
   branch: z.string().optional(),
   subjectCode: z.string().optional(),
   studentUsername: z.string().optional(),
+  academicYear: z.string().optional(),
+  semester: z.string().optional(),
   limit: z.preprocess(
     (v) => (v === undefined ? 50 : v),
     z.coerce.number().int().min(1).max(200).catch(50)
@@ -22,7 +24,7 @@ const auditsGetQuerySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const { username, branch, subjectCode, studentUsername, limit } = parseQuery(
+    const { username, branch, subjectCode, studentUsername, academicYear, semester, limit } = parseQuery(
       request,
       auditsGetQuerySchema
     )
@@ -45,7 +47,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
     }
 
-    const query: any = { branch: claims.branch }
+    const term = {
+      ...(academicYear === undefined ? {} : { academicYear: academicYear || { $in: ['', null] } }),
+      ...(semester === undefined ? {} : { semester: semester || { $in: ['', null] } }),
+    }
+    const query: any = { branch: claims.branch, ...term }
     if (subjectCode) query.subjectCode = subjectCode
     if (studentUsername) query.studentUsername = studentUsername
 
@@ -64,6 +70,8 @@ export async function GET(request: NextRequest) {
         .find({
           branch: claims.branch,
           ...professorOwnership(actor.username),
+          ...term,
+          ...((academicYear !== undefined || semester !== undefined) && studentUsername ? { studentUsername } : {}),
         })
         .project({ code: 1 })
         .toArray()
@@ -79,6 +87,7 @@ export async function GET(request: NextRequest) {
     const pending: MongoGradeAudit[] = await subjects.aggregate([
       { $match: {
         branch: query.branch,
+        ...term,
         ...(query.subjectCode ? { code: query.subjectCode } : {}),
         ...(query.studentUsername ? { studentUsername: query.studentUsername } : {}),
         'pendingReleaseAudits.0': { $exists: true },

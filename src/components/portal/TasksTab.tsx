@@ -71,10 +71,18 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
   const focusSubject = focusTask?.subjectCode || null
   useEffect(() => {
     if (!focusTaskId || loading) return
-    if (focusSubject) {
+    const task = tasks.find((item) => item._id === focusTaskId)
+    const subject = task?.subjectCode || focusSubject
+    if (task) {
+      const { status } = computeStatus(task)
+      setSubjectFilter(value => value === subject ? value : 'all')
+      setTypeFilter(value => value === task.type ? value : 'all')
+      setStatusFilter(value => value === status ? value : 'all')
+    }
+    if (subject) {
       setExpandedCourses((prev) => {
-        if (prev.has(focusSubject)) return prev
-        return new Set(prev).add(focusSubject)
+        if (prev.has(subject)) return prev
+        return new Set(prev).add(subject)
       })
     }
     const t = setTimeout(() => {
@@ -89,7 +97,7 @@ export function TasksTab({ student, tasks, loading, error, setTasks, focusTask, 
       setTimeout(() => setHighlightId((cur) => (cur === focusTaskId ? null : cur)), 2600)
     }, 250)
     return () => clearTimeout(t)
-  }, [focusTaskId, focusSubject, loading, tasks.length, mode])
+  }, [focusTaskId, focusSubject, loading, tasks, mode])
 
   const currentSubjects = useMemo(() =>
     student.subjects.filter((s) => s.academicYear === student.academicYear && s.semester === student.semester),

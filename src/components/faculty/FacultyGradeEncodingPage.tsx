@@ -18,7 +18,7 @@ import { RemarksBadge } from '../portal/RemarksBadge'
 import { DashboardSkeleton } from '../portal/Skeleton'
 import { EmptyState } from '../portal/EmptyState'
 import { useFacultyRows, computedFinalINCasZero, remarksFor } from '@/lib/aics/use-faculty-rows'
-import { acknowledgeDraftGrade } from '@/lib/aics/grades'
+import { acknowledgeDraftGrade, gradePeriods, gradeStatusKeys, type GradePeriod, type GradeSubmission, type SubmittedGradeRow } from '@/lib/aics/grades'
 import { DialogPanel } from '../portal/DialogPanel'
 
 interface Props {
@@ -60,7 +60,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     ]
   }, [sections])
 
-  const [rows, setRows] = useState<any[]>([])
+  const [rows, setRows] = useState<typeof initialRows>([])
   const [saving, setSaving] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   useEffect(() => { if (!loading && initialRows.length) setRows(initialRows) }, [initialRows, loading])
@@ -69,18 +69,36 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   const [historyRow, setHistoryRow] = useState<any | null>(null)
   const [historyAudits, setHistoryAudits] = useState<any[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
-  const openHistory = useCallback(async (row: any) => {
+  const [historyError, setHistoryError] = useState(false)
+  const historyRequest = useRef<AbortController | null>(null)
+  const closeHistory = useCallback(() => {
+    historyRequest.current?.abort()
+    setHistoryRow(null)
+  }, [])
+  useEffect(() => () => historyRequest.current?.abort(), [])
+  const openHistory = useCallback(async (row: (typeof rows)[number]) => {
+    historyRequest.current?.abort()
+    const request = new AbortController()
+    historyRequest.current = request
     setHistoryRow(row)
     setHistoryLoading(true)
     setHistoryAudits([])
+    setHistoryError(false)
     try {
       // BUG-007: audits now requires faculty/admin username + branch scoping.
-      const params = new URLSearchParams({ branch, subjectCode: row.subjectCode, studentUsername: row.studentUsername, limit: '50', username: faculty?.username || student.username })
-      const res = await fetch(`/api/grades/audits?${params.toString()}`)
+      const params = new URLSearchParams({
+        branch, subjectCode: row.subjectCode, studentUsername: row.studentUsername,
+        academicYear: row.academicYear, semester: row.semester, limit: '50', username: faculty?.username || student.username,
+      })
+      const res = await fetch(`/api/grades/audits?${params.toString()}`, { signal: request.signal })
       const data = await res.json()
-      if (data.ok) setHistoryAudits(data.audits || [])
-    } catch {}
-    setHistoryLoading(false)
+      if (!res.ok || !data.ok) throw new Error('Could not load grade history.')
+      if (!request.signal.aborted) setHistoryAudits(data.audits || [])
+    } catch {
+      if (!request.signal.aborted) setHistoryError(true)
+    } finally {
+      if (!request.signal.aborted) setHistoryLoading(false)
+    }
   }, [branch, faculty?.username, student.username])
 
   const getPeriodStatus = useCallback((r: any, p: string) => {
@@ -156,7 +174,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   }, [])
 
   const [showSubmitModal, setShowSubmitModal] = useState(false)
-  const [submitPeriod, setSubmitPeriod] = useState<'prelim' | 'midterm' | 'finals' | 'all'>('prelim')
+  const [submitPeriod, setSubmitPeriod] = useState<GradePeriod | 'all'>('prelim')
   const [submitNote, setSubmitNote] = useState('')
   const [showFillModal, setShowFillModal] = useState(false)
   const [fillValue, setFillValue] = useState('')
@@ -165,6 +183,23 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
   // Stable closers: Modal's mount-only focus effect depends on onClose identity.
   const closeFillModal = useCallback(() => setShowFillModal(false), [])
   const closeSubmitModal = useCallback(() => setShowSubmitModal(false), [])
+  const submitTargets = useMemo(() => {
+    const periods = submitPeriod === 'all' ? gradePeriods : [submitPeriod]
+    return filtered.flatMap(row => {
+      const grades: GradeSubmission['grades'] = {}
+      let blanks = 0
+      for (const item of periods) {
+        const status = row[gradeStatusKeys[item]]
+        if (status === 'submitted' || status === 'released') continue
+        const value = row[item].trim()
+        const blank = !value || value === '-' || value === '—'
+        grades[item] = { previous: row.original[item], value: blank ? 'INC' : value }
+        if (blank) blanks++
+      }
+      return Object.keys(grades).length ? [{ row, grades, blanks }] : []
+    })
+  }, [filtered, submitPeriod])
+  const submitBlankCount = submitTargets.reduce((count, target) => count + target.blanks, 0)
   const isFillDisabled = period === 'all' || activeSection === 'all'
   const openFill = () => {
     if (isFillDisabled) {
@@ -241,114 +276,82 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
     }
   }, [period, rows, filtered, activeSection, branch, faculty?.username, student.username, onRefresh])
 
-  const handleSubmitConfirm = useCallback(async () => {
-    const vis = activeSection === 'all' ? filtered : filtered.filter((r) => r.subjectCode === activeSection)
-    if (vis.length === 0) { toast.info('No records in scope'); return }
+  const handleSubmitConfirm = async () => {
+    if (!submitTargets.length) return
+    const groups = new Map<string, {
+      subjectCode: string
+      academicYear: string
+      semester: string
+      targets: typeof submitTargets
+    }>()
+    for (const target of submitTargets) {
+      const { subjectCode, academicYear, semester } = target.row
+      const key = JSON.stringify([subjectCode, academicYear, semester])
+      const group = groups.get(key)
+      if (group) group.targets.push(target)
+      else groups.set(key, { subjectCode, academicYear, semester, targets: [target] })
+    }
+
     setSubmitting(true)
+    const submitted = new Map<string, SubmittedGradeRow>()
+    const errors = new Set<string>()
     try {
-      const fieldMap: any = { prelim: 'prelim', midterm: 'midterm', finals: 'finals' }
-      const statusMap: any = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' }
-      if (submitPeriod !== 'all') {
-        const f = fieldMap[submitPeriod]
-        const sKey = statusMap[submitPeriod]
-        const patchedRows = rows.map((r) => {
-          const inScope = vis.some((v: any) => v._key === r._key)
-          if (!inScope) return r
-          const st = (r as any)[sKey] ?? ''
-          if (st && st !== 'draft') return r
-          if (r.locked) return r
-          if (!(r as any)[f] || (r as any)[f] === '') {
-            return { ...r, [f]: 'INC', finalGrade: f === 'finals' ? 'INC' : r.finalGrade, remarks: f === 'finals' ? 'INC' : r.remarks, dirty: true, [sKey]: 'draft', gradeStatus: 'draft' }
-          }
-          return r
-        })
-        const dirtyForPatch = patchedRows.filter((r: any) => vis.some((v: any) => v._key === r._key) && r.dirty && (!(r as any)[sKey] || (r as any)[sKey] === 'draft') && !r.locked)
-        if (dirtyForPatch.length > 0) {
-          const updates = dirtyForPatch
-            .filter((r: any) => r[f] !== r.original[f] || !r[sKey])
-            .map((r: any) => ({
-              studentUsername: r.studentUsername, subjectCode: r.subjectCode, branch,
-              academicYear: r.academicYear, semester: r.semester, [f]: r[f],
-            }))
-          if (updates.length) {
-            const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
-            const data = await res.json()
-            if (!res.ok || !data.ok || data.results?.some((row: { ok: boolean }) => !row.ok)) {
-              throw new Error(data.error || 'Some draft grades could not be saved. Refresh the grade sheet before submitting.')
-            }
-          }
-        }
-        setRows(patchedRows)
-        const distinct = new Map<string, { subjectCode: string; academicYear: string; semester: string }>()
-        vis.forEach((r: any) => {
-          const st = (r as any)[sKey] ?? ''
-          if ((!st || st === 'draft') && !r.locked) {
-            const k = `${r.subjectCode}|${r.academicYear}|${r.semester}`
-            if (!distinct.has(k)) distinct.set(k, { subjectCode: r.subjectCode, academicYear: r.academicYear, semester: r.semester })
-          }
-        })
-        let totalSubmitted = 0
-        for (const { subjectCode, academicYear, semester } of distinct.values()) {
-          const res = await fetch('/api/grades/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ branch, subjectCode, academicYear, semester, period: submitPeriod, performedBy: faculty?.username || student.username, note: submitNote }) })
-          const data = await res.json()
-          if (!res.ok || !data.ok) throw new Error(data.error || `Submit failed for ${subjectCode}`)
-          totalSubmitted += data.modifiedCount || 0
-        }
-        setRows((prev) =>
-          prev.map((r: any) => {
-            const inScope = vis.some((v: any) => v._key === r._key)
-            if (!inScope) return r
-            const st = (r as any)[sKey] ?? ''
-            if (st && st !== 'draft') return r
-            if (r.locked) return r
-            const hasVal = (r as any)[f]
-            if (!hasVal) return r
-            return { ...r, [sKey]: 'submitted', gradeStatus: 'submitted', locked: true, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: r.finalGrade } }
+      for (const { subjectCode, academicYear, semester, targets } of groups.values()) {
+        try {
+          const response = await fetch('/api/grades/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              branch, subjectCode, academicYear, semester, period: submitPeriod,
+              performedBy: faculty?.username || student.username, note: submitNote,
+              rows: targets.map(({ row, grades }) => ({ studentUsername: row.studentUsername, grades })),
+            }),
           })
-        )
-        if (onRefresh) await onRefresh()
-        toast.success(`Submitted ${totalSubmitted || vis.filter((r: any) => !(r as any)[sKey] || (r as any)[sKey] === 'draft').length} records (${submitPeriod}) · draft → submitted`)
-        setShowSubmitModal(false)
-      } else {
-        const patchedRows = rows.map((r: any) => {
-          const inScope = vis.some((v: any) => v._key === r._key)
-          if (!inScope || r.locked) return r
-          const hasDraft = !r.prelimStatus || r.prelimStatus === 'draft' || !r.midtermStatus || r.midtermStatus === 'draft' || !r.finalsStatus || r.finalsStatus === 'draft'
-          if (!hasDraft && r.gradeStatus && r.gradeStatus !== 'draft') return r
-          let nr: any = { ...r }
-          let changed = false
-            ;(['prelim', 'midterm', 'finals'] as const).forEach((f) => { if (!(nr as any)[f]) { (nr as any)[f] = 'INC'; changed = true } })
-          if (changed) { nr.finalGrade = computedFinalINCasZero(nr.prelim, nr.midterm, nr.finals) || 'INC'; nr.remarks = remarksFor(nr.finalGrade) || 'INC'; nr.dirty = true; nr.prelimStatus = nr.prelimStatus || 'draft'; nr.midtermStatus = nr.midtermStatus || 'draft'; nr.finalsStatus = nr.finalsStatus || 'draft' }
-          return nr
-        })
-        const dirtyForPatch = patchedRows.filter((r: any) => vis.some((v: any) => v._key === r._key) && r.dirty)
-        if (dirtyForPatch.length > 0) {
-          const updates = dirtyForPatch.map((r: any) => ({ studentUsername: r.studentUsername, subjectCode: r.subjectCode, branch, academicYear: r.academicYear, semester: r.semester, prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: r.finalGrade, remarks: r.remarks, performedBy: faculty?.username || student.username }))
-          const res = await fetch('/api/grades/update', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ updates, performedBy: faculty?.username || student.username }) })
-          const data = await res.json()
-          if (!res.ok || !data.ok) throw new Error(data.error || 'Failed to save')
+          const data: { ok?: boolean; error?: string; auditWarning?: string; writeWarning?: string; results?: SubmittedGradeRow[] } = await response.json()
+          if (!response.ok || !data.ok) throw new Error(data.error || 'Could not submit grades.')
+          const results = new Map(data.results?.map(result => [result.studentUsername, result]))
+          for (const { row } of targets) {
+            const result = results.get(row.studentUsername)
+            if (result) submitted.set(row._key, result)
+          }
+          if (data.auditWarning) errors.add(data.auditWarning)
+          if (data.writeWarning) errors.add(data.writeWarning)
+        } catch (error) {
+          errors.add(error instanceof Error ? error.message : 'Could not submit grades.')
         }
-        setRows(patchedRows)
-        const distinct = new Map<string, { subjectCode: string; academicYear: string; semester: string }>()
-        vis.forEach((r: any) => { if (!r.locked) { const k = `${r.subjectCode}|${r.academicYear}|${r.semester}`; if (!distinct.has(k)) distinct.set(k, { subjectCode: r.subjectCode, academicYear: r.academicYear, semester: r.semester }) } })
-        let totalSubmitted = 0
-        for (const { subjectCode, academicYear, semester } of distinct.values()) {
-          const res = await fetch('/api/grades/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ branch, subjectCode, academicYear, semester, period: 'all', performedBy: faculty?.username || student.username, note: submitNote }) })
-          const data = await res.json()
-          if (!res.ok || !data.ok) throw new Error(data.error || `Submit failed for ${subjectCode}`)
-          totalSubmitted += data.modifiedCount || 0
+      }
+
+      const updateRow = (row: (typeof rows)[number]) => {
+        const result = submitted.get(row._key)
+        if (!result) return row
+        const next = { ...row, ...result.grades, ...result.statuses, gradeStatus: 'submitted' as const, finalGrade: result.finalGrade, remarks: result.remarks }
+        next.original = { ...row.original, ...result.grades, finalGrade: result.finalGrade }
+        next.dirty = gradePeriods.some(item => next[item] !== next.original[item])
+        if (next.dirty) {
+          next.finalGrade = computedFinalINCasZero(next.prelim, next.midterm, next.finals)
+          next.remarks = remarksFor(next.finalGrade)
         }
-        setRows((prev) => prev.map((r: any) => vis.some((v: any) => v._key === r._key) && !r.locked ? { ...r, prelimStatus: 'submitted', midtermStatus: 'submitted', finalsStatus: 'submitted', gradeStatus: 'submitted', locked: true, dirty: false, original: { prelim: r.prelim, midterm: r.midterm, finals: r.finals, finalGrade: r.finalGrade } } : r))
-        if (onRefresh) await onRefresh()
-        toast.success(`Submitted ${totalSubmitted || vis.length} records (all periods)`)
+        return next
+      }
+      const count = submitted.size
+      const message = `Submitted ${count} of ${submitTargets.length} grade record(s).`
+      if (count) {
+        setRows(previous => previous.map(updateRow))
         setShowSubmitModal(false)
       }
-    } catch (e: any) {
-      toast.error(e.message || 'Submit failed')
+      const detail = [...errors].join(' ')
+      if (!count) {
+        toast.error(detail || 'No grades were submitted. Review the grade sheet before trying again.')
+      } else if (count < submitTargets.length || detail) {
+        toast.warning(`${message} ${detail || 'Some grades changed while you were working. Review the grade sheet before retrying.'}`)
+      } else {
+        toast.success(message)
+        if (!rows.map(updateRow).some(row => row.dirty)) await onRefresh?.()
+      }
     } finally {
       setSubmitting(false)
     }
-  }, [rows, filtered, activeSection, branch, submitPeriod, faculty?.username, student.username, submitNote])
+  }
 
   if (loading) return <DashboardSkeleton />
   if (!faculty) return <div className="min-h-dvh grid place-items-center"><p className="text-sm text-red-600">Faculty data not found.</p></div>
@@ -589,41 +592,25 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           title="Submit grades?"
           description={<>This submits the selected period (draft → submitted). Students will see grades after admin <b>Releases</b>.</>}
           headerExtra={
-            <>
-              <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <p className="text-xs font-semibold">{activeSection === 'all' ? `All sections (${filtered.length})` : `${activeSection} • ${filtered.length} students`} · {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  {(() => {
-                    const vis = activeSection === 'all' ? filtered : filtered.filter((r: any) => r.subjectCode === activeSection)
-                    const need = submitPeriod === 'prelim' ? vis.filter((r: any) => !r.prelim).length : submitPeriod === 'midterm' ? vis.filter((r: any) => !r.midterm).length : submitPeriod === 'finals' ? vis.filter((r: any) => !r.finals && !r.finalGrade).length : 0
-                    const drafts = vis.filter((r: any) => { const k = submitPeriod === 'prelim' ? 'prelimStatus' : submitPeriod === 'midterm' ? 'midtermStatus' : submitPeriod === 'finals' ? 'finalsStatus' : 'gradeStatus'; const st = (r as any)[k] ?? ''; return (!st || st === 'draft') && !r.locked && (submitPeriod === 'prelim' ? r.prelim : submitPeriod === 'midterm' ? r.midterm : r.finals || r.finalGrade) }).length
-                    if (need > 0) return `${need} blank(s) will be set to INC on submit. ${drafts} graded + ${need} INC total.`
-                    return `This will submit ${drafts} draft grades in this scope.`
-                  })()}
-                </p>
-              </div>
-              {(() => {
-                const vis = activeSection === 'all' ? filtered : filtered.filter((r: any) => r.subjectCode === activeSection)
-                const need = submitPeriod === 'prelim' ? vis.filter((r: any) => !r.prelim).length : submitPeriod === 'midterm' ? vis.filter((r: any) => !r.midterm).length : submitPeriod === 'finals' ? vis.filter((r: any) => !r.finals && !r.finalGrade).length : 0
-                if (need === 0) return null
-                return (
-                  <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 flex gap-2">
-                    <span className="text-amber-700">⚠</span>
-                    <div className="text-xs">
-                      <p className="font-semibold text-amber-800">Blanks will be set to INC on submit</p>
-                      <p className="text-amber-700 mt-1">{need} student(s) still have blank {submitPeriod}. Fill with a grade (0-100) or INC, or they will become INC.</p>
-                    </div>
-                  </div>
-                )
-              })()}
-            </>
+            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-semibold">
+                {activeSection === 'all' ? 'All sections' : activeSection} · {submitPeriod === 'all' ? 'All periods' : submitPeriod === 'prelim' ? 'Prelim only' : submitPeriod === 'midterm' ? 'Midterm only' : 'Finals only'}
+              </p>
+              <p className="mt-1 text-xs text-slate-600">Grade records to submit: {submitTargets.length}</p>
+              {submitBlankCount > 0 && (
+                <p className="mt-1 text-xs font-medium text-amber-700">Blank grades to submit as INC: {submitBlankCount}</p>
+              )}
+            </div>
           }
           onClose={closeSubmitModal}
           initialFocusRef={submitPeriodRef}
           footer={
             <>
               <button onClick={() => setShowSubmitModal(false)} disabled={submitting} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium disabled:opacity-60">Cancel</button>
-              <button onClick={handleSubmitConfirm} disabled={submitting} className="px-4 py-2 rounded-lg bg-[#153357] text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-60">{submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {submitting ? 'Submitting…' : 'Submit'} <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">{filtered.filter((r: any) => { const k = period === 'all' ? 'gradeStatus' : period === 'prelim' ? 'prelimStatus' : period === 'midterm' ? 'midtermStatus' : 'finalsStatus'; const st = (r as any)[k] ?? ''; return !st || st === 'draft' }).length}</span></button>
+              <button onClick={handleSubmitConfirm} disabled={submitting || !submitTargets.length} className="inline-flex items-center gap-2 rounded-lg bg-[#153357] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" aria-hidden />}
+                {submitting ? 'Submitting…' : `Submit ${submitTargets.length}`}
+              </button>
             </>
           }
         >
@@ -631,6 +618,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
           <SelectMenu
             ref={submitPeriodRef}
             aria-label="Which period?"
+            disabled={submitting}
             value={submitPeriod}
             onChange={setSubmitPeriod}
             options={[
@@ -648,18 +636,23 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
       <AnimatePresence>
         {historyRow && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40" onClick={() => setHistoryRow(null)} aria-hidden="true" />
-            <DialogPanel onClose={() => setHistoryRow(null)} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-surface shadow-2xl z-50 flex flex-col" aria-label="Grade history" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-40" onClick={closeHistory} aria-hidden="true" />
+            <DialogPanel onClose={closeHistory} initial={{ x: 520 }} animate={{ x: 0 }} exit={{ x: 520 }} transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }} className="fixed right-0 top-0 h-full w-full max-w-[420px] bg-surface shadow-2xl z-50 flex flex-col" aria-label="Grade history" onClick={(e) => e.stopPropagation()}>
               <div className="h-14 px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div>
                   <h3 className="font-bold text-sm text-slate-900">Grade history</h3>
                   <p className="text-xs text-slate-500">{historyRow.studentName} • {historyRow.subjectCode} • {historyRow.academicYear} {historyRow.semester}</p>
                 </div>
-                <button type="button" onClick={() => setHistoryRow(null)} aria-label="Close grade history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
+                <button type="button" onClick={closeHistory} aria-label="Close grade history" className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"><X className="w-4 h-4" aria-hidden /></button>
               </div>
               <div className="flex-1 overflow-y-auto p-6">
                 {historyLoading ? (
                   <div className="flex items-center justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
+                ) : historyError ? (
+                  <div className="space-y-2 text-sm">
+                    <p role="alert">Could not load grade history.</p>
+                    <button type="button" onClick={() => openHistory(historyRow)} className="min-h-11 rounded-lg border border-line px-4 font-semibold text-link">Retry</button>
+                  </div>
                 ) : historyAudits.length === 0 ? (
                   <EmptyState
                     icon={History}
@@ -691,7 +684,7 @@ export function FacultyGradeEncodingPage({ student, onNavigate, onLogout, events
                 )}
               </div>
               <div className="p-4 border-t border-slate-200 shrink-0">
-                <button onClick={() => setHistoryRow(null)} className="w-full h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
+                <button onClick={closeHistory} className="w-full h-10 rounded-lg border border-slate-200 font-medium text-sm hover:bg-slate-50">Close</button>
               </div>
             </DialogPanel>
           </>
