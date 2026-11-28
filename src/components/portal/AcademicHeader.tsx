@@ -17,8 +17,8 @@ export function AcademicHeader({ student }: { student: Student }) {
 
 export function DashboardWelcome({ firstName, semester, academicYear, tour, children }: {
   firstName: string
-  semester: string
-  academicYear: string
+  semester?: string
+  academicYear?: string
   tour?: string
   children?: ReactNode
 }) {
@@ -28,9 +28,11 @@ export function DashboardWelcome({ firstName, semester, academicYear, tour, chil
       className="student-welcome student-card min-w-0 sm:max-lg:row-start-1 lg:col-start-1 lg:row-start-1"
     >
       <div className="flex-1 min-w-0">
-        <p className="hidden text-xs font-medium uppercase tracking-[0.12em] text-slate-500 sm:block">
-          {semester} &bull; AY {academicYear}
-        </p>
+        {semester && academicYear && (
+          <p className="hidden text-xs font-medium uppercase tracking-[0.12em] text-slate-500 sm:block">
+            {semester} &bull; AY {academicYear}
+          </p>
+        )}
         <h1 className="student-welcome-heading max-sm:font-[650] text-xl font-bold leading-tight tracking-tight text-blue-950 [overflow-wrap:anywhere] max-sm:text-white min-[360px]:text-2xl sm:mt-1.5 sm:text-3xl">
           Welcome back, {firstName}!
         </h1>
