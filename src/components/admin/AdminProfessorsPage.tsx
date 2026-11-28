@@ -172,10 +172,10 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Professors</h1>
+            <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Professors</h1>
             <p className="text-sm text-slate-500 mt-1">
               Faculty directory for this branch. Names link professors to their subject assignments.
             </p>
@@ -198,7 +198,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, email, room..."
             aria-label="Search professors"
-            className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 max-sm:h-11"
           />
         </div>
 
@@ -226,29 +226,35 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
             />
           </div>
         ) : (
-          <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[680px]">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Professor</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Office hours</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Room</th>
-                    <th scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+          <div className="bg-surface admin-table-card rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="admin-table-scroll overflow-x-auto">
+              <table role="table" aria-label="Professors" className="admin-table w-full text-sm min-w-[680px]">
+                <thead role="rowgroup" className="sticky top-0 z-10">
+                  <tr role="row" className="bg-slate-50 border-b border-slate-100">
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Professor</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Office hours</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Room</th>
+                    <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-slate-500">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {filtered.map((p) => {
                     const confirming = confirmId === p._id
                     const deleting = deletingId === p._id
                     return (
-                      <tr key={p._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                        <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{p.name}</td>
-                        <td className="px-4 py-3 text-slate-600">{p.email}</td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{p.officeHours}</td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{p.room}</td>
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <tr role="row" key={p._id} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                        <td role="cell" className="admin-cell-title px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{p.name}</td>
+                        <td role="cell" className="admin-cell-wide px-4 py-3 text-slate-600">
+                          <span className="admin-cell-label" aria-hidden="true">Email</span>
+                          {p.email}</td>
+                        <td role="cell" className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                          <span className="admin-cell-label" aria-hidden="true">Office hours</span>
+                          {p.officeHours}</td>
+                        <td role="cell" className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                          <span className="admin-cell-label" aria-hidden="true">Room</span>
+                          {p.room}</td>
+                        <td role="cell" className="admin-cell-actions px-4 py-3 text-right whitespace-nowrap">
                           <button
                             type="button"
                             onClick={() => openEdit(p)}
@@ -280,6 +286,7 @@ export function AdminProfessorsPage({ student, onNavigate, onLogout, events, pro
 
       {modalOpen && (
         <Modal
+          mobileScrollable
           title={editing ? 'Edit professor' : 'Add professor'}
           description="Directory cards show on the student Professors page for this branch."
           onClose={() => setModalOpen(false)}

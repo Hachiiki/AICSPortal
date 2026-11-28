@@ -59,6 +59,12 @@ type SortKey = 'name' | 'username'
 type SortDir = 'asc' | 'desc'
 
 const PAGE_SIZE = 25
+const SORT_OPTIONS = [
+  { value: 'name:asc', label: 'Name A–Z' },
+  { value: 'name:desc', label: 'Name Z–A' },
+  { value: 'username:asc', label: 'Username A–Z' },
+  { value: 'username:desc', label: 'Username Z–A' },
+] as const
 
 const ROLE_BADGES: Record<string, string> = {
   student: 'bg-blue-50 text-link-strong border-blue-200',
@@ -162,6 +168,8 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, pageCount - 1)
   const pageRows = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE)
+  const sortOrder = `${sortKey}:${sortDir}` as const
+  const sortLabel = SORT_OPTIONS.find(option => option.value === sortOrder)?.label
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -231,7 +239,9 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
 
   const SortHeader = ({ label, sort, className = '' }: { label: string; sort: SortKey; className?: string }) => (
     <th
+      role="columnheader"
       scope="col"
+      aria-label={label}
       aria-sort={sortKey === sort ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
       className={`bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${className}`}
     >
@@ -260,10 +270,10 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
       tasks={tasks}
       inbox={inbox}
     >
-      <main className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <main className="admin-page space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="admin-page-header flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-balance text-slate-900">Students &amp; Faculty</h1>
+            <h1 className="admin-page-title text-2xl font-bold tracking-tight text-balance text-slate-900">Students &amp; Faculty</h1>
             <p className="text-sm text-slate-500 mt-1">
               Every account across every branch — read-only directory for lookups and audits.
             </p>
@@ -296,7 +306,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
         ) : (
           <>
             {/* Role filter chips with counts */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
               {(
                 [
                   { key: 'all', label: 'Everyone', count: data.counts.total, icon: Users },
@@ -331,16 +341,16 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
             </div>
 
             {/* Search + branch filter */}
-            <div className="flex flex-wrap gap-2">
-              <div className="relative flex-1 min-w-[220px] max-w-sm">
+            <div className="admin-filters flex flex-wrap gap-2">
+              <div className="relative col-span-2 min-w-0 flex-1 sm:min-w-[220px] sm:max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search name, username, email, student #..."
+                  placeholder="Name, username, email, or ID"
                   aria-label="Search directory"
-                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 max-sm:h-11"
                 />
               </div>
               <SelectMenu
@@ -353,35 +363,46 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                   ...data.branches.map((b) => ({ value: b.branch, label: b.branchName })),
                 ]}
               />
+              <SelectMenu
+                aria-label={sortLabel ? `Sort directory, ${sortLabel}` : 'Sort directory'}
+                className="sm:hidden"
+                value={sortOrder}
+                onChange={(sort) => {
+                  const [key, direction] = sort.split(':') as [SortKey, SortDir]
+                  setSortKey(key)
+                  setSortDir(direction)
+                }}
+                options={SORT_OPTIONS}
+              />
             </div>
 
             {/* Directory table */}
-            <div className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[880px]">
-                  <thead className="sticky top-0 z-10">
-                    <tr className="bg-slate-50 border-b border-slate-100">
+            <div className="bg-surface admin-table-card rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="admin-table-scroll overflow-x-auto">
+                <table role="table" aria-label="Directory results" className="admin-table w-full text-sm min-w-[880px]">
+                  <thead role="rowgroup" className="sticky top-0 z-10">
+                    <tr role="row" className="bg-slate-50 border-b border-slate-100">
                       <SortHeader label="Name" sort="name" />
                       <SortHeader label="Username" sort="username" />
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Role</th>
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Branch</th>
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Program</th>
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Year &amp; Section</th>
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                      <th scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Role</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Branch</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Program</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Year &amp; Section</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                      <th role="columnheader" scope="col" className="bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">Email</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody role="rowgroup">
                     {pageRows.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
+                      <tr role="row">
+                        <td role="cell" colSpan={8} className="admin-cell-wide px-4 py-10 text-center text-sm text-slate-500">
                           No accounts match your filters.
                         </td>
                       </tr>
                     ) : (
                       pageRows.map((p) => (
-                        <tr key={`${p.branch}/${p.username}`} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
-                          <td className="px-4 py-3">
+                        <tr role="row" key={`${p.branch}/${p.username}`} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60">
+                          <td role="cell" className="admin-cell-title px-4 py-3">
                             <div className="flex items-center gap-2.5">
                               <PersonAvatar person={p} />
                               <div className="min-w-0">
@@ -390,21 +411,31 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                               </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-slate-600">{p.username}</td>
-                          <td className="px-4 py-3">
+                          <td role="cell" className="px-4 py-3 font-mono text-xs text-slate-600">
+                            <span className="admin-cell-label" aria-hidden="true">Username</span>
+                            {p.username}</td>
+                          <td role="cell" className="px-4 py-3">
+                            <span className="admin-cell-label" aria-hidden="true">Role</span>
                             <RoleBadge role={p.role} />
                           </td>
-                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{p.branchName}</td>
-                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                          <td role="cell" className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                            <span className="admin-cell-label" aria-hidden="true">Branch</span>
+                            {p.branchName}</td>
+                          <td role="cell" className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                            <span className="admin-cell-label" aria-hidden="true">Program</span>
                             {p.role === 'student' ? p.programShort || '—' : '—'}
                           </td>
-                          <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                          <td role="cell" className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                            <span className="admin-cell-label" aria-hidden="true">Year and section</span>
                             {p.role === 'student' ? [p.yearLevel, p.section].filter(Boolean).join(' · ') || '—' : '—'}
                           </td>
-                          <td className="px-4 py-3">
+                          <td role="cell" className="px-4 py-3">
+                            <span className="admin-cell-label" aria-hidden="true">Status</span>
                             <StatusPill status={p.role === 'student' ? p.enrollmentStatus : p.role === 'faculty' ? 'Active' : ''} />
                           </td>
-                          <td className="px-4 py-3 text-slate-600">{p.email || '—'}</td>
+                          <td role="cell" className="admin-cell-wide px-4 py-3 text-slate-600">
+                            <span className="admin-cell-label" aria-hidden="true">Email</span>
+                            {p.email || '—'}</td>
                         </tr>
                       ))
                     )}

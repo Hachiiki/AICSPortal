@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react'
 import type { FacultyMember, FacultyStudent } from '@/lib/aics/faculty'
+import { gradePeriodStatus } from '@/lib/aics/grades'
+import type { GradePeriodStatus } from '@/lib/mongodb/types'
 
 export interface FacultyApiSubject {
   code: string
@@ -22,10 +24,10 @@ export interface FacultyApiSubject {
   yearLevel: string
   section?: string
   status: string
-  gradeStatus: string
-  prelimStatus?: string
-  midtermStatus?: string
-  finalsStatus?: string
+  gradeStatus?: GradePeriodStatus
+  prelimStatus?: GradePeriodStatus
+  midtermStatus?: GradePeriodStatus
+  finalsStatus?: GradePeriodStatus
 }
 
 export interface StudentWithGrades extends FacultyStudent {
@@ -103,13 +105,11 @@ export function useFacultyRows(facultyData: { faculty: FacultyMember; subjects: 
   // Grade rows — one per subject enrollment, with per-period statuses
   const gradeRows = useMemo(() => {
     if (subjects.length === 0) return []
-    return subjects.map((s: any) => {
+    return subjects.map((s) => {
       const stu = allStudents.find((st) => st.username === s.studentUsername)
-      const prelimStatus = s.prelimStatus ?? s.gradeStatus ?? ''
-      const midtermStatus = s.midtermStatus ?? s.gradeStatus ?? ''
-      const finalsStatus = s.finalsStatus ?? s.gradeStatus ?? ''
-      // overall locked if any period submitted/released? For row-level, lock only if period locked? Keep per-row locked if any period is submitted/released
-      const locked = prelimStatus === 'submitted' || prelimStatus === 'released' || midtermStatus === 'submitted' || midtermStatus === 'released' || finalsStatus === 'submitted' || finalsStatus === 'released'
+      const prelimStatus = gradePeriodStatus(s, 'prelim') ?? ''
+      const midtermStatus = gradePeriodStatus(s, 'midterm') ?? ''
+      const finalsStatus = gradePeriodStatus(s, 'finals') ?? ''
       return {
         _key: `${s.studentUsername}-${s.code}|${s.academicYear || ''}|${s.semester || ''}`,
         studentUsername: s.studentUsername,
@@ -133,7 +133,6 @@ export function useFacultyRows(facultyData: { faculty: FacultyMember; subjects: 
         midtermStatus,
         finalsStatus,
         gradeStatus: s.gradeStatus || '',
-        locked: !!locked,
         dirty: false,
         original: { prelim: s.prelim || '', midterm: s.midterm || '', finals: s.finals || '', finalGrade: s.finalGrade || '' },
       }

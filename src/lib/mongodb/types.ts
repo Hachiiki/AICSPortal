@@ -112,6 +112,7 @@ export interface MongoSubject {
   prelimStatus?: GradePeriodStatus
   midtermStatus?: GradePeriodStatus
   finalsStatus?: GradePeriodStatus
+  // Grade audit outbox. Retains the stored field name used for release events.
   pendingReleaseAudits?: (MongoGradeAudit & { _id: string })[]
 }
 
