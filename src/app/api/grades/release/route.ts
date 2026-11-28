@@ -4,8 +4,8 @@ import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
-import { gradeReleaseAudit } from '@/lib/mongodb/grade-release-audit'
-import type { GradePeriodStatus, MongoGradeAudit, MongoSubject } from '@/lib/mongodb/types'
+import { exportPendingGradeAudits, gradeReleaseAudit, pendingAuditFilter } from '@/lib/mongodb/grade-release-audit'
+import type { GradePeriodStatus, MongoSubject } from '@/lib/mongodb/types'
 
 // ---- Zod input schema (the only place release input is shaped) ----
 const gradeReleaseSchema = z.object({
@@ -29,7 +29,6 @@ const gradeReleaseSchema = z.object({
 })
 
 const auditRetrySchema = gradeReleaseSchema.pick({ branch: true, performedBy: true })
-const pendingAuditFilter = { 'pendingReleaseAudits.0': { $exists: true } }
 
 // POST /api/grades/release
 // Body: { branch, subjectCode, academicYear, semester, period?, action?, performedBy }
@@ -97,30 +96,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Failed to load pending releases.' }, { status: 500 })
   }
 }
-async function exportPendingAudits(query: { branch: string; code?: string; academicYear?: string; semester?: string }) {
-  const subjects = await getCollection<MongoSubject>('subjects')
-  const pending: MongoSubject[] = await subjects.find({ ...query, ...pendingAuditFilter })
-    .project({ pendingReleaseAudits: 1 })
-    .toArray()
-  if (!pending.length) return
-  const audits = await getCollection<MongoGradeAudit>('grade_audits')
-  for (const row of pending) {
-    const events = row.pendingReleaseAudits ?? []
-    if (!events.length) continue
-    await audits.bulkWrite(events.map((event) => ({
-      updateOne: {
-        filter: { _id: event._id, branch: query.branch },
-        update: { $setOnInsert: event },
-        upsert: true,
-      },
-    })), { ordered: false })
-    await subjects.updateOne(
-      { ...query, _id: row._id },
-      { $pull: { pendingReleaseAudits: { _id: { $in: events.map((event) => event._id) } } } }
-    )
-  }
-}
-
 // Retry only the audit export. Released grades stay in their current state.
 export async function PATCH(request: NextRequest) {
   try {
@@ -128,7 +103,7 @@ export async function PATCH(request: NextRequest) {
     const { ctx } = await requireCan(request, { kind: 'grade.releaseQueue', branch }, 'release', {
       claimedIdentity: performedBy,
     })
-    await exportPendingAudits({ branch: ctx.actor.branch })
+    await exportPendingGradeAudits({ branch: ctx.actor.branch })
     return NextResponse.json({ ok: true })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
@@ -194,7 +169,7 @@ export async function POST(request: NextRequest) {
     // export to grade_audits even when this request has no new transitions.
     let auditWarning: string | undefined
     try {
-      await exportPendingAudits(query)
+      await exportPendingGradeAudits(query)
     } catch (err) {
       console.error('Grade release audit export pending:', err)
       auditWarning = 'Grade history was saved with the grade. Export to the audit collection is pending.'

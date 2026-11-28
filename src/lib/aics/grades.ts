@@ -28,9 +28,26 @@ export function remarksFor(final: string): string {
   return 'Failed'
 }
 
-const periods = ['prelim', 'midterm', 'finals'] as const
-const statusKeys = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' } as const
-type GradePeriod = (typeof periods)[number]
+export const gradePeriods = ['prelim', 'midterm', 'finals'] as const
+export const gradeStatusKeys = { prelim: 'prelimStatus', midterm: 'midtermStatus', finals: 'finalsStatus' } as const
+export type GradePeriod = (typeof gradePeriods)[number]
+
+export function validGrade(value: string): boolean {
+  return value.toUpperCase() === 'INC' || /^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/.test(value.trim())
+}
+
+export type GradeSubmission = {
+  studentUsername: string
+  grades: Partial<Record<GradePeriod, { previous: string; value: string }>>
+}
+
+export type SubmittedGradeRow = {
+  studentUsername: string
+  grades: Partial<Record<GradePeriod, string>>
+  statuses: Partial<Record<(typeof gradeStatusKeys)[GradePeriod], GradePeriodStatus>>
+  finalGrade: string
+  remarks: string
+}
 export function acknowledgeDraftGrade(
   row: Record<GradePeriod, string> & { original: Record<GradePeriod | 'finalGrade', string> },
   period: GradePeriod,
@@ -42,18 +59,18 @@ export function acknowledgeDraftGrade(
     [period]: submittedValue,
     finalGrade: finalGrade ?? row.original.finalGrade,
   }
-  return { original, dirty: periods.some((field) => row[field] !== original[field]) }
+  return { original, dirty: gradePeriods.some((field) => row[field] !== original[field]) }
 }
 
 type GradeStatuses = Pick<MongoSubject, 'prelimStatus' | 'midtermStatus' | 'finalsStatus' | 'gradeStatus'>
 
 export function gradePeriodStatus(row: GradeStatuses, period: GradePeriod): GradePeriodStatus | undefined {
-  const hasPeriodStatuses = periods.some((item) => row[statusKeys[item]] != null)
-  return hasPeriodStatuses ? row[statusKeys[period]] : row.gradeStatus
+  const hasPeriodStatuses = gradePeriods.some((item) => row[gradeStatusKeys[item]] != null)
+  return hasPeriodStatuses ? row[gradeStatusKeys[period]] : row.gradeStatus
 }
 
 export function isFinalGradeReleased(row: GradeStatuses): boolean {
-  return periods.every((period) => gradePeriodStatus(row, period) === 'released')
+  return gradePeriods.every((period) => gradePeriodStatus(row, period) === 'released')
 }
 
 // Older rows have no scale stamp. Period grades above 5 identify a
@@ -70,7 +87,7 @@ export function releasedGradeAverages(rows: MongoSubject[]): { gpa: number | nul
     const grade = Number(value)
     if (!Number.isFinite(grade) || grade < 0 || grade > 100) continue
     const isPercentage = row.finalGradeScale === 'percentage'
-      || grade > 5 || periods.some((period) => Number(row[period]) > 5)
+      || grade > 5 || gradePeriods.some((period) => Number(row[period]) > 5)
     if (isPercentage) {
       percentageUnits += row.units
       weightedPercentage += grade * row.units

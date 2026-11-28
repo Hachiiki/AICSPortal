@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { ClipboardList, Send, Loader2, Lock, LockOpen, Users as UsersIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Student, View } from '@/lib/aics/types'
@@ -183,13 +183,19 @@ export function FacultyTasksPage({
   const [gradingGroup, setGradingGroup] = useState<TaskGroup | null>(null)
   const [submissions, setSubmissions] = useState<SubmissionRow[] | null>(null)
   const [submissionsLoading, setSubmissionsLoading] = useState(false)
+  const [submissionsError, setSubmissionsError] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Record<string, { score: string; feedback: string }>>({})
   const [savingId, setSavingId] = useState<string | null>(null)
+  const submissionsRequest = useRef<AbortController | null>(null)
   // Stable closer: Modal's mount-only focus effect depends on onClose identity.
   const closeGrading = useCallback(() => {
+    submissionsRequest.current?.abort()
+    submissionsRequest.current = null
     setGradingGroup(null)
-    setSubmissions(null)
-    setDrafts({})
+  }, [])
+  useEffect(() => () => {
+    submissionsRequest.current?.abort()
+    submissionsRequest.current = null
   }, [])
 
   // Lazy once-per-session fetch, same rule as teaching history.
@@ -280,9 +286,14 @@ export function FacultyTasksPage({
   }
 
   const openGrading = async (group: TaskGroup) => {
+    submissionsRequest.current?.abort()
+    const request = new AbortController()
+    submissionsRequest.current = request
     setGradingGroup(group)
     setSubmissions(null)
     setDrafts({})
+    setSavingId(null)
+    setSubmissionsError(null)
     setSubmissionsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -293,23 +304,23 @@ export function FacultyTasksPage({
       })
       if (group.assignmentId) params.set('assignmentId', group.assignmentId)
       if (group.postedDate) params.set('postedDate', group.postedDate)
-      const res = await fetch(`/api/faculty/tasks/submissions?${params.toString()}`)
+      const res = await fetch(`/api/faculty/tasks/submissions?${params.toString()}`, { signal: request.signal })
       const data = await res.json()
-      if (data.ok) {
-        const rows = (data.submissions || []) as SubmissionRow[]
-        setSubmissions(rows)
-        setDrafts(Object.fromEntries(rows.map((r) => [r._id, { score: r.score === null ? '' : String(r.score), feedback: r.feedback || '' }])))
-      } else {
-        toast.error(data.error || 'Failed to load submissions.')
-      }
+      if (request.signal.aborted) return
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Could not load submissions.')
+      const rows = (data.submissions || []) as SubmissionRow[]
+      setSubmissions(rows)
+      setDrafts(Object.fromEntries(rows.map((r) => [r._id, { score: r.score === null ? '' : String(r.score), feedback: r.feedback || '' }])))
     } catch {
-      toast.error('Network error. Please try again.')
+      if (!request.signal.aborted) setSubmissionsError('Could not load submissions. Try again.')
     } finally {
-      setSubmissionsLoading(false)
+      if (!request.signal.aborted) setSubmissionsLoading(false)
     }
   }
 
   const saveGrade = async (row: SubmissionRow) => {
+    const request = submissionsRequest.current
+    if (!request || savingId) return
     const draft = drafts[row._id] || { score: '', feedback: '' }
     const score = Number(draft.score)
     const max = Number(row.maxScore)
@@ -331,10 +342,11 @@ export function FacultyTasksPage({
       const data = await res.json()
       if (data.ok) {
         toast.success(data.message || 'Graded.')
-        setSubmissions((prev) => (prev || []).map((r) => r._id === row._id ? { ...r, score, feedback: draft.feedback.trim().slice(0, 2000) } : r))
-        // Keep the open drawer's counters honest when a first-time grade lands.
-        if (row.score === null) {
-          setGradingGroup((prev) => (prev ? { ...prev, graded: prev.graded + 1 } : prev))
+        if (!request.signal.aborted) {
+          setSubmissions((prev) => (prev || []).map((r) => r._id === row._id ? { ...r, score, feedback: draft.feedback.trim().slice(0, 2000) } : r))
+          if (row.score === null) {
+            setGradingGroup((prev) => (prev ? { ...prev, graded: prev.graded + 1 } : prev))
+          }
         }
         onFetchTaskGroups?.()
       } else {
@@ -343,7 +355,7 @@ export function FacultyTasksPage({
     } catch {
       toast.error('Network error. Please try again.')
     } finally {
-      setSavingId(null)
+      if (!request.signal.aborted) setSavingId(null)
     }
   }
 
@@ -595,11 +607,16 @@ export function FacultyTasksPage({
             <button type="button" onClick={closeGrading} className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50">Close</button>
           }
         >
-          {submissionsLoading || submissions === null ? (
+          {submissionsLoading ? (
             <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+              <Loader2 role="status" aria-label="Loading submissions" className="w-5 h-5 animate-spin text-slate-400" />
             </div>
-          ) : submissions.length === 0 ? (
+          ) : submissionsError ? (
+            <div className="flex flex-col items-center gap-2 py-8">
+              <p role="alert" className="text-sm text-slate-700">{submissionsError}</p>
+              <button type="button" onClick={() => openGrading(gradingGroup)} className="min-h-11 rounded-lg border border-line bg-surface px-4 text-sm font-semibold text-link">Retry</button>
+            </div>
+          ) : !submissions?.length ? (
             <p className="text-sm text-slate-500 text-center py-8">No submissions found for this assignment.</p>
           ) : (
             <div className="max-h-[50vh] overflow-y-auto space-y-3 pr-1">
@@ -647,7 +664,7 @@ export function FacultyTasksPage({
                       <button
                         type="button"
                         onClick={() => saveGrade(row)}
-                        disabled={saving}
+                        disabled={savingId !== null}
                         className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800 disabled:opacity-60"
                       >
                         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
