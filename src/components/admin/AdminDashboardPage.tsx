@@ -232,6 +232,7 @@ function AdminSchoolTotals({ stats, professorCount }: { stats: StatsResponse; pr
     { label: 'Announcements', value: stats.totals.announcements },
     { label: 'Events', value: stats.totals.events },
     { label: "Dean's listers", value: stats.gpa.deanListers },
+    { label: 'Students with a released GPA', value: stats.gpa.withGpa },
     { label: 'Professors listed in this branch', value: professorCount },
   ]
   return (

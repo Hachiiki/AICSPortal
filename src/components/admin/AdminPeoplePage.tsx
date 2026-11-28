@@ -59,6 +59,12 @@ type SortKey = 'name' | 'username'
 type SortDir = 'asc' | 'desc'
 
 const PAGE_SIZE = 25
+const SORT_OPTIONS = [
+  { value: 'name:asc', label: 'Name A–Z' },
+  { value: 'name:desc', label: 'Name Z–A' },
+  { value: 'username:asc', label: 'Username A–Z' },
+  { value: 'username:desc', label: 'Username Z–A' },
+] as const
 
 const ROLE_BADGES: Record<string, string> = {
   student: 'bg-blue-50 text-link-strong border-blue-200',
@@ -162,6 +168,8 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, pageCount - 1)
   const pageRows = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE)
+  const sortOrder = `${sortKey}:${sortDir}` as const
+  const sortLabel = SORT_OPTIONS.find(option => option.value === sortOrder)?.label
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -356,20 +364,15 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                 ]}
               />
               <SelectMenu
-                aria-label="Sort directory"
+                aria-label={sortLabel ? `Sort directory, ${sortLabel}` : 'Sort directory'}
                 className="sm:hidden"
-                value={`${sortKey}:${sortDir}` as const}
+                value={sortOrder}
                 onChange={(sort) => {
                   const [key, direction] = sort.split(':') as [SortKey, SortDir]
                   setSortKey(key)
                   setSortDir(direction)
                 }}
-                options={[
-                  { value: 'name:asc', label: 'Name A–Z' },
-                  { value: 'name:desc', label: 'Name Z–A' },
-                  { value: 'username:asc', label: 'Username A–Z' },
-                  { value: 'username:desc', label: 'Username Z–A' },
-                ]}
+                options={SORT_OPTIONS}
               />
             </div>
 
