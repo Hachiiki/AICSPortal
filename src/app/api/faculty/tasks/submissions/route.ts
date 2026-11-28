@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
 import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
 import { parseQuery, errResponse } from '@/lib/validation'
@@ -59,23 +58,15 @@ export async function GET(request: NextRequest) {
     }
     const due = dueDate
 
-    // task.section read: faculty role, claimed-branch parity vs the DB
-    // branch (claims.branch, the same comparison the old inline check
-    // ran), and the current-term teaching load.
+    const term = { academicYear: ctx.actor.academicYear, semester: ctx.actor.semester }
     const gate = decisionToHttpError(
       await can(ctx, rel, {
         kind: 'task.section',
         subjectCode,
-        term: { academicYear: ctx.actor.academicYear, semester: ctx.actor.semester },
-        branch: ctx.claims.branch,
+        term,
       }, 'read')
     )
     if (gate) throw gate
-
-    const faculty = await getStudentByUsername(username)
-    if (!faculty) {
-      return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
-    }
 
     const start = new Date(due)
     start.setHours(0, 0, 0, 0)
@@ -94,8 +85,9 @@ export async function GET(request: NextRequest) {
             dueDate: { $in: [due, due.toISOString()] },
           } : { dueDate: { $gte: start, $lt: end } }),
         }),
-        'term.academicYear': faculty.academicYear,
-        'term.semester': faculty.semester,
+        'term.academicYear': term.academicYear,
+        'term.semester': term.semester,
+        studentUsername: { $in: [...await rel.teachingStudents(subjectCode, term)] },
       })
       .project({ studentUsername: 1, subjectCode: 1, title: 1, dueDate: 1, submitted: 1, submittedAt: 1, score: 1, maxScore: 1, feedback: 1, submissionsClosed: 1 })
       .toArray()
@@ -128,7 +120,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, submissions })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Faculty task submissions error:', err)
+    console.error('Faculty task submissions error.')
     return NextResponse.json({ ok: false, error: 'Failed to load submissions.' }, { status: 500 })
   }
 }

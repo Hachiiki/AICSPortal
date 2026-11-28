@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     )
     if (gate) throw gate
 
-    const mongoStudent = await getStudentByUsername(username)
+    const mongoStudent = await getStudentByUsername(username, ctx.actor.branch)
     if (!mongoStudent) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
       academicYear: mongoStudent.academicYear, enrollmentStatus: mongoStudent.enrollmentStatus,
       deanLister: mongoStudent.deanLister, deanListerSemester: mongoStudent.deanListerSemester,
       gpa: mongoStudent.gpa, email: mongoStudent.email, phone: mongoStudent.phone,
+      emailVerified: mongoStudent.username === ctx.actor.username && Boolean(mongoStudent.emailVerifiedAt),
       address: mongoStudent.address, emergencyContactName: mongoStudent.emergencyContactName,
       emergencyContactNumber: mongoStudent.emergencyContactNumber,
       branch: mongoStudent.branch, branchAddress: mongoStudent.branchAddress,
@@ -91,7 +92,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, student, courses, sessions })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Student data error:', err)
+    console.error('Student data error.')
     return NextResponse.json({ ok: false, error: 'An error occurred while fetching student data.' }, { status: 500 })
   }
 }

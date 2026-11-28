@@ -18,10 +18,6 @@ import type { Branch, Role } from '@/lib/mongodb/types'
 
 export interface AuthzActor {
   username: string
-  // Raw DB value, deliberately not normalized: corrupt rows (issue #67, the
-  // rogue.role seed) carry strings outside the Role union, and those values
-  // must keep failing every role equality check exactly as today's routes
-  // do. FIX-L3 (C3.10) closes the source at login; this field stays raw.
   role: Role
   branch: Branch
   fullName: string
@@ -43,6 +39,7 @@ const ACTOR_PROJECTION = {
   username: 1,
   role: 1,
   branch: 1,
+  tokenVersion: 1,
   fullName: 1,
   academicYear: 1,
   semester: 1,
@@ -58,14 +55,14 @@ export async function resolveContext(request: NextRequest): Promise<AuthzContext
   try {
     const col = await getCollection('students')
     const doc = await col.findOne(
-      { username: claims.username },
+      { username: claims.username, branch: claims.branch },
       { projection: ACTOR_PROJECTION }
     )
-    if (!doc) return null
+    if (!doc || doc.branch !== claims.branch || (doc.role ?? 'student') !== claims.role || (doc.tokenVersion ?? 0) !== claims.tv) return null
     const actor: AuthzActor = {
       username: claims.username,
-      role: (typeof doc.role === 'string' ? doc.role : '') as Role,
-      branch: (typeof doc.branch === 'string' ? doc.branch : '') as Branch,
+      role: (doc.role ?? 'student') as Role,
+      branch: doc.branch,
       fullName: str(doc.fullName),
       academicYear: str(doc.academicYear),
       semester: str(doc.semester),
@@ -73,8 +70,8 @@ export async function resolveContext(request: NextRequest): Promise<AuthzContext
       section: str(doc.section),
     }
     return { actor, claims }
-  } catch (err) {
-    console.error('authz resolveContext failed:', err)
+  } catch {
+    console.error('authz resolveContext failed.')
     return null
   }
 }

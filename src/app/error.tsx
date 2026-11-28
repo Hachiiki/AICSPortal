@@ -18,7 +18,7 @@ export default function RootError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error('[app] render error:', error)
+    if (process.env.NODE_ENV === 'development') console.error('[app] render error:', error)
   }, [error])
 
   return (

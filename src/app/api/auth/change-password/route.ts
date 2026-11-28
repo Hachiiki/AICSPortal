@@ -2,20 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
 import { rateLimit } from '@/lib/rate-limit'
-import { hashPassword, verifyPassword } from '@/lib/password'
+import { hashPassword, PasswordServiceBusyError, verifyPassword } from '@/lib/password'
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from '@/lib/password-policy'
 import { requireCan } from '@/lib/authz'
 import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
+import { sessionVersionFilter } from '@/lib/session'
 import { ONBOARDING_REGISTRY } from '@/lib/onboarding/registry'
 
 // ---- Zod input schema (the only place password-change input is shaped) ----
 const changePasswordSchema = z.object({
   currentPassword: z.string({ error: 'Current and new passwords are required.' }).min(1, {
     message: 'Current and new passwords are required.',
-  }),
+  }).max(MAX_PASSWORD_LENGTH),
   newPassword: z
     .string({ error: 'Current and new passwords are required.' })
-    .min(6, { message: 'New password must be at least 6 characters.' }),
+    .min(MIN_PASSWORD_LENGTH, { message: `New password must be at least ${MIN_PASSWORD_LENGTH} characters.` })
+    .max(MAX_PASSWORD_LENGTH),
 })
 
 // POST /api/auth/change-password?username=juan.santos
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
     // comparison fired. Old-password verification and the tv bump
     // stay in the route.
     const {
-      ctx: { actor },
+      ctx: { actor, claims },
     } = await requireCan(request, { kind: 'account.password' }, 'update', {
       claimedIdentity: claimed,
     })
@@ -51,18 +54,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
 
-    // Verify current password (hash-aware, legacy plaintext fallback inside verifyPassword).
-    const pwCheck = await verifyPassword(currentPassword, (student as any).password)
-    if (!pwCheck.ok) {
-      // BUG-013: throttle online guessing via the current-password oracle.
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip'
-      const limited = rateLimit(`cpw:${ip}:${username}`, 10, 15 * 60 * 1000)
-      if (!limited.ok) {
-        return NextResponse.json(
-          { ok: false, error: 'Too many attempts. Please try again later.' },
-          { status: 429, headers: { 'Retry-After': String(limited.retryAfterSec) } }
-        )
-      }
+    const throttle = await rateLimit(`cpw:${actor.branch}:${username}`, 10, 15 * 60_000)
+    if (!throttle.ok) {
+      return NextResponse.json(
+        { ok: false, error: 'Too many attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(throttle.retryAfterSec) } },
+      )
+    }
+
+    if (!(await verifyPassword(currentPassword, student.password, { upgrade: false })).ok) {
       return NextResponse.json({ ok: false, error: 'Current password is incorrect.' }, { status: 401 })
     }
 
@@ -73,7 +73,10 @@ export async function POST(request: NextRequest) {
     // BUG-003: always store scrypt hash for new passwords.
     // Phase 6.5: bump tokenVersion so every pre-change token dies with the old password.
     const hashed = await hashPassword(newPassword)
-    const result = await col.updateOne({ username, branch: actor.branch }, { $set: { password: hashed }, $inc: { tokenVersion: 1 } })
+    const result = await col.updateOne(
+      { _id: student._id, username, branch: actor.branch, password: student.password, ...sessionVersionFilter(claims.tv) },
+      { $set: { password: hashed, tokenVersion: claims.tv + 1 }, $unset: { emailVerification: '' } },
+    )
     if (result.matchedCount !== 1) {
       return NextResponse.json({ ok: false, error: 'Account changed. Please sign in again.' }, { status: 409 })
     }
@@ -98,8 +101,14 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ ok: true, message: 'Password changed successfully.', onboardingPersisted })
   } catch (err) {
+    if (err instanceof PasswordServiceBusyError) {
+      return NextResponse.json(
+        { ok: false, error: 'The password service is busy. Please try again shortly.' },
+        { status: 503, headers: { 'Retry-After': '5' } },
+      )
+    }
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Change password error:', err)
+    console.error('Change password error.')
     return NextResponse.json({ ok: false, error: 'Failed to change password.' }, { status: 500 })
   }
 }

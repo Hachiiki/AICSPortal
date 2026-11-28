@@ -1,101 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getStudentByCredentials } from '@/lib/mongodb/queries'
 import { HttpError } from '@/lib/http'
-import { rateLimit } from '@/lib/rate-limit'
-import { verifyPassword } from '@/lib/password'
+import { clientIp, rateLimit } from '@/lib/rate-limit'
+import { PasswordServiceBusyError, verifyPassword } from '@/lib/password'
+import { MAX_PASSWORD_LENGTH } from '@/lib/password-policy'
 import { getCollection } from '@/lib/mongodb/connection'
-import { sessionCookie, signSession, SESSION_MAX_AGE_SECS, REMEMBER_MAX_AGE_SECS } from '@/lib/session'
-import { parseBody, errResponse } from '@/lib/validation'
+import { isSessionRole, sessionCookie, sessionVersionFilter, signSession, SESSION_MAX_AGE_SECS, REMEMBER_MAX_AGE_SECS } from '@/lib/session'
+import { parseBody, errResponse, usernameSchema } from '@/lib/validation'
 
-// ---- Zod input schema (the only place login input is shaped) ----
-// BUG-001: reject non-string credentials before they reach Mongo filters.
-// Operator objects (e.g. {"$ne":null}) are truthy but must never become query operators.
 const loginSchema = z.object({
-  username: z.string({ error: 'Username is required and must be a non-empty string.' }).min(1),
-  password: z.string({ error: 'Password is required and must be a non-empty string.' }).min(1),
-  // "Remember me" — extends the session from 8h to 7 days. Opt-in only;
-  // revocation via tokenVersion is unchanged.
+  username: usernameSchema,
+  password: z.string({ error: 'Password is required.' }).min(1).max(MAX_PASSWORD_LENGTH),
   rememberMe: z.boolean().optional().default(false),
 })
 
-// FIX-L3 (C3.10, issue #67): the DB role must be a member of the Role
-// union (src/lib/mongodb/types.ts) before it is signed. Runtime twin of
-// the type — corrupt role data blocks login loudly here instead of
-// minting a token every policy equality would fail closed on anyway.
-// A missing/empty role keeps the long-standing 'student' default.
-const ROLE_UNION: readonly string[] = ['student', 'faculty', 'admin']
+const invalidCredentials = () =>
+  NextResponse.json({ ok: false, error: 'Invalid username or password.' }, { status: 401 })
 
 export async function POST(request: NextRequest) {
   try {
     const { username, password, rememberMe } = await parseBody(request, loginSchema)
-    // BUG-003 incremental: lookup by username only, verify hash (or legacy plaintext + upgrade).
-    // getStudentByCredentials kept for compat but no longer carries the password into the filter.
-    const studentsCol = await getCollection('students')
-    const candidate = await studentsCol.findOne({ username })
-    let student: any = null
-    if (candidate) {
-      const check = await verifyPassword(password, (candidate as any).password)
-      if (check.ok) {
-        student = candidate
-        // Hash-on-first-login upgrade for legacy plaintext (single-doc, safe).
-        if (check.upgradedHash) {
-          try {
-            await studentsCol.updateOne({ username }, { $set: { password: check.upgradedHash } })
-          } catch (upgradeErr) {
-            console.error('Password upgrade failed:', upgradeErr)
-          }
-        }
-      } else {
-        // Fallback to legacy exact-match path for docs where password field shape differs.
-        student = await getStudentByCredentials(username, password)
-      }
-    }
-    if (!student) {
-      // BUG-013: in-memory fixed-window throttle (10 fails / 15min per IP+username).
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip'
-      const check = rateLimit(`login:${ip}:${username}`, 10, 15 * 60 * 1000)
-      if (!check.ok) {
-        return NextResponse.json(
-          { ok: false, error: 'Too many login attempts. Please try again later.' },
-          { status: 429, headers: { 'Retry-After': String(check.retryAfterSec) } }
-        )
-      }
-      return NextResponse.json({ ok: false, error: 'Invalid username or password.' }, { status: 401 })
-    }
-    // Phase 6: identity lives in a signed httpOnly session cookie.
-    // The JSON body is display-only for client routing; the server
-    // never trusts it — every route reads getAuthedSession(request).
-    // Phase 6.5: the token carries the user's current tokenVersion so
-    // logout / password changes revoke previously issued tokens.
-    // FIX-L3 (C3.10, issue #67): validate the role against the union and
-    // fail closed — a corrupt role string is a 403 with a registrar
-    // message, never a signed odd token.
-    const role = student.role || 'student'
-    if (!ROLE_UNION.includes(role)) {
+    const throttle = await rateLimit(`login:${clientIp(request)}:${username}`, 10, 15 * 60_000)
+    if (!throttle.ok) {
       return NextResponse.json(
-        { ok: false, error: 'Your account has an invalid role. Contact the registrar.' },
-        { status: 403 }
+        { ok: false, error: 'Too many login attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(throttle.retryAfterSec) } }
       )
     }
-    const tv = typeof student.tokenVersion === 'number' ? student.tokenVersion : 0
+
+    const students = await getCollection('students')
+    const candidate = await students.findOne(
+      { username },
+      { projection: { password: 1, role: 1, branch: 1, tokenVersion: 1 } },
+    )
+    const check = await verifyPassword(password, candidate?.password)
+    if (!candidate || !check.ok) return invalidCredentials()
+
+    const role = candidate.role ?? 'student'
+    const branch = candidate.branch
+    if (!isSessionRole(role) || typeof branch !== 'string' || !branch) {
+      return NextResponse.json(
+        { ok: false, error: 'Your account has invalid access settings. Contact the registrar.' },
+        { status: 403 },
+      )
+    }
+
+    const tv = candidate.tokenVersion ?? 0
+    if (!Number.isSafeInteger(tv) || tv < 0) return invalidCredentials()
+
+    if (check.upgradedHash) {
+      const result = await students.updateOne(
+        { _id: candidate._id, password: candidate.password, ...sessionVersionFilter(tv) },
+        { $set: { password: check.upgradedHash } },
+      )
+      // A concurrent sign-in may have upgraded the same password. A
+      // concurrent password change must prevent this sign-in.
+      if (!result.matchedCount) {
+        const updated = await students.findOne(
+          { _id: candidate._id, ...sessionVersionFilter(tv) },
+          { projection: { password: 1 } },
+        )
+        if (!updated || !(await verifyPassword(password, updated.password, { upgrade: false })).ok) {
+          return invalidCredentials()
+        }
+      }
+    }
+
     const maxAgeSecs = rememberMe ? REMEMBER_MAX_AGE_SECS : SESSION_MAX_AGE_SECS
-    const token = await signSession({ username: student.username, role, branch: student.branch, tv }, maxAgeSecs)
-    const res = NextResponse.json({
-      ok: true,
-      username: student.username,
-      branch: student.branch,
-      role,
-    })
+    const token = await signSession({ username, role, branch, tv }, maxAgeSecs)
+    const res = NextResponse.json({ ok: true, username, branch, role })
     res.cookies.set(sessionCookie(token, maxAgeSecs))
     return res
   } catch (err) {
-    if (err instanceof HttpError) {
-      return NextResponse.json({ ok: false, error: err.message }, { status: err.status })
+    if (err instanceof PasswordServiceBusyError) {
+      return NextResponse.json(
+        { ok: false, error: 'The password service is busy. Please try again shortly.' },
+        { status: 503, headers: { 'Retry-After': '5' } },
+      )
     }
-    console.error('Login error:', err)
-    // Don't leak internal errors to the client. If MongoDB is down, the
-    // student sees a generic auth-failure message rather than a 500 stack.
-    return NextResponse.json({ ok: false, error: 'Unable to reach the authentication service. Please try again.' }, { status: 503 })
+    if (err instanceof HttpError) return errResponse(err)
+    console.error('Login error.')
+    return NextResponse.json(
+      { ok: false, error: 'Unable to reach the authentication service. Please try again.' },
+      { status: 503 },
+    )
   }
 }

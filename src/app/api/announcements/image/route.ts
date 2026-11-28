@@ -92,7 +92,7 @@ async function saveImageAnnouncement(request: NextRequest, action: 'create' | 'u
     return await createAnnouncement(fields, actor, attachment)
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement image save error:', err)
+    console.error('Announcement image save error.')
     return Response.json({ ok: false, error: 'Failed to save the announcement image.' }, { status: 500 })
   }
 }
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Announcement image read error:', err)
+    console.error('Announcement image read error.')
     return Response.json({ ok: false, error: 'Failed to load the announcement image.' }, { status: 500 })
   }
 }

@@ -11,15 +11,15 @@ import { getAppEnv } from '@/lib/env'
 // APP_ENV=production deployment that happens to run with
 // NODE_ENV=development no longer exposes the demo login.
 export async function POST() {
-  if (getAppEnv() !== 'development') {
+  if (process.env.NODE_ENV !== 'development' || getAppEnv() !== 'development' || process.env.NEXT_PUBLIC_ENABLE_DEV_DEMO !== 'true') {
     return NextResponse.json({ ok: false, error: 'Not found.' }, { status: 404 })
   }
   const col = await getCollection('students')
   const demo = await col.findOne({ username: 'juan.santos' })
-  if (!demo) {
+  if (!demo || demo.role !== 'student') {
     return NextResponse.json({ ok: false, error: 'Demo account not seeded.' }, { status: 404 })
   }
-  const role = demo.role || 'student'
+  const role = 'student'
   const tv = typeof demo.tokenVersion === 'number' ? demo.tokenVersion : 0
   const token = await signSession({ username: demo.username, role, branch: demo.branch, tv })
   const res = NextResponse.json({ ok: true, username: demo.username, branch: demo.branch, role })

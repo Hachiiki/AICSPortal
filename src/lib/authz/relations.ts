@@ -45,6 +45,8 @@ export interface GradeRowState {
 export interface Relations {
   /** Faculty teaches the subject code in the term (defaults to the actor's current term). */
   teachesSubject(code: string, term?: TermKey): Promise<boolean>
+  /** Students whose subject rows name this faculty member for the specified term. */
+  teachingStudents(code: string, term: TermKey): Promise<Set<string>>
   /** Faculty owns the section, keyed `code|academicYear|semester` (notifications ownership rule). */
   teachesSection(sectionKey: string): Promise<boolean>
   /** Student has an enrollment row for the code in the term (defaults to the actor's current term). */
@@ -94,27 +96,35 @@ export function createRelations(ctx: AuthzContext): Relations {
   // fields match an empty term, as the routes do. Same fragment as
   // scopes.subjectRows — the FIX-C1 gate/scope parity holds by
   // construction.
-  async function loadProfessorRows(code: string): Promise<{ academicYear?: string; semester?: string }[]> {
-    const col = await getCollection('subjects')
-    return col
-      .find({
-        branch: actor.branch,
-        code,
-        ...professorOwnership(actor.username),
-      })
-      .project({ academicYear: 1, semester: 1 })
-      .toArray()
+  function loadProfessorRows(code: string): Promise<{ academicYear?: string; semester?: string; studentUsername?: string }[]> {
+    return once(`subjects:${code}`, async () => {
+      const col = await getCollection('subjects')
+      return col
+        .find({
+          branch: actor.branch,
+          code,
+          ...professorOwnership(actor.username),
+        })
+        .project({ academicYear: 1, semester: 1, studentUsername: 1 })
+        .toArray()
+    })
+  }
+
+  async function termRows(code: string, term: TermKey) {
+    const rows = await loadProfessorRows(code)
+    return rows.filter((r) => (r.academicYear || '') === term.academicYear && (r.semester || '') === term.semester)
   }
 
   return {
     async teachesSubject(code, term) {
-      const t = term ?? currentTerm()
-      return once(`ts:${code}|${t.academicYear}|${t.semester}`, async () => {
-        const rows = await loadProfessorRows(code)
-        return rows.some(
-          (r) => (r.academicYear || '') === t.academicYear && (r.semester || '') === t.semester
-        )
-      })
+      return (await termRows(code, term ?? currentTerm())).length > 0
+    },
+
+    async teachingStudents(code, term) {
+      const rows = await termRows(code, term)
+      return new Set(rows.map((row) => row.studentUsername).filter(
+        (username): username is string => typeof username === 'string' && username.length > 0
+      ))
     },
 
     async teachesSection(sectionKey) {
@@ -123,13 +133,8 @@ export function createRelations(ctx: AuthzContext): Relations {
       // legal, missing pipes are not), so anything else is unowned.
       const parts = sectionKey.split('|')
       if (parts.length !== 3) return false
-      const [code, ay, sem] = parts
-      return once(`sec:${sectionKey}`, async () => {
-        const rows = await loadProfessorRows(code)
-        return rows.some(
-          (r) => (r.academicYear || '') === ay && (r.semester || '') === sem
-        )
-      })
+      const [code, academicYear, semester] = parts
+      return (await termRows(code, { academicYear, semester })).length > 0
     },
 
     async isEnrolled(studentUsername, code, term) {
@@ -188,8 +193,7 @@ export function createRelations(ctx: AuthzContext): Relations {
     async sameBranchUsername(username) {
       return once(`sb:${username}`, async () => {
         const col = await getCollection('students')
-        const doc = await col.findOne({ username }, { projection: { branch: 1 } })
-        return !!doc && doc.branch === actor.branch
+        return !!await col.findOne({ username, branch: actor.branch }, { projection: { _id: 1 } })
       })
     },
   }

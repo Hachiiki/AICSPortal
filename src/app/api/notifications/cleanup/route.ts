@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/mongodb/connection'
 import { requireCan } from '@/lib/authz'
+import { hasCronBearer } from '@/lib/cron-auth'
+import { isSameOriginMutation } from '@/lib/request-origin'
 import { errResponse } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
 import { NOTIFICATION_RETENTION_DAYS } from '@/lib/aics/notifications'
@@ -34,41 +36,10 @@ import type { MongoNotification } from '@/lib/mongodb/types'
 //      tasks themselves stay until their own lifecycle ends.
 //    - Anything newer than the cutoff, in any view.
 //
-//  SCHEDULING: vercel.json registers this path as a daily cron
-//  (03:00 UTC). Vercel cron sends `Authorization: Bearer
-//  $CRON_SECRET` when that env var is set in the project; this
-//  handler accepts exactly that header, or an authenticated admin
-//  session (manual verification/ops). Until CRON_SECRET is
-//  configured in the deployment environment, the cron invocation
-//  will be rejected — set it before relying on scheduled runs. The
-//  proxy (src/proxy.ts) reads the same env var to admit the Bearer
-//  path past the session gate (FIX-M3, C3.6); both compares are
-//  timing-safe.
-//
-//  Authorization note (requirement #3): a teacher cannot trigger
-//  another teacher's deletions through this route — there is no
-//  per-teacher parameter at all, and the two accepted callers
-//  (cron secret, admin session) are both system-level. Faculty
-//  sessions are rejected.
-//
-//  C2.1: the admin-session half of the gate is the notification.cleanup
-//  policy case (src/lib/authz), which reads the role from the DB, not
-//  the JWT claim (FIX-M2 rider, issue #62: a demoted admin loses this
-//  route on the next request). The Bearer CRON_SECRET half is the
-//  route's own authorization, timing-safe since FIX-M3 (C3.6, issue
-//  #63); the proxy runs the identical compare before admitting the
-//  sessionless path.
+//  Vercel cron sends a bearer-authenticated GET. Manual maintenance
+//  uses POST with a same-origin admin session. Authorization is enforced
+//  here as well as at the request proxy.
 // ============================================================
-
-// Pure-JS constant-time compare (no early exit) — the byte-identical
-// twin of the one in src/proxy.ts, inlined in both whitelisted files
-// so no new module joins the port manifest.
-function constantTimeEquals(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
-  let diff = 0
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  return diff === 0
-}
 
 async function runCleanup() {
   // Pure timestamp comparison — no formatted date strings anywhere.
@@ -78,32 +49,34 @@ async function runCleanup() {
   return { deleted: result.deletedCount ?? 0, cutoff: cutoff.toISOString() }
 }
 
-async function handle(request: NextRequest) {
+async function handle(authorize: () => Promise<unknown>) {
   try {
-    // Bearer-secret path: the route's own authorization, timing-safe
-    // since FIX-M3 (C3.6, issue #63) — the proxy runs the identical
-    // compare before admitting the sessionless request.
-    const secret = process.env.CRON_SECRET
-    const bearerOk =
-      !!secret && constantTimeEquals(request.headers.get('authorization') || '', `Bearer ${secret}`)
-    if (!bearerOk) {
-      await requireCan(request, { kind: 'notification.cleanup' }, 'cleanup')
-    }
+    await authorize()
     const { deleted, cutoff } = await runCleanup()
-    // Idempotent and safe to repeat: only already-expired docs match.
-    return NextResponse.json({ ok: true, deleted, cutoff, retentionDays: NOTIFICATION_RETENTION_DAYS })
-  } catch (err) {
-    if (err instanceof HttpError) return errResponse(err)
-    console.error('Notification cleanup error:', err)
+    return NextResponse.json(
+      { ok: true, deleted, cutoff, retentionDays: NOTIFICATION_RETENTION_DAYS },
+      { headers: { 'Cache-Control': 'no-store' } },
+    )
+  } catch (error) {
+    if (error instanceof HttpError) return errResponse(error)
+    console.error('Notification cleanup failed.')
     return NextResponse.json({ ok: false, error: 'Failed to run cleanup.' }, { status: 500 })
   }
 }
 
-// Vercel cron issues GET; POST is kept for manual admin operations.
 export async function GET(request: NextRequest) {
-  return handle(request)
+  return handle(async () => {
+    if (!hasCronBearer(request.headers)) throw new HttpError(401, 'Unauthorized')
+  })
+}
+
+export function HEAD() {
+  return new NextResponse(null, { status: 405, headers: { Allow: 'GET, POST' } })
 }
 
 export async function POST(request: NextRequest) {
-  return handle(request)
+  return handle(async () => {
+    if (!isSameOriginMutation(request)) throw new HttpError(403, 'This request must come from the portal.')
+    await requireCan(request, { kind: 'notification.cleanup' }, 'cleanup')
+  })
 }

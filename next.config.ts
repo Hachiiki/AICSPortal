@@ -10,13 +10,9 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   allowedDevOrigins: ["*.space-z.ai"],
   async headers() {
-    // BUG-016 baseline headers. CSP stays report-only / deferred until script
-    // sources (Next inline bootstrap) are enumerated; start with these.
-    // HSTS added with the compliance pass (2026-10-20): production runs
-    // HTTPS on Vercel; 2-year max-age with preload opt-in is safe for a
-    // single-domain deployment.
     return [
       {
         source: "/:path*",

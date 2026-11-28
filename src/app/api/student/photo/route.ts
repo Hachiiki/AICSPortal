@@ -1,132 +1,91 @@
+import { randomUUID } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getCollection } from '@/lib/mongodb/connection'
-import { resolveContext, createRelations, can, decisionToHttpError, requireCan } from '@/lib/authz'
-import { parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
+import { resolveContext, createRelations, can, decisionToHttpError } from '@/lib/authz'
+import { parseBody, parseQuery, errResponse, selfQuerySchema } from '@/lib/validation'
 import { HttpError } from '@/lib/http'
-import {
-  cloudinaryEnv,
-  photoFolder,
-  photoRoot,
-  publicIdFromPhotoUrl,
-  signUpload,
-  destroyAsset,
-  PHOTO_MAX_BYTES,
-} from '@/app/api/materials/cloudinary'
+import { rateLimit } from '@/lib/rate-limit'
+import type { MongoStudent } from '@/lib/mongodb/types'
+import { cloudinaryEnv, destroyVerifiedAsset, PHOTO_MAX_BYTES, prepareUpload, uploadTokenSchema, verifyUploadedAsset, verifyUploadGrant } from '@/app/api/materials/cloudinary'
 
-// ============================================================
-//  Profile photo upload — POST /api/student/photo
-//  Photo removal — DELETE /api/student/photo?username=<self>
-// ============================================================
-//
-//  POST signs ONE direct browser→Cloudinary upload for the
-//  session user's own avatar. Self-service only: the folder is
-//  built from the session (branch + username), never from
-//  client input, so a user can only ever write into their own
-//  folder. The API secret never leaves the server.
-//
-//  The response includes `oldPublicId` (derived from the user's
-//  current photoUrl) so the browser can destroy the replaced
-//  asset afterwards via /api/student/photo/cleanup.
-//
-//  DELETE clears the session user's photoUrl and destroys the
-//  Cloudinary asset (best-effort — the field is cleared even if
-//  the destroy fails). External avatar URLs are just cleared;
-//  there is nothing of ours to destroy.
-//
-//  Without CLOUDINARY_* env configured, POST refuses (503) and
-//  DELETE still clears the field. Works for students AND faculty
-//  — both live in the `students` collection.
-// ============================================================
+const photoSaveSchema = z.object({ uploadToken: uploadTokenSchema })
+const photoProjection = { photoUrl: 1, photoAssetId: 1, photoAssetCloud: 1, photoRevision: 1 }
+type PhotoRecord = Pick<MongoStudent, 'photoUrl' | 'photoAssetId' | 'photoAssetCloud' | 'photoRevision'>
+
+async function ownPhoto(request: NextRequest, action: 'update' | 'delete') {
+  const { username } = parseQuery(request, selfQuerySchema)
+  const ctx = await resolveContext(request)
+  if (!ctx) throw new HttpError(401, 'Unauthorized')
+  const { actor } = ctx
+  const gate = decisionToHttpError(await can(ctx, createRelations(ctx), { kind: 'account.photo', username: username ?? (action === 'update' ? actor.username : '') }, action))
+  if (gate) throw gate
+  const target = { username: actor.username, branch: actor.branch }
+  const col = await getCollection<MongoStudent>('students')
+  const photo: PhotoRecord | null = await col.findOne(target, { projection: photoProjection })
+  if (!photo) throw new HttpError(404, 'Profile not found.')
+  return { actor, target, col, photo, scope: { kind: 'photo' as const, revision: photo.photoRevision ?? null } }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    // C2.2: auth + self-only sign gate centralized (account.photo
-    // update). The upload signs for the session account only (no
-    // username input), so the policy resource is the actor's own
-    // username and the context is resolved first to state it.
-    const ctx = await resolveContext(request)
-    if (!ctx) throw new HttpError(401, 'Unauthorized')
-    const gate = decisionToHttpError(
-      await can(ctx, createRelations(ctx), { kind: 'account.photo', username: ctx.actor.username }, 'update')
-    )
-    if (gate) throw gate
-    const { branch, username } = ctx.actor
-
+    const { actor, scope } = await ownPhoto(request, 'update')
     const env = cloudinaryEnv()
-    if (!env) {
-      return NextResponse.json({ ok: false, error: 'Photo upload is not configured on this server.' }, { status: 503 })
-    }
-
-    const folder = photoFolder(env.baseFolder, branch, username)
-    const timestamp = Math.floor(Date.now() / 1000)
-    const signature = signUpload({ folder, timestamp, apiSecret: env.apiSecret })
-
-    // Best-effort: which old asset should the browser clean up after
-    // the replacement is saved? A read failure just skips cleanup.
-    let oldPublicId: string | null = null
-    try {
-      const col = await getCollection('students')
-      const me = await col.findOne(
-        { username, branch },
-        { projection: { photoUrl: 1 } }
+    if (!env) throw new HttpError(503, 'Photo upload is not configured on this server.')
+    const throttle = await rateLimit(`photo-upload:${actor.branch}:${actor.username}`, 10, 15 * 60_000)
+    if (!throttle.ok) {
+      return NextResponse.json(
+        { ok: false, error: 'Too many upload attempts. Please wait and try again.' },
+        { status: 429, headers: { 'Retry-After': String(throttle.retryAfterSec) } },
       )
-      oldPublicId = publicIdFromPhotoUrl(me?.photoUrl, photoRoot(env.baseFolder))
-    } catch (err) {
-      console.error('Photo sign: old-asset lookup failed (non-fatal):', err)
     }
-
-    return NextResponse.json({
-      ok: true,
-      cloudName: env.cloudName,
-      apiKey: env.apiKey,
-      timestamp,
-      folder,
-      signature,
-      uploadUrl: `https://api.cloudinary.com/v1_1/${env.cloudName}/image/upload`,
-      maxBytes: PHOTO_MAX_BYTES,
-      oldPublicId,
-    })
+    const params = await prepareUpload(env, actor, scope, 'image', 'jpg')
+    return NextResponse.json({ ok: true, ...params, maxBytes: PHOTO_MAX_BYTES })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Photo sign error:', err)
+    console.error('Photo sign error.')
     return NextResponse.json({ ok: false, error: 'Failed to prepare upload.' }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const { actor, target, col, photo, scope } = await ownPhoto(request, 'update')
+    const { uploadToken } = await parseBody(request, photoSaveSchema)
+    const env = cloudinaryEnv()
+    if (!env) throw new HttpError(503, 'Photo upload is not configured on this server.')
+    const grant = await verifyUploadGrant(env, uploadToken, actor, scope)
+    if (grant.jti === scope.revision && photo.photoUrl) return NextResponse.json({ ok: true, photoUrl: photo.photoUrl })
+    if (grant.revision !== scope.revision) throw new HttpError(409, 'The photo changed while uploading. Choose the photo again.')
+    const asset = await verifyUploadedAsset(env, grant, PHOTO_MAX_BYTES)
+    const result = await col.updateOne(
+      { ...target, photoRevision: scope.revision },
+      { $set: { photoUrl: asset.url, photoAssetId: asset.assetId, photoAssetCloud: env.cloudName, photoRevision: grant.jti } },
+    )
+    if (result.matchedCount === 0) throw new HttpError(409, 'The photo changed while uploading. Choose the photo again.')
+    if (photo.photoAssetCloud === env.cloudName) await destroyVerifiedAsset(env, photo.photoAssetId)
+    return NextResponse.json({ ok: true, photoUrl: asset.url })
+  } catch (err) {
+    if (err instanceof HttpError) return errResponse(err)
+    console.error('Photo save error.')
+    return NextResponse.json({ ok: false, error: 'Failed to save the photo.' }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const username = parseQuery(request, selfQuerySchema).username
-    // C2.2: auth + self gate centralized (account.photo delete: the
-    // query username must be the actor's own; a missing or foreign
-    // username denies here exactly where the old inline check did).
-    const {
-      ctx: { actor },
-    } = await requireCan(request, { kind: 'account.photo', username: username ?? '' }, 'delete')
-
-    const col = await getCollection('students')
-    const me = await col.findOne(
-      { username: actor.username, branch: actor.branch },
-      { projection: { photoUrl: 1 } }
+    const { target, col, photo, scope } = await ownPhoto(request, 'delete')
+    const result = await col.updateOne(
+      { ...target, photoRevision: scope.revision },
+      { $set: { photoUrl: '', photoRevision: randomUUID() }, $unset: { photoAssetId: '', photoAssetCloud: '' } },
     )
-    if (!me) {
-      return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-    }
-
-    // Destroy our Cloudinary asset if the current photo is one.
+    if (result.matchedCount === 0) throw new HttpError(409, 'The photo changed while removing it. Refresh and try again.')
     const env = cloudinaryEnv()
-    if (env) {
-      const publicId = publicIdFromPhotoUrl(me.photoUrl, photoRoot(env.baseFolder))
-      if (publicId) await destroyAsset(publicId, 'image')
-    }
-
-    await col.updateOne(
-      { username: actor.username, branch: actor.branch },
-      { $set: { photoUrl: '' } }
-    )
+    if (env && photo.photoAssetCloud === env.cloudName) await destroyVerifiedAsset(env, photo.photoAssetId)
     return NextResponse.json({ ok: true, message: 'Photo removed.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Photo remove error:', err)
+    console.error('Photo remove error.')
     return NextResponse.json({ ok: false, error: 'Failed to remove photo.' }, { status: 500 })
   }
 }

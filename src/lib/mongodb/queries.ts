@@ -6,22 +6,12 @@ import type { MongoStudent, MongoSubject, MongoCourse, MongoSession, MongoTask, 
 //  Data access layer — all queries are scoped by branch
 // ============================================================
 
-export async function getStudentByCredentials(
-  username: string,
-  password: string
-): Promise<MongoStudent | null> {
-  // Defense-in-depth for BUG-001: never let operator objects reach the filter,
-  // even if a caller forgets asString(). Non-strings match nothing.
-  if (typeof username !== 'string' || typeof password !== 'string') return null
-  const col = await getCollection<MongoStudent>('students')
-  return col.findOne({ username, password })
-}
-
 export async function getStudentByUsername(
-  username: string
+  username: string,
+  branch: Branch
 ): Promise<MongoStudent | null> {
   const col = await getCollection<MongoStudent>('students')
-  return col.findOne({ username })
+  return col.findOne({ username, branch })
 }
 
 export async function getSubjectsForStudent(
@@ -67,26 +57,30 @@ export async function getTasksForStudentCurrentTerm(
 // "Missing". "Overdue" only applies while submissions are
 // still open past the due date.
 //
-// This query-level guard rejects any submit attempt for a
-// task whose submissionsClosed flag is true (or missing with
-// an already-submitted record). The route handler also
-// returns 403 in this case — defense in depth.
+// Only open, unsubmitted tasks in the student's active term may change.
 export async function submitTask(
   taskId: string,
-  studentUsername: string
+  studentUsername: string,
+  branch: Branch,
+  currentTerm: { academicYear: string; semester: string }
 ): Promise<{ ok: boolean; reason?: 'closed' | 'not_found' }> {
   const col = await getCollection<MongoTask>('tasks')
-  let idFilter: any
+  let idFilter: ObjectId
   try {
     idFilter = new ObjectId(taskId)
   } catch {
     return { ok: false, reason: 'not_found' }
   }
-  // Atomic guard: only update if NOT closed and NOT already submitted.
+  const target = {
+    _id: idFilter,
+    branch,
+    studentUsername,
+    'term.academicYear': currentTerm.academicYear,
+    'term.semester': currentTerm.semester,
+  }
   const result = await col.updateOne(
     {
-      _id: idFilter,
-      studentUsername,
+      ...target,
       submitted: false,
       submissionsClosed: { $ne: true },
     },
@@ -94,9 +88,8 @@ export async function submitTask(
   )
   if (result.modifiedCount > 0) return { ok: true }
   // Distinguish "closed" from "not found" so the route can return 403 vs 404.
-  const task = await col.findOne({ _id: idFilter, studentUsername })
-  if (!task) return { ok: false, reason: 'not_found' }
-  return { ok: false, reason: 'closed' }
+  const task = await col.findOne(target, { projection: { submissionsClosed: 1 } })
+  return { ok: false, reason: task?.submissionsClosed === true ? 'closed' : 'not_found' }
 }
 
 // ADMIN CONTROL: Events are created/edited/deleted by

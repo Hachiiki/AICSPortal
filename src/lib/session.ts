@@ -6,7 +6,8 @@
 
 import { jwtVerify, SignJWT } from 'jose'
 import type { NextRequest } from 'next/server'
-import { getAuthSecret } from '@/lib/env'
+import { getAppEnv, getAuthSecret } from '@/lib/env'
+import type { Role } from '@/lib/mongodb/types'
 
 export { getAuthSecret }
 
@@ -17,12 +18,20 @@ export const REMEMBER_MAX_AGE_SECS = 7 * 24 * 60 * 60 // 7 days
 
 export interface SessionClaims {
   username: string
-  role: string
+  role: Role
   branch: string
   // Phase 6.5: revocation counter. Compared against the user's CURRENT
   // tokenVersion in the DB (see session-auth.ts). Logout / password change
   // bumps the DB value, instantly killing all previously issued tokens.
   tv: number
+}
+
+export function isSessionRole(role: unknown): role is Role {
+  return role === 'student' || role === 'faculty' || role === 'admin'
+}
+
+export function sessionVersionFilter(version: number) {
+  return { tokenVersion: version === 0 ? { $in: [0, null] } : version }
 }
 
 export async function signSession(claims: SessionClaims, maxAgeSecs = SESSION_MAX_AGE_SECS): Promise<string> {
@@ -36,12 +45,16 @@ export async function signSession(claims: SessionClaims, maxAgeSecs = SESSION_MA
 
 export async function verifySessionToken(token: string): Promise<SessionClaims | null> {
   try {
-    const { payload } = await jwtVerify(token, getAuthSecret())
+    const { payload } = await jwtVerify(token, getAuthSecret(), {
+      algorithms: ['HS256'],
+      requiredClaims: ['sub', 'iat', 'exp', 'role', 'branch'],
+    })
     if (typeof payload.sub !== 'string' || !payload.sub) return null
-    if (typeof payload.role !== 'string' || !payload.role) return null
+    if (!isSessionRole(payload.role)) return null
     if (typeof payload.branch !== 'string' || !payload.branch) return null
     // Pre-session-era tokens (no tv) read as 0, matching the DB default.
-    const tv = typeof payload.tv === 'number' ? payload.tv : 0
+    const tv = payload.tv ?? 0
+    if (typeof tv !== 'number' || !Number.isSafeInteger(tv) || tv < 0) return null
     return { username: payload.sub, role: payload.role, branch: payload.branch, tv }
   } catch {
     return null
@@ -60,7 +73,7 @@ export function sessionCookie(token: string, maxAgeSecs = SESSION_MAX_AGE_SECS) 
     value: token,
     httpOnly: true as const,
     sameSite: 'lax' as const,
-    secure: process.env.NODE_ENV === 'production',
+    secure: getAppEnv() !== 'development' || process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: maxAgeSecs,
   }
@@ -72,7 +85,7 @@ export function clearSessionCookie() {
     value: '',
     httpOnly: true as const,
     sameSite: 'lax' as const,
-    secure: process.env.NODE_ENV === 'production',
+    secure: getAppEnv() !== 'development' || process.env.NODE_ENV === 'production',
     path: '/',
     maxAge: 0,
   }

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const faculty = await getStudentByUsername(username)
+    const faculty = await getStudentByUsername(username, actor.branch)
     if (!faculty) {
       return NextResponse.json(
         { ok: false, error: 'Faculty member not found.' },
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Faculty API error:', err)
+    console.error('Faculty API error.')
     return NextResponse.json(
       { ok: false, error: 'Failed to fetch faculty data.' },
       { status: 500 }

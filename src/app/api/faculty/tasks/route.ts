@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getStudentByUsername } from '@/lib/mongodb/queries'
 import { getCollection } from '@/lib/mongodb/connection'
-import { requireCan, professorOwnership } from '@/lib/authz'
+import { requireCan } from '@/lib/authz'
 import { HttpError } from '@/lib/http'
 import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
+import type { MongoSubject } from "@/lib/mongodb/types"
 
 // ============================================================
 //  Faculty tasks API — GET /api/faculty/tasks?username=...
@@ -17,53 +17,37 @@ import { parseQuery, selfQuerySchema, errResponse } from "@/lib/validation"
 
 export async function GET(request: NextRequest) {
   try {
-    // C2.3: auth + username-self + role gates centralized (task.board
-    // read: faculty or admin, DB role). The username query field rides
-    // the guard's spoof check; the faculty lookup (404) and the
-    // server-derived load + term grouping stay route-kept.
     const claimed = parseQuery(request, selfQuerySchema).username
     const {
       ctx: { actor },
+      scope,
     } = await requireCan(request, { kind: 'task.board' }, 'read', {
       claimedIdentity: claimed,
     })
-    const username = claimed || actor.username
-    if (!username) {
-      return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
-    }
-    const faculty = await getStudentByUsername(username)
-    if (!faculty) {
-      return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
-    }
 
-    // A1 phase 3 (issue #72): the board load uses the strict
-    // ownership key — username equality only.
     const subjectsCol = await getCollection('subjects')
-    const taught = await subjectsCol
-      .find({
-        branch: faculty.branch,
-        ...professorOwnership(faculty.username),
-      })
-      .project({ code: 1, academicYear: 1, semester: 1 })
+    const taught: Pick<MongoSubject, 'code' | 'academicYear' | 'semester' | 'studentUsername'>[] = await subjectsCol
+      .find(scope.teachingLoad())
+      .project({ code: 1, academicYear: 1, semester: 1, studentUsername: 1 })
       .toArray()
-    const codes = Array.from(
-      new Set(
-        taught
-          .filter((d: any) => (d.academicYear || '') === (faculty.academicYear || '') && (d.semester || '') === (faculty.semester || ''))
-          .map((d: any) => d.code)
-      )
-    )
-    if (codes.length === 0) {
+    const rosters = new Map<string, Set<string>>()
+    for (const row of taught) {
+      if ((row.academicYear || '') !== actor.academicYear || (row.semester || '') !== actor.semester || !row.studentUsername) continue
+      const students = rosters.get(row.code) ?? new Set<string>()
+      students.add(row.studentUsername)
+      rosters.set(row.code, students)
+    }
+    if (rosters.size === 0) {
       return NextResponse.json({ ok: true, groups: [] })
     }
 
     const tasksCol = await getCollection('tasks')
     const rows = await tasksCol
       .find({
-        branch: faculty.branch,
-        subjectCode: { $in: codes },
-        'term.academicYear': faculty.academicYear,
-        'term.semester': faculty.semester,
+        ...scope.branchDocs(),
+        $or: Array.from(rosters, ([subjectCode, students]) => ({ subjectCode, studentUsername: { $in: [...students] } })),
+        'term.academicYear': actor.academicYear,
+        'term.semester': actor.semester,
       })
       .project({ subjectCode: 1, assignmentId: 1, title: 1, type: 1, dueDate: 1, postedDate: 1, maxScore: 1, submitted: 1, score: 1, submissionsClosed: 1 })
       .sort({ dueDate: 1 })
@@ -101,7 +85,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, groups: Array.from(groups.values()) })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Faculty tasks error:', err)
+    console.error('Faculty tasks error.')
     return NextResponse.json({ ok: false, error: 'Failed to load tasks.' }, { status: 500 })
   }
 }

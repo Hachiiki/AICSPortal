@@ -140,7 +140,7 @@ export async function PATCH(request: NextRequest) {
               performedAt: new Date(),
             }])
           } catch (auditErr) {
-            console.error('Grade withdraw audit insert failed:', auditErr)
+            console.error('Grade withdraw audit insert failed.')
             auditOk = false
           }
           results.push({ ok: true, studentUsername, subjectCode })
@@ -320,7 +320,7 @@ export async function PATCH(request: NextRequest) {
         try {
           await auditCol.insertMany(auditEntries)
         } catch (auditErr) {
-          console.error('Grade audit insert failed:', auditErr)
+          console.error('Grade audit insert failed.')
           auditOk = false
         }
       }
@@ -355,7 +355,7 @@ export async function PATCH(request: NextRequest) {
     )
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Grade update error:', err)
+    console.error('Grade update error.')
     return NextResponse.json({ ok: false, error: 'Failed to update grades.' }, { status: 500 })
   }
 }

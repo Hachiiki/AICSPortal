@@ -8,6 +8,6 @@
 
 import { PALETTE_BOOT_SCRIPT } from "@/lib/aics/theme-palette"
 
-export function ThemePaletteScript() {
-  return <script dangerouslySetInnerHTML={{ __html: PALETTE_BOOT_SCRIPT }} />
+export function ThemePaletteScript({ nonce }: { nonce?: string }) {
+  return <script nonce={nonce} dangerouslySetInnerHTML={{ __html: PALETTE_BOOT_SCRIPT }} />
 }

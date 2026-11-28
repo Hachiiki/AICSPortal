@@ -10,31 +10,14 @@ import { HttpError } from '@/lib/http'
 // Whitelist of editable fields; everything else is stripped.
 const profileUpdateSchema = z.object({
   phone: z.string().trim().max(500, { message: 'Invalid phone.' }).optional(),
-  // Data quality: empty clears the field; anything else must be a
-  // plausible email (same shape the login/help surfaces rely on).
-  email: z
-    .string()
-    .trim()
-    .max(500, { message: 'Invalid email.' })
-    .refine((v) => v.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), {
-      message: 'Invalid email. Use a format like name@example.com.',
-    })
-    .optional(),
   address: z.string().trim().max(500, { message: 'Invalid address.' }).optional(),
   emergencyContactName: z.string().trim().max(500, { message: 'Invalid emergencyContactName.' }).optional(),
   emergencyContactNumber: z.string().trim().max(500, { message: 'Invalid emergencyContactNumber.' }).optional(),
-  // BUG-005: photoUrl is rendered in an img tag — require http(s) + length cap.
-  photoUrl: z
-    .string()
-    .trim()
-    .max(2000, { message: 'Invalid photo URL.' })
-    .refine((v) => v.length === 0 || /^https?:\/\/.+/i.test(v), { message: 'Invalid photo URL.' })
-    .optional(),
+
 })
 
 // PATCH /api/student/update?username=juan.santos
-// Updates editable student fields: phone, email, address,
-// emergencyContactName, emergencyContactNumber, photoUrl.
+// Email and photo changes go through their dedicated verification/upload routes.
 //
 // Phase 6 (closes BUG-005 auth gap): only the session user may edit
 // their own profile (admins may edit same-branch profiles).
@@ -64,34 +47,21 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'No valid fields to update.' }, { status: 400 })
     }
 
-    // Content moderation: free-text profile fields plus the photo URL
-    // (rule 4 applies — untrusted image hosts flag for review).
+    // Moderate the editable profile text.
     const verdict = await moderateContent({
       surface: 'profile',
       fields: {
         phone: body.phone,
-        email: body.email,
         address: body.address,
         emergencyContactName: body.emergencyContactName,
         emergencyContactNumber: body.emergencyContactNumber,
       },
-      urlFields: { photoUrl: body.photoUrl },
       actor: { username: actor.username, role: actor.role, branch: actor.branch },
     })
     if (!verdict.ok) return verdict.response
 
     const col = await getCollection('students')
-    // Admins editing another profile must stay in-branch.
-    if (username !== actor.username) {
-      const target = await col.findOne({ username })
-      if (!target) {
-        return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
-      }
-      if (target.branch !== actor.branch) {
-        return NextResponse.json({ ok: false, error: 'Branch mismatch' }, { status: 403 })
-      }
-    }
-    const result = await col.updateOne({ username }, { $set: updateDoc })
+    const result = await col.updateOne({ username, branch: actor.branch }, { $set: updateDoc })
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
@@ -100,7 +70,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Profile updated successfully.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Profile update error:', err)
+    console.error('Profile update error.')
     return NextResponse.json({ ok: false, error: 'Failed to update profile.' }, { status: 500 })
   }
 }

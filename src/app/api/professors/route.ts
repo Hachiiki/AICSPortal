@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const student = await getStudentByUsername(username)
+    const student = await getStudentByUsername(username, actor.branch)
     if (!student) {
       return NextResponse.json({ ok: false, error: 'Student not found.' }, { status: 404 })
     }
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, professors: clientProfessors })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Professors API error:', err)
+    console.error('Professors API error.')
     return NextResponse.json({ ok: false, error: 'Failed to fetch professors.' }, { status: 500 })
   }
 }
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Professor create error:', err)
+    console.error('Professor create error.')
     return NextResponse.json({ ok: false, error: 'Failed to add professor.' }, { status: 500 })
   }
 }
@@ -183,7 +183,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Professor updated.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Professor update error:', err)
+    console.error('Professor update error.')
     return NextResponse.json({ ok: false, error: 'Failed to update professor.' }, { status: 500 })
   }
 }
@@ -213,7 +213,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Professor removed.' })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Professor delete error:', err)
+    console.error('Professor delete error.')
     return NextResponse.json({ ok: false, error: 'Failed to remove professor.' }, { status: 500 })
   }
 }

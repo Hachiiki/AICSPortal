@@ -23,6 +23,9 @@ export interface MongoStudent {
   lastName: string
   middleName: string
   photoUrl?: string
+  photoAssetId?: string
+  photoAssetCloud?: string
+  photoRevision?: string
   studentNumber: string
   program: string
   programShort: string
@@ -35,6 +38,7 @@ export interface MongoStudent {
   deanListerSemester: string
   gpa: string
   email: string
+  emailVerifiedAt?: Date
   phone: string
   address: string
   emergencyContactName: string
@@ -352,6 +356,9 @@ export interface MongoMaterial {
   url: string
   // Files only: Cloudinary identifiers for cleanup.
   publicId?: string | null
+  assetId?: string
+  assetCloud?: string
+  deletedAt?: Date
   resourceType?: 'image' | 'raw' | null
   bytes?: number | null
   format?: string | null
@@ -405,9 +412,7 @@ export interface MongoModerationLog {
   ruleId: string
   action: ModerationLogAction
   matchedTerms: string[]
-  urls?: { url: string; host: string }[]
-  // First 240 characters of the moderated text, for admin context.
-  textExcerpt: string
+  rejectedUrlCount?: number
   createdAt: Date
   // flag decisions stay pending until an admin follows up.
   reviewPending: boolean

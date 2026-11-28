@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Grade pending error:', err)
+    console.error('Grade pending error.')
     return NextResponse.json({ ok: false, error: 'Failed to load pending releases.' }, { status: 500 })
   }
 }
@@ -107,7 +107,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ ok: true })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Grade audit export retry failed:', err)
+    console.error('Grade audit export retry failed.')
     return NextResponse.json({ ok: false, error: 'Could not export grade history. Try again.' }, { status: 503 })
   }
 }
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
     try {
       await exportPendingGradeAudits(query)
     } catch (err) {
-      console.error('Grade release audit export pending:', err)
+      console.error('Grade release audit export pending.')
       auditWarning = 'Grade history was saved with the grade. Export to the audit collection is pending.'
     }
 
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Grade release error:', err)
+    console.error('Grade release error.')
     return NextResponse.json({ ok: false, error: 'Failed to complete the grade release. Reload to check the latest grades before retrying.' }, { status: 500 })
   }
 }

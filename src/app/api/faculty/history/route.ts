@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     if (!username) {
       return NextResponse.json({ ok: false, error: 'Username is required.' }, { status: 400 })
     }
-    const faculty = await getStudentByUsername(username)
+    const faculty = await getStudentByUsername(username, actor.branch)
     if (!faculty) {
       return NextResponse.json({ ok: false, error: 'Faculty member not found.' }, { status: 404 })
     }
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, terms: outTerms })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Faculty history error:', err)
+    console.error('Faculty history error.')
     return NextResponse.json({ ok: false, error: 'Failed to load teaching history.' }, { status: 500 })
   }
 }

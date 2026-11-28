@@ -37,7 +37,7 @@ export const T = {
 } as const
 
 // Whether to expose the demo / test-login shortcut (dev only).
-export const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development'
+export const SHOW_DEMO_LOGIN = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_ENABLE_DEV_DEMO === 'true'
 
 // Phase 6 (BUG-012 full fix): demo credentials were deleted from the client
 // bundle. Dev one-click login calls POST /api/auth/demo, which issues a real

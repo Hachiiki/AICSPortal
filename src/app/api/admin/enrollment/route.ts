@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Admin enrollment list error:', err)
+    console.error('Admin enrollment list error.')
     return NextResponse.json({ ok: false, error: 'Failed to load enrollment records.' }, { status: 500 })
   }
 }
@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
 // ------------------------------------------------------------
 export async function PATCH(request: NextRequest) {
   try {
+    const { scope } = await requireCan(request, { kind: 'admin.enrollment' }, 'update')
     const { id, currentStep } = await parseBody(request, enrollmentOverrideSchema)
     let idFilter: ObjectId
     try {
@@ -145,18 +146,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
     }
 
+    const target = { _id: idFilter, ...scope.branchDocs() }
     const col = await getCollection<MongoEnrollment>('enrollments')
-    const existing = await col.findOne({ _id: idFilter })
+    const existing = await col.findOne(target)
     if (!existing) {
       return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
     }
-    // C2.1: admin role + branch parity on the target record centralized
-    // (admin.enrollment update; the fetched record supplies the branch).
-    await requireCan(
-      request,
-      { kind: 'admin.enrollment', id, branch: existing.branch },
-      'update'
-    )
 
     const stepCount = (existing.steps ?? []).length
     if (currentStep > stepCount) {
@@ -171,11 +166,14 @@ export async function PATCH(request: NextRequest) {
       status: (s.step < currentStep ? 'completed' : s.step === currentStep ? 'current' : 'upcoming') as typeof s.status,
     }))
 
-    await col.updateOne({ _id: idFilter }, { $set: { currentStep, steps } })
+    const result = await col.updateOne(target, { $set: { currentStep, steps } })
+    if (result.matchedCount !== 1) {
+      return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
+    }
     return NextResponse.json({ ok: true, message: `Step tracker set to ${currentStep} of ${stepCount}.` })
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Admin enrollment override error:', err)
+    console.error('Admin enrollment override error.')
     return NextResponse.json({ ok: false, error: 'Failed to override step tracker.' }, { status: 500 })
   }
 }
@@ -186,6 +184,7 @@ export async function PATCH(request: NextRequest) {
 // ------------------------------------------------------------
 export async function POST(request: NextRequest) {
   try {
+    const { ctx: { actor }, scope } = await requireCan(request, { kind: 'admin.enrollment' }, 'create')
     const { id, amount, date, note } = await parseBody(request, paymentPostSchema)
     const payment = toCentavos(amount)
     if (!Number.isSafeInteger(payment) || payment < 1 || payment / 100 !== amount) {
@@ -201,24 +200,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
     }
 
-    const col = await getCollection<MongoEnrollment>('enrollments')
-    const existing = await col.findOne({ _id: idFilter })
-    if (!existing) {
-      return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
-    }
-    // C2.1: admin role + branch parity on the target record centralized
-    // (admin.enrollment create; the fetched record supplies the branch).
-    const {
-      ctx: { actor },
-    } = await requireCan(
-      request,
-      { kind: 'admin.enrollment', id, branch: existing.branch },
-      'create'
-    )
-
     const receivedAt = date ?? new Date().toISOString().slice(0, 10)
-    const target = { _id: idFilter, branch: actor.branch }
-    let current: MongoEnrollment | null = existing
+    const target = { _id: idFilter, ...scope.branchDocs() }
+    const col = await getCollection<MongoEnrollment>('enrollments')
+    let current: MongoEnrollment | null = await col.findOne(target)
     for (let attempt = 0; attempt < 4; attempt++) {
       if (!current) {
         return NextResponse.json({ ok: false, error: 'Enrollment record not found.' }, { status: 404 })
@@ -266,7 +251,7 @@ export async function POST(request: NextRequest) {
     throw new HttpError(409, 'The assessment changed while posting payment. Refresh and try again.')
   } catch (err) {
     if (err instanceof HttpError) return errResponse(err)
-    console.error('Admin payment post error:', err)
+    console.error('Admin payment post error.')
     return NextResponse.json({ ok: false, error: 'Failed to post payment.' }, { status: 500 })
   }
 }
