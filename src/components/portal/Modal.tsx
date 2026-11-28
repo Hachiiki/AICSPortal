@@ -38,8 +38,28 @@ export function Modal({
   const titleId = useId()
   const descId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
   const closeFromKeyboard = useEffectEvent(onClose)
 
+  useEffect(() => {
+    if (!mobileScrollable) return
+    const viewport = window.visualViewport
+    const frame = viewportRef.current
+    if (!viewport || !frame) return
+
+    const update = () => {
+      frame.style.setProperty('--admin-modal-top', `${viewport.offsetTop}px`)
+      frame.style.setProperty('--admin-modal-height', `${viewport.height}px`)
+    }
+
+    update()
+    viewport.addEventListener('resize', update)
+    viewport.addEventListener('scroll', update)
+    return () => {
+      viewport.removeEventListener('resize', update)
+      viewport.removeEventListener('scroll', update)
+    }
+  }, [mobileScrollable])
   // Focus stays in the dialog while the parent updates the form.
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null
@@ -81,7 +101,7 @@ export function Modal({
   }, [initialFocusRef])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div ref={viewportRef} className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${mobileScrollable ? 'admin-modal-viewport' : ''}`}>
       <div className="absolute inset-0 bg-scrim/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}

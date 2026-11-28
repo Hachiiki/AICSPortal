@@ -286,7 +286,7 @@ export function MobileNavigation({ student, active, academicTab, onNavigate, sea
           className={cn(
             'student-more-popover z-50 grid max-w-[calc(100vw-24px)] rounded-3xl border border-line bg-surface/95 shadow-xl backdrop-blur-xl',
             showMoreLabels
-              ? 'max-h-[var(--radix-dropdown-menu-content-available-height)] w-64 grid-cols-2 gap-1.5 overflow-y-auto p-2.5'
+              ? cn('max-h-[var(--radix-dropdown-menu-content-available-height)] grid-cols-2 gap-1.5 overflow-y-auto p-2.5', role === 'admin' ? 'w-72' : 'w-64')
               : 'grid-cols-6 gap-2 p-3',
           )}>
           {morePages.map((item) => {

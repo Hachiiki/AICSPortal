@@ -55,18 +55,20 @@ const stats = {
   upcomingEvents: [event], recentAnnouncements: [bulletin], pendingReleases: [release],
 }
 
-async function adminContext(browser, width, theme = 'light') {
+async function adminContext(browser, width, theme = 'light', hasLocalReleases = true) {
   const { context } = await fixtureContext(browser, {
     width, height: 844, role: 'admin', touch: width < 640, referenceTime: '2026-11-06T01:15:00Z',
   })
   await context.addInitScript(value => localStorage.setItem('aics_theme', value), theme)
   const writes = []
-  let groups = [release]
+  let groups = hasLocalReleases ? [release] : []
   let posts = [bulletin, { ...bulletin, _id: '000000000000000000000002', title: 'Library hours update', priority: 'normal', expiryDate: null }]
   let events = [event]
   let enrollment = structuredClone(record)
   const fixtures = {
-    '/api/admin/stats': () => ({ stats }),
+    '/api/admin/stats': () => ({
+      stats: hasLocalReleases ? stats : { ...stats, branches: stats.branches.map(row => ({ ...row, pendingReleases: 0 })) },
+    }),
     '/api/admin/people': () => ({ people, branches: [branch], counts: { total: 3, students: 1, faculty: 2, admins: 0 } }),
     '/api/grades/release': () => ({ groups }),
     '/api/admin/enrollment': () => ({ records: [enrollment], withoutRecords: 3 }),
@@ -132,6 +134,8 @@ async function verifyActions(page, writes) {
   await checkWidth(page)
   await page.getByRole('option', { name: 'Name Z–A', exact: true }).click()
   const results = page.getByRole('table', { name: 'Directory results' })
+  assert.match(await results.ariaSnapshot(), /columnheader "Username"/)
+  assert.match(await results.ariaSnapshot(), /columnheader "Name"/)
   assert.match(await results.getByRole('row').nth(1).innerText(), /Rafael Mendoza/)
   await page.getByRole('searchbox', { name: 'Search directory' }).fill('teresa')
   assert.equal(await results.getByRole('row').count(), 2)
@@ -177,7 +181,12 @@ async function verifyActions(page, writes) {
   await go(page, '')
   await dock.getByRole('button', { name: 'More' }).click()
   const more = page.getByRole('menu', { name: 'More pages' })
-  await more.getByText('Announcements', { exact: true }).waitFor()
+  const announcementsLabel = more.getByText('Announcements', { exact: true })
+  assert.equal(await announcementsLabel.evaluate(label => {
+    const range = document.createRange()
+    range.selectNodeContents(label)
+    return range.getClientRects().length
+  }), 1, 'The Announcements label fits on one line')
   await page.screenshot({ path: resolve(output, 'more-320-light.png'), animations: 'disabled' })
   await more.getByRole('menuitem', { name: 'Settings' }).click()
   await page.getByRole('tab', { name: 'Appearance' }).click()
@@ -234,6 +243,17 @@ try {
     }
   }
   if (label === 'after') {
+    const otherBranch = await adminContext(browser, 390, 'light', false)
+    try {
+      const page = await otherBranch.context.newPage()
+      await go(page, '')
+      await page.getByRole('heading', { name: 'School overview' }).waitFor()
+      assert.equal(await page.getByRole('button', { name: /Review submitted grades/ }).count(), 0)
+      await page.getByRole('navigation', { name: 'Admin mobile navigation' }).getByRole('button', { name: 'Release' }).click()
+      await page.getByText('Nothing waiting', { exact: true }).waitFor()
+    } finally {
+      await otherBranch.context.close()
+    }
     for (const [role, destination] of [['student', 'Tasks'], ['faculty', 'Grades']]) {
       const { context } = await fixtureContext(browser, { role, width: 390, touch: true })
       try {

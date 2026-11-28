@@ -390,7 +390,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                             <p className="font-medium">{r.academicYear}</p>
                             <p className="text-xs text-slate-500">{r.semester}</p>
                           </td>
-                          <td role="cell" className="px-4 py-3">
+                          <td role="cell" className="admin-cell-progress px-4 py-3">
                             <span className="admin-cell-label" aria-hidden="true">Progress</span>
                             <StepTracker steps={r.steps} currentStep={r.currentStep} />
                             <p className="text-xs text-slate-500 mt-1">
@@ -398,7 +398,7 @@ export function AdminEnrollmentPage({ student, onNavigate, onLogout, events, pro
                               {r.steps[r.currentStep - 1]?.status === 'current' ? ` · ${r.steps[r.currentStep - 1].label}` : ''}
                             </p>
                           </td>
-                          <td role="cell" className="admin-cell-wide px-4 py-3 whitespace-nowrap">
+                          <td role="cell" className="px-4 py-3 whitespace-nowrap">
                             <span className="admin-cell-label" aria-hidden="true">Payment</span>
                             <PaymentPill status={r.assessment.paymentStatus} />
                             <p className="text-xs text-slate-500 mt-1 tabular-nums">

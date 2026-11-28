@@ -48,7 +48,7 @@ const CATEGORY_FILTER_OPTIONS = [
 ]
 
 const EXPIRY_FILTER_OPTIONS: { value: ExpiryFilter; label: string }[] = [
-  { value: 'all', label: 'Active + expired' },
+  { value: 'all', label: 'All statuses' },
   { value: 'active', label: 'Active only' },
   { value: 'expired', label: 'Expired only' },
 ]

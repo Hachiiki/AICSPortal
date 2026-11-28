@@ -147,6 +147,11 @@
     grid-column: 1 / -1;
   }
 
+  .admin-table .admin-cell-progress {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
   .admin-table .admin-cell-actions {
     display: flex;
     flex-wrap: wrap;
@@ -201,9 +206,17 @@
     cursor: pointer;
   }
 
+  .admin-modal-viewport {
+    top: var(--admin-modal-top, 0px);
+    bottom: auto;
+    height: var(--admin-modal-height, 100dvh);
+    padding-block-start: max(1rem, env(safe-area-inset-top, 0px));
+    padding-block-end: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+
   .admin-modal {
     display: flex;
-    max-block-size: calc(100dvh - 2rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-block-size: 100%;
     flex-direction: column;
   }
 
@@ -262,6 +275,21 @@
 }
 
 @media (width < 22.5rem) {
+  .admin-enrollment-summary > div > div:first-child {
+    gap: 0.375rem;
+  }
+
+  .admin-enrollment-summary > div > div:first-child > span {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .admin-enrollment-summary > div > div:first-child > p {
+    letter-spacing: normal;
+    text-transform: none;
+    overflow-wrap: normal;
+  }
+
   .admin-management-link {
     gap: 0.3125rem;
     padding-inline: 0.4375rem;

@@ -233,6 +233,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
     <th
       role="columnheader"
       scope="col"
+      aria-label={label}
       aria-sort={sortKey === sort ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
       className={`bg-slate-50 px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${className}`}
     >
@@ -339,7 +340,7 @@ export function AdminPeoplePage({ student, onNavigate, onLogout, events, profess
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search name, email, or ID"
+                  placeholder="Name, username, email, or ID"
                   aria-label="Search directory"
                   className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-200 bg-surface text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 max-sm:h-11"
                 />

@@ -187,17 +187,17 @@ function AdminMobileOverview({ stats, firstName }: { stats: StatsResponse | null
   )
 }
 
-function AdminManagement({ pendingRows, onNavigate }: { pendingRows: number; onNavigate: (view: View) => void }) {
+function AdminManagement({ releaseBranch, onNavigate }: { releaseBranch?: string; onNavigate: (view: View) => void }) {
   const destinations = getPrimaryNav('admin')
   return (
     <div className="space-y-5 sm:hidden">
-      {pendingRows > 0 && (
+      {releaseBranch && (
         <button type="button" onClick={() => onNavigate('release-queue')}
           className="flex w-full items-center gap-3 rounded-xl border border-amber-200 bg-surface p-3.5 text-left shadow-sm hover:border-amber-400">
           <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-amber-50 text-amber-700"><Stamp className="size-5" aria-hidden="true" /></span>
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-semibold text-ink">Review submitted grades</span>
-            <span className="mt-0.5 block text-xs text-muted-fg">{pendingRows.toLocaleString('en-PH')} student {pendingRows === 1 ? 'grade' : 'grades'} awaiting release</span>
+            <span className="mt-0.5 block text-xs text-muted-fg">{releaseBranch} release queue</span>
           </span>
           <ChevronRight className="size-4 shrink-0 text-amber-700" aria-hidden="true" />
         </button>
@@ -221,6 +221,31 @@ function AdminManagement({ pendingRows, onNavigate }: { pendingRows: number; onN
         </ul>
       </section>
     </div>
+  )
+}
+
+function AdminSchoolTotals({ stats, professorCount }: { stats: StatsResponse; professorCount: number }) {
+  const totals = [
+    { label: 'Programs', value: stats.totals.programs },
+    { label: 'Courses', value: stats.totals.courses },
+    { label: 'Student grades awaiting release', value: stats.totals.pendingReleaseRows },
+    { label: 'Announcements', value: stats.totals.announcements },
+    { label: 'Events', value: stats.totals.events },
+    { label: "Dean's listers", value: stats.gpa.deanListers },
+    { label: 'Professors listed in this branch', value: professorCount },
+  ]
+  return (
+    <section className="rounded-xl border border-line bg-surface p-4 sm:hidden">
+      <h2 className="font-semibold text-ink">School totals</h2>
+      <dl className="mt-2 divide-y divide-line text-sm">
+        {totals.map(({ label, value }) => (
+          <div key={label} className="flex justify-between gap-3 py-2">
+            <dt className="text-muted-fg">{label}</dt>
+            <dd className="shrink-0 font-semibold tabular-nums text-ink">{value.toLocaleString('en-PH')}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   )
 }
 
@@ -281,6 +306,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
   }, [fetchStats])
 
   const maxBucket = stats ? Math.max(1, ...stats.gpa.buckets.map((b) => b.count)) : 1
+  const releaseBranch = stats?.branches.find(branch => branch.branch === student.branch && branch.pendingReleases > 0)?.branchName
 
   return (
     <PortalShell
@@ -324,7 +350,7 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
             </div>
           ) : (
             <>
-              <AdminManagement pendingRows={stats.totals.pendingReleaseRows} onNavigate={onNavigate} />
+              <AdminManagement releaseBranch={releaseBranch} onNavigate={onNavigate} />
               {phone && <AdminUpdates stats={stats} onNavigate={onNavigate} />}
               {/* Headline stat cards */}
               <div data-portal-motion-group className="hidden grid-cols-2 gap-4 sm:grid lg:grid-cols-4">
@@ -441,6 +467,8 @@ export function AdminDashboardPage({ student, onNavigate, onLogout, events, prof
                   )}
                 </section>
               </div>
+
+              <AdminSchoolTotals stats={stats} professorCount={professors?.length ?? 0} />
 
               {/* Branch overview */}
               <section className="bg-surface rounded-xl border border-slate-200 shadow-sm overflow-hidden">
